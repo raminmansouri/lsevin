@@ -1,0 +1,95 @@
+:root {
+  color-scheme: light dark;
+  font-family: system-ui, Tahoma, sans-serif;
+  color: #101e33;
+  background: #f4f6fa;
+}
+* {
+  box-sizing: border-box;
+}
+.saved-text {
+  white-space: pre-line;
+}
+main {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 32px 20px;
+}
+h1 {
+  font-size: 1.8rem;
+}
+p {
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 24px 0;
+}
+button,
+.provider-link {
+  cursor: pointer;
+  padding: 12px 16px;
+  border-radius: 10px;
+  border: 1px solid #8190a7;
+  background: #fff;
+  color: #101e33;
+  font: inherit;
+}
+button:focus-visible,
+input:focus-visible,
+a:focus-visible {
+  outline: 3px solid #007b8f;
+  outline-offset: 3px;
+}
+button:first-child {
+  background: #101e33;
+  color: #fff;
+}
+label {
+  display: block;
+  margin-bottom: 8px;
+}
+input {
+  width: 100%;
+  padding: 14px;
+  font: inherit;
+  border: 1px solid #8190a7;
+  border-radius: 10px;
+}
+article {
+  padding: 20px;
+  margin: 16px 0;
+  border: 1px solid #d0d6df;
+  border-radius: 16px;
+  background: #fff;
+}
+article h2 {
+  margin-top: 0;
+  font-size: 1.25rem;
+}
+small {
+  display: block;
+  margin: 12px 0 20px;
+  color: #506079;
+}
+.provider-link {
+  display: inline-block;
+  text-decoration: none;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    background: #101e33;
+    color: #f4f6fa;
+  }
+  article,
+  button {
+    background: #1b2c46;
+    color: #f4f6fa;
+  }
+  small {
+    color: #b9c5d6;
+  }
+}

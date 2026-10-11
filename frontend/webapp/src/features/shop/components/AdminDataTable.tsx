@@ -1,4 +1,5 @@
 "use client";
+import { formatCurrencyAmount } from "@/features/finance/lib/money";
 
 type AdminColumn = {
   key: string;
@@ -20,15 +21,7 @@ function formatCell(row: Record<string, any>, column: AdminColumn) {
       const currency = column.currencyKey ? row[column.currencyKey] || "USD" : "USD";
       const amount = Number(value ?? 0);
 
-      try {
-        return new Intl.NumberFormat("en", {
-          style: "currency",
-          currency,
-          maximumFractionDigits: 2,
-        }).format(amount);
-      } catch {
-        return `${currency} ${amount.toFixed(2)}`;
-      }
+      return formatCurrencyAmount(amount, currency, "en", { maximumFractionDigits: 2 });
     }
 
     case "date": {

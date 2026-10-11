@@ -20,6 +20,7 @@ import {
 import { getLocale, getTranslations } from "next-intl/server";
 import Link from "next/link";
 
+import { SaveOfflineProfile } from "@/components/pwa/offline-profile";
 import { getProfileForEdit } from "@/features/profile/actions/profile.actions";
 import FetchDisplayProfileInfo from "@/features/profile/components/fetch-display-profile-info";
 import { useNavigate } from "@/hooks/use-navigate";
@@ -32,13 +33,12 @@ export const dynamic = "force-dynamic";
 
 export default async function Profile() {
   const locale = await getLocale();
-  const dataLocale = locale === "fa" ? "fa-IR" : "en-US";
   const t = await getTranslations({ locale, namespace: "MobileProfile.main" });
   const tConsultation = await getTranslations({
     locale,
     namespace: "Consultation",
   });
-  const profile = await getProfileForEdit(dataLocale);
+  const profile = await getProfileForEdit();
 
   const menuItems = [
     {
@@ -134,6 +134,14 @@ export default async function Profile() {
       {/* Header */}
       <div className="border-b border-gray-200 bg-white px-6 py-8">
         <FetchDisplayProfileInfo profile={profile}></FetchDisplayProfileInfo>
+        {identityUserId && (
+          <SaveOfflineProfile
+            owner={identityUserId}
+            name={`${profile.firstName} ${profile.lastName}`}
+            email={profile.email || ""}
+            locale={locale}
+          />
+        )}
 
         {/* Stats */}
         <CustomerStats identityUserId={identityUserId} locale={locale} />

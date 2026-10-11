@@ -8,6 +8,10 @@ import {
 import { toast } from "sonner";
 
 import { formatError } from "@/lib/formatters";
+import {
+  assertMutationConnection,
+  offlineMutationOptions,
+} from "@/lib/pwa/mutation-connection";
 import { IProblem } from "@/types/error";
 
 let browserQueryClient: QueryClient | undefined = undefined;
@@ -31,6 +35,13 @@ const makeQueryClient = () =>
       },
     }),
     mutationCache: new MutationCache({
+      onMutate: () => {
+        if (typeof window !== "undefined")
+          assertMutationConnection(
+            navigator.onLine,
+            document.documentElement.lang
+          );
+      },
       onError: (error: unknown) => {
         const err = error as IProblem;
         if (err?.status === 401) {
@@ -43,6 +54,9 @@ const makeQueryClient = () =>
       },
     }),
     defaultOptions: {
+      // Do not pause booking/payment/profile writes and automatically execute
+      // them later when a mobile connection returns. Offline intent must fail.
+      mutations: offlineMutationOptions,
       queries: {
         retry: false,
         refetchOnWindowFocus: false,

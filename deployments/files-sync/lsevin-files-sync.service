@@ -1,0 +1,10 @@
+[Unit]
+Description=lsevin two-way file sync A <-> B (SeaweedFS bucket)
+After=lsevin-files-tunnel.service
+Wants=lsevin-files-tunnel.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/lsevin-files-sync
+TimeoutStartSec=2h
+Nice=10

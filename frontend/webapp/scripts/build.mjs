@@ -3,12 +3,17 @@ import { fileURLToPath } from "node:url";
 
 const mode = process.argv[2] || "production";
 if (!new Set(["production", "fast"]).has(mode)) {
-  console.error(`Unsupported build mode "${mode}". Expected "production" or "fast".`);
+  console.error(
+    `Unsupported build mode "${mode}". Expected "production" or "fast".`
+  );
   process.exit(2);
 }
 
-const nextBin = fileURLToPath(new URL("../node_modules/next/dist/bin/next", import.meta.url));
+const nextBin = fileURLToPath(
+  new URL("../node_modules/next/dist/bin/next", import.meta.url)
+);
 console.log(`Building Next.js in ${mode} mode.`);
+await import("./prepare-pwa.mjs");
 const result = spawnSync(process.execPath, [nextBin, "build"], {
   stdio: "inherit",
   env: { ...process.env, BUILD_MODE: mode },

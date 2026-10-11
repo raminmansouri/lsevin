@@ -1,0 +1,10 @@
+[Unit]
+Description=Run the lsevin file sync every 2 minutes
+
+[Timer]
+OnBootSec=3min
+OnUnitActiveSec=2min
+AccuracySec=15s
+
+[Install]
+WantedBy=timers.target

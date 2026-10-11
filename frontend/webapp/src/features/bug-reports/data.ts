@@ -4,7 +4,7 @@ import { resolveCurrentNotificationCustomerId } from "@/features/notification/se
 import { unstable_noStore as noStore } from "next/cache";
 
 import { markBugReportNotificationsRead } from "./server/notifications";
-import { adminBugReportFiltersSchema } from "./schemas";
+import { adminBugReportFiltersSchema, RESOLVED_BOARD_WINDOW_DAYS } from "./schemas";
 import {
   AdminBugReportFilters,
   BugReportAssignableAgent,
@@ -37,6 +37,7 @@ export function parseAdminBugReportFilters(
     pageSize: toSingleString(params.pageSize) || undefined,
     view: toSingleString(params.view) || "board",
     ownership: toSingleString(params.ownership) || "all",
+    showOlderResolved: toSingleString(params.older) === "1",
   });
 }
 
@@ -478,6 +479,15 @@ export async function getAdminBugReports(filters: AdminBugReportFilters) {
     whereParts.push(sql`br.assigned_to_user_id is null`);
   }
   if (filters.status !== "all") whereParts.push(sql`br.status = ${filters.status}::text`);
+  // Kanban convention: the Done column is a recent-activity window, not a permanent
+  // dump. Finished reports older than the window drop off the board (they stay in
+  // the list view, search, the status filter and the "show older" toggle).
+  if (filters.view === "board" && filters.status === "all" && !filters.q && !filters.showOlderResolved) {
+    whereParts.push(sql`not (
+      br.status in ('resolved', 'closed', 'duplicate', 'wont_fix')
+      and coalesce(br.resolved_at, br.last_modified_date, br.create_date) < now() - make_interval(days => ${RESOLVED_BOARD_WINDOW_DAYS})
+    )`);
+  }
   if (filters.severity !== "all") whereParts.push(sql`br.severity = ${filters.severity}::text`);
   if (filters.priority !== "all") whereParts.push(sql`br.priority = ${filters.priority}::text`);
   if (filters.area !== "all") whereParts.push(sql`br.source_area = ${filters.area}::text`);

@@ -20,7 +20,10 @@ export async function GET(
   const authority = request.nextUrl.searchParams.get('Authority') ?? request.nextUrl.searchParams.get('authority') ?? '';
   const status = request.nextUrl.searchParams.get('Status') ?? request.nextUrl.searchParams.get('status') ?? '';
 
-  const result = await verifyGatewayPayment({ gateway: gateway as any, authority, status });
+  const result = await verifyGatewayPayment({ gateway: gateway as any, authority, status, locale });
+
+  // Capped gateway charge: the next installment is already open, go pay it.
+  if (result.nextActionUrl) return NextResponse.redirect(result.nextActionUrl);
   const url = new URL(`/${locale}/n/app/mobile/booking`, request.nextUrl.origin);
   url.searchParams.set('paymentStatus', result.status);
   if (result.bookingId) url.searchParams.set('bookingId', result.bookingId);

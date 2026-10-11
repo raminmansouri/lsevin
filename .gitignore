@@ -53,6 +53,11 @@ dynamic-admin-dashboard-scaffold/*
 !deployments/docker/dev-seed/*.sql
 
 **/*.md
+!frontend/webapp/docs/pwa.md
+!frontend/webapp/docs/pwa-verification.md
+frontend/webapp/pwa-*.log
+frontend/webapp/test-results/
+frontend/webapp/.pwa-auth*.json
 !/CLAUDE.md
 !deployments/docker/DEV.md
 !deployments/docker/SEAWEEDFS_MIGRATION.md

@@ -2419,6 +2419,10 @@ declare const messages: {
     },
     "requestFile": "طلب ملف",
     "addToMedicalRecord": "إضافة إلى السجل الطبي",
+    "bookingInfo": "معلومات الحجز",
+    "viewBooking": "عرض الحجز",
+    "viewPatient360": "عرض ملف المريض الشامل",
+    "viewMedicalCase": "عرض الحالة الطبية",
     "requirementTitlePlaceholder": "ما الذي تحتاجه؟ (مثلاً تحليل دم حديث)",
     "descriptionOptional": "الوصف (اختياري)",
     "maxAgeHoursOptional": "الحد الأقصى للعمر بالساعات (اختياري)",
@@ -6802,6 +6806,8 @@ declare const messages: {
         "label": "الوصف"
       },
       "isActive": "نشط",
+      "addonOnly": "للإضافات فقط (مترجم، سيارة ...)",
+      "addonOnlyHelp": "عند التفعيل يظهر مقدمو هذا النوع في قسم إضافات الحجز فقط حسب المدينة ولا يظهرون في البحث أو الصفحة الرئيسية.",
       "attributes": "السمة التعريفات",
       "attributesPlaceholder": "السمات ({count} defined)",
       "create": "إنشاء نوع المزوّد",
@@ -13139,6 +13145,10 @@ declare const messages: {
       "subtitle": "اترك بياناتك وسيتصل بك أحد مستشارينا. الاستشارة مجانية ولا تؤثر على حجزك.",
       "optional": "اختياري",
       "skipNote": "يمكنك تخطي هذه الخطوة ومتابعة الحجز."
+    },
+    "cta": {
+      "beforeBooking": "استشارة مجانية قبل الحجز",
+      "beforePurchase": "استشارة مجانية قبل الشراء"
     },
     "form": {
       "firstName": {

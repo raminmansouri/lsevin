@@ -7690,6 +7690,8 @@
         "placeholder": "Нишонаро интихоб кунед"
       },
       "isActive": "Фаъол",
+      "addonOnly": "Add-on only (translator, car, ...)",
+      "addonOnlyHelp": "When on, providers of this type appear only in the booking add-ons step, filtered by city, and are hidden from search, home and every other listing.",
       "name": {
         "label": "Ном"
       },

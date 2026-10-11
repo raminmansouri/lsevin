@@ -1,4 +1,5 @@
 import type { Sql } from "postgres";
+import { formatCurrencyAmount } from "@/features/finance/lib/money";
 import { CalendarCheck2, Coins, PiggyBank } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 
@@ -114,11 +115,7 @@ function formatNumber(value: number, locale: string) {
 }
 
 function formatMoney(value: number, currency: string, locale: string) {
-  return new Intl.NumberFormat(locale, {
-    style: "currency",
-    currency,
-    maximumFractionDigits: value % 1 === 0 ? 0 : 2,
-  }).format(value);
+  return formatCurrencyAmount(value, currency, locale);
 }
 
 export async function CustomerStats({

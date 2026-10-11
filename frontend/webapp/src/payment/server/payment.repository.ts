@@ -69,6 +69,26 @@ export type GatewayPaymentRow = {
   gatewayPayload: unknown;
 };
 
+/**
+ * Decides how much of `totalGatewayAmount` a single gateway charge may take.
+ * Never exceeds `maximumAmount`, and never leaves a remainder below
+ * `minimumAmount` (the gateway would reject that final installment).
+ */
+export function splitGatewayAmount(input: {
+  totalGatewayAmount: number;
+  maximumAmount?: number | null;
+  minimumAmount?: number | null;
+}): { chargeAmount: number; isPartial: boolean } {
+  const total = input.totalGatewayAmount;
+  const max = input.maximumAmount && input.maximumAmount > 0 ? input.maximumAmount : null;
+  if (!max || total <= max) return { chargeAmount: total, isPartial: false };
+
+  const min = input.minimumAmount && input.minimumAmount > 0 ? input.minimumAmount : 0;
+  let charge = max;
+  if (total - charge < min) charge = total - min;
+  return { chargeAmount: charge, isPartial: true };
+}
+
 export async function prepareBookingPaymentAttempt(input: {
   bookingId: string;
   userId: string;
@@ -76,6 +96,7 @@ export async function prepareBookingPaymentAttempt(input: {
   locale?: string | null;
   targetCurrency: string;
   maximumAmount?: number | null;
+  minimumAmount?: number | null;
 }): Promise<PaymentAttempt> {
   if (!isUuid(input.bookingId) || !isUuid(input.userId)) {
     throw new Error("Invalid booking or user id.");
@@ -155,8 +176,25 @@ export async function prepareBookingPaymentAttempt(input: {
   if (roundedGatewayAmount <= 0) {
     throw new Error("Converted payment amount is not valid.");
   }
-  if (input.maximumAmount && roundedGatewayAmount > input.maximumAmount) {
-    throw new Error("ZARINPAL_AMOUNT_LIMIT_EXCEEDED");
+
+  // The gateway rejects any single charge above its cap (Zarinpal: HTTP 422 "The
+  // amount may not be greater than ..."). Rather than failing, charge the booking
+  // in installments: this attempt takes at most the cap, and the verify step
+  // starts the next attempt for whatever is still unpaid. Every installment
+  // credits only its own share of the booking (source_amount below), so
+  // paid_amount / remaining stay accurate between installments.
+  const split = splitGatewayAmount({
+    totalGatewayAmount: roundedGatewayAmount,
+    maximumAmount: input.maximumAmount,
+    minimumAmount: input.minimumAmount,
+  });
+  const gatewayChargeAmount = split.chargeAmount;
+  const sourceChargeAmount =
+    split.isPartial
+      ? roundAmountForCurrency((sourceAmount * gatewayChargeAmount) / roundedGatewayAmount, sourceCurrency)
+      : sourceAmount;
+  if (gatewayChargeAmount <= 0 || sourceChargeAmount <= 0) {
+    throw new Error("Converted payment amount is not valid.");
   }
 
   const pendingRows = await sql<{ id: string }[]>`
@@ -333,8 +371,8 @@ export async function getGatewayPaymentById(paymentId: string): Promise<GatewayP
 export async function markGatewayPaymentVerified(input: {
   payment: GatewayPaymentRow;
   verification: PaymentVerificationResult;
-}): Promise<{ credited: boolean }> {
-  if (!isUuid(input.payment.paymentId) || !isUuid(input.payment.bookingId)) return { credited: false };
+}): Promise<{ credited: boolean; remainingAmount: number }> {
+  if (!isUuid(input.payment.paymentId) || !isUuid(input.payment.bookingId)) return { credited: false, remainingAmount: 0 };
 
   const referenceId = input.verification.referenceId ? String(input.verification.referenceId) : null;
   const paymentAmount = toNumber(input.payment.amount);

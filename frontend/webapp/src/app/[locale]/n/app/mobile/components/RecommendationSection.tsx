@@ -1,6 +1,7 @@
 "use client";
 
 import { Star, MapPin, BadgeCheck, ChevronRight } from "lucide-react";
+import { formatCurrencyAmount } from "@/features/finance/lib/money";
 import { useNavigate } from "@/hooks/use-navigate";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { resolveHomeMediaUrl } from "@/features/home/components/home-media";
@@ -88,8 +89,7 @@ export default function RecommendationSection({
 
           {card.price !== undefined && (
             <div className="whitespace-nowrap text-sm font-bold text-[#083f30] ms-auto">
-              {card.currency}
-              {card.price.toLocaleString(locale)}
+              {formatCurrencyAmount(card.price, card.currency, locale)}
             </div>
           )}
         </div>

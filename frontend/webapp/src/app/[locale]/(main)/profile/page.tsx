@@ -1,9 +1,10 @@
 import { Suspense } from "react";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 
 import MultiServerFetchResult from "@/components/fetcher/multi-fetch.server";
 import LocaleBoundary from "@/components/locale/locale-boundary";
 import { PageHeader } from "@/components/page/page-header";
+import { SaveOfflineProfile } from "@/components/pwa/offline-profile";
 import { withBaseHeaders } from "@/config/http/http-service.server";
 import { TRANSLATION_KEY } from "@/features/profile/actions/update-additional-info/types";
 import {
@@ -15,6 +16,7 @@ import { getCurrentUser } from "@/features/shared/api/server/get-current-user";
 import { getUserDocuments } from "@/features/shared/api/server/get-user-documents";
 import { ILocationCountry } from "@/features/shared/types/location";
 import { ICurrentUser, IUserDocuments } from "@/features/shared/types/user";
+import { getSession } from "@/lib/auth/session";
 import { LocalePageProps, LocaleParams } from "@/types/next";
 
 export async function generateMetadata(
@@ -45,6 +47,7 @@ const ProfilePage = ({ params }: { params: Promise<LocaleParams> }) => {
 };
 
 const SuspenseBoundary = async () => {
+  const [session, locale] = await Promise.all([getSession(), getLocale()]);
   const currentUserPromise = withBaseHeaders((locale, token) =>
     getCurrentUser({ locale, token })
   );
@@ -68,11 +71,21 @@ const SuspenseBoundary = async () => {
       results={[currentUser, userDocuments, countries]}
     >
       {([userData, documentsData, countriesData]) => (
-        <ProfileTabs
-          user={userData}
-          documents={documentsData}
-          countries={countriesData}
-        />
+        <>
+          {session?.user?.id && (
+            <SaveOfflineProfile
+              owner={session.user.id}
+              name={`${userData.firstName} ${userData.lastName}`}
+              email={userData.email || ""}
+              locale={locale}
+            />
+          )}
+          <ProfileTabs
+            user={userData}
+            documents={documentsData}
+            countries={countriesData}
+          />
+        </>
       )}
     </MultiServerFetchResult>
   );

@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/sidebar";
 import { Skeleton } from "@/components/ui/skeleton";
 import UserInfo from "@/components/user-info";
+import { AdminBugReportFloatingButton } from "@/features/bug-reports/components/AdminBugReportFloatingButton";
 import { AdminNotificationsBell } from "@/features/notification/admin/components/admin-notifications-bell";
 import { AdminBreadcrumbs } from "@/features/shared/components/admin-breadcrumbs";
 import { AdminCommandPalette } from "@/features/shared/components/admin-command-palette";
@@ -80,6 +81,7 @@ export default async function AdminLayout({ children, params }: LocalePageProps)
               here. `gap-6` also matches the `space-y-6` the pages themselves
               use, instead of stacking 40px gaps on top of 24px ones. */}
           <Shell className="gap-6 px-4 py-6 md:px-6">{children}</Shell>
+          <AdminBugReportFloatingButton />
         </SidebarInset>
       </SidebarProvider>
     </NextIntlClientProvider>

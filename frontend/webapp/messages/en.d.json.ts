@@ -2930,6 +2930,10 @@ declare const messages: {
     },
     "requestFile": "Request file",
     "addToMedicalRecord": "Add to medical record",
+    "bookingInfo": "Booking info",
+    "viewBooking": "View booking",
+    "viewPatient360": "View patient 360",
+    "viewMedicalCase": "View medical case",
     "requirementTitlePlaceholder": "What do you need? (e.g. Recent blood test)",
     "descriptionOptional": "Description (optional)",
     "maxAgeHoursOptional": "Max age in hours (optional)",
@@ -7625,6 +7629,8 @@ declare const messages: {
         "label": "Description"
       },
       "isActive": "Active",
+      "addonOnly": "Add-on only (translator, car, ...)",
+      "addonOnlyHelp": "When on, providers of this type appear only in the booking add-ons step, filtered by city, and are hidden from search, home and every other listing.",
       "attributes": "Attribute Definitions",
       "attributesPlaceholder": "Attributes ({count} defined)",
       "create": "Create Provider Type",
@@ -14025,6 +14031,10 @@ declare const messages: {
       "subtitle": "Leave your details and one of our advisors will call you back. It is free and it does not change your booking.",
       "optional": "Optional",
       "skipNote": "You can skip this step and carry on booking."
+    },
+    "cta": {
+      "beforeBooking": "Free consultation before booking",
+      "beforePurchase": "Free consultation before buying"
     },
     "form": {
       "firstName": {

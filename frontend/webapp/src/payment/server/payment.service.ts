@@ -20,6 +20,10 @@ import {
   prepareBookingPaymentAttempt,
 } from "./payment.repository";
 
+// Largest single Zarinpal charge (100,000,000 Toman). Bigger bookings are paid in
+// several consecutive installments, see verifyGatewayPayment.
+const ZARINPAL_MAX_AMOUNT = { IRR: 1_000_000_000, IRT: 100_000_000 } as const;
+
 function normalizeGateway(value?: string | null): PaymentGatewayCode {
   const gateway = String(value || "zarinpal").trim().toLowerCase();
   if (gateway !== "zarinpal" && gateway !== "btcpay") {
@@ -94,7 +98,8 @@ export async function initiateBookingPayment(input: InitiateBookingPaymentInput 
     gateway,
     locale: input.locale,
     targetCurrency,
-    maximumAmount: gateway === "zarinpal" ? (targetCurrency === "IRT" ? 100_000_000 : 1_000_000_000) : null,
+    maximumAmount: gateway === "zarinpal" ? ZARINPAL_MAX_AMOUNT[targetCurrency === "IRT" ? "IRT" : "IRR"] : null,
+    minimumAmount: gateway === "zarinpal" ? Number(gatewayConfig.settings.minimumAmount) || (targetCurrency === "IRT" ? 1_000 : 10_000) : null,
   });
 
   payment.description = renderDescription(gatewayConfig.settings.descriptionTemplate, {
@@ -207,9 +212,38 @@ export async function verifyGatewayPayment(input: VerifyGatewayPaymentInput): Pr
     };
   }
 
-  const { credited } = await markGatewayPaymentVerified({ payment, verification });
+  const { credited, remainingAmount } = await markGatewayPaymentVerified({ payment, verification });
 
-  if (credited && payment.userId) {
+  // This charge was capped by the gateway and the booking is not fully paid yet:
+  // open the next installment right away so the customer just keeps paying.
+  // A failure here must not turn this already-verified, already-credited payment
+  // into an error -- the booking stays PartiallyPaid and can be paid from its page.
+  if (credited && remainingAmount > 0.01 && payment.userId) {
+    try {
+      const next = await initiateBookingPayment({
+        bookingId: payment.bookingId,
+        userId: payment.userId,
+        gateway,
+        locale: input.locale,
+      });
+      return {
+        bookingId: payment.bookingId,
+        paymentId: payment.paymentId,
+        status: "succeeded",
+        referenceId: verification.referenceId,
+        message: "Part of the payment was verified. Continue with the next installment.",
+        nextActionUrl: next.redirectUrl,
+      };
+    } catch (error) {
+      console.error("verifyGatewayPayment: could not start the next installment", {
+        bookingId: payment.bookingId,
+        paymentId: payment.paymentId,
+        error: error instanceof Error ? error.message : String(error),
+      });
+    }
+  }
+
+  if (credited && remainingAmount <= 0.01 && payment.userId) {
     notifyBookingPaymentResult({ bookingId: payment.bookingId, customerUserId: payment.userId, status: "succeeded" }).catch((error) =>
       console.error("verifyGatewayPayment: success notification failed", error)
     );

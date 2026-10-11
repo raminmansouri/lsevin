@@ -1,5 +1,6 @@
 "use client";
 import { useParams } from "next/navigation";
+import { formatCurrencyAmount } from "@/features/finance/lib/money";
 import { AlertCircle, ChevronLeft, Loader2, Printer } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 
@@ -15,13 +16,7 @@ function normalizeStatus(value?: string | null) {
 }
 
 function formatMoney(amount?: number | null, currency?: string | null, locale?: string) {
-  const code = String(currency || "USD").trim().toUpperCase();
-  const value = Number(amount || 0);
-  try {
-    return new Intl.NumberFormat(locale, { style: "currency", currency: code }).format(value);
-  } catch {
-    return `${value.toLocaleString()} ${code}`;
-  }
+  return formatCurrencyAmount(Number(amount || 0), currency || "USD", locale, { maximumFractionDigits: 2 });
 }
 
 function LineItem({ name, meta, amount, currency }: { name: string; meta?: string | null; amount: number | null; currency?: string | null }) {

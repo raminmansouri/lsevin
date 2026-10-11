@@ -2121,6 +2121,10 @@ declare const messages: {
     },
     "requestFile": "درخواست فایل",
     "addToMedicalRecord": "افزودن به پرونده سلامتی",
+    "bookingInfo": "اطلاعات نوبت",
+    "viewBooking": "مشاهده نوبت",
+    "viewPatient360": "مشاهده پرونده ۳۶۰ بیمار",
+    "viewMedicalCase": "مشاهده پرونده درمانی",
     "requirementTitlePlaceholder": "چه چیزی نیاز دارید؟ (مثلاً آزمایش خون اخیر)",
     "descriptionOptional": "توضیحات (اختیاری)",
     "maxAgeHoursOptional": "حداکثر قدمت به ساعت (اختیاری)",
@@ -6821,6 +6825,8 @@ declare const messages: {
         "label": "توضیحات"
       },
       "isActive": "فعال",
+      "addonOnly": "فقط برای افزودنی‌ها (مترجم، ماشین و ...)",
+      "addonOnlyHelp": "اگر فعال باشد، ارائه‌دهندگان این نوع فقط در بخش افزودنی‌های رزرو و بر اساس شهر نمایش داده می‌شوند و در جستجو، صفحه اصلی و سایر فهرست‌ها دیده نمی‌شوند.",
       "attributes": "تعاریف ویژگی",
       "attributesPlaceholder": "ویژگی‌ها ({count} تعریف شده)",
       "create": "ایجاد نوع ارائه‌دهنده",
@@ -14032,6 +14038,10 @@ declare const messages: {
       "subtitle": "اطلاعات تماس خود را بگذارید تا کارشناسان ما با شما تماس بگیرند. این مشاوره رایگان است و تأثیری بر روند رزرو شما ندارد.",
       "optional": "اختیاری",
       "skipNote": "می‌توانید از این مرحله بگذرید و رزرو را ادامه دهید."
+    },
+    "cta": {
+      "beforeBooking": "مشاوره قبل از رزرو",
+      "beforePurchase": "مشاوره قبل از خرید"
     },
     "form": {
       "firstName": {

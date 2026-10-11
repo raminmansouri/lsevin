@@ -117,7 +117,7 @@ export async function resolveBookingEntry(input: {
     from category.service_providers sp
     left join category.provider_services ps on ps.service_provider_id = sp.id
     left join category.provider_staffs pst on pst.service_provider_id = sp.id and pst.is_active = true
-    where sp.is_active = true
+    where sp.is_active = true and category.provider_type_is_public(sp.provider_type_id)
       and (${providerId}::uuid is null or sp.id = ${providerId}::uuid)
       and (${serviceDefinitionId}::uuid is null or ps.service_definition_id = ${serviceDefinitionId}::uuid)
       and (${specialistId}::uuid is null or pst.staff_id = ${specialistId}::uuid)

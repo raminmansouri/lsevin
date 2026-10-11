@@ -514,19 +514,19 @@ export function ProviderDetailView({ initialData }: { initialData?: ProviderPage
                     </div>
 
                     <div className="flex items-center justify-between gap-3">
-                      <div className="flex items-center gap-1">
+                      <div className="flex shrink-0 items-center gap-1">
                         <Star size={14} className="fill-yellow-400 text-yellow-400" />
                         <span className="text-sm font-bold text-gray-900">{treatment.rating.toFixed(1)}</span>
                         <span className="text-xs text-gray-500">({treatment.reviews})</span>
                       </div>
 
-                      <div className="text-end">
+                      <div className="min-w-0 text-end [overflow-wrap:anywhere]">
                         <PriceTextClient
                           amount={treatment.price}
                           currencyCode={treatment.currency}
                           locale={locale}
                           showCode
-                          className="text-lg font-bold text-[#083f30]"
+                          className="text-base font-bold leading-tight text-[#083f30] sm:text-lg"
                         />
                         {treatment.sourceCurrency && treatment.sourceCurrency !== treatment.currency ? (
                           <div className="text-[11px] text-gray-500">

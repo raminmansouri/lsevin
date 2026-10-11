@@ -20,6 +20,7 @@ import { BookingDatePicker } from './BookingDatePicker';
 import { formatBookingDateTime, isBookingTimeZone, BOOKING_CALENDARS, bookingCalendarLabel, type BookingCalendar, formatBookingDate, isReasonableBookingIsoDate, normalizeBookingCalendar, toIsoDate } from '../lib/calendar';
 import { RichTextPreview } from '@/features/booking/components/rich-text-preview';
 import { ShareMedicalCaseStep } from './ShareMedicalCaseStep';
+import { formatCurrencyAmount } from '@/features/finance/lib/money';
 async function getJson<T>(url: string, init?: RequestInit): Promise<T> {
     const response = await fetch(url, {
         ...init,
@@ -173,16 +174,10 @@ function addMinutes(time: string, minutes: number) {
 function useMoneyFormatter(locale: string) {
     return useMemo(() => (value?: number | null, currency?: string | null) => {
         const amount = Number(value ?? 0);
-        const code = String(currency || '').trim().toUpperCase();
         if (!Number.isFinite(amount))
             return '';
-        try {
-            return new Intl.NumberFormat(locale, { style: 'currency', currency: code || 'USD', maximumFractionDigits: 0 }).format(amount);
-        }
-        catch {
-            // Unknown/invalid ISO code — still group the digits rather than dumping them raw.
-            return `${code} ${new Intl.NumberFormat(locale, { maximumFractionDigits: 0 }).format(amount)}`.trim();
-        }
+        // IRR/IRT print as "ریال"/"تومان" (Intl would show the raw "IRR" or throw).
+        return formatCurrencyAmount(amount, currency || 'USD', locale, { maximumFractionDigits: 0 });
     }, [locale]);
 }
 function useDebouncedValue<T>(value: T, delayMs = 350) {
@@ -1247,18 +1242,10 @@ export function BookingWizard() {
                 }} />) : null}
 
               {draft.bookingUiMode === 'default_slot' && !chosenService?.hasTourDepartures ? (<div className="space-y-6">
-                  <div className="flex flex-wrap items-center justify-between gap-3">
-                    <div className="min-w-[260px] text-sm font-semibold text-slate-700">
-                      <span>{tBooking('date2')}</span>
-                      <div className="mt-2">
-                        <BookingDatePicker calendar={calendar} label={tBooking('date2')} value={draft.selectedDate} onChange={(iso) => {
-                          const next = { ...draft, selectedDate: iso, selectedDateFrom: iso, selectedDateTo: iso, selectedTime: undefined, selectedTimeFrom: undefined, selectedTimeTo: undefined };
-                          setDraft(next); patchDraft(next).catch(er => setError(er.message));
-                        }} />
-                      </div>
-                      {!isReasonableBookingIsoDate(draft.selectedDate) && draft.selectedDate ? (<p className="mt-2 text-xs text-red-600">{tBooking("thisDraftContainsAnOldInvalidConvertedDatePlease")}</p>) : null}
-                    </div>
-                  </div>
+                  {/* One date control only. A free-form date picker used to sit above this list;
+                      it accepted dates with no availability (which then showed no time slots), so
+                      the working path was only the list below. */}
+                  {!isReasonableBookingIsoDate(draft.selectedDate) && draft.selectedDate ? (<p className="text-xs text-red-600">{tBooking("thisDraftContainsAnOldInvalidConvertedDatePlease")}</p>) : null}
 
                   <div>
                     <div className="mb-3 flex items-center justify-between">
@@ -1424,13 +1411,13 @@ export function BookingWizard() {
                 <h2 className="text-xl font-bold text-slate-900">{tBooking("reviewAndPay")}</h2>
                 <div className="mt-4 space-y-3 text-sm text-slate-700">
                   <div className="flex justify-between"><span>{tBooking("mainBooking")}</span><span>{chosenProvider?.name} / {chosenService?.name}{chosenSpecialist ? ` / ${chosenSpecialist.name}` : ''}</span></div>
-                  <div className="flex justify-between"><span>{tBooking("mainSubtotal")}</span><span>{draft.currency} {draft.subtotalAmount ?? 0}</span></div>
+                  <div className="flex justify-between"><span>{tBooking("mainSubtotal")}</span><span>{formatMoney(draft.subtotalAmount ?? 0, draft.currency)}</span></div>
                   {draft.useLsevin ? <>
                     <div className="flex justify-between"><span>{tBooking("addOnSubBookings2")}</span><span>{draft.childBookings.length}</span></div>
-                    <div className="flex justify-between"><span>{tBooking("addOnSubtotal")}</span><span>{draft.currency} {draft.addonsAmount ?? 0}</span></div>
+                    <div className="flex justify-between"><span>{tBooking("addOnSubtotal")}</span><span>{formatMoney(draft.addonsAmount ?? 0, draft.currency)}</span></div>
                   </> : <div className="rounded-2xl bg-slate-50 p-3 text-xs text-slate-600">{tBooking("extraLSevinSupportServicesWereNotRequestedForThis")}</div>}
-                  {Number(draft.metadata?.appliedDiscountAmount ?? 0) > 0 ? (<div className="flex justify-between text-green-700"><span>{tBooking("couponDiscount")}{String(draft.metadata?.appliedCouponCode ?? draft.metadata?.couponCode ?? '')})</span><span>-{draft.currency} {Number(draft.metadata?.appliedDiscountAmount ?? 0)}</span></div>) : null}
-                  <div className="flex justify-between border-t border-slate-200 pt-3 text-base font-bold text-slate-900"><span>{tBooking("totalAfterDiscounts")}</span><span>{draft.currency} {draft.totalAmount ?? 0}</span></div>
+                  {Number(draft.metadata?.appliedDiscountAmount ?? 0) > 0 ? (<div className="flex justify-between text-green-700"><span>{tBooking("couponDiscount")}{String(draft.metadata?.appliedCouponCode ?? draft.metadata?.couponCode ?? '')})</span><span>-{formatMoney(Number(draft.metadata?.appliedDiscountAmount ?? 0), draft.currency)}</span></div>) : null}
+                  <div className="flex justify-between border-t border-slate-200 pt-3 text-base font-bold text-slate-900"><span>{tBooking("totalAfterDiscounts")}</span><span>{formatMoney(draft.totalAmount ?? 0, draft.currency)}</span></div>
                   <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-4">
                     <div className="text-sm font-semibold text-slate-700">{tBooking("coupon")}</div>
                     <div className="mt-2 flex flex-col gap-2 sm:flex-row">

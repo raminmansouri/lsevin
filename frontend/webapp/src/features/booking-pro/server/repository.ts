@@ -801,8 +801,8 @@ function normalizeCatalogSearch(search?: string) {
     .trim();
 }
 
-export async function listProviders(params: { locale?: Locale; search?: string; providerTypeId?: string; providerId?: string; serviceId?: string; serviceDefinitionId?: string; specialistId?: string; city?: string; take?: number; offset?: number; }) {
-  const { locale = 'fa-IR', search = '', providerTypeId, providerId, serviceId, serviceDefinitionId, specialistId, city, take = 8, offset = 0 } = params;
+export async function listProviders(params: { locale?: Locale; search?: string; providerTypeId?: string; providerId?: string; serviceId?: string; serviceDefinitionId?: string; specialistId?: string; city?: string; take?: number; offset?: number; addonContext?: boolean; }) {
+  const { locale = 'fa-IR', search = '', providerTypeId, providerId, serviceId, serviceDefinitionId, specialistId, city, take = 8, offset = 0, addonContext = false } = params;
   const searchText = normalizeCatalogSearch(search);
   const normalizedSearchText = searchText.replace(/[يى]/g, 'ی').replace(/ك/g, 'ک');
   const like = `%${searchText}%`;
@@ -864,6 +864,9 @@ export async function listProviders(params: { locale?: Locale; search?: string; 
              ) as normalized_search_blob
       from category.service_providers sp
       where sp.is_active = true
+        -- Add-on-only provider types (translators, drivers/cars) are offered solely by the
+        -- add-on step; every other provider picker must not list them.
+        and (${addonContext}::boolean or category.provider_type_is_public(sp.provider_type_id))
         and (${city ?? null}::text is null or lower(btrim(sp.city)) = lower(btrim(${city ?? null}::text)))
         and (${providerId ?? null}::uuid is null or sp.id = ${providerId ?? null}::uuid)
         and (${providerTypeId ?? null}::uuid is null or sp.provider_type_id = ${providerTypeId ?? null}::uuid)
@@ -2076,4 +2079,18 @@ export async function checkoutDraft(
     currency: txResult.currency,
     paymentStatus: txResult.paymentStatus,
   };
+}
+
+/** Cities that have at least one active provider of this type (add-on city picker). */
+export async function listProviderCities(providerTypeId: string): Promise<string[]> {
+  const rows = await db<{ city: string }[]>`
+    select min(btrim(sp.city)) as city
+    from category.service_providers sp
+    where sp.is_active = true
+      and sp.provider_type_id = ${providerTypeId}::uuid
+      and nullif(btrim(sp.city), '') is not null
+    group by lower(btrim(sp.city))
+    order by min(btrim(sp.city))
+  `;
+  return rows.map((row) => row.city);
 }

@@ -29,6 +29,11 @@ async function getJson<T>(url: string): Promise<T> {
 export function ChildAddonBookingCard({ locale, draftId, addon, city, value, onChange, onSaved }: Props) {
     const tBooking = useTranslations("Booking");
     const [expanded, setExpanded] = useState(Boolean(addon.isRequired || value?.providerId));
+    // The customer picks the city the translator/car is needed in; it starts at the main
+    // provider's city when that city has providers of this type.
+    const [selectedCity, setSelectedCity] = useState(city ?? '');
+    const [cities, setCities] = useState<string[]>([]);
+    const [citiesLoaded, setCitiesLoaded] = useState(false);
     const [providerSearch, setProviderSearch] = useState('');
     const [serviceSearch, setServiceSearch] = useState('');
     const [specialistSearch, setSpecialistSearch] = useState('');
@@ -51,16 +56,36 @@ export function ChildAddonBookingCard({ locale, draftId, addon, city, value, onC
     useEffect(() => {
         if (!expanded)
             return;
+        let cancelled = false;
+        getJson<{
+            cities: string[];
+        }>(`/api/booking-pro/catalog/addon-cities?providerTypeId=${encodeURIComponent(addon.providerTypeId)}`)
+            .then((data) => {
+            if (cancelled)
+                return;
+            const list = data.cities ?? [];
+            setCities(list);
+            setSelectedCity((current) => list.find((item) => item.toLowerCase() === current.trim().toLowerCase()) ?? list[0] ?? '');
+            setCitiesLoaded(true);
+        })
+            .catch((error) => { console.error(error); if (!cancelled)
+            setCitiesLoaded(true); });
+        return () => { cancelled = true; };
+    }, [expanded, addon.providerTypeId]);
+    useEffect(() => {
+        // Wait for the city list: fetching first with a guessed city would flash the wrong providers.
+        if (!expanded || !citiesLoaded)
+            return;
         getJson<{
             items: ProviderCardItem[];
             hasMore: boolean;
-        }>(`/api/booking-pro/catalog/providers?locale=${encodeURIComponent(locale)}&providerTypeId=${encodeURIComponent(addon.providerTypeId)}&city=${encodeURIComponent(city ?? '')}&search=${encodeURIComponent(providerSearch)}&offset=${providerOffset}&take=3`)
+        }>(`/api/booking-pro/catalog/providers?locale=${encodeURIComponent(locale)}&providerTypeId=${encodeURIComponent(addon.providerTypeId)}&context=addon&city=${encodeURIComponent(selectedCity)}&search=${encodeURIComponent(providerSearch)}&offset=${providerOffset}&take=3`)
             .then((data) => {
             setProviders((prev) => (providerOffset === 0 ? data.items : [...prev, ...data.items]));
             setHasMoreProviders(data.hasMore);
         })
             .catch(console.error);
-    }, [expanded, locale, addon.providerTypeId, city, providerSearch, providerOffset]);
+    }, [expanded, citiesLoaded, locale, addon.providerTypeId, selectedCity, providerSearch, providerOffset]);
     useEffect(() => {
         if (!expanded || !model.providerId)
             return;
@@ -148,6 +173,19 @@ export function ChildAddonBookingCard({ locale, draftId, addon, city, value, onC
       </button>
 
       {expanded ? (<div className="space-y-5 border-t border-slate-100 p-5">
+          {cities.length > 0 ? (<label className="block text-sm font-semibold text-slate-700">{tBooking("city")}
+              <select value={selectedCity} onChange={(e) => {
+                    setSelectedCity(e.target.value);
+                    setProviderOffset(0);
+                    setProviders([]);
+                    setServices([]);
+                    setSpecialists([]);
+                    // A provider from the previous city must not stay selected.
+                    onChange({ ...model, providerId: undefined, serviceId: undefined, specialistId: undefined, formSubmissionId: undefined });
+                }} className="ms-3 min-h-11 rounded-xl border border-slate-200 bg-white px-3">
+                {cities.map((item) => <option key={item} value={item}>{item}</option>)}
+              </select>
+            </label>) : null}
           <SearchLoadMoreList title={tBooking("addonProvidersTitle", { addon: addon.label })} search={providerSearch} onSearchChange={(v) => {
                 setProviderOffset(0);
                 setProviderSearch(v);

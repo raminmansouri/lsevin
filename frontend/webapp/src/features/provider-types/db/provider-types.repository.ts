@@ -21,6 +21,7 @@ type ProviderTypeRow = {
   name: string;
   description: string;
   isActive: boolean;
+  isAddonOnly: boolean;
   iconUrl: string | null;
   imageUrl: string | null;
   imagePreviewUrl: string | null;
@@ -92,6 +93,7 @@ const mapProviderType = (
   name: { translations: row.nameTranslations ?? {} },
   description: { translations: row.descriptionTranslations ?? {} },
   isActive: row.isActive,
+  isAddonOnly: row.isAddonOnly,
   iconUrl: row.iconUrl ?? undefined,
   imageUrl: row.imageUrl ?? undefined,
   imagePreviewUrl: row.imagePreviewUrl ?? undefined,
@@ -123,6 +125,7 @@ export async function listProviderTypes(params?: Record<string, unknown>, locale
       common.get_translation_t(pt.name_translations, ${preferredLocale}, ${DEFAULT_LOCALE}) as "name",
       common.get_translation_t(pt.description_translations, ${preferredLocale}, ${DEFAULT_LOCALE}) as "description",
       pt.is_active as "isActive",
+      pt.is_addon_only as "isAddonOnly",
       pt.icon_url as "iconUrl",
       pt.image_url as "imageUrl",
       coalesce(ml.file_url, pt.image_url) as "imagePreviewUrl",
@@ -153,6 +156,7 @@ export async function listProviderTypes(params?: Record<string, unknown>, locale
       name: row.name,
       description: row.description,
       isActive: row.isActive,
+  isAddonOnly: row.isAddonOnly,
       iconUrl: row.iconUrl ?? undefined,
       imageUrl: row.imageUrl ?? undefined,
       imagePreviewUrl: row.imagePreviewUrl ?? undefined,
@@ -176,6 +180,7 @@ export async function getProviderType(id: string): Promise<ProviderType | null> 
       common.get_translation_t(pt.name_translations, ${DEFAULT_LOCALE}, ${DEFAULT_LOCALE}) as "name",
       common.get_translation_t(pt.description_translations, ${DEFAULT_LOCALE}, ${DEFAULT_LOCALE}) as "description",
       pt.is_active as "isActive",
+      pt.is_addon_only as "isAddonOnly",
       pt.icon_url as "iconUrl",
       pt.image_url as "imageUrl",
       coalesce(ml.file_url, pt.image_url) as "imagePreviewUrl",
@@ -243,6 +248,7 @@ export async function createProviderType(input: ProviderTypeInput): Promise<stri
       name_translations,
       description_translations,
       is_active,
+      is_addon_only,
       icon_url,
       image_url,
       create_date,
@@ -252,6 +258,7 @@ export async function createProviderType(input: ProviderTypeInput): Promise<stri
       ${sql.json(toTranslations(input.name))},
       ${sql.json(toTranslations(input.description))},
       ${input.isActive},
+      ${input.isAddonOnly ?? false},
       ${input.iconUrl || null},
       ${input.imageUrl || null},
       now(),
@@ -272,6 +279,7 @@ export async function updateProviderType(input: ProviderTypeInput & { providerTy
       name_translations = ${sql.json(toTranslations(input.name))},
       description_translations = ${sql.json(toTranslations(input.description))},
       is_active = ${input.isActive},
+      is_addon_only = ${input.isAddonOnly ?? false},
       icon_url = ${input.iconUrl || null},
       image_url = ${input.imageUrl || null},
       last_modified_date = now()

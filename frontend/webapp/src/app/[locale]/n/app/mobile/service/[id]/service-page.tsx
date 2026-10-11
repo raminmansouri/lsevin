@@ -887,16 +887,16 @@ export default function ServicePage({ data, serviceId, locale }: ServicePageProp
       </div>
 
       <div className="safe-area-bottom fixed bottom-20 left-0 right-0 z-40 rounded-t-3xl border-t border-gray-200 bg-white px-5 py-4 shadow-2xl">
-        <div className="flex items-center gap-3">
-          <div className="min-w-0 flex-1">
-            <div className="mb-0.5 text-xs text-gray-600">{t("price.totalPackagePrice")}</div>
-              <div className="flex items-baseline gap-2"><ViewerPrice amount={service.displayPrice.sourceAmount ?? displayPrice} sourceCurrencyCode={service.displayPrice.sourceCurrencyCode ?? displayCurrencyCode} providerId={service.displayPrice.providerId ?? service.clinicId} valueToman={service.displayPrice.valueToman ?? null} locale={locale} className="text-2xl font-bold text-[#083f30]" />{hasDiscount && <ViewerPrice amount={service.displayOriginalPrice.sourceAmount ?? displayOriginalPrice} sourceCurrencyCode={service.displayOriginalPrice.sourceCurrencyCode ?? displayCurrencyCode} providerId={service.displayPrice.providerId ?? service.clinicId} locale={locale} className="text-sm text-gray-500 line-through" />}</div>          </div>
+        <div className="flex items-center gap-2">
+          <div className="min-w-0 flex-1 overflow-hidden">
+            <div className="mb-0.5 truncate text-xs text-gray-600">{t("price.totalPackagePrice")}</div>
+              <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0 [overflow-wrap:anywhere]"><ViewerPrice amount={service.displayPrice.sourceAmount ?? displayPrice} sourceCurrencyCode={service.displayPrice.sourceCurrencyCode ?? displayCurrencyCode} providerId={service.displayPrice.providerId ?? service.clinicId} valueToman={service.displayPrice.valueToman ?? null} locale={locale} className="text-base font-bold leading-tight text-[#083f30] sm:text-2xl" />{hasDiscount && <ViewerPrice amount={service.displayOriginalPrice.sourceAmount ?? displayOriginalPrice} sourceCurrencyCode={service.displayOriginalPrice.sourceCurrencyCode ?? displayCurrencyCode} providerId={service.displayPrice.providerId ?? service.clinicId} locale={locale} className="text-sm text-gray-500 line-through" />}</div>          </div>
           <ConsultationCtaButton
             categoryName={service.name}
             label={tConsultation("cta.beforeBooking")}
             className="flex h-14 w-20 shrink-0 flex-col items-center justify-center gap-1 rounded-2xl border border-[#083f30]/20 bg-[#083f30]/5 px-1 text-center text-[10px] font-bold leading-tight text-[#083f30] transition-all hover:bg-[#083f30]/10 active:scale-95"
           />
-          <button type="button" onClick={() => navigate(`/n/app/mobile/booking?serviceId=${service.providerServiceId}`)} className="flex h-14 items-center gap-2 rounded-2xl bg-gradient-to-r from-[#083f30] to-[#0a5a44] px-8 font-bold text-white transition-all hover:shadow-xl active:scale-95">{t("actions.bookNow")}</button>
+          <button type="button" onClick={() => navigate(`/n/app/mobile/booking?serviceId=${service.providerServiceId}`)} className="flex h-14 shrink-0 items-center gap-2 rounded-2xl bg-gradient-to-r from-[#083f30] to-[#0a5a44] px-5 font-bold text-white sm:px-8 transition-all hover:shadow-xl active:scale-95">{t("actions.bookNow")}</button>
         </div>
       </div>
     </div>

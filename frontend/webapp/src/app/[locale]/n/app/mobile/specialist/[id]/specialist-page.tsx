@@ -887,10 +887,10 @@ export default function SpecialistProfileClient({
       ) : null}
 
       <div className="fixed bottom-20 left-0 right-0 z-40 rounded-t-3xl border-t border-gray-200 bg-white px-5 py-4 shadow-2xl">
-        <div className="flex items-center gap-3">
-          <div className="min-w-0 flex-1">
+        <div className="flex items-center gap-2">
+          <div className="min-w-0 flex-1 overflow-hidden [overflow-wrap:anywhere]">
             <div className="mb-0.5 flex items-center gap-1 text-xs text-gray-600">
-              <Sparkles size={13} /> {t("consultation.title")}
+              <Sparkles size={13} className="shrink-0" /> <span className="truncate">{t("consultation.title")}</span>
             </div>
             {specialist.consultationPrice.sourceAmount === 0 ? (
               <div className="text-lg font-bold text-[#083f30]">{t("consultation.free")}</div>
@@ -900,7 +900,7 @@ export default function SpecialistProfileClient({
                   amount={specialist.consultationPrice.displayAmount}
                   currencyCode={specialist.consultationPrice.displayCurrencyCode}
                   showCode
-                  className="text-lg font-bold text-[#083f30]"
+                  className="text-base font-bold leading-tight text-[#083f30] sm:text-lg"
                 />
                 {specialist.consultationPrice.converted ? (
                   <div className="text-xs text-gray-500">
@@ -920,7 +920,7 @@ export default function SpecialistProfileClient({
           <button
             type="button"
             onClick={() => navigate(`/n/app/mobile/booking?specialistId=${specialistId}`)}
-            className="flex h-14 items-center gap-2 rounded-2xl bg-gradient-to-r from-[#083f30] to-[#0a5a44] px-8 font-bold text-white transition-all active:scale-95"
+            className="flex h-14 shrink-0 items-center gap-2 rounded-2xl bg-gradient-to-r from-[#083f30] to-[#0a5a44] px-5 font-bold text-white transition-all active:scale-95 sm:px-8"
           >
             <Calendar size={20} />
             {t("actions.bookNow")}

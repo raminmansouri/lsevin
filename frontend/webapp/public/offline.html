@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#101E33" />
+    <meta name="robots" content="noindex" />
+    <title>LSevin — Offline directory</title>
+    <link rel="icon" href="/pwa/icon-192.png" />
+    <link rel="stylesheet" href="/pwa/offline.css" />
+    <script src="/pwa/offline.js" type="module"></script>
+  </head>
+  <body>
+    <main>
+      <img src="/pwa/icon-192.png" width="64" height="64" alt="LSevin" />
+      <h1 id="title">Offline directory</h1>
+      <p id="explanation">
+        Browse saved provider information. Bookings, payments and account
+        changes require a connection.
+      </p>
+      <p id="status" role="status" aria-live="polite"></p>
+      <div class="actions">
+        <button id="retry" type="button">Try again</button>
+        <button id="language" type="button">فارسی</button>
+        <button id="clear" type="button">Clear saved directory</button>
+      </div>
+      <label for="search" id="search-label">Search saved providers</label>
+      <input id="search" type="search" autocomplete="off" />
+      <p id="empty" role="status"></p>
+      <section id="pages" aria-label="Saved pages"></section>
+      <section id="directory" aria-label="Saved providers"></section>
+      <section id="profile-panel">
+        <h2 id="profile-title">Saved profile</h2>
+        <form id="unlock-profile">
+          <label for="passphrase" id="passphrase-label"
+            >Offline passphrase</label
+          >
+          <input
+            id="passphrase"
+            type="password"
+            minlength="10"
+            maxlength="128"
+            autocomplete="off"
+            required
+          />
+          <button id="unlock" type="submit">Unlock saved profile</button>
+        </form>
+        <p id="profile-status" role="status"></p>
+        <p id="profile-content"></p>
+      </section>
+      <noscript
+        >JavaScript is needed to read the saved directory. / برای دیدن فهرست
+        ذخیره‌شده جاوااسکریپت را فعال کنید.</noscript
+      >
+    </main>
+  </body>
+</html>

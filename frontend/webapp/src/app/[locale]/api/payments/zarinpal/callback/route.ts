@@ -20,7 +20,11 @@ export async function GET(request: NextRequest, context: RouteContext) {
     gateway: "zarinpal",
     authority,
     status,
+    locale,
   });
+
+  // Capped gateway charge: the next installment is already open, go pay it.
+  if (result.nextActionUrl) return NextResponse.redirect(result.nextActionUrl);
 
   const bookingPath = result.bookingId
     ? `/${locale}/n/app/mobile/bookings/${result.bookingId}`

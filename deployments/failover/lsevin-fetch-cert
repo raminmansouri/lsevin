@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+# lsevin-fetch-cert - run ON SERVER A (daily timer + at boot). Pulls the certificates that server B issued and renews
+# automatically (A cannot get them itself: Let's Encrypt cannot reach A), validates each one, installs it atomically
+# and force-reloads Caddy only if something changed.
+# The SSH key used here is pinned on B to ONE read-only forced command that prints a single named bundle.
+#   name        certificate                 files in /etc/lsevin-certs
+#   ir          ir.lsevincare.com           ir.crt / ir.key
+#   lsevin-ir   lsevin.ir                   lsevin-ir.crt / lsevin-ir.key   (appears once its DNS CNAME exists)
+set -uo pipefail
+DIR=/etc/lsevin-certs; KEY=/root/.ssh/certfetch_b; LOG=/var/log/lsevin-cert.log
+mkdir -p "$DIR"; chmod 700 "$DIR"
+declare -A SUBJECT=( [ir]="ir.lsevincare.com" [lsevin-ir]="lsevin.ir" )
+changed=0; fail=0
+log() { echo "$(date -u +%FT%TZ) $*" >> "$LOG"; }
+
+for name in ir lsevin-ir; do
+  tmp=$(mktemp -d)
+  if ! ssh -n -i "$KEY" -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new -o UserKnownHostsFile=/root/.ssh/known_hosts_filesync -o ConnectTimeout=20 \
+       filesync@202.133.90.50 "$name" > "$tmp/b.tgz" 2>/dev/null || [ ! -s "$tmp/b.tgz" ]; then
+    # "not issued yet" is normal for lsevin-ir until its CNAME exists; only a failure for ir is an alarm
+    [ "$name" = ir ] && { log "[$name] fetch failed (B/VPN unreachable or no certificate issued yet)"; fail=1; }
+    rm -rf "$tmp"; continue
+  fi
+  tar -C "$tmp" -xzf "$tmp/b.tgz" "$name.crt" "$name.key" 2>/dev/null || { log "[$name] bad bundle"; fail=1; rm -rf "$tmp"; continue; }
+  openssl x509 -in "$tmp/$name.crt" -noout -checkend 86400 >/dev/null 2>&1 || { log "[$name] fetched cert is expired/invalid"; fail=1; rm -rf "$tmp"; continue; }
+  [ "$(openssl x509 -in "$tmp/$name.crt" -noout -pubkey | sha256sum)" = "$(openssl pkey -in "$tmp/$name.key" -pubout 2>/dev/null | sha256sum)" ] \
+    || { log "[$name] key does not match certificate"; fail=1; rm -rf "$tmp"; continue; }
+  openssl x509 -in "$tmp/$name.crt" -noout -subject 2>/dev/null | grep -q "${SUBJECT[$name]}" || { log "[$name] wrong subject"; fail=1; rm -rf "$tmp"; continue; }
+  if [ -f "$DIR/$name.crt" ] && cmp -s "$tmp/$name.crt" "$DIR/$name.crt" && [ ! -f "$DIR/.placeholder-$name" ]; then rm -rf "$tmp"; continue; fi
+  install -m 600 "$tmp/$name.key" "$DIR/$name.key.new"; install -m 644 "$tmp/$name.crt" "$DIR/$name.crt.new"
+  mv "$DIR/$name.key.new" "$DIR/$name.key"; mv "$DIR/$name.crt.new" "$DIR/$name.crt"; rm -f "$DIR/.placeholder-$name" "$DIR/.placeholder"
+  log "[$name] installed new certificate: $(openssl x509 -in "$DIR/$name.crt" -noout -enddate)"
+  changed=1; rm -rf "$tmp"
+done
+
+if [ $changed = 1 ]; then
+  docker exec lsevin-caddy caddy reload --force --config /etc/caddy/Caddyfile >/dev/null 2>&1 || docker restart lsevin-caddy >/dev/null 2>&1
+fi
+exit $fail

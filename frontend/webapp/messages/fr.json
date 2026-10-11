@@ -2713,6 +2713,8 @@
         "label": "Description"
       },
       "isActive": "Actif",
+      "addonOnly": "Add-on only (translator, car, ...)",
+      "addonOnlyHelp": "When on, providers of this type appear only in the booking add-ons step, filtered by city, and are hidden from search, home and every other listing.",
       "attributes": "Définitions d'attributs",
       "attributesPlaceholder": "Attributs ({count} définis)",
       "create": "Créer le type de prestataire",
