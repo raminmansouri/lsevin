@@ -1,10 +1,10 @@
-import type { Metadata } from "next";
-import { seoOrigin } from "@/lib/seo/origin";
+import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import Script from "next/script";
 
-import { env } from "@/config/env/client";
 import { ServiceWorkerRegister } from "@/components/pwa/service-worker-register";
+import { env } from "@/config/env/client";
+import { seoOrigin } from "@/lib/seo/origin";
 
 import "./globals.css";
 
@@ -48,10 +48,15 @@ export const metadata: Metadata = {
     template: "%s | LSevin",
   },
   description: "LSevin",
+  manifest: "/manifest.webmanifest",
+  appleWebApp: { capable: true, title: "LSevin", statusBarStyle: "default" },
+  icons: { apple: "/pwa/apple-touch-icon.png" },
   other: {
     enamad: "51635800",
   },
 };
+
+export const viewport: Viewport = { themeColor: "#101E33" };
 
 // The single <html>/<body> for the whole app — it also wraps the (financial)
 // tree and the root not-found, so it stays a plain root layout.
@@ -82,13 +87,14 @@ export default function RootLayout({
       <body className="antialiased" suppressHydrationWarning>
         {children}
         <ServiceWorkerRegister />
-        {env.NEXT_PUBLIC_CRM_ANALYTICS_URL && env.NEXT_PUBLIC_CRM_ANALYTICS_SITE_KEY && (
-          <Script
-            src={`${env.NEXT_PUBLIC_CRM_ANALYTICS_URL}/t.js`}
-            data-site={env.NEXT_PUBLIC_CRM_ANALYTICS_SITE_KEY}
-            strategy="afterInteractive"
-          />
-        )}
+        {env.NEXT_PUBLIC_CRM_ANALYTICS_URL &&
+          env.NEXT_PUBLIC_CRM_ANALYTICS_SITE_KEY && (
+            <Script
+              src={`${env.NEXT_PUBLIC_CRM_ANALYTICS_URL}/t.js`}
+              data-site={env.NEXT_PUBLIC_CRM_ANALYTICS_SITE_KEY}
+              strategy="afterInteractive"
+            />
+          )}
       </body>
     </html>
   );

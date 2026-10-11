@@ -1,0 +1,16 @@
+{
+  "extends": "./tsconfig.json",
+  "include": [
+    "src/components/pwa/**/*.tsx",
+    "src/lib/pwa/**/*.ts",
+    "src/lib/react-query/index.ts",
+    "public/pwa/profile-crypto.d.ts",
+    "src/types/next-auth.d.ts",
+    "src/app/manifest.ts",
+    "e2e/pwa.spec.ts",
+    "e2e/pwa-app.spec.ts",
+    "playwright.pwa-app.config.ts",
+    "playwright.pwa.config.ts"
+  ],
+  "exclude": ["node_modules", ".next"]
+}
