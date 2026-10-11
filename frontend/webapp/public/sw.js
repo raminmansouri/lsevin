@@ -1,6 +1,6 @@
 // Only public assets and a deliberately reduced public directory are persisted.
 // Never cache HTML/RSC, account APIs, uploads, prices, slots, or mutations.
-const VERSION = "v1-c680f7cbc9a24136";
+const VERSION = "v1-77085887d96494fc";
 const SHELL_CACHE = `lsevin-pwa-shell-${VERSION}`;
 const ASSET_CACHE = `lsevin-pwa-assets-${VERSION}`;
 const DIRECTORY_CACHE = "lsevin-pwa-directory-v1";
@@ -111,7 +111,12 @@ async function offlineNavigation(request) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 8000);
   try {
-    return await fetch(request, { signal: controller.signal });
+    // An HTTP-cached SSR page can otherwise look live while disconnected.
+    // Always test the network, then serve the independent saved reading view.
+    return await fetch(request, {
+      signal: controller.signal,
+      cache: "no-store",
+    });
   } catch {
     try {
       const cached = await (

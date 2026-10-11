@@ -71,20 +71,36 @@ offline writes and replay them after reconnecting.
   17.10 and 168 providers. Direct Node/appsettings database connections failed
   with authentication/network errors. Connector access does not validate the
   application's connection or its user workflow. Docker daemon was unavailable.
-- Live global host: manifest and worker HTTP 200; offline reader HTTP 404
-  (candidate not deployed). Iranian host requests timed out from this environment.
+- Merged PWA source into `Lsevin-New`: `6937d50309dc4e11501011acb50c4d68422bb276`.
+  Global Jenkins build 303: SUCCESS. Running image `lsevin-webapp:6937d50309dc-303`,
+  ready 1/1; deployed worker and offline reader verified inside the pod and over
+  HTTPS. Chrome upgraded its previous push-only worker, then disconnected
+  Providers link navigation and refresh opened the offline reader.
+- Live global manifest/worker/header/guest-auth and landing snapshot tests: PASS.
+  Authenticated profile save, offline unlock, hydration-aware sign-out and
+  ciphertext clearing: PASS with the real backend/test user.
+- Live catalogue QA exposed browser HTTP-cache reuse of SSR staff HTML while
+  disconnected. Follow-up document fetches use `cache: no-store`. The new
+  regression fails with previous behavior and passes with the correction;
+  fixture browser suite now 34/34 PASS. Registration now starts at DOM readiness,
+  without waiting for slow images. Follow-up production verification is pending.
+- Server B SSH connectivity succeeds when bound to the Ethernet source address,
+  bypassing the local TUN without changing routes. Its first full-history checkout
+  was slow; Jenkins config was backed up and changed to a single-branch shallow
+  checkout. Iran still runs its previous image; deployment remains pending.
 
 ## NOT VERIFIED
 
-Representative real provider/staff/service database workflows, authenticated
-profile save/logout across the actual auth integration, live push delivery,
-payments returning to the updated wrappers, staging, both production domains,
-proxy/CDN response behavior and installation/update on real devices.
+Follow-up production provider/staff/service offline workflow, stalled-image
+startup regression, live push delivery, payments returning to the updated
+wrappers, staging, Iranian production deployment and installation/update on
+real devices.
 No macOS/Xcode is available: iOS compilation and runtime remain unverified.
 Android airplane-mode process cold startup, OS storage eviction and
 instrumentation remain unverified on physical devices.
 The tested Chromium Pixel 7 emulation is not an Android WebView or iOS test.
-The Linux deployment container was not built or deployed.
+The global Linux container was built and deployed by Jenkins 303; follow-up
+container and Iran-site release verification remain pending.
 
 ## DATABASE / MIGRATIONS
 
@@ -105,17 +121,19 @@ cache eviction/storage errors, RTL, and network-only APIs/payment/downloads.
 
 ## DEPLOYMENT REQUIRED
 
-Rebuild/redeploy webapp; keep public/static files in the standalone runtime.
+Deploy the offline HTTP-cache/startup follow-up and Iranian site; keep
+public/static files in the standalone runtime.
 Use valid HTTPS build origins and preserve worker no-store/CSP/scope headers.
 Build, device-test and publish updated Android/iOS apps through the existing
 release process. No new secrets, queues, schema or external services required.
 Run actual-app tests with a representative test database and authenticated test
-state, then staging and both-domain/device smoke checks. No deployment occurred.
+state, then staging and both-domain/device smoke checks. Global initial deployment
+completed; follow-up and Iranian deployment are pending.
 Native sources were pushed to private repositories
 [Android](https://github.com/Mohammadjafariyan/Lsevinandroid) (`712e9b9`) and
 [iOS](https://github.com/Mohammadjafariyan/lseviniosapp) (`8c84274`).
-Webapp changes are isolated on `feat/pwa-offline` in the existing webapp repository,
-preserving unrelated local work. APK delivery is local at
+Webapp changes were merged and pushed to `Lsevin-New` from an isolated release
+checkout, preserving unrelated local work. APK delivery is local at
 `E:/jafariyan/workplace/lsevin/releases/LSevin-Android-1.1.apk`.
 Existing credentials and appsettings files were left unchanged as requested.
 

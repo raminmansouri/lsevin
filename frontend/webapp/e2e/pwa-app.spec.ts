@@ -28,6 +28,43 @@ test("manifest, worker, offline shell and guest authentication are served correc
   expect(privatePage.headers().location).toContain("/sign-in");
 });
 
+test("offline support starts while page images are still loading", async ({
+  page,
+}) => {
+  let releaseImages!: () => void;
+  const gate = new Promise<void>((resolve) => {
+    releaseImages = resolve;
+  });
+  let heldImages = 0;
+  await page.route("**/*", async (route) => {
+    if (route.request().resourceType() !== "image") return route.continue();
+    heldImages += 1;
+    await gate;
+    await route.abort();
+  });
+  try {
+    await page.goto("/en/n/app/mobile/home", {
+      waitUntil: "domcontentloaded",
+    });
+    await expect.poll(() => heldImages).toBeGreaterThan(0);
+    await page.waitForFunction(() => !!navigator.serviceWorker.controller);
+    expect(await page.evaluate(() => document.readyState)).toBe("interactive");
+    await expect
+      .poll(() =>
+        page.evaluate(
+          async () =>
+            !!(await (
+              await caches.open("lsevin-pwa-pages-v1")
+            ).match(location.pathname))
+        )
+      )
+      .toBe(true);
+  } finally {
+    releaseImages();
+    await page.unrouteAll({ behavior: "wait" });
+  }
+});
+
 test("real landing page installs offline support and saves a reading view", async ({
   page,
   context,
@@ -93,6 +130,7 @@ test("real public catalogue pages save automatically and survive offline navigat
     `/en/n/app/mobile/specialist/${specialist.id}`,
   ];
   const failures: string[] = [];
+  const resolvedPaths: string[] = [];
   page.on("response", (response) => {
     if (response.status() >= 500)
       failures.push(`${response.status()} ${new URL(response.url()).pathname}`);
@@ -102,23 +140,38 @@ test("real public catalogue pages save automatically and survive offline navigat
     expect(response?.status()).toBeLessThan(400);
     await page.waitForFunction(() => !!navigator.serviceWorker.controller);
     await expect
-      .poll(() =>
-        page.evaluate(
-          async (key) =>
-            !!(await (await caches.open("lsevin-pwa-pages-v1")).match(key)),
-          new URL(page.url()).pathname
-        )
+      .poll(
+        () =>
+          page
+            .evaluate(
+              async (key) =>
+                !!(await (await caches.open("lsevin-pwa-pages-v1")).match(key)),
+              new URL(page.url()).pathname
+            )
+            .catch((error: Error) => {
+              if (error.message.includes("Execution context was destroyed"))
+                return false;
+              throw error;
+            }),
+        { message: `Automatic guest snapshot missing for ${path}` }
       )
       .toBe(true);
+    resolvedPaths.push(new URL(page.url()).pathname);
   }
   expect(failures).toEqual([]);
   await context.setOffline(true);
-  for (const path of paths) {
+  // Production may redirect a landing entry to the locale/country home page.
+  // The saved reading view belongs to that resolved page, not the redirect.
+  for (const path of resolvedPaths) {
     await page.goto(path);
     await expect(page.locator("details[open]")).toBeVisible();
     await page.reload();
     await expect(page.locator("details[open]")).toBeVisible();
   }
+  await page.goto("/en");
+  await expect(
+    page.getByRole("heading", { name: "Saved pages", exact: true })
+  ).toBeVisible();
   await context.setOffline(false);
   await page.getByRole("button", { name: "Try again" }).click();
   await expect(page.locator("#unlock-profile")).toHaveCount(0);
@@ -194,6 +247,9 @@ test.describe("authenticated profile", () => {
     await expect(page.locator("#profile-content")).not.toBeEmpty();
     await context.setOffline(false);
     await page.getByRole("button", { name: "Try again" }).click();
+    await expect(
+      page.getByRole("button", { name: "Save offline profile", exact: true })
+    ).toBeEnabled();
     await page
       .getByRole("button", { name: /log out|logout|sign out/i })
       .click();

@@ -33,6 +33,32 @@ test("a disconnected origin serves saved text without browser offline emulation"
   }
 });
 
+test("HTTP-cached document cannot replace the offline reader", async ({
+  page,
+  request,
+}) => {
+  await installed(page);
+  const path = "/en/n/app/mobile/specialist/http-cached";
+  // Warm the browser HTTP cache separately from the worker's CacheStorage.
+  await page.evaluate((path) => fetch(path, { cache: "reload" }), path);
+  await request.get("/__fixture/offline-on");
+  try {
+    await page.goto(path);
+    await expect(
+      page.getByRole("heading", { name: "Saved pages", exact: true })
+    ).toBeVisible();
+    await expect(page.getByRole("button", { name: "Save page" })).toHaveCount(
+      0
+    );
+    await page.reload();
+    await expect(
+      page.getByRole("heading", { name: "Saved pages", exact: true })
+    ).toBeVisible();
+  } finally {
+    await request.get("/__fixture/offline-off");
+  }
+});
+
 test("offline direct navigation, search, keyboard, refresh and reconnection", async ({
   page,
   context,

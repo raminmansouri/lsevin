@@ -115,11 +115,13 @@ export function ServiceWorkerRegister() {
         );
       }
     };
-    if (document.readyState === "complete") void register();
-    else window.addEventListener("load", register, { once: true });
+    // Slow images and third-party resources must not delay offline readiness.
+    if (document.readyState !== "loading") void register();
+    else
+      document.addEventListener("DOMContentLoaded", register, { once: true });
     return () => {
       disposed = true;
-      window.removeEventListener("load", register);
+      document.removeEventListener("DOMContentLoaded", register);
       window.removeEventListener("online", connectionChanged);
       window.removeEventListener("offline", connectionChanged);
       window.removeEventListener("beforeinstallprompt", beforeInstall);

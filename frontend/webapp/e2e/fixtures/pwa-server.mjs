@@ -19,6 +19,8 @@ const mime = {
 const server = createServer(async (req, res) => {
   try {
     const url = new URL(req.url, "http://127.0.0.1:4177");
+    if (url.pathname.endsWith("/specialist/http-cached"))
+      res.setHeader("Cache-Control", "public, max-age=3600");
     if (
       url.pathname === "/__fixture/offline-on" ||
       url.pathname === "/__fixture/offline-off"
