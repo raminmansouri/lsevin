@@ -158,9 +158,9 @@ pipeline {
     unsuccessful {
       sh '''set +e
         test -n "${IMAGE_TAG:-}" || exit 0
-        rm -f "/opt/lsevin/releases/api-$IMAGE_TAG.tar" \
-          "/opt/lsevin/releases/web-$IMAGE_TAG.tar" \
-          "/opt/lsevin/releases/migrations-$IMAGE_TAG.tar"
+        rm -f "${K3S_RELEASE_DIR:-/var/lib/lsevin/releases}/api-$IMAGE_TAG.tar" \
+          "${K3S_RELEASE_DIR:-/var/lib/lsevin/releases}/web-$IMAGE_TAG.tar" \
+          "${K3S_RELEASE_DIR:-/var/lib/lsevin/releases}/migrations-$IMAGE_TAG.tar"
         images=""
         [ "${BUILD_API:-false}" = true ] && images="$images lsevin-api:$IMAGE_TAG"
         [ "${BUILD_WEB:-false}" = true ] && images="$images lsevin-webapp:$IMAGE_TAG"

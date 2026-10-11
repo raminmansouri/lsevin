@@ -2,7 +2,10 @@
 set -eu
 
 K3S_HELPER_IMAGE="${K3S_HELPER_IMAGE:-rancher/k3s:v1.36.4-k3s1}"
-RELEASE_DIR="${K3S_RELEASE_DIR:-/opt/lsevin/releases}"
+# This path is bind-mounted at the same location in the Jenkins controller.
+# Docker helper mounts resolve on the host, so an unmounted controller path
+# would save an archive that containerd cannot see.
+RELEASE_DIR="${K3S_RELEASE_DIR:-/var/lib/lsevin/releases}"
 
 kubectl_cmd() {
   docker run --rm -i --user 0:0 --network host --entrypoint kubectl \

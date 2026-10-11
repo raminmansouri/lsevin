@@ -100,7 +100,12 @@ offline writes and replay them after reconnecting.
   checkout plus a verified Git reference cache transferred over SSH. Its initial
   Jenkinsfile attempted to delete a bind mount; the workspace now uses a child
   directory and its existing Iran site-variant script runs before image import.
-  Iran build 4 passed checkout, source integrity and preflight, and is compiling.
+  Iran build 4 passed checkout, source integrity, preflight and production build,
+  including the Iran image variant, but import failed because the archive's
+  controller path was not shared with the host. The helper now defaults to the
+  shared `/var/lib/lsevin/releases`. Real Jenkins-to-host import regression:
+  PASS, using a temporary tag of the existing helper image, without deploying
+  an application or touching its database. Iran build 5 is compiling.
   Iran still runs its previous image; deployment remains pending.
 - Intermittent public Cloudflare HTTP 503 responses were observed during the
   earlier live run. Direct origin offline-reader HTTP 200 and application log
@@ -137,6 +142,8 @@ Other pre-existing repository migrations and user changes were left intact.
 guest-only extraction, partial streams/cancellation, wrong-passphrase/tampering,
 logout races, no offline mutation replay, slow-network fallback, update consent,
 cache eviction/storage errors, RTL, and network-only APIs/payment/downloads.
+`deployments/jenkins/tests/import-smoke.sh` checks the actual Docker/K3s archive
+boundary from inside Jenkins and cleans up only its own temporary image tag.
 
 ## DEPLOYMENT REQUIRED
 
