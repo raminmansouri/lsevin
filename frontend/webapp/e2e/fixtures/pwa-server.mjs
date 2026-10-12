@@ -91,7 +91,7 @@ const server = createServer(async (req, res) => {
       res.setHeader("Content-Type", "text/css");
       res.setHeader("Cache-Control", "public,max-age=31536000,immutable");
       res.end(
-        "body{margin:0;background:#f5f6fb;font:16px Arial;color:#101e33}header{background:white;padding:24px;display:flex;gap:16px}main{padding:24px}.cards{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}.card{background:white;border-radius:24px;padding:24px;border:1px solid #e5e7eb}img{width:64px;height:64px}nav{background:white;padding:20px;display:flex;gap:16px}button{padding:12px;border-radius:12px;background:#101e33;color:white;border:0}input{padding:12px;border-radius:12px;border:1px solid #ddd}footer{padding:24px}h1{font-size:24px}.fragment-example{clip-path:url(\\#clip)}"
+        "body{margin:0;background:#f5f6fb;font:16px Arial;color:#101e33}header{background:white;padding:24px;display:flex;gap:16px}main{padding:24px}.cards{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}.card{background:white;border-radius:24px;padding:24px;border:1px solid #e5e7eb}img{width:64px;height:64px}nav{background:white;padding:20px;display:flex;gap:16px}button{padding:12px;border-radius:12px;background:#101e33;color:white;border:0}input{padding:12px;border-radius:12px;border:1px solid #ddd}footer{padding:24px}h1{font-size:24px}.fragment-example{clip-path:url(\\#clip)}.encoded-fragment{clip-path:url(%23clip)}"
       );
       return;
     }
