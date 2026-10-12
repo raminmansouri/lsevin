@@ -1,6 +1,62 @@
 import { expect, test } from "@playwright/test";
 import type { Page } from "@playwright/test";
 
+test("unconfigured store listings and WebView install prompts stay hidden", async ({
+  page,
+  browser,
+}) => {
+  await openOnlinePage(page, "/en/n/app/mobile/home");
+  await expect(page.getByRole("link", { name: /Get Lsevin on/ })).toHaveCount(
+    0
+  );
+  await expect(
+    page.getByRole("button", { name: "Install LSevin" })
+  ).toHaveCount(0);
+  const context = await browser.newContext({
+    baseURL: process.env.E2E_BASE_URL || "http://localhost:3188",
+    userAgent:
+      "Mozilla/5.0 (Linux; Android 13; Lsevin; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/120.0.0.0 Mobile Safari/537.36",
+    proxy: process.env.PWA_E2E_PROXY
+      ? { server: process.env.PWA_E2E_PROXY }
+      : undefined,
+  });
+  try {
+    const native = await context.newPage();
+    await openOnlinePage(native, "/en/n/app/mobile/home");
+    await native.waitForFunction(() => !!navigator.serviceWorker.controller);
+    await expect(
+      native.getByRole("link", { name: /Get Lsevin on/ })
+    ).toHaveCount(0);
+    await expect(
+      native.getByRole("button", { name: "Install LSevin" })
+    ).toHaveCount(0);
+  } finally {
+    await context.close();
+  }
+});
+
+async function applicationView(page: Page) {
+  await page.evaluate(() => document.fonts.ready);
+  return page.evaluate(() => {
+    const headings = [...document.querySelectorAll("h1,h2")]
+      .filter(
+        (node) =>
+          node.getBoundingClientRect().height > 0 &&
+          !node.closest("[role=dialog]")
+      )
+      .map((node) => node.textContent?.trim());
+    const node = document.querySelector("h1,h2") || document.body;
+    const style = getComputedStyle(node);
+    return {
+      headings,
+      fontFamily: style.fontFamily,
+      fontSize: style.fontSize,
+      color: style.color,
+      background: getComputedStyle(document.body).backgroundColor,
+    };
+  });
+}
+
 async function openOnlinePage(page: Page, path: string) {
   const response = await page.goto(path, { waitUntil: "domcontentloaded" });
   expect(response?.status()).toBeLessThan(400);
@@ -83,7 +139,7 @@ test("offline support starts while page images are still loading", async ({
         page.evaluate(
           async () =>
             !!(await (
-              await caches.open("lsevin-pwa-pages-v1")
+              await caches.open("lsevin-pwa-application-v2")
             ).match(location.pathname))
         )
       )
@@ -94,7 +150,7 @@ test("offline support starts while page images are still loading", async ({
   }
 });
 
-test("real landing page installs offline support and saves a reading view", async ({
+test("real landing page preserves its application layout after offline refresh", async ({
   page,
   context,
 }) => {
@@ -105,17 +161,21 @@ test("real landing page installs offline support and saves a reading view", asyn
       page.evaluate(
         async () =>
           !!(await (
-            await caches.open("lsevin-pwa-pages-v1")
+            await caches.open("lsevin-pwa-application-v2")
           ).match(location.pathname))
       )
     )
     .toBe(true);
+  const online = await applicationView(page);
   await context.setOffline(true);
   await page.reload();
+  await page.waitForFunction(
+    () => document.documentElement.dataset.lsevinConnection === "offline"
+  );
+  await expect.poll(() => applicationView(page)).toEqual(online);
   await expect(
     page.getByRole("heading", { name: "Saved pages", exact: true })
-  ).toBeVisible();
-  await expect(page.locator("details[open]")).toBeVisible();
+  ).toHaveCount(0);
 });
 
 test("real public catalogue pages save automatically and survive offline navigation/refresh", async ({
@@ -159,6 +219,7 @@ test("real public catalogue pages save automatically and survive offline navigat
   ];
   const failures: string[] = [];
   const resolvedPaths: string[] = [];
+  const views: Awaited<ReturnType<typeof applicationView>>[] = [];
   page.on("response", (response) => {
     if (response.status() >= 500)
       failures.push(`${response.status()} ${new URL(response.url()).pathname}`);
@@ -172,7 +233,9 @@ test("real public catalogue pages save automatically and survive offline navigat
           page
             .evaluate(
               async (key) =>
-                !!(await (await caches.open("lsevin-pwa-pages-v1")).match(key)),
+                !!(await (
+                  await caches.open("lsevin-pwa-application-v2")
+                ).match(key)),
               new URL(page.url()).pathname
             )
             .catch((error: Error) => {
@@ -184,24 +247,29 @@ test("real public catalogue pages save automatically and survive offline navigat
       )
       .toBe(true);
     resolvedPaths.push(new URL(page.url()).pathname);
+    views.push(await applicationView(page));
   }
   expect(failures).toEqual([]);
   await context.setOffline(true);
-  // Production may redirect a landing entry to the locale/country home page.
-  // The saved reading view belongs to that resolved page, not the redirect.
-  for (const path of resolvedPaths) {
+  for (let index = 0; index < resolvedPaths.length; index++) {
+    const path = resolvedPaths[index];
     await page.goto(path);
-    await expect(page.locator("details[open]")).toBeVisible();
+    await page.waitForFunction(
+      () => document.documentElement.dataset.lsevinConnection === "offline"
+    );
+    await expect.poll(() => applicationView(page)).toEqual(views[index]);
     await page.reload();
-    await expect(page.locator("details[open]")).toBeVisible();
+    await page.waitForFunction(
+      () => document.documentElement.dataset.lsevinConnection === "offline"
+    );
+    expect(await applicationView(page)).toEqual(views[index]);
+    await expect(page.locator("#saved-pages")).toHaveCount(0);
   }
-  await page.goto("/en");
-  await expect(
-    page.getByRole("heading", { name: "Saved pages", exact: true })
-  ).toBeVisible();
   await context.setOffline(false);
-  await page.getByRole("button", { name: "Try again" }).click();
-  await expect(page.locator("#unlock-profile")).toHaveCount(0);
+  await page.reload();
+  await page.waitForFunction(
+    () => document.documentElement.dataset.lsevinConnection === "online"
+  );
 });
 
 test.describe("authenticated profile", () => {
@@ -233,57 +301,55 @@ test.describe("authenticated profile", () => {
     expect(session.status()).toBe(200);
     expect((await session.json()).user?.id).toBeTruthy();
   });
-  test("save through the real profile form, unlock offline, then sign out and clear", async ({
+  test("profile overview retains its real UI offline and is cleared by sign-out", async ({
     page,
     context,
   }) => {
     await page.goto("/en/n/app/mobile/profile");
     await page.waitForFunction(() => !!navigator.serviceWorker.controller);
-    const input = page.getByLabel(
-      "Offline passphrase (at least 10 characters)"
-    );
-    await input.fill("short");
-    await page
-      .getByRole("button", { name: "Save offline profile", exact: true })
-      .click();
-    expect(
-      await input.evaluate(
-        (element: HTMLInputElement) => element.validity.tooShort
+    await expect
+      .poll(() =>
+        page.evaluate(
+          async () =>
+            !!(await (
+              await caches.open("lsevin-pwa-private-view-v2")
+            ).match(location.pathname))
+        )
       )
-    ).toBe(true);
-    await input.fill("E2E separate offline passphrase");
-    await page
-      .getByRole("button", { name: "Save offline profile", exact: true })
-      .click();
-    await expect(
-      page.getByText(
-        "Your name and email are encrypted and saved for 24 hours."
-      )
-    ).toBeVisible();
-    const record = await page.evaluate(() =>
-      JSON.parse(localStorage.getItem("lsevin-pwa-profile-v1")!)
+      .toBe(true);
+    const overview = page.locator("[data-pwa-profile-overview]");
+    const name = await overview.locator("h1").innerText();
+    const menuLinks = await overview.locator("a").allTextContents();
+    const record = await page.evaluate(
+      async () =>
+        await (await (
+          await caches.open("lsevin-pwa-private-view-v2")
+        ).match(location.pathname))!.text()
     );
-    expect(record.ciphertext).toBeTruthy();
-    expect(record.name).toBeUndefined();
+    expect(record).not.toContain(name);
     await context.setOffline(true);
     await page.reload();
-    await page
-      .getByLabel("Offline passphrase", { exact: true })
-      .fill("E2E separate offline passphrase");
-    await page.getByRole("button", { name: "Unlock saved profile" }).click();
-    await expect(page.locator("#profile-content")).not.toBeEmpty();
+    await expect(overview.locator("h1")).toHaveText(name);
+    expect(await overview.locator("a").allTextContents()).toEqual(menuLinks);
+    await page.reload();
+    await expect(overview.locator("h1")).toHaveText(name);
     await context.setOffline(false);
-    await page.getByRole("button", { name: "Try again" }).click();
-    await expect(
-      page.getByRole("button", { name: "Save offline profile", exact: true })
-    ).toBeEnabled();
+    await page.reload();
+    await page.waitForFunction(
+      () => document.documentElement.dataset.lsevinConnection === "online"
+    );
     await page
       .getByRole("button", { name: /log out|logout|sign out/i })
       .click();
     await expect
       .poll(() =>
-        page.evaluate(() => localStorage.getItem("lsevin-pwa-profile-v1"))
+        page.evaluate(
+          async () =>
+            !(await (
+              await caches.open("lsevin-pwa-private-view-v2")
+            ).match("/en/n/app/mobile/profile"))
+        )
       )
-      .toBeNull();
+      .toBe(true);
   });
 });

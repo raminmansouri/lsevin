@@ -507,7 +507,7 @@ test("cached assets work offline, private assets fail and expired snapshots disa
       page.evaluate(
         async () =>
           !!(await (
-            await caches.open("lsevin-pwa-assets-v1")
+            await caches.open("lsevin-pwa-assets-v2")
           ).match("/_next/static/offline-public.js"))
       )
     )
@@ -639,7 +639,7 @@ test("storage read/write failures do not break successful online asset requests"
     await page.evaluate(
       async () =>
         !!(await caches.match("/_next/static/quota.js", {
-          cacheName: "lsevin-pwa-assets-v1",
+          cacheName: "lsevin-pwa-assets-v2",
         }))
     )
   ).toBe(false);

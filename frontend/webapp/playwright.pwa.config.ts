@@ -2,7 +2,7 @@ import { defineConfig, devices } from "@playwright/test";
 
 export default defineConfig({
   testDir: "./e2e",
-  testMatch: "pwa.spec.ts",
+  testMatch: ["pwa.spec.ts", "pwa-ui.spec.ts"],
   workers: 1,
   timeout: 45000,
   expect: { timeout: 10000 },

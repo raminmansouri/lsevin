@@ -20,7 +20,7 @@ import {
 import { getLocale, getTranslations } from "next-intl/server";
 import Link from "next/link";
 
-import { SaveOfflineProfile } from "@/components/pwa/offline-profile";
+import { ProfileViewCache } from "@/components/pwa/profile-view-cache";
 import { getProfileForEdit } from "@/features/profile/actions/profile.actions";
 import FetchDisplayProfileInfo from "@/features/profile/components/fetch-display-profile-info";
 import { useNavigate } from "@/hooks/use-navigate";
@@ -130,18 +130,11 @@ export default async function Profile() {
   const identityUserId = session?.user?.id;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div data-pwa-profile-overview className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="border-b border-gray-200 bg-white px-6 py-8">
         <FetchDisplayProfileInfo profile={profile}></FetchDisplayProfileInfo>
-        {identityUserId && (
-          <SaveOfflineProfile
-            owner={identityUserId}
-            name={`${profile.firstName} ${profile.lastName}`}
-            email={profile.email || ""}
-            locale={locale}
-          />
-        )}
+        <ProfileViewCache />
 
         {/* Stats */}
         <CustomerStats identityUserId={identityUserId} locale={locale} />
