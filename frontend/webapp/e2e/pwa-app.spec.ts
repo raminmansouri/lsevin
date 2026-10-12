@@ -36,6 +36,23 @@ test("unconfigured store listings and WebView install prompts stay hidden", asyn
 });
 
 async function applicationView(page: Page) {
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      return await settledApplicationView(page);
+    } catch (error) {
+      if (
+        !(error instanceof Error) ||
+        !error.message.includes("Execution context was destroyed") ||
+        attempt === 2
+      )
+        throw error;
+      await page.waitForLoadState("domcontentloaded");
+    }
+  }
+  throw new Error("Application navigation did not settle");
+}
+
+async function settledApplicationView(page: Page) {
   await page.evaluate(() => document.fonts.ready);
   return page.evaluate(() => {
     const headings = [...document.querySelectorAll("h1,h2")]
@@ -218,11 +235,22 @@ test("real public catalogue pages save automatically and survive offline navigat
     `/en/n/app/mobile/specialist/${specialist.id}`,
   ];
   const failures: string[] = [];
+  const responseChecks: Promise<void>[] = [];
   const resolvedPaths: string[] = [];
   const views: Awaited<ReturnType<typeof applicationView>>[] = [];
   page.on("response", (response) => {
     if (response.status() >= 500)
-      failures.push(`${response.status()} ${new URL(response.url()).pathname}`);
+      responseChecks.push(
+        (async () => {
+          // Changing pages cancels Next prefetch/images; Caddy records these as
+          // empty 503s with ERR_ABORTED. Completed server failures still fail QA.
+          const error = await response.finished();
+          if (!error?.message.includes("ERR_ABORTED"))
+            failures.push(
+              `${response.status()} ${new URL(response.url()).pathname}`
+            );
+        })()
+      );
   });
   for (const path of paths) {
     await openOnlinePage(page, path);
@@ -249,6 +277,7 @@ test("real public catalogue pages save automatically and survive offline navigat
     resolvedPaths.push(new URL(page.url()).pathname);
     views.push(await applicationView(page));
   }
+  await Promise.all(responseChecks);
   expect(failures).toEqual([]);
   await context.setOffline(true);
   for (let index = 0; index < resolvedPaths.length; index++) {

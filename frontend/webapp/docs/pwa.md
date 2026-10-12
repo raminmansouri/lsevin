@@ -16,6 +16,9 @@ are never saved. Sign-out and confirmed account changes clear the overview and
 its device key. Offline availability is local device access, not server-side
 proof of authorization; a disconnected device cannot learn about server
 revocation until it reconnects. Do not use the saved view for authorization.
+The home greeting separately saves only name and avatar inside encrypted storage
+so offline refresh preserves its appearance without caching authentication.
+Open profile tabs and browser-history restores validate their owner/expiry.
 
 Public documents: 24 entries, max 4 MiB each, 24-hour expiry; do not redownload
 within five minutes. Public bootstrap assets: bounded shared cache of 128
