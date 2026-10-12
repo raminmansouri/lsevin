@@ -93,6 +93,38 @@ describe("resolveDisplayCurrency", () => {
   });
 });
 
+describe("resolveDisplayCurrency by site language", () => {
+  it("shows the language's currency instead of the country default", async () => {
+    getDefaultCurrencyForCountry.mockResolvedValue("TRY");
+    const r = await resolveDisplayCurrency({ countryCode: "TR", selectedCurrencyCode: null, locale: "en" });
+    expect(r.currency).toBe("USD");
+    const de = await resolveDisplayCurrency({ countryCode: "TR", selectedCurrencyCode: null, locale: "de" });
+    expect(de.currency).toBe("EUR");
+  });
+
+  it("falls back to the country default when the language's currency is not display-enabled", async () => {
+    getDefaultCurrencyForCountry.mockResolvedValue("TRY");
+    const r = await resolveDisplayCurrency({ countryCode: "TR", selectedCurrencyCode: null, locale: "fa" });
+    expect(r.currency).toBe("TRY"); // IRR is not enabled in this fixture
+  });
+
+  it("keeps a currency the customer picked in the same language", async () => {
+    getDefaultCurrencyForCountry.mockResolvedValue(null);
+    const r = await resolveDisplayCurrency({
+      countryCode: null, selectedCurrencyCode: "EUR", selectedCurrencyLocale: "en", locale: "en",
+    });
+    expect(r.currency).toBe("EUR");
+  });
+
+  it("ignores a pick made in another language", async () => {
+    getDefaultCurrencyForCountry.mockResolvedValue(null);
+    const r = await resolveDisplayCurrency({
+      countryCode: null, selectedCurrencyCode: "EUR", selectedCurrencyLocale: "fa", locale: "en",
+    });
+    expect(r.currency).toBe("USD");
+  });
+});
+
 describe("resolvePrices", () => {
   it("de-duplicates conversions to one call per source currency and scales linearly", async () => {
     convertMoney.mockResolvedValue({ appliedRate: 40, targetAmount: 40 });

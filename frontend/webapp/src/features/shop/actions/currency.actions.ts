@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 
-import { setSelectedCurrencyCookie } from "../lib/context";
+import { getShopContext, setSelectedCurrencyCookie } from "../lib/context";
 import { getDisplayCurrencyOptions, getShopPricingMode } from "../lib/pricing";
 import { currencySelectSchema } from "../schemas/checkout";
 import { emitCommerceEvent } from "../lib/analytics";
@@ -26,7 +26,9 @@ export async function setDisplayCurrencyAction(input: unknown) {
     return { ok: false as const, error: "That currency is not enabled for display." };
   }
 
-  await setSelectedCurrencyCookie(code);
+  // Tied to the current language, so switching language shows that language's currency.
+  const { locale } = await getShopContext();
+  await setSelectedCurrencyCookie(code, locale);
   await emitCommerceEvent("shop_currency_changed", { currency: code, surface: "currency_switcher" });
 
   revalidatePath("/[locale]/n/app/mobile/shop", "layout");
