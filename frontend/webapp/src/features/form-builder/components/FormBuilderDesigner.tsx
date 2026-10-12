@@ -884,7 +884,7 @@ export function FormBuilderDesigner({ initial, fieldTypes = DEFAULT_DESIGNER_FIE
               </label>
               <label className="block text-sm">
                 <span className="mb-1 block font-semibold text-slate-800">{t("locales")}</span>
-                <input value={(value.locales ?? []).join(", ")} onChange={(e) => setValue({ ...value, locales: e.target.value.split(",").map((item) => item.trim()).filter(Boolean) })} className="h-12 w-full rounded-2xl border border-slate-200 px-4 outline-none focus:border-[#155e75]" placeholder={tt("enUsFaIr")} />
+                <input key={(value.locales ?? []).join(",")} defaultValue={(value.locales ?? []).join(", ")} onBlur={(e) => setValue({ ...value, locales: e.target.value.split(",").map((item) => item.trim()).filter(Boolean) })} className="h-12 w-full rounded-2xl border border-slate-200 px-4 outline-none focus:border-[#155e75]" placeholder={tt("enUsFaIr")} />
               </label>
               <div className="grid gap-3 sm:grid-cols-2">
                 <label className="block text-sm">
