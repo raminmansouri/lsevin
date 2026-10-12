@@ -76,7 +76,10 @@ export function ServiceWorkerRegister() {
       const profile =
         /^\/(?:en|fa|tr|es|ar|ku|de|fr|ru|tg|zh)\/n\/app\/mobile\/profile\/?$/.test(
           url.pathname
-        ) && (await globalThis.LsevinViewStore?.read(url.pathname));
+        ) &&
+        (await globalThis.LsevinViewStore?.read(url.pathname).catch(
+          () => null
+        ));
       if (saved || profile) location.assign(url.href);
       else window.dispatchEvent(new Event("lsevin-online-required"));
     };

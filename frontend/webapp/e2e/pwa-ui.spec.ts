@@ -38,8 +38,10 @@ test.beforeEach(async ({ request }) => {
 test("nonextractable profile key, ciphertext tampering and real session invalidation fail safely", async ({
   page,
   request,
+  context,
 }) => {
   await start(page);
+  await save(page, "/en/n/app/mobile/home");
   await page.evaluate(async () => {
     await import(new URL("/pwa/view-store.js", location.origin).href);
     await LsevinViewStore.save(
@@ -96,6 +98,10 @@ test("nonextractable profile key, ciphertext tampering and real session invalida
       }
     })
   ).toBe(true);
+  await context.setOffline(true);
+  await page.goto("/en/n/app/mobile/profile");
+  await expect(page).toHaveURL(/\/home(?:\?offlineUnavailable=1)?$/);
+  await expect(page.locator("#retry")).toHaveCount(0);
 });
 test.afterEach(async ({ request }) => {
   await request.get("/__fixture/offline-off");

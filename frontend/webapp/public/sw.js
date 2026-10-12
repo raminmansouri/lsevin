@@ -173,7 +173,7 @@
 })();
 
 /* PROFILE_VIEW_STORE_END */
-const VERSION = "v1-69ae317d491b8537";
+const VERSION = "v1-d8dc4d1f96fcf272";
 const SHELL_CACHE = `lsevin-pwa-shell-${VERSION}`;
 const ASSET_CACHE = "lsevin-pwa-assets-v2";
 const APPLICATION_CACHE = "lsevin-pwa-application-v2";
@@ -352,7 +352,7 @@ async function offlineNavigation(request) {
             pathname
           )
         ) {
-          const html = await LsevinViewStore.read(pathname);
+          const html = await LsevinViewStore.read(pathname).catch(() => null);
           if (html)
             return new Response(html, {
               headers: {
