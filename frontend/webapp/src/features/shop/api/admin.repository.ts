@@ -210,7 +210,8 @@ export async function getAdminProductForEdit(productId: string) {
     sql<any[]>`
       select a.id::text as attribute_id, a.slug, a.display_type, a.is_variant_defining,
         common.get_translation_t(a.name_translations, 'en', 'en') as name,
-        pa.is_required, pa.display_order
+        pa.is_required, pa.display_order,
+        pa.value_ids::text[] as value_ids, pa.text_value
       from shop.product_attributes pa
       join shop.attributes a on a.id = pa.attribute_id
       where pa.product_id = ${productId}::uuid

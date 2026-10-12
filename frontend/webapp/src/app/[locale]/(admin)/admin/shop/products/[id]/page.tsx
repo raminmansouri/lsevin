@@ -42,6 +42,7 @@ export default async function AdminProductEditPage({ params }: { params: Promise
   ]);
   if (!product) notFound();
   const attachedIds = new Set((product.attributes ?? []).map((a: any) => a.attribute_id));
+  const attributeValuesById = new Map((allAttributes as any[]).map((a) => [a.id, a.values ?? []]));
 
   const nt = product.name_translations ?? {};
   const dt = product.short_description_translations ?? {};
@@ -182,7 +183,8 @@ export default async function AdminProductEditPage({ params }: { params: Promise
             </div>
             <ul className="mb-3 space-y-1">
               {(product.attributes ?? []).map((a: any) => (
-                <li key={a.attribute_id} className="flex items-center justify-between rounded border border-gray-100 px-2 py-1 text-sm">
+                <li key={a.attribute_id} className="space-y-2 rounded border border-gray-100 px-2 py-2 text-sm">
+                  <div className="flex items-center justify-between">
                   <span>
                     {a.name} <span className="font-mono text-xs text-gray-400">{a.slug}</span>
                     {a.is_required ? <span className="ms-1 text-xs text-amber-600">{e("attrRequired")}</span> : null}
@@ -193,6 +195,29 @@ export default async function AdminProductEditPage({ params }: { params: Promise
                     <input type="hidden" name="productId" value={product.id} />
                     <input type="hidden" name="attributeId" value={a.attribute_id} />
                     <button className="text-xs text-red-600">{t("common.remove")}</button>
+                  </form>
+                  </div>
+                  <form action={setProductAttributeForm} className="space-y-2">
+                    <input type="hidden" name="productId" value={product.id} />
+                    <input type="hidden" name="attributeId" value={a.attribute_id} />
+                    <input type="hidden" name="displayOrder" value={a.display_order} />
+                    <input type="hidden" name="setValues" value="1" />
+                    {a.is_required ? <input type="hidden" name="isRequired" value="on" /> : null}
+                    {a.display_type === "text" ? (
+                      <input name="textValue" defaultValue={a.text_value ?? ""} placeholder={e("attrTextValue")} className={input} />
+                    ) : (attributeValuesById.get(a.attribute_id) ?? []).length ? (
+                      <div className="flex flex-wrap gap-2">
+                        {(attributeValuesById.get(a.attribute_id) ?? []).map((v: any) => (
+                          <label key={v.id} className="flex items-center gap-1 rounded-full border border-gray-200 px-2 py-1 text-xs">
+                            <input type="checkbox" name="valueIds" value={v.id} defaultChecked={(a.value_ids ?? []).includes(v.id)} />
+                            {v.name || v.value}
+                          </label>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-xs text-gray-400">{e("attrNoValues")}</p>
+                    )}
+                    <button className="rounded bg-[#083f30]/10 px-3 py-1 text-xs font-semibold text-[#083f30] transition duration-150 hover:bg-[#083f30]/20 active:scale-95 active:bg-[#083f30] active:text-white">{e("attrSaveValues")}</button>
                   </form>
                 </li>
               ))}

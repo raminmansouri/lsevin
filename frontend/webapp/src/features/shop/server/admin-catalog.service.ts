@@ -506,13 +506,25 @@ export async function setProductAttribute(input: {
   attributeId: string;
   isRequired: boolean;
   displayOrder: number;
+  /** undefined = keep the stored values (e.g. when only attaching the attribute). */
+  valueIds?: string[];
+  textValue?: string | null;
 }): Promise<void> {
   await assertShopPermission(SHOP_PERMISSIONS.catalogManage);
+  const setValues = input.valueIds !== undefined || input.textValue !== undefined;
+  const valueIdsCsv = (input.valueIds ?? []).join(",");
   await sql`
-    insert into shop.product_attributes (product_id, attribute_id, is_required, display_order)
-    values (${input.productId}::uuid, ${input.attributeId}::uuid, ${input.isRequired}, ${input.displayOrder})
+    insert into shop.product_attributes (product_id, attribute_id, is_required, display_order, value_ids, text_value)
+    values (
+      ${input.productId}::uuid, ${input.attributeId}::uuid, ${input.isRequired}, ${input.displayOrder},
+      string_to_array(${valueIdsCsv}::text, ',')::uuid[], ${input.textValue ?? null}::text
+    )
     on conflict (product_id, attribute_id)
-    do update set is_required = excluded.is_required, display_order = excluded.display_order
+    do update set
+      is_required = excluded.is_required,
+      display_order = excluded.display_order,
+      value_ids = case when ${setValues}::boolean then excluded.value_ids else shop.product_attributes.value_ids end,
+      text_value = case when ${setValues}::boolean then excluded.text_value else shop.product_attributes.text_value end
   `;
 }
 

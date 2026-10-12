@@ -16,6 +16,9 @@ import { ProductPersonalSections } from "@/features/shop/components/ProductPerso
 import { shopImageSrc } from "@/features/shop/lib/image";
 import { ConsultationCtaButton } from "@/features/consultation/components/consultation-cta-button";
 
+
+import { ProductSpecs } from "@/features/shop/components/ProductSpecs";
+
 // Customer currency is resolved per request; product data remains cached.
 export const dynamic = "force-dynamic";
 
@@ -177,6 +180,8 @@ export default async function ProductDetailPage({
           />
         </div>
       </div>
+
+      <ProductSpecs productId={product.id} locale={locale} />
 
       {product.description ? (
         <section className="mt-2 bg-white p-4">

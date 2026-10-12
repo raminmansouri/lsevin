@@ -15462,6 +15462,7 @@ declare const messages: {
     }
   },
   "Shop": {
+    "specifications": "مشخصات",
     "iban": "شبا:",
     "ge00Ls0000000000000000": "GE00 LS00 0000 0000 0000 00",
     "ref": "کد پیگیری:",
@@ -15851,6 +15852,9 @@ declare const messages: {
       "draftNote": "به‌صورت پیش‌نویس ایجاد شد. تصاویر را اضافه کنید و از صفحهٔ محصول منتشر کنید."
     },
     "productEdit": {
+      "attrSaveValues": "ذخیرهٔ مقدار",
+      "attrTextValue": "مقدار",
+      "attrNoValues": "اول برای این ویژگی مقدار تعریف کنید",
       "coreTitle": "فیلدهای اصلی",
       "nameEn": "نام (EN)",
       "nameFa": "نام (FA)",

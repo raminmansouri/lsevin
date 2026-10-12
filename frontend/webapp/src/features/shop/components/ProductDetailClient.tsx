@@ -87,7 +87,7 @@ export function ProductDetailClient({ product, locale }: { product: ProductDetai
           >
             −
           </button>
-          <span className="min-w-[2.5rem] text-center text-sm font-semibold">{qty}</span>
+          <span className="min-w-[2.5rem] text-center text-sm font-semibold">{new Intl.NumberFormat(locale).format(qty)}</span>
           <button
             type="button"
             aria-label="increase"

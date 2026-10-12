@@ -5792,6 +5792,7 @@ declare const messages: {
     "searchNow": "Şimdi Ara"
   },
   "Shop": {
+    "specifications": "Özellikler",
     "title": "Mağaza",
     "tab": "Mağaza",
     "searchPlaceholder": "Ürün, marka ara…",

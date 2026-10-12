@@ -13705,6 +13705,7 @@ declare const messages: {
     }
   },
   "Shop": {
+    "specifications": "المواصفات",
     "title": "المتجر",
     "tab": "المتجر",
     "searchPlaceholder": "ابحث عن منتجات، علامات…",
@@ -14088,6 +14089,9 @@ declare const messages: {
       "draftNote": "أُنشئ كمسودة. أضف الصور وانشر من صفحة المنتج."
     },
     "productEdit": {
+      "attrSaveValues": "حفظ القيم",
+      "attrTextValue": "القيمة",
+      "attrNoValues": "أضف قيمًا لهذه الخاصية أولاً",
       "coreTitle": "الحقول الأساسية",
       "nameEn": "الاسم (EN)",
       "nameFa": "الاسم (FA)",

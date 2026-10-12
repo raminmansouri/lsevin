@@ -15458,6 +15458,7 @@ declare const messages: {
     }
   },
   "Shop": {
+    "specifications": "Specifications",
     "iban": "IBAN:",
     "ge00Ls0000000000000000": "GE00 LS00 0000 0000 0000 00",
     "ref": "Ref:",
@@ -15847,6 +15848,9 @@ declare const messages: {
       "draftNote": "Created as draft. Add images and publish from the product page."
     },
     "productEdit": {
+      "attrSaveValues": "Save values",
+      "attrTextValue": "Value",
+      "attrNoValues": "Add values to this attribute first",
       "coreTitle": "Core fields",
       "nameEn": "Name (EN)",
       "nameFa": "Name (FA)",

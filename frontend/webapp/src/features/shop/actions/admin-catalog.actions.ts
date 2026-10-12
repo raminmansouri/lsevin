@@ -289,13 +289,20 @@ export async function deleteAttributeValueAction(input: { id: string }) {
 
 export async function setProductAttributeForm(formData: FormData) {
   const productId = shopId.parse(formData.get("productId"));
+  // Only the per-attribute "values" form sends setValues=1; the attach form leaves values as they are.
+  const setValues = formData.get("setValues") === "1";
   await setProductAttribute({
     productId,
     attributeId: shopId.parse(formData.get("attributeId")),
     isRequired: formData.get("isRequired") === "on",
     displayOrder: Number(formData.get("displayOrder") || 0),
+    valueIds: setValues ? formData.getAll("valueIds").map((v) => shopId.parse(v)) : undefined,
+    textValue: setValues ? String(formData.get("textValue") ?? "").trim() || null : undefined,
   });
+  revalidateShopCatalog();
   revalidatePath(`/[locale]/admin/shop/products/${productId}`, "page");
+  // The storefront product page is cached; refresh it so the new specs show.
+  revalidatePath("/[locale]/n/app/mobile/shop/product/[slug]", "page");
 }
 
 export async function removeProductAttributeForm(formData: FormData) {
@@ -304,7 +311,9 @@ export async function removeProductAttributeForm(formData: FormData) {
     productId,
     attributeId: shopId.parse(formData.get("attributeId")),
   });
+  revalidateShopCatalog();
   revalidatePath(`/[locale]/admin/shop/products/${productId}`, "page");
+  revalidatePath("/[locale]/n/app/mobile/shop/product/[slug]", "page");
 }
 
 // ======================================================================
@@ -370,7 +379,7 @@ export async function updateDeliveryMethodAction(input: {
 // ======================================================================
 export async function setProductGalleryAction(input: unknown) {
   const p = productGallerySchema.parse(input);
-  await setProductGallery(p);
+  await setProductGallery({ productId: p.productId, urls: p.urls ?? [] });
   revalidateShopCatalog();
   revalidatePath(`/[locale]/admin/shop/products/${p.productId}`, "page");
   return { ok: true as const };
