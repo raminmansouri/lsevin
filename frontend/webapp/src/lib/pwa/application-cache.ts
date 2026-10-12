@@ -1,6 +1,7 @@
 import { canSavePublicPage } from "./public-snapshot";
 
 export const APPLICATION_CACHE = "lsevin-pwa-application-v2";
+const UI_REVISION = "application-ui-3";
 
 /** Fetch a guest document, including Next's bootstrap, rather than stripping its UI. */
 export async function saveApplicationPage(
@@ -11,6 +12,7 @@ export async function saveApplicationPage(
   const previous = await (await caches.open(APPLICATION_CACHE)).match(pathname);
   if (
     previous &&
+    previous.headers.get("X-Lsevin-Ui-Revision") === UI_REVISION &&
     Date.now() - Number(previous.headers.get("X-Lsevin-Saved-At")) <
       5 * 60 * 1000
   )
@@ -43,6 +45,7 @@ export async function saveApplicationPage(
   headers.delete("content-length");
   headers.delete("content-encoding");
   headers.set("X-Lsevin-Saved-At", String(Date.now()));
+  headers.set("X-Lsevin-Ui-Revision", UI_REVISION);
   headers.set("Cache-Control", "no-store");
   const cache = await caches.open(APPLICATION_CACHE);
   await cache.put(pathname, new Response(html, { headers }));

@@ -1,6 +1,10 @@
 /** The offline profile never contains Next's server payload or session scripts. */
-export function profileDocument() {
+export function profileDocument(owner?: string) {
   const clone = document.documentElement.cloneNode(true) as HTMLElement;
+  if (owner) {
+    clone.dataset.lsevinViewOwner = owner;
+    clone.dataset.lsevinViewUntil = String(Date.now() + 24 * 60 * 60 * 1000);
+  }
   clone
     .querySelectorAll(
       "script,iframe,object,embed,template,noscript,[data-pwa-transient],[role=dialog],input,textarea,select"

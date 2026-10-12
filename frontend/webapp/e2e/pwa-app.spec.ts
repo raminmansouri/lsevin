@@ -305,6 +305,33 @@ test.describe("authenticated profile", () => {
     page,
     context,
   }) => {
+    await openOnlinePage(page, "/en/n/app/mobile/home");
+    await page.waitForFunction(() => !!navigator.serviceWorker.controller);
+    await expect
+      .poll(() =>
+        page.evaluate(
+          async () =>
+            !!(await (
+              await caches.open("lsevin-pwa-private-view-v2")
+            ).match("/pwa/home-identity"))
+        )
+      )
+      .toBe(true);
+    await expect
+      .poll(() =>
+        page.evaluate(
+          async () =>
+            !!(await (
+              await caches.open("lsevin-pwa-application-v2")
+            ).match(location.pathname))
+        )
+      )
+      .toBe(true);
+    const greeting = await page.locator("h1").first().innerText();
+    await context.setOffline(true);
+    await page.reload();
+    await expect(page.locator("h1").first()).toHaveText(greeting);
+    await context.setOffline(false);
     await page.goto("/en/n/app/mobile/profile");
     await page.waitForFunction(() => !!navigator.serviceWorker.controller);
     await expect

@@ -33,7 +33,7 @@ export function ProfileViewCache() {
         if (controller.signal.aborted) return;
         await LsevinViewStore.checkOwner(owner);
         const started = generation;
-        const clone = profileDocument();
+        const clone = profileDocument(owner);
         await cacheDocumentAssets(clone, controller.signal);
         // Keep private profile images inside the encrypted record, not asset caches.
         await Promise.all(
@@ -73,7 +73,12 @@ export function ProfileViewCache() {
           signal: controller.signal,
         });
         const current = response.ok ? await response.json() : null;
-        if (current?.user?.id !== owner || controller.signal.aborted) return;
+        if (
+          current?.error ||
+          current?.user?.id !== owner ||
+          controller.signal.aborted
+        )
+          return;
         await LsevinViewStore.save(location.pathname, html, owner);
         if (started !== generation) await LsevinViewStore.clear();
       } catch {

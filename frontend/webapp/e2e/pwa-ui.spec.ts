@@ -196,7 +196,7 @@ test("profile view is encrypted, retains original styling after restart, and loc
     const secret = document.createElement("script");
     secret.textContent = "window.sessionToken='TOKEN_MUST_NOT_PERSIST'";
     document.body.append(secret);
-    const html = "<!doctype html>" + profileDocument().outerHTML;
+    const html = "<!doctype html>" + profileDocument("test-owner").outerHTML;
     await LsevinViewStore.save("/en/n/app/mobile/profile", html, "test-owner");
   });
   const online = await page.locator("header").screenshot();

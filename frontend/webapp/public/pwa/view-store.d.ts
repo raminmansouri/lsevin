@@ -5,5 +5,6 @@ declare global {
     read(path: string): Promise<string | null>;
     clear(): Promise<void>;
     checkOwner(owner: string | null): Promise<void>;
+    validOwner(path: string, owner: string): Promise<boolean>;
   };
 }

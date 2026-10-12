@@ -64,3 +64,21 @@ document.addEventListener(
   true
 );
 window.addEventListener("online", () => location.reload());
+function closePrivateView() {
+  document.body.replaceChildren();
+  location.replace("/" + document.documentElement.lang + "/n/app/mobile/home");
+}
+async function checkPrivateView() {
+  const owner = document.documentElement.dataset.lsevinViewOwner;
+  if (owner && !(await LsevinViewStore.validOwner(location.pathname, owner)))
+    closePrivateView();
+}
+navigator.serviceWorker.addEventListener("message", (event) => {
+  if (event.data?.type === "PRIVATE_VIEW_CLEARED") closePrivateView();
+});
+window.addEventListener("pageshow", checkPrivateView);
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden) void checkPrivateView();
+});
+const until = Number(document.documentElement.dataset.lsevinViewUntil);
+if (until) window.setTimeout(closePrivateView, Math.max(0, until - Date.now()));

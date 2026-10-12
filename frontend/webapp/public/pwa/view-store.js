@@ -53,6 +53,16 @@
         tx.onerror = () => reject(tx.error);
       });
       await caches.delete(CACHE);
+      if (typeof globalThis.clients?.matchAll === "function") {
+        for (const client of await globalThis.clients.matchAll({
+          type: "window",
+          includeUncontrolled: true,
+        }))
+          client.postMessage({ type: "PRIVATE_VIEW_CLEARED" });
+      } else
+        globalThis.navigator?.serviceWorker?.controller?.postMessage({
+          type: "PRIVATE_VIEW_CLEARED",
+        });
     } finally {
       db.close();
     }
@@ -60,14 +70,22 @@
   async function save(path, html, owner) {
     const deviceKey = await key(true, owner);
     const iv = crypto.getRandomValues(new Uint8Array(12));
+    const savedAt = Date.now();
     const ciphertext = await crypto.subtle.encrypt(
-      { name: "AES-GCM", iv, additionalData: new TextEncoder().encode(owner) },
+      {
+        name: "AES-GCM",
+        iv,
+        additionalData: new TextEncoder().encode(
+          JSON.stringify([owner, savedAt])
+        ),
+      },
       deviceKey,
       new TextEncoder().encode(html)
     );
     const record = {
       owner,
-      savedAt: Date.now(),
+      savedAt,
+      version: 2,
       iv: Array.from(iv),
       bytes: Array.from(new Uint8Array(ciphertext)),
     };
@@ -94,12 +112,31 @@
       {
         name: "AES-GCM",
         iv: new Uint8Array(record.iv),
-        additionalData: new TextEncoder().encode(record.owner),
+        additionalData: new TextEncoder().encode(
+          record.version === 2
+            ? JSON.stringify([record.owner, record.savedAt])
+            : record.owner
+        ),
       },
       deviceKey,
       new Uint8Array(record.bytes)
     );
-    return new TextDecoder().decode(plaintext);
+    let value = new TextDecoder().decode(plaintext);
+    if (
+      path.endsWith("/profile") &&
+      !value.includes("data-lsevin-view-owner=")
+    ) {
+      const owner = record.owner.replace(
+        /[&"<>]/g,
+        (char) =>
+          ({ "&": "&amp;", '"': "&quot;", "<": "&lt;", ">": "&gt;" })[char]
+      );
+      value = value.replace(
+        /<html\b/,
+        `<html data-lsevin-view-owner="${owner}" data-lsevin-view-until="${record.savedAt + ttl}"`
+      );
+    }
+    return value;
   }
   async function checkOwner(owner) {
     try {
@@ -117,5 +154,17 @@
       }
     }
   }
-  globalThis.LsevinViewStore = { save, read, clear, checkOwner };
+  async function validOwner(path, owner) {
+    const response = await (await caches.open(CACHE)).match(path);
+    if (!response) return false;
+    const record = await response.json();
+    if (record.owner !== owner || Date.now() - record.savedAt > ttl)
+      return false;
+    try {
+      return !!(await key(false, owner));
+    } catch {
+      return false;
+    }
+  }
+  globalThis.LsevinViewStore = { save, read, clear, checkOwner, validOwner };
 })();
