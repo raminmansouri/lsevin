@@ -146,7 +146,12 @@ export async function cacheDocumentAssets(
         await Promise.all(
           [...css.matchAll(/url\(["']?([^)'"\s]+)["']?\)/g)].map(
             async (match) => {
-              const font = new URL(match[1], url);
+              // CSS escapes an SVG fragment as \#clip. It names a local paint
+              // server, not a file to fetch; URL parsing treats the slash as a
+              // directory separator and would otherwise request /%23clip.
+              const value = match[1].replace(/\\#/g, "#");
+              if (value.startsWith("#")) return;
+              const font = new URL(value, url);
               if (
                 font.origin === location.origin &&
                 font.pathname.startsWith("/_next/static/")

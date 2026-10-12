@@ -361,7 +361,6 @@ test.describe("authenticated profile", () => {
     await page.reload();
     await expect(overview.locator("h1")).toHaveText(name);
     await context.setOffline(false);
-    await page.reload();
     await page.waitForFunction(
       () => document.documentElement.dataset.lsevinConnection === "online"
     );
