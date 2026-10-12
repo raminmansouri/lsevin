@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
-import { Chat, useChat } from "@ai-sdk/react";
-import { DefaultChatTransport, type UIMessage } from "ai";
-import { Send, Sparkles } from "lucide-react";
-import { useLocale, useTranslations } from "next-intl";
+import { useEffect, useRef, useState } from "react";
+import { type Chat, useChat } from "@ai-sdk/react";
+import type { UIMessage } from "ai";
+import { History, MessageSquare, Plus, Send, Sparkles, X } from "lucide-react";
+import { useFormatter, useTranslations } from "next-intl";
 
+import type { AssistantConversationSummary } from "../hooks/use-assistant-chat";
 import type { AssistantServiceResult } from "../types";
 import { AssistantServiceCard } from "./assistant-service-card";
 
@@ -31,23 +32,38 @@ function extractServices(output: unknown): AssistantServiceResult[] {
   }
 }
 
-export function AssistantChat({ chat }: { chat?: Chat<UIMessage> }) {
+type AssistantChatHistory = {
+  conversations: AssistantConversationSummary[];
+  onOpen: (conversationId: string) => void;
+  onShow: () => void;
+};
+
+export function AssistantChat({
+  chat,
+  onNewChat,
+  history,
+}: {
+  chat: Chat<UIMessage>;
+  onNewChat?: () => void;
+  /** The signed-in user's saved chats; the list button only shows when there are some. */
+  history?: AssistantChatHistory;
+}) {
   const t = useTranslations("Assistant.chat");
-  const locale = useLocale();
+  const format = useFormatter();
   const [input, setInput] = useState("");
+  const [showHistory, setShowHistory] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Use the launcher's shared chat when given; otherwise (the standalone page) create one.
-  const ownChat = useMemo(
-    () =>
-      chat ??
-      new Chat<UIMessage>({
-        transport: new DefaultChatTransport({ api: "/api/assistant", body: { locale } }),
-      }),
-    [chat, locale]
-  );
-  const { messages, sendMessage, status, error } = useChat({ chat: ownChat });
+  const { messages, sendMessage, status, error } = useChat({ chat });
   const busy = status === "submitted" || status === "streaming";
+
+  // When an answer finishes, refresh the saved-chats list so a new chat shows up in it.
+  const onShowHistory = history?.onShow;
+  const wasBusy = useRef(false);
+  useEffect(() => {
+    if (wasBusy.current && !busy) onShowHistory?.();
+    wasBusy.current = busy;
+  }, [busy, onShowHistory]);
 
   // Keep the newest message in view.
   useEffect(() => {
@@ -66,6 +82,44 @@ export function AssistantChat({ chat }: { chat?: Chat<UIMessage> }) {
 
   return (
     <div className="flex h-full flex-col bg-gray-50">
+      {showHistory && history ? (
+        <div className="flex-1 overflow-y-auto px-4 py-4">
+          <div className="mb-3 flex items-center justify-between">
+            <h2 className="text-sm font-bold text-gray-800">{t("history")}</h2>
+            <button
+              type="button"
+              onClick={() => setShowHistory(false)}
+              aria-label={t("closeHistory")}
+              className="grid h-8 w-8 place-items-center rounded-full text-gray-500 hover:bg-gray-100"
+            >
+              <X size={16} />
+            </button>
+          </div>
+          <div className="space-y-2">
+            {history.conversations.map((conversation) => (
+              <button
+                key={conversation.id}
+                type="button"
+                onClick={() => {
+                  setShowHistory(false);
+                  if (conversation.id !== chat.id) history.onOpen(conversation.id);
+                }}
+                className={`flex w-full items-center gap-3 rounded-xl bg-white px-3 py-2.5 text-start shadow-sm ring-1 ${
+                  conversation.id === chat.id ? "ring-[#083f30]" : "ring-transparent"
+                }`}
+              >
+                <MessageSquare size={16} className="shrink-0 text-[#083f30]" />
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-sm text-gray-800">{conversation.title || t("untitled")}</span>
+                  <span className="block text-[11px] text-gray-400">
+                    {format.dateTime(new Date(conversation.updatedAt), { dateStyle: "medium", timeStyle: "short" })}
+                  </span>
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
+      ) : (
       <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto px-4 py-4">
         {messages.length === 0 ? (
           <div className="rounded-2xl bg-gradient-to-br from-[#083f30] to-[#0a5a44] p-4 text-white">
@@ -144,9 +198,36 @@ export function AssistantChat({ chat }: { chat?: Chat<UIMessage> }) {
         {busy ? <p className="text-xs text-gray-500">{t("thinking")}</p> : null}
         {error ? <p className="text-xs text-red-600">{t("error")}</p> : null}
       </div>
+      )}
 
       <div className="border-t border-gray-100 bg-white px-3 py-2.5">
         <div className="flex items-center gap-2">
+          {history && history.conversations.length ? (
+            <button
+              type="button"
+              onClick={() => {
+                if (!showHistory) history.onShow();
+                setShowHistory((value) => !value);
+              }}
+              aria-label={t("history")}
+              title={t("history")}
+              className="grid h-11 w-11 shrink-0 place-items-center rounded-full border border-gray-200 text-[#083f30]"
+            >
+              <History size={18} />
+            </button>
+          ) : null}
+          {onNewChat && messages.length ? (
+            <button
+              type="button"
+              onClick={onNewChat}
+              disabled={busy}
+              aria-label={t("newChat")}
+              title={t("newChat")}
+              className="grid h-11 w-11 shrink-0 place-items-center rounded-full border border-gray-200 text-[#083f30] disabled:opacity-40"
+            >
+              <Plus size={18} />
+            </button>
+          ) : null}
           <input
             value={input}
             onChange={(event) => setInput(event.target.value)}

@@ -1,8 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
-import { Chat } from "@ai-sdk/react";
-import { DefaultChatTransport, type UIMessage } from "ai";
+import { useEffect, useRef, useState } from "react";
 import { Maximize2, Minimize2, X } from "lucide-react";
 import {
   AnimatePresence,
@@ -14,6 +12,7 @@ import {
 import { usePathname } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 
+import { useAssistantChat } from "../hooks/use-assistant-chat";
 import { AssistantAvatar } from "./assistant-avatar";
 import { AssistantChat } from "./assistant-chat";
 
@@ -46,13 +45,9 @@ export function AssistantLauncher() {
   const y = useMotionValue(0);
 
   // One chat for the whole visit: closing the panel keeps the conversation.
-  const chat = useMemo(
-    () =>
-      new Chat<UIMessage>({
-        transport: new DefaultChatTransport({ api: "/api/assistant", body: { locale } }),
-      }),
-    [locale]
-  );
+  // Signed-in users get their last saved chat back.
+  const { chat, startNewChat, conversations, refreshConversations, openConversation } = useAssistantChat(locale);
+  const history = { conversations, onOpen: openConversation, onShow: refreshConversations };
 
   const close = () => {
     setOpen(false);
@@ -187,7 +182,7 @@ export function AssistantLauncher() {
             >
               {header}
               <div className="min-h-0 flex-1">
-                <AssistantChat chat={chat} />
+                <AssistantChat key={chat.id} chat={chat} onNewChat={startNewChat} history={history} />
               </div>
             </motion.div>
           </motion.div>
@@ -208,7 +203,7 @@ export function AssistantLauncher() {
           >
             {header}
             <div className="min-h-0 flex-1">
-              <AssistantChat chat={chat} />
+              <AssistantChat key={chat.id} chat={chat} onNewChat={startNewChat} history={history} />
             </div>
           </motion.div>
         ) : null}

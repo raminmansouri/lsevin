@@ -1,6 +1,6 @@
 import { setRequestLocale } from "next-intl/server";
 
-import { AssistantChat } from "@/features/assistant/components/assistant-chat";
+import { AssistantChatPanel } from "@/features/assistant/components/assistant-chat-panel";
 
 export const dynamic = "force-dynamic";
 
@@ -14,7 +14,7 @@ export default async function AssistantPage({
 
   return (
     <div className="h-[calc(100dvh-8rem)]">
-      <AssistantChat />
+      <AssistantChatPanel />
     </div>
   );
 }
