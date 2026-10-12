@@ -76,7 +76,10 @@ export function ServiceWorkerRegister() {
       const profile =
         /^\/(?:en|fa|tr|es|ar|ku|de|fr|ru|tg|zh)\/n\/app\/mobile\/profile\/?$/.test(
           url.pathname
-        ) && (await globalThis.LsevinViewStore?.read(url.pathname));
+        ) &&
+        (await globalThis.LsevinViewStore?.read(url.pathname).catch(
+          () => null
+        ));
       if (saved || profile) location.assign(url.href);
       else window.dispatchEvent(new Event("lsevin-online-required"));
     };
@@ -126,12 +129,32 @@ export function ServiceWorkerRegister() {
     );
     const register = async () => {
       try {
-        registration = await navigator.serviceWorker.register("/sw.js", {
-          scope: "/",
-          updateViaCache: "none",
-        });
-        if (disposed) return;
-        await navigator.serviceWorker.ready;
+        // A failed atomic installation removes its registration. `ready` then
+        // remains pending forever, so retry registration after a bounded wait.
+        for (let attempt = 0; attempt < 3; attempt++) {
+          if (disposed) return;
+          registration = await navigator.serviceWorker.register("/sw.js", {
+            scope: "/",
+            updateViaCache: "none",
+          });
+          let deadline: number | undefined;
+          try {
+            await Promise.race([
+              navigator.serviceWorker.ready,
+              new Promise<never>((_, reject) => {
+                deadline = window.setTimeout(
+                  () => reject(new Error("WorkerReadinessTimeout")),
+                  12000
+                );
+              }),
+            ]);
+            break;
+          } catch (error) {
+            if (attempt === 2) throw error;
+          } finally {
+            window.clearTimeout(deadline);
+          }
+        }
         if (disposed) return;
         registration.active?.postMessage({ type: "REPAIR_SHELL" });
         setSupported(true);

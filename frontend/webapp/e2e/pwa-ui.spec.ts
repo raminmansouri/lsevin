@@ -38,8 +38,10 @@ test.beforeEach(async ({ request }) => {
 test("nonextractable profile key, ciphertext tampering and real session invalidation fail safely", async ({
   page,
   request,
+  context,
 }) => {
   await start(page);
+  await save(page, "/en/n/app/mobile/home");
   await page.evaluate(async () => {
     await import(new URL("/pwa/view-store.js", location.origin).href);
     await LsevinViewStore.save(
@@ -96,6 +98,10 @@ test("nonextractable profile key, ciphertext tampering and real session invalida
       }
     })
   ).toBe(true);
+  await context.setOffline(true);
+  await page.goto("/en/n/app/mobile/profile");
+  await expect(page).toHaveURL(/\/home(?:\?offlineUnavailable=1)?$/);
+  await expect(page.locator("#retry")).toHaveCount(0);
 });
 test.afterEach(async ({ request }) => {
   await request.get("/__fixture/offline-off");
@@ -233,6 +239,43 @@ test("profile view is encrypted, retains original styling after restart, and loc
       })
     )
     .toBeNull();
+});
+
+test("clearing private storage in another tab removes an already open offline profile", async ({
+  page,
+  context,
+}) => {
+  await start(page);
+  await save(page, "/en/n/app/mobile/home");
+  await page.evaluate(async () => {
+    await import(new URL("/pwa/view-store.js", location.origin).href);
+    const { profileDocument } = await import(
+      new URL("/fixtures/profile-view.js", location.origin).href
+    );
+    document.querySelector("h1")!.textContent = "Private cross-tab profile";
+    await LsevinViewStore.save(
+      "/en/n/app/mobile/profile",
+      "<!doctype html>" + profileDocument("test-owner").outerHTML,
+      "test-owner"
+    );
+  });
+  await context.setOffline(true);
+  await page.goto("/en/n/app/mobile/profile");
+  await expect(
+    page.getByRole("heading", { name: "Private cross-tab profile" })
+  ).toBeVisible();
+  const other = await context.newPage();
+  await other.goto("/en/n/app/mobile/home");
+  await other.evaluate(async () => {
+    await import(new URL("/pwa/view-store.js", location.origin).href);
+    await LsevinViewStore.clear();
+  });
+  await expect(page).toHaveURL(/\/home(?:\?offlineUnavailable=1)?$/);
+  await page.goto("/en/n/app/mobile/profile");
+  await expect(
+    page.getByRole("heading", { name: "Private cross-tab profile" })
+  ).toHaveCount(0);
+  await other.close();
 });
 
 test("an account change or expired private view cannot be reopened", async ({

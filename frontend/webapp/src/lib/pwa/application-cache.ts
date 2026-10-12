@@ -132,7 +132,10 @@ export async function cacheDocumentAssets(
     });
   await Promise.all(
     [...assets].map(async (url) => {
-      const asset = await fetch(url, { credentials: "omit", signal });
+      const assetCache = await caches.open("lsevin-pwa-assets-v2");
+      const asset =
+        (await assetCache.match(url)) ||
+        (await fetch(url, { credentials: "omit", signal }));
       if (!asset.ok) throw new Error("IncompleteApplicationAssets");
       const bytes = await asset.clone().arrayBuffer();
       if (
@@ -146,11 +149,17 @@ export async function cacheDocumentAssets(
         await Promise.all(
           [...css.matchAll(/url\(["']?([^)'"\s]+)["']?\)/g)].map(
             async (match) => {
-              const font = new URL(match[1], url);
+              // CSS escapes or percent-encodes an SVG fragment. It names a local paint
+              // server, not a file to fetch; URL parsing treats the slash as a
+              // directory separator and would otherwise request /%23clip.
+              const value = match[1].replace(/\\+#/g, "#");
+              if (/^(?:#|%23)/i.test(value)) return;
+              const font = new URL(value, url);
               if (
                 font.origin === location.origin &&
                 font.pathname.startsWith("/_next/static/")
               ) {
+                if (await assetCache.match(font.href)) return;
                 const result = await fetch(font, {
                   credentials: "omit",
                   signal,
