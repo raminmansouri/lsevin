@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+# lsevin-sync-status - run ON SERVER A. One-screen health view of the A <-> B sync: services, VPN link,
+# pending batches in both directions, errors, and how old the newest applied change is.
+q() { k3s kubectl -n lsevin exec deploy/postgres -- sh -c "psql -U \"\$POSTGRES_USER\" -d lsevin -Atc \"$1\"" 2>/dev/null | tr -d '\r'; }
+ok() { [ "$1" = "active" ] && echo "OK" || echo "** $1 **"; }
+echo "== services"
+printf '  node A (sync client) : %s\n' "$(ok "$(systemctl is-active symds-node-a)")"
+printf '  VPN manager          : %s\n' "$(ok "$(systemctl is-active lsevin-vpn-manager)")"
+printf '  VPN tunnel           : %s\n' "$(ok "$(systemctl is-active openvpn-client@lsevin-vpn)")"
+echo "== VPN"
+/usr/local/sbin/lsevin-vpn status 2>/dev/null | sed -n '1p;3,4p;6,$p' | sed 's/^/  /'
+echo "== sync backlog (rows waiting to be sent from A / waiting to be applied on A)"
+echo "  outgoing (A -> B): $(q "select coalesce(sum(data_row_count),0)||' rows in '||count(*)||' batches' from sym_outgoing_batch where status not in ('OK')")"
+echo "  incoming errors   : $(q "select count(*) from sym_incoming_error")"
+echo "  outgoing errors   : $(q "select count(*) from sym_outgoing_batch where status = 'ER'")"
+echo "== freshness"
+echo "  last batch sent to hub    : $(q "select coalesce(to_char(max(last_update_time),'YYYY-MM-DD HH24:MI:SS'),'never') from sym_outgoing_batch where status='OK'") UTC"
+echo "  last batch applied from hub: $(q "select coalesce(to_char(max(last_update_time),'YYYY-MM-DD HH24:MI:SS'),'never') from sym_incoming_batch where status='OK'") UTC"
+echo "  now                       : $(date -u '+%Y-%m-%d %H:%M:%S') UTC"
+echo "== files (SeaweedFS bucket, two-way)"
+printf '  tunnel to B S3 : %s    timer: %s
+' "$(ok "$(systemctl is-active lsevin-files-tunnel)")" "$(ok "$(systemctl is-active lsevin-files-sync.timer)")"
+echo "  last file sync : $(cat /var/lib/lsevin-files/last-run 2>/dev/null || echo never)   (last ok: $(cat /var/lib/lsevin-files/last-ok 2>/dev/null || echo never))"
+echo "  VPN traffic since boot: rx $(( $(cat /sys/class/net/lsvpn0/statistics/rx_bytes 2>/dev/null || echo 0) / 1048576 )) MB, tx $(( $(cat /sys/class/net/lsvpn0/statistics/tx_bytes 2>/dev/null || echo 0) / 1048576 )) MB"
+echo "== recent log problems"
+grep -E " (ERROR|FATAL) " /opt/symds/node-a/logs/symmetric.log 2>/dev/null | tail -3 | cut -c1-170 | sed 's/^/  /'
+[ "$(grep -c -E ' (ERROR|FATAL) ' /opt/symds/node-a/logs/symmetric.log 2>/dev/null)" = "0" ] && echo "  none"

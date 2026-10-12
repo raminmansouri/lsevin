@@ -49,6 +49,7 @@ export default defineConfig({
       "src/payment/**/*.test.ts",
       "src/lib/seo/**/*.test.ts",
       "src/lib/build-mode.test.ts",
+      "src/app/app-health/route.test.ts",
     ],
     // Postgres row locks are the point of several tests; running files in parallel
     // against one database makes those tests flaky for reasons unrelated to the code.

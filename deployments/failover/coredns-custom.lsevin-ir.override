@@ -1,0 +1,5 @@
+template IN A lsevin.ir {
+  match "^(www[.])?lsevin[.]ir[.]$"
+  answer "{{ .Name }} 60 IN A 213.176.121.235"
+  fallthrough
+}

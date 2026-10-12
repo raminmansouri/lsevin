@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+# lsevin-health - run ON SERVER A every minute (systemd timer). Evaluates everything A needs to serve users and
+# stay in sync, writes /var/lib/lsevin-health/status.json (served by Caddy at /__lsevin/health), and publishes a
+# tiny heartbeat object into the synced media bucket (Categories/_health/a.json). The file sync copies it to B,
+# so anything that can read B (e.g. the Cloudflare Worker) learns whether A is alive even though Cloudflare
+# cannot reach A directly.
+#
+# ok=true means: apps ready, VPN link up, DB sync healthy and fresh, file sync fresh, disk space fine.
+set -uo pipefail
+export RCLONE_CONFIG=/etc/lsevin-files/rclone.conf
+OUT=/var/lib/lsevin-health; mkdir -p "$OUT"
+now=$(date +%s)
+declare -A C
+
+http() { [ "$(curl -s -o /dev/null -m 8 -w '%{http_code}' "$1")" = "200" ] && echo true || echo false; }
+q() { k3s kubectl -n lsevin exec deploy/postgres -- sh -c "psql -U \"\$POSTGRES_USER\" -d lsevin -Atc \"$1\"" 2>/dev/null | tr -d '\r'; }
+age_of() { [ -f "$1" ] && echo $(( now - $(date -d "$(cut -d' ' -f1 "$1")" +%s 2>/dev/null || echo 0) )) || echo 999999; }
+
+C[api]=$(http http://127.0.0.1:30081/readiness)
+C[webapp]=$(http http://127.0.0.1:30080/sw.js)
+C[crm]=$(http http://127.0.0.1:30082/api/health)
+C[portal]=$(http http://127.0.0.1:30083/api/health)
+
+C[vpn]=$([ "$(systemctl is-active openvpn-client@lsevin-vpn)" = active ] && timeout 6 bash -c 'echo > /dev/tcp/202.133.90.50/443' 2>/dev/null && echo true || echo false)
+C[sync_service]=$([ "$(systemctl is-active symds-node-a)" = active ] && echo true || echo false)
+
+errs=$(q "select count(*) from sym_incoming_error"); errs=${errs:-99}
+pend=$(q "select count(*) from sym_outgoing_batch where status not in ('OK')"); pend=${pend:-99}
+C[db_sync_errors]=$([ "$errs" = "0" ] && echo true || echo false)
+# lag = age of the oldest batch still waiting to be delivered to B (0 when nothing is pending)
+lag=$(q "select coalesce(extract(epoch from now() - min(create_time))::int, 0) from sym_outgoing_batch where status not in ('OK')"); lag=${lag:-999999}
+C[db_sync_lag_ok]=$([ "$lag" -lt 600 ] && echo true || echo false)
+
+C[file_sync_fresh]=$([ "$(age_of /var/lib/lsevin-files/last-ok)" -lt 600 ] && echo true || echo false)
+free_pct=$(df --output=pcent / | tail -1 | tr -dc '0-9'); C[disk_ok]=$([ "${free_pct:-100}" -lt 85 ] && echo true || echo false)
+
+ok=true; for k in "${!C[@]}"; do [ "${C[$k]}" = true ] || ok=false; done
+checks=$(for k in $(printf '%s\n' "${!C[@]}" | sort); do printf '"%s":%s,' "$k" "${C[$k]}"; done); checks="{${checks%,}}"
+json=$(printf '{"node":"A","ok":%s,"ts":"%s","epoch":%s,"db_sync_lag_s":%s,"db_pending_batches":%s,"disk_used_pct":%s,"checks":%s}' \
+  "$ok" "$(date -u +%FT%TZ)" "$now" "$lag" "${pend:-0}" "${free_pct:-0}" "$checks")
+printf '%s\n' "$json" > "$OUT/status.json.tmp" && mv "$OUT/status.json.tmp" "$OUT/status.json"
+
+# heartbeat for B-side readers. Written DIRECTLY to both buckets (the bulk file sync ignores Categories/_health/),
+# so its freshness on B depends only on the VPN/tunnel being up, not on how long a sync cycle takes. If B is
+# unreachable the upload to B fails and B's copy goes stale: exactly the signal the Cloudflare Worker uses.
+hb=$(printf '{"node":"A","ok":%s,"epoch":%s}
+' "$ok" "$now")
+printf '%s
+' "$hb" | rclone rcat "a:lsevin-media/Categories/_health/a.json" >/dev/null 2>&1 || true
+printf '%s
+' "$hb" | rclone rcat "b:lsevin-media/Categories/_health/a.json" --contimeout 5s --timeout 20s --retries 1 --low-level-retries 1 >/dev/null 2>&1 || true
+[ "$ok" = true ]

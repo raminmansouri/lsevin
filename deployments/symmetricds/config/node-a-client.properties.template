@@ -1,0 +1,16 @@
+# A (Iran) - connects OUT to the hub (push + pull). The hub never connects to A.
+engine.name=nodea
+group.id=client
+external.id=001
+db.driver=org.postgresql.Driver
+db.url=jdbc:postgresql://<postgres-host>:5432/lsevin
+db.user=<dedicated sync user>
+db.password=<from a root-only file or secret, never committed>
+db.init.sql=set session_replication_role = replica
+registration.url=https://<b-public-host>/sync/hub
+sync.url=http://127.0.0.1:31416/sync/nodea
+auto.registration=true
+auto.reload=false
+job.routing.period.time.ms=2000
+job.push.period.time.ms=3000
+job.pull.period.time.ms=3000

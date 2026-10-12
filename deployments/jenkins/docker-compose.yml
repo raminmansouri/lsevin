@@ -23,6 +23,7 @@ services:
         -Djenkins.install.runSetupWizard=false
         -Duser.timezone=Europe/London
       CASC_JENKINS_CONFIG: /usr/share/jenkins/ref/casc/jenkins.yaml
+      JENKINS_POLL_SCM: ${JENKINS_POLL_SCM:-}
 
       JENKINS_ADMIN_USER: ${JENKINS_ADMIN_USER:-admin}
       JENKINS_ADMIN_EMAIL: ${JENKINS_ADMIN_EMAIL:-admin@lsevin.com}

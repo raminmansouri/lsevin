@@ -108,6 +108,8 @@ pipeline {
             --secret id=database_url,env=DATABASE_URL --secret id=auth_secret,env=AUTH_SECRET \
             --secret id=webhook_key,env=WEBHOOK_KEY \
             -t "lsevin-webapp:$IMAGE_TAG" frontend/webapp
+          # Site variant (server A / Iran): only when the Jenkins controller defines SITE_REWRITE_TO. The public host
+          # compiled into the image is rewritten under the same tag, so the import and deploy below are unchanged.
           if [ -n "${SITE_REWRITE_TO:-}" ]; then
             SKIP_CONTAINERD=1 /opt/lsevin/app/deployments/jenkins/site-variant/build-site-variant.sh \
               "lsevin-webapp:$IMAGE_TAG" "${SITE_REWRITE_FROM:-appmain.lsevin.com}" \

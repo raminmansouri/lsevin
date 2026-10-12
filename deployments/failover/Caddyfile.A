@@ -1,0 +1,129 @@
+# Server A (Iran-facing). Plain HTTP: A cannot reach an ACME CA, and lsevincare.com is
+# fronted by Cloudflare. Upstreams are the k3s NodePorts on this host (--network host).
+{
+	auto_https off
+	order geoip2_vars first
+	geoip2 {
+		databaseDirectory "/etc/caddy/geoip"
+		editionID "dbip-country-lite"
+		updateFrequency 0
+	}
+}
+
+(app_backend) {
+	@backend path /api/v1/* /hubs/* /hubs /hc /liveness /readiness
+	handle @backend {
+		reverse_proxy 127.0.0.1:30081 {
+			header_up X-Forwarded-For {remote_host}
+		}
+	}
+	handle_path /files/* {
+		header Cache-Control "public,max-age=31536000,immutable"
+		header -Server
+		rewrite * /files{uri}
+		reverse_proxy 127.0.0.1:30081 {
+			header_up X-Forwarded-For {remote_host}
+		}
+	}
+}
+
+http://lsevincare.com, http://appmain.lsevin.com {
+	log
+	encode zstd gzip
+	geoip2_vars strict
+	import app_backend
+	handle {
+		reverse_proxy 127.0.0.1:30080 {
+			header_up X-Country {geoip2.country_code}
+			health_uri /sw.js
+			health_interval 10s
+		}
+	}
+}
+
+http://api.lsevin.com {
+	log
+	encode zstd gzip
+	handle_path /files/* {
+		header Cache-Control "public,max-age=31536000,immutable"
+		rewrite * /files{uri}
+		reverse_proxy 127.0.0.1:30081 {
+			header_up X-Forwarded-For {remote_host}
+		}
+	}
+	handle {
+		reverse_proxy 127.0.0.1:30081 {
+			header_up X-Forwarded-For {remote_host}
+		}
+	}
+}
+
+http://crm.lsevin.com {
+	log
+	encode zstd gzip
+	reverse_proxy 127.0.0.1:30082
+}
+
+http://providers.lsevin.com {
+	log
+	encode zstd gzip
+	reverse_proxy 127.0.0.1:30083
+}
+
+# health status for monitors / the failover logic
+
+
+
+
+# ---- lsevin.ir = THE Iranian domain (DNS + CDN at ArvanCloud -> this server). Served directly: the ArvanCloud edge is
+# reachable from every Iranian operator, A's own address is not reachable from some mobile networks.
+# The certificate is issued/renewed on B (DNS-01 via CNAME) and fetched here; it covers lsevin.ir and *.lsevin.ir.
+http://lsevin.ir, http://www.lsevin.ir {
+	log
+	encode zstd gzip
+	geoip2_vars strict
+	import app_backend
+	handle {
+		reverse_proxy 127.0.0.1:30080 {
+			header_up X-Country {geoip2.country_code}
+			health_uri /sw.js
+			health_interval 10s
+		}
+	}
+}
+
+https://lsevin.ir, https://www.lsevin.ir {
+	tls /certs/lsevin-ir.crt /certs/lsevin-ir.key
+	log
+	encode zstd gzip
+	geoip2_vars strict
+	import app_backend
+	handle {
+		reverse_proxy 127.0.0.1:30080 {
+			header_up X-Country {geoip2.country_code}
+			health_uri /sw.js
+			health_interval 10s
+		}
+	}
+}
+
+# ir.lsevincare.com (DNS only, direct to this server) now just forwards to the main Iranian domain
+http://ir.lsevincare.com {
+	redir https://lsevin.ir{uri} 302
+}
+
+https://ir.lsevincare.com {
+	tls /certs/ir.crt /certs/ir.key
+	redir https://lsevin.ir{uri} 302
+}
+
+:80 {
+	log
+	handle /__lsevin/health {
+		root * /health
+		rewrite * /status.json
+		header Cache-Control no-store
+		file_server
+	}
+	respond "not found" 404
+}

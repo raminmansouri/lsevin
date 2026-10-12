@@ -1,0 +1,17 @@
+# B (Turkey) - the hub / registration server. It is only ever CONTACTED; it never connects to A.
+engine.name=hub
+group.id=server
+external.id=000
+db.driver=org.postgresql.Driver
+db.url=jdbc:postgresql://<postgres-host>:5432/lsevin
+db.user=<dedicated sync user, owner of the lsevin schemas>
+db.password=<from a root-only file or secret, never committed>
+# Apply incoming rows like logical replication: do not fire the database's own triggers (verified
+# in rehearsal: otherwise updated_at-style triggers rewrite replicated rows and cause conflicts).
+db.init.sql=set session_replication_role = replica
+registration.url=
+# URL that A uses to reach this hub (via the VPN, behind Caddy/TLS on B)
+sync.url=https://<b-public-host>/sync/hub
+auto.registration=true
+auto.reload=false
+job.routing.period.time.ms=2000

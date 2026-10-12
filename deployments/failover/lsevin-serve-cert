@@ -1,0 +1,11 @@
+#!/bin/sh
+# Forced command for server A's certificate-fetch SSH key (see b-acme-setup.sh). Prints ONE certificate bundle.
+# The requested name arrives in SSH_ORIGINAL_COMMAND (default "ir"); only [a-z0-9-] names are accepted, so the key
+# can read nothing except /var/lib/filesync/certs/<name>.tgz.
+name="${SSH_ORIGINAL_COMMAND:-ir}"
+case "$name" in
+  ''|*[!a-z0-9-]*) echo "invalid name" >&2; exit 2 ;;
+esac
+f="/var/lib/filesync/certs/$name.tgz"
+[ -r "$f" ] || { echo "not issued yet" >&2; exit 1; }
+exec cat "$f"

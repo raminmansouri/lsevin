@@ -109,6 +109,11 @@
 
 # Public API hostname used by NEXT_PUBLIC_API_URL and mobile clients.
 {$API_DOMAIN:api.lsevin.com} {
+	# SymmetricDS hub for A <-> B sync (HTTPS from the Iran node; node credentials are required)
+	handle_path /symds/* {
+		rewrite * /sync{uri}
+		reverse_proxy 172.18.0.1:31415
+	}
 	import common_headers
 
 	# Public media is streamed by the API from private SeaweedFS storage.
