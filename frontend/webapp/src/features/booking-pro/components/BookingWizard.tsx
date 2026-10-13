@@ -1514,7 +1514,7 @@ export function BookingWizard() {
                                 <div className="flex justify-between"><span>{tBooking("addOnSubBookings2")}</span><span>{draft.childBookings.length}</span></div>
                                 <div className="flex justify-between"><span>{tBooking("addOnSubtotal")}</span><span>{draft.currency} {draft.addonsAmount ?? 0}</span></div>
                             </> : <div className="rounded-2xl bg-slate-50 p-3 text-xs text-slate-600">{tBooking("extraLSevinSupportServicesWereNotRequestedForThis")}</div>}
-                            {Number(draft.metadata?.appliedDiscountAmount ?? 0) > 0 ? (<div className="flex justify-between text-green-700"><span>{tBooking("couponDiscount")}{String(draft.metadata?.appliedCouponCode ?? draft.metadata?.couponCode ?? '')})</span><span>-{draft.currency} {Number(draft.metadata?.appliedDiscountAmount ?? 0)}</span></div>) : null}
+                            {Number(draft.metadata?.appliedDiscountAmount ?? 0) > 0 ? (<div className="flex justify-between text-green-700"><span>{tBooking("couponDiscount")}{String(draft.metadata?.appliedCouponCode || draft.metadata?.couponCode || draft.metadata?.couponTitle || '')})</span><span>-{draft.currency} {Number(draft.metadata?.appliedDiscountAmount ?? 0)}</span></div>) : null}
                             <div className="flex justify-between border-t border-slate-200 pt-3 text-base font-bold text-slate-900"><span>{tBooking("totalAfterDiscounts")}</span><span>{draft.currency} {draft.totalAmount ?? 0}</span></div>
                             <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-4">
                                 <div className="text-sm font-semibold text-slate-700">{tBooking("coupon")}</div>
