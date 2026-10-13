@@ -248,3 +248,14 @@ a pgBackRest restore on B; Jenkins pipeline execution on A (needs a GitHub crede
   `/etc/lsevin/jenkins/github-token` (root-only, not in git). A job needs one finished build before polling starts.
 * **Mobile apps** choose between `lsevincare.com` and `lsevin.ir` by racing `GET /app-health` (HTTP 204) on both
   (`frontend/webapp/src/app/app-health`); the page must be deployed to both sites before the apps are released.
+* **Capacity rules for A (7.9 GB, 8 CPUs, shared with the application).** On 2026-10-13 A stopped answering (load
+  average > 150, OOM kills) when the CRM, providers and shop pipelines, which build with an unlimited
+  `docker compose build`, ran next to the main build. Rules now: only `lsevin-main-production` polls
+  (`JENKINS_POLL_SCM_JOBS`); the other jobs are started by hand, one at a time; image builds are capped with
+  `JENKINS_BUILD_LIMITS` (1 CPU, 2 GB) and the compose builds with `--memory`; the Jenkins controller has
+  `oom_score_adj: 500` so the kernel sacrifices it before the application; the host has 6 GB of swap; and
+  `lsevin-docker-cleanup.timer` (daily) keeps the BuildKit cache near 5 GB. Check `uptime` and `free -m` before starting
+  any extra build on A, and keep `/` below about 80 %.
+* **crm / providers / financial on the Iranian domain:** `crm.lsevin.ir`, `providers.lsevin.ir` and
+  `financial.lsevin.ir` are served by A's Caddy (`failover/Caddyfile.A`, wildcard certificate `*.lsevin.ir`; DNS at
+  ArvanCloud). Logins on these hosts have not been tested.
