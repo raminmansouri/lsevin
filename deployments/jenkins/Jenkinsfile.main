@@ -14,7 +14,8 @@ pipeline {
     // Builds share this four-core production host with Kubernetes. Keep the
     // build sandbox below one CPU and bound memory so health probes remain
     // responsive even after the BuildKit cache has been pruned.
-    DOCKER_BUILD_LIMITS = '--resource cpu-quota=100000 --resource memory=2560m'
+    // JENKINS_BUILD_LIMITS (controller environment) overrides the default, e.g. on the Iran server (7.9 GB host).
+    DOCKER_BUILD_LIMITS = "${System.getenv('JENKINS_BUILD_LIMITS') ?: '--resource cpu-quota=100000 --resource memory=2560m'}"
   }
   stages {
     stage('Checkout') { steps { deleteDir(); checkout scm } }
