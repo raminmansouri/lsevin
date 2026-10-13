@@ -9,6 +9,7 @@ import {
   saveApplicationPage,
 } from "@/lib/pwa/application-cache";
 import { catalogDataLocale } from "@/lib/pwa/data-locale";
+import { profileProjectionKey } from "@/lib/pwa/profile-projection";
 
 /**
  * Registers the app-shell service worker (`/public/sw.js`) on the client.
@@ -77,9 +78,12 @@ export function ServiceWorkerRegister() {
         /^\/(?:en|fa|tr|es|ar|ku|de|fr|ru|tg|zh)\/n\/app\/mobile\/profile\/?$/.test(
           url.pathname
         ) &&
-        (await globalThis.LsevinViewStore?.read(url.pathname).catch(
-          () => null
-        ));
+        ((await globalThis.LsevinViewStore?.read(
+          profileProjectionKey(url.pathname)
+        ).catch(() => null)) ||
+          (await globalThis.LsevinViewStore?.read(url.pathname).catch(
+            () => null
+          )));
       if (saved || profile) location.assign(url.href);
       else window.dispatchEvent(new Event("lsevin-online-required"));
     };

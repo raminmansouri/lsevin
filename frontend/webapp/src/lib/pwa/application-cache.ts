@@ -3,6 +3,16 @@ import { canSavePublicPage } from "./public-snapshot";
 export const APPLICATION_CACHE = "lsevin-pwa-application-v2";
 const UI_REVISION = "application-ui-3";
 
+/** Bound background work so large pages cannot monopolize a weak connection. */
+async function batches<T>(
+  items: T[],
+  size: number,
+  run: (item: T) => Promise<void>
+) {
+  for (let offset = 0; offset < items.length; offset += size)
+    await Promise.all(items.slice(offset, offset + size).map(run));
+}
+
 /** Fetch a guest document, including Next's bootstrap, rather than stripping its UI. */
 export async function saveApplicationPage(
   pathname: string,
@@ -130,50 +140,67 @@ export async function cacheDocumentAssets(
       )
         assets.add(url.href);
     });
-  await Promise.all(
-    [...assets].map(async (url) => {
-      const assetCache = await caches.open("lsevin-pwa-assets-v2");
-      const asset =
-        (await assetCache.match(url)) ||
-        (await fetch(url, { credentials: "omit", signal }));
-      if (!asset.ok) throw new Error("IncompleteApplicationAssets");
-      const bytes = await asset.clone().arrayBuffer();
-      if (
-        bytes.byteLength > 4 * 1024 * 1024 ||
-        /private|no-store/i.test(asset.headers.get("cache-control") || "")
-      )
-        throw new Error("UncacheableApplicationAsset");
-      await (await caches.open("lsevin-pwa-assets-v2")).put(url, asset.clone());
-      if (url.includes(".css")) {
-        const css = await asset.text();
-        await Promise.all(
-          [...css.matchAll(/url\(["']?([^)'"\s]+)["']?\)/g)].map(
-            async (match) => {
-              // CSS escapes or percent-encodes an SVG fragment. It names a local paint
-              // server, not a file to fetch; URL parsing treats the slash as a
-              // directory separator and would otherwise request /%23clip.
-              const value = match[1].replace(/\\+#/g, "#");
-              if (/^(?:#|%23)/i.test(value)) return;
-              const font = new URL(value, url);
-              if (
-                font.origin === location.origin &&
-                font.pathname.startsWith("/_next/static/")
-              ) {
-                if (await assetCache.match(font.href)) return;
-                const result = await fetch(font, {
-                  credentials: "omit",
-                  signal,
-                });
-                if (!result.ok) throw new Error("IncompleteApplicationFont");
-                await result.clone().arrayBuffer();
-                await (
-                  await caches.open("lsevin-pwa-assets-v2")
-                ).put(font.href, result);
-              }
-            }
-          )
-        );
-      }
-    })
-  );
+  await batches([...assets], 4, async (url) => {
+    signal.throwIfAborted();
+    const assetCache = await caches.open("lsevin-pwa-assets-v2");
+    const asset =
+      (await assetCache.match(url)) ||
+      (await fetch(url, { credentials: "omit", signal }));
+    if (
+      !asset.ok ||
+      asset.redirected ||
+      /text\/html/i.test(asset.headers.get("content-type") || "")
+    )
+      throw new Error("IncompleteApplicationAssets");
+    const bytes = await asset.clone().arrayBuffer();
+    if (
+      bytes.byteLength > 4 * 1024 * 1024 ||
+      /private|no-store/i.test(asset.headers.get("cache-control") || "")
+    )
+      throw new Error("UncacheableApplicationAsset");
+    await (await caches.open("lsevin-pwa-assets-v2")).put(url, asset.clone());
+    if (url.includes(".css")) {
+      const css = await asset.text();
+      await batches(
+        [...css.matchAll(/url\(["']?([^)'"\s]+)["']?\)/g)],
+        2,
+        async (match) => {
+          signal.throwIfAborted();
+          // CSS escapes or percent-encodes an SVG fragment. It names a local paint
+          // server, not a file to fetch; URL parsing treats the slash as a
+          // directory separator and would otherwise request /%23clip.
+          const value = match[1].replace(/\\+#/g, "#");
+          if (/^(?:#|%23)/i.test(value)) return;
+          const font = new URL(value, url);
+          if (
+            font.origin === location.origin &&
+            font.pathname.startsWith("/_next/static/")
+          ) {
+            if (await assetCache.match(font.href)) return;
+            const result = await fetch(font, {
+              credentials: "omit",
+              signal,
+            });
+            if (
+              !result.ok ||
+              result.redirected ||
+              /text\/html/i.test(result.headers.get("content-type") || "")
+            )
+              throw new Error("IncompleteApplicationFont");
+            const bytes = await result.clone().arrayBuffer();
+            if (
+              bytes.byteLength > 4 * 1024 * 1024 ||
+              /private|no-store/i.test(
+                result.headers.get("cache-control") || ""
+              )
+            )
+              throw new Error("UncacheableApplicationFont");
+            await (
+              await caches.open("lsevin-pwa-assets-v2")
+            ).put(font.href, result);
+          }
+        }
+      );
+    }
+  });
 }

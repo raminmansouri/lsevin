@@ -369,7 +369,9 @@ test.describe("authenticated profile", () => {
           async () =>
             !!(await (
               await caches.open("lsevin-pwa-private-view-v2")
-            ).match(location.pathname))
+            ).match(
+              `/pwa/profile-projection/${location.pathname.split("/")[1]}`
+            ))
         )
       )
       .toBe(true);
@@ -380,7 +382,9 @@ test.describe("authenticated profile", () => {
       async () =>
         await (await (
           await caches.open("lsevin-pwa-private-view-v2")
-        ).match(location.pathname))!.text()
+        ).match(
+          `/pwa/profile-projection/${location.pathname.split("/")[1]}`
+        ))!.text()
     );
     expect(record).not.toContain(name);
     await context.setOffline(true);
@@ -402,7 +406,7 @@ test.describe("authenticated profile", () => {
           async () =>
             !(await (
               await caches.open("lsevin-pwa-private-view-v2")
-            ).match("/en/n/app/mobile/profile"))
+            ).match("/pwa/profile-projection/en"))
         )
       )
       .toBe(true);

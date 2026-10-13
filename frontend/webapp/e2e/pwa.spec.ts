@@ -151,6 +151,7 @@ test("offline direct navigation, search, keyboard, refresh and reconnection", as
       )
     )
     .toBe(true);
+  await page.request.get("/__fixture/offline-on");
   await context.setOffline(true);
   await page.goto("/en/n/app/mobile/provider/test-clinic");
   await expect(
@@ -170,6 +171,7 @@ test("offline direct navigation, search, keyboard, refresh and reconnection", as
   await expect(
     page.getByRole("heading", { name: "Test Clinic" })
   ).toBeVisible();
+  await page.request.get("/__fixture/offline-off");
   await context.setOffline(false);
   await expect(
     page.getByText("Connection available.", { exact: false })
@@ -206,6 +208,7 @@ test("public snapshots save guest reading text and no scripts/forms/account data
   expect(raw).toContain("Guest information about staff and services.");
   expect(raw).toContain("Streamed public service details.");
   expect(raw).not.toContain("DO_NOT_SAVE");
+  await page.request.get("/__fixture/offline-on");
   await context.setOffline(true);
   await page.reload();
   await expect(
@@ -230,6 +233,7 @@ test("all requested public page families survive offline refresh", async ({
       page.getByRole("button", { name: "Saved", exact: true })
     ).toBeVisible();
   }
+  await page.request.get("/__fixture/offline-on");
   await context.setOffline(true);
   for (const path of [
     "/en",
@@ -291,12 +295,13 @@ test("private APIs, mutations, RSC, HTML and private static responses are not ca
     return records;
   });
   expect(
-    stored.some(
+    stored.filter(
       (record) =>
         /api\/private|profile|private\.js/.test(record.url) &&
-        !record.url.endsWith("profile-crypto.js")
+        !record.url.endsWith("profile-crypto.js") &&
+        !record.url.endsWith("/pwa/profile-app.js")
     )
-  ).toBe(false);
+  ).toEqual([]);
   expect(JSON.stringify(stored)).not.toContain("MUST_NOT_CACHE");
   expect(JSON.stringify(stored)).not.toContain('"price"');
 });
@@ -355,6 +360,7 @@ test("profile unlock, incorrect passphrase, reload lock and sign-out in another 
     );
     localStorage.setItem(crypto.PROFILE_KEY, JSON.stringify(record));
   });
+  await page.request.get("/__fixture/offline-on");
   await context.setOffline(true);
   await page.goto("/en/n/app/mobile/profile");
   await page
@@ -451,6 +457,7 @@ test("empty state, Persian RTL and clearing saved information", async ({
   context,
 }) => {
   await installed(page);
+  await page.request.get("/__fixture/offline-on");
   await context.setOffline(true);
   await page.goto("/fa/n/app/mobile/home");
   await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
@@ -512,6 +519,7 @@ test("cached assets work offline, private assets fail and expired snapshots disa
       )
     )
     .toBe(true);
+  await page.request.get("/__fixture/offline-on");
   await context.setOffline(true);
   const assets = await page.evaluate(async () => {
     const cached = await (
@@ -552,6 +560,7 @@ test("profile expiry and root launch remember the last language", async ({
     saved.savedAt = Date.now() - 25 * 60 * 60 * 1000;
     localStorage.setItem(profileCrypto.PROFILE_KEY, JSON.stringify(saved));
   });
+  await page.request.get("/__fixture/offline-on");
   await context.setOffline(true);
   await page.goto("/");
   await expect(page.locator("html")).toHaveAttribute("lang", "fa");
@@ -575,12 +584,14 @@ test("cache eviction gives a useful fallback and the shell recovers online", asy
 }) => {
   await installed(page);
   await page.evaluate(() => caches.delete("lsevin-pwa-shell-v1"));
+  await page.request.get("/__fixture/offline-on");
   await context.setOffline(true);
   const response = await page.goto("/en/n/app/mobile/home");
   expect(response?.status()).toBe(503);
   await expect(
     page.getByRole("heading", { name: "Offline storage unavailable" })
   ).toBeVisible();
+  await page.request.get("/__fixture/offline-off");
   await context.setOffline(false);
   await page.getByRole("link", { name: "Try again" }).click();
   await expect(
@@ -599,6 +610,7 @@ test("cache eviction gives a useful fallback and the shell recovers online", asy
       )
     )
     .toBe(true);
+  await page.request.get("/__fixture/offline-on");
   await context.setOffline(true);
   await page.reload();
   await expect(
@@ -700,6 +712,7 @@ test("slow guest streams save marked partial text and cancelled navigations do n
   expect(JSON.stringify(results.snapshot)).not.toContain("MUST_NOT_SAVE");
   expect(results.cancelledStored).toBe(false);
   expect(results.executed).toBe(false);
+  await page.request.get("/__fixture/offline-on");
   await context.setOffline(true);
   await page.goto("/en/n/app/mobile/provider/slow-prefix");
   await expect(
@@ -715,6 +728,7 @@ test("offline payment callbacks, APIs and downloads are not disguised as HTML pa
   context,
 }) => {
   await installed(page);
+  await page.request.get("/__fixture/offline-on");
   await context.setOffline(true);
   for (const path of [
     "/api/private",

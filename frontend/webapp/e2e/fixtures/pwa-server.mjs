@@ -12,6 +12,10 @@ let version = 1;
 let networkDisabled = false;
 let shellFailures = 0;
 let sessionOwner = "test-owner";
+let assetActive = 0;
+let assetPeak = 0;
+let assetFailure = false;
+let assetFailureHtml = false;
 const mime = {
   ".js": "application/javascript",
   ".css": "text/css",
@@ -21,6 +25,38 @@ const mime = {
 const server = createServer(async (req, res) => {
   try {
     const url = new URL(req.url, "http://127.0.0.1:4177");
+    if (url.pathname === "/__fixture/assets") {
+      if (url.searchParams.has("reset")) {
+        assetActive = 0;
+        assetPeak = 0;
+        assetFailure = url.searchParams.has("failure");
+        assetFailureHtml = url.searchParams.get("failure") === "html";
+      }
+      res.setHeader("Content-Type", "application/json");
+      res.end(JSON.stringify({ active: assetActive, peak: assetPeak }));
+      return;
+    }
+    if (/^\/_next\/static\/bounded-\d+\.js$/.test(url.pathname)) {
+      assetActive++;
+      assetPeak = Math.max(assetPeak, assetActive);
+      await new Promise((resolve) => setTimeout(resolve, 80));
+      assetActive--;
+      res.setHeader("Content-Type", "application/javascript");
+      res.setHeader("Cache-Control", "public,max-age=31536000,immutable");
+      if (assetFailure && url.pathname.endsWith("-12.js")) {
+        res.statusCode = assetFailureHtml ? 200 : 503;
+        if (assetFailureHtml) res.setHeader("Content-Type", "text/html");
+        res.end(assetFailureHtml ? "<html><h1>Gateway failure</h1></html>" : "");
+      } else res.end("/* static application chunk */");
+      return;
+    }
+    if (url.pathname === "/en/n/app/mobile/provider/bounded") {
+      res.setHeader("Content-Type", "text/html");
+      res.end(
+        `<!doctype html><html><head>${Array.from({ length: assetFailure ? 13 : 12 }, (_, index) => `<script defer src="/_next/static/bounded-${index}.js"></script>`).join("")}</head><body><h1>Bounded downloads</h1></body></html>`
+      );
+      return;
+    }
     if (url.pathname === "/__fixture/session") {
       sessionOwner = url.searchParams.get("owner") || "";
       res.end("OK");
@@ -100,6 +136,13 @@ const server = createServer(async (req, res) => {
       res.setHeader("Cache-Control", "public,max-age=31536000,immutable");
       res.end(
         `document.documentElement.dataset.hydrated="true";document.querySelector('#services').onclick=()=>document.querySelector('#tab-content').textContent='Services and staff';document.querySelector('#search').oninput=e=>document.querySelectorAll('.card').forEach(c=>c.hidden=!c.textContent.toLowerCase().includes(e.target.value.toLowerCase()));`
+      );
+      return;
+    }
+    if (url.searchParams.has("projection")) {
+      res.setHeader("Content-Type", "text/html");
+      res.end(
+        '<!doctype html><html lang="en"><head><title>Profile</title><link rel="stylesheet" href="/_next/static/ui.css"></head><body><header>LSevin</header><nav><a href="/en/n/app/mobile/home">Home</a></nav><main data-pwa-profile-overview data-pwa-profile-root></main></body></html>'
       );
       return;
     }
@@ -255,6 +298,6 @@ const server = createServer(async (req, res) => {
     res.end("Not found");
   }
 });
-server.listen(4177, "127.0.0.1", () =>
-  console.log("PWA fixture origin listening on 4177")
+server.listen(Number(process.env.PWA_FIXTURE_PORT || 4177), "127.0.0.1", () =>
+  console.log("PWA fixture origin listening")
 );
