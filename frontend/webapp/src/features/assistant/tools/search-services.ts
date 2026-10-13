@@ -2,69 +2,52 @@ import "server-only";
 
 import { z } from "zod";
 
-import { getSearchResults } from "@/features/service-providers/server/search.repository";
-
+import { searchAssistantCatalogue } from "../server/assistant-search.repository";
 import type { SearchServicesToolOutput } from "../types";
 
 export const SEARCH_SERVICES_DESCRIPTION =
-  "Search LSevin's catalogue: bookable medical, beauty and wellness services, clinics and doctors. " +
-  "Use it whenever the user describes a treatment or service they want. " +
-  "Returns real results (type: service, provider = clinic, specialist = doctor) with location, rating, price and a link. " +
+  "Find the clinics and doctors on LSevin that offer one treatment or service. " +
+  "Matching is strict: a clinic is only returned when one of its services is named after the treatment, " +
+  "and a doctor only when they perform it or it is their specialty, so pass the treatment's name, not a sentence. " +
+  "Returns clinics (type: service, one card per clinic for its matching service) and doctors (type: specialist), " +
+  "in every city and country unless you filter, with the total number of matching clinics and doctors. " +
+  "If nothing matches in the requested place, it returns the matches elsewhere and sets noMatchesIn to that place. " +
   "Prices are in the provider's own currency; never invent or convert them. " +
-  "A price of 0 means the price is given after consultation, not free. " +
-  "If results are few or unrelated, retry with a shorter keyword or in Persian.";
+  "A price of 0 means the price is given after consultation, not free.";
 
 export const searchServicesInputSchema = z.object({
-  query: z
-    .string()
-    .describe("What the user is looking for, e.g. 'hair transplant' or 'کاشت مو'. Any language."),
-  city: z.string().optional().describe("City to filter by, in English (e.g. 'tehran'), if the user mentioned one."),
-  country: z.string().optional().describe("Country to filter by, if the user mentioned one."),
-  limit: z.number().int().min(1).max(10).optional().describe("How many results to return (default 6)."),
+  queries: z
+    .array(z.string().min(1))
+    .min(1)
+    .max(5)
+    .describe(
+      "Names of the one treatment the user wants, spelled correctly: always its English and its Persian name, " +
+        "plus common alternative names, e.g. ['hair transplant', 'کاشت مو', 'FUE'] or ['rhinoplasty', 'nose job', 'جراحی بینی']. " +
+        "Each must name that treatment on its own; never a generic word like 'hair' or 'surgery', a city or 'clinic'."
+    ),
+  city: z.string().optional().describe("City to filter by, in English (e.g. 'tehran'), only if the user asked for one."),
+  country: z.string().optional().describe("Country to filter by (e.g. 'iran', 'turkey', 'uae'), only if the user asked for one. Leave it out when a city is given."),
+  kind: z
+    .enum(["all", "clinics", "doctors"])
+    .optional()
+    .describe("'clinics' or 'doctors' when the user only wants one of them; default 'all'."),
+  limit: z.number().int().min(1).max(10).optional().describe("How many clinics and how many doctors to return (default 6 and 4)."),
 });
 
 export type SearchServicesInput = z.infer<typeof searchServicesInputSchema>;
 
-/**
- * Search the catalogue with the same query the site's search page uses,
- * so results (and prices) match what the customer sees there.
- */
 export async function searchServices(
   input: SearchServicesInput,
-  storedLocale: string
+  options: { storedLocale: string; isIranianVisitor: boolean }
 ): Promise<SearchServicesToolOutput> {
-  const max = input.limit ?? 6;
-
-  const data = await getSearchResults({
-    term: input.query,
-    locale: storedLocale,
-    city: input.city ?? null,
-    country: input.country ?? null,
-    limit: max,
+  return searchAssistantCatalogue({
+    queries: input.queries,
+    locale: options.storedLocale,
+    isIranianVisitor: options.isIranianVisitor,
+    city: input.city,
+    country: input.country,
+    kind: input.kind,
+    clinicLimit: input.limit ?? 6,
+    doctorLimit: input.limit ?? 4,
   });
-
-  // The site search can return the same doctor/clinic more than once (e.g. a doctor at two clinics).
-  const seen = new Set<string>();
-  const unique = data.results.filter((item) => {
-    const key = `${item.type}-${item.id}`;
-    if (seen.has(key)) return false;
-    seen.add(key);
-    return true;
-  });
-
-  const results = unique.slice(0, max).map((item) => ({
-    id: item.id,
-    type: item.type,
-    name: item.name,
-    provider: item.provider,
-    location: item.location,
-    rating: item.rating,
-    reviews: item.reviews,
-    price: item.price,
-    currency: item.currency,
-    image: item.image,
-    href: item.href,
-  }));
-
-  return { count: results.length, results };
 }

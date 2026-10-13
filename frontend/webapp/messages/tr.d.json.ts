@@ -24,8 +24,9 @@ declare const messages: {
     },
     "card": {
       "priceOnRequest": "Fiyat danışmadan sonra",
+      "perNight": "/ gece",
       "viewService": "Görüntüle",
-      "types": { "provider": "Klinik", "specialist": "Doktor" }
+      "types": { "provider": "Klinik", "specialist": "Doktor", "hotel": "Otel" }
     }
   },
 

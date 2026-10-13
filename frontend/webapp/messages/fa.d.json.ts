@@ -24,8 +24,9 @@ declare const messages: {
     },
     "card": {
       "priceOnRequest": "قیمت پس از مشاوره",
+      "perNight": "/ شب",
       "viewService": "مشاهده",
-      "types": { "provider": "کلینیک", "specialist": "پزشک" }
+      "types": { "provider": "کلینیک", "specialist": "پزشک", "hotel": "هتل" }
 
     }
   },

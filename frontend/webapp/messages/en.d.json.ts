@@ -24,8 +24,9 @@ declare const messages: {
     },
     "card": {
       "priceOnRequest": "Price after consultation",
+      "perNight": "/ night",
       "viewService": "View",
-      "types": { "provider": "Clinic", "specialist": "Doctor" }
+      "types": { "provider": "Clinic", "specialist": "Doctor", "hotel": "Hotel" }
     }
   },
 

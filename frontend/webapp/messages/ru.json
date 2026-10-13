@@ -21,8 +21,9 @@
     },
     "card": {
       "priceOnRequest": "Цена после консультации",
+      "perNight": "/ ночь",
       "viewService": "Смотреть",
-      "types": { "provider": "Клиника", "specialist": "Врач" }
+      "types": { "provider": "Клиника", "specialist": "Врач", "hotel": "Отель" }
     }
   },
 

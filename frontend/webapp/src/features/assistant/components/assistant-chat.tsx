@@ -10,7 +10,10 @@ import type { AssistantConversationSummary } from "../hooks/use-assistant-chat";
 import type { AssistantServiceResult } from "../types";
 import { AssistantServiceCard } from "./assistant-service-card";
 
-/** Pull results out of a search_services tool output (MCP text content or plain JSON). */
+/** Tools whose results are shown as cards. */
+const CARD_TOOLS = ["search_services", "search_hotels"];
+
+/** Pull results out of a search tool output (MCP text content or plain JSON). */
 function extractServices(output: unknown): AssistantServiceResult[] {
   try {
     let value: unknown = output;
@@ -176,7 +179,7 @@ export function AssistantChat({
                   : part.type.startsWith("tool-")
                     ? part.type.slice("tool-".length)
                     : "";
-              if (toolName.endsWith("search_services")) {
+              if (CARD_TOOLS.some((name) => toolName.endsWith(name))) {
                 const toolPart = part as { state?: string; output?: unknown };
                 if (toolPart.state !== "output-available") return null;
                 const services = extractServices(toolPart.output);

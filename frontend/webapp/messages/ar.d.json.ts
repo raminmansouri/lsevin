@@ -24,8 +24,9 @@ declare const messages: {
     },
     "card": {
       "priceOnRequest": "السعر بعد الاستشارة",
+      "perNight": "/ ليلة",
       "viewService": "عرض",
-      "types": { "provider": "عيادة", "specialist": "طبيب" }
+      "types": { "provider": "عيادة", "specialist": "طبيب", "hotel": "فندق" }
     }
   },
 

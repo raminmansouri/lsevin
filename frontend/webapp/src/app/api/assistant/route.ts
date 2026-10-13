@@ -13,6 +13,7 @@ import {
   isValidConversationId,
   saveMessages,
 } from "@/features/assistant/server/conversations.repository";
+import { resolveIsIranianVisitor } from "@/features/finance/lib/server/iranian-visitor";
 import { getUserId } from "@/lib/auth/session";
 
 export const maxDuration = 60;
@@ -73,9 +74,13 @@ export async function POST(req: Request) {
     return Response.json({ error: "No messages." }, { status: 400 });
   }
 
-  const { conversationId, earlierChats } = await startSaving(id, locale, messages);
+  const [{ conversationId, earlierChats }, isIranianVisitor] = await Promise.all([
+    startSaving(id, locale, messages),
+    // Decided here, from the visitor's own request, so search results show the prices the site shows them.
+    resolveIsIranianVisitor().catch(() => false),
+  ]);
 
-  // Tools come from our MCP server; it learns the user's language from this header.
+  // Tools come from our MCP server; it learns the user's language and price currency from these headers.
   const mcpClient = new MultiServerMCPClient({
     mcpServers: {
       lsevin: {
@@ -84,6 +89,7 @@ export async function POST(req: Request) {
         headers: {
           Authorization: `Bearer ${mcpToken}`,
           "x-lsevin-locale": locale,
+          "x-lsevin-iranian": isIranianVisitor ? "1" : "0",
         },
       },
     },

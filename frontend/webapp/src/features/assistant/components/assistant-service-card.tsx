@@ -20,7 +20,9 @@ export function AssistantServiceCard({ service }: { service: AssistantServiceRes
       ? t("types.provider")
       : service.type === "specialist"
         ? t("types.specialist")
-        : null;
+        : service.type === "hotel"
+          ? t("types.hotel")
+          : null;
 
   return (
     <Link
@@ -69,6 +71,9 @@ export function AssistantServiceCard({ service }: { service: AssistantServiceRes
             {hasPrice
               ? formatMoney({ amount: service.price, currencyCode: service.currency }, { locale })
               : t("priceOnRequest")}
+            {hasPrice && service.type === "hotel" ? (
+              <span className="text-[11px] font-normal text-gray-500"> {t("perNight")}</span>
+            ) : null}
           </span>
           <span className="text-[11px] font-semibold text-[#083f30]">{t("viewService")}</span>
         </div>
