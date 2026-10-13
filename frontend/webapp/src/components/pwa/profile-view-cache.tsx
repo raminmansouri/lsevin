@@ -3,13 +3,18 @@
 import { useEffect } from "react";
 import { useSession } from "next-auth/react";
 
+import type { ProfileOverviewData } from "@/features/profile/components/profile-overview-view";
 import { cacheDocumentAssets } from "@/lib/pwa/application-cache";
+import {
+  parseProfileProjection,
+  profileProjectionKey,
+} from "@/lib/pwa/profile-projection";
 import { profileDocument } from "@/lib/pwa/profile-view";
 
 import "../../../public/pwa/view-store.js";
 
 /** Save only the rendered profile overview, never the SSR/RSC/session payload. */
-export function ProfileViewCache() {
+export function ProfileViewCache({ data }: { data: ProfileOverviewData }) {
   const { data: session, status } = useSession();
   const owner = session?.user?.id;
   useEffect(() => {
@@ -33,8 +38,47 @@ export function ProfileViewCache() {
         if (controller.signal.aborted) return;
         await LsevinViewStore.checkOwner(owner);
         const started = generation;
-        const clone = profileDocument(owner);
+        const storagePath = profileProjectionKey(location.pathname);
+        const clone = profileDocument(owner, true, storagePath);
         await cacheDocumentAssets(clone, controller.signal);
+        const renderer = await fetch("/pwa/profile-app.js", {
+          signal: controller.signal,
+          cache: "no-cache",
+        });
+        if (
+          !renderer.ok ||
+          renderer.redirected ||
+          !/javascript/.test(renderer.headers.get("content-type") || "")
+        )
+          return;
+        await (
+          await caches.open("lsevin-pwa-assets-v2")
+        ).put("/pwa/profile-app.js", renderer);
+        const projectionData = { ...data, image: "" };
+        if (data.image) {
+          try {
+            const response = await fetch(data.image, {
+              signal: controller.signal,
+            });
+            const blob = response.ok ? await response.blob() : null;
+            if (
+              blob &&
+              blob.size <= 256 * 1024 &&
+              /^image\/(png|jpeg|webp|gif)$/.test(blob.type)
+            ) {
+              projectionData.image = await new Promise<string>(
+                (resolve, reject) => {
+                  const reader = new FileReader();
+                  reader.onload = () => resolve(String(reader.result));
+                  reader.onerror = reject;
+                  reader.readAsDataURL(blob);
+                }
+              );
+            }
+          } catch {
+            /* Keep the same image fallback when a photo is unavailable. */
+          }
+        }
         // Keep private profile images inside the encrypted record, not asset caches.
         await Promise.all(
           [...clone.querySelectorAll("img")].map(async (img) => {
@@ -60,11 +104,17 @@ export function ProfileViewCache() {
             }
           })
         );
-        const html = "<!doctype html>" + clone.outerHTML;
+        const html = JSON.stringify({
+          kind: "profile-v1",
+          owner,
+          shell: "<!doctype html>" + clone.outerHTML,
+          data: projectionData,
+        });
         if (
           controller.signal.aborted ||
           started !== generation ||
-          html.length > 2 * 1024 * 1024
+          html.length > 2 * 1024 * 1024 ||
+          !parseProfileProjection(html)
         )
           return;
         // Validate the session again after async image work to close sign-out races.
@@ -79,7 +129,7 @@ export function ProfileViewCache() {
           controller.signal.aborted
         )
           return;
-        await LsevinViewStore.save(location.pathname, html, owner);
+        await LsevinViewStore.save(storagePath, html, owner);
         if (started !== generation) await LsevinViewStore.clear();
       } catch {
         /* Optional local storage never blocks the live profile. */
@@ -104,6 +154,6 @@ export function ProfileViewCache() {
       window.clearTimeout(timer);
       window.removeEventListener("lsevin-profile-cleared", cancel);
     };
-  }, [owner, status]);
+  }, [owner, status, data]);
   return null;
 }

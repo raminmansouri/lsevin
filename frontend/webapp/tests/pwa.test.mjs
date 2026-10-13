@@ -1,5 +1,19 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import { readFile } from "node:fs/promises";
+import { build, transform } from "esbuild";
+
+test("admin metadata parses and Edge instrumentation excludes Node notification dependencies", async () => {
+  await transform(await readFile(new URL("../src/lib/admin/metadata.ts", import.meta.url), "utf8"), { loader: "ts" });
+  const result = await build({
+    entryPoints: [new URL("../src/instrumentation.ts", import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, "$1")],
+    bundle: true, platform: "browser", write: false, minify: true,
+    define: { "process.env.NEXT_RUNTIME": '"edge"' },
+  });
+  assert.ok(result.outputFiles[0].text.length > 0);
+  assert.equal(result.outputFiles[0].text.includes("dispatch-loop"), false);
+  assert.equal(result.outputFiles[0].text.includes("web-push"), false);
+});
 import {
   MutationCache,
   onlineManager,
@@ -19,9 +33,85 @@ import {
   OfflineMutationError,
   offlineMutationOptions,
 } from "../src/lib/pwa/mutation-connection.ts";
+import { parseProfileProjection } from "../src/lib/pwa/profile-projection.ts";
 import { canSavePublicPage } from "../src/lib/pwa/public-snapshot.ts";
 import { initializeQueryConnection } from "../src/lib/pwa/query-connection.ts";
 import { confirmsSessionChange } from "../src/lib/pwa/session-snapshot.ts";
+
+test("structured profile rejects external images, unknown controls and unsafe navigation", () => {
+  const data = {
+    version: 1,
+    locale: "fa",
+    firstName: "A",
+    lastName: "B",
+    email: "test@example.invalid",
+    image: "",
+    editLabel: "Edit",
+    signOutLabel: "Sign out",
+    stats: [
+      { label: "Bookings", value: "0", icon: "CalendarCheck2" },
+      { label: "Points", value: "0", icon: "Coins" },
+      { label: "Saved", value: "0", icon: "PiggyBank" },
+    ],
+    menu: [
+      {
+        label: "Providers",
+        href: "/n/app/mobile/providers",
+        icon: "Heart",
+        color: "text-red-600",
+      },
+    ],
+  };
+  const record = {
+    kind: "profile-v1",
+    owner: "owner",
+    shell: "<html><main data-pwa-profile-root></main></html>",
+    data,
+  };
+  assert.ok(parseProfileProjection(JSON.stringify(record)));
+  for (const image of [
+    "https://example.invalid/private.jpg",
+    "data:image/svg+xml;base64,ABC",
+    "javascript:alert(1)",
+  ])
+    assert.equal(
+      parseProfileProjection(
+        JSON.stringify({ ...record, data: { ...data, image } })
+      ),
+      null
+    );
+  for (const href of [
+    "//example.invalid",
+    "javascript:alert(1)",
+    "/api/auth/session",
+    "/n/app/mobile/../admin",
+  ])
+    assert.equal(
+      parseProfileProjection(
+        JSON.stringify({
+          ...record,
+          data: { ...data, menu: [{ ...data.menu[0], href }] },
+        })
+      ),
+      null
+    );
+  assert.equal(
+    parseProfileProjection(
+      JSON.stringify({
+        ...record,
+        data: {
+          ...data,
+          stats: [
+            { ...data.stats[0], icon: "ArbitraryComponent" },
+            ...data.stats.slice(1),
+          ],
+        },
+      })
+    ),
+    null
+  );
+  assert.equal(parseProfileProjection("<html>old snapshot</html>"), null);
+});
 
 test("a cold offline document keeps cached query data without attempting a failing refetch", async () => {
   const navigatorDescriptor = Object.getOwnPropertyDescriptor(

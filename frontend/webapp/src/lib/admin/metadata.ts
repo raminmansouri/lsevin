@@ -151,7 +151,7 @@ export async function getResolvedTableDefinition(
           description: columnOverride?.description ?? column.description,
           fieldKind,
           hidden: columnOverride?.hidden ?? false,
-          readOnly: columnOverride?.readOnly ?? column.isGenerated || column.isIdentity || column.isPrimaryKey,
+          readOnly: columnOverride?.readOnly ?? (column.isGenerated || column.isIdentity || column.isPrimaryKey),
           required: columnOverride?.required ?? (!column.isNullable && !column.columnDefault && !column.isIdentity && !column.isGenerated),
           searchable: columnOverride?.searchable ?? (isTranslationColumn(column) || ["text", "character varying", "uuid"].includes(column.dataType.toLowerCase())),
           sortable: columnOverride?.sortable ?? true,

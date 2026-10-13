@@ -173,7 +173,7 @@
 })();
 
 /* PROFILE_VIEW_STORE_END */
-const VERSION = "v1-d8dc4d1f96fcf272";
+const VERSION = "v1-b85bac78ab87ea13";
 const SHELL_CACHE = `lsevin-pwa-shell-${VERSION}`;
 const ASSET_CACHE = "lsevin-pwa-assets-v2";
 const APPLICATION_CACHE = "lsevin-pwa-application-v2";
@@ -183,6 +183,7 @@ const SHELL = [
   "/pwa/offline.js",
   "/pwa/view-store.js",
   "/pwa/live-view.js",
+  "/pwa/profile-app.js",
   "/pwa/offline.css",
   "/pwa/profile-crypto.js",
   "/pwa/icon-192.png",
@@ -352,7 +353,24 @@ async function offlineNavigation(request) {
             pathname
           )
         ) {
-          const html = await LsevinViewStore.read(pathname).catch(() => null);
+          let html =
+            (await LsevinViewStore.read(
+              `/pwa/profile-projection/${segments[1]}`
+            ).catch(() => null)) ||
+            (await LsevinViewStore.read(pathname).catch(() => null));
+          if (html?.startsWith("{")) {
+            try {
+              const projection = JSON.parse(html);
+              html =
+                projection.kind === "profile-v1" &&
+                typeof projection.shell === "string" &&
+                projection.shell.includes("data-pwa-profile-root")
+                  ? projection.shell
+                  : null;
+            } catch {
+              html = null;
+            }
+          }
           if (html)
             return new Response(html, {
               headers: {
@@ -423,6 +441,10 @@ async function cachedAsset(request) {
     response.ok &&
     !response.redirected &&
     response.type === "basic" &&
+    !(
+      new URL(request.url).pathname.startsWith("/_next/static/") &&
+      /text\/html/i.test(response.headers.get("content-type") || "")
+    ) &&
     !/no-store|private/i.test(response.headers.get("cache-control") || "")
   ) {
     // Bound storage even when Content-Length is absent (compressed responses).

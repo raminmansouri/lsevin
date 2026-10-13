@@ -38,7 +38,16 @@ document.addEventListener(
     )
       return;
     if (target.matches("button")) {
+      // React owns local controls in the structured profile. Only server actions
+      // and sign-out are intercepted; future local tabs remain interactive.
+      if (
+        document.querySelector("[data-pwa-profile-root]") &&
+        !target.hasAttribute("data-pwa-online-required") &&
+        !target.hasAttribute("data-pwa-signout")
+      )
+        return;
       event.preventDefault();
+      event.stopPropagation();
       if (target.hasAttribute("data-pwa-signout")) {
         await LsevinViewStore.clear();
         location.assign(
@@ -57,7 +66,17 @@ document.addEventListener(
     const saved = await (
       await caches.open("lsevin-pwa-application-v2")
     ).match(url.pathname);
-    if (saved || (await LsevinViewStore.read(url.pathname)))
+    const profile =
+      /^\/(?:en|fa|tr|es|ar|ku|de|fr|ru|tg|zh)\/n\/app\/mobile\/profile\/?$/.test(
+        url.pathname
+      )
+        ? `/pwa/profile-projection/${url.pathname.split("/")[1]}`
+        : url.pathname;
+    if (
+      saved ||
+      (await LsevinViewStore.read(profile)) ||
+      (profile !== url.pathname && (await LsevinViewStore.read(url.pathname)))
+    )
       location.assign(url.href);
     else connectionNotice();
   },
@@ -70,7 +89,12 @@ function closePrivateView() {
 }
 async function checkPrivateView() {
   const owner = document.documentElement.dataset.lsevinViewOwner;
-  if (owner && !(await LsevinViewStore.validOwner(location.pathname, owner)))
+  const path =
+    document.documentElement.dataset.lsevinViewKey || location.pathname;
+  if (
+    owner &&
+    !(await LsevinViewStore.validOwner(path, owner).catch(() => false))
+  )
     closePrivateView();
 }
 navigator.serviceWorker.addEventListener("message", (event) => {
