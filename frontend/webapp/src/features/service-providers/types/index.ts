@@ -798,8 +798,11 @@ export interface SearchHistoryTrendingSearchVm {
   bookings: number;
 }
 export interface SearchHistoryPopularCategoryVm {
+  id?: string;
   label: string;
   icon: string;
+  image?: string | null;
+  count?: number;
 }
 
 export interface SearchHistoryResponse {
