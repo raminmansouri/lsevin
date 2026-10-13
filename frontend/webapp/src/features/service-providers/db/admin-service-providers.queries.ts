@@ -1515,7 +1515,7 @@ export async function searchAdminProviderLookupOptions(
       const providerLabel = sql`coalesce(nullif(${translated(sql`sp.name_translations`, locale)}, ''), ${scalarText(sql`sp.name_translations`)})`;
       const serviceLabel = sql`coalesce(
         nullif(${translated(sql`ps.display_name_translations`, locale)}, ''),
-        ${scalarText(sql`ps.display_name_translations`)},
+        nullif(${scalarText(sql`ps.display_name_translations`)}, ''),
         nullif(${translated(sql`sd.name_translations`, locale)}, '')
       )`;
 
