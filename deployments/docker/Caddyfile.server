@@ -114,6 +114,14 @@
 		rewrite * /sync{uri}
 		reverse_proxy 172.18.0.1:31415
 	}
+	# Server A (Iran) pushes its Prometheus metrics here (remote write); B cannot call A. Password-protected.
+	handle_path /prom-write/* {
+		basic_auth {
+			site-a $2a$14$eI2FF4QZaHuQkqxQJq9rmu3n4CmJSdxEzErGzgcjdwS8sy9R2LGTy
+		}
+		rewrite * /api/v1/write
+		reverse_proxy 10.43.213.65:9090
+	}
 	import common_headers
 
 	# Public media is streamed by the API from private SeaweedFS storage.
@@ -254,4 +262,10 @@
 	}
 
 	reverse_proxy {$K3S_NODE_ADDRESS:172.18.0.1}:{$KIBANA_NODE_PORT:30085}
+}
+
+# lsevin.ir is the Iranian site (server A). Visitors whose traffic reaches ArvanCloud from OUTSIDE Iran (VPN users, the diaspora)
+# cannot be served by A, so ArvanCloud's backup origin points here (plain HTTP, no certificate needed) and sends them to the global site.
+http://lsevin.ir, http://www.lsevin.ir, http://crm.lsevin.ir, http://providers.lsevin.ir, http://financial.lsevin.ir {
+	redir https://lsevincare.com{uri} 302
 }

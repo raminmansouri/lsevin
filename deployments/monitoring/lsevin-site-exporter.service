@@ -1,0 +1,18 @@
+[Unit]
+Description=LSevin site metrics for Prometheus (server A)
+After=network-online.target k3s.service
+
+[Service]
+EnvironmentFile=-/etc/lsevin-dr/exporter.env
+ExecStart=/usr/bin/python3 /usr/local/sbin/lsevin-site-exporter
+Restart=always
+RestartSec=5
+# read-only observer
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+NoNewPrivileges=true
+MemoryMax=64M
+
+[Install]
+WantedBy=multi-user.target

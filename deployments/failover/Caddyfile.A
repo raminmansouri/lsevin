@@ -37,6 +37,12 @@ http://lsevincare.com, http://appmain.lsevin.com {
 			header_up X-Country {geoip2.country_code}
 			health_uri /sw.js
 			health_interval 10s
+			health_timeout 10s
+			health_fails 3
+			health_passes 1
+			# one backend: wait for it (up to 10 s) instead of answering 503 instantly while it is busy or restarting
+			lb_try_duration 10s
+			lb_try_interval 250ms
 		}
 	}
 }
@@ -98,6 +104,12 @@ http://lsevin.ir, http://www.lsevin.ir {
 			header_up X-Country {geoip2.country_code}
 			health_uri /sw.js
 			health_interval 10s
+			health_timeout 10s
+			health_fails 3
+			health_passes 1
+			# one backend: wait for it (up to 10 s) instead of answering 503 instantly while it is busy or restarting
+			lb_try_duration 10s
+			lb_try_interval 250ms
 		}
 	}
 }
@@ -123,6 +135,12 @@ https://lsevin.ir, https://www.lsevin.ir {
 			header_up X-Country {geoip2.country_code}
 			health_uri /sw.js
 			health_interval 10s
+			health_timeout 10s
+			health_fails 3
+			health_passes 1
+			# one backend: wait for it (up to 10 s) instead of answering 503 instantly while it is busy or restarting
+			lb_try_duration 10s
+			lb_try_interval 250ms
 		}
 	}
 }

@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+# lsevin-dr-verify - run ON EACH SERVER weekly (systemd timer). A backup nobody has restored is only a hope: this restores the newest
+# database dump into a scratch database inside the running PostgreSQL pod, checks that it is complete and usable, drops it, and
+# records the result (metric lsevin_backup_age_seconds{kind="restore_test"} on the Server A dashboard).
+#   PASS requires: pg_restore finished, the table count equals the live database, and the restored database holds at least 90 %
+#   of the live database's rows (the dump is up to a day old, so equality is not expected).
+# Safe for production: separate database, low priority, nothing in the live database is touched.
+set -uo pipefail
+ENV_FILE=${ENV_FILE:-/etc/lsevin-dr/site.env}; . "$ENV_FILE"
+STATE=/var/lib/lsevin-dr; LOG=/var/log/lsevin-dr.log; SCRATCH=lsevin_restore_test
+KUBECTL=${KUBECTL:-kubectl}; command -v "$KUBECTL" >/dev/null || KUBECTL="k3s kubectl"
+[ "$(id -u)" = 0 ] || KUBECTL="sudo -n $KUBECTL"
+log() { printf '%s verify %s\n' "$(date -u +%FT%TZ)" "$*" | tee -a "$LOG"; }
+exec 9>/run/lock/lsevin-db-backup.lock; flock -w 3600 9      # never overlaps a dump or a pgBackRest run
+mkdir -p "$STATE"
+DUMP=$(ls -1t "$DUMP_DIR"/lsevin-2*.dump 2>/dev/null | head -1)
+[ -n "$DUMP" ] || { log "FAIL: no dump found in $DUMP_DIR"; exit 1; }
+PG="$KUBECTL -n lsevin exec -i deploy/postgres --"
+psql_() { $PG sh -c "psql -U \"\$POSTGRES_USER\" -At -v ON_ERROR_STOP=1 $*"; }
+cleanup() { $PG sh -c "psql -U \"\$POSTGRES_USER\" -d postgres -qc 'drop database if exists $SCRATCH'" >/dev/null 2>&1; }
+trap cleanup EXIT
+cleanup
+$PG sh -c "psql -U \"\$POSTGRES_USER\" -d postgres -qc 'create database $SCRATCH'" || { log "FAIL: cannot create scratch database"; exit 1; }
+start=$(date +%s)
+rc=$(nice -n 15 $PG sh -c "pg_restore -U \"\$POSTGRES_USER\" -d $SCRATCH --no-owner --no-privileges --disable-triggers 2>/tmp/restore.err; echo \$?" < "$DUMP" 2>/dev/null | tail -1)
+errs=$($PG sh -c "grep -c -i error /tmp/restore.err 2>/dev/null" 2>/dev/null | head -1)
+log "pg_restore exit=$rc, error lines=$errs"
+$PG sh -c "grep -i -B1 error /tmp/restore.err 2>/dev/null | head -8; rm -f /tmp/restore.err" 2>/dev/null | cut -c1-200 | sed 's/^/  | /' | tee -a "$LOG"
+secs=$(( $(date +%s) - start ))
+count_tables="select count(*) from pg_class c join pg_namespace n on n.oid=c.relnamespace where c.relkind='r' and n.nspname not in ('pg_catalog','information_schema') and n.nspname !~ '^pg_toast' and c.relname !~ '^sym_'"
+count_rows="select coalesce(sum(n_live_tup),0)::bigint from pg_stat_user_tables where relname !~ '^sym_'"
+t_live=$($PG sh -c "psql -U \"\$POSTGRES_USER\" -d lsevin -At -c \"$count_tables\"" 2>/dev/null)
+t_rest=$($PG sh -c "psql -U \"\$POSTGRES_USER\" -d $SCRATCH -At -c \"$count_tables\"" 2>/dev/null)
+$PG sh -c "psql -U \"\$POSTGRES_USER\" -d $SCRATCH -qc 'analyze'" >/dev/null 2>&1
+r_live=$($PG sh -c "psql -U \"\$POSTGRES_USER\" -d lsevin -At -c \"$count_rows\"" 2>/dev/null)
+r_rest=$($PG sh -c "psql -U \"\$POSTGRES_USER\" -d $SCRATCH -At -c \"$count_rows\"" 2>/dev/null)
+log "dump=$(basename "$DUMP") restore_seconds=$secs tables live=$t_live restored=$t_rest rows live=$r_live restored=$r_rest"
+if [ -n "$t_live" ] && [ "$t_live" = "$t_rest" ] && [ "${r_live:-0}" -gt 0 ] && [ $(( ${r_rest:-0} * 100 / r_live )) -ge 90 ]; then
+  touch "$STATE/last-restore-test-ok"; log "PASS"; exit 0
+fi
+log "FAIL: restored database does not match the live one (see numbers above)"; exit 1

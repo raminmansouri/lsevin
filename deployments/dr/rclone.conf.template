@@ -1,0 +1,26 @@
+# /etc/lsevin-dr/rclone.conf  (root-only, mode 600). Create it with install-dr.sh; never commit the real file.
+# [s3]    the shared SeaweedFS store as seen from THIS server
+#           A: http://127.0.0.1:18333  (SSH tunnel to B, started by lsevin-files-tunnel)      B: http://127.0.0.1:30901 (local)
+# [crypt] client-side encryption (file names and contents) of  s3:<bucket>/_backups/<SITE>
+# [peer]  (for restores) the encrypted copy of the OTHER site that this server holds on disk
+[s3]
+type = s3
+provider = Other
+access_key_id = <filesync access key>
+secret_access_key = <filesync secret key>
+endpoint = http://127.0.0.1:18333
+force_path_style = true
+region = us-east-1
+no_check_bucket = true
+
+[crypt]
+type = crypt
+remote = s3:lsevin-media/_backups/<A or B>
+password = <rclone obscure output>
+password2 = <rclone obscure output>
+
+[peer]
+type = crypt
+remote = /var/backups/lsevin-offsite/<B or A>
+password = <same obscured password>
+password2 = <same obscured password2>

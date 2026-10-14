@@ -70,7 +70,9 @@ spec:
           startupProbe: {httpGet: {path: /sw.js, port: http}, periodSeconds: 5, failureThreshold: 30}
           readinessProbe: {httpGet: {path: /sw.js, port: http}, periodSeconds: 10}
           livenessProbe: {httpGet: {path: /sw.js, port: http}, periodSeconds: 20}
-          resources: {requests: {cpu: 200m, memory: 384Mi}, limits: {cpu: "1", memory: 1Gi}}
+          # 2 CPUs: with 1 the container was throttled in ~7-10 % of scheduling periods (Next.js image optimizer + SSR), which showed up
+          # as slow pages and failing health probes on both servers (checked 2026-10-14)
+          resources: {requests: {cpu: 400m, memory: 384Mi}, limits: {cpu: "2", memory: 1Gi}}
 ---
 apiVersion: v1
 kind: Service
