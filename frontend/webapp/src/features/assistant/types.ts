@@ -1,4 +1,4 @@
-export type AssistantResultType = "service" | "provider" | "specialist" | "hotel";
+export type AssistantResultType = "service" | "provider" | "specialist" | "product";
 
 /** A result returned by the assistant's search_services tool. */
 export type AssistantServiceResult = {

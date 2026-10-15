@@ -6,6 +6,20 @@ import {
   searchServices,
   searchServicesInputSchema,
 } from "@/features/assistant/tools/search-services";
+
+import {
+  SEARCH_PRODUCTS_DESCRIPTION,
+  searchProductsForAssistant,
+  searchProductsInputSchema,
+} from "@/features/assistant/tools/search-products";
+
+
+import {
+  GET_SERVICE_DETAILS_DESCRIPTION,
+  getServiceDetails,
+  getServiceDetailsInputSchema,
+} from "@/features/assistant/tools/get-service-details";
+
 import { SEARCH_HOTELS_DESCRIPTION, searchHotels, searchHotelsInputSchema } from "@/features/assistant/tools/search-hotels";
 import type { LocaleTypes } from "@/types/common";
 
@@ -78,8 +92,53 @@ async function handler(req: Request): Promise<Response> {
           }
         }
       );
+
+      server.registerTool(
+        "search_products",
+        {
+          title: "Search shop products",
+          description: SEARCH_PRODUCTS_DESCRIPTION,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          inputSchema: searchProductsInputSchema as any,
+        },
+        async (args: unknown) => {
+          try {
+            const input = searchProductsInputSchema.parse(args);
+            const result = await searchProductsForAssistant(input, locale);
+            return { content: [{ type: "text" as const, text: JSON.stringify(result) }] };
+          } catch (error) {
+            console.error("[mcp] search_products failed", error);
+            return {
+              isError: true,
+              content: [{ type: "text" as const, text: "Product search is temporarily unavailable." }],
+            };
+          }
+        }
+      );
+      server.registerTool(
+        "get_service_details",
+        {
+          title: "Get service details",
+          description: GET_SERVICE_DETAILS_DESCRIPTION,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          inputSchema: getServiceDetailsInputSchema as any,
+        },
+        async (args: unknown) => {
+          try {
+            const input = getServiceDetailsInputSchema.parse(args);
+            const result = await getServiceDetails(input, storedLocale);
+            return { content: [{ type: "text" as const, text: JSON.stringify(result) }] };
+          } catch (error) {
+            console.error("[mcp] get_service_details failed", error);
+            return {
+              isError: true,
+              content: [{ type: "text" as const, text: "Service details are temporarily unavailable." }],
+            };
+          }
+        }
+      );
     },
-    { serverInfo: { name: "lsevin-assistant", version: "0.1.0" } }
+    { serverInfo: { name: "lsevin-assistant", version: "0.2.0" } }
   );
 
   return mcp(req);

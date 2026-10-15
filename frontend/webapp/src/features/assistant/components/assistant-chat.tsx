@@ -11,7 +11,7 @@ import type { AssistantServiceResult } from "../types";
 import { AssistantServiceCard } from "./assistant-service-card";
 
 /** Tools whose results are shown as cards. */
-const CARD_TOOLS = ["search_services", "search_hotels"];
+const CARD_TOOLS = ["search_services", "search_hotels", "search_products"];
 
 /** Pull results out of a search tool output (MCP text content or plain JSON). */
 function extractServices(output: unknown): AssistantServiceResult[] {
@@ -56,6 +56,7 @@ export function AssistantChat({
   const [input, setInput] = useState("");
   const [showHistory, setShowHistory] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
 
   const { messages, sendMessage, status, error } = useChat({ chat });
   const busy = status === "submitted" || status === "streaming";
@@ -79,6 +80,7 @@ export function AssistantChat({
     if (!value || busy) return;
     sendMessage({ text: value });
     setInput("");
+    if (inputRef.current) inputRef.current.style.height = "auto";
   };
 
   const suggestions = [t("suggestions.hair"), t("suggestions.dental"), t("suggestions.nose")];
@@ -204,7 +206,7 @@ export function AssistantChat({
       )}
 
       <div className="border-t border-gray-100 bg-white px-3 py-2.5">
-        <div className="flex items-center gap-2">
+        <div className="flex items-end gap-2">
           {history && history.conversations.length ? (
             <button
               type="button"
@@ -231,14 +233,24 @@ export function AssistantChat({
               <Plus size={18} />
             </button>
           ) : null}
-          <input
+          <textarea
+            ref={inputRef}
             value={input}
-            onChange={(event) => setInput(event.target.value)}
+            rows={1}
+            onChange={(event) => {
+              setInput(event.target.value);
+              // Grow with the text, up to about five lines.
+              event.target.style.height = "auto";
+              event.target.style.height = `${Math.min(event.target.scrollHeight, 120)}px`;
+            }}
             onKeyDown={(event) => {
-              if (event.key === "Enter") send(input);
+              if (event.key === "Enter" && !event.shiftKey) {
+                event.preventDefault();
+                send(input);
+              }
             }}
             placeholder={t("placeholder")}
-            className="h-11 flex-1 rounded-full border border-gray-200 bg-gray-50 px-4 text-sm outline-none focus:border-[#083f30]"
+            className="max-h-[120px] min-h-11 flex-1 resize-none rounded-3xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm leading-6 outline-none focus:border-[#083f30]"
           />
           <button
             type="button"

@@ -1,7 +1,9 @@
 "use client";
 
-import { MapPin, Star } from "lucide-react";
+import { ImageOff, MapPin, Star } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
+
+import { shopImageSrc } from "@/features/shop/lib/image";
 
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { formatMoney } from "@/features/finance/lib/money";
@@ -20,8 +22,8 @@ export function AssistantServiceCard({ service }: { service: AssistantServiceRes
       ? t("types.provider")
       : service.type === "specialist"
         ? t("types.specialist")
-        : service.type === "hotel"
-          ? t("types.hotel")
+        : service.type === "product"
+          ? t("types.product")
           : null;
 
   return (
@@ -30,14 +32,20 @@ export function AssistantServiceCard({ service }: { service: AssistantServiceRes
       className="flex gap-3 rounded-2xl border border-gray-100 bg-white p-2.5 shadow-sm transition active:scale-[0.98]"
     >
       <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-gray-100">
-        <ImageWithFallback
-          fill
-          src={resolveMediaUrl(service.image)}
-          alt={service.name}
-          sizes="80px"
-          className="object-cover"
-          fallbackClassName="h-full w-full"
-        />
+        {service.image ? (
+          <ImageWithFallback
+            fill
+            src={service.type === "product" ? shopImageSrc(service.image) : resolveMediaUrl(service.image)}
+            alt={service.name}
+            sizes="80px"
+            className="object-cover"
+            fallbackClassName="h-full w-full"
+          />
+        ) : (
+          <div className="grid h-full w-full place-items-center text-gray-300">
+            <ImageOff size={22} aria-hidden="true" />
+          </div>
+        )}
       </div>
 
       <div className="min-w-0 flex-1">
@@ -71,9 +79,6 @@ export function AssistantServiceCard({ service }: { service: AssistantServiceRes
             {hasPrice
               ? formatMoney({ amount: service.price, currencyCode: service.currency }, { locale })
               : t("priceOnRequest")}
-            {hasPrice && service.type === "hotel" ? (
-              <span className="text-[11px] font-normal text-gray-500"> {t("perNight")}</span>
-            ) : null}
           </span>
           <span className="text-[11px] font-semibold text-[#083f30]">{t("viewService")}</span>
         </div>
