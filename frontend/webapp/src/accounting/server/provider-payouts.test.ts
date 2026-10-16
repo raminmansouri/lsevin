@@ -16,6 +16,8 @@ import { closeTestSql, testSql } from "./__testing__/harness";
  */
 
 const ACTOR = "00000000-0000-4000-8000-00000000a11c";
+// Pays what ACTOR approved: the approver may not also record the payment.
+const PAYER = "00000000-0000-4000-8000-00000000b22d";
 const bookings: string[] = [];
 const ledgers: string[] = [];
 
@@ -105,10 +107,10 @@ describe("approving and paying providers", () => {
   it("approve -> paid with the bank reference, then it moves to the recently paid list", async () => {
     const s = await seed({ paid: 1000000, entries: [{ amount: 800000 }, { amount: 100000 }] });
 
-    await approveProviderEntries({ ids: s.ids, actorUserId: ACTOR });
+    await approveProviderEntries({ ids: s.ids, actorUserId: ACTOR, approverRole: "manager" });
     expect((await groupFor(s.providerId))?.approvedTotal).toBe("900000.00");
 
-    const result = await markProviderEntriesPaid({ ids: s.ids, actorUserId: ACTOR, reference: "SATNA-42" });
+    const result = await markProviderEntriesPaid({ ids: s.ids, actorUserId: PAYER, reference: "SATNA-42" });
     expect(result).toMatchObject({ paid: 2, total: "900000.00" });
 
     expect(await groupFor(s.providerId)).toBeUndefined();
@@ -122,8 +124,8 @@ describe("approving and paying providers", () => {
       code: "changed",
     });
 
-    await approveProviderEntries({ ids: s.ids, actorUserId: ACTOR });
-    await expect(approveProviderEntries({ ids: s.ids, actorUserId: ACTOR })).rejects.toMatchObject({ code: "changed" });
+    await approveProviderEntries({ ids: s.ids, actorUserId: ACTOR, approverRole: "manager" });
+    await expect(approveProviderEntries({ ids: s.ids, actorUserId: ACTOR, approverRole: "manager" })).rejects.toMatchObject({ code: "changed" });
   });
 
   it("refuses a payout without a reference, across two providers, or with nothing owed", async () => {
@@ -153,5 +155,45 @@ describe("approving and paying providers", () => {
     await expect(cancelProviderEntry({ id: s.ids[1], actorUserId: ACTOR, reason: "again" })).rejects.toMatchObject({
       code: "changed",
     });
+  });
+
+  it("refuses to let the approver also record the payment", async () => {
+    const s = await seed({ paid: 1000000, entries: [{ amount: 800000 }] });
+    await approveProviderEntries({ ids: s.ids, actorUserId: ACTOR, approverRole: "accounting_manager" });
+
+    await expect(markProviderEntriesPaid({ ids: s.ids, actorUserId: ACTOR, reference: "R" })).rejects.toMatchObject({
+      code: "same_approver",
+    });
+    await expect(markProviderEntriesPaid({ ids: s.ids, actorUserId: PAYER, reference: "R" })).resolves.toMatchObject({
+      paid: 1,
+    });
+  });
+
+  it("holds the accounting manager to the approval limit, entry by entry, and not the manager", async () => {
+    const [before] = await testSql<{ value: unknown }[]>`
+      select value from accounting.settings where key = 'approval.accounting_manager_limit'
+    `;
+    await testSql`
+      update accounting.settings set value = ${testSql.json({ IRR: "500000" })}
+       where key = 'approval.accounting_manager_limit'
+    `;
+    try {
+      const s = await seed({ paid: 1000000, entries: [{ amount: 400000 }, { amount: 600000 }] });
+
+      // The batch is refused whole: nothing is approved when one entry is over the limit.
+      await expect(
+        approveProviderEntries({ ids: s.ids, actorUserId: ACTOR, approverRole: "accounting_manager" })
+      ).rejects.toMatchObject({ code: "over_approval_limit" });
+      expect((await groupFor(s.providerId))?.approvedTotal).toBe("0.00");
+
+      await approveProviderEntries({ ids: [s.ids[0]], actorUserId: ACTOR, approverRole: "accounting_manager" });
+      await approveProviderEntries({ ids: [s.ids[1]], actorUserId: ACTOR, approverRole: "manager" });
+      expect((await groupFor(s.providerId))?.approvedTotal).toBe("1000000.00");
+    } finally {
+      await testSql`
+        update accounting.settings set value = ${testSql.json((before?.value ?? {}) as never)}
+         where key = 'approval.accounting_manager_limit'
+      `;
+    }
   });
 });

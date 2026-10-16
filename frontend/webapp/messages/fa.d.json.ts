@@ -4463,6 +4463,7 @@ declare const messages: {
       "settingsDescription": "اعداد کسب‌وکار شما. تغییرشان از اینجا انجام می‌شود، نه در کد — و هر تغییر در لاگ ممیزی ثبت می‌شود.",
       "settingsGroup": {
         "core": "پایه",
+        "approval": "سقف تأیید",
         "fees": "کارمزدها",
         "withdrawal": "برداشت",
         "deposit": "واریز",
@@ -4530,7 +4531,8 @@ declare const messages: {
       "passwordWrong": "رمز فعلی نادرست است",
       "panelRoles": {
         "accountant": "حسابدار",
-        "finance_admin": "مدیر مالی"
+        "accounting_manager": "مدیر حسابداری",
+        "manager": "مدیر"
       },
       "entriesTitle": "ثبت سند و دفتر روزنامه",
       "analyticsTitle": "گزارش‌های تحلیلی",

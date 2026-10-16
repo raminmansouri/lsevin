@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 
+import { hasPermission, type AccountingPermission } from "./permissions";
+
 /**
  * Unit tests for the parts of the manual-entry workflow that are pure decisions:
  * which transitions exist, who may make them, and what counts as a usable line.
@@ -12,13 +14,13 @@ import { describe, expect, it } from "vitest";
 
 // Mirrors the table in manual-entry.service.ts. Kept as a literal rather than
 // imported because the service pulls in `server-only`, which cannot load here.
-const TRANSITIONS: Record<string, "operate" | "configure"> = {
-  "draft>temporary": "operate",
-  "temporary>draft": "operate",
-  "temporary>approved": "configure",
-  "temporary>rejected": "configure",
-  "approved>posted": "configure",
-  "approved>temporary": "configure",
+const TRANSITIONS: Record<string, AccountingPermission> = {
+  "draft>temporary": "entry.edit",
+  "temporary>draft": "entry.edit",
+  "temporary>approved": "entry.approve",
+  "temporary>rejected": "entry.approve",
+  "approved>posted": "entry.post",
+  "approved>temporary": "entry.approve",
 };
 
 const isLegal = (from: string, to: string) => `${from}>${to}` in TRANSITIONS;
@@ -27,12 +29,15 @@ describe("workflow transitions", () => {
   it("lets an accountant move a draft forward and back", () => {
     expect(isLegal("draft", "temporary")).toBe(true);
     expect(isLegal("temporary", "draft")).toBe(true);
-    expect(TRANSITIONS["draft>temporary"]).toBe("operate");
+    expect(hasPermission("accountant", TRANSITIONS["draft>temporary"])).toBe(true);
   });
 
-  it("requires the finance admin capability to approve or post", () => {
-    expect(TRANSITIONS["temporary>approved"]).toBe("configure");
-    expect(TRANSITIONS["approved>posted"]).toBe("configure");
+  it("keeps approving and posting away from the accountant", () => {
+    for (const step of ["temporary>approved", "temporary>rejected", "approved>posted", "approved>temporary"]) {
+      expect(hasPermission("accountant", TRANSITIONS[step])).toBe(false);
+      expect(hasPermission("accounting_manager", TRANSITIONS[step])).toBe(true);
+      expect(hasPermission("manager", TRANSITIONS[step])).toBe(true);
+    }
   });
 
   it("refuses to skip the review step", () => {

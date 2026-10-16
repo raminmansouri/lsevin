@@ -5332,6 +5332,7 @@ declare const messages: {
       "settingsDescription": "Your business numbers. Changed here, not in code — and every change is recorded in the audit log.",
       "settingsGroup": {
         "core": "Core",
+        "approval": "Approval limit",
         "fees": "Fees",
         "withdrawal": "Withdrawal",
         "deposit": "Deposit",
@@ -5399,7 +5400,8 @@ declare const messages: {
       "passwordWrong": "The current password is incorrect",
       "panelRoles": {
         "accountant": "Accountant",
-        "finance_admin": "Finance admin"
+        "accounting_manager": "Accounting manager",
+        "manager": "Manager"
       },
       "entriesTitle": "Journal entries",
       "analyticsTitle": "Analytics",

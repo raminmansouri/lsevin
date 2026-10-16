@@ -9,7 +9,7 @@ import { getPanelUser } from "./panel-auth";
  * Cost centres, projects, branches and departments.
  *
  * These are the axes every report slices by, so they are configuration rather
- * than data — creating one is a `configure` act, not an `operate` one. A
+ * than data — creating one needs `dimensions.manage`, not just `entry.edit`. A
  * dimension is never deleted once anything has been posted against it, because
  * that would silently rewrite history; it is deactivated instead.
  */
@@ -51,7 +51,7 @@ function pickName(value: Record<string, string> | null, locale: string, fallback
 }
 
 export async function listAllDimensions(locale = "fa"): Promise<DimensionRow[]> {
-  await assertAccounting("read");
+  await assertAccounting("books.view");
 
   const rows = await db<
     {
@@ -111,7 +111,7 @@ export type CreateDimensionInput = {
 };
 
 export async function createDimension(input: CreateDimensionInput): Promise<{ id: string }> {
-  await assertAccounting("configure");
+  await assertAccounting("dimensions.manage");
   const user = await getPanelUser();
   if (!user) throw new DimensionError("Not signed in");
 
@@ -166,7 +166,7 @@ export async function createDimension(input: CreateDimensionInput): Promise<{ id
  * document does not change.
  */
 export async function setDimensionActive(id: string, isActive: boolean): Promise<void> {
-  await assertAccounting("configure");
+  await assertAccounting("dimensions.manage");
 
   const [row] = await db<{ id: string }[]>`
     update accounting.dimensions
@@ -182,7 +182,7 @@ export async function updateDimensionBudget(
   budgetAmount: string | null,
   budgetCurrency: string | null
 ): Promise<void> {
-  await assertAccounting("configure");
+  await assertAccounting("dimensions.manage");
 
   if (budgetAmount && !/^\d+(\.\d+)?$/.test(budgetAmount)) {
     throw new DimensionError("The budget must be a non-negative number");

@@ -20,12 +20,20 @@ function Feedback({ state }: { state: ProviderPayoutFormState }) {
   return null;
 }
 
-/** Approves the given pending entries (one row, or every pending row of a provider). */
-export function ApproveEntriesButton({ ids, label }: { ids: string[]; label: string }) {
+/**
+ * Approves the given pending entries (one row, or every pending row of a provider). With
+ * `confirmText` the count and total are shown and confirmed before anything is sent.
+ */
+export function ApproveEntriesButton({ ids, label, confirmText }: { ids: string[]; label: string; confirmText?: string }) {
   const t = useTranslations("Admin.accounting");
   const [state, action, pending] = useActionState<ProviderPayoutFormState, FormData>(approveProviderEntriesAction, {});
   return (
-    <form action={action}>
+    <form
+      action={action}
+      onSubmit={(event) => {
+        if (confirmText && !window.confirm(confirmText)) event.preventDefault();
+      }}
+    >
       {ids.map((id) => (
         <input key={id} type="hidden" name="entryId" value={id} />
       ))}
@@ -217,10 +225,13 @@ export function ProviderBankAccounts({
   providerId,
   currencyCode,
   accounts,
+  editable,
 }: {
   providerId: string;
   currencyCode: string;
   accounts: PayoutAccount[];
+  /** Whether the viewer may add, edit or remove bank accounts; otherwise read-only. */
+  editable: boolean;
 }) {
   const t = useTranslations("Admin.accounting");
   // "new", an account id being edited, or null.
@@ -265,17 +276,19 @@ export function ProviderBankAccounts({
                 <span dir="ltr" className="font-mono">{a.accountNumber}</span>
               </div>
             )}
-            <div className="flex gap-3 pt-1">
-              <button type="button" onClick={() => setEditing(a.id)} className="text-xs text-blue-800 underline">
-                {t("editBankAccount")}
-              </button>
-              <DeleteAccountButton providerId={providerId} accountId={a.id} />
-            </div>
+            {editable && (
+              <div className="flex gap-3 pt-1">
+                <button type="button" onClick={() => setEditing(a.id)} className="text-xs text-blue-800 underline">
+                  {t("editBankAccount")}
+                </button>
+                <DeleteAccountButton providerId={providerId} accountId={a.id} />
+              </div>
+            )}
           </div>
         )
       )}
 
-      {editing === "new" ? (
+      {!editable ? null : editing === "new" ? (
         <AccountForm providerId={providerId} currencyCode={currencyCode} onDone={close} />
       ) : accounts.length < MAX_ACCOUNTS ? (
         <button

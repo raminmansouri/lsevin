@@ -35,6 +35,8 @@ export type ProviderPayoutEntry = {
   customerPayment: "full" | "deposit" | "partial" | "unpaid" | null;
   payoutReference: string | null;
   paidAt: string | null;
+  /** Panel user who approved it; they may not also record the payment. */
+  approvedBy: string | null;
 };
 
 export type ProviderPayoutGroup = {
@@ -93,6 +95,7 @@ function entryColumns() {
     end as "customerPayment",
     pl.metadata->>'payoutReference' as "payoutReference",
     pl.metadata->>'paidAt' as "paidAt",
+    pl.metadata->>'approvedBy' as "approvedBy",
     pl.provider_id::text as "providerId",
     coalesce(nullif(common.get_translation_t(sp.name_translations, ${PANEL_TRANSLATION_LOCALE}, 'en-US'), ''), '-') as "providerName",
     nullif(common.get_translation_t(pt.name_translations, ${PANEL_TRANSLATION_LOCALE}, 'en-US'), '') as "providerType",
@@ -123,7 +126,7 @@ function entryJoins() {
   `;
 }
 
-function sum(values: string[]): string {
+export function sum(values: string[]): string {
   // Two-decimal money: add in integer cents so a long list does not drift.
   const cents = values.reduce((acc, v) => acc + BigInt(Math.round(Number(v) * 100)), 0n);
   const negative = cents < 0n;
@@ -174,6 +177,7 @@ function group(rows: Row[]): ProviderPayoutGroup[] {
       customerPayment: row.customerPayment,
       payoutReference: row.payoutReference,
       paidAt: row.paidAt,
+      approvedBy: row.approvedBy,
     });
   }
   for (const g of groups.values()) {

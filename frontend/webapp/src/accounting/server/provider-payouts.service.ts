@@ -2,6 +2,9 @@ import "server-only";
 
 import db from "@/config/database/db";
 
+import { approvalLimitFor } from "./access";
+import type { PanelRole } from "./permissions";
+
 /**
  * Moves provider ledger rows through pending -> approved -> paid (or cancelled) from the
  * financial panel. The same rows and statuses /admin/commercial/provider-ledgers edits,
@@ -15,7 +18,14 @@ import db from "@/config/database/db";
 export class ProviderPayoutRuleError extends Error {
   constructor(
     message: string,
-    readonly code: "nothing_selected" | "changed" | "mixed" | "not_positive" | "reference_required"
+    readonly code:
+      | "nothing_selected"
+      | "changed"
+      | "mixed"
+      | "not_positive"
+      | "reference_required"
+      | "over_approval_limit"
+      | "same_approver"
   ) {
     super(message);
     this.name = "ProviderPayoutRuleError";
@@ -28,9 +38,37 @@ function cleanIds(ids: string[]): string[] {
   return unique;
 }
 
-export async function approveProviderEntries(input: { ids: string[]; actorUserId: string }) {
+export async function approveProviderEntries(input: {
+  ids: string[];
+  actorUserId: string;
+  /** The approver's panel role; an accounting manager is held to the approval limit. */
+  approverRole: PanelRole;
+}) {
   const ids = cleanIds(input.ids);
   return db.begin(async (tx) => {
+    // Above the accounting manager's limit an entry waits for the manager. Checked per
+    // entry, the same way a single withdrawal is, so "approve all" cannot sum its way
+    // past the rule — and it refuses the whole batch rather than approving part of it.
+    const currencies = await tx<{ currencyCode: string }[]>`
+      select distinct currency_code as "currencyCode"
+        from commercial.provider_ledgers
+       where id = any(${ids}::uuid[])
+    `;
+    for (const { currencyCode } of currencies) {
+      const limit = await approvalLimitFor(input.approverRole, currencyCode, tx);
+      if (limit === null) continue;
+      const [over] = await tx<{ count: number }[]>`
+        select count(*)::int as count
+          from commercial.provider_ledgers
+         where id = any(${ids}::uuid[])
+           and currency_code = ${currencyCode}
+           and amount > ${limit}::numeric
+      `;
+      if (over.count > 0) {
+        throw new ProviderPayoutRuleError("Above the accounting manager's approval limit.", "over_approval_limit");
+      }
+    }
+
     const rows = await tx<{ id: string }[]>`
       update commercial.provider_ledgers
          set status = 'approved',
@@ -77,14 +115,22 @@ export async function markProviderEntriesPaid(input: { ids: string[]; actorUserI
   if (!reference) throw new ProviderPayoutRuleError("The transfer reference is required.", "reference_required");
 
   return db.begin(async (tx) => {
-    const rows = await tx<{ id: string; status: string; providerId: string; currencyCode: string; amount: string }[]>`
-      select id::text as id, status, provider_id::text as "providerId", currency_code as "currencyCode", amount::text as amount
+    const rows = await tx<
+      { id: string; status: string; providerId: string; currencyCode: string; amount: string; approvedBy: string | null }[]
+    >`
+      select id::text as id, status, provider_id::text as "providerId", currency_code as "currencyCode",
+             amount::text as amount, metadata ->> 'approvedBy' as "approvedBy"
       from commercial.provider_ledgers
       where id = any(${ids}::uuid[])
       for update
     `;
     if (rows.length !== ids.length || rows.some((r) => r.status !== "approved")) {
       throw new ProviderPayoutRuleError("Some entries changed since the page loaded.", "changed");
+    }
+    // Whoever approved a payout does not also record it as sent: two people see every
+    // payment, the same four-eyes rule the journal applies to its documents.
+    if (rows.some((r) => r.approvedBy === input.actorUserId)) {
+      throw new ProviderPayoutRuleError("The approver cannot also record the payment.", "same_approver");
     }
     if (new Set(rows.map((r) => `${r.providerId}:${r.currencyCode}`)).size !== 1) {
       throw new ProviderPayoutRuleError("One transfer can only pay one provider in one currency.", "mixed");

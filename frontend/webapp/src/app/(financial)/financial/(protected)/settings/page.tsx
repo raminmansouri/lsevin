@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server";
 
+import { requirePagePermission } from "@/accounting/server/access";
 import {
   listActiveCurrencies,
   listSettings,
@@ -10,9 +11,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 import { updateSettingAction } from "../config-actions";
 
-const GROUP_ORDER = ["core", "fees", "withdrawal", "deposit", "crypto", "limits"] as const;
+const GROUP_ORDER = ["core", "approval", "fees", "withdrawal", "deposit", "crypto", "limits"] as const;
 
 export default async function AccountingSettingsPage() {
+  await requirePagePermission("settings.manage");
   const t = await getTranslations("Admin.accounting");
   const [settings, currencies] = await Promise.all([listSettings(), listActiveCurrencies()]);
 

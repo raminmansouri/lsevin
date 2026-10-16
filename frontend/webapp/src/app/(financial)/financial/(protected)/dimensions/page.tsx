@@ -1,5 +1,6 @@
 import { PANEL_LOCALE } from "@/accounting/lib/panel-locale";
 import { formatAmount } from "@/accounting/lib/format";
+import { canAccounting } from "@/accounting/server/access";
 import { listAllDimensions } from "@/accounting/server/dimensions.service";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -13,7 +14,10 @@ const KIND_LABEL: Record<string, string> = {
 };
 
 export default async function DimensionsPage() {
-  const dimensions = await listAllDimensions(PANEL_LOCALE);
+  const [dimensions, canManage] = await Promise.all([
+    listAllDimensions(PANEL_LOCALE),
+    canAccounting("dimensions.manage"),
+  ]);
 
   const grouped = ["cost_center", "project", "branch", "department"].map((kind) => ({
     kind,
@@ -22,6 +26,7 @@ export default async function DimensionsPage() {
 
   return (
     <div className="space-y-6">
+      {canManage && (
       <Card>
         <CardHeader className="border-b">
           <CardTitle>افزودن بُعد جدید</CardTitle>
@@ -35,6 +40,7 @@ export default async function DimensionsPage() {
           <DimensionForm />
         </CardContent>
       </Card>
+      )}
 
       {grouped.map(({ kind, rows }) => (
         <Card key={kind}>
@@ -103,7 +109,7 @@ export default async function DimensionsPage() {
                           </span>
                         </td>
                         <td className="p-2">
-                          <DimensionToggle id={row.id} isActive={row.isActive} />
+                          {canManage && <DimensionToggle id={row.id} isActive={row.isActive} />}
                         </td>
                       </tr>
                     ))}

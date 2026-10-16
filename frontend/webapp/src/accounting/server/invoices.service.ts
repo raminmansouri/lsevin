@@ -160,7 +160,7 @@ function assertLines(lines: InvoiceLineInput[]) {
 
 /** Raises an invoice as a draft. Nothing reaches the ledger until it is issued. */
 export async function createInvoice(input: InvoiceInput): Promise<{ id: string; invoiceNumber: string }> {
-  await assertAccounting("operate");
+  await assertAccounting("invoice.edit");
   const user = await getPanelUser();
   if (!user) throw new InvoiceError("Not signed in");
 
@@ -230,7 +230,7 @@ export async function createInvoice(input: InvoiceInput): Promise<{ id: string; 
  * prevent.
  */
 export async function issueInvoice(invoiceId: string): Promise<{ entryNumber: string }> {
-  await assertAccounting("operate");
+  await assertAccounting("invoice.issue");
   const user = await getPanelUser();
   if (!user) throw new InvoiceError("Not signed in");
 
@@ -395,7 +395,7 @@ export async function issueInvoice(invoiceId: string): Promise<{ entryNumber: st
  * if it is already in the books, it is corrected with a reversing entry.
  */
 export async function cancelInvoice(invoiceId: string, reason: string): Promise<void> {
-  await assertAccounting("operate");
+  await assertAccounting("invoice.issue");
   const user = await getPanelUser();
   if (!user) throw new InvoiceError("Not signed in");
 
@@ -417,7 +417,7 @@ export async function cancelInvoice(invoiceId: string, reason: string): Promise<
 
 /** Deletes a draft invoice. An issued one is cancelled, never removed. */
 export async function deleteDraftInvoice(invoiceId: string): Promise<void> {
-  await assertAccounting("operate");
+  await assertAccounting("invoice.edit");
 
   await db.begin(async (tx) => {
     const [invoice] = await tx<{ status: InvoiceStatus }[]>`
@@ -435,7 +435,7 @@ export async function listInvoices(
   filters: { kind?: InvoiceKind; status?: InvoiceStatus; limit?: number } = {},
   locale = "fa"
 ): Promise<InvoiceRow[]> {
-  await assertAccounting("read");
+  await assertAccounting("books.view");
 
   const rows = await db<
     {
@@ -513,7 +513,7 @@ export async function listInvoices(
 
 /** The lines of one invoice, for the row that expands on the list. */
 export async function listInvoiceLines(invoiceId: string, locale = "fa"): Promise<InvoiceLineRow[]> {
-  await assertAccounting("read");
+  await assertAccounting("books.view");
 
   const rows = await db<
     {

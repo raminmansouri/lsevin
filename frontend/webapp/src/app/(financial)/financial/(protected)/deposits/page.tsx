@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { PANEL_LOCALE } from "@/accounting/lib/panel-locale";
 
 import { formatDateTime, formatForDisplay } from "@/accounting/lib/format";
+import { canAccounting } from "@/accounting/server/access";
 import { listPendingDeposits } from "@/accounting/server/admin-queries";
 import {
   listBookingPaymentsForReview,
@@ -166,11 +167,13 @@ function Section({ title, description, children }: { title: string; description?
 export default async function DepositQueuePage() {
   const locale = PANEL_LOCALE;
   const t = await getTranslations("Admin.accounting");
-  const [toReview, partlyPaid, recent, deposits] = await Promise.all([
+  const [toReview, partlyPaid, recent, deposits, canApprove] = await Promise.all([
     listBookingPaymentsForReview(),
     listPartlyPaidBookings(),
     listRecentBookingPayments(RECENT_DAYS),
     listPendingDeposits(),
+    // Accountants see the queue to check receipts; approving is for the managers.
+    canAccounting("deposit.approve"),
   ]);
 
   return (
@@ -217,7 +220,7 @@ export default async function DepositQueuePage() {
                     </a>
                   )}
                 </div>
-                <BookingPaymentReviewForms bookingId={row.bookingId} paymentId={row.paymentId} />
+                {canApprove && <BookingPaymentReviewForms bookingId={row.bookingId} paymentId={row.paymentId} />}
               </div>
             </div>
           ))}
@@ -242,11 +245,13 @@ export default async function DepositQueuePage() {
                     <p className="text-xs font-medium text-amber-800">{t("partlyPaidHasPendingReview")}</p>
                   )}
                 </div>
-                <RecordBookingBalanceForm
-                  bookingId={row.bookingId}
-                  remainingAmount={row.remainingAmount}
-                  currencyCode={row.currencyCode}
-                />
+                {canApprove && (
+                  <RecordBookingBalanceForm
+                    bookingId={row.bookingId}
+                    remainingAmount={row.remainingAmount}
+                    currencyCode={row.currencyCode}
+                  />
+                )}
               </div>
             </div>
           ))}
@@ -342,6 +347,7 @@ export default async function DepositQueuePage() {
                     )}
                   </div>
 
+                  {canApprove && (
                   <div className="grid gap-2 sm:min-w-[440px] sm:grid-cols-2">
                     <form
                       action={approveDepositAction}
@@ -388,6 +394,7 @@ export default async function DepositQueuePage() {
                       </button>
                     </form>
                   </div>
+                  )}
                 </div>
               </div>
             );

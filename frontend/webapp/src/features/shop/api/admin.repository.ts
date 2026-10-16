@@ -158,15 +158,25 @@ export async function listAdminCategories() {
   `;
 }
 
+// Feeds the searchable "related services" picker on the shop product/category edit
+// pages. Returns both the English and Persian names so the picker can show them side by
+// side and match a search in either language. The search runs in the browser, so the
+// list is not cut at 100 any more (services past the first 100 could not be linked).
 export async function listServiceDefinitionsForPicker(q?: string) {
   await assertShopAdmin();
   const like = q ? `%${q}%` : null;
-  return sql<any[]>`
-    select id::text as id, common.get_translation_t(name_translations, 'en', 'en') as name, is_active
-    from category.service_definitions
-    where (${like}::text is null or common.get_translation_t(name_translations, 'en', 'en') ilike ${like})
-    order by is_active desc, name asc
-    limit 100
+  return sql<{ id: string; name: string; name_en: string; name_fa: string; is_active: boolean }[]>`
+    select id, name_en as name, name_en, name_fa, is_active
+    from (
+      select id::text as id,
+        common.get_translation_t(name_translations, 'en', 'en') as name_en,
+        common.get_translation_t(name_translations, 'fa', 'fa-IR') as name_fa,
+        is_active
+      from category.service_definitions
+    ) s
+    where (${like}::text is null or name_en ilike ${like} or name_fa ilike ${like})
+    order by is_active desc, name_en asc
+    limit 5000
   `;
 }
 
@@ -191,6 +201,7 @@ export async function getAdminProductForEdit(productId: string) {
     sql<any[]>`
       select psl.id::text as id, psl.service_definition_id::text as service_definition_id, psl.relation_type, psl.display_order,
         coalesce(common.get_translation_t(sd.name_translations, 'en', 'en'), '(missing service)') as service_name,
+        common.get_translation_t(sd.name_translations, 'fa', 'fa-IR') as service_name_fa,
         (sd.id is null) as broken
       from shop.product_service_links psl
       left join category.service_definitions sd on sd.id = psl.service_definition_id
@@ -271,6 +282,7 @@ export async function getCategoryForEdit(id: string) {
   const links = await sql<any[]>`
     select csl.id::text as id, csl.service_definition_id::text as service_definition_id, csl.relation_type,
       coalesce(common.get_translation_t(sd.name_translations, 'en', 'en'), '(missing service)') as service_name,
+      common.get_translation_t(sd.name_translations, 'fa', 'fa-IR') as service_name_fa,
       (sd.id is null) as broken
     from shop.category_service_links csl
     left join category.service_definitions sd on sd.id = csl.service_definition_id

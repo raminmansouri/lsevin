@@ -3,10 +3,15 @@ import { getTranslations } from "next-intl/server";
 import { PANEL_LOCALE } from "@/accounting/lib/panel-locale";
 
 import { formatDateTime, formatForDisplay } from "@/accounting/lib/format";
+import { APPROVAL_LIMIT_SETTING, getPanelPermissions } from "@/accounting/server/access";
 import { listPendingWithdrawals } from "@/accounting/server/admin-queries";
+import { getPanelUser } from "@/accounting/server/panel-auth";
+import { exceedsLimit } from "@/accounting/server/permissions";
+import { getSetting } from "@/accounting/server/settings.repository";
 import {
   listProviderPayoutsDue,
   listRecentProviderPayouts,
+  sum,
   type ProviderPayoutEntry,
   type ProviderPayoutGroup,
 } from "@/accounting/server/provider-payouts.queries";
@@ -74,7 +79,15 @@ function Section({ title, description, children }: { title: string; description?
   );
 }
 
-function ProviderHeading({ group, accounts }: { group: ProviderPayoutGroup; accounts: PayoutAccount[] }) {
+function ProviderHeading({
+  group,
+  accounts,
+  editable,
+}: {
+  group: ProviderPayoutGroup;
+  accounts: PayoutAccount[];
+  editable: boolean;
+}) {
   return (
     <div className="space-y-0.5">
       <div className="text-base font-semibold">
@@ -91,12 +104,20 @@ function ProviderHeading({ group, accounts }: { group: ProviderPayoutGroup; acco
           <span dir="ltr">{group.providerEmail}</span>
         </div>
       )}
-      <ProviderBankAccounts providerId={group.providerId} currencyCode={group.currencyCode} accounts={accounts} />
+      <ProviderBankAccounts
+        providerId={group.providerId}
+        currencyCode={group.currencyCode}
+        accounts={accounts}
+        editable={editable}
+      />
     </div>
   );
 }
 
-function EntriesTable({ t, entries, actions }: { t: Translator; entries: ProviderPayoutEntry[]; actions: boolean }) {
+/** What the viewer may do on a row: null for a read-only table. */
+type RowActions = { needsManager: (entry: ProviderPayoutEntry) => boolean } | null;
+
+function EntriesTable({ t, entries, actions }: { t: Translator; entries: ProviderPayoutEntry[]; actions: RowActions }) {
   return (
     <div className="overflow-x-auto rounded-md border bg-white">
       <table className="w-full text-xs">
@@ -146,7 +167,12 @@ function EntriesTable({ t, entries, actions }: { t: Translator; entries: Provide
               </td>
               {actions && (
                 <td className="space-y-1 p-2">
-                  {e.status === "pending" && <ApproveEntriesButton ids={[e.id]} label={t("approveEntry")} />}
+                  {e.status === "pending" &&
+                    (actions.needsManager(e) ? (
+                      <div className="text-amber-800">بالاتر از سقف تأیید شما؛ «مدیر» باید تأیید کند.</div>
+                    ) : (
+                      <ApproveEntriesButton ids={[e.id]} label={t("approveEntry")} />
+                    ))}
                   <CancelEntryForm id={e.id} />
                 </td>
               )}
@@ -161,12 +187,25 @@ function EntriesTable({ t, entries, actions }: { t: Translator; entries: Provide
 export default async function WithdrawalQueuePage() {
   const locale = PANEL_LOCALE;
   const t = await getTranslations("Admin.accounting");
-  const [due, recentlyPaid, withdrawals] = await Promise.all([
+  const [due, recentlyPaid, withdrawals, viewer, permissions, limits] = await Promise.all([
     listProviderPayoutsDue(),
     listRecentProviderPayouts(RECENT_DAYS),
     listPendingWithdrawals(),
+    getPanelUser(),
+    getPanelPermissions(),
+    getSetting<Record<string, string | number>>(APPROVAL_LIMIT_SETTING),
   ]);
   const bankAccounts = await listPayoutAccounts(due.map((g) => g.providerId));
+
+  // The buttons follow the same rules the server enforces, so nobody is offered a step
+  // that will be refused: approve/pay by permission, the accounting manager's limit,
+  // and the approver not also recording the payment.
+  const canApprove = permissions.has("withdrawal.approve");
+  const canPay = permissions.has("withdrawal.pay");
+  const canEditAccounts = permissions.has("payout_account.manage");
+  const needsManager = (amount: string, currencyCode: string) =>
+    viewer?.role === "accounting_manager" && exceedsLimit(amount, limits?.[currencyCode]);
+  const rowActions: RowActions = canApprove ? { needsManager: (e) => needsManager(e.amount, e.currencyCode) } : null;
 
   return (
     <Card>
@@ -182,13 +221,17 @@ export default async function WithdrawalQueuePage() {
         <Section title={t("providerPayoutsTitle")} description={t("providerPayoutsDescription")}>
           {due.length === 0 && <p className="text-muted-foreground text-sm">{t("queueEmpty")}</p>}
           {due.map((group) => {
-            const pendingIds = group.entries.filter((e) => e.status === "pending").map((e) => e.id);
-            const approvedIds = group.entries.filter((e) => e.status === "approved").map((e) => e.id);
+            const pending = group.entries.filter((e) => e.status === "pending");
+            // "Approve all" takes only what this person may approve on their own.
+            const eligible = pending.filter((e) => !needsManager(e.amount, e.currencyCode));
+            const approved = group.entries.filter((e) => e.status === "approved");
+            const approvedIds = approved.map((e) => e.id);
+            const approvedByViewer = approved.some((e) => viewer && e.approvedBy === viewer.id);
             return (
               <div key={`${group.providerId}:${group.currencyCode}`} className="space-y-3 rounded-md border p-4 text-sm">
                 <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                   <div className="space-y-2 lg:max-w-xl lg:flex-1">
-                    <ProviderHeading group={group} accounts={bankAccounts.get(group.providerId) ?? []} />
+                    <ProviderHeading group={group} accounts={bankAccounts.get(group.providerId) ?? []} editable={canEditAccounts} />
                     <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs">
                       <span className="text-amber-800">
                         {t("providerPendingTotal")}: <span className="font-semibold">{money(group.pendingTotal, group.currencyCode)}</span>
@@ -197,15 +240,25 @@ export default async function WithdrawalQueuePage() {
                         {t("providerApprovedTotal")}: <span className="font-semibold">{money(group.approvedTotal, group.currencyCode)}</span>
                       </span>
                     </div>
-                    {pendingIds.length > 1 && <ApproveEntriesButton ids={pendingIds} label={t("approveAllEntries")} />}
+                    {canApprove && eligible.length > 1 && (
+                      <ApproveEntriesButton
+                        ids={eligible.map((e) => e.id)}
+                        label={`${t("approveAllEntries")} (${eligible.length})`}
+                        confirmText={`${eligible.length} مورد به مبلغ ${money(sum(eligible.map((e) => e.amount)), group.currencyCode)} تأیید شود؟`}
+                      />
+                    )}
                   </div>
-                  {approvedIds.length > 0 && Number(group.approvedTotal) > 0 && (
+                  {canPay && approvedIds.length > 0 && Number(group.approvedTotal) > 0 && (
                     <div className="sm:min-w-[320px]">
-                      <MarkProviderPaidForm ids={approvedIds} totalLabel={money(group.approvedTotal, group.currencyCode)} />
+                      {approvedByViewer ? (
+                        <p className="rounded-md border border-blue-200 bg-blue-50 p-3 text-xs text-blue-900">شما این مورد را تأیید کرده‌اید؛ ثبت پرداخت با شخص دیگری است.</p>
+                      ) : (
+                        <MarkProviderPaidForm ids={approvedIds} totalLabel={money(group.approvedTotal, group.currencyCode)} />
+                      )}
                     </div>
                   )}
                 </div>
-                <EntriesTable t={t} entries={group.entries} actions />
+                <EntriesTable t={t} entries={group.entries} actions={rowActions} />
               </div>
             );
           })}
@@ -220,7 +273,7 @@ export default async function WithdrawalQueuePage() {
                 {group.providerName}
                 {group.providerType && <span className="text-muted-foreground ms-2 text-xs font-normal">({group.providerType})</span>}
               </div>
-              <EntriesTable t={t} entries={group.entries} actions={false} />
+              <EntriesTable t={t} entries={group.entries} actions={null} />
             </div>
           ))}
         </Section>
@@ -235,8 +288,10 @@ export default async function WithdrawalQueuePage() {
             const gross = formatForDisplay(w.amount, w.currencyCode, locale);
             const fee = formatForDisplay(w.feeAmount, w.currencyCode, locale);
             const net = formatForDisplay(w.netAmount, w.currencyCode, locale);
-            const isPending = w.status === "pending";
-            const isApproved = w.status === "approved" || w.status === "processing";
+            const isPending = canApprove && w.status === "pending";
+            const isApproved = canPay && (w.status === "approved" || w.status === "processing");
+            const overLimit = needsManager(w.amount, w.currencyCode);
+            const approvedByViewer = Boolean(viewer && w.reviewedBy === viewer.id);
 
             return (
               <div key={w.id} className="rounded-md border p-4 text-sm">
@@ -285,6 +340,9 @@ export default async function WithdrawalQueuePage() {
                   <div className="grid gap-2 sm:min-w-[440px] sm:grid-cols-2">
                     {isPending && (
                       <>
+                        {overLimit ? (
+                          <p className="rounded-md border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900">بالاتر از سقف تأیید شما؛ «مدیر» باید تأیید کند.</p>
+                        ) : (
                         <form
                           action={approveWithdrawalAction}
                           className="rounded-md border border-green-200 bg-green-50 p-3 dark:bg-green-950/20"
@@ -298,6 +356,7 @@ export default async function WithdrawalQueuePage() {
                             {t("approveWithdrawal")}
                           </button>
                         </form>
+                        )}
 
                         <form
                           action={rejectWithdrawalAction}
@@ -322,6 +381,9 @@ export default async function WithdrawalQueuePage() {
 
                     {isApproved && (
                       <>
+                        {approvedByViewer ? (
+                          <p className="rounded-md border border-blue-200 bg-blue-50 p-3 text-xs text-blue-900">شما این مورد را تأیید کرده‌اید؛ ثبت پرداخت با شخص دیگری است.</p>
+                        ) : (
                         <form
                           action={markWithdrawalPaidAction}
                           className="rounded-md border border-blue-200 bg-blue-50 p-3 dark:bg-blue-950/20"
@@ -341,6 +403,7 @@ export default async function WithdrawalQueuePage() {
                             {t("markPaid")}
                           </button>
                         </form>
+                        )}
 
                         <form
                           action={failWithdrawalAction}

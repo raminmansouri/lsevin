@@ -2,6 +2,7 @@ import { getTranslations } from "next-intl/server";
 
 import { PANEL_LOCALE } from "@/accounting/lib/panel-locale";
 
+import { canAccounting } from "@/accounting/server/access";
 import { listAccounts, listPostableParents } from "@/accounting/server/accounts-admin";
 import { listActiveCurrencies } from "@/accounting/server/settings-admin";
 import { PageHeader } from "@/components/page/page-header";
@@ -18,10 +19,11 @@ function pickName(name: Record<string, string> | null, locale: string): string {
 export default async function ChartOfAccountsPage() {
   const locale = PANEL_LOCALE;
   const t = await getTranslations("Admin.accounting");
-  const [accounts, parents, currencies] = await Promise.all([
+  const [accounts, parents, currencies, canManage] = await Promise.all([
     listAccounts(),
     listPostableParents(),
     listActiveCurrencies(),
+    canAccounting("accounts.manage"),
   ]);
 
   // Which accounts have children, worked out once here rather than per row: a parent
@@ -42,6 +44,7 @@ export default async function ChartOfAccountsPage() {
         </CardContent>
       </Card>
 
+      {canManage && (
       <Card>
         <CardHeader className="border-b">
           <CardTitle className="text-base">{t("addAccount")}</CardTitle>
@@ -53,6 +56,7 @@ export default async function ChartOfAccountsPage() {
           />
         </CardContent>
       </Card>
+      )}
 
       <Card>
         <CardHeader className="border-b">
@@ -89,18 +93,20 @@ export default async function ChartOfAccountsPage() {
                     <td className="p-2 text-xs">{t(`sides.${account.normalBalance}` as never)}</td>
                     <td className="p-2 text-xs">{account.isPostable ? "✓" : "—"}</td>
                     <td className="p-2">
-                      <AccountRowActions
-                        accountId={account.id}
-                        code={account.code}
-                        nameFa={account.nameTranslations?.["fa-IR"] ?? ""}
-                        nameEn={account.nameTranslations?.["en-US"] ?? ""}
-                        isActive={account.isActive}
-                        isSystem={account.isSystem}
-                        hasPostings={account.hasPostings}
-                        deletable={
-                          !account.isSystem && !account.hasPostings && !parentIds.has(account.id)
-                        }
-                      />
+                      {canManage && (
+                        <AccountRowActions
+                          accountId={account.id}
+                          code={account.code}
+                          nameFa={account.nameTranslations?.["fa-IR"] ?? ""}
+                          nameEn={account.nameTranslations?.["en-US"] ?? ""}
+                          isActive={account.isActive}
+                          isSystem={account.isSystem}
+                          hasPostings={account.hasPostings}
+                          deletable={
+                            !account.isSystem && !account.hasPostings && !parentIds.has(account.id)
+                          }
+                        />
+                      )}
                     </td>
                   </tr>
                 ))}

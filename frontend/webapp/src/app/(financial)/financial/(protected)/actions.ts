@@ -37,7 +37,7 @@ import {
  *
  * Every export of a `"use server"` module is a public POST endpoint reachable by action
  * id, not by URL — the admin URL guard in middleware does nothing for them.
- * assertAccounting("operate") on the first line of each is the authorization boundary,
+ * assertAccounting(<permission>) on the first line of each is the authorization boundary,
  * and it is the reason a customer cannot approve their own deposit. Do not remove it.
  */
 
@@ -69,7 +69,7 @@ function revalidateAccounting() {
 }
 
 export async function approveDepositAction(formData: FormData) {
-  const { userId } = await assertAccounting("operate");
+  const { userId } = await assertAccounting("deposit.approve");
 
   await approveDepositRequest({
     depositRequestId: requiredString(formData, "depositRequestId"),
@@ -82,7 +82,7 @@ export async function approveDepositAction(formData: FormData) {
 }
 
 export async function rejectDepositAction(formData: FormData) {
-  const { userId } = await assertAccounting("operate");
+  const { userId } = await assertAccounting("deposit.approve");
 
   await rejectDepositRequest({
     depositRequestId: requiredString(formData, "depositRequestId"),
@@ -94,11 +94,12 @@ export async function rejectDepositAction(formData: FormData) {
 }
 
 export async function approveWithdrawalAction(formData: FormData) {
-  const { userId } = await assertAccounting("operate");
+  const { userId, role } = await assertAccounting("withdrawal.approve");
 
   await approveWithdrawal({
     withdrawalRequestId: requiredString(formData, "withdrawalRequestId"),
     actorUserId: userId,
+    approverRole: role,
     note: String(formData.get("note") ?? "").trim() || undefined,
   });
 
@@ -106,7 +107,7 @@ export async function approveWithdrawalAction(formData: FormData) {
 }
 
 export async function rejectWithdrawalAction(formData: FormData) {
-  const { userId } = await assertAccounting("operate");
+  const { userId } = await assertAccounting("withdrawal.approve");
 
   await releaseWithdrawal({
     withdrawalRequestId: requiredString(formData, "withdrawalRequestId"),
@@ -124,7 +125,7 @@ export async function rejectWithdrawalAction(formData: FormData) {
  * proves it.
  */
 export async function markWithdrawalPaidAction(formData: FormData) {
-  const { userId } = await assertAccounting("operate");
+  const { userId } = await assertAccounting("withdrawal.pay");
 
   await markWithdrawalPaid({
     withdrawalRequestId: requiredString(formData, "withdrawalRequestId"),
@@ -136,7 +137,7 @@ export async function markWithdrawalPaidAction(formData: FormData) {
 }
 
 export async function failWithdrawalAction(formData: FormData) {
-  const { userId } = await assertAccounting("operate");
+  const { userId } = await assertAccounting("withdrawal.pay");
 
   await releaseWithdrawal({
     withdrawalRequestId: requiredString(formData, "withdrawalRequestId"),
@@ -157,7 +158,7 @@ export type BookingPaymentFormState = { error?: string; ok?: string };
  */
 function bookingPaymentMessageFor(error: unknown): string {
   if (error instanceof AccountingAccessError) {
-    return "این کار دسترسی «حسابدار» یا «مدیر مالی» می‌خواهد.";
+    return "این کار دسترسی «مدیر حسابداری» یا «مدیر» می‌خواهد.";
   }
   if (error instanceof BookingPaymentRuleError) {
     switch (error.code) {
@@ -214,7 +215,7 @@ export async function approveBookingPaymentAction(
   formData: FormData
 ): Promise<BookingPaymentFormState> {
   try {
-    const { userId } = await assertAccounting("operate");
+    const { userId } = await assertAccounting("deposit.approve");
 
     await approveBookingPayment({
       bookingId: requiredString(formData, "bookingId"),
@@ -234,7 +235,7 @@ export async function rejectBookingPaymentAction(
   formData: FormData
 ): Promise<BookingPaymentFormState> {
   try {
-    const { userId } = await assertAccounting("operate");
+    const { userId } = await assertAccounting("deposit.approve");
 
     await rejectBookingPayment({
       bookingId: requiredString(formData, "bookingId"),
@@ -255,7 +256,7 @@ export async function recordBookingBalanceAction(
   formData: FormData
 ): Promise<BookingPaymentFormState> {
   try {
-    const { userId } = await assertAccounting("operate");
+    const { userId } = await assertAccounting("deposit.approve");
 
     await recordBookingBalancePayment({
       bookingId: requiredString(formData, "bookingId"),
@@ -276,7 +277,7 @@ export type ProviderPayoutFormState = { error?: string; ok?: string };
 
 function providerPayoutMessageFor(error: unknown): string {
   if (error instanceof AccountingAccessError) {
-    return "این کار دسترسی «حسابدار» یا «مدیر مالی» می‌خواهد.";
+    return "این کار دسترسی «مدیر حسابداری» یا «مدیر» می‌خواهد.";
   }
   if (error instanceof ProviderPayoutRuleError) {
     switch (error.code) {
@@ -290,6 +291,10 @@ function providerPayoutMessageFor(error: unknown): string {
         return "برای این موارد مبلغی قابل پرداخت نیست.";
       case "reference_required":
         return "شماره پیگیری انتقال را وارد کنید.";
+      case "over_approval_limit":
+        return "مبلغ بیشتر از سقف تأیید «مدیر حسابداری» است و باید «مدیر» آن را تأیید کند.";
+      case "same_approver":
+        return "تأییدکنندهٔ این پرداخت نمی‌تواند خودش پرداخت را ثبت کند؛ شخص دیگری باید آن را ثبت کند.";
     }
   }
   console.error("financial panel provider payout action failed", error);
@@ -310,8 +315,8 @@ export async function approveProviderEntriesAction(
   formData: FormData
 ): Promise<ProviderPayoutFormState> {
   try {
-    const { userId } = await assertAccounting("operate");
-    const result = await approveProviderEntries({ ids: entryIds(formData), actorUserId: userId });
+    const { userId, role } = await assertAccounting("withdrawal.approve");
+    const result = await approveProviderEntries({ ids: entryIds(formData), actorUserId: userId, approverRole: role });
     revalidateAccounting();
     return { ok: `${result.approved} مورد تأیید شد.` };
   } catch (error) {
@@ -324,7 +329,7 @@ export async function cancelProviderEntryAction(
   formData: FormData
 ): Promise<ProviderPayoutFormState> {
   try {
-    const { userId } = await assertAccounting("operate");
+    const { userId } = await assertAccounting("withdrawal.approve");
     await cancelProviderEntry({
       id: requiredString(formData, "entryId"),
       actorUserId: userId,
@@ -342,7 +347,7 @@ export async function markProviderPaidAction(
   formData: FormData
 ): Promise<ProviderPayoutFormState> {
   try {
-    const { userId } = await assertAccounting("operate");
+    const { userId } = await assertAccounting("withdrawal.pay");
     await markProviderEntriesPaid({
       ids: entryIds(formData),
       actorUserId: userId,
@@ -357,7 +362,7 @@ export async function markProviderPaidAction(
 
 function payoutAccountMessageFor(error: unknown): string {
   if (error instanceof AccountingAccessError) {
-    return "این کار دسترسی «حسابدار» یا «مدیر مالی» می‌خواهد.";
+    return "این کار دسترسی «مدیر حسابداری» یا «مدیر» می‌خواهد.";
   }
   if (error instanceof PayoutAccountRuleError) {
     switch (error.code) {
@@ -387,7 +392,7 @@ export async function savePayoutAccountAction(
   formData: FormData
 ): Promise<ProviderPayoutFormState> {
   try {
-    const { userId } = await assertAccounting("operate");
+    const { userId } = await assertAccounting("payout_account.manage");
     await savePayoutAccount({
       providerId: requiredString(formData, "providerId"),
       id: String(formData.get("accountId") ?? "").trim() || undefined,
@@ -412,7 +417,7 @@ export async function deletePayoutAccountAction(
   formData: FormData
 ): Promise<ProviderPayoutFormState> {
   try {
-    await assertAccounting("operate");
+    await assertAccounting("payout_account.manage");
     await deletePayoutAccount({
       providerId: requiredString(formData, "providerId"),
       id: requiredString(formData, "accountId"),
