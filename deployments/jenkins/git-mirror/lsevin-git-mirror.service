@@ -1,0 +1,8 @@
+[Unit]
+Description=Update the local mirror of the LSevin repository (server A)
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/lsevin-git-mirror
+Nice=10

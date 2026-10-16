@@ -1,0 +1,141 @@
+#!/usr/bin/env bash
+# lsevin-vpn-manager - keeps the split-tunnel OpenVPN link from server A to server B alive and
+# fails over to reserve profiles when the active one stops working (credit exhausted, auth
+# rejected, server blocked, tunnel dead).
+#
+# Profiles live in /etc/openvpn/lsevin-pool/*.ovpn (root-only), tried in file-name order.
+# Add a reserve with:  lsevin-vpn add /path/to/new.ovpn     Status: lsevin-vpn status
+#
+# Only B's IP is routed through the tunnel; the profile's pushed routes/DNS/default gateway are
+# ignored, so A's normal traffic and SSH are never affected.
+set -u
+POOL=/etc/openvpn/lsevin-pool
+STATE=/var/lib/lsevin-vpn
+CONF=/etc/openvpn/client/lsevin-vpn.conf
+UNIT=openvpn-client@lsevin-vpn
+B_IP="${B_IP:-202.133.90.50}"
+INTERVAL="${INTERVAL:-30}"                 # seconds between checks
+VPN_FAIL_CHECKS="${VPN_FAIL_CHECKS:-3}"    # tunnel dead this many checks in a row -> rotate
+B_FAIL_CHECKS="${B_FAIL_CHECKS:-20}"       # tunnel alive but B unreachable this long -> rotate once
+COOLDOWN_AUTH="${COOLDOWN_AUTH:-21600}"    # 6 h  after auth failure (likely out of credit)
+COOLDOWN_OTHER="${COOLDOWN_OTHER:-1800}"   # 30 min after other failures
+LOG=/var/log/lsevin-vpn.log
+mkdir -p "$STATE"; touch "$LOG"
+
+log() { printf '%s %s\n' "$(date -u +%FT%TZ)" "$*" | tee -a "$LOG" >&2; }
+profiles() { ls -1 "$POOL"/*.ovpn 2>/dev/null; }
+cooldown_file() { echo "$STATE/cooldown.$(basename "$1")"; }
+in_cooldown() { local f; f=$(cooldown_file "$1"); [ -f "$f" ] && [ "$(cat "$f")" -gt "$(date +%s)" ]; }
+current() { cat "$STATE/current" 2>/dev/null; }
+
+build_conf() {  # split-tunnel config derived from a provider profile
+  # UDP does not get through from Iran: when the profile also offers TCP remotes, drop the UDP ones so a
+  # (re)connect takes seconds instead of waiting out the 45 s ping-restart on UDP first.
+  if grep -q -E '^remote .* tcp' "$1"; then
+    grep -v -E '^(route |dev |user |group )' "$1" | grep -v -E '^remote .* udp' > "$CONF"
+  else
+    grep -v -E '^(route |dev |user |group )' "$1" > "$CONF"
+  fi
+  cat >> "$CONF" <<X
+
+# ---- lsevin split-tunnel overrides ----
+dev lsvpn0
+dev-type tun
+route-nopull
+route $B_IP 255.255.255.255 vpn_gateway
+pull-filter ignore "redirect-gateway"
+pull-filter ignore "dhcp-option"
+auth-nocache
+script-security 1
+X
+  chmod 600 "$CONF"
+}
+
+vpn_gateway() { ip route get "$B_IP" 2>/dev/null | awk '/dev lsvpn0/ {for(i=1;i<=NF;i++) if($i=="via") print $(i+1)}'; }
+vpn_alive() {  # OpenVPN's own state (the provider gateway does not answer ICMP, so do not ping it)
+  systemctl is-active --quiet "$UNIT" || return 1
+  ip link show lsvpn0 >/dev/null 2>&1 || return 1
+  local last
+  last=$(journalctl -u "$UNIT" --since "-300 sec" --no-pager 2>/dev/null     | grep -E 'Initialization Sequence Completed|Inactivity timeout|SIGUSR1|SIGTERM|AUTH_FAILED|Connection reset|TLS Error|TLS handshake failed' | tail -1)
+  [ -z "$last" ] || [[ "$last" == *"Initialization Sequence Completed"* ]]
+}
+b_reachable() { timeout 8 bash -c "echo > /dev/tcp/$B_IP/443" 2>/dev/null; }
+
+activate() {  # activate <profile> ; returns 0 when the tunnel + B are reachable
+  local p="$1"
+  log "activating profile $(basename "$p")"
+  build_conf "$p"; echo "$p" > "$STATE/current"
+  systemctl reset-failed "$UNIT" 2>/dev/null; systemctl restart "$UNIT"
+  local i; for i in $(seq 1 24); do sleep 5; vpn_alive && b_reachable && { log "profile $(basename "$p") is up"; return 0; }; done
+  return 1
+}
+
+fail_current() {  # fail_current <reason>
+  local p cd; p=$(current); [ -n "$p" ] || return
+  cd=$COOLDOWN_OTHER
+  if journalctl -u "$UNIT" --since "-10 min" --no-pager 2>/dev/null | grep -q -E 'AUTH_FAILED|auth-failure|Auth failed'; then cd=$COOLDOWN_AUTH; fi
+  echo $(( $(date +%s) + cd )) > "$(cooldown_file "$p")"
+  log "profile $(basename "$p") marked failed ($1); cooldown ${cd}s"
+}
+
+rotate() {  # try every profile not in cooldown, starting after the current one; fall back to the oldest failure
+  local cur list p tried=0 first=1; cur=$(current); list=$(profiles)
+  [ -n "$list" ] || { log "no profiles in $POOL"; return 1; }
+  # order: profiles after current, then those before it
+  local ordered; ordered=$( (echo "$list" | awk -v c="$cur" 'f{print} $0==c{f=1}'; echo "$list" | awk -v c="$cur" '$0==c{exit} {print}'; [ -n "$cur" ] && echo "$cur") | awk 'NF && !s[$0]++')
+  for p in $ordered; do
+    in_cooldown "$p" && continue
+    tried=1; activate "$p" && return 0
+    fail_current "did not come up after activation"
+  done
+  if [ "$tried" = 0 ]; then
+    p=$(for f in $list; do printf '%s %s\n' "$(cat "$(cooldown_file "$f")" 2>/dev/null || echo 0)" "$f"; done | sort -n | head -1 | cut -d' ' -f2)
+    log "all profiles are in cooldown - retrying the one that failed longest ago: $(basename "$p")"
+    activate "$p" && return 0
+  fi
+  log "ALERT: no working VPN profile. Add a new profile with: lsevin-vpn add FILE.ovpn"
+  return 1
+}
+
+status() {
+  echo "active profile : $(basename "$(current)" 2>/dev/null)"
+  echo "service        : $(systemctl is-active "$UNIT")"
+  echo "tunnel         : $(vpn_alive && echo alive || echo DOWN)    B reachable: $(b_reachable && echo yes || echo NO)"
+  echo "route to B     : $(ip route get "$B_IP" 2>/dev/null | head -1)"
+  echo "profiles:"
+  local p; for p in $(profiles); do
+    if in_cooldown "$p"; then echo "  $(basename "$p")  COOLING DOWN until $(date -d @"$(cat "$(cooldown_file "$p")")" '+%F %T')"; else echo "  $(basename "$p")  ready"; fi
+  done
+  echo "last log:"; tail -n 5 "$LOG" | sed 's/^/  /'
+}
+
+case "${1:-run}" in
+  status) status; exit 0 ;;
+  add)  [ -f "${2:-}" ] || { echo "usage: lsevin-vpn add FILE.ovpn" >&2; exit 2; }
+        n=$(printf '%02d' $(( $(profiles | wc -l) + 1 ))); dest="$POOL/$n-$(basename "$2")"
+        install -m 600 "$2" "$dest"; echo "added $dest"; exit 0 ;;
+  clear-cooldown) rm -f "$STATE"/cooldown.*; echo cleared; exit 0 ;;
+  run) ;;
+  *) echo "usage: lsevin-vpn [run|status|add FILE|clear-cooldown]" >&2; exit 2 ;;
+esac
+
+# ---- main loop ----
+[ -n "$(current)" ] || echo "$(profiles | head -1)" > "$STATE/current"
+vpn_bad=0; b_bad=0
+while true; do
+  if ! systemctl is-active --quiet "$UNIT"; then
+    log "service $UNIT is not running"; vpn_bad=$VPN_FAIL_CHECKS
+  elif vpn_alive; then vpn_bad=0
+  else vpn_bad=$((vpn_bad + 1)); log "tunnel check failed ($vpn_bad/$VPN_FAIL_CHECKS)"; fi
+
+  if [ "$vpn_bad" -lt "$VPN_FAIL_CHECKS" ]; then
+    if b_reachable; then b_bad=0; else b_bad=$((b_bad + 1)); [ $((b_bad % 5)) = 1 ] && log "tunnel alive but B:443 unreachable ($b_bad/$B_FAIL_CHECKS) - B may be down"; fi
+  fi
+
+  if [ "$vpn_bad" -ge "$VPN_FAIL_CHECKS" ] || [ "$b_bad" -ge "$B_FAIL_CHECKS" ]; then
+    fail_current "$([ "$vpn_bad" -ge "$VPN_FAIL_CHECKS" ] && echo 'tunnel dead' || echo 'B unreachable through tunnel')"
+    rotate || true
+    vpn_bad=0; b_bad=0
+  fi
+  sleep "$INTERVAL"
+done

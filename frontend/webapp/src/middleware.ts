@@ -156,5 +156,5 @@ export default async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!api|trpc|_next|_vercel|.*\\..*).*)"],
+  matcher: ["/((?!api|app-health|trpc|_next|_vercel|.*\\..*).*)"],
 };

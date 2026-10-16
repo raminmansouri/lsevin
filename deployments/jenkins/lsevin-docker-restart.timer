@@ -1,0 +1,9 @@
+[Unit]
+Description=Weekly dockerd restart (Sunday 02:40 UTC = 06:10 in Iran, the quietest hour)
+
+[Timer]
+OnCalendar=Sun *-*-* 02:40:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target

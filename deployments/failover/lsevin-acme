@@ -1,0 +1,72 @@
+#!/usr/bin/env bash
+# lsevin-acme - run ON SERVER B (has internet). Fully automatic certificates for the Iran-facing hostnames served by
+# server A, which Let's Encrypt cannot reach (so HTTP validation is impossible; DNS-01 is used instead):
+#   1. ensures the DNS-only record ir.lsevincare.com -> A's IP (Cloudflare API)
+#   2. issues / renews each certificate listed in /etc/lsevin-acme/certs with DNS-01 (lego)
+#   3. publishes each as /var/lib/filesync/certs/<name>.tgz, which server A fetches through a restricted SSH key
+# Triggered by lsevin-acme.path when the token file changes, and by lsevin-acme.timer (every 6 hours).
+#
+# /etc/lsevin-acme/certs : one line per certificate:   <name>|<domain>|<dns-mode>
+#   ir|ir.lsevincare.com|zone          domain lives in the Cloudflare zone: the token writes the TXT record directly
+#   lsevin-ir|lsevin.ir,*.lsevin.ir|cname   hosted elsewhere (ArvanCloud): the owner adds ONE record there; the wildcard
+#                                      uses the same challenge name, so www.lsevin.ir etc. need no extra record,
+#                                      _acme-challenge.<domain>  CNAME  _acme-challenge.<name>.lsevincare.com
+#                                      and the token writes the TXT record at that target. Skipped (quietly) until the
+#                                      CNAME exists, so no failed orders are sent to Let's Encrypt.
+# Token: Cloudflare API token with Zone:DNS:Edit and Zone:Zone:Read for the zone (stored root-only).
+set -uo pipefail
+# one run at a time (the path unit, the timer and a manual run can overlap)
+exec 9>/run/lock/lsevin-acme.lock; flock -w 600 9 || { echo "another run is in progress"; exit 0; }
+ZONE_NAME="${ZONE_NAME:-lsevincare.com}"
+A_IP="${A_IP:-213.176.121.235}"
+CFG=/etc/lsevin-acme; DATA=/var/lib/lsevin-acme; PUB=/var/lib/filesync/certs
+TOKEN_FILE=$CFG/cloudflare.token
+[ -s "$TOKEN_FILE" ] || { echo "no token at $TOKEN_FILE yet"; exit 0; }
+TOKEN=$(tr -d ' \r\n' < "$TOKEN_FILE")
+EMAIL=$(cat $CFG/email 2>/dev/null || echo admin@lsevin.com)
+[ -s "$CFG/certs" ] || printf 'ir|ir.lsevincare.com|zone\n' > "$CFG/certs"
+mkdir -p "$DATA" "$PUB"; chmod 700 "$DATA"
+cf() { curl -s -m 30 -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" "$@"; }
+rc=0
+
+# --- 1. DNS-only record for the Iran hostname inside the Cloudflare zone
+DOMAIN_IR=ir.$ZONE_NAME
+ZID=$(cf "https://api.cloudflare.com/client/v4/zones?name=$ZONE_NAME" | python3 -c 'import json,sys; d=json.load(sys.stdin); print(d["result"][0]["id"] if d.get("success") and d["result"] else "")')
+[ -n "$ZID" ] || { echo "token cannot see zone $ZONE_NAME (needs Zone:Read)"; exit 1; }
+REC=$(cf "https://api.cloudflare.com/client/v4/zones/$ZID/dns_records?name=$DOMAIN_IR&type=A" | python3 -c 'import json,sys; d=json.load(sys.stdin); r=d["result"]; print(r[0]["id"]+" "+r[0]["content"]+" "+str(r[0]["proxied"]).lower() if r else "")')
+BODY=$(printf '{"type":"A","name":"%s","content":"%s","ttl":300,"proxied":false}' "$DOMAIN_IR" "$A_IP")
+if [ -z "$REC" ]; then cf -X POST "https://api.cloudflare.com/client/v4/zones/$ZID/dns_records" --data "$BODY" >/dev/null && echo "dns: created $DOMAIN_IR -> $A_IP (DNS only)"
+elif [ "$REC" != "$(echo "$REC" | cut -d' ' -f1) $A_IP false" ]; then cf -X PUT "https://api.cloudflare.com/client/v4/zones/$ZID/dns_records/$(echo "$REC" | cut -d' ' -f1)" --data "$BODY" >/dev/null && echo "dns: corrected $DOMAIN_IR -> $A_IP (DNS only)"
+else echo "dns: $DOMAIN_IR already correct"; fi
+
+# --- 2. + 3. every certificate in the list
+export CLOUDFLARE_DNS_API_TOKEN="$TOKEN"
+while IFS='|' read -r NAME DOMAINS MODE; do
+  case "$NAME" in ''|\#*) continue;; esac
+  DOMAIN=${DOMAINS%%,*}                      # first domain: file name and CNAME check
+  DARGS=(); for d in ${DOMAINS//,/ }; do DARGS+=(--domains "$d"); done
+  CRT="$DATA/certificates/$DOMAIN.crt"
+  if [ "$MODE" = cname ]; then
+    # delegated validation: wait until the owner has created the CNAME, otherwise do nothing
+    TARGET=$(curl -s -m 15 -H 'accept: application/dns-json' "https://cloudflare-dns.com/dns-query?name=_acme-challenge.$DOMAIN&type=CNAME" | python3 -c 'import json,sys; a=json.load(sys.stdin).get("Answer") or []; print(next((x["data"].rstrip(".") for x in a if x.get("type")==5), ""))')
+    WANT="_acme-challenge.$NAME.$ZONE_NAME"
+    if [ "$TARGET" != "$WANT" ]; then
+      echo "cert $NAME ($DOMAINS): PENDING - add this DNS record where $DOMAIN is hosted:  _acme-challenge.$DOMAIN  CNAME  $WANT   (currently: ${TARGET:-none})"
+      continue
+    fi
+  fi
+  covers=yes; if [ -f "$CRT" ]; then san=$(openssl x509 -in "$CRT" -noout -ext subjectAltName 2>/dev/null); for d in ${DOMAINS//,/ }; do echo "$san" | grep -q -F "DNS:$d" || covers=no; done; fi
+  if [ -f "$CRT" ] && [ "$covers" = yes ] && openssl x509 -in "$CRT" -noout -checkend $((30*86400)) >/dev/null 2>&1; then
+    echo "cert $NAME: still valid for more than 30 days, nothing to renew"
+  else
+    # lego 5.x: every option belongs to the "run" subcommand, which obtains OR renews
+    lego run --accept-tos --email "$EMAIL" --dns cloudflare --dns.resolvers 1.1.1.1:53 "${DARGS[@]}" --path "$DATA" || { echo "cert $NAME: ISSUANCE FAILED"; rc=1; continue; }
+  fi
+  [ -f "$CRT" ] || { echo "cert $NAME: no certificate produced"; rc=1; continue; }
+  tmp=$(mktemp -d); cp "$CRT" "$tmp/$NAME.crt"; cp "$DATA/certificates/$DOMAIN.key" "$tmp/$NAME.key"
+  tar -C "$tmp" -czf "$PUB/$NAME.tgz.new" "$NAME.crt" "$NAME.key" && mv "$PUB/$NAME.tgz.new" "$PUB/$NAME.tgz"; rm -rf "$tmp"
+  chown filesync:filesync "$PUB/$NAME.tgz"; chmod 600 "$PUB/$NAME.tgz"
+  echo "cert $NAME: $(openssl x509 -in "$CRT" -noout -subject -enddate | tr '\n' ' ')"
+done < "$CFG/certs"
+chown -R filesync:filesync "$PUB"
+exit $rc

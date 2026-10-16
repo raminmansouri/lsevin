@@ -51,6 +51,9 @@ dynamic-admin-dashboard-scaffold/*
 # Development bootstrap SQL is schema/fixture source, not a production dump.
 !auto_backups/schema_backup.sql
 !deployments/docker/dev-seed/*.sql
+# Dual-site (Iran/global) sync scripts: SQL here is configuration for SymmetricDS, not a data dump.
+!deployments/symmetricds/sql/*.sql
+!deployments/dr/*.sql
 
 **/*.md
 !frontend/webapp/docs/pwa.md
@@ -60,6 +63,11 @@ frontend/webapp/test-results/
 frontend/webapp/.pwa-auth*.json
 !/CLAUDE.md
 !deployments/docker/DEV.md
+!deployments/DUAL-SITE-ARCHITECTURE.md
+!deployments/symmetricds/README.md
+!deployments/failover/README.md
+!deployments/files-sync/README.md
+!deployments/dr/*.md
 !deployments/docker/SEAWEEDFS_MIGRATION.md
 !deployments/kubernetes/**/README.md
 **/*.txt

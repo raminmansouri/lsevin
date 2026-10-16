@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+# lsevin-sync-verify - READ-ONLY check that the databases on A and B really are the same. Run it from a PC that can SSH to both servers
+# (same keys as the other tests in this folder). Prints every replicated table whose content differs and every foreign key with orphan rows.
+#   Some difference is normal for a few seconds on busy tables (analytics_*, sessions); run it twice - what stays different is real.
+#   Exit code 0 = identical, 1 = differences found.
+set -uo pipefail
+HERE=$(cd "$(dirname "$0")" && pwd); SQL=$HERE/../sql
+KEY_A=${KEY_A:-$HOME/.ssh/lsevin_a}; KEY_B=${KEY_B:-$HOME/.ssh/lsevin_b}
+HOST_A=${HOST_A:-root@213.176.121.235}; HOST_B=${HOST_B:-agent@202.133.90.50}
+T=$(mktemp -d); trap 'rm -rf "$T"' EXIT
+psql_a() { ssh -o ConnectTimeout=30 -i "$KEY_A" "$HOST_A" 'P=$(kubectl -n lsevin get pods -o name | grep -E "^pod/postgres-[0-9a-f]+-" | head -1); kubectl -n lsevin exec -i $P -- psql -U lsevin -d lsevin -q -f -' < "$1"; }
+psql_b() { ssh -o ConnectTimeout=30 -i "$KEY_B" "$HOST_B" 'P=$(sudo -n kubectl -n lsevin get pods -o name | grep -E "^pod/postgres-[0-9a-f]+-" | head -1); sudo -n kubectl -n lsevin exec -i $P -- psql -U lsevin -d lsevin -q -f -' < "$1"; }
+rc=0
+for pass in 1 2; do
+  psql_a "$SQL/table-fingerprints.sql" > "$T/a$pass.txt" 2>/dev/null; psql_b "$SQL/table-fingerprints.sql" > "$T/b$pass.txt" 2>/dev/null
+  diff "$T/a$pass.txt" "$T/b$pass.txt" | grep -E '^[<>]' | sed -E 's/^[<>] ([^ ]+) .*/\1/' | sort -u > "$T/diff$pass.txt"
+  [ $pass = 1 ] && sleep 45
+done
+echo "tables compared: $(wc -l < "$T/a2.txt")"
+persistent=$(comm -12 "$T/diff1.txt" "$T/diff2.txt")
+if [ -n "$persistent" ]; then rc=1; echo "DIFFERENT in both passes (real divergence):"; echo "$persistent" | sed 's/^/  /'; fi
+transient=$(comm -3 "$T/diff1.txt" "$T/diff2.txt" | tr -d '\t')
+[ -n "$transient" ] && { echo "different in one pass only (busy tables, in flight):"; echo "$transient" | sed 's/^/  /'; }
+[ -z "$persistent" ] && [ -z "$transient" ] && echo "all replicated tables are identical on A and B"
+for s in a b; do
+  out=$(psql_$s "$SQL/orphan-scan.sql" 2>/dev/null); echo "orphan scan on ${s^^}: $(echo "$out" | tail -1)"
+  echo "$out" | grep '^ORPHANS' | sed 's/^/  /'
+  echo "$out" | tail -1 | grep -q 'foreign keys with orphans: 0' || rc=1
+done
+exit $rc

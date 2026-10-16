@@ -1,0 +1,6 @@
+[Unit]
+Description=lsevin health evaluation and heartbeat (server A)
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/lsevin-health
+SuccessExitStatus=0 1

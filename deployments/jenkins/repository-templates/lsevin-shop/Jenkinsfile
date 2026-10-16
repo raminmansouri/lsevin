@@ -53,7 +53,7 @@ pipeline {
       steps {
         // Do not use --no-cache here.
         // Do not use --pull on every commit because a changed base image invalidates all later layers.
-        sh 'IMAGE_TAG=$IMAGE_TAG docker compose --env-file $ENV_FILE build web-1'
+        sh 'IMAGE_TAG=$IMAGE_TAG docker compose --env-file $ENV_FILE build --memory ${BUILD_MEMORY:-2g} web-1'
       }
     }
 

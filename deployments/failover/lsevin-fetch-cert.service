@@ -1,0 +1,7 @@
+[Unit]
+Description=Fetch the Iran-hostname TLS certificate from server B
+After=network-online.target lsevin-vpn-manager.service
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/lsevin-fetch-cert
+SuccessExitStatus=0 1

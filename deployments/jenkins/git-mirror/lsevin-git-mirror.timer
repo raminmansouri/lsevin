@@ -1,0 +1,10 @@
+[Unit]
+Description=Update the local mirror of the LSevin repository every 2 minutes
+
+[Timer]
+OnBootSec=1min
+OnUnitActiveSec=2min
+AccuracySec=15s
+
+[Install]
+WantedBy=timers.target
