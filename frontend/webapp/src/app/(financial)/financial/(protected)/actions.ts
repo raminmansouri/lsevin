@@ -26,6 +26,11 @@ import {
   markProviderEntriesPaid,
   ProviderPayoutRuleError,
 } from "@/accounting/server/provider-payouts.service";
+import {
+  deletePayoutAccount,
+  PayoutAccountRuleError,
+  savePayoutAccount,
+} from "@/accounting/server/payout-accounts.service";
 
 /**
  * Money-moving admin actions.
@@ -347,5 +352,74 @@ export async function markProviderPaidAction(
     return { ok: "پرداخت ثبت شد." };
   } catch (error) {
     return { error: providerPayoutMessageFor(error) };
+  }
+}
+
+function payoutAccountMessageFor(error: unknown): string {
+  if (error instanceof AccountingAccessError) {
+    return "این کار دسترسی «حسابدار» یا «مدیر مالی» می‌خواهد.";
+  }
+  if (error instanceof PayoutAccountRuleError) {
+    switch (error.code) {
+      case "holder_required":
+        return "نام صاحب حساب را وارد کنید.";
+      case "nothing_entered":
+        return "دست‌کم یکی از شماره کارت، شبا یا شماره حساب را وارد کنید.";
+      case "card_invalid":
+        return "شماره کارت باید ۱۶ رقم باشد.";
+      case "iban_invalid":
+        return "شماره شبا باید IR و ۲۴ رقم باشد.";
+      case "account_invalid":
+        return "شماره حساب فقط می‌تواند عدد باشد.";
+      case "limit":
+        return "برای هر طرف حساب حداکثر دو حساب بانکی می‌توان ثبت کرد.";
+      case "not_found":
+        return "این حساب دیگر وجود ندارد. صفحه را تازه کنید.";
+    }
+  }
+  console.error("financial panel payout account action failed", error);
+  return "ثبت انجام نشد؛ خطای سرور رخ داد. دوباره تلاش کنید و اگر تکرار شد خبر دهید.";
+}
+
+/** Adds or edits one of a provider's (at most two) bank accounts from the payouts card. */
+export async function savePayoutAccountAction(
+  _prev: ProviderPayoutFormState,
+  formData: FormData
+): Promise<ProviderPayoutFormState> {
+  try {
+    const { userId } = await assertAccounting("operate");
+    await savePayoutAccount({
+      providerId: requiredString(formData, "providerId"),
+      id: String(formData.get("accountId") ?? "").trim() || undefined,
+      currencyCode: requiredString(formData, "currencyCode"),
+      holderName: String(formData.get("holderName") ?? ""),
+      bankName: String(formData.get("bankName") ?? ""),
+      cardNumber: String(formData.get("cardNumber") ?? ""),
+      iban: String(formData.get("iban") ?? ""),
+      accountNumber: String(formData.get("accountNumber") ?? ""),
+      makeDefault: formData.get("isDefault") === "on",
+      actorUserId: userId,
+    });
+    revalidateAccounting();
+    return { ok: "حساب بانکی ذخیره شد." };
+  } catch (error) {
+    return { error: payoutAccountMessageFor(error) };
+  }
+}
+
+export async function deletePayoutAccountAction(
+  _prev: ProviderPayoutFormState,
+  formData: FormData
+): Promise<ProviderPayoutFormState> {
+  try {
+    await assertAccounting("operate");
+    await deletePayoutAccount({
+      providerId: requiredString(formData, "providerId"),
+      id: requiredString(formData, "accountId"),
+    });
+    revalidateAccounting();
+    return { ok: "حساب بانکی حذف شد." };
+  } catch (error) {
+    return { error: payoutAccountMessageFor(error) };
   }
 }

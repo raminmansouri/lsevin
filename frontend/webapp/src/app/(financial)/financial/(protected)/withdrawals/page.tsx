@@ -10,6 +10,7 @@ import {
   type ProviderPayoutEntry,
   type ProviderPayoutGroup,
 } from "@/accounting/server/provider-payouts.queries";
+import { listPayoutAccounts, type PayoutAccount } from "@/accounting/server/payout-accounts.service";
 import { ExportButtons } from "@/accounting/components/export-buttons";
 import { PageHeader } from "@/components/page/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -20,7 +21,12 @@ import {
   markWithdrawalPaidAction,
   rejectWithdrawalAction,
 } from "../actions";
-import { ApproveEntriesButton, CancelEntryForm, MarkProviderPaidForm } from "./provider-payout-forms";
+import {
+  ApproveEntriesButton,
+  CancelEntryForm,
+  MarkProviderPaidForm,
+  ProviderBankAccounts,
+} from "./provider-payout-forms";
 
 const RECENT_DAYS = 30;
 
@@ -68,7 +74,7 @@ function Section({ title, description, children }: { title: string; description?
   );
 }
 
-function ProviderHeading({ t, group }: { t: Translator; group: ProviderPayoutGroup }) {
+function ProviderHeading({ group, accounts }: { group: ProviderPayoutGroup; accounts: PayoutAccount[] }) {
   return (
     <div className="space-y-0.5">
       <div className="text-base font-semibold">
@@ -85,24 +91,7 @@ function ProviderHeading({ t, group }: { t: Translator; group: ProviderPayoutGro
           <span dir="ltr">{group.providerEmail}</span>
         </div>
       )}
-      {group.payoutAccount ? (
-        <div className="pt-1 text-xs">
-          <span className="font-medium">{t("providerPayoutAccount")}:</span> {group.payoutAccount.holderName}
-          {group.payoutAccount.bankName && <> · {group.payoutAccount.bankName}</>}
-          {group.payoutAccount.iban && (
-            <div dir="ltr" className="font-mono break-all">
-              {group.payoutAccount.iban}
-            </div>
-          )}
-          {!group.payoutAccount.iban && group.payoutAccount.accountNumberLast4 && (
-            <span dir="ltr" className="ms-2 font-mono">
-              ****{group.payoutAccount.accountNumberLast4}
-            </span>
-          )}
-        </div>
-      ) : (
-        <div className="pt-1 text-xs text-amber-800">{t("providerNoPayoutAccount")}</div>
-      )}
+      <ProviderBankAccounts providerId={group.providerId} currencyCode={group.currencyCode} accounts={accounts} />
     </div>
   );
 }
@@ -177,6 +166,7 @@ export default async function WithdrawalQueuePage() {
     listRecentProviderPayouts(RECENT_DAYS),
     listPendingWithdrawals(),
   ]);
+  const bankAccounts = await listPayoutAccounts(due.map((g) => g.providerId));
 
   return (
     <Card>
@@ -197,8 +187,8 @@ export default async function WithdrawalQueuePage() {
             return (
               <div key={`${group.providerId}:${group.currencyCode}`} className="space-y-3 rounded-md border p-4 text-sm">
                 <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                  <div className="space-y-2">
-                    <ProviderHeading t={t} group={group} />
+                  <div className="space-y-2 lg:max-w-xl lg:flex-1">
+                    <ProviderHeading group={group} accounts={bankAccounts.get(group.providerId) ?? []} />
                     <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs">
                       <span className="text-amber-800">
                         {t("providerPendingTotal")}: <span className="font-semibold">{money(group.pendingTotal, group.currencyCode)}</span>
