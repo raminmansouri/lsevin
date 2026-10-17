@@ -475,6 +475,36 @@ export async function deleteAttribute(input: { id: string }): Promise<void> {
   await sql`delete from shop.attributes where id = ${input.id}::uuid`;
 }
 
+/**
+ * Internal value for a new attribute value, built from its EN label (then FA, AR):
+ * "USB Cable" -> "usb-cable". Gets a -2, -3… suffix if the attribute already has it.
+ */
+async function deriveAttributeValue(
+  attributeId: string,
+  labels: Record<string, string>
+): Promise<string> {
+  const slugify = (label = "") =>
+    label
+      .toLowerCase()
+      .replace(/[^\p{L}\p{N}]+/gu, "-")
+      .replace(/^-+|-+$/g, "")
+      .slice(0, 76)
+      .replace(/-+$/, "");
+  const base = [labels.en, labels.fa, labels.ar].map(slugify).find(Boolean) ?? "";
+  if (!base) return "";
+  const taken = new Set(
+    (
+      await sql<{ value: string }[]>`
+        select value from shop.attribute_values
+        where attribute_id = ${attributeId}::uuid and (value = ${base} or value like ${base + "-%"})
+      `
+    ).map((r) => r.value)
+  );
+  let value = base;
+  for (let n = 2; taken.has(value); n++) value = `${base}-${n}`;
+  return value;
+}
+
 export async function addAttributeValue(input: {
   attributeId: string;
   value: string;
@@ -483,7 +513,7 @@ export async function addAttributeValue(input: {
   imageUrl?: string | null;
 }): Promise<string> {
   await assertShopPermission(SHOP_PERMISSIONS.catalogManage);
-  const value = input.value.trim();
+  const value = input.value.trim() || (await deriveAttributeValue(input.attributeId, input.displayNameTranslations));
   if (!value) throw new Error("Value is required.");
   const [row] = await sql<{ id: string }[]>`
     insert into shop.attribute_values (attribute_id, value, display_name_translations, color_hex, image_url)

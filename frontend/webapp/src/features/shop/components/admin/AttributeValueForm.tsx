@@ -46,7 +46,8 @@ export function AttributeValueForm({ attributeId }: { attributeId: string }) {
       try {
         await addAttributeValueAction({
           attributeId: values.attributeId,
-          value: values.value,
+          // The internal value is derived from the labels on the server.
+          value: "",
           displayNameTranslations: {
             en: values.labelEn,
             fa: values.labelFa,
@@ -104,9 +105,6 @@ export function AttributeValueForm({ attributeId }: { attributeId: string }) {
   return (
     <Form {...form}>
       <form onSubmit={onSubmit} className="flex flex-wrap items-start gap-1.5">
-        {cell("value", t("valuePlaceholder"), "h-8 w-32 text-xs", {
-          dir: "ltr",
-        })}
         {cell("labelEn", t("labelEn"), "h-8 w-28 text-xs", { dir: "ltr" })}
         {cell("labelFa", t("labelFa"), "h-8 w-24 text-xs", { dir: "rtl" })}
         {cell("labelAr", t("labelAr"), "h-8 w-24 text-xs", { dir: "rtl" })}

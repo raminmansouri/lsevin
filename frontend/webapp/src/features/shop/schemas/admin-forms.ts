@@ -82,8 +82,8 @@ export type AttributeFormInput = z.infer<typeof attributeFormSchema>;
 
 export const attributeValueFormSchema = z.object({
   attributeId: shopId,
-  value: str.min(1).max(80),
-  labelEn: str.default(""),
+  value: str.max(80).default(""),
+  labelEn: str.min(1).max(80),
   labelFa: str.default(""),
   labelAr: str.default(""),
   colorHex: str.default(""),
