@@ -11,7 +11,7 @@ pipeline {
     ENV_FILE = '/opt/lsevin/app/deployments/docker/.env'
     DEPLOY = 'deployments/jenkins/k3s-deploy.sh'
     // JENKINS_BUILD_LIMITS (controller environment) overrides the default, e.g. on the Iran server (7.9 GB host).
-    DOCKER_BUILD_LIMITS = "${System.getenv('JENKINS_BUILD_LIMITS') ?: '--resource cpu-quota=100000 --resource memory=2560m'}"
+    DOCKER_BUILD_LIMITS = "${env.JENKINS_BUILD_LIMITS ?: '--resource cpu-quota=100000 --resource memory=2560m'}"
     WEB_BUILD_MODE = 'fast'
     WEB_PUBLIC_URL = 'https://dev.lsevin.com'
   }

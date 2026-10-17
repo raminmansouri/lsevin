@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+# lsevin-es-retention - run ON EACH SERVER that runs Elasticsearch (daily systemd timer). Deletes kubernetes-logs-YYYY.MM.DD indices
+# older than KEEP_DAYS (default 7). Nothing pruned them before: on 2026-10-14 the log indices (38 GB, one day alone 15 GB) filled server B's
+# disk, Kubernetes entered DiskPressure, evicted the pods and the site went down. Only the log indices are touched (not analytics_events).
+set -uo pipefail
+KEEP_DAYS=${KEEP_DAYS:-7}
+KUBECTL=${KUBECTL:-kubectl}; command -v "$KUBECTL" >/dev/null || KUBECTL="k3s kubectl"
+[ "$(id -u)" = 0 ] || KUBECTL="sudo -n $KUBECTL"
+LOG=/var/log/lsevin-es-retention.log
+POD=$($KUBECTL -n lsevin get pods --no-headers | awk '$1 ~ /^elasticsearch-/ && $1 !~ /exporter/ && $2 == "1/1" && $3 == "Running" {print $1; exit}')
+[ -n "$POD" ] || { echo "$(date -u +%FT%TZ) no running elasticsearch pod" >> "$LOG"; exit 0; }
+cutoff=$(date -u -d "-${KEEP_DAYS} days" +%Y.%m.%d)
+for idx in $($KUBECTL -n lsevin exec "$POD" -c elasticsearch -- curl -s 'localhost:9200/_cat/indices/kubernetes-logs-*?h=index' | sort); do
+  d=${idx#kubernetes-logs-}
+  if [[ "$d" =~ ^[0-9]{4}\.[0-9]{2}\.[0-9]{2}$ ]] && [[ "$d" < "$cutoff" ]]; then
+    r=$($KUBECTL -n lsevin exec "$POD" -c elasticsearch -- curl -s -X DELETE "localhost:9200/$idx")
+    echo "$(date -u +%FT%TZ) deleted $idx (older than $cutoff): $r" >> "$LOG"
+  fi
+done
+echo "$(date -u +%FT%TZ) retention done (kept >= $cutoff); disk $(df -h / | awk 'END{print $5}')" >> "$LOG"

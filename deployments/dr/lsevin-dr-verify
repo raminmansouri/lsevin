@@ -15,7 +15,10 @@ exec 9>/run/lock/lsevin-db-backup.lock; flock -w 3600 9      # never overlaps a 
 mkdir -p "$STATE"
 DUMP=$(ls -1t "$DUMP_DIR"/lsevin-2*.dump 2>/dev/null | head -1)
 [ -n "$DUMP" ] || { log "FAIL: no dump found in $DUMP_DIR"; exit 1; }
-PG="$KUBECTL -n lsevin exec -i deploy/postgres --"
+# the Running postgres pod (after an eviction the deployment can own old Completed pods, which "exec deploy/postgres" may pick)
+POD=$($KUBECTL -n lsevin get pods --no-headers | awk '$1 ~ /^postgres-[0-9a-f]+-[a-z0-9]+$/ && $3 == "Running" {print $1; exit}')
+[ -n "$POD" ] || { log "FAIL: no running postgres pod"; exit 1; }
+PG="$KUBECTL -n lsevin exec -i $POD --"
 psql_() { $PG sh -c "psql -U \"\$POSTGRES_USER\" -At -v ON_ERROR_STOP=1 $*"; }
 cleanup() { $PG sh -c "psql -U \"\$POSTGRES_USER\" -d postgres -qc 'drop database if exists $SCRATCH'" >/dev/null 2>&1; }
 trap cleanup EXIT

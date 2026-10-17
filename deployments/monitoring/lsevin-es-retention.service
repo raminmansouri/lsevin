@@ -1,0 +1,7 @@
+[Unit]
+Description=Delete Elasticsearch log indices older than 7 days
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/lsevin-es-retention
+Nice=10
