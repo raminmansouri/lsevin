@@ -80,8 +80,10 @@
 	# Public media is streamed by the API from private SeaweedFS storage. The API
 	# permits only Categories/* and ServiceProviders/*; customer documents stay private.
 	handle_path /files/* {
-		header Cache-Control "public,max-age=31536000,immutable"
 		header -Server
+		# media is read through the API (SeaweedFS behind it); MinIO is no longer part of the path. The API sets Cache-Control itself
+		# (a second copy from Caddy made Cloudflare answer 502). Do NOT point this back at MinIO: when MinIO is down every media request
+		# fails (connection refused is not a 404, so there is no fallback) and Cloudflare caches the 502.
 		rewrite * /files{uri}
 		reverse_proxy {$K3S_NODE_ADDRESS:172.18.0.1}:{$API_NODE_PORT:30081} {
 			header_up X-Forwarded-For {remote_host}
@@ -126,8 +128,10 @@
 
 	# Public media is streamed by the API from private SeaweedFS storage.
 	handle_path /files/* {
-		header Cache-Control "public,max-age=31536000,immutable"
 		header -Server
+		# media is read through the API (SeaweedFS behind it); MinIO is no longer part of the path. The API sets Cache-Control itself
+		# (a second copy from Caddy made Cloudflare answer 502). Do NOT point this back at MinIO: when MinIO is down every media request
+		# fails (connection refused is not a 404, so there is no fallback) and Cloudflare caches the 502.
 		rewrite * /files{uri}
 		reverse_proxy {$K3S_NODE_ADDRESS:172.18.0.1}:{$API_NODE_PORT:30081} {
 			header_up X-Forwarded-For {remote_host}
