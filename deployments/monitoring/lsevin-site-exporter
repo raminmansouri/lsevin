@@ -1,15 +1,24 @@
 #!/usr/bin/env python3
-"""lsevin-site-exporter - run ON SERVER A (systemd). Prometheus metrics about the Iran site that no standard exporter gives:
-the health heartbeat, database sync lag/backlog, file-sync age, VPN, certificate expiry and the age of every backup.
-Listens only on the Kubernetes bridge (10.42.0.1:9199) so A's Prometheus pod can scrape it and the internet cannot.
-A's Prometheus pushes these series to B's Prometheus (remote write), where they appear with site="A"."""
-import glob, json, os, subprocess, time
+"""lsevin-site-exporter - run ON EACH SERVER (systemd). Prometheus metrics that no standard exporter gives:
+  * site health heartbeat, database sync lag/backlog, file-sync age, VPN, certificate expiry, disk, age of every backup  (cheap, every scrape)
+  * SymmetricDS replication state read from the database: batches in error, age of the last batch moved each way
+  * Jenkins: result and age of the last build of every job, consecutive failures
+  * SMS (MeliPayamak) and WhatsApp (Whatsiplus) providers: credit/login check (SMS only, no message is ever sent), reachability, and
+    successes/errors of real sends in the API logs of the last 15 minutes
+The slow parts run in a background thread (never inside a scrape). Listens only on the Kubernetes bridge (10.42.0.1:9199) so the
+local Prometheus pod can scrape it and the internet cannot. A's Prometheus pushes these series to B's (remote write, label site="A").
+Secrets (provider passwords) are read from the API pod's environment into memory only; they are never logged or exported."""
+import glob, json, os, re, socket, ssl, subprocess, threading, time, urllib.parse, urllib.request
+import xml.etree.ElementTree as ET
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
 LISTEN = (os.environ.get("LISTEN_ADDR", "10.42.0.1"), int(os.environ.get("LISTEN_PORT", "9199")))
 STATUS = "/var/lib/lsevin-health/status.json"
 CERT_FILE = os.environ.get("CERT_FILE", "/etc/lsevin-certs/lsevin-ir.crt")
 LAST_OK_FILE = os.environ.get("FILE_SYNC_OK", "/var/lib/lsevin-files/last-ok")
+JENKINS_HOME = os.environ.get("JENKINS_HOME", "/var/lib/lsevin/jenkins")
+KUBECTL = os.environ.get("KUBECTL", "kubectl")
+NS = "lsevin"
 BACKUPS = {
     "logical_dump": os.environ.get("LOGICAL_GLOB", "/var/backups/lsevin/db/lsevin-2*.dump"),
     "pgbackrest": os.environ.get("PGBACKREST_GLOB", "/opt/lsevin/backups/pgbackrest/backup/lsevin/2*"),
@@ -18,6 +27,15 @@ BACKUPS = {
     "restore_test": os.environ.get("RESTORE_TEST_FILE", "/var/lib/lsevin-dr/last-restore-test-ok"),
 }
 _cert_cache = {"at": 0, "days": -1.0}
+SLOW = {}                      # name -> list of exposition lines, refreshed by the background thread
+SLOW_LOCK = threading.Lock()
+
+
+def run(cmd, timeout=30, stdin=None):
+    try:
+        return subprocess.run(cmd, capture_output=True, text=True, timeout=timeout, input=stdin).stdout
+    except Exception:
+        return ""
 
 
 def newest_mtime(patterns):
@@ -37,7 +55,7 @@ def cert_days(path=None):
         return _cert_cache["days"]
     days = -1.0
     try:
-        out = subprocess.run(["openssl", "x509", "-in", path, "-noout", "-enddate"], capture_output=True, text=True, timeout=10).stdout
+        out = run(["openssl", "x509", "-in", path, "-noout", "-enddate"], 10)
         end = time.mktime(time.strptime(out.strip().split("=", 1)[1], "%b %d %H:%M:%S %Y %Z"))
         days = (end - time.time()) / 86400
     except Exception:
@@ -53,6 +71,163 @@ def file_epoch(path):
         return 0.0
 
 
+# ------------------------------------------------------------------ slow collectors (background thread)
+def gauge(name, help_, samples):
+    """samples: list of (labels_dict, value)"""
+    lines = [f"# HELP {name} {help_}", f"# TYPE {name} gauge"]
+    for labels, v in samples:
+        lab = ",".join(f'{k}="{val}"' for k, val in labels.items())
+        lines.append(f"{name}{{{lab}}} {v}" if lab else f"{name} {v}")
+    return lines
+
+
+def running_pod(prefix):
+    for l in run([KUBECTL, "-n", NS, "get", "pods", "--no-headers"], 20).splitlines():
+        f = l.split()
+        if len(f) > 2 and re.match(rf"^{prefix}-[0-9a-f]+-[a-z0-9]+$", f[0]) and f[2] == "Running":
+            return f[0]
+    return ""
+
+
+def collect_sync():
+    """SymmetricDS state from the database (the tables exist on both servers)."""
+    pod = running_pod("postgres")
+    if not pod:
+        return gauge("lsevin_sync_collector_ok", "1 when the replication state could be read", [({}, 0)])
+    sql = ("select 'err_in', count(*) from sym_incoming_batch where error_flag = 1 "
+           "union all select 'err_out', count(*) from sym_outgoing_batch where error_flag = 1 "
+           "union all select 'age_in', coalesce(round(extract(epoch from now() - max(last_update_time))), 1000000000) from sym_incoming_batch where status = 'OK' "
+           "union all select 'age_out', coalesce(round(extract(epoch from now() - max(last_update_time))), 1000000000) from sym_outgoing_batch where status = 'OK' "
+           "union all select 'pending_out', count(*) from sym_outgoing_batch where status not in ('OK', 'IG') and error_flag = 0 "
+           "union all select 'oldest_pending_out', coalesce(round(extract(epoch from now() - min(create_time))), 0) from sym_outgoing_batch where status not in ('OK', 'IG')")
+    out = run([KUBECTL, "-n", NS, "exec", pod, "--", "psql", "-U", "lsevin", "-d", "lsevin", "-At", "-F", "|", "-c", sql], 40)
+    v = {}
+    for l in out.splitlines():
+        if "|" in l:
+            k, n = l.split("|", 1)
+            try:
+                v[k] = float(n)
+            except ValueError:
+                pass
+    if "err_in" not in v:
+        return gauge("lsevin_sync_collector_ok", "1 when the replication state could be read", [({}, 0)])
+    lines = gauge("lsevin_sync_collector_ok", "1 when the replication state could be read", [({}, 1)])
+    lines += gauge("lsevin_sync_batches_error", "SymmetricDS batches stuck in error", [({"direction": "incoming"}, int(v["err_in"])), ({"direction": "outgoing"}, int(v["err_out"]))])
+    lines += gauge("lsevin_sync_last_ok_age_seconds", "Seconds since the last batch was moved successfully in each direction", [({"direction": "incoming"}, int(v["age_in"])), ({"direction": "outgoing"}, int(v["age_out"]))])
+    lines += gauge("lsevin_sync_outgoing_pending_batches", "Outgoing batches waiting to be sent", [({}, int(v["pending_out"]))])
+    lines += gauge("lsevin_sync_outgoing_oldest_pending_seconds", "Age of the oldest outgoing batch that is not yet delivered", [({}, int(v["oldest_pending_out"]))])
+    return lines
+
+
+def collect_jenkins():
+    samples_res, samples_age, samples_fail = [], [], []
+    for jobdir in sorted(glob.glob(os.path.join(JENKINS_HOME, "jobs", "*"))):
+        job = os.path.basename(jobdir)
+        nums = sorted((int(d) for d in os.listdir(os.path.join(jobdir, "builds")) if d.isdigit()), reverse=True) if os.path.isdir(os.path.join(jobdir, "builds")) else []
+        results = []
+        for n in nums[:12]:
+            f = os.path.join(jobdir, "builds", str(n), "build.xml")
+            try:
+                root = ET.parse(f).getroot()
+                res = (root.findtext("result") or "").strip()
+                if not res:
+                    continue                                    # still running
+                start = int(root.findtext("startTime") or 0) / 1000.0
+                dur = int(root.findtext("duration") or 0) / 1000.0
+                results.append((res, start + dur))
+            except Exception:
+                continue
+        if not results:
+            continue
+        last, ended = results[0]
+        samples_res.append(({"job": job}, 1 if last == "SUCCESS" else (-1 if last == "ABORTED" else 0)))
+        samples_age.append(({"job": job}, int(time.time() - ended)))
+        fails = 0
+        for res, _ in results:
+            if res in ("FAILURE", "UNSTABLE"):
+                fails += 1
+            elif res == "SUCCESS":
+                break
+        samples_fail.append(({"job": job}, fails))
+    return (gauge("lsevin_jenkins_last_build_result", "Result of the last finished build: 1 success, 0 failed, -1 aborted", samples_res)
+            + gauge("lsevin_jenkins_last_build_age_seconds", "Seconds since the last build finished", samples_age)
+            + gauge("lsevin_jenkins_consecutive_failures", "Failed builds in a row (most recent first)", samples_fail))
+
+
+def tls_reachable(host, port=443, timeout=8):
+    t = time.time()
+    try:
+        with socket.create_connection((host, port), timeout=timeout) as s:
+            ctx = ssl.create_default_context()
+            with ctx.wrap_socket(s, server_hostname=host):
+                pass
+        return 1, round(time.time() - t, 2)
+    except Exception:
+        return 0, 0
+
+
+def collect_providers():
+    lines = []
+    reach = []
+    for prov, host in (("melipayamak", "rest.payamak-panel.com"), ("whatsiplus", "api.whatsiplus.com")):
+        ok, secs = tls_reachable(host)
+        reach.append(({"provider": prov}, ok))
+    lines += gauge("lsevin_provider_reachable", "1 when a TLS connection to the provider's API host works from this server", reach)
+    api = running_pod("lsevin-api")
+    if not api:
+        return lines
+    # real sends in the last 15 minutes, from the API logs
+    logs = run([KUBECTL, "-n", NS, "logs", api, "--since=15m"], 40)
+    pats = {
+        ("melipayamak", "ok"): r"\[MeliPayamak\] - SMS sent successfully",
+        ("melipayamak", "error"): r"\[MeliPayamak\] - (HTTP error|API error|Network error|Unexpected error|Null response|Invalid message)",
+        ("whatsiplus", "ok"): r"\[Whatsiplus\] - Message sent successfully",
+        ("whatsiplus", "error"): r"\[Whatsiplus\] - (HTTP error|API error|Could not parse|Error sending|API key is not configured|Error:)",
+    }
+    lines += gauge("lsevin_provider_sends_15m", "Sends attempted through the provider in the last 15 minutes, by result (from API logs)",
+                   [({"provider": p, "result": r}, len(re.findall(rx, logs))) for (p, r), rx in pats.items()])
+    # SMS credit / credentials check (read only; the password stays in memory)
+    env = {}
+    for l in run([KUBECTL, "-n", NS, "exec", api, "--", "printenv"], 30).splitlines():
+        if "=" in l and ("MeliPayamakClientOptions" in l or l.startswith("WHATSIPLUS_API_KEY")):
+            k, v = l.split("=", 1)
+            env[k] = v
+    user = env.get("Identity__MeliPayamakClientOptions__Username", "")
+    pwd = env.get("Identity__MeliPayamakClientOptions__Password", "")
+    base = env.get("Identity__MeliPayamakClientOptions__BaseAddress", "https://rest.payamak-panel.com/api/")
+    lines += gauge("lsevin_provider_configured", "1 when the provider credentials are present in the API configuration",
+                   [({"provider": "melipayamak"}, 1 if user and pwd else 0), ({"provider": "whatsiplus"}, 1 if env.get("WHATSIPLUS_API_KEY") else 0)])
+    if user and pwd:
+        ok, credit = 0, -1
+        try:
+            data = urllib.parse.urlencode({"username": user, "password": pwd}).encode()
+            j = json.loads(urllib.request.urlopen(urllib.request.Request(base + "SendSMS/GetCredit", data=data), timeout=20).read().decode())
+            ok = 1 if j.get("RetStatus") == 1 else 0
+            credit = float(j.get("Value")) if ok else -1
+        except Exception:
+            pass
+        lines += gauge("lsevin_provider_api_ok", "1 when the provider accepts our credentials (SMS: GetCredit call, no message sent)", [({"provider": "melipayamak"}, ok)])
+        lines += gauge("lsevin_provider_credit", "Remaining SMS credit reported by the provider (-1 unknown)", [({"provider": "melipayamak"}, credit)])
+    return lines
+
+
+def background():
+    schedule = [("sync", collect_sync, 60), ("jenkins", collect_jenkins, 60), ("providers", collect_providers, 300)]
+    last = {n: 0 for n, _, _ in schedule}
+    while True:
+        for name, fn, every in schedule:
+            if time.time() - last[name] >= every:
+                last[name] = time.time()
+                try:
+                    lines = fn()
+                except Exception:
+                    lines = []
+                with SLOW_LOCK:
+                    SLOW[name] = lines
+        time.sleep(5)
+
+
+# ------------------------------------------------------------------ scrape
 def render():
     now = time.time()
     out = []
@@ -80,10 +255,12 @@ def render():
     if os.path.exists(CERT_FILE):
         g("lsevin_cert_days_left", "Days until the origin certificate expires", round(cert_days(), 2))
     out.append("# HELP lsevin_backup_age_seconds Seconds since the newest backup of each kind (1e9 = none found)\n# TYPE lsevin_backup_age_seconds gauge")
-    kinds = {k: [v] for k, v in BACKUPS.items()}
-    for kind, pats in kinds.items():
-        m = newest_mtime(pats)
+    for kind, pat in BACKUPS.items():
+        m = newest_mtime([pat])
         out.append(f'lsevin_backup_age_seconds{{kind="{kind}"}} {round(now - m, 1) if m else 1e9}')
+    with SLOW_LOCK:
+        for name in sorted(SLOW):
+            out.extend(SLOW[name])
     return "\n".join(out) + "\n"
 
 
@@ -103,4 +280,5 @@ class H(BaseHTTPRequestHandler):
 
 
 if __name__ == "__main__":
+    threading.Thread(target=background, daemon=True).start()
     HTTPServer(LISTEN, H).serve_forever()
