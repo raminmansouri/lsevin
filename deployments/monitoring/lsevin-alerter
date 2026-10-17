@@ -1,0 +1,358 @@
+#!/usr/bin/env python3
+"""lsevin-alerter - run ON SERVER B (the only server that can reach Telegram). Standard library only.
+
+Every minute it
+  1. asks Prometheus (which also holds server A's metrics, pushed over the VPN) every rule in rules.json,
+  2. checks the public URLs itself (status code + TLS certificate expiry),
+  3. keeps a state per alert (pending -> firing -> resolved) and sends ONE Telegram message per change:
+        FIRING (after the rule's "for" time), RESOLVED (after 2 clean evaluations), reminders (critical 2 h, warning 12 h),
+  4. sends a daily summary (all OK / the list of open alerts) and a message when monitoring itself breaks
+     (Prometheus unreachable, rules failing to evaluate).
+Messages that cannot be delivered are kept and retried. Without TELEGRAM_BOT_TOKEN it only prints/logs (dry run).
+
+  lsevin-alerter                 run forever (systemd)
+  lsevin-alerter --once          evaluate once and print what would be sent (no Telegram unless --send)
+  lsevin-alerter --test-telegram send a test message
+  lsevin-alerter --list          show the open alerts
+Mute a rule: add its name to /var/lib/lsevin-alerter/muted (one per line)."""
+import collections, datetime, json, os, re, socket, ssl, subprocess, sys, time, traceback, urllib.error, urllib.parse, urllib.request
+
+CFG_DIR = os.environ.get("LSEVIN_ALERTER_DIR", "/etc/lsevin-alerter")
+STATE_DIR = os.environ.get("LSEVIN_ALERTER_STATE", "/var/lib/lsevin-alerter")
+STATE_FILE = os.path.join(STATE_DIR, "state.json")
+HEARTBEAT_FILE = os.path.join(STATE_DIR, "last-cycle")
+MUTE_FILE = os.path.join(STATE_DIR, "muted")
+TG_BASE = os.environ.get("TELEGRAM_API_BASE", "https://api.telegram.org")
+ICON = {"critical": "\U0001F534", "warning": "\U0001F7E0", "info": "ℹ️"}
+REMIND = {"critical": 2 * 3600, "warning": 12 * 3600, "info": 24 * 3600}
+RESOLVE_AFTER = 2          # consecutive clean evaluations before an alert is resolved (flap protection)
+
+
+def now():
+    return time.time()
+
+
+def log(msg):
+    print(f"{datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')} {msg}", flush=True)
+
+
+def load_env():
+    for p in (os.path.join(CFG_DIR, "telegram.env"),):
+        try:
+            for line in open(p):
+                line = line.strip()
+                if line and not line.startswith("#") and "=" in line:
+                    k, v = line.split("=", 1)
+                    os.environ.setdefault(k.strip(), v.strip().strip('"').strip("'"))
+        except OSError:
+            pass
+
+
+def load_json(path, default):
+    try:
+        return json.load(open(path))
+    except Exception:
+        return default
+
+
+def save_state(st):
+    os.makedirs(STATE_DIR, exist_ok=True)
+    tmp = STATE_FILE + ".tmp"
+    json.dump(st, open(tmp, "w"))
+    os.replace(tmp, STATE_FILE)
+
+
+def muted():
+    try:
+        return {l.strip() for l in open(MUTE_FILE) if l.strip() and not l.startswith("#")}
+    except OSError:
+        return set()
+
+
+# ------------------------------------------------------------------ Telegram
+def esc(s):
+    return str(s).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+
+
+def telegram_send(text):
+    """returns True when delivered (or when there is no token: dry run)."""
+    token, chats = os.environ.get("TELEGRAM_BOT_TOKEN", ""), [c for c in os.environ.get("TELEGRAM_CHAT_ID", "").split(",") if c.strip()]
+    if not token or not chats:
+        log("[dry-run, no Telegram token/chat] " + text.replace("\n", " | ")[:400])
+        return True
+    ok = True
+    for chunk in [text[i:i + 3900] for i in range(0, len(text), 3900)] or [""]:
+        for chat in chats:
+            data = json.dumps({"chat_id": chat.strip(), "text": chunk, "parse_mode": "HTML", "disable_web_page_preview": True}).encode()
+            req = urllib.request.Request(f"{TG_BASE}/bot{token}/sendMessage", data=data, headers={"Content-Type": "application/json"})
+            try:
+                urllib.request.urlopen(req, timeout=20).read()
+            except urllib.error.HTTPError as e:
+                body = e.read().decode(errors="replace")[:200]
+                log(f"telegram HTTP {e.code}: {body}")
+                ok = False
+            except Exception as e:
+                log(f"telegram error: {type(e).__name__}: {e}")
+                ok = False
+    return ok
+
+
+def notify(st, text):
+    """send now, or queue for the next cycle when Telegram is unreachable."""
+    if not telegram_send(text):
+        st.setdefault("outbox", []).append({"t": now(), "text": text})
+        st["outbox"] = st["outbox"][-40:]
+
+
+def flush_outbox(st):
+    keep = []
+    for m in st.get("outbox", []):
+        if now() - m["t"] > 6 * 3600:
+            continue
+        if not telegram_send("(delayed) " + m["text"]):
+            keep.append(m)
+    st["outbox"] = keep
+
+
+# ------------------------------------------------------------------ data sources
+def prom_url():
+    u = os.environ.get("PROMETHEUS_URL") or load_json(os.path.join(CFG_DIR, "rules.json"), {}).get("prometheus", "")
+    if u:
+        return u
+    try:
+        ip = subprocess.run(["kubectl", "-n", "lsevin", "get", "svc", "prometheus", "-o", "jsonpath={.spec.clusterIP}"], capture_output=True, text=True, timeout=15).stdout.strip()
+        return f"http://{ip}:9090" if ip else ""
+    except Exception:
+        return ""
+
+
+def prom_query(base, expr):
+    url = f"{base}/api/v1/query?" + urllib.parse.urlencode({"query": expr})
+    d = json.loads(urllib.request.urlopen(url, timeout=25).read().decode())
+    if d.get("status") != "success":
+        raise RuntimeError(d.get("error", "query failed"))
+    out = []
+    for r in d["data"]["result"]:
+        labels = {k: v for k, v in r["metric"].items() if k != "__name__"}
+        try:
+            val = float(r["value"][1])
+        except (ValueError, IndexError):
+            val = float("nan")
+        out.append((labels, val))
+    return out
+
+
+def http_check(c):
+    """-> (ok, detail)"""
+    url, timeout = c["url"], c.get("timeout", 20)
+    expect = set(c.get("expect", [200]))
+    class NoRedirect(urllib.request.HTTPRedirectHandler):
+        def redirect_request(self, *a, **k):
+            return None
+    opener = urllib.request.build_opener(NoRedirect)
+    t = time.time()
+    try:
+        if c.get("resolve_ip"):                      # plain HTTP to a chosen address with the real Host header (no redirects followed)
+            import http.client
+            pu = urllib.parse.urlparse(url)
+            conn = http.client.HTTPConnection(c["resolve_ip"], pu.port or 80, timeout=timeout)
+            conn.request("GET", pu.path or "/", headers={"Host": pu.hostname, "User-Agent": "lsevin-alerter"})
+            code = conn.getresponse().status
+            conn.close()
+        else:
+            r = opener.open(urllib.request.Request(url, headers={"User-Agent": "lsevin-alerter"}), timeout=timeout)
+            code = r.status
+    except urllib.error.HTTPError as e:
+        code = e.code
+    except Exception as e:
+        return False, f"{type(e).__name__}: {str(e)[:80]}"
+    secs = time.time() - t
+    if code not in expect:
+        return False, f"HTTP {code} (expected {sorted(expect)})"
+    if secs > c.get("slow_seconds", 8):
+        return False, f"slow: {secs:.1f}s"
+    if c.get("cert_days_min") and url.startswith("https://"):
+        host = urllib.parse.urlparse(url).hostname
+        try:
+            with socket.create_connection((host, 443), timeout=10) as s, ssl.create_default_context().wrap_socket(s, server_hostname=host) as ss:
+                end = ssl.cert_time_to_seconds(ss.getpeercert()["notAfter"])
+            days = (end - now()) / 86400
+            if days < c["cert_days_min"]:
+                return False, f"TLS certificate expires in {days:.0f} days"
+        except Exception as e:
+            return False, f"TLS check failed: {type(e).__name__}"
+    return True, f"HTTP {code} in {secs:.1f}s"
+
+
+class Fmt(dict):
+    def __missing__(self, k):
+        return "?"
+
+
+def fmt_value(v):
+    if v != v:
+        return "n/a"
+    if abs(v) >= 100 or v == int(v):
+        return f"{v:.0f}"
+    return f"{v:.2f}"
+
+
+def nice_age(sec):
+    sec = int(sec)
+    if sec >= 86400: return f"{sec // 86400}d {sec % 86400 // 3600}h"
+    if sec >= 3600: return f"{sec // 3600}h {sec % 3600 // 60}m"
+    return f"{max(sec // 60, 1)}m"
+
+
+# ------------------------------------------------------------------ evaluation
+def evaluate(cfg, st, prom_error_out):
+    """-> dict key -> {rule, severity, site, text, value}  of everything that is failing right now"""
+    active, errors = {}, []
+    base = prom_url()
+    for rule in cfg.get("rules", []):
+        try:
+            rows = prom_query(base, rule["expr"])
+        except Exception as e:
+            errors.append(f"{rule['name']}: {type(e).__name__}")
+            continue
+        for labels, val in rows:
+            site = labels.get("site") or "B"
+            lab = Fmt({k: v for k, v in labels.items()})
+            lab.update(site=site, value=fmt_value(val))
+            key = rule["name"] + "|" + ",".join(f"{k}={v}" for k, v in sorted(labels.items()) if k not in ("instance", "pod", "endpoint", "service", "namespace", "container", "uid"))
+            active[key] = {"rule": rule["name"], "severity": rule.get("severity", "warning"), "site": site, "for": rule.get("for", 0),
+                           "text": rule["summary"].format_map(lab), "value": val}
+    for c in cfg.get("http_checks", []):
+        ok, detail = http_check(c)
+        if not ok:
+            active["http:" + c["name"]] = {"rule": "public_url_failing", "severity": c.get("severity", "critical"), "site": c.get("site", "B"),
+                                           "for": c.get("for", 120), "text": f"{c['name']} ({c['url']}): {detail}", "value": 0}
+    return active, errors
+
+
+def step(cfg, st, send):
+    t = now()
+    alerts = st.setdefault("alerts", {})
+    mute = muted()
+    # --- Prometheus itself
+    base = prom_url()
+    prom_ok = True
+    try:
+        prom_query(base, "vector(1)")
+    except Exception as e:
+        prom_ok = False
+    st["prom_fail"] = 0 if prom_ok else st.get("prom_fail", 0) + 1
+    messages = []
+    if st["prom_fail"] == 3:
+        messages.append(f"{ICON['critical']} <b>MONITORING BROKEN</b>: Prometheus is not answering (3 checks in a row). Alerts about the servers are blind until this is fixed.")
+    if prom_ok and st.get("prom_fail_notified"):
+        messages.append("✅ Prometheus answers again.")
+    st["prom_fail_notified"] = st["prom_fail"] >= 3
+    if not prom_ok:
+        # public URL checks still run (they do not need Prometheus)
+        cfg = {"rules": [], "http_checks": cfg.get("http_checks", [])}
+    active, errors = evaluate(cfg, st, None)
+    if errors:
+        st["rule_errors"] = st.get("rule_errors", 0) + 1
+        if st["rule_errors"] == 3:
+            messages.append(f"\U0001F7E0 <b>monitoring rules failing to evaluate</b>: " + esc(", ".join(errors[:5])))
+    else:
+        st["rule_errors"] = 0
+    fired, resolved, reminders = [], [], []
+    for key, a in active.items():
+        if a["rule"] in mute:
+            continue
+        cur = alerts.get(key)
+        if not cur:
+            alerts[key] = cur = {"since": t, "firing": False, "clean": 0, "sev": a["severity"], "site": a["site"], "rule": a["rule"]}
+        cur.update(text=a["text"], value=a["value"], sev=a["severity"], clean=0, seen=t)
+        if not cur["firing"] and t - cur["since"] >= a["for"]:
+            cur["firing"] = True; cur["notified"] = t; fired.append(cur)
+        elif cur["firing"] and t - cur.get("notified", t) >= REMIND.get(cur["sev"], 43200):
+            cur["notified"] = t; reminders.append(cur)
+    for key in list(alerts):
+        cur = alerts[key]
+        if key in active and active[key]["rule"] not in mute:
+            continue
+        if not prom_ok and not key.startswith("http:"):
+            continue                                   # no information about Prometheus-based alerts: keep them as they are
+        cur["clean"] = cur.get("clean", 0) + 1
+        if cur["clean"] >= RESOLVE_AFTER:
+            if cur.get("firing"):
+                resolved.append(cur)
+            del alerts[key]
+    lines = []
+    if fired:
+        lines.append(f"<b>{len(fired)} new alert{'s' if len(fired) > 1 else ''}</b>")
+        for c in sorted(fired, key=lambda c: c["sev"] != "critical"):
+            lines.append(f"{ICON.get(c['sev'], '')} <b>{esc(c['rule'])}</b> [{esc(c['site'])}] {esc(c['text'])}")
+    if reminders:
+        lines.append("⏰ <b>still open</b>")
+        for c in reminders:
+            lines.append(f"{ICON.get(c['sev'], '')} {esc(c['rule'])} [{esc(c['site'])}] {esc(c['text'])} (open {nice_age(t - c['since'])})")
+    if resolved:
+        lines.append("✅ <b>resolved</b>")
+        for c in resolved:
+            lines.append(f"{esc(c['rule'])} [{esc(c['site'])}] after {nice_age(t - c['since'])}")
+    if lines:
+        messages.append("\n".join(lines))
+    # --- daily summary
+    cfgh = cfg.get("daily_summary_utc", "07:00")
+    today = datetime.datetime.utcnow().strftime("%Y-%m-%d")
+    hh, mm = (int(x) for x in cfgh.split(":"))
+    nowd = datetime.datetime.utcnow()
+    if st.get("summary_day") != today and (nowd.hour, nowd.minute) >= (hh, mm):
+        st["summary_day"] = today
+        open_ = [c for c in alerts.values() if c.get("firing")]
+        if open_:
+            body = "\n".join(f"{ICON.get(c['sev'], '')} {esc(c['rule'])} [{esc(c['site'])}] {esc(c['text'])} (open {nice_age(t - c['since'])})" for c in open_)
+            messages.append(f"\U0001F4CB <b>Daily summary</b>: {len(open_)} open alert(s)\n{body}")
+        else:
+            messages.append("✅ <b>Daily summary</b>: everything OK on both servers (replication, files, backups, builds, providers, resources).")
+    for m in messages:
+        if send:
+            notify(st, m)
+        else:
+            print("WOULD SEND:\n" + re.sub(r"<[^>]+>", "", m) + "\n")
+    return active
+
+
+def main():
+    load_env()
+    args = sys.argv[1:]
+    cfg = load_json(os.path.join(CFG_DIR, "rules.json"), {})
+    if not cfg:
+        log("no rules.json"); sys.exit(2)
+    os.makedirs(STATE_DIR, exist_ok=True)
+    if "--test-telegram" in args:
+        ok = telegram_send("✅ LSevin monitoring test message from server B.")
+        print("delivered" if ok else "FAILED"); sys.exit(0 if ok else 1)
+    st = load_json(STATE_FILE, {})
+    if "--list" in args:
+        for k, c in st.get("alerts", {}).items():
+            print(("FIRING " if c.get("firing") else "pending"), c["sev"], k, "-", c.get("text"))
+        return
+    if "--once" in args:
+        active = step(cfg, {"alerts": {}, "summary_day": datetime.datetime.utcnow().strftime("%Y-%m-%d")}, "--send" in args)
+        print(f"currently failing: {len(active)}")
+        for k, a in sorted(active.items()):
+            print(f"  {a['severity']:8} {a['rule']:28} [{a['site']}] {a['text'][:140]}")
+        return
+    log("alerter started")
+    if not st.get("started_notified_at") or now() - st["started_notified_at"] > 3600:
+        notify(st, "\U0001F7E2 LSevin alerter started on server B and is watching: downtime, resources, replication/files/DB, backups, Jenkins builds, SMS/WhatsApp providers.")
+        st["started_notified_at"] = now()
+    while True:
+        try:
+            cfg = load_json(os.path.join(CFG_DIR, "rules.json"), cfg)
+            flush_outbox(st)
+            step(cfg, st, True)
+            save_state(st)
+            open(HEARTBEAT_FILE, "w").write(str(int(now())))
+        except Exception:
+            log("cycle failed: " + traceback.format_exc()[-600:].replace("\n", " | "))
+        time.sleep(cfg.get("eval_seconds", 60))
+
+
+if __name__ == "__main__":
+    main()

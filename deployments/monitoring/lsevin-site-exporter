@@ -8,7 +8,7 @@
 The slow parts run in a background thread (never inside a scrape). Listens only on the Kubernetes bridge (10.42.0.1:9199) so the
 local Prometheus pod can scrape it and the internet cannot. A's Prometheus pushes these series to B's (remote write, label site="A").
 Secrets (provider passwords) are read from the API pod's environment into memory only; they are never logged or exported."""
-import glob, json, os, re, socket, ssl, subprocess, threading, time, urllib.parse, urllib.request
+import calendar, glob, json, os, re, socket, ssl, subprocess, threading, time, urllib.parse, urllib.request
 import xml.etree.ElementTree as ET
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
@@ -166,6 +166,58 @@ def tls_reachable(host, port=443, timeout=8):
         return 0, 0
 
 
+_restart_hist = {}
+
+
+def collect_k8s():
+    """Deployments below their wanted replicas, pods stuck in a bad state, and container restarts in the last 30 minutes."""
+    lines = []
+    try:
+        deploys = json.loads(run([KUBECTL, "-n", NS, "get", "deploy", "-o", "json"], 30) or "{}").get("items", [])
+        pods = json.loads(run([KUBECTL, "-n", NS, "get", "pods", "-o", "json"], 30) or "{}").get("items", [])
+    except Exception:
+        return gauge("lsevin_k8s_collector_ok", "1 when the Kubernetes state could be read", [({}, 0)])
+    if not deploys and not pods:
+        return gauge("lsevin_k8s_collector_ok", "1 when the Kubernetes state could be read", [({}, 0)])
+    lines += gauge("lsevin_k8s_collector_ok", "1 when the Kubernetes state could be read", [({}, 1)])
+    lines += gauge("lsevin_deploy_unavailable_replicas", "Wanted replicas minus available replicas, per deployment",
+                   [({"deployment": d["metadata"]["name"]}, max(int(d["spec"].get("replicas", 1)) - int(d.get("status", {}).get("availableReplicas") or 0), 0)) for d in deploys])
+    now_ = time.time()
+    bad, restarts = [], []
+    BAD_WAIT = {"CrashLoopBackOff", "ImagePullBackOff", "ErrImagePull", "CreateContainerConfigError", "CreateContainerError", "InvalidImageName", "RunContainerError"}
+    for p in pods:
+        name = p["metadata"]["name"]
+        phase = p.get("status", {}).get("phase", "")
+        created = p["metadata"].get("creationTimestamp", "")
+        try:
+            age = now_ - calendar.timegm(time.strptime(created, "%Y-%m-%dT%H:%M:%SZ"))
+        except Exception:
+            age = 0
+        owner = (p["metadata"].get("ownerReferences") or [{}])[0].get("kind", "")
+        cs = p.get("status", {}).get("containerStatuses", []) or []
+        for c in cs:
+            key = (name, c["name"]); h = _restart_hist.setdefault(key, [])
+            h.append((now_, int(c.get("restartCount", 0)))); _restart_hist[key] = [x for x in h if now_ - x[0] <= 1860]
+        reason = ""
+        for c in cs:
+            w = (c.get("state", {}) or {}).get("waiting") or {}
+            if w.get("reason") in BAD_WAIT:
+                reason = w["reason"]
+        if not reason and phase == "Pending" and age > 600:
+            reason = "Pending"
+        if not reason and phase == "Running" and cs and not all(c.get("ready") for c in cs) and age > 600:
+            reason = "NotReady"
+        if reason and owner != "Job":
+            bad.append(({"pod": name, "reason": reason}, 1))
+    for (name, cname), h in _restart_hist.items():
+        inc = h[-1][1] - min(x[1] for x in h)
+        if inc > 0:
+            restarts.append(({"pod": name, "container": cname}, inc))
+    lines += gauge("lsevin_pod_problem", "1 for every pod that is stuck (crash loop, image pull failure, not ready or pending for more than 10 minutes)", bad[:30])
+    lines += gauge("lsevin_pod_restarts_30m", "Container restarts seen by this exporter in the last 30 minutes", restarts[:30])
+    return lines
+
+
 def collect_providers():
     lines = []
     reach = []
@@ -212,7 +264,7 @@ def collect_providers():
 
 
 def background():
-    schedule = [("sync", collect_sync, 60), ("jenkins", collect_jenkins, 60), ("providers", collect_providers, 300)]
+    schedule = [("sync", collect_sync, 60), ("jenkins", collect_jenkins, 60), ("providers", collect_providers, 300), ("k8s", collect_k8s, 30)]
     last = {n: 0 for n, _, _ in schedule}
     while True:
         for name, fn, every in schedule:
