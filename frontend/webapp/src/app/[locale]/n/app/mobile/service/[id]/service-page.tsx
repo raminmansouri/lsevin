@@ -280,7 +280,7 @@ function ProviderOfferingCard({ provider, currentProviderServiceId, locale }: { 
               {provider.verified && <span className="inline-flex items-center gap-1 rounded-full bg-green-50 px-2 py-1 text-[10px] font-semibold text-green-700"><BadgeCheck size={11} /> {t("badges.verified")}</span>}
               {provider.sponsored && <span className="rounded-full bg-amber-50 px-2 py-1 text-[10px] font-semibold text-amber-700">{t("badges.sponsored")}</span>}
             </div>
-              <ViewerPrice amount={provider.displayPrice.sourceAmount ?? provider.displayPrice.amount} sourceCurrencyCode={provider.displayPrice.sourceCurrencyCode ?? provider.displayPrice.code} providerId={provider.displayPrice.providerId ?? null} valueToman={provider.displayPrice.valueToman ?? null} locale={locale} className="whitespace-nowrap text-sm font-bold text-[#083f30]" />          </div>
+              <ViewerPrice amount={provider.displayPrice.sourceAmount ?? provider.displayPrice.amount} sourceCurrencyCode={provider.displayPrice.sourceCurrencyCode ?? provider.displayPrice.code} providerId={provider.displayPrice.providerId ?? null} valueToman={provider.displayPrice.valueToman ?? null} locale={locale} className="min-w-0 break-words text-[13px] font-bold leading-5 text-[#083f30] sm:text-sm" />          </div>
         </div>
 
         <ChevronRight size={16} className="self-center text-gray-400" />
@@ -379,7 +379,7 @@ function AddonsSection({ addOns, locale }: { addOns: ServiceAddon[]; locale: str
                 </div>
                 {addon.description && <LexicalDescription content={addon.description} className="text-sm leading-relaxed text-gray-600" />}
               </div>
-              <PriceTextClient amount={addon.displayPrice.amount} currencyCode={addon.displayPrice.code} locale={locale} className="whitespace-nowrap text-sm font-bold text-[#083f30]" />
+              <PriceTextClient amount={addon.displayPrice.amount} currencyCode={addon.displayPrice.code} locale={locale} className="min-w-0 break-words text-[13px] font-bold leading-5 text-[#083f30] sm:text-sm" />
             </div>
             {addon.details.length > 0 && (
               <ul className="mt-3 space-y-1 text-sm text-gray-700">
@@ -953,7 +953,7 @@ export default function ServicePage({ data, serviceId, locale }: ServicePageProp
         <div className="flex items-center gap-3">
           <div className="min-w-0 flex-1">
             <div className="mb-0.5 text-xs text-gray-600">{t("price.totalPackagePrice")}</div>
-              <div className="flex items-baseline gap-2"><ViewerPrice amount={service.displayPrice.sourceAmount ?? displayPrice} sourceCurrencyCode={service.displayPrice.sourceCurrencyCode ?? displayCurrencyCode} providerId={service.displayPrice.providerId ?? service.clinicId} valueToman={service.displayPrice.valueToman ?? null} locale={locale} className="text-2xl font-bold text-[#083f30]" />{hasDiscount && <ViewerPrice amount={service.displayOriginalPrice.sourceAmount ?? displayOriginalPrice} sourceCurrencyCode={service.displayOriginalPrice.sourceCurrencyCode ?? displayCurrencyCode} providerId={service.displayPrice.providerId ?? service.clinicId} locale={locale} className="text-sm text-gray-500 line-through" />}</div>          </div>
+              <div className="flex min-w-0 flex-wrap items-baseline gap-x-2 gap-y-0.5"><ViewerPrice amount={service.displayPrice.sourceAmount ?? displayPrice} sourceCurrencyCode={service.displayPrice.sourceCurrencyCode ?? displayCurrencyCode} providerId={service.displayPrice.providerId ?? service.clinicId} valueToman={service.displayPrice.valueToman ?? null} locale={locale} className="min-w-0 break-words text-xl font-bold leading-tight text-[#083f30] sm:text-2xl" />{hasDiscount && <ViewerPrice amount={service.displayOriginalPrice.sourceAmount ?? displayOriginalPrice} sourceCurrencyCode={service.displayOriginalPrice.sourceCurrencyCode ?? displayCurrencyCode} providerId={service.displayPrice.providerId ?? service.clinicId} locale={locale} className="text-sm text-gray-500 line-through" />}</div>          </div>
           <ConsultationCtaButton
             categoryName={service.name}
             label={tConsultation("cta.beforeBooking")}
