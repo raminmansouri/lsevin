@@ -8,8 +8,8 @@ HERE=$(cd "$(dirname "$0")" && pwd); SQL=$HERE/../sql
 KEY_A=${KEY_A:-$HOME/.ssh/lsevin_a}; KEY_B=${KEY_B:-$HOME/.ssh/lsevin_b}
 HOST_A=${HOST_A:-root@213.176.121.235}; HOST_B=${HOST_B:-agent@202.133.90.50}
 T=$(mktemp -d); trap 'rm -rf "$T"' EXIT
-psql_a() { ssh -o ConnectTimeout=30 -i "$KEY_A" "$HOST_A" 'P=$(kubectl -n lsevin get pods --no-headers | awk '$1 ~ /^postgres-[0-9a-f]+-[a-z0-9]+$/ && $3 == "Running" {print $1; exit}'); kubectl -n lsevin exec -i $P -- psql -U lsevin -d lsevin -q -f -' < "$1"; }
-psql_b() { ssh -o ConnectTimeout=30 -i "$KEY_B" "$HOST_B" 'P=$(sudo -n kubectl -n lsevin get pods --no-headers | awk '$1 ~ /^postgres-[0-9a-f]+-[a-z0-9]+$/ && $3 == "Running" {print $1; exit}'); sudo -n kubectl -n lsevin exec -i $P -- psql -U lsevin -d lsevin -q -f -' < "$1"; }
+psql_a() { ssh -o ConnectTimeout=30 -i "$KEY_A" "$HOST_A" 'P=$(kubectl -n lsevin get pods --field-selector=status.phase=Running -o name | grep -E "^pod/postgres-[0-9a-f]+-[a-z0-9]+$" | head -1); kubectl -n lsevin exec -i $P -- psql -U lsevin -d lsevin -q -f -' < "$1"; }
+psql_b() { ssh -o ConnectTimeout=30 -i "$KEY_B" "$HOST_B" 'P=$(sudo -n kubectl -n lsevin get pods --field-selector=status.phase=Running -o name | grep -E "^pod/postgres-[0-9a-f]+-[a-z0-9]+$" | head -1); sudo -n kubectl -n lsevin exec -i $P -- psql -U lsevin -d lsevin -q -f -' < "$1"; }
 rc=0
 for pass in 1 2; do
   psql_a "$SQL/table-fingerprints.sql" > "$T/a$pass.txt" 2>/dev/null; psql_b "$SQL/table-fingerprints.sql" > "$T/b$pass.txt" 2>/dev/null
