@@ -49,6 +49,7 @@ export default defineConfig({
       "src/features/support/**/*.test.ts",
       "src/payment/**/*.test.ts",
       "src/lib/seo/**/*.test.ts",
+      "src/lib/http/**/*.test.ts",
       "src/lib/build-mode.test.ts",
       "src/app/app-health/route.test.ts",
     ],

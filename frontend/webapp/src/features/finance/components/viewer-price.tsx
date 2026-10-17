@@ -86,6 +86,7 @@ export function ViewerPrice({
         let alive = true;
         setPrice(undefined);
         requestPrice({ amount, sourceCurrencyCode, providerId, valueToman }).then((result) => {
+            if (!result) console.warn('[ViewerPrice] no price returned, showing the original', { amount, sourceCurrencyCode, providerId });
             if (alive) setPrice(result);
         });
         return () => {

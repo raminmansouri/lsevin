@@ -65,10 +65,14 @@ export function formatMoney(
     const rialTomanLabel = getRialTomanLabel(currencyCode, locale);
     const symbol = rialTomanLabel ?? getCurrencySymbol(currencyCode, options?.currencies);
     const suffixCurrencies = new Set(['AED', 'OMR', 'IQD', 'KWD', 'QAR', 'SAR', 'IRR', 'IRT']);
-    const text = suffixCurrencies.has(currencyCode) ? `${formatted} ${symbol}` : `${symbol}${formatted}`;
-    return options?.showCode && !rialTomanLabel ? `${text} ${currencyCode}` : text;
+    const symbolIsCode = symbol === currencyCode;
+    const text = suffixCurrencies.has(currencyCode) || symbolIsCode
+      ? `${formatted} ${symbol}`
+      : `${symbol}${formatted}`;
+    return options?.showCode && !rialTomanLabel && !symbolIsCode ? `${text} ${currencyCode}` : text;
   } catch {
-    return `${getCurrencySymbol(currencyCode, options?.currencies)} ${money.amount.toLocaleString()}${options?.showCode ? ` ${currencyCode}` : ''}`;
+    const label = getRialTomanLabel(currencyCode, locale);
+    return `${label ?? getCurrencySymbol(currencyCode, options?.currencies)} ${money.amount.toLocaleString()}${options?.showCode && !label ? ` ${currencyCode}` : ''}`;
   }
 }
 

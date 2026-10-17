@@ -1,5 +1,6 @@
 "use client"
 
+import { getRialTomanLabel as currencyName } from "@/features/finance/lib/money";
 import { useNavigate, useParams } from 'react-router';
 import { 
   ArrowLeft, 
@@ -391,7 +392,7 @@ export default function TreatmentDetail() {
           <div className="flex gap-2">
             {['USD', 'EUR', 'GBP', 'AED'].map(currency => (
               <button
-                key={currency}
+                key={currencyName(currency) ?? currency}
                 onClick={() => setSelectedCurrency(currency)}
                 className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors ${
                   selectedCurrency === currency
@@ -399,7 +400,7 @@ export default function TreatmentDetail() {
                     : 'bg-white/10 text-white hover:bg-white/20'
                 }`}
               >
-                {currency}
+                {currencyName(currency) ?? currency}
               </button>
             ))}
           </div>

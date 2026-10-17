@@ -2,6 +2,57 @@
 // See: https://next-intl.dev/docs/workflows/typescript#messages-arguments
 
 declare const messages: {
+  "ShopMedia": {
+    "hint": "اولین تصویر، تصویر اصلی است. برای اعمال تغییرات ذخیره کنید.",
+    "empty": "هنوز تصویری برای محصول وجود ندارد.",
+    "imageNumber": "تصویر {number, number}",
+    "primary": "تصویر اصلی",
+    "makePrimary": "تنظیم به‌عنوان تصویر اصلی",
+    "moveUp": "انتقال به بالا",
+    "moveDown": "انتقال به پایین",
+    "replace": "جایگزینی",
+    "remove": "حذف",
+    "addImages": "افزودن تصویر",
+    "imageUrl": "آدرس تصویر",
+    "addUrl": "افزودن آدرس",
+    "invalidUrl": "یک آدرس تصویر یا مسیر فایل معتبر وارد کنید.",
+    "limit": "به سقف انتخاب رسیده‌اید.",
+    "saveFailed": "ذخیرهٔ تصاویر انجام نشد. دوباره تلاش کنید.",
+    "saving": "در حال ذخیره…",
+    "save": "ذخیرهٔ تصاویر",
+    "saved": "تصاویر ذخیره شد.",
+    "image": "تصویر",
+    "video": "ویدیو",
+    "file": "فایل",
+    "deleteFile": "حذف {name}",
+    "deleteLibrary": "حذف از کتابخانه",
+    "deleteConfirm": "«{name}» از کتابخانهٔ رسانه حذف شود؟",
+    "deleteFailed": "حذف فایل انجام نشد.",
+    "loadFailed": "بارگذاری رسانه‌ها انجام نشد. دوباره تلاش کنید.",
+    "wrongType": "فایلی از نوع مورد نیاز انتخاب کنید.",
+    "uploadFailed": "آپلود انجام نشد. دوباره تلاش کنید.",
+    "pickFiles": "انتخاب رسانه",
+    "singleHint": "یک فایل انتخاب کنید.",
+    "multipleHint": "فایل‌ها را انتخاب و تأیید کنید.",
+    "close": "بستن",
+    "search": "جستجوی فایل",
+    "all": "همه",
+    "images": "تصاویر",
+    "videos": "ویدیوها",
+    "files": "فایل‌ها",
+    "upload": "آپلود",
+    "uploading": "در حال آپلود…",
+    "loading": "در حال بارگذاری…",
+    "emptyLibrary": "رسانه‌ای پیدا نشد.",
+    "emptyLibraryHint": "فایل آپلود کنید یا جستجو را تغییر دهید.",
+    "page": "صفحهٔ {page, number} از {total, number}",
+    "selected": "انتخاب‌شده",
+    "previous": "قبلی",
+    "next": "بعدی",
+    "confirm": "استفاده از فایل‌های انتخاب‌شده"
+  },
+
+  
   "BookingCart": {
     "title": "رزروهای ذخیره‌شده",
     "hint": "این موارد برآورد هستند و رزرو قطعی نیستند. برای بررسی ظرفیت و پرداخت، هر رزرو را باز کنید. پرداخت محصولات فعلاً جداگانه است.",
@@ -415,6 +466,8 @@ declare const messages: {
     }
   },
   "AdminGenerated": {
+    "updateBookingTitle": "ویرایش رزرو: {service} – {customer}",
+    "stayCheckIn": "تاریخ ورود", "stayCheckOut": "تاریخ خروج",
     "configureSignInSignUpForgotPasswordOtp": "ورود، ثبت‌نام، فراموشی رمز و کد یک‌بارمصرف را تنظیم کنید.",
     "useItemKeysSignInSignUpForgot": "از کلیدهای sign-in، sign-up و forgot-password استفاده کنید.",
     "previousImage": "تصویر قبلی",
@@ -1106,6 +1159,9 @@ declare const messages: {
     "paymentOperations": "پرداخت عملیات",
     "paymentRefund": "پرداخت بازپرداخت",
     "paymentStatus": "وضعیت پرداخت",
+    "depositPaid": "پیش‌پرداخت شده",
+    "paidOnline": "پرداخت آنلاین",
+    "dueAtPlace": "قابل پرداخت در محل",
     "paymentSuccess": "موفقیت پرداخت",
     "payments": "پرداخت‌ها",
     "payout": "پرداختی",
@@ -4233,8 +4289,83 @@ declare const messages: {
       "balancesNote": "دارایی پلتفرم باید همیشه از بدهی به کاربران بیشتر باشد. اگر نبود، یعنی پول کاربران خرج شده است.",
       "depositQueueTitle": "صف تأیید واریز",
       "depositQueueDescription": "تا وقتی تأیید نکنید هیچ پولی به کیف پول کاربر اضافه نمی‌شود. مبلغی که شما تأیید می‌کنید ثبت می‌شود، نه مبلغی که کاربر ادعا کرده.",
+      "bookingReviewTitle": "پرداخت‌های رزرو در انتظار تأیید",
+      "bookingReviewDescription": "رسیدهای کارت به کارت و پرداخت‌های در محل. تا وقتی تأیید نکنید، رزرو پرداخت‌شده حساب نمی‌شود. رد کردن، پرداخت را ناموفق ثبت می‌کند.",
+      "partlyPaidTitle": "رزروهای با پرداخت ناقص",
+      "partlyPaidDescription": "بخشی از مبلغ پرداخت شده و بقیه مانده است. وقتی باقی‌مانده را دریافت کردید ثبت کنید تا رزرو کامل پرداخت‌شده شود.",
+      "partlyPaidHasPendingReview": "برای این رزرو یک رسید در انتظار تأیید است (بخش بالا).",
+      "recentBookingPaymentsTitle": "پرداخت‌های رزرو در {days, number} روز اخیر",
+      "walletDepositsTitle": "شارژ کیف پول",
+      "bookingKind": {
+        "full": "کامل پرداخت شده",
+        "deposit": "پیش‌پرداخت شده، باقی در محل",
+        "partial": "بخشی پرداخت شده"
+      },
+      "bookingMethod": {
+        "bank_receipt": "رسید کارت به کارت",
+        "pay_on_delivery": "پرداخت در محل",
+        "cash_on_delivery": "پرداخت نقدی در محل",
+        "manual_card": "کارت به کارت",
+        "wallet": "کیف پول",
+        "manual_collection": "ثبت دستی در پنل مالی",
+        "online": "پرداخت آنلاین"
+      },
+      "bookingTotal": "مبلغ کل",
+      "bookingPaid": "پرداخت شده",
+      "bookingRemaining": "باقی‌مانده",
+      "bookingCode": "کد رزرو",
+      "bookingDate": "تاریخ",
+      "claimedAmount": "مبلغ این پرداخت",
+      "lastPayment": "آخرین پرداخت",
+      "receivedAmount": "مبلغ دریافت‌شده",
+      "tomanUnitHint": "به تومان وارد کنید",
+      "recordBalance": "ثبت دریافت باقی‌مانده",
+      "approvePayment": "تأیید پرداخت",
+      "bookingApproveHint": "پول به حساب رسیده است",
+      "working": "در حال ثبت...",
+      "paidAt": "زمان پرداخت",
+      "customer": "مشتری",
+      "service": "خدمت",
+      "paymentMethodLabel": "روش پرداخت",
+      "amount": "مبلغ",
+      "bookingStatusLabel": "وضعیت پرداخت رزرو",
       "withdrawalQueueTitle": "صف تأیید برداشت",
       "withdrawalQueueDescription": "با ثبت درخواست، مبلغ از موجودی قابل‌برداشت کاربر کسر و رزرو شده است. رد کردن، آن را برمی‌گرداند.",
+      "providerPayoutsTitle": "پرداخت به پزشک‌ها، هتل‌ها و سایر طرف حساب‌ها",
+      "providerPayoutsDescription": "سهم هر طرف حساب از رزروهایی که مشتری پولشان را داده است. ابتدا موارد را تأیید کنید، بعد از انتقال بانکی، پرداخت را با شماره پیگیری ثبت کنید. مبالغ منفی برگشتی‌های ناشی از استرداد وجه هستند و از جمع کم می‌شوند.",
+      "providerRecentlyPaidTitle": "پرداخت‌شده به طرف حساب‌ها در {days, number} روز اخیر",
+      "walletWithdrawalsTitle": "برداشت از کیف پول مشتری",
+      "providerPayoutAccount": "حساب دریافت",
+      "providerNoPayoutAccount": "حساب بانکی برای این طرف حساب ثبت نشده است.",
+      "providerCustomerPaid": "پرداخت مشتری",
+      "providerShare": "سهم طرف حساب",
+      "providerEntryStatus": "وضعیت",
+      "providerEntryStatusValue": {
+        "pending": "در انتظار تأیید",
+        "approved": "تأییدشده، آماده پرداخت",
+        "paid": "پرداخت شده",
+        "cancelled": "لغو شده"
+      },
+      "providerEntryType": {
+        "earning": "سهم رزرو",
+        "adjustment": "اصلاحیه",
+        "reversal": "برگشت (استرداد وجه)",
+        "payout": "پرداخت"
+      },
+      "providerCustomerPayment": {
+        "full": "کامل",
+        "deposit": "پیش‌پرداخت",
+        "partial": "بخشی",
+        "unpaid": "پرداخت نشده"
+      },
+      "providerPendingTotal": "در انتظار تأیید",
+      "providerApprovedTotal": "آماده پرداخت",
+      "approveAllEntries": "تأیید همه موارد",
+      "approveEntry": "تأیید",
+      "cancelEntry": "لغو",
+      "cancelEntryReason": "دلیل لغو",
+      "payProviderAmount": "مبلغ قابل پرداخت",
+      "markProviderPaid": "ثبت پرداخت به طرف حساب",
       "reference": "مرجع",
       "receipt": "رسید",
       "confirmedAmount": "مبلغ تأییدشده",
@@ -6377,6 +6508,7 @@ declare const messages: {
     }
   },
   "ServiceProvider": {
+    "searchProvidersServicesStaffCityCountry": "جستجوی ارائه‌دهنده، خدمت، کارکنان، شهر یا کشور...",
     "name": "ارائه‌دهنده خدمات",
     "contactProvider": "تماس با ارائه دهنده",
     "aboutProvider": "درباره این ارائه دهنده",
@@ -6944,6 +7076,65 @@ declare const messages: {
     "loadMore": "بارگذاری بیشتر"
   },
   "Booking": {
+    "dayParts": { "morning": "صبح", "afternoon": "بعدازظهر", "evening": "عصر و شب" },
+    "mealPlan": {
+      "label": "طرح غذایی",
+      "chooseTitle": "طرح غذایی را انتخاب کنید",
+      "room_only": {
+        "name": "بدون صبحانه",
+        "description": "بدون وعده غذایی"
+      },
+      "breakfast": {
+        "name": "با صبحانه",
+        "description": "صبحانه همراه اقامت"
+      },
+      "full_board": {
+        "name": "فول‌برد",
+        "description": "صبحانه، ناهار و شام همراه اقامت"
+      }
+    },
+    "stay": {
+      "perNight": "هر شب",
+      "nightsLine": "تعداد شب: {nights} × {price} برای هر شب",
+      "checkoutAfterCheckin": "تاریخ خروج باید بعد از تاریخ ورود باشد."
+    },
+    "addonScope": {
+      "showAllInCountry": "نمایش همه در {country}",
+      "showOnlyCity": "فقط {city}"
+    },
+    "payInPlace": {
+      "heading": "پرداخت در محل: یک طرح انتخاب کنید",
+      "intro": "بخشی از مبلغ را همین حالا و بقیه را در محل پرداخت می‌کنید. هرچه سهم پرداخت اکنون کمتر باشد، درصد افزوده به فاکتور بیشتر است.",
+      "payNow": "پرداخت {percent}٪ اکنون",
+      "surcharge": "{percent}٪ به مبلغ فاکتور افزوده می‌شود",
+      "bill": "مبلغ فاکتور",
+      "dueNow": "پرداخت اکنون",
+      "dueLater": "پرداخت در محل",
+      "methodHeading": "بخش «پرداخت اکنون» را چگونه پرداخت می‌کنید؟",
+      "noMethods": "برای پرداخت بخش اکنون به کیف پول یا پرداخت آنلاین نیاز است و در حال حاضر برای شما در دسترس نیست.",
+      "loading": "در حال بارگذاری روش‌های پرداخت...",
+      "addition": "افزوده پرداخت در محل ({percent}٪)",
+      "errors": {
+        "choosePlan": "یکی از طرح‌های پرداخت در محل و روش پرداخت بخش اکنون را انتخاب کنید.",
+        "chooseDepositMethod": "روش پرداخت بخش اکنون را انتخاب کنید.",
+        "depositMethodNotAllowed": "بخش اکنون باید با کیف پول یا پرداخت آنلاین پرداخت شود.",
+        "methodNotAvailable": "این روش پرداخت برای شما در دسترس نیست."
+      }
+    },
+    "builtinPaymentMethods": {
+      "pay_on_delivery": {
+        "name": "پرداخت در محل",
+        "description": "بخشی از مبلغ را همین حالا و بقیه را هنگام ارائه خدمت به‌صورت نقدی پرداخت کنید."
+      },
+      "bank_receipt": {
+        "name": "پرداخت با فیش واریزی",
+        "description": "مبلغ را به یکی از حساب‌های زیر واریز کرده و تصویر فیش را آپلود کنید."
+      },
+      "wallet": {
+        "name": "کیف پول",
+        "description": "پرداخت فوری از موجودی کیف پول."
+      }
+    },
     "lsevin": "لسوین",
     "upcoming": "پیش‌رو",
     "past": "گذشته",
@@ -7704,6 +7895,10 @@ declare const messages: {
     "offers": "پیشنهادها",
     "paid": "پرداخت‌شده",
     "partial": "جزئی",
+    "depositPaid": "پیش‌پرداخت شده",
+    "paidOnline": "پرداخت آنلاین",
+    "payAtPlace": "پرداخت در محل",
+    "depositPaidHint": "{paid} آنلاین پرداخت شده، {due} در محل پرداخت می‌شود",
     "payWithGateway": "پرداخت با {gateway}",
     "paymentDue": "پرداخت لازم",
     "paymentUnavailable": "پرداخت در دسترس نیست",

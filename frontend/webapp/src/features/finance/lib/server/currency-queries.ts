@@ -3,7 +3,7 @@ import { getCountries, getCountryCallingCode, parsePhoneNumberFromString, type C
 
 import sql from '@/config/database/db';
 
-import { normalizeCurrencyCode, roundMoney } from '../money';
+import { getRialTomanLabel, normalizeCurrencyCode, roundMoney } from '../money';
 import { getDefaultInternationalMultiplier } from '../../server/pricing-settings.repository';
 import type { ConvertedMoney, Currency, FxQuote, PreferredCurrencyInput } from '../../types';
 
@@ -152,9 +152,13 @@ export async function resolvePreferredCurrencyCode(input: PreferredCurrencyInput
   return fallback;
 }
 
+// All of Europe gets EUR. GB, RU and TR are not listed on purpose: they have their
+// own rows in country_currency_defaults, which is checked first.
 const EUROZONE_COUNTRIES = new Set([
-    'AT', 'BE', 'BG', 'HR', 'CY', 'EE', 'FI', 'FR', 'DE', 'GR',
-    'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'PT', 'SK', 'SI', 'ES',
+    'AD', 'AL', 'AT', 'BA', 'BE', 'BG', 'BY', 'CH', 'CY', 'CZ', 'DE', 'DK', 'EE', 'ES',
+    'FI', 'FR', 'GR', 'HR', 'HU', 'IE', 'IS', 'IT', 'LI', 'LT', 'LU', 'LV', 'MC', 'MD',
+    'ME', 'MK', 'MT', 'NL', 'NO', 'PL', 'PT', 'RO', 'RS', 'SE', 'SI', 'SK', 'SM', 'UA',
+    'VA', 'XK',
 ]);
 
 // Several countries share a dial code (+1, +7, +44...). When the full number can't
@@ -421,7 +425,7 @@ export async function createFxQuote(input: {
 export async function getCurrencyOptionsForPicker(): Promise<{ label: string; value: string; symbol: string }[]> {
   const currencies = await getActiveCurrencies({ displayOnly: true });
   return currencies.map((currency) => ({
-    label: `${currency.code} — ${currency.name}`,
+    label: getRialTomanLabel(currency.code) ?? `${currency.code} — ${currency.name}`,
     value: currency.code,
     symbol: currency.symbol,
   }));

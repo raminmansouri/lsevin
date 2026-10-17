@@ -39,7 +39,10 @@ export function FontFormatToolbarPlugin() {
           formats.push(format);
         }
       });
-      setActiveFormats(formats);
+      // Only update when the active formats actually changed.
+      setActiveFormats((prev) =>
+        prev.length === formats.length && prev.every((f, i) => f === formats[i]) ? prev : formats
+      );
     }
   };
 

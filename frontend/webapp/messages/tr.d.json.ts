@@ -2272,6 +2272,7 @@ declare const messages: {
     }
   },
   "ServiceProvider": {
+    "searchProvidersServicesStaffCityCountry": "Sağlayıcı, hizmet, personel, şehir veya ülke ara...",
     "name": "Hizmet Sağlayıcı",
     "contactProvider": "Sağlayıcıyla İletişim",
     "aboutProvider": "Bu Sağlayıcı Hakkında",
@@ -3058,6 +3059,8 @@ declare const messages: {
     "clear": "Seçimi temizle"
   },
   "AdminGenerated": {
+    "updateBookingTitle": "Rezervasyonu düzenle: {service} – {customer}",
+    "stayCheckIn": "Giriş tarihi", "stayCheckOut": "Çıkış tarihi",
     "deleteCurrency": "Delete currency",
     "deleteCurrencyConfirm": "Delete this currency? It is removed from the lists while past records stay untouched.",
     "currencyDeleted": "Currency deleted.",
@@ -4903,6 +4906,66 @@ declare const messages: {
     }
   },
   "Booking": {
+    "dayParts": { "morning": "Sabah", "afternoon": "Öğleden sonra", "evening": "Akşam" },
+    "mealPlan": {
+      "label": "Yemek planı",
+      "chooseTitle": "Yemek planı seçin",
+      "room_only": {
+        "name": "Sadece oda",
+        "description": "Yemek dahil değil"
+      },
+      "breakfast": {
+        "name": "Kahvaltı dahil",
+        "description": "Kahvaltı dahildir"
+      },
+      "full_board": {
+        "name": "Tam pansiyon",
+        "description": "Kahvaltı, öğle ve akşam yemeği dahildir"
+      }
+    },
+    "stay": {
+      "perNight": "gecelik",
+      "nightsLine": "Gece sayısı: {nights} × gecelik {price}",
+      "checkoutAfterCheckin": "Çıkış tarihi giriş tarihinden sonra olmalıdır."
+    },
+    "addonScope": {
+      "showAllInCountry": "{country} genelindeki tümünü göster",
+      "showOnlyCity": "Yalnızca {city} göster"
+    },
+    "payInPlace": {
+      "heading": "Yerinde ödeme: bir plan seçin",
+      "intro": "Faturanın bir kısmını şimdi, kalanını yerinde ödersiniz. Şimdi ne kadar az öderseniz faturaya o kadar fazla eklenir.",
+      "payNow": "Şimdi %{percent} öde",
+      "surcharge": "Faturaya %{percent} eklenir",
+      "bill": "Fatura",
+      "dueNow": "Şimdi ödenecek",
+      "dueLater": "Yerinde ödenecek",
+      "methodHeading": "Şimdi ödenecek kısmı nasıl ödemek istersiniz?",
+      "noMethods": "Şimdi ödenecek kısım için cüzdan veya çevrimiçi ödeme gerekir; şu anda ikisi de sizin için kullanılamıyor.",
+      "loading": "Ödeme yöntemleri yükleniyor...",
+      "addition": "Yerinde ödeme farkı (%{percent})",
+      "errors": {
+        "choosePlan": "Bir yerinde ödeme planı ve şimdi ödenecek kısmın ödeme yöntemini seçin.",
+        "chooseDepositMethod": "Şimdi ödenecek kısmı nasıl ödeyeceğinizi seçin.",
+        "depositMethodNotAllowed": "Şimdi ödenecek kısım cüzdan veya çevrimiçi ödeme ile ödenmelidir.",
+        "methodNotAvailable": "Bu ödeme yöntemi sizin için kullanılamıyor."
+      }
+    },
+    "builtinPaymentMethods": {
+      "pay_on_delivery": {
+        "name": "Yerinde ödeme",
+        "description": "Tutarın bir kısmını şimdi, kalanını hizmet verilirken nakit ödeyin."
+      },
+      "bank_receipt": {
+        "name": "Banka havalesi dekontu",
+        "description": "Tutarı aşağıdaki hesaplardan birine havale edin ve dekont görselini yükleyin."
+      },
+      "wallet": {
+        "name": "Cüzdan",
+        "description": "Cüzdan bakiyenizle anında ödeyin."
+      }
+    },
+    "timezoneMismatchWarning": "Not: Hizmet sağlayıcı {providerZone} saat diliminde çalışıyor, sizin saat diliminiz {viewerZone}. Gösterilen saatler saat diliminize çevrilmiştir.",
     "upcoming": "Yaklaşan",
     "past": "Geçmiş",
     "abuDhabi": "Abu Dabi",

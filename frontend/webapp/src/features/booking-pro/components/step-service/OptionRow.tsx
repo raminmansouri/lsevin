@@ -1,9 +1,10 @@
-'use client';
+"use client";
 
-import { Check, Info } from 'lucide-react';
-import React from 'react';
-import { ImageWithFallback } from '@/components/ui/image-with-fallback';
-import { resolveHomeMediaUrl } from '@/features/home/components/home-media';
+import React from "react";
+import { Check, Info } from "lucide-react";
+
+import { ImageWithFallback } from "@/components/ui/image-with-fallback";
+import { resolveHomeMediaUrl } from "@/features/home/components/home-media";
 
 type Props = {
   title: string;
@@ -22,13 +23,25 @@ type Props = {
  * image, description and meta grid live in EntityDetailsSheet for anyone who wants them.
  * Decide with rows, learn with sheets.
  */
-export function OptionRow({ title, subtitle, trailing, imageUrl, selected, badge, hasDetails, onSelect, onDetails }: Props) {
+export function OptionRow({
+  title,
+  subtitle,
+  trailing,
+  imageUrl,
+  selected,
+  badge,
+  hasDetails,
+  onSelect,
+  onDetails,
+}: Props) {
   const mediaSrc = resolveHomeMediaUrl(imageUrl);
 
   return (
     <div
       className={`flex w-full items-center gap-3 rounded-2xl border px-3 py-3 transition ${
-        selected ? 'border-[#083f30] bg-[#083f30]/5 ring-1 ring-[#083f30]/20' : 'border-slate-200 bg-white'
+        selected
+          ? "border-[#083f30] bg-[#083f30]/5 ring-1 ring-[#083f30]/20"
+          : "border-slate-200 bg-white"
       }`}
     >
       <button
@@ -36,32 +49,53 @@ export function OptionRow({ title, subtitle, trailing, imageUrl, selected, badge
         role="radio"
         aria-checked={selected}
         onClick={onSelect}
-        className="flex min-w-0 flex-1 items-center gap-3 text-start"
+        className="flex min-w-0 flex-1 flex-wrap items-center gap-3 text-start"
       >
         <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-xl bg-slate-100">
           {mediaSrc ? (
-            <ImageWithFallback fill src={mediaSrc} alt="" sizes="48px" className="object-cover" fallbackClassName="rounded-none" />
+            <ImageWithFallback
+              fill
+              src={mediaSrc}
+              alt=""
+              sizes="48px"
+              className="object-cover"
+              fallbackClassName="rounded-none"
+            />
           ) : null}
         </div>
 
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
-            <span className="truncate text-[15px] font-bold text-slate-900">{title}</span>
+            <span className="min-w-0 text-[15px] font-bold [overflow-wrap:anywhere] break-words">
+              {title}
+            </span>
             {badge ? (
-              <span className="shrink-0 rounded-full bg-[#eacb7f] px-2 py-0.5 text-[10px] font-bold text-[#083f30]">{badge}</span>
+              <span className="shrink-0 rounded-full bg-[#eacb7f] px-2 py-0.5 text-[10px] font-bold text-[#083f30]">
+                {badge}
+              </span>
             ) : null}
           </div>
-          {subtitle ? <div className="mt-0.5 truncate text-xs text-slate-500">{subtitle}</div> : null}
+          {subtitle ? (
+            <div className="mt-0.5 text-xs break-words text-slate-500">
+              {subtitle}
+            </div>
+          ) : null}
         </div>
 
-        {trailing ? <div className="shrink-0 text-xs font-semibold text-[#155e75]">{trailing}</div> : null}
+        {trailing ? (
+          <div className="max-w-full text-xs font-semibold [overflow-wrap:anywhere] break-words text-[#155e75]">
+            {trailing}
+          </div>
+        ) : null}
 
         <span
           className={`grid h-5 w-5 shrink-0 place-items-center rounded-full border ${
-            selected ? 'border-[#083f30] bg-[#083f30]' : 'border-slate-300'
+            selected ? "border-[#083f30] bg-[#083f30]" : "border-slate-300"
           }`}
         >
-          {selected ? <Check className="h-3 w-3 text-white" strokeWidth={3} /> : null}
+          {selected ? (
+            <Check className="h-3 w-3 text-white" strokeWidth={3} />
+          ) : null}
         </span>
       </button>
 

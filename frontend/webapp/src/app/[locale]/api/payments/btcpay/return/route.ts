@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
+import { seoOrigin } from "@/lib/seo/origin";
 import { settleBtcPayPayment } from "@/payment/server/btcpay.service";
 import { getGatewayPaymentById } from "@/payment/server/payment.repository";
 
@@ -16,22 +17,23 @@ export async function GET(
   const { locale } = await params;
   const paymentId = request.nextUrl.searchParams.get("paymentId") ?? "";
 
-  const url = new URL(`/${locale}/n/app/mobile/booking`, request.nextUrl.origin);
-  url.searchParams.set("gateway", "btcpay");
+  // Back to the customer's reservations (that booking's page when known), on the public
+  // origin (NEXT_PUBLIC_URL): request.nextUrl.origin is the internal 0.0.0.0:3000 behind the proxy.
+  const bookingsUrl = (bookingId?: string | null) =>
+    new URL(bookingId ? `/${locale}/n/app/mobile/bookings/${bookingId}` : `/${locale}/n/app/mobile/bookings`, seoOrigin());
 
   const payment = paymentId ? await getGatewayPaymentById(paymentId) : null;
   if (!payment || !payment.externalReference) {
-    url.searchParams.set("paymentStatus", "pending");
-    if (payment?.bookingId) url.searchParams.set("bookingId", payment.bookingId);
+    const url = bookingsUrl(payment?.bookingId);
+    url.searchParams.set("payment", "pending");
     return NextResponse.redirect(url);
   }
 
   const result = await settleBtcPayPayment({ invoiceId: payment.externalReference });
 
-  url.searchParams.set("paymentStatus", result.status);
-  if (result.bookingId) url.searchParams.set("bookingId", result.bookingId);
-  if (result.paymentId) url.searchParams.set("paymentId", result.paymentId);
-  if (result.referenceId) url.searchParams.set("referenceId", String(result.referenceId));
+  const url = bookingsUrl(result.bookingId ?? payment.bookingId);
+  url.searchParams.set("payment", result.status);
+  if (result.referenceId) url.searchParams.set("ref", String(result.referenceId));
   if (result.message) url.searchParams.set("message", result.message);
 
   return NextResponse.redirect(url);

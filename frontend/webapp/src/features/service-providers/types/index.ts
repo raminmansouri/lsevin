@@ -312,6 +312,8 @@ export interface Booking {
     status: string;
     paymentStatus: string;
     price: number;
+    /** Paid online so far (the deposit when the rest is paid at the place). */
+    paidAmount?: number;
     currency?: string;
     verified: boolean;
 }

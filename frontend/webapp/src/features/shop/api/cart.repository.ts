@@ -1,10 +1,10 @@
 import "server-only";
 
-import type { CartItem, CartView } from "../types/domain";
 import { buildCartTotals } from "../lib/calculations";
 import { getShopContext, normalizeLocale } from "../lib/context";
-import { resolveDisplayCurrency, resolvePrices } from "../lib/pricing";
 import { sql } from "../lib/db";
+import { resolveDisplayCurrency, resolvePrices } from "../lib/pricing";
+import type { CartItem, CartView } from "../types/domain";
 
 /**
  * Cart read/write model.
@@ -20,7 +20,10 @@ const MAX_LINE_QTY = 999;
 
 type CartRow = { id: string; currency: string; couponCode: string | null };
 
-async function findCartRow(kind: "customer" | "guest", id: string): Promise<CartRow | null> {
+async function findCartRow(
+  kind: "customer" | "guest",
+  id: string
+): Promise<CartRow | null> {
   const rows =
     kind === "customer"
       ? await sql<any[]>`
@@ -39,11 +42,15 @@ async function findCartRow(kind: "customer" | "guest", id: string): Promise<Cart
  * `guestToken` from a Server Action / Route Handler where the cookie can be
  * minted; Server Components should rely on whatever token already exists.
  */
-export async function getOrCreateActiveCart(opts?: { guestToken?: string }): Promise<string> {
+export async function getOrCreateActiveCart(opts?: {
+  guestToken?: string;
+}): Promise<string> {
   const ctx = await getShopContext();
   const guestToken = opts?.guestToken || ctx.guestToken || null;
 
   if (ctx.customerId) {
+    if (guestToken)
+      await mergeGuestCartIntoCustomer(guestToken, ctx.customerId);
     const existing = await findCartRow("customer", ctx.customerId);
     if (existing) return existing.id;
     // adopt a guest cart on first authenticated access
@@ -64,7 +71,9 @@ export async function getOrCreateActiveCart(opts?: { guestToken?: string }): Pro
   }
 
   if (!guestToken) {
-    throw new Error("A guest cart token is required. Call ensureGuestToken() from the action first.");
+    throw new Error(
+      "A guest cart token is required. Call ensureGuestToken() from the action first."
+    );
   }
   const existing = await findCartRow("guest", guestToken);
   if (existing) return existing.id;
@@ -94,7 +103,10 @@ type RawCartLine = {
   productActive: boolean;
 };
 
-async function loadCartLines(cartId: string, lang: string): Promise<RawCartLine[]> {
+async function loadCartLines(
+  cartId: string,
+  lang: string
+): Promise<RawCartLine[]> {
   return sql<RawCartLine[]>`
     select
       ci.id::text as id,
@@ -127,15 +139,15 @@ async function loadCartLines(cartId: string, lang: string): Promise<RawCartLine[
   `;
 }
 
-export async function getCartView(opts?: { guestToken?: string }): Promise<CartView> {
+export async function getCartView(opts?: {
+  guestToken?: string;
+}): Promise<CartView> {
   const ctx = await getShopContext();
   const lang = normalizeLocale(ctx.locale);
   const { currency, mode, selectable } = await resolveDisplayCurrency(ctx);
 
   let cartId: string;
-  try {
-    cartId = await getOrCreateActiveCart(opts);
-  } catch {
+  if (!ctx.customerId && !(opts?.guestToken || ctx.guestToken)) {
     // no guest token yet (pure Server Component render before any add) -> empty view
     return {
       id: "",
@@ -143,15 +155,28 @@ export async function getCartView(opts?: { guestToken?: string }): Promise<CartV
       itemCount: 0,
       currency,
       pricingMode: mode,
-      selectableCurrencies: selectable.map((s) => ({ code: s.code, symbol: s.symbol, name: s.name })),
+      selectableCurrencies: selectable.map((s) => ({
+        code: s.code,
+        symbol: s.symbol,
+        name: s.name,
+      })),
       couponMessage: null,
-      totals: buildCartTotals({ subtotal: 0, discountTotal: 0, shippingTotal: 0, taxTotal: 0, currency }),
+      totals: buildCartTotals({
+        subtotal: 0,
+        discountTotal: 0,
+        shippingTotal: 0,
+        taxTotal: 0,
+        currency,
+      }),
     };
   }
+  cartId = await getOrCreateActiveCart(opts);
 
   const [rawLines, cartRow] = await Promise.all([
     loadCartLines(cartId, lang),
-    sql<any[]>`select coupon_code as "couponCode" from shop.carts where id = ${cartId}::uuid limit 1`,
+    sql<
+      any[]
+    >`select coupon_code as "couponCode" from shop.carts where id = ${cartId}::uuid limit 1`,
   ]);
 
   const priced = await resolvePrices(
@@ -159,7 +184,8 @@ export async function getCartView(opts?: { guestToken?: string }): Promise<CartV
       ref: l,
       amount: Number(l.sourceUnitPrice),
       sourceCurrency: l.sourceCurrency,
-      compareAtAmount: l.sourceCompareAt != null ? Number(l.sourceCompareAt) : null,
+      compareAtAmount:
+        l.sourceCompareAt != null ? Number(l.sourceCompareAt) : null,
     })),
     currency
   );
@@ -167,8 +193,13 @@ export async function getCartView(opts?: { guestToken?: string }): Promise<CartV
   const items: CartItem[] = priced.map((p) => {
     const l = p.ref;
     const unit = p.price.amount;
-    const maxPurchasable = l.allowBackorder ? MAX_LINE_QTY : Math.max(0, Number(l.available));
-    const effectiveQty = Math.min(l.quantity, l.allowBackorder ? MAX_LINE_QTY : Math.max(maxPurchasable, 0));
+    const maxPurchasable = l.allowBackorder
+      ? MAX_LINE_QTY
+      : Math.max(0, Number(l.available));
+    const effectiveQty = Math.min(
+      l.quantity,
+      l.allowBackorder ? MAX_LINE_QTY : Math.max(maxPurchasable, 0)
+    );
     const hasStock = l.allowBackorder || Number(l.available) >= l.quantity;
     return {
       id: l.id,
@@ -182,7 +213,10 @@ export async function getCartView(opts?: { guestToken?: string }): Promise<CartV
       quantity: l.quantity,
       unitPrice: unit,
       lineTotal: Math.round((unit * effectiveQty + Number.EPSILON) * 100) / 100,
-      compareAtPrice: p.compareAtPrice && !p.compareAtPrice.unavailable ? p.compareAtPrice.amount : null,
+      compareAtPrice:
+        p.compareAtPrice && !p.compareAtPrice.unavailable
+          ? p.compareAtPrice.amount
+          : null,
       currency: p.price.currency,
       priceUnavailable: p.price.unavailable,
       sourceCurrency: l.sourceCurrency,
@@ -204,7 +238,13 @@ export async function getCartView(opts?: { guestToken?: string }): Promise<CartV
   const couponCode: string | null = cartRow[0]?.couponCode ?? null;
   if (couponCode && active.length) {
     const { evaluateCoupon } = await import("../server/coupon.service");
-    const ev = await evaluateCoupon({ code: couponCode, subtotal, displayCurrency: currency, customerId: ctx.customerId, locale: lang });
+    const ev = await evaluateCoupon({
+      code: couponCode,
+      subtotal,
+      displayCurrency: currency,
+      customerId: ctx.customerId,
+      locale: lang,
+    });
     if (ev.valid) {
       discountTotal = ev.discountAmount;
       couponMessage = ev.freeShipping ? "free_shipping" : "applied";
@@ -219,7 +259,11 @@ export async function getCartView(opts?: { guestToken?: string }): Promise<CartV
     itemCount: active.reduce((s, x) => s + x.quantity, 0),
     currency,
     pricingMode: mode,
-    selectableCurrencies: selectable.map((s) => ({ code: s.code, symbol: s.symbol, name: s.name })),
+    selectableCurrencies: selectable.map((s) => ({
+      code: s.code,
+      symbol: s.symbol,
+      name: s.name,
+    })),
     couponMessage,
     totals: buildCartTotals({
       subtotal,
@@ -233,7 +277,12 @@ export async function getCartView(opts?: { guestToken?: string }): Promise<CartV
   };
 }
 
-export async function addCartItem(input: { productId: string; variantId?: string | null; quantity: number; guestToken?: string }): Promise<CartView> {
+export async function addCartItem(input: {
+  productId: string;
+  variantId?: string | null;
+  quantity: number;
+  guestToken?: string;
+}): Promise<CartView> {
   const cartId = await getOrCreateActiveCart({ guestToken: input.guestToken });
   const qty = Math.max(1, Math.min(MAX_LINE_QTY, Math.trunc(input.quantity)));
 
@@ -318,7 +367,10 @@ async function touchCart(cartId: string) {
   await sql`update shop.carts set last_modified_date = now() where id = ${cartId}::uuid`;
 }
 
-export async function updateCartItemQuantity(cartItemId: string, quantity: number): Promise<CartView> {
+export async function updateCartItemQuantity(
+  cartItemId: string,
+  quantity: number
+): Promise<CartView> {
   const cartId = await assertLineInCart(cartItemId);
   const qty = Math.max(1, Math.min(MAX_LINE_QTY, Math.trunc(quantity)));
   await sql`update shop.cart_items set quantity = ${qty}, last_modified_date = now() where id = ${cartItemId}::uuid`;
@@ -333,14 +385,19 @@ export async function removeCartItem(cartItemId: string): Promise<CartView> {
   return getCartView();
 }
 
-export async function toggleSavedForLater(cartItemId: string): Promise<CartView> {
+export async function toggleSavedForLater(
+  cartItemId: string
+): Promise<CartView> {
   const cartId = await assertLineInCart(cartItemId);
   await sql`update shop.cart_items set saved_for_later = not saved_for_later, last_modified_date = now() where id = ${cartItemId}::uuid`;
   await touchCart(cartId);
   return getCartView();
 }
 
-export async function applyCoupon(cartId: string, code: string): Promise<CartView> {
+export async function applyCoupon(
+  cartId: string,
+  code: string
+): Promise<CartView> {
   await assertCartOwnership(cartId);
   await sql`update shop.carts set coupon_code = ${code.trim()}, last_modified_date = now() where id = ${cartId}::uuid`;
   return getCartView();
@@ -371,12 +428,18 @@ async function assertCartOwnership(cartId: string): Promise<void> {
  * (SHP-V01-011). Quantities are summed per (product, variant); the guest cart is
  * marked converted. Safe to call repeatedly.
  */
-export async function mergeGuestCartIntoCustomer(guestToken: string, customerId: string): Promise<void> {
+export async function mergeGuestCartIntoCustomer(
+  guestToken: string,
+  customerId: string
+): Promise<void> {
   if (!guestToken || !customerId) return;
   await sql.begin(async (tx) => {
+    // Serialize sign-in adoption and merging across concurrent renders/actions.
+    await tx`select pg_advisory_xact_lock(hashtextextended(${customerId}, 0))`;
     const guestCart = await tx<{ id: string }[]>`
       select id::text as id from shop.carts
-      where guest_token = ${guestToken} and status = 'active' limit 1
+      where guest_token = ${guestToken} and customer_id is null and status = 'active'
+      order by create_date desc limit 1 for update
     `;
     if (!guestCart[0]) return;
     const guestCartId = guestCart[0].id;
@@ -384,7 +447,7 @@ export async function mergeGuestCartIntoCustomer(guestToken: string, customerId:
     const customerCart = await tx<{ id: string }[]>`
       select id::text as id from shop.carts
       where customer_id = ${customerId}::uuid and status = 'active'
-      order by create_date desc limit 1
+      order by create_date desc limit 1 for update
     `;
 
     if (!customerCart[0]) {
@@ -417,7 +480,7 @@ export async function mergeGuestCartIntoCustomer(guestToken: string, customerId:
             (cart_id, product_id, variant_id, quantity, unit_price, compare_at_price, currency, source_currency, source_unit_price, saved_for_later, item_snapshot)
           values
             (${targetId}::uuid, ${gi.product_id}, ${gi.variant_id}, ${gi.quantity}, ${gi.unit_price}, ${gi.compare_at_price},
-             ${gi.currency}, ${gi.source_currency}, ${gi.source_unit_price}, ${gi.saved_for_later}, ${gi.item_snapshot})
+             ${gi.currency}, ${gi.source_currency}, ${gi.source_unit_price}, ${gi.saved_for_later}, ${tx.json(gi.item_snapshot)})
         `;
       }
     }

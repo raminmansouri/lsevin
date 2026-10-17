@@ -1,5 +1,6 @@
 "use client";
 
+import { getRialTomanLabel as currencyName } from "@/features/finance/lib/money";
 import { useEffect, useMemo, useState, useTransition, type ChangeEvent } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
@@ -440,7 +441,7 @@ export default function WalletPageClient({
           <div className="flex gap-2 mb-6">
             {initialData.supportedCurrencies.map((currency) => (
               <button
-                key={currency}
+                key={currencyName(currency) ?? currency}
                 onClick={() => setSelectedCurrency(currency)}
                 className={`px-4 py-2 rounded-xl font-semibold text-sm transition-all ${
                   selectedCurrency === currency
@@ -448,7 +449,7 @@ export default function WalletPageClient({
                     : "bg-white/10 text-white hover:bg-white/20"
                 }`}
               >
-                {currency}
+                {currencyName(currency) ?? currency}
               </button>
             ))}
           </div>

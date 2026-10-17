@@ -1,6 +1,6 @@
 "use client";
 
-import { useTransition } from "react";
+import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useLocale, useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
@@ -41,6 +41,7 @@ import {
 import { ServiceDefinitionDetails } from "../types/service-definition";
 import { LazyServiceDefinitionLookupSelect } from "./lazy-service-definition-lookup-select";
 
+import type { z } from "zod/v4";
 interface ServiceDefinitionFormProps {
   serviceDefinition?: ServiceDefinitionDetails;
 }
@@ -78,14 +79,22 @@ function detectServiceMediaType(item?: MediaItem | null): "image" | "video" | "g
 export function ServiceDefinitionForm({ serviceDefinition }: ServiceDefinitionFormProps) {
   const t = useTranslations("ServiceDefinition");
   const router = useRouter();
-  const [isPending, startTransition] = useTransition();
+  // Saving state is ours (not a React transition), so it always ends
+  // after success, error or crash — even if navigation is slow.
+  const [isPending, setIsPending] = useState(false);
+  const [formKey, setFormKey] = useState(0);
+  const startTransition: React.TransitionStartFunction = (callback) => {
+    void callback();
+  };
   const locale = useLocale();
   const componentT = useTranslations(SERVICE_DEFINITION_TRANSLATION_KEY);
   const { invalidateAllCache } = useServiceDefinitionsBySearchCacheManagement();
   const { invalidateAllCache: invalidateAllLocalesCache } = useServiceDefinitionsAllLocalesBySearchCacheManagement();
 
   const isEdit = !!serviceDefinition;
-  const form = useForm<ServiceDefinitionFormInput>({
+  // Input type (before zod coercion) vs output type (after) — both are needed
+  // because the schema coerces durationMinutes/value to numbers.
+  const form = useForm<z.input<typeof ServiceDefinitionFormSchema>, any, ServiceDefinitionFormInput>({
     defaultValues: {
       serviceDefinitionId: serviceDefinition?.id,
       name: serviceDefinition?.name ? { translations: serviceDefinition.name.translations } : createEmptyLocalizedContent(),
@@ -100,6 +109,7 @@ export function ServiceDefinitionForm({ serviceDefinition }: ServiceDefinitionFo
       isActive: serviceDefinition?.isActive ?? true,
       requiresCustomerAddress: serviceDefinition?.requiresCustomerAddress ?? false,
       requiresSpecialist: serviceDefinition?.requiresSpecialist ?? true,
+      bookingUiMode: (serviceDefinition?.bookingUiMode as 'default_slot' | 'date_range' | 'custom_form' | undefined) ?? 'default_slot',
     },
     resolver: zodResolver(ServiceDefinitionFormSchema),
   });
@@ -107,11 +117,19 @@ export function ServiceDefinitionForm({ serviceDefinition }: ServiceDefinitionFo
   const action = isEdit ? updateServiceDefinitionAction : createServiceDefinitionAction;
   const { execute } = useAction(action, {
     startTransition,
+    onComplete: () => setIsPending(false),
     onSuccess: () => {
       toast.success(componentT("messages.success"));
       invalidateAllCache();
       invalidateAllLocalesCache();
-      router.push("/admin/service-definitions");
+      if (isEdit) {
+        router.push("/admin/service-definitions");
+        return;
+      }
+      // Add page: clear the form for the next entry.
+      form.reset();
+      setFormKey((key) => key + 1);
+      window.scrollTo({ top: 0, behavior: "smooth" });
     },
     onError: (error) => toast.error(error.detail || componentT("messages.error")),
   });
@@ -131,6 +149,7 @@ export function ServiceDefinitionForm({ serviceDefinition }: ServiceDefinitionFo
       pricingModel: values.pricingModel.trim(),
     };
 
+    setIsPending(true);
     startTransition(async () => execute(payload));
   };
 
@@ -161,7 +180,14 @@ export function ServiceDefinitionForm({ serviceDefinition }: ServiceDefinitionFo
     <CardContent>
       <ZodErrorProvider componentNamespace={SERVICE_DEFINITION_TRANSLATION_KEY}>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="form-container space-y-6">
+          <form
+            key={formKey}
+            onSubmit={form.handleSubmit(onSubmit, (errors) => {
+              console.warn("Form validation errors", errors);
+              toast.error(`Please check these fields: ${Object.keys(errors).join(", ")}`);
+            })}
+            className="form-container space-y-6"
+          >
             {isEdit && (
               <FormField control={form.control} name="serviceDefinitionId" render={({ field }) => <Input {...field} type="hidden" disabled />} />
             )}
@@ -248,6 +274,29 @@ export function ServiceDefinitionForm({ serviceDefinition }: ServiceDefinitionFo
 
                       <FormField
                           control={form.control}
+                          name="bookingUiMode"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>حالت رزرو / Booking mode</FormLabel>
+                              <select
+                                {...field}
+                                value={field.value ?? 'default_slot'}
+                                onChange={(event) => {
+                                  field.onChange(event);
+                                  // A day-based stay is a room for a night, not an appointment with a person.
+                                  if (event.target.value === 'date_range') form.setValue('requiresSpecialist', false);
+                                }}
+                                className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                              >
+                                <option value="default_slot">ساعتی (بازه زمانی) / Hourly time slots</option>
+                                <option value="date_range">روزانه (ورود و خروج) / Day-based: check-in and check-out, priced per night</option>
+                                <option value="custom_form">فرم سفارشی / Custom form</option>
+                              </select>
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
                           name="requiresSpecialist"
                           render={({ field }) => (
                               <FormItem className="flex items-center justify-between rounded-xl border bg-background p-4">
@@ -300,7 +349,7 @@ export function ServiceDefinitionForm({ serviceDefinition }: ServiceDefinitionFo
                     <FormItem>
                       <FormLabel>{componentT("form.durationMinutes.label")}</FormLabel>
                       <FormControl>
-                        <Input {...field} type="number" min="0" disabled={isPending} onChange={(event) => field.onChange(Number(event.target.value) || 0)} />
+                        <Input {...field} value={(field.value as number | string | undefined) ?? ""} type="number" min="0" disabled={isPending} onChange={(event) => field.onChange(Number(event.target.value) || 0)} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -340,7 +389,7 @@ export function ServiceDefinitionForm({ serviceDefinition }: ServiceDefinitionFo
                       <FormItem>
                         <FormLabel>{componentT("form.value.label")}</FormLabel>
                         <FormControl>
-                          <Input {...field} type="number" min="0" step="0.01" disabled={isPending} onChange={(event) => field.onChange(Number(event.target.value) || 0)} />
+                          <Input {...field} value={(field.value as number | string | undefined) ?? ""} type="number" min="0" step="0.01" disabled={isPending} onChange={(event) => field.onChange(Number(event.target.value) || 0)} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>

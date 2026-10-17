@@ -47,6 +47,7 @@ import { ServiceProductsRail } from "@/features/shop/components/ServiceProductsR
 import { ConsultationCtaButton } from "@/features/consultation/components/consultation-cta-button";
 import { useNavigate } from "@/hooks/use-navigate";
 import { ViewerPrice } from "@/features/finance/components/viewer-price";
+import { MealPlanPrices } from "@/features/meal-plans/components/meal-plan-prices";
 import type {
   GetServicePageByIdResponse,
   ProviderAttribute,
@@ -61,6 +62,39 @@ import type {
   ServiceUploadRequirement,
   TopReview,
 } from "@/features/service-providers/types/service-page.types";
+
+
+import { getViewerPricingAction } from "@/features/finance/actions/viewer-currency.actions";
+
+const DOMESTIC_CURRENCIES = new Set(["IRR", "IRT"]);
+
+/**
+ * The server applies the provider multiplier to foreign currencies for everyone
+ * (the page is static). Adjust per viewer:
+ * - Iranian viewer: no multiplier anywhere (undo it on foreign currencies).
+ * - International viewer: multiplier everywhere (add it to Rial/Toman too).
+ */
+function applyInternationalMultiplier<
+  T extends { sourceAmount: number; targetAmount: number; targetCurrencyCode: string },
+>(options: T[], multiplier: number | undefined, isIranianViewer: boolean | null): T[] {
+  const m = multiplier ?? 1;
+  // Viewer not known yet, or no multiplier: show the server's prices as they are.
+  if (isIranianViewer === null || !m || m === 1) return options;
+
+  return options.map((option) => {
+    const domestic = DOMESTIC_CURRENCIES.has(option.targetCurrencyCode.toUpperCase());
+    if (isIranianViewer) {
+      return domestic
+        ? option
+        : { ...option, targetAmount: Math.round((option.targetAmount / m) * 100) / 100 };
+    }
+    return {
+      ...option,
+      sourceAmount: Math.round(option.sourceAmount * m * 100) / 100,
+      targetAmount: domestic ? Math.round(option.targetAmount * m) : option.targetAmount,
+    };
+  });
+}
 
 type ServicePageProps = {
   data: GetServicePageByIdResponse;
@@ -539,6 +573,31 @@ export default function ServicePage({ data, serviceId, locale }: ServicePageProp
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showAllFAQs, setShowAllFAQs] = useState(false);
   const [selectedCurrency, setSelectedCurrency] = useState(service.displayCurrencyCode || service.currency);
+  const [primaryCurrency, setPrimaryCurrency] = useState(service.displayCurrencyCode || service.currency);
+  const [isIranianViewer, setIsIranianViewer] = useState<boolean | null>(null);
+  useEffect(() => {
+    let alive = true;
+    getViewerPricingAction().then(({ currencyCode, isIranian }) => {
+      if (!alive) return;
+      setIsIranianViewer(isIranian);
+      if (!currencyCode) return;
+      if (!service.priceOptions.some((p) => p.targetCurrencyCode === currencyCode)) return;
+      setPrimaryCurrency(currencyCode);
+      setSelectedCurrency(currencyCode);
+    });
+    return () => {
+      alive = false;
+    };
+  }, [service.priceOptions]);
+
+  const viewerPriceOptions = useMemo(
+    () => applyInternationalMultiplier(service.priceOptions, service.internationalPriceMultiplier, isIranianViewer),
+    [service.priceOptions, service.internationalPriceMultiplier, isIranianViewer]
+  );
+  const viewerOriginalPriceOptions = useMemo(
+    () => applyInternationalMultiplier(service.originalPriceOptions, service.internationalPriceMultiplier, isIranianViewer),
+    [service.originalPriceOptions, service.internationalPriceMultiplier, isIranianViewer]
+  );
   const [showReviewForm, setShowReviewForm] = useState(false);
 
   const [realIsFavorite, setRealIsFavorite] = useState(service.isFavorite);
@@ -576,8 +635,8 @@ export default function ServicePage({ data, serviceId, locale }: ServicePageProp
 
   const galleryItems = service.galleryItems || [];
   const currentGalleryItem = galleryItems[currentImageIndex];
-  const selectedPrice = service.priceOptions.find((price) => price.targetCurrencyCode === selectedCurrency) || service.priceOptions[0];
-  const selectedOriginalPrice = service.originalPriceOptions.find((price) => price.targetCurrencyCode === selectedCurrency) || service.originalPriceOptions[0];
+  const selectedPrice = viewerPriceOptions.find((price) => price.targetCurrencyCode === selectedCurrency) || viewerPriceOptions[0];
+  const selectedOriginalPrice = viewerOriginalPriceOptions.find((price) => price.targetCurrencyCode === selectedCurrency) || viewerOriginalPriceOptions[0];
   const displayPrice = selectedPrice?.targetAmount ?? service.displayPrice.amount;
   const displayCurrencyCode = selectedPrice?.targetCurrencyCode ?? service.displayPrice.code;
   const displayOriginalPrice = selectedOriginalPrice?.targetAmount ?? service.displayOriginalPrice.amount;
@@ -692,7 +751,7 @@ export default function ServicePage({ data, serviceId, locale }: ServicePageProp
   };
 
   return (
-    <div className="min-h-screen bg-white pb-36">
+    <div className="min-h-screen bg-white pb-56">
       <div className="relative lg:px-6 lg:pt-6">
         <div className="relative h-80 overflow-hidden bg-gray-100 lg:h-[460px] lg:rounded-[2rem] lg:shadow-xl">
           <MediaPreview item={currentGalleryItem} alt={service.name} className="h-full w-full object-cover" sizes="(min-width: 1024px) 960px, 100vw" />
@@ -764,7 +823,9 @@ export default function ServicePage({ data, serviceId, locale }: ServicePageProp
           {service.providerCount > 1 && <span className="text-sm font-semibold text-[#083f30]">{t("providers.available", { count: service.providerCount })}</span>}
         </div>
 
-        <PriceConverterCardClient label={t("price.packagePrice")} convertedPrices={service.priceOptions} convertedOriginalPrices={service.originalPriceOptions} selectedCurrencyCode={selectedCurrency} onCurrencyChange={setSelectedCurrency} saveLabel={(percent) => t("price.save", { percent })} convertedFromLabel={(value) => t("price.convertedFrom", { value })} badgeText={t("price.providerPackagePrice")} locale={locale} />
+        <PriceConverterCardClient label={t("price.packagePrice")} convertedPrices={viewerPriceOptions} convertedOriginalPrices={viewerOriginalPriceOptions} primaryCurrencyCode={primaryCurrency} selectedCurrencyCode={selectedCurrency} onCurrencyChange={setSelectedCurrency} saveLabel={(percent) => t("price.save", { percent })} convertedFromLabel={(value) => t("price.convertedFrom", { value })} badgeText={t("price.providerPackagePrice")} locale={locale} />
+
+        {service.bookingUiMode === "date_range" ? <MealPlanPrices serviceId={service.providerServiceId} /> : null}
 
         <div className="mb-6 grid grid-cols-2 gap-3">
           <div className="rounded-xl bg-gray-50 p-4"><Clock size={20} className="mb-2 text-[#083f30]" /><div className="mb-1 text-xs text-gray-600">{t("stats.duration")}</div><div className="font-bold text-gray-900">{service.duration || t("providerProfile.onRequest")}</div></div>
@@ -887,8 +948,8 @@ export default function ServicePage({ data, serviceId, locale }: ServicePageProp
       </div>
 
       <div className="safe-area-bottom fixed bottom-20 left-0 right-0 z-40 rounded-t-3xl border-t border-gray-200 bg-white px-5 py-4 shadow-2xl">
-        <div className="flex items-center gap-2">
-          <div className="min-w-0 flex-1 overflow-hidden">
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="min-w-0 flex-1 basis-28 break-words">
             <div className="mb-0.5 truncate text-xs text-gray-600">{t("price.totalPackagePrice")}</div>
               <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0 [overflow-wrap:anywhere]"><ViewerPrice amount={service.displayPrice.sourceAmount ?? displayPrice} sourceCurrencyCode={service.displayPrice.sourceCurrencyCode ?? displayCurrencyCode} providerId={service.displayPrice.providerId ?? service.clinicId} valueToman={service.displayPrice.valueToman ?? null} locale={locale} className="text-base font-bold leading-tight text-[#083f30] sm:text-2xl" />{hasDiscount && <ViewerPrice amount={service.displayOriginalPrice.sourceAmount ?? displayOriginalPrice} sourceCurrencyCode={service.displayOriginalPrice.sourceCurrencyCode ?? displayCurrencyCode} providerId={service.displayPrice.providerId ?? service.clinicId} locale={locale} className="text-sm text-gray-500 line-through" />}</div>          </div>
           <ConsultationCtaButton
@@ -905,7 +966,7 @@ export default function ServicePage({ data, serviceId, locale }: ServicePageProp
 
 export function ServicePageSkeleton() {
   return (
-    <div className="min-h-screen bg-white pb-36">
+    <div className="min-h-screen bg-white pb-56">
       <Skeleton className="h-80 w-full rounded-none" />
       <div className="space-y-6 px-5 py-6">
         <div className="flex gap-2"><Skeleton className="h-7 w-20 rounded-full" /><Skeleton className="h-7 w-24 rounded-full" /></div>

@@ -7,10 +7,16 @@ import { useRouter } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 
 import { addToCartAction } from "../actions/cart.actions";
-import { ShopPrice } from "./ShopPrice";
 import type { ProductDetail } from "../types/domain";
+import { ShopPrice } from "./ShopPrice";
 
-export function ProductDetailClient({ product, locale }: { product: ProductDetail; locale: string }) {
+export function ProductDetailClient({
+  product,
+  locale,
+}: {
+  product: ProductDetail;
+  locale: string;
+}) {
   const t = useTranslations("Shop");
   const router = useRouter();
   const [pending, startTransition] = useTransition();
@@ -29,9 +35,16 @@ export function ProductDetailClient({ product, locale }: { product: ProductDetai
   const price = selected ? selected.price : product.price;
   const compareAt = selected ? selected.compareAtPrice : product.compareAtPrice;
   const currency = selected ? selected.currency : product.currency;
-  const priceUnavailable = selected ? selected.priceUnavailable : product.priceUnavailable;
+  const priceUnavailable = selected
+    ? selected.priceUnavailable
+    : product.priceUnavailable;
   const inStock = selected ? selected.hasStock : product.hasStock;
-  const maxQty = Math.max(1, selected ? selected.inventoryAvailable || 99 : product.inventoryAvailable || 99);
+  const maxQty = Math.max(
+    1,
+    selected
+      ? selected.inventoryAvailable || 99
+      : product.inventoryAvailable || 99
+  );
 
   function add(then?: "cart" | "stay") {
     setMsg(null);
@@ -41,7 +54,11 @@ export function ProductDetailClient({ product, locale }: { product: ProductDetai
     }
     startTransition(async () => {
       try {
-        await addToCartAction({ productId: product.id, variantId, quantity: qty });
+        await addToCartAction({
+          productId: product.id,
+          variantId,
+          quantity: qty,
+        });
         if (then === "cart") router.push("/n/app/mobile/shop/cart");
         else setMsg(t("added"));
       } catch (e) {
@@ -54,7 +71,9 @@ export function ProductDetailClient({ product, locale }: { product: ProductDetai
     <div className="space-y-4">
       {product.variants.length > 1 ? (
         <div>
-          <p className="mb-2 text-sm font-semibold text-neutral-800">{t("selectOption")}</p>
+          <p className="mb-2 text-sm font-semibold text-neutral-800">
+            {t("selectOption")}
+          </p>
           <div className="flex flex-wrap gap-2">
             {product.variants.map((v) => (
               <button
@@ -77,7 +96,9 @@ export function ProductDetailClient({ product, locale }: { product: ProductDetai
       ) : null}
 
       <div className="flex items-center gap-3">
-        <span className="text-sm font-semibold text-neutral-800">{t("quantity")}</span>
+        <span className="text-sm font-semibold text-neutral-800">
+          {t("quantity")}
+        </span>
         <div className="flex items-center rounded-xl border border-neutral-200">
           <button
             type="button"
@@ -87,7 +108,9 @@ export function ProductDetailClient({ product, locale }: { product: ProductDetai
           >
             −
           </button>
-          <span className="min-w-[2.5rem] text-center text-sm font-semibold">{qty}</span>
+          <span className="min-w-[2.5rem] text-center text-sm font-semibold">
+            {qty}
+          </span>
           <button
             type="button"
             aria-label="increase"
@@ -97,7 +120,9 @@ export function ProductDetailClient({ product, locale }: { product: ProductDetai
             +
           </button>
         </div>
-        {selected && selected.inventoryAvailable > 0 && selected.inventoryAvailable <= 5 ? (
+        {selected &&
+        selected.inventoryAvailable > 0 &&
+        selected.inventoryAvailable <= 5 ? (
           <span className="text-xs font-medium text-[#e02e2a]">
             {t("lowStock", { count: selected.inventoryAvailable })}
           </span>
@@ -108,7 +133,9 @@ export function ProductDetailClient({ product, locale }: { product: ProductDetai
         <p
           className={cn(
             "rounded-lg px-3 py-2 text-sm",
-            msg === t("added") ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-800"
+            msg === t("added")
+              ? "bg-emerald-50 text-emerald-700"
+              : "bg-amber-50 text-amber-800"
           )}
           role="status"
         >
@@ -118,11 +145,15 @@ export function ProductDetailClient({ product, locale }: { product: ProductDetai
 
       {/* sticky action bar */}
       <div className="fixed inset-x-0 bottom-[calc(4.75rem+env(safe-area-inset-bottom))] z-40 border-t border-neutral-200 bg-white/95 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur">
-        <div className="mx-auto flex max-w-md items-center gap-2">
-          <div className="flex flex-col">
-            <span className="text-[10px] text-neutral-500">{t("grandTotal")}</span>
+        <div className="mx-auto flex max-w-md flex-wrap items-center gap-2">
+          <div className="min-w-0 flex-1 basis-36 [overflow-wrap:anywhere] break-words">
+            <span className="text-[10px] text-neutral-500">
+              {t("grandTotal")}
+            </span>
             {priceUnavailable ? (
-              <span className="text-sm font-bold text-neutral-500">{t("priceUnavailable")}</span>
+              <span className="text-sm font-bold text-neutral-500">
+                {t("priceUnavailable")}
+              </span>
             ) : (
               <ShopPrice
                 amount={price * qty}
@@ -134,15 +165,23 @@ export function ProductDetailClient({ product, locale }: { product: ProductDetai
           </div>
           <button
             type="button"
-            disabled={pending || priceUnavailable || (!inStock && !product.allowBackorder)}
+            disabled={
+              pending ||
+              priceUnavailable ||
+              (!inStock && !product.allowBackorder)
+            }
             onClick={() => add("stay")}
-            className="ms-auto rounded-full border-2 border-[#083f30] px-4 py-2.5 text-sm font-bold text-[#083f30] disabled:opacity-50"
+            className="ms-auto shrink-0 rounded-full border-2 border-[#083f30] px-4 py-2.5 text-sm font-bold text-[#083f30] disabled:opacity-50"
           >
             {t("addToCart")}
           </button>
           <button
             type="button"
-            disabled={pending || priceUnavailable || (!inStock && !product.allowBackorder)}
+            disabled={
+              pending ||
+              priceUnavailable ||
+              (!inStock && !product.allowBackorder)
+            }
             onClick={() => add("cart")}
             className="rounded-full bg-[#083f30] px-5 py-2.5 text-sm font-bold text-white disabled:opacity-50"
           >

@@ -2,6 +2,57 @@
 // See: https://next-intl.dev/docs/workflows/typescript#messages-arguments
 
 declare const messages: {
+  "ShopMedia": {
+    "hint": "الصورة الأولى هي الصورة الرئيسية. احفظ لتطبيق التغييرات.",
+    "empty": "لا توجد صور للمنتج بعد.",
+    "imageNumber": "صورة {number, number}",
+    "primary": "الصورة الرئيسية",
+    "makePrimary": "تعيين كصورة رئيسية",
+    "moveUp": "نقل لأعلى",
+    "moveDown": "نقل لأسفل",
+    "replace": "استبدال",
+    "remove": "إزالة",
+    "addImages": "إضافة صور",
+    "imageUrl": "رابط الصورة",
+    "addUrl": "إضافة رابط",
+    "invalidUrl": "أدخل رابط صورة أو مسار ملف صالحًا.",
+    "limit": "تم بلوغ حد الاختيار.",
+    "saveFailed": "تعذر حفظ الصور. حاول مرة أخرى.",
+    "saving": "جارٍ الحفظ…",
+    "save": "حفظ الصور",
+    "saved": "تم حفظ الصور.",
+    "image": "صورة",
+    "video": "فيديو",
+    "file": "ملف",
+    "deleteFile": "حذف {name}",
+    "deleteLibrary": "حذف من المكتبة",
+    "deleteConfirm": "هل تريد حذف «{name}» من مكتبة الوسائط؟",
+    "deleteFailed": "تعذر حذف الملف.",
+    "loadFailed": "تعذر تحميل الوسائط. حاول مرة أخرى.",
+    "wrongType": "اختر ملفًا من النوع المطلوب.",
+    "uploadFailed": "فشل الرفع. حاول مرة أخرى.",
+    "pickFiles": "اختيار وسائط",
+    "singleHint": "اختر ملفًا واحدًا.",
+    "multipleHint": "اختر الملفات ثم أكّد.",
+    "close": "إغلاق",
+    "search": "البحث في الملفات",
+    "all": "الكل",
+    "images": "الصور",
+    "videos": "الفيديوهات",
+    "files": "الملفات",
+    "upload": "رفع",
+    "uploading": "جارٍ الرفع…",
+    "loading": "جارٍ التحميل…",
+    "emptyLibrary": "لم يتم العثور على وسائط.",
+    "emptyLibraryHint": "ارفع ملفات أو غيّر البحث.",
+    "page": "الصفحة {page, number} من {total, number}",
+    "selected": "المحدد",
+    "previous": "السابق",
+    "next": "التالي",
+    "confirm": "استخدام الملفات المحددة"
+  },
+  
+
   "BookingCart": {
     "title": "الحجوزات المحفوظة",
     "hint": "هذه تقديرات وليست حجوزات مؤكدة. راجع كل حجز للتحقق من التوفر والدفع. تُدفع المنتجات حالياً بشكل منفصل.",
@@ -29,6 +80,66 @@ declare const messages: {
     "searchNow": "ابحث الآن"
   },
   "Booking": {
+    "dayParts": { "morning": "الصباح", "afternoon": "بعد الظهر", "evening": "المساء" },
+    "mealPlan": {
+      "label": "خطة الوجبات",
+      "chooseTitle": "اختر خطة الوجبات",
+      "room_only": {
+        "name": "الغرفة فقط",
+        "description": "بدون وجبات"
+      },
+      "breakfast": {
+        "name": "مع الإفطار",
+        "description": "الإفطار مشمول"
+      },
+      "full_board": {
+        "name": "إقامة كاملة",
+        "description": "الإفطار والغداء والعشاء مشمولة"
+      }
+    },
+    "stay": {
+      "perNight": "لكل ليلة",
+      "nightsLine": "عدد الليالي: {nights} × {price} لكل ليلة",
+      "checkoutAfterCheckin": "يجب أن يكون تاريخ المغادرة بعد تاريخ الوصول."
+    },
+    "addonScope": {
+      "showAllInCountry": "عرض الكل في {country}",
+      "showOnlyCity": "عرض {city} فقط"
+    },
+    "payInPlace": {
+      "heading": "الدفع في المكان: اختر خطة",
+      "intro": "تدفع جزءًا من الفاتورة الآن والباقي في المكان. كلما قلّ ما تدفعه الآن زادت النسبة المضافة إلى الفاتورة.",
+      "payNow": "ادفع {percent}٪ الآن",
+      "surcharge": "تُضاف {percent}٪ إلى الفاتورة",
+      "bill": "الفاتورة",
+      "dueNow": "المستحق الآن",
+      "dueLater": "المستحق في المكان",
+      "methodHeading": "كيف تريد دفع الجزء المستحق الآن؟",
+      "noMethods": "دفع الجزء المستحق الآن يتطلب المحفظة أو الدفع الإلكتروني، وكلاهما غير متاح لك حاليًا.",
+      "loading": "جارٍ تحميل طرق الدفع...",
+      "addition": "الزيادة على الدفع في المكان ({percent}٪)",
+      "errors": {
+        "choosePlan": "اختر خطة للدفع في المكان وطريقة دفع الجزء المستحق الآن.",
+        "chooseDepositMethod": "اختر طريقة دفع الجزء المستحق الآن.",
+        "depositMethodNotAllowed": "يجب دفع الجزء المستحق الآن عبر المحفظة أو الدفع الإلكتروني.",
+        "methodNotAvailable": "طريقة الدفع هذه غير متاحة لك."
+      }
+    },
+    "builtinPaymentMethods": {
+      "pay_on_delivery": {
+        "name": "الدفع في المكان",
+        "description": "ادفع جزءًا من المبلغ الآن والباقي نقدًا عند تقديم الخدمة."
+      },
+      "bank_receipt": {
+        "name": "إيصال تحويل مصرفي",
+        "description": "حوّل المبلغ إلى أحد الحسابات أدناه وارفع صورة الإيصال."
+      },
+      "wallet": {
+        "name": "المحفظة",
+        "description": "ادفع فورًا من رصيد محفظتك."
+      }
+    },
+    "timezoneMismatchWarning": "ملاحظة: يعمل مقدّم الخدمة بالمنطقة الزمنية {providerZone} بينما منطقتك الزمنية {viewerZone}. الأوقات المعروضة محوّلة إلى منطقتك الزمنية.",
     "upcoming": "القادمة",
     "past": "السابقة",
     "aDedicatedCoordinatorWillBeAssignedAfterBookingConfirmation": "dedicated منسق will be مُعيّن بعد تأكيد الحجز.",
@@ -939,6 +1050,8 @@ declare const messages: {
     }
   },
   "AdminGenerated": {
+    "updateBookingTitle": "تعديل الحجز: {service} – {customer}",
+    "stayCheckIn": "تاريخ الوصول", "stayCheckOut": "تاريخ المغادرة",
     "deleteCurrency": "Delete currency",
     "deleteCurrencyConfirm": "Delete this currency? It is removed from the lists while past records stay untouched.",
     "currencyDeleted": "Currency deleted.",
@@ -6362,6 +6475,7 @@ declare const messages: {
     }
   },
   "ServiceProvider": {
+    "searchProvidersServicesStaffCityCountry": "ابحث عن مقدمي الخدمة أو الخدمات أو الموظفين أو المدينة أو الدولة...",
     "name": "الخدمة المزوّد",
     "contactProvider": "التواصل المزوّد",
     "aboutProvider": "About هذا المزوّد",

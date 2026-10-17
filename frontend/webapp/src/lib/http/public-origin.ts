@@ -1,7 +1,20 @@
 import type { NextRequest } from "next/server";
 
 const DEFAULT_PUBLIC_ORIGIN = "https://appmain.lsevin.com";
-const INTERNAL_HOSTS = new Set(["0.0.0.0", "127.0.0.1", "localhost", "::1", "[::1]"]);
+const PUBLIC_APP_HOSTS = new Set([
+  "appmain.lsevin.com",
+  "lsevincare.com",
+  "www.lsevincare.com",
+  "lsevin.ir",
+  "www.lsevin.ir",
+]);
+const INTERNAL_HOSTS = new Set([
+  "0.0.0.0",
+  "127.0.0.1",
+  "localhost",
+  "::1",
+  "[::1]",
+]);
 
 function firstHeaderValue(value: string | null) {
   return value?.split(",")[0]?.trim() || "";
@@ -12,7 +25,10 @@ function normalizedConfiguredOrigin(value?: string | null) {
   if (!raw) return null;
   try {
     const url = new URL(raw.includes("://") ? raw : `https://${raw}`);
-    if (process.env.NODE_ENV === "production" && INTERNAL_HOSTS.has(url.hostname.toLowerCase())) {
+    if (
+      process.env.NODE_ENV === "production" &&
+      INTERNAL_HOSTS.has(url.hostname.toLowerCase())
+    ) {
       return null;
     }
     return url.origin;
@@ -22,18 +38,29 @@ function normalizedConfiguredOrigin(value?: string | null) {
 }
 
 function forwardedOrigin(request: NextRequest) {
-  const host = firstHeaderValue(request.headers.get("x-forwarded-host")) || firstHeaderValue(request.headers.get("host"));
+  const host =
+    firstHeaderValue(request.headers.get("x-forwarded-host")) ||
+    firstHeaderValue(request.headers.get("host"));
   if (!host) return null;
 
-  const hostname = host.replace(/^\[/, "").replace(/\](:\d+)?$/, "").split(":")[0]?.toLowerCase() || "";
-  if (process.env.NODE_ENV === "production" && INTERNAL_HOSTS.has(hostname)) return null;
+  const hostname =
+    host
+      .replace(/^\[/, "")
+      .replace(/\](:\d+)?$/, "")
+      .split(":")[0]
+      ?.toLowerCase() || "";
+  if (process.env.NODE_ENV === "production" && INTERNAL_HOSTS.has(hostname))
+    return null;
 
-  const forwardedProto = firstHeaderValue(request.headers.get("x-forwarded-proto"));
-  const protocol = forwardedProto === "http" || forwardedProto === "https"
-    ? forwardedProto
-    : process.env.NODE_ENV === "production"
-      ? "https"
-      : request.nextUrl.protocol.replace(":", "") || "http";
+  const forwardedProto = firstHeaderValue(
+    request.headers.get("x-forwarded-proto")
+  );
+  const protocol =
+    forwardedProto === "http" || forwardedProto === "https"
+      ? forwardedProto
+      : process.env.NODE_ENV === "production"
+        ? "https"
+        : request.nextUrl.protocol.replace(":", "") || "http";
 
   try {
     return new URL(`${protocol}://${host}`).origin;
@@ -43,6 +70,11 @@ function forwardedOrigin(request: NextRequest) {
 }
 
 export function publicAppOrigin(request: NextRequest) {
+  // Sessions and guest carts are host cookies. Keep trusted public aliases on
+  // their own origin through sign-in instead of abandoning them on the canonical host.
+  const incoming = forwardedOrigin(request);
+  if (incoming && PUBLIC_APP_HOSTS.has(new URL(incoming).hostname))
+    return incoming;
   const configured = [
     process.env.NEXT_PUBLIC_APP_URL,
     process.env.APP_URL,

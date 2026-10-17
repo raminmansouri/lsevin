@@ -99,6 +99,9 @@ export function LazyAdminLookupSelect({
   const [error, setError] = useState<string | null>(null);
 
   const queryKey = JSON.stringify(queryParams);
+  // Parents rebuild initialOptions every render; compare by content, not identity,
+  // so the effects below don't re-run in a loop.
+  const initialOptionsKey = JSON.stringify(initialOptions);
   const selectedValue = value ? String(value) : "";
   const excluded = useMemo(() => new Set(excludeIds.map(String)), [excludeIds]);
 
@@ -175,7 +178,7 @@ export function LazyAdminLookupSelect({
     setItems(uniqueByOptionValue(initialOptions, valueField));
     setPage(1);
     setHasMore(false);
-  }, [initialOptions, lookupType, queryKey, valueField]);
+  }, [initialOptionsKey, lookupType, queryKey, valueField]);
 
   useEffect(() => {
     if (!open) return;
@@ -223,7 +226,7 @@ export function LazyAdminLookupSelect({
       window.clearTimeout(timeout);
       controller.abort();
     };
-  }, [initialOptions, locale, lookupType, open, pageSize, queryKey, search, valueField]);
+  }, [initialOptionsKey, locale, lookupType, open, pageSize, queryKey, search, valueField]);
 
   const loadMore = async () => {
     if (isLoading || !hasMore) return;

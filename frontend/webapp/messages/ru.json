@@ -228,6 +228,8 @@
     "consultationRequests": "Заявки на консультацию"
   },
   "AdminGenerated": {
+    "updateBookingTitle": "Изменить бронирование: {service} – {customer}",
+    "stayCheckIn": "Дата заезда", "stayCheckOut": "Дата выезда",
     "deleteCurrency": "Delete currency",
     "deleteCurrencyConfirm": "Delete this currency? It is removed from the lists while past records stay untouched.",
     "currencyDeleted": "Currency deleted.",
@@ -2247,6 +2249,66 @@
     }
   },
   "Booking": {
+    "dayParts": { "morning": "Утро", "afternoon": "День", "evening": "Вечер" },
+    "mealPlan": {
+      "label": "Тип питания",
+      "chooseTitle": "Выберите тип питания",
+      "room_only": {
+        "name": "Только номер",
+        "description": "Питание не включено"
+      },
+      "breakfast": {
+        "name": "С завтраком",
+        "description": "Завтрак включён"
+      },
+      "full_board": {
+        "name": "Полный пансион",
+        "description": "Завтрак, обед и ужин включены"
+      }
+    },
+    "stay": {
+      "perNight": "за ночь",
+      "nightsLine": "Ночей: {nights} × {price} за ночь",
+      "checkoutAfterCheckin": "Дата выезда должна быть позже даты заезда."
+    },
+    "addonScope": {
+      "showAllInCountry": "Показать все: {country}",
+      "showOnlyCity": "Показать только: {city}"
+    },
+    "payInPlace": {
+      "heading": "Оплата на месте: выберите план",
+      "intro": "Часть счёта вы платите сейчас, остальное — на месте. Чем меньше вы платите сейчас, тем больше надбавка к счёту.",
+      "payNow": "Оплатить {percent}% сейчас",
+      "surcharge": "К счёту добавляется {percent}%",
+      "bill": "Счёт",
+      "dueNow": "К оплате сейчас",
+      "dueLater": "К оплате на месте",
+      "methodHeading": "Как вы хотите оплатить часть, подлежащую оплате сейчас?",
+      "noMethods": "Для оплаты части, подлежащей оплате сейчас, нужен кошелёк или онлайн-оплата, и сейчас ни то, ни другое вам недоступно.",
+      "loading": "Загрузка способов оплаты...",
+      "addition": "Надбавка за оплату на месте ({percent}%)",
+      "errors": {
+        "choosePlan": "Выберите план оплаты на месте и способ оплаты части, подлежащей оплате сейчас.",
+        "chooseDepositMethod": "Выберите, как оплатить часть, подлежащую оплате сейчас.",
+        "depositMethodNotAllowed": "Часть, подлежащая оплате сейчас, должна быть оплачена кошельком или онлайн.",
+        "methodNotAvailable": "Этот способ оплаты вам недоступен."
+      }
+    },
+    "builtinPaymentMethods": {
+      "pay_on_delivery": {
+        "name": "Оплата на месте",
+        "description": "Часть суммы вы платите сейчас, остальное — наличными при оказании услуги."
+      },
+      "bank_receipt": {
+        "name": "Квитанция о банковском переводе",
+        "description": "Переведите сумму на один из счетов ниже и загрузите изображение квитанции."
+      },
+      "wallet": {
+        "name": "Кошелёк",
+        "description": "Мгновенная оплата с баланса кошелька."
+      }
+    },
+    "timezoneMismatchWarning": "Примечание: поставщик работает в часовом поясе {providerZone}, а ваш часовой пояс — {viewerZone}. Показанное время пересчитано на ваш часовой пояс.",
     "upcoming": "Предстоящие",
     "past": "Прошедшие",
     "abuDhabi": "Абу-Даби",
@@ -9399,6 +9461,7 @@
     }
   },
   "ServiceProvider": {
+    "searchProvidersServicesStaffCityCountry": "Поиск поставщиков, услуг, персонала, города или страны...",
     "aboutProvider": "О поставщике",
     "actions": {
       "add": "Добавить",

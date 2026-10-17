@@ -2,7 +2,7 @@
 
 
 import { useTranslations } from "next-intl";
-import { useEffect, useMemo, useState, useTransition } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Save, ArrowLeft } from "lucide-react";
 import { useForm } from "react-hook-form";
@@ -184,7 +184,13 @@ export function ServiceProviderAdminForm({ provider, lookups, locale }: Props) {
   const t = useTranslations("AdminGenerated");
   const tAdmin = useTranslations("AdminGenerated");
   const router = useRouter();
-  const [isPending, startTransition] = useTransition();
+  // Saving state is ours (not a React transition), so it always ends
+  // after success, error or crash — even if navigation is slow.
+  const [isPending, setIsPending] = useState(false);
+  const [formKey, setFormKey] = useState(0);
+  const startTransition: React.TransitionStartFunction = (callback) => {
+    void callback();
+  };
   const [coordinatesText, setCoordinatesText] = useState(
     provider?.latitude !== null && provider?.latitude !== undefined && provider?.longitude !== null && provider?.longitude !== undefined
       ? `${provider.latitude}, ${provider.longitude}`
@@ -216,10 +222,19 @@ export function ServiceProviderAdminForm({ provider, lookups, locale }: Props) {
 
   const { execute } = useAction(saveServiceProviderProfileAction, {
     startTransition,
+    onComplete: () => setIsPending(false),
     onSuccess: (id) => {
       toast.success(isEdit ? "Service provider updated." : "Service provider created.");
-      router.push(`/admin/service-providers/${id}/details`);
-      router.refresh();
+      if (isEdit) {
+        router.push(`/admin/service-providers/${id}/details`);
+        router.refresh();
+        return;
+      }
+      // Add page: clear the form for the next entry.
+      form.reset(defaultValues);
+      setCoordinatesText("");
+      setFormKey((key) => key + 1);
+      window.scrollTo({ top: 0, behavior: "smooth" });
     },
     onError: (error) => {
       toast.error(error.detail || error.title || "Could not save service provider.");
@@ -227,6 +242,7 @@ export function ServiceProviderAdminForm({ provider, lookups, locale }: Props) {
   });
 
   const onSubmit = (values: ServiceProviderAdminFormValues) => {
+    setIsPending(true);
     startTransition(async () => {
       await execute({
         ...values,
@@ -320,7 +336,14 @@ export function ServiceProviderAdminForm({ provider, lookups, locale }: Props) {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <form
+            key={formKey}
+            onSubmit={form.handleSubmit(onSubmit, (errors) => {
+              console.warn("Form validation errors", errors);
+              toast.error(`Please check these fields: ${Object.keys(errors).join(", ")}`);
+            })}
+            className="space-y-6"
+          >
         <Card>
           <CardHeader className="border-b">
             <CardTitle>{isEdit ? "Edit service provider" : "Create service provider"}</CardTitle>

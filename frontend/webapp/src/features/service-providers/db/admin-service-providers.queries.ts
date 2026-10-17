@@ -185,6 +185,9 @@ export type AdminProviderService = {
   slotIntervalMinutes: number;
   addonIds: string[];
   galleryItems: AdminProviderGalleryItem[];
+  /** Meal plan nightly prices (category.provider_service_meal_plans); null = not offered. */
+  breakfastPrice: number | null;
+  fullBoardPrice: number | null;
 };
 
 export type AdminProviderStaff = {
@@ -1010,6 +1013,8 @@ async function getProviderServices(
       coalesce(ps.tags, array[]::text[]) as tags,
       ps.slot_interval_minutes as "slotIntervalMinutes",
       coalesce((select array_agg(psa.addon_id order by psa.addon_id) from category.provider_service_addons psa where psa.provider_service_id = ps.id), array[]::text[]) as "addonIds",
+      (select mp.price::float8 from category.provider_service_meal_plans mp where mp.provider_service_id = ps.id and mp.plan_code = 'breakfast') as "breakfastPrice",
+      (select mp.price::float8 from category.provider_service_meal_plans mp where mp.provider_service_id = ps.id and mp.plan_code = 'full_board') as "fullBoardPrice",
       coalesce((
         select jsonb_agg(jsonb_build_object(
           'id', psgi.id::text,

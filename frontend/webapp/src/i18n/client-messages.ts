@@ -85,6 +85,8 @@ export const SEGMENT_NAMESPACES = {
     "ProviderOnboarding",
     "ProviderPage",
     "MapShared",
+    "AdminGenerated",
+    "BookingCart",
     "RecommendationSection",
     "SearchResults",
     "ServicePage",
@@ -170,6 +172,8 @@ export const SEGMENT_NAMESPACES = {
     "List",
     "LocalizedInput",
     "MapShared",
+    "AdminGenerated",
+    "BookingCart",
     // The public provider-details route builds these namespace names through
     // constants, so the static literal scanner cannot discover them.
     "ServiceProvider",
