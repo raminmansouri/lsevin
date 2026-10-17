@@ -16,6 +16,7 @@
     "lint": "eslint",
     "lint:fix": "eslint --fix",
     "migrate": "node scripts/migrate.mjs",
+    "assistant:index": "node scripts/index-assistant-knowledge.mjs",
     "migrate:status": "node scripts/migrate.mjs --status",
     "migrate:dry-run": "node scripts/migrate.mjs --dry-run",
     "compiler-health": "pnpm dlx react-compiler-healthcheck@latest",

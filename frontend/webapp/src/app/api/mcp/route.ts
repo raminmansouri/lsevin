@@ -35,6 +35,14 @@ import {
 import { SEARCH_HOTELS_DESCRIPTION, searchHotels, searchHotelsInputSchema } from "@/features/assistant/tools/search-hotels";
 import type { LocaleTypes } from "@/types/common";
 
+
+import {
+  SEARCH_KNOWLEDGE_DESCRIPTION,
+  searchKnowledge,
+  searchKnowledgeInputSchema,
+} from "@/features/assistant/tools/search-knowledge";
+
+
 export const maxDuration = 60;
 
 /** Only our own assistant (which knows MCP_INTERNAL_TOKEN) may call these tools. */
@@ -197,6 +205,30 @@ async function handler(req: Request): Promise<Response> {
           }
         }
       );
+
+      server.registerTool(
+        "search_knowledge",
+        {
+          title: "Search LSevin knowledge",
+          description: SEARCH_KNOWLEDGE_DESCRIPTION,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          inputSchema: searchKnowledgeInputSchema as any,
+        },
+        async (args: unknown) => {
+          try {
+            const input = searchKnowledgeInputSchema.parse(args);
+            const result = await searchKnowledge(input, storedLocale);
+            return { content: [{ type: "text" as const, text: JSON.stringify(result) }] };
+          } catch (error) {
+            console.error("[mcp] search_knowledge failed", error);
+            return {
+              isError: true,
+              content: [{ type: "text" as const, text: "Knowledge search is temporarily unavailable." }],
+            };
+          }
+        }
+      );
+
 
       
     },
