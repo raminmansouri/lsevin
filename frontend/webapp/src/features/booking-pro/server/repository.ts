@@ -860,75 +860,78 @@ function normalizeCatalogSearch(search?: string) {
         .trim();
 }
 
-export async function listProviders(params: { locale?: Locale; search?: string; providerTypeId?: string; providerId?: string; serviceId?: string; serviceDefinitionId?: string; specialistId?: string; city?: string; country?: string; take?: number; offset?: number; }) {
-    const { locale = 'fa-IR', search = '', providerTypeId, providerId, serviceId, serviceDefinitionId, specialistId, city, country, take = 8, offset = 0 } = params;
-    const searchText = normalizeCatalogSearch(search);
-    const normalizedSearchText = searchText.replace(/[يى]/g, 'ی').replace(/ك/g, 'ک');
-    const like = `%${searchText}%`;
-    const normalizedLike = `%${normalizedSearchText}%`;
-    const rows = await db`
-        with providers as (
-            select sp.id,
-                   sp.provider_type_id,
-                   common.get_translation_t(sp.name_translations, ${locale}, 'fa-IR') as provider_name,
-                   common.get_translation_t(sp.description_translations, ${locale}, 'fa-IR') as provider_description,
-                   coalesce(
-                           nullif(sp.image_url, ''),
-                           (
-                               select nullif(pgi.url, '')
-                               from category.provider_gallery_items pgi
-                               where pgi.service_provider_id = sp.id
-                               order by pgi.display_order asc, pgi.create_date desc
-                           limit 1
-                       )
+export async function listProviders(params: { locale?: Locale; search?: string; providerTypeId?: string; providerId?: string; serviceId?: string; serviceDefinitionId?: string; specialistId?: string; city?: string; country?: string; take?: number; offset?: number; addonContext?: boolean; }) {
+  const { locale = 'fa-IR', search = '', providerTypeId, providerId, serviceId, serviceDefinitionId, specialistId, city, country, take = 8, offset = 0, addonContext = false } = params;
+  const searchText = normalizeCatalogSearch(search);
+  const normalizedSearchText = searchText.replace(/[يى]/g, 'ی').replace(/ك/g, 'ک');
+  const like = `%${searchText}%`;
+  const normalizedLike = `%${normalizedSearchText}%`;
+  const rows = await db`
+    with providers as (
+      select sp.id,
+             sp.provider_type_id,
+             common.get_translation_t(sp.name_translations, ${locale}, 'fa-IR') as provider_name,
+             common.get_translation_t(sp.description_translations, ${locale}, 'fa-IR') as provider_description,
+             coalesce(
+               nullif(sp.image_url, ''),
+               (
+                 select nullif(pgi.url, '')
+                 from category.provider_gallery_items pgi
+                 where pgi.service_provider_id = sp.id
+                 order by pgi.display_order asc, pgi.create_date desc
+                 limit 1
+               )
              ) as image_url,
-                   sp.city,
-                   sp.country,
-                   sp.rating,
-                   sp.review_count,
-                   sp.featured_score,
-                   sp.is_sponsored,
-                   sp.specialties,
-                   sp.response_time,
-                   sp.success_rate,
-                   sp.total_patients,
-                   sp.name_translations,
-                   sp.description_translations,
-                   sp.email,
-                   sp.phone_number,
-                   concat_ws(' ',
-                             common.get_translation_t(sp.name_translations, ${locale}, 'fa-IR'),
-                             common.get_translation_t(sp.description_translations, ${locale}, 'fa-IR'),
-                             sp.name_translations::text,
-                             sp.description_translations::text,
-                             sp.city,
-                             sp.country,
-                             sp.email,
-                             sp.phone_number
-                   ) as search_blob,
-                   regexp_replace(
-                           replace(replace(replace(replace(concat_ws(' ',
-                                                                     common.get_translation_t(sp.name_translations, ${locale}, 'fa-IR'),
-                                                                     common.get_translation_t(sp.description_translations, ${locale}, 'fa-IR'),
-                                                                     sp.name_translations::text,
-                                                                     sp.description_translations::text,
-                                                                     sp.city,
-                                                                     sp.country,
-                                                                     sp.email,
-                                                                     sp.phone_number
-                                                           ), 'ي', 'ی'), 'ى', 'ی'), 'ك', 'ک'), chr(8204), ' '),
-                           '\\s+',
-                           ' ',
-                           'g'
-                   ) as normalized_search_blob
-            from category.service_providers sp
-            where sp.is_active = true
-              and (${city ?? null}::text is null or lower(btrim(sp.city)) = lower(btrim(${city ?? null}::text)))
-              and (${country ?? null}::text is null or lower(btrim(sp.country)) = lower(btrim(${country ?? null}::text)))
-              and (${providerId ?? null}::uuid is null or sp.id = ${providerId ?? null}::uuid)
-              and (${providerTypeId ?? null}::uuid is null or sp.provider_type_id = ${providerTypeId ?? null}::uuid)
-              and (
-                ${serviceId ?? null}::uuid is null
+             sp.city,
+             sp.country,
+             sp.rating,
+             sp.review_count,
+             sp.featured_score,
+             sp.is_sponsored,
+             sp.specialties,
+             sp.response_time,
+             sp.success_rate,
+             sp.total_patients,
+             sp.name_translations,
+             sp.description_translations,
+             sp.email,
+             sp.phone_number,
+             concat_ws(' ',
+               common.get_translation_t(sp.name_translations, ${locale}, 'fa-IR'),
+               common.get_translation_t(sp.description_translations, ${locale}, 'fa-IR'),
+               sp.name_translations::text,
+               sp.description_translations::text,
+               sp.city,
+               sp.country,
+               sp.email,
+               sp.phone_number
+             ) as search_blob,
+             regexp_replace(
+               replace(replace(replace(replace(concat_ws(' ',
+                 common.get_translation_t(sp.name_translations, ${locale}, 'fa-IR'),
+                 common.get_translation_t(sp.description_translations, ${locale}, 'fa-IR'),
+                 sp.name_translations::text,
+                 sp.description_translations::text,
+                 sp.city,
+                 sp.country,
+                 sp.email,
+                 sp.phone_number
+               ), 'ي', 'ی'), 'ى', 'ی'), 'ك', 'ک'), chr(8204), ' '),
+               '\\s+',
+               ' ',
+               'g'
+             ) as normalized_search_blob
+      from category.service_providers sp
+      where sp.is_active = true
+        -- Add-on-only provider types (translators, drivers/cars) are offered solely by the
+        -- add-on step; every other provider picker must not list them.
+        and (${addonContext}::boolean or category.provider_type_is_public(sp.provider_type_id))
+        and (${city ?? null}::text is null or lower(btrim(sp.city)) = lower(btrim(${city ?? null}::text)))
+        and (${country ?? null}::text is null or lower(btrim(sp.country)) = lower(btrim(${country ?? null}::text)))
+        and (${providerId ?? null}::uuid is null or sp.id = ${providerId ?? null}::uuid)
+        and (${providerTypeId ?? null}::uuid is null or sp.provider_type_id = ${providerTypeId ?? null}::uuid)
+        and (
+          ${serviceId ?? null}::uuid is null
           or exists (
             select 1
             from category.provider_services fps
@@ -2240,14 +2243,28 @@ export async function checkoutDraft(
         }).catch((error) => console.error('createCaseProviderGrant failed for booking', txResult.bookingId, error));
     }
 
-    return {
-        bookingId: txResult.bookingId,
-        paymentId: txResult.paymentId,
-        totalAmount: totals.totalAmount,
-        dueNowAmount: txResult.dueNowAmount,
-        dueLaterAmount: txResult.dueLaterAmount,
-        collectionMode: txResult.collectionMode,
-        currency: txResult.currency,
-        paymentStatus: txResult.paymentStatus,
-    };
+  return {
+    bookingId: txResult.bookingId,
+    paymentId: txResult.paymentId,
+    totalAmount: totals.totalAmount,
+    dueNowAmount: txResult.dueNowAmount,
+    dueLaterAmount: txResult.dueLaterAmount,
+    collectionMode: txResult.collectionMode,
+    currency: txResult.currency,
+    paymentStatus: txResult.paymentStatus,
+  };
+}
+
+/** Cities that have at least one active provider of this type (add-on city picker). */
+export async function listProviderCities(providerTypeId: string): Promise<string[]> {
+  const rows = await db<{ city: string }[]>`
+    select min(btrim(sp.city)) as city
+    from category.service_providers sp
+    where sp.is_active = true
+      and sp.provider_type_id = ${providerTypeId}::uuid
+      and nullif(btrim(sp.city), '') is not null
+    group by lower(btrim(sp.city))
+    order by min(btrim(sp.city))
+  `;
+  return rows.map((row) => row.city);
 }

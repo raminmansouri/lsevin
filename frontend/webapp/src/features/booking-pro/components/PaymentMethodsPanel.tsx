@@ -1,180 +1,377 @@
-'use client';
-import { useEffect, useState } from 'react';
+"use client";
+
+import { useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { btcpayBillsDirectlyIn } from '@/payment/gateway-currencies';
+
+import { getRialTomanLabel } from "@/features/finance/lib/money";
+import { btcpayBillsDirectlyIn } from "@/payment/gateway-currencies";
 
 type BankAccount = {
-    id: string;
-    bankName: string;
-    accountHolder: string;
-    accountNumber: string;
-    iban: string;
-    cardNumber: string;
-    note: string;
+  id: string;
+  bankName: string;
+  accountHolder: string;
+  accountNumber: string;
+  iban: string;
+  cardNumber: string;
+  note: string;
 };
 type PaymentMethod = {
-    code: string;
-    name: string;
-    description?: string | null;
-    configuration?: { bankAccounts?: BankAccount[] } & Record<string, unknown>;
+  code: string;
+  name: string;
+  description?: string | null;
+  configuration?: { bankAccounts?: BankAccount[] } & Record<string, unknown>;
 };
 type GatewayOption = {
-    code: string;
-    displayName: string;
-    provider: string;
-    currency: string;
+  code: string;
+  displayName: string;
+  provider: string;
+  currency: string;
 };
 
 const RECEIPT_MAX_BYTES = 15 * 1024 * 1024;
 
-function BankAccountCard({ account, t }: { account: BankAccount; t: ReturnType<typeof useTranslations> }) {
-    return (
-        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3 text-sm">
-            {account.bankName ? <div className="font-semibold text-slate-900">{account.bankName}</div> : null}
-            <dl className="mt-1 space-y-1 text-xs text-slate-600">
-                {account.accountHolder ? (
-                    <div className="flex justify-between gap-2"><dt>{t("accountHolderLabel")}</dt><dd className="font-medium text-slate-800">{account.accountHolder}</dd></div>
-                ) : null}
-                {account.cardNumber ? (
-                    <div className="flex justify-between gap-2"><dt>{t("cardNumberLabel")}</dt><dd dir="ltr" className="font-mono font-medium text-slate-800">{account.cardNumber}</dd></div>
-                ) : null}
-                {account.iban ? (
-                    <div className="flex justify-between gap-2"><dt>{t("ibanLabel")}</dt><dd dir="ltr" className="font-mono font-medium text-slate-800">{account.iban}</dd></div>
-                ) : null}
-                {account.accountNumber ? (
-                    <div className="flex justify-between gap-2"><dt>{t("accountNumberLabel")}</dt><dd dir="ltr" className="font-mono font-medium text-slate-800">{account.accountNumber}</dd></div>
-                ) : null}
-            </dl>
-            {account.note ? <div className="mt-2 text-xs text-slate-500">{account.note}</div> : null}
-        </div>
-    );
+function BankAccountCard({
+  account,
+  t,
+}: {
+  account: BankAccount;
+  t: ReturnType<typeof useTranslations>;
+}) {
+  return (
+    <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3 text-sm">
+      {account.bankName ? (
+        <div className="font-semibold text-slate-900">{account.bankName}</div>
+      ) : null}
+      <dl className="mt-1 space-y-1 text-xs text-slate-600">
+        {account.accountHolder ? (
+          <div className="flex justify-between gap-2">
+            <dt>{t("accountHolderLabel")}</dt>
+            <dd className="font-medium text-slate-800">
+              {account.accountHolder}
+            </dd>
+          </div>
+        ) : null}
+        {account.cardNumber ? (
+          <div className="flex justify-between gap-2">
+            <dt>{t("cardNumberLabel")}</dt>
+            <dd dir="ltr" className="font-mono font-medium text-slate-800">
+              {account.cardNumber}
+            </dd>
+          </div>
+        ) : null}
+        {account.iban ? (
+          <div className="flex justify-between gap-2">
+            <dt>{t("ibanLabel")}</dt>
+            <dd dir="ltr" className="font-mono font-medium text-slate-800">
+              {account.iban}
+            </dd>
+          </div>
+        ) : null}
+        {account.accountNumber ? (
+          <div className="flex justify-between gap-2">
+            <dt>{t("accountNumberLabel")}</dt>
+            <dd dir="ltr" className="font-mono font-medium text-slate-800">
+              {account.accountNumber}
+            </dd>
+          </div>
+        ) : null}
+      </dl>
+      {account.note ? (
+        <div className="mt-2 text-xs text-slate-500">{account.note}</div>
+      ) : null}
+    </div>
+  );
 }
 
 export function PaymentMethodsPanel(props: {
-    selected?: string;
-    billingCurrency?: string;
-    onChange: (code: string) => void;
-    receiptFile?: File | null;
-    onReceiptFileChange?: (file: File | null) => void;
+  selected?: string;
+  billingCurrency?: string;
+  onChange: (code: string) => void;
+  receiptFile?: File | null;
+  onReceiptFileChange?: (file: File | null) => void;
+  onReadyChange?: (ready: boolean) => void;
 }) {
-    const tBooking = useTranslations("Booking");
-    // Built-in methods are labelled from the app's own translations, so every supported
-    // language shows them in its own words (the database row only holds fa/en text).
-    const BUILTIN_METHOD_CODES = ['pay_on_delivery', 'bank_receipt', 'wallet'];
-    const methodName = (item: { code: string; name?: string }) =>
-        BUILTIN_METHOD_CODES.includes(item.code) ? tBooking(`builtinPaymentMethods.${item.code}.name` as never) : item.name;
-    const methodDescription = (item: { code: string; description?: string | null }) =>
-        BUILTIN_METHOD_CODES.includes(item.code) ? tBooking(`builtinPaymentMethods.${item.code}.description` as never) : item.description;
-    const locale = useLocale();
-    const [items, setItems] = useState<PaymentMethod[]>([]);
-    const [gateways, setGateways] = useState<GatewayOption[]>([]);
-    const [receiptError, setReceiptError] = useState<string | null>(null);
-    const [methodsLoaded, setMethodsLoaded] = useState(false);
-    const [gatewaysLoaded, setGatewaysLoaded] = useState(false);
-    useEffect(() => {
-        fetch(`/api/booking-pro/payments/methods?locale=${encodeURIComponent(locale)}`, { cache: 'no-store' })
-            .then((res) => res.json())
-            .then((data) => { setItems(data.items ?? []); setMethodsLoaded(true); })
-            .catch(() => { });
-        fetch('/api/payment-gateways?context=booking_online_card', { cache: 'no-store' })
-            .then((res) => res.json())
-            .then((data) => setGateways(data.items ?? []))
-            .catch(() => { })
-            .finally(() => setGatewaysLoaded(true));
-    }, [locale]);
-    // Fallback only when the methods fetch fails. Mirrors what the server now offers —
-    // the online card gateway (Zarinpal) plus wallet. No 'bank': it was a placeholder
-    // method that no longer exists server-side.
-    const list = items.length ? items : [
-        { code: 'gateway_card', name: tBooking('onlineCardPayment'), description: tBooking('chooseEnabledGatewaySuchAsZarinpal') },
-        { code: 'wallet', name: tBooking('wallet') },
-    ];
-    const selectedIsGateway = gateways.some((gateway) => gateway.code === props.selected);
-    const onlineCardSelected = props.selected === 'card' || props.selected === 'gateway_card' || selectedIsGateway;
+  const tBooking = useTranslations("Booking");
+  // Built-in methods are labelled from the app's own translations, so every supported
+  // language shows them in its own words (the database row only holds fa/en text).
+  const BUILTIN_METHOD_CODES = ["pay_on_delivery", "bank_receipt", "wallet"];
+  const methodName = (item: { code: string; name?: string }) =>
+    BUILTIN_METHOD_CODES.includes(item.code)
+      ? tBooking(`builtinPaymentMethods.${item.code}.name` as never)
+      : item.name;
+  const methodDescription = (item: {
+    code: string;
+    description?: string | null;
+  }) =>
+    BUILTIN_METHOD_CODES.includes(item.code)
+      ? tBooking(`builtinPaymentMethods.${item.code}.description` as never)
+      : item.description;
+  const locale = useLocale();
+  const [items, setItems] = useState<PaymentMethod[]>([]);
+  const [gateways, setGateways] = useState<GatewayOption[]>([]);
+  const [receiptError, setReceiptError] = useState<string | null>(null);
+  const [showAlternatives, setShowAlternatives] = useState(false);
+  const [loadError, setLoadError] = useState(false);
+  const [methodsLoaded, setMethodsLoaded] = useState(false);
+  const [gatewaysLoaded, setGatewaysLoaded] = useState(false);
+  useEffect(() => {
+    fetch(
+      `/api/booking-pro/payments/methods?locale=${encodeURIComponent(locale)}`,
+      { cache: "no-store" }
+    )
+      .then((res) => {
+        if (!res.ok) throw new Error("Payment methods unavailable");
+        return res.json();
+      })
+      .then((data) => {
+        setItems(data.items ?? []);
+        setMethodsLoaded(true);
+      })
+      .catch(() => {
+        setLoadError(true);
+        setItems([]);
+        setMethodsLoaded(true);
+      });
+    fetch("/api/payment-gateways?context=booking_online_card", {
+      cache: "no-store",
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("Payment gateways unavailable");
+        return res.json();
+      })
+      .then((data) => setGateways(data.items ?? []))
+      .catch(() => {
+        setLoadError(true);
+      })
+      .finally(() => setGatewaysLoaded(true));
+  }, [locale]);
+  // Fallback only when the methods fetch fails. Mirrors what the server now offers —
+  // the online card gateway (Zarinpal) plus wallet. No 'bank': it was a placeholder
+  // method that no longer exists server-side.
+  const list = items;
+  const selectedIsGateway = gateways.some(
+    (gateway) => gateway.code === props.selected
+  );
+  const onlineCardSelected =
+    props.selected === "card" ||
+    props.selected === "gateway_card" ||
+    selectedIsGateway;
+  const ready =
+    methodsLoaded &&
+    gatewaysLoaded &&
+    items.some((item) =>
+      item.code === "card" || item.code === "gateway_card"
+        ? onlineCardSelected && gateways.length > 0
+        : props.selected === item.code
+    );
+  useEffect(() => {
+    props.onReadyChange?.(ready);
+  }, [ready, props.onReadyChange]);
 
-    // The wizard starts on 'gateway_card'. If this visitor isn't offered the selected
-    // method (a foreign visitor has no Zarinpal), move to the first one they are offered.
-    useEffect(() => {
-        if (!methodsLoaded || !gatewaysLoaded || !items.length) return;
-        const stillValid = items.some((item) => {
-            const online = item.code === 'card' || item.code === 'gateway_card';
-            return online ? onlineCardSelected : props.selected === item.code;
-        });
-        if (stillValid) return;
-        const first = items[0];
-        const firstIsOnline = first.code === 'card' || first.code === 'gateway_card';
-        props.onChange(firstIsOnline ? (gateways[0]?.code ?? 'gateway_card') : first.code);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [methodsLoaded, gatewaysLoaded, items, gateways, props.selected]);
-    const handleReceiptChange = (file: File | null) => {
-        setReceiptError(null);
-        if (!file) {
-            props.onReceiptFileChange?.(null);
-            return;
-        }
-        const mimeType = file.type || '';
-        if (!mimeType.startsWith('image/') && mimeType !== 'application/pdf') {
-            setReceiptError(tBooking('receiptWrongTypeError'));
-            props.onReceiptFileChange?.(null);
-            return;
-        }
-        if (file.size > RECEIPT_MAX_BYTES) {
-            setReceiptError(tBooking('receiptTooLargeError'));
-            props.onReceiptFileChange?.(null);
-            return;
-        }
-        props.onReceiptFileChange?.(file);
-    };
+  // The wizard starts on 'gateway_card'. If this visitor isn't offered the selected
+  // method (a foreign visitor has no Zarinpal), move to the first one they are offered.
+  useEffect(() => {
+    if (!methodsLoaded || !gatewaysLoaded || !items.length) return;
+    const stillValid = items.some((item) => {
+      const online = item.code === "card" || item.code === "gateway_card";
+      return online ? onlineCardSelected : props.selected === item.code;
+    });
+    if (stillValid) return;
+    const first =
+      items.find(
+        (item) => item.code === "gateway_card" || item.code === "card"
+      ) ?? items[0];
+    const firstIsOnline =
+      first.code === "card" || first.code === "gateway_card";
+    props.onChange(
+      firstIsOnline ? (gateways[0]?.code ?? "gateway_card") : first.code
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [methodsLoaded, gatewaysLoaded, items, gateways, props.selected]);
+  const handleReceiptChange = (file: File | null) => {
+    setReceiptError(null);
+    if (!file) {
+      props.onReceiptFileChange?.(null);
+      return;
+    }
+    const mimeType = file.type || "";
+    if (!mimeType.startsWith("image/") && mimeType !== "application/pdf") {
+      setReceiptError(tBooking("receiptWrongTypeError"));
+      props.onReceiptFileChange?.(null);
+      return;
+    }
+    if (file.size > RECEIPT_MAX_BYTES) {
+      setReceiptError(tBooking("receiptTooLargeError"));
+      props.onReceiptFileChange?.(null);
+      return;
+    }
+    props.onReceiptFileChange?.(file);
+  };
 
-    return (<div className="space-y-3">
+  return (
+    <div className="space-y-3">
+      {!methodsLoaded || !gatewaysLoaded ? (
+        <p role="status" className="text-sm text-slate-500">
+          {tBooking("loadingAvailability")}
+        </p>
+      ) : loadError || !items.length ? (
+        <p role="alert" className="text-sm text-amber-700">
+          {tBooking(
+            loadError
+              ? "failedToStartPayment"
+              : "noOnlineGatewayIsEnabledFromAdmin"
+          )}
+        </p>
+      ) : null}
+      {list.length > 1 ? (
+        <button
+          type="button"
+          aria-expanded={showAlternatives}
+          onClick={() => setShowAlternatives((value) => !value)}
+          className="text-sm font-semibold text-[#155e75]"
+        >
+          {tBooking("changeSelection")}
+        </button>
+      ) : null}
       {list.map((item) => {
-            const isOnlineCard = item.code === 'card' || item.code === 'gateway_card';
-            const isBankReceipt = item.code === 'bank_receipt';
-            const selected = isOnlineCard ? onlineCardSelected : props.selected === item.code;
-            // Only show accounts a customer could actually transfer to -- a row the
-            // admin started filling in but left without a card/IBAN/account number
-            // isn't a usable destination, even though it's kept in the saved config.
-            const bankAccounts = (item.configuration?.bankAccounts ?? []).filter(
-                (account) => account.cardNumber || account.iban || account.accountNumber
-            );
-            return (<div key={item.code} className="space-y-2">
-            <button type="button" onClick={() => props.onChange(isOnlineCard ? (gateways[0]?.code ?? 'gateway_card') : item.code)} className={`w-full rounded-2xl border px-4 py-3 text-left ${selected ? 'border-[#083f30] bg-[#083f30]/5' : 'border-slate-200 bg-white'}`}>
-              <div className="font-semibold text-slate-900">{isOnlineCard ? tBooking('onlineCardPayment') : item.code === 'wallet' ? tBooking('wallet') : methodName(item)}</div>
-              {methodDescription(item) ? <div className="mt-1 text-xs text-slate-500">{methodDescription(item)}</div> : null}
-              {isOnlineCard && !gateways.length ? <div className="mt-1 text-xs text-amber-700">{tBooking("noOnlineGatewayIsEnabledFromAdmin")}</div> : null}
-              {isBankReceipt && bankAccounts.length === 0 ? <div className="mt-1 text-xs text-amber-700">{tBooking("noBankAccountConfigured")}</div> : null}
-            </button>
+        const isOnlineCard =
+          item.code === "card" || item.code === "gateway_card";
+        const isBankReceipt = item.code === "bank_receipt";
+        const selected = isOnlineCard
+          ? onlineCardSelected
+          : props.selected === item.code;
+        if (!selected && !showAlternatives) return null;
+        // Only show accounts a customer could actually transfer to -- a row the
+        // admin started filling in but left without a card/IBAN/account number
+        // isn't a usable destination, even though it's kept in the saved config.
+        const bankAccounts = (item.configuration?.bankAccounts ?? []).filter(
+          (account) =>
+            account.cardNumber || account.iban || account.accountNumber
+        );
+        return (
+          <div key={item.code} className="space-y-2">
+            {selected && !showAlternatives ? (
+              <div className="text-sm font-semibold text-slate-700">
+                {isOnlineCard
+                  ? tBooking("onlineCardPayment")
+                  : methodName(item)}
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => {
+                  props.onChange(
+                    isOnlineCard
+                      ? (gateways[0]?.code ?? "gateway_card")
+                      : item.code
+                  );
+                  setShowAlternatives(false);
+                }}
+                className={`w-full rounded-2xl border px-4 py-3 text-start ${selected ? "border-[#083f30] bg-[#083f30]/5" : "border-slate-200 bg-white"}`}
+              >
+                <div className="font-semibold text-slate-900">
+                  {isOnlineCard
+                    ? tBooking("onlineCardPayment")
+                    : item.code === "wallet"
+                      ? tBooking("wallet")
+                      : methodName(item)}
+                </div>
+                {methodDescription(item) ? (
+                  <div className="mt-1 text-xs text-slate-500">
+                    {methodDescription(item)}
+                  </div>
+                ) : null}
+                {isOnlineCard && !gateways.length ? (
+                  <div className="mt-1 text-xs text-amber-700">
+                    {tBooking("noOnlineGatewayIsEnabledFromAdmin")}
+                  </div>
+                ) : null}
+                {isBankReceipt && bankAccounts.length === 0 ? (
+                  <div className="mt-1 text-xs text-amber-700">
+                    {tBooking("noBankAccountConfigured")}
+                  </div>
+                ) : null}
+              </button>
+            )}
 
-            {isOnlineCard && selected ? (<div className="ml-3 space-y-2 border-l border-slate-200 pl-3">
-                {gateways.map((gateway) => (<button key={gateway.code} type="button" onClick={() => props.onChange(gateway.code)} className={`w-full rounded-2xl border px-4 py-3 text-left ${props.selected === gateway.code ? 'border-[#083f30] bg-[#083f30]/10' : 'border-slate-200 bg-slate-50'}`}>
-                    <div className="font-semibold text-slate-900">{gateway.displayName}</div>
-                    <div className="mt-1 text-xs text-slate-500">{tBooking("gatewayChargeCurrency")}{gateway.code === 'btcpay' && props.billingCurrency && btcpayBillsDirectlyIn(props.billingCurrency) ? props.billingCurrency.toUpperCase() : gateway.currency}</div>
-                  </button>))}
-              </div>) : null}
+            {isOnlineCard && selected ? (
+              <div className="ml-3 space-y-2 border-l border-slate-200 pl-3">
+                {gateways.length > 1 && showAlternatives ? (
+                  gateways.map((gateway) => (
+                    <button
+                      key={gateway.code}
+                      type="button"
+                      onClick={() => props.onChange(gateway.code)}
+                      className={`w-full rounded-2xl border px-4 py-3 text-start ${props.selected === gateway.code ? "border-[#083f30] bg-[#083f30]/10" : "border-slate-200 bg-slate-50"}`}
+                    >
+                      <div className="font-semibold text-slate-900">
+                        {gateway.displayName}
+                      </div>
+                      <div className="mt-1 text-xs text-slate-500">
+                        {tBooking("gatewayChargeCurrency")}
+                        {gateway.code === "btcpay" &&
+                        props.billingCurrency &&
+                        btcpayBillsDirectlyIn(props.billingCurrency)
+                          ? props.billingCurrency.toUpperCase()
+                          : (getRialTomanLabel(gateway.currency, locale) ??
+                            gateway.currency)}
+                      </div>
+                    </button>
+                  ))
+                ) : (
+                  <div className="text-sm text-slate-600">
+                    {gateways.find((gateway) => gateway.code === props.selected)
+                      ?.displayName ?? gateways[0]?.displayName}
+                  </div>
+                )}
+              </div>
+            ) : null}
 
             {isBankReceipt && selected && bankAccounts.length > 0 ? (
               <div className="ml-3 space-y-3 border-l border-slate-200 pl-3">
-                <div className="text-xs font-semibold text-slate-600">{tBooking("bankReceiptAccountsTitle")}</div>
-                <p className="text-xs text-slate-500">{tBooking("bankReceiptInstructions")}</p>
+                <div className="text-xs font-semibold text-slate-600">
+                  {tBooking("bankReceiptAccountsTitle")}
+                </div>
+                <p className="text-xs text-slate-500">
+                  {tBooking("bankReceiptInstructions")}
+                </p>
                 <div className="space-y-2">
-                  {bankAccounts.map((account) => (<BankAccountCard key={account.id} account={account} t={tBooking} />))}
+                  {bankAccounts.map((account) => (
+                    <BankAccountCard
+                      key={account.id}
+                      account={account}
+                      t={tBooking}
+                    />
+                  ))}
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-600">{tBooking("uploadReceiptLabel")}</label>
+                  <label className="block text-xs font-semibold text-slate-600">
+                    {tBooking("uploadReceiptLabel")}
+                  </label>
                   <input
                     type="file"
                     accept="image/*,application/pdf"
-                    onChange={(event) => handleReceiptChange(event.target.files?.[0] ?? null)}
+                    onChange={(event) =>
+                      handleReceiptChange(event.target.files?.[0] ?? null)
+                    }
                     className="mt-1 block w-full text-xs text-slate-600 file:mr-3 file:rounded-lg file:border-0 file:bg-[#083f30] file:px-3 file:py-2 file:text-xs file:font-semibold file:text-white"
                   />
                   {props.receiptFile ? (
-                    <div className="mt-1 text-xs text-emerald-700">{props.receiptFile.name}</div>
+                    <div className="mt-1 text-xs text-emerald-700">
+                      {props.receiptFile.name}
+                    </div>
                   ) : null}
-                  {receiptError ? <div className="mt-1 text-xs text-red-600">{receiptError}</div> : null}
+                  {receiptError ? (
+                    <div className="mt-1 text-xs text-red-600">
+                      {receiptError}
+                    </div>
+                  ) : null}
                 </div>
               </div>
             ) : null}
-          </div>);
-        })}
-    </div>);
+          </div>
+        );
+      })}
+    </div>
+  );
 }

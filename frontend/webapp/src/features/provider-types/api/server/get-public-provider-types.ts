@@ -18,7 +18,7 @@ export const getPublicProviderTypes = async (locale = "fa-IR"): Promise<ApiRetur
         coalesce(ml.file_url, pt.image_url) as "imagePreviewUrl"
       from category.provider_types pt
       left join media.media_library ml on ml.id::text = pt.image_url
-      where pt.is_active = true
+      where pt.is_active = true and not coalesce(pt.is_addon_only, false)
       order by common.get_translation_t(pt.name_translations, ${locale}, 'en-US') asc
     `;
     return { data: rows, error: undefined } as ApiReturnType<PublicProviderType[]>;

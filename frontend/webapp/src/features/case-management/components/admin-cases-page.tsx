@@ -50,7 +50,7 @@ export async function AdminCasesPage({ locale, cases, summary }: {
           return <div key={item.id} className="grid gap-4 rounded-2xl border p-4 lg:grid-cols-[1.2fr_1.2fr_1fr_180px_auto] lg:items-center">
             <div><p className="font-semibold">{item.customerName || item.customerEmail || "-"}</p><p className="text-sm text-muted-foreground">{item.serviceName}</p></div>
             <div><p className="text-sm font-medium">{item.providerName}</p><p className="text-xs text-muted-foreground">{item.staffName || t("unassigned")}</p></div>
-            <div><p className="text-sm font-medium">{item.currentStep || "-"}</p><p className="text-xs text-muted-foreground">{dateFormatter.format(new Date(item.createdAt))}</p></div>
+            <div><p className="text-sm font-medium">{item.currentStep || "-"}</p><p className="text-xs text-muted-foreground">{dateFormatter.format(new Date(item.currentStepAt ?? item.createdAt))}</p></div>
             <div className="space-y-1"><div className="flex justify-between text-xs"><span>{t("progress")}</span><span>{percentage}%</span></div><div className="h-2 overflow-hidden rounded-full bg-muted"><div className="h-full bg-primary" style={{ width: `${percentage}%` }} /></div></div>
             <div className="flex items-center gap-2"><Badge variant={statusVariants[item.status]}>{t(statusKey)}</Badge><Link className="text-sm font-semibold text-primary hover:underline" href={`/admin/cases/${item.id}`}>{t("steps")}</Link></div>
           </div>;

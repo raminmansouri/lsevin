@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState, useTransition } from "react";
+import { formatCurrencyAmount } from "@/features/finance/lib/money";
 import {
   AlertCircle,
   BadgeCheck,
@@ -88,19 +89,7 @@ function formatMoney(
     .toUpperCase();
   const value = Number(amount || 0);
   const localeTag = resolveIntlLocale(locale);
-  if (code === "IRR") {
-    const formattedNumber = new Intl.NumberFormat(localeTag).format(value);
-    return `${formattedNumber} ${localeTag.startsWith("fa") ? "ریال" : "Rial"}`;
-  }
-  try {
-    return new Intl.NumberFormat(localeTag, {
-      style: "currency",
-      currency: code,
-      maximumFractionDigits: 2,
-    }).format(value);
-  } catch {
-    return `${value.toLocaleString(localeTag)} ${code}`;
-  }
+  return formatCurrencyAmount(value, code, localeTag, { maximumFractionDigits: 2 });
 }
 // createBookingPaymentIntent/booking.bookings.payment_method return raw codes
 // ('pay_on_delivery', 'bank_receipt', 'wallet', ...) meant for logic, not display --

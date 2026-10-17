@@ -25,6 +25,7 @@ import { useParams, useSearchParams } from "next/navigation";
 import { BeforeAfterGallery } from "@/features/service-providers/components/before-after-gallery";
 import { FavoriteButton } from "@/features/favorites/components/favorite-button";
 import { ViewerPrice } from "@/features/finance/components/viewer-price";
+import { useSectionScroll } from "@/hooks/use-section-scroll";
 import { getFavoriteStatusAction } from "@/features/favorites/actions/favorite-actions";
 import { ConsultationCtaButton } from "@/features/consultation/components/consultation-cta-button";
 import ReviewForm, { type ReviewFormSubmitValue } from "../../../components/ReviewForm";
@@ -154,6 +155,7 @@ export function ProviderDetailView({ initialData }: { initialData?: ProviderPage
     "overview" | "services" | "beforeAfter" | "specialists" | "reviews"
   >("overview");
 
+  const { sectionRef: servicesRef, requestScroll: scrollToServices } = useSectionScroll(selectedTab === "services");
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [visibleReviews, setVisibleReviews] = useState<Review[]>([]);
@@ -474,7 +476,7 @@ export function ProviderDetailView({ initialData }: { initialData?: ProviderPage
         </div>
 
         {selectedTab === "services" ? (
-          <div className="space-y-4">
+          <div ref={servicesRef} id="provider-services" className="scroll-mt-24 space-y-4">
             {services.length ? services.map((treatment) => (
               <div
                 key={treatment.id}
@@ -520,19 +522,19 @@ export function ProviderDetailView({ initialData }: { initialData?: ProviderPage
                     </div>
 
                     <div className="flex items-center justify-between gap-3">
-                      <div className="flex items-center gap-1">
+                      <div className="flex shrink-0 items-center gap-1">
                         <Star size={14} className="fill-yellow-400 text-yellow-400" />
                         <span className="text-sm font-bold text-gray-900">{treatment.rating.toFixed(1)}</span>
                         <span className="text-xs text-gray-500">({treatment.reviews})</span>
                       </div>
 
-                        <div className="text-end">
+                        <div className="min-w-0 text-end [overflow-wrap:anywhere]">
                             <ViewerPrice
                                 amount={treatment.sourcePrice ?? treatment.price}
                                 sourceCurrencyCode={treatment.sourceCurrency ?? treatment.currency}
                                 providerId={provider.id}
                                 locale={locale}
-                                className="text-lg font-bold text-[#083f30]"
+                                className="text-base font-bold leading-tight sm:text-lg text-[#083f30]"
                             />
                         </div>
                     </div>
@@ -809,7 +811,7 @@ export function ProviderDetailView({ initialData }: { initialData?: ProviderPage
             className="flex h-14 flex-1 items-center justify-center gap-2 rounded-2xl border border-[#083f30]/20 bg-[#083f30]/5 text-xs font-bold text-[#083f30] transition-all hover:bg-[#083f30]/10 active:scale-95 sm:text-sm"
           />
           <button
-            onClick={() => setSelectedTab("services")}
+            onClick={() => { setSelectedTab("services"); scrollToServices(); }}
             className="h-14 flex-[2] rounded-2xl bg-gradient-to-r from-[#083f30] to-[#0a5a44] font-bold text-white transition-all hover:shadow-xl active:scale-95"
             type="button"
           >

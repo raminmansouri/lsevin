@@ -1,0 +1,8 @@
+@import "tailwindcss";
+@source "../../../src/features/booking-pro/components";
+@source "../../../src/features/shop/components";
+body {
+  margin: 0;
+  background: #f8fafc;
+  font-family: sans-serif;
+}

@@ -1,12 +1,13 @@
 "use client";
 import { useMemo, useState } from "react";
+import { formatCurrencyAmount } from "@/features/finance/lib/money";
 import { AlertCircle, BadgeCheck, Calendar, CalendarX, ChevronRight, CheckCircle, Clock, Loader2, MapPin, RefreshCw, XCircle, } from "lucide-react";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { resolveHomeMediaUrl } from "@/features/home/components/home-media";
 import { useFetchBookings } from "@/features/service-providers/api/client/fetch-bookings";
 import type { Booking } from "@/features/service-providers/types";
 import { useNavigate } from "@/hooks/use-navigate";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 const BRAND_GREEN = "#083f30";
 type BookingTab = "upcoming" | "past" | "cancelled";
 const TABS: Array<{
@@ -23,18 +24,8 @@ function normalizeStatus(value?: string | null) {
 function buildFileUrl(value?: string | null) {
     return resolveHomeMediaUrl(value);
 }
-function formatMoney(amount: number, currency?: string | null) {
-    const code = String(currency || "USD").trim().toUpperCase();
-    try {
-        return new Intl.NumberFormat(undefined, {
-            style: "currency",
-            currency: code,
-            maximumFractionDigits: 2,
-        }).format(amount || 0);
-    }
-    catch {
-        return `${(amount || 0).toLocaleString()} ${code}`;
-    }
+function formatMoney(amount: number, currency?: string | null, locale?: string | null) {
+    return formatCurrencyAmount(amount || 0, currency || "USD", locale, { maximumFractionDigits: 2 });
 }
 function getStatusBadge(status: string, tBooking: ReturnType<typeof useTranslations>) {
     const normalized = normalizeStatus(status);
@@ -67,6 +58,7 @@ function BookingCard({ booking, onOpen }: {
     onOpen: () => void;
 }) {
     const tBooking = useTranslations("Booking");
+    const locale = useLocale();
     const statusBadge = getStatusBadge(booking.status, tBooking);
     const paymentBadge = getPaymentBadge(booking.paymentStatus, tBooking);
     const StatusIcon = statusBadge.icon;
@@ -124,7 +116,7 @@ function BookingCard({ booking, onOpen }: {
           </div>
           <div className="flex-shrink-0 text-right">
             <span className="text-xs text-gray-500">{tBooking("total")}</span>
-            <p className="text-lg font-bold text-[#083f30]">{formatMoney(booking.price, booking.currency)}</p>
+            <p className="text-lg font-bold text-[#083f30]">{formatMoney(booking.price, booking.currency, locale)}</p>
           </div>
         </div>
         {normalizeStatus(booking.paymentStatus) === "deposit_paid" && (<div className="mt-2 flex flex-wrap items-center justify-between gap-x-3 gap-y-1 rounded-xl bg-teal-50 px-3 py-2 text-xs">

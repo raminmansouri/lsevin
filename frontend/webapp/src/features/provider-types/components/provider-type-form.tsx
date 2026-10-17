@@ -59,6 +59,7 @@ export function ProviderTypeForm({ providerType }: ProviderTypeFormProps) {
         ? { translations: providerType.description.translations }
         : createEmptyLocalizedContent(),
       isActive: providerType?.isActive ?? true,
+      isAddonOnly: providerType?.isAddonOnly ?? false,
       iconUrl: providerType?.iconUrl ?? "",
       imageUrl: providerType?.imageUrl ?? "",
     },
@@ -195,6 +196,22 @@ export function ProviderTypeForm({ providerType }: ProviderTypeFormProps) {
                       <FormLabel className="text-sm font-medium">
                         {componentT("form.isActive")}
                       </FormLabel>
+                      <FormControl>
+                        <Switch checked={field.value} onCheckedChange={field.onChange} disabled={isPending} />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="isAddonOnly"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center justify-between gap-4 rounded-xl border bg-background p-4">
+                      <div className="space-y-1">
+                        <FormLabel className="text-sm font-medium">{componentT("form.addonOnly")}</FormLabel>
+                        <p className="text-xs text-muted-foreground">{componentT("form.addonOnlyHelp")}</p>
+                      </div>
                       <FormControl>
                         <Switch checked={field.value} onCheckedChange={field.onChange} disabled={isPending} />
                       </FormControl>

@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 
 import sql from "@/config/database/db";
+import { assertAdmin } from "@/lib/auth/admin-guard";
 import { getUserId } from "@/lib/auth/session";
 import { resolveCurrentNotificationCustomerId } from "@/features/notification/server/current-notification-customer";
 
@@ -19,6 +20,7 @@ import {
   updateBugReportStatusSchema,
 } from "./schemas";
 import { queueBugReportUpdateNotifications } from "./server/notifications";
+import { collectAdminDatabaseDiagnostics } from "./server/admin-diagnostics";
 import { getBugReportFilesFromFormData, storeBugReportFiles } from "./server/upload";
 import { ActionResult, BugReportAttachment, BugReportPriority, BugReportStatus } from "./types";
 
@@ -190,11 +192,23 @@ export async function createBugReportAction(formData: FormData): Promise<ActionR
   const userId = await resolveCurrentUserId();
   const customerId = await resolveCurrentCustomerId();
   const files = getBugReportFilesFromFormData(formData);
+  const captureAdminDiagnostics = formDataBoolean(formData, "captureAdminDiagnostics");
+  if (captureAdminDiagnostics) {
+    try {
+      await assertAdmin();
+    } catch {
+      return { ok: false, message: "Forbidden: admin access is required." };
+    }
+  }
+  const diagnosticSnapshot = captureAdminDiagnostics ? await collectAdminDatabaseDiagnostics() : null;
 
   try {
     const result = await sql.begin(async (tx) => {
       const attachments = await storeBugReportFiles({ files, createdByUserId: userId, tx });
       const data = parsed.data;
+      const environment = captureAdminDiagnostics
+        ? { ...data.environment, serverDiagnostics: diagnosticSnapshot }
+        : data.environment;
       const conversationRows = await tx<{ id: string; conversation_number: string }[]>`
         insert into support.conversations (
           customer_user_id,
@@ -221,7 +235,7 @@ export async function createBugReportAction(formData: FormData): Promise<ActionR
           ${formDataString(formData, "locale") || "fa-IR"},
           'open',
           ${data.priority},
-          ${tx.json({ kind: "bug_report", sourceArea: data.sourceArea, environment: data.environment })}::jsonb
+          ${tx.json({ kind: "bug_report", sourceArea: data.sourceArea, environment })}::jsonb
         )
         returning id, conversation_number
       `;
@@ -280,8 +294,8 @@ export async function createBugReportAction(formData: FormData): Promise<ActionR
           ${data.operatingSystem},
           ${data.deviceType},
           ${data.appVersion},
-          ${tx.json(data.environment)}::jsonb,
-          ${tx.json({ createdFrom: "customer_bug_report_page" })}::jsonb
+          ${tx.json(environment)}::jsonb,
+          ${tx.json({ createdFrom: captureAdminDiagnostics ? "admin_floating_reporter" : "customer_bug_report_page" })}::jsonb
         )
         returning id, report_number
       `;

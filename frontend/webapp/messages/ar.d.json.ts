@@ -6926,6 +6926,8 @@ declare const messages: {
         "label": "الوصف"
       },
       "isActive": "نشط",
+      "addonOnly": "للإضافات فقط (مترجم، سيارة ...)",
+      "addonOnlyHelp": "عند التفعيل يظهر مقدمو هذا النوع في قسم إضافات الحجز فقط حسب المدينة ولا يظهرون في البحث أو الصفحة الرئيسية.",
       "attributes": "السمة التعريفات",
       "attributesPlaceholder": "السمات ({count} defined)",
       "create": "إنشاء نوع المزوّد",

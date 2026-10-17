@@ -100,6 +100,7 @@ export type VerifyGatewayPaymentInput = {
   gateway: PaymentGatewayCode;
   authority: string;
   status?: string | null;
+  locale?: string | null;
 };
 
 export type VerifyGatewayPaymentOutput = {
@@ -108,4 +109,10 @@ export type VerifyGatewayPaymentOutput = {
   status: GatewayPaymentStatus;
   referenceId?: string | number | null;
   message?: string | null;
+  /**
+   * Set when this payment only covered part of the booking (the gateway caps a
+   * single charge) and the next installment's gateway page is ready: the caller
+   * must send the customer there instead of back to the booking.
+   */
+  nextActionUrl?: string | null;
 };

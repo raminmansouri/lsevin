@@ -1,5 +1,6 @@
 'use client';
 
+import { formatCurrencyAmount } from '@/features/finance/lib/money';
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { ChevronLeft, Loader2 } from 'lucide-react';
@@ -141,7 +142,7 @@ export default function PackageCheckoutPage() {
                             <div className="mb-6 rounded-2xl bg-gray-50 px-4 py-4">
                                 <div className="text-sm text-gray-500">مبلغ قابل پرداخت</div>
                                 <div className="mt-1 text-2xl font-bold text-[#083f30]">
-                                    {amount.toLocaleString()} {currency}
+                                    {formatCurrencyAmount(amount, currency, String(params?.locale || 'fa'))}
                                 </div>
                             </div>
                         ) : null}

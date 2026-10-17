@@ -25,6 +25,7 @@ import { Link } from "@/i18n/navigation";
 
 import { assignBugReportAction, updateBugReportBoardColumnsAction, updateBugReportPriorityAction, updateBugReportStatusAction } from "../actions";
 import { BUG_REPORT_COPY, normalizeBugReportLocale } from "../copy";
+import { RESOLVED_BOARD_WINDOW_DAYS } from "../schemas";
 import {
   AdminBugReportFilters,
   AdminBugReportPageInfo,
@@ -114,6 +115,8 @@ const ADMIN_BOARD_LABELS = {
     anotherUser: "another user",
     updatedBadge: "Updated",
     noReports: "No reports",
+    showOlderResolved: "Show older finished reports (over {days} days)",
+    hideOlderResolved: "Hide finished reports older than {days} days",
     last7Changes: "Last 7 changes",
     liveContext: "Live context above the cards",
     noRecentChanges: "No recent changes found for the current filters.",
@@ -160,6 +163,8 @@ const ADMIN_BOARD_LABELS = {
     anotherUser: "کاربر دیگر",
     updatedBadge: "به‌روز شده",
     noReports: "گزارشی وجود ندارد",
+    showOlderResolved: "نمایش گزارش‌های تمام‌شده قدیمی‌تر (بیش از {days} روز)",
+    hideOlderResolved: "پنهان کردن گزارش‌های تمام‌شده قدیمی‌تر از {days} روز",
     last7Changes: "۷ تغییر آخر",
     liveContext: "خلاصه تغییرات بالای کارت‌ها",
     noRecentChanges: "تغییر جدیدی برای فیلترهای فعلی پیدا نشد.",
@@ -206,6 +211,8 @@ const ADMIN_BOARD_LABELS = {
     anotherUser: "مستخدم آخر",
     updatedBadge: "مُحدّث",
     noReports: "لا توجد تقارير",
+    showOlderResolved: "عرض التقارير المنتهية الأقدم (أكثر من {days} يومًا)",
+    hideOlderResolved: "إخفاء التقارير المنتهية الأقدم من {days} يومًا",
     last7Changes: "آخر 7 تغييرات",
     liveContext: "سياق مباشر أعلى البطاقات",
     noRecentChanges: "لم يتم العثور على تغييرات حديثة للفلاتر الحالية.",
@@ -501,6 +508,7 @@ function pageHref(filters: AdminBugReportFilters, patch: Partial<AdminBugReportF
   if (next.page > 1) params.set("page", String(next.page));
   if (next.pageSize !== 40) params.set("pageSize", String(next.pageSize));
   if (next.view !== "board") params.set("view", next.view);
+  if (next.showOlderResolved) params.set("older", "1");
 
   const query = params.toString();
   return query ? `/admin/bug-reports?${query}` : "/admin/bug-reports";
@@ -873,6 +881,14 @@ export function AdminBugReportsBoard({ locale, items, stats, filters, pageInfo, 
                   ) : (
                     column.items.map((item) => <BugCard key={item.id} item={item} locale={locale} agents={safeAgents} />)
                   )}
+                  {column.key === "done" && filters.status === "all" && !filters.q ? (
+                    <Link
+                      href={pageHref(filters, { showOlderResolved: !filters.showOlderResolved, page: 1 })}
+                      className="block rounded-2xl bg-white px-3 py-2 text-center text-xs font-bold text-slate-600 hover:bg-slate-50"
+                    >
+                      {(filters.showOlderResolved ? ui.hideOlderResolved : ui.showOlderResolved).replace("{days}", String(RESOLVED_BOARD_WINDOW_DAYS))}
+                    </Link>
+                  ) : null}
                 </div>
               </section>
             ))}

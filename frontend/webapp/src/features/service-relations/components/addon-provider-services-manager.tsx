@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
+import { formatCurrencyAmount } from "@/features/finance/lib/money";
 import { ChevronLeft, ChevronRight, Loader2, Search, Trash2 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { toast } from "sonner";
@@ -18,7 +19,7 @@ import { AddonLinkedProviderServiceItem, AddonProviderServicePickerItem } from "
 const PAGE_SIZE = 20;
 
 function formatMoney(price: number, currency: string) {
-  return `${currency} ${price.toLocaleString()}`;
+  return formatCurrencyAmount(price, currency, "en-US", { maximumFractionDigits: 2 });
 }
 
 export default function AddonProviderServicesManager({
