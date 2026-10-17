@@ -382,7 +382,10 @@ declare const messages: {
     "stay": {
       "perNight": "per night",
       "nightsLine": "Nights: {nights} × {price} per night",
-      "checkoutAfterCheckin": "Check-out must be after check-in."
+      "checkoutAfterCheckin": "Check-out must be after check-in.",
+      "adultsMin": "At least {min} adult is required.",
+      "decreaseAdults": "Decrease adults",
+      "increaseAdults": "Increase adults"
     },
     "addonScope": {
       "showAllInCountry": "Show all in {country}",

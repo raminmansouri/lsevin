@@ -4882,7 +4882,10 @@ declare const messages: {
     "stay": {
       "perNight": "بۆ هەر شەوێک",
       "nightsLine": "ژمارەی شەوەکان: {nights} × {price} بۆ هەر شەوێک",
-      "checkoutAfterCheckin": "بەرواری دەرچوون دەبێت دوای بەرواری چوونەژوورەوە بێت."
+      "checkoutAfterCheckin": "بەرواری دەرچوون دەبێت دوای بەرواری چوونەژوورەوە بێت.",
+      "adultsMin": "لانیکەم {min} گەورەساڵ پێویستە.",
+      "decreaseAdults": "کەمکردنەوەی گەورەساڵان",
+      "increaseAdults": "زیادکردنی گەورەساڵان"
     },
     "addonScope": {
       "showAllInCountry": "هەموو لە {country} پیشان بدە",

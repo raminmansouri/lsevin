@@ -1871,7 +1871,10 @@
     "stay": {
       "perNight": "барои як шаб",
       "nightsLine": "Шабҳо: {nights} × {price} барои як шаб",
-      "checkoutAfterCheckin": "Санаи баромад бояд баъд аз санаи воридшавӣ бошад."
+      "checkoutAfterCheckin": "Санаи баромад бояд баъд аз санаи воридшавӣ бошад.",
+      "adultsMin": "Ақаллан {min} нафар калонсол лозим аст.",
+      "decreaseAdults": "Кам кардани калонсолон",
+      "increaseAdults": "Зиёд кардани калонсолон"
     },
     "addonScope": {
       "showAllInCountry": "Ҳамаро дар {country} нишон диҳед",

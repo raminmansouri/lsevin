@@ -7114,7 +7114,10 @@ declare const messages: {
     "stay": {
       "perNight": "هر شب",
       "nightsLine": "تعداد شب: {nights} × {price} برای هر شب",
-      "checkoutAfterCheckin": "تاریخ خروج باید بعد از تاریخ ورود باشد."
+      "checkoutAfterCheckin": "تاریخ خروج باید بعد از تاریخ ورود باشد.",
+      "adultsMin": "حداقل {min} بزرگسال لازم است.",
+      "decreaseAdults": "کاهش تعداد بزرگسالان",
+      "increaseAdults": "افزایش تعداد بزرگسالان"
     },
     "addonScope": {
       "showAllInCountry": "نمایش همه در {country}",

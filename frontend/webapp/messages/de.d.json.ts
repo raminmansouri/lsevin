@@ -4882,7 +4882,10 @@ declare const messages: {
     "stay": {
       "perNight": "pro Nacht",
       "nightsLine": "Nächte: {nights} × {price} pro Nacht",
-      "checkoutAfterCheckin": "Das Abreisedatum muss nach dem Anreisedatum liegen."
+      "checkoutAfterCheckin": "Das Abreisedatum muss nach dem Anreisedatum liegen.",
+      "adultsMin": "Mindestens {min} Erwachsener ist erforderlich.",
+      "decreaseAdults": "Erwachsene verringern",
+      "increaseAdults": "Erwachsene erhöhen"
     },
     "addonScope": {
       "showAllInCountry": "Alle in {country} anzeigen",

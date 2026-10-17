@@ -2272,7 +2272,10 @@
     "stay": {
       "perNight": "за ночь",
       "nightsLine": "Ночей: {nights} × {price} за ночь",
-      "checkoutAfterCheckin": "Дата выезда должна быть позже даты заезда."
+      "checkoutAfterCheckin": "Дата выезда должна быть позже даты заезда.",
+      "adultsMin": "Требуется минимум {min} взрослый.",
+      "decreaseAdults": "Уменьшить число взрослых",
+      "increaseAdults": "Увеличить число взрослых"
     },
     "addonScope": {
       "showAllInCountry": "Показать все: {country}",

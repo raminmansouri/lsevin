@@ -4924,7 +4924,10 @@
     "stay": {
       "perNight": "gecelik",
       "nightsLine": "Gece sayısı: {nights} × gecelik {price}",
-      "checkoutAfterCheckin": "Çıkış tarihi giriş tarihinden sonra olmalıdır."
+      "checkoutAfterCheckin": "Çıkış tarihi giriş tarihinden sonra olmalıdır.",
+      "adultsMin": "En az {min} yetişkin gereklidir.",
+      "decreaseAdults": "Yetişkin sayısını azalt",
+      "increaseAdults": "Yetişkin sayısını artır"
     },
     "addonScope": {
       "showAllInCountry": "{country} genelindeki tümünü göster",

@@ -4879,7 +4879,10 @@
     "stay": {
       "perNight": "par nuit",
       "nightsLine": "Nuits : {nights} × {price} par nuit",
-      "checkoutAfterCheckin": "Le départ doit être postérieur à l’arrivée."
+      "checkoutAfterCheckin": "Le départ doit être postérieur à l’arrivée.",
+      "adultsMin": "Au moins {min} adulte est requis.",
+      "decreaseAdults": "Diminuer les adultes",
+      "increaseAdults": "Augmenter les adultes"
     },
     "addonScope": {
       "showAllInCountry": "Afficher tous les résultats : {country}",
