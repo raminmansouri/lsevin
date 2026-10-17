@@ -3,6 +3,7 @@
 
 declare const messages: {
   "Assistant": {
+    "journey": { "title": "برنامهٔ سفر شما", "kinds": { "arrival": "رسیدن", "treatment": "روز درمان", "recovery": "نقاهت", "departure": "بازگشت" }, "day": "روز {day, number}", "days": "روز {from, number} تا {to, number}", "nights": "{count, number} شب", "checkout": "خروج از هتل", "book": "رزرو", "total": "جمع تقریبی", "note": "قیمت‌ها تقریبی‌اند و هنگام رزرو نهایی می‌شوند.", "partial": "قیمت برخی موارد پس از مشاوره مشخص می‌شود و در جمع نیامده است.", "priceOnRequest": "پس از مشاوره" },
     "launcher": { "open": "باز کردن دستیار", "close": "بستن", "expand": "تمام‌صفحه", "collapse": "کوچک کردن" },
     "entry": {
       "title": "دستیار هوشمند Lsevin",
@@ -26,7 +27,7 @@ declare const messages: {
       "priceOnRequest": "قیمت پس از مشاوره",
       "perNight": "/ شب",
       "viewService": "مشاهده",
-      "types": { "provider": "کلینیک", "specialist": "پزشک", "hotel": "هتل" }
+      "types": { "provider": "کلینیک", "specialist": "پزشک", "hotel": "هتل" , 	"transfer": "ترانسفر"}
 
     }
   },

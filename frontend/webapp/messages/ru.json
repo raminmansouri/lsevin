@@ -1,5 +1,6 @@
 {
   "Assistant": {
+    "journey": { "title": "Ваш план поездки", "kinds": { "arrival": "Прибытие", "treatment": "День лечения", "recovery": "Восстановление", "departure": "Отъезд" }, "day": "День {day, number}", "days": "Дни {from, number}–{to, number}", "nights": "{count, number} ноч.", "checkout": "Выезд из отеля", "book": "Забронировать", "total": "Примерная сумма", "note": "Цены примерные и подтверждаются при бронировании.", "partial": "Некоторые цены определяются после консультации и не входят в сумму.", "priceOnRequest": "После консультации" },
     "launcher": { "open": "Открыть ассистента", "close": "Закрыть", "expand": "На весь экран", "collapse": "Свернуть" },
     "entry": {
       "title": "Умный ассистент LSevin",
@@ -23,7 +24,7 @@
       "priceOnRequest": "Цена после консультации",
       "perNight": "/ ночь",
       "viewService": "Смотреть",
-      "types": { "provider": "Клиника", "specialist": "Врач", "hotel": "Отель" }
+      "types": { "provider": "Клиника", "specialist": "Врач", "hotel": "Отель" , 	"transfer": "Трансфер"}
     }
   },
 

@@ -13,12 +13,24 @@ import {
   searchProductsInputSchema,
 } from "@/features/assistant/tools/search-products";
 
+import {
+  GET_TRANSFER_OPTIONS_DESCRIPTION,
+  getTransferOptions,
+  getTransferOptionsInputSchema,
+} from "@/features/assistant/tools/get-transfer-options";
 
 import {
   GET_SERVICE_DETAILS_DESCRIPTION,
   getServiceDetails,
   getServiceDetailsInputSchema,
 } from "@/features/assistant/tools/get-service-details";
+
+
+import {
+  BUILD_JOURNEY_PLAN_DESCRIPTION,
+  buildJourneyPlan,
+  buildJourneyPlanInputSchema,
+} from "@/features/assistant/tools/build-journey-plan";
 
 import { SEARCH_HOTELS_DESCRIPTION, searchHotels, searchHotelsInputSchema } from "@/features/assistant/tools/search-hotels";
 import type { LocaleTypes } from "@/types/common";
@@ -137,6 +149,56 @@ async function handler(req: Request): Promise<Response> {
           }
         }
       );
+
+
+      server.registerTool(
+        "get_transfer_options",
+        {
+          title: "Get transfer options",
+          description: GET_TRANSFER_OPTIONS_DESCRIPTION,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          inputSchema: getTransferOptionsInputSchema as any,
+        },
+        async (args: unknown) => {
+          try {
+            const input = getTransferOptionsInputSchema.parse(args);
+            const result = await getTransferOptions(input, storedLocale);
+            return { content: [{ type: "text" as const, text: JSON.stringify(result) }] };
+          } catch (error) {
+            console.error("[mcp] get_transfer_options failed", error);
+            return {
+              isError: true,
+              content: [{ type: "text" as const, text: "Transfer options are temporarily unavailable." }],
+            };
+          }
+        }
+      );
+
+
+      server.registerTool(
+        "build_journey_plan",
+        {
+          title: "Build journey plan",
+          description: BUILD_JOURNEY_PLAN_DESCRIPTION,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          inputSchema: buildJourneyPlanInputSchema as any,
+        },
+        async (args: unknown) => {
+          try {
+            const input = buildJourneyPlanInputSchema.parse(args);
+            const result = await buildJourneyPlan(input, { storedLocale, locale });
+            return { content: [{ type: "text" as const, text: JSON.stringify(result) }] };
+          } catch (error) {
+            console.error("[mcp] build_journey_plan failed", error);
+            return {
+              isError: true,
+              content: [{ type: "text" as const, text: "The journey plan could not be built right now." }],
+            };
+          }
+        }
+      );
+
+      
     },
     { serverInfo: { name: "lsevin-assistant", version: "0.2.0" } }
   );

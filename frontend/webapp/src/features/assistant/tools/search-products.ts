@@ -21,7 +21,7 @@ export const searchProductsInputSchema = z.object({
 export type SearchProductsInput = z.infer<typeof searchProductsInputSchema>;
 
 // Display currency per site language (same convention as the rest of the app).
-const DISPLAY_CURRENCY: Record<string, string> = { fa: "IRT", en: "USD", ar: "AED", tr: "TRY", ru: "USD" };
+export const DISPLAY_CURRENCY: Record<string, string> = { fa: "IRT", en: "USD", ar: "AED", tr: "TRY", ru: "USD" };
 
 export async function searchProductsForAssistant(
   input: SearchProductsInput,
@@ -36,7 +36,8 @@ export async function searchProductsForAssistant(
   );
 
   const results = items.slice(0, max).map((product) => ({
-    id: product.id,
+    // The journey planner looks products up by slug, so expose the slug as the id.
+    id: product.slug,
     type: "product" as const,
     name: product.name,
     provider: product.brandName ?? "",

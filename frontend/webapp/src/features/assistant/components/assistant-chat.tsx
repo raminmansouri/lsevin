@@ -7,11 +7,33 @@ import { History, MessageSquare, Plus, Send, Sparkles, X } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 
 import type { AssistantConversationSummary } from "../hooks/use-assistant-chat";
-import type { AssistantServiceResult } from "../types";
+import type { AssistantServiceResult, JourneyPlan } from "../types";
 import { AssistantServiceCard } from "./assistant-service-card";
 
+import { AssistantJourneyCard } from "./assistant-journey-card";
+
 /** Tools whose results are shown as cards. */
-const CARD_TOOLS = ["search_services", "search_hotels", "search_products"];
+const CARD_TOOLS = ["search_services", "search_hotels", "search_products", "get_transfer_options"];
+
+/** Read a tool's JSON output (MCP text content or plain JSON). */
+function parseToolJson(output: unknown): unknown {
+  try {
+    let value: unknown = output;
+    if (typeof value === "object" && value !== null && !Array.isArray(value) && "content" in value) {
+      value = (value as { content: unknown }).content;
+    }
+    if (Array.isArray(value)) {
+      const textBlock = value.find(
+        (block): block is { type: string; text: string } =>
+          typeof block === "object" && block !== null && (block as { type?: string }).type === "text"
+      );
+      value = textBlock?.text;
+    }
+    return typeof value === "string" ? JSON.parse(value) : value ?? null;
+  } catch {
+    return null;
+  }
+}
 
 /** Pull results out of a search tool output (MCP text content or plain JSON). */
 function extractServices(output: unknown): AssistantServiceResult[] {
@@ -181,6 +203,14 @@ export function AssistantChat({
                   : part.type.startsWith("tool-")
                     ? part.type.slice("tool-".length)
                     : "";
+              if (toolName.endsWith("build_journey_plan")) {
+                const toolPart = part as { state?: string; output?: unknown };
+                if (toolPart.state !== "output-available") return null;
+                const data = parseToolJson(toolPart.output) as { found?: boolean; plan?: JourneyPlan } | null;
+                if (!data?.found || !data.plan) return null;
+                return <AssistantJourneyCard key={index} plan={data.plan} />;
+              }
+
               if (CARD_TOOLS.some((name) => toolName.endsWith(name))) {
                 const toolPart = part as { state?: string; output?: unknown };
                 if (toolPart.state !== "output-available") return null;

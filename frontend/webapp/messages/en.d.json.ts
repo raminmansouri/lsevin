@@ -3,6 +3,7 @@
 
 declare const messages: {
   "Assistant": {
+    "journey": { "title": "Your journey plan", "kinds": { "arrival": "Arrival", "treatment": "Treatment day", "recovery": "Recovery", "departure": "Departure" }, "day": "Day {day, number}", "days": "Days {from, number}–{to, number}", "nights": "{count, number} nights", "checkout": "Hotel check-out", "book": "Book", "total": "Estimated total", "note": "Prices are estimates and are confirmed when you book.", "partial": "Some prices are set after consultation and are not included in the total.", "priceOnRequest": "After consultation" },
     "launcher": { "open": "Open assistant", "close": "Close", "expand": "Full screen", "collapse": "Exit full screen" },
     "entry": {
       "title": "LSevin smart assistant",
@@ -26,7 +27,7 @@ declare const messages: {
       "priceOnRequest": "Price after consultation",
       "perNight": "/ night",
       "viewService": "View",
-      "types": { "provider": "Clinic", "specialist": "Doctor", "hotel": "Hotel" }
+      "types": { "provider": "Clinic", "specialist": "Doctor", "hotel": "Hotel" , 	"transfer": "Transfer"}
     }
   },
 

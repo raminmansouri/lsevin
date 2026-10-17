@@ -3,6 +3,7 @@
 
 declare const messages: {
   "Assistant": {
+    "journey": { "title": "Seyahat planınız", "kinds": { "arrival": "Varış", "treatment": "Tedavi günü", "recovery": "İyileşme", "departure": "Dönüş" }, "day": "{day, number}. gün", "days": "{from, number}–{to, number}. günler", "nights": "{count, number} gece", "checkout": "Otelden çıkış", "book": "Rezerve et", "total": "Tahmini toplam", "note": "Fiyatlar tahminidir ve rezervasyonda kesinleşir.", "partial": "Bazı fiyatlar danışmadan sonra belirlenir ve toplama dahil değildir.", "priceOnRequest": "Danışmadan sonra" },
     "launcher": { "open": "Asistanı aç", "close": "Kapat", "expand": "Tam ekran", "collapse": "Küçült" },
     "entry": {
       "title": "LSevin akıllı asistan",
@@ -26,7 +27,7 @@ declare const messages: {
       "priceOnRequest": "Fiyat danışmadan sonra",
       "perNight": "/ gece",
       "viewService": "Görüntüle",
-      "types": { "provider": "Klinik", "specialist": "Doktor", "hotel": "Otel" }
+      "types": { "provider": "Klinik", "specialist": "Doktor", "hotel": "Otel" , 	"transfer": "Transfer"}
     }
   },
 

@@ -16,6 +16,8 @@ import {
 import { resolveIsIranianVisitor } from "@/features/finance/lib/server/iranian-visitor";
 import { getUserId } from "@/lib/auth/session";
 
+import { classifyMessage, guardReply } from "@/features/assistant/agent/topic-guard";
+
 export const maxDuration = 60;
 
 // Only send the last few messages to the model: keeps cost per message low.
@@ -64,6 +66,41 @@ export async function POST(req: Request) {
     messages,
     locale = "fa",
   }: { id?: string; messages: UIMessage[]; locale?: string } = await req.json();
+
+
+  // Semantic router: clearly off-topic messages get a polite answer without calling the model.
+  const lastUserMessage = [...messages].reverse().find((message) => message.role === "user");
+  const lastUserText =
+    lastUserMessage?.parts
+      .filter((part): part is { type: "text"; text: string } => part.type === "text")
+      .map((part) => part.text)
+      .join(" ") ?? "";
+
+  // The assistant's reply just before this message, so short follow-ups are judged in context.
+  const lastUserIndex = lastUserMessage ? messages.lastIndexOf(lastUserMessage) : -1;
+  const previousAssistant = messages
+    .slice(0, Math.max(lastUserIndex, 0))
+    .reverse()
+    .find((message) => message.role === "assistant");
+  const previousAssistantText =
+    previousAssistant?.parts
+      .filter((part): part is { type: "text"; text: string } => part.type === "text")
+      .map((part) => part.text)
+      .join(" ") ?? "";
+
+  const verdict = lastUserText ? await classifyMessage(lastUserText, previousAssistantText) : "ok";
+  if (verdict !== "ok") {
+    const stream = createUIMessageStream({
+      execute: ({ writer }) => {
+        const id = randomUUID();
+        writer.write({ type: "text-start", id });
+        writer.write({ type: "text-delta", id, delta: guardReply(verdict, locale) });
+        writer.write({ type: "text-end", id });
+      },
+    });
+    return createUIMessageStreamResponse({ stream });
+  }
+
 
   const mcpUrl = process.env.MCP_SERVER_URL;
   const mcpToken = process.env.MCP_INTERNAL_TOKEN;

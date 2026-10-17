@@ -24,7 +24,9 @@ export function AssistantServiceCard({ service }: { service: AssistantServiceRes
         ? t("types.specialist")
         : service.type === "product"
           ? t("types.product")
-          : null;
+          : service.type === "transfer"
+            ? t("types.transfer")
+            : null;
 
   return (
     <Link

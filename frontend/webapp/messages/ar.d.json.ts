@@ -3,6 +3,7 @@
 
 declare const messages: {
   "Assistant": {
+    "journey": { "title": "خطة رحلتك", "kinds": { "arrival": "الوصول", "treatment": "يوم العلاج", "recovery": "التعافي", "departure": "المغادرة" }, "day": "اليوم {day, number}", "days": "الأيام {from, number}–{to, number}", "nights": "{count, number} ليالٍ", "checkout": "تسجيل الخروج من الفندق", "book": "احجز", "total": "الإجمالي التقريبي", "note": "الأسعار تقديرية وتُؤكَّد عند الحجز.", "partial": "تُحدَّد بعض الأسعار بعد الاستشارة ولم تُضمَّن في الإجمالي.", "priceOnRequest": "بعد الاستشارة" },
     "launcher": { "open": "فتح المساعد", "close": "إغلاق", "expand": "ملء الشاشة", "collapse": "تصغير" },
     "entry": {
       "title": "مساعد LSevin الذكي",
@@ -26,7 +27,7 @@ declare const messages: {
       "priceOnRequest": "السعر بعد الاستشارة",
       "perNight": "/ ليلة",
       "viewService": "عرض",
-      "types": { "provider": "عيادة", "specialist": "طبيب", "hotel": "فندق" }
+      "types": { "provider": "عيادة", "specialist": "طبيب", "hotel": "فندق" , "transfer": "نقل"}
     }
   },
 
