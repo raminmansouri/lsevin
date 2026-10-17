@@ -1571,10 +1571,12 @@ export async function searchAdminProviderLookupOptions(
       `;
     } else if (params.type === "currencies") {
       rows = await sql<AdminLookupOption[]>`
-        select symbol as id, symbol as code, concat(symbol, case when nullif(name, '') is not null then concat(' · ', name) else '' end) as label
-        from category.currencies
-        where ${hasQuery ? sql`(symbol ilike ${like} or name ilike ${like})` : sql`true`}
-        order by symbol
+        select code as id, code, concat(code, case when nullif(name, '') is not null then concat(' · ', name) else '' end) as label
+        from finance.currencies
+        where deleted_at is null
+          and is_active = true
+          and ${hasQuery ? sql`(code ilike ${like} or name ilike ${like})` : sql`true`}
+        order by sort_order asc, code asc
         limit ${limit} offset ${offset}
       `;
     } else if (params.type === "addons") {
@@ -1710,9 +1712,11 @@ export async function getAdminProviderLookupData(
         limit 50
       `,
       sql<AdminLookupOption[]>`
-        select symbol as id, symbol as code, concat(symbol, case when nullif(name, '') is not null then concat(' · ', name) else '' end) as label
-        from category.currencies
-        order by symbol
+        select code as id, code, concat(code, case when nullif(name, '') is not null then concat(' · ', name) else '' end) as label
+        from finance.currencies
+        where deleted_at is null
+          and is_active = true
+        order by sort_order asc, code asc
         limit 50
       `,
       sql<AdminLookupOption[]>`

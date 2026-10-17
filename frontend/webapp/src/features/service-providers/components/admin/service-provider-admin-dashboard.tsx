@@ -1556,10 +1556,6 @@ function ServicesManager({ provider, lookups, locale }: Props) {
     });
   });
 
-  const excludedServiceDefinitionIds = provider.services
-    .filter((item) => item.id !== editingServiceId)
-    .map((item) => item.serviceDefinitionId);
-
   return (
     <RelationCard
       title={tAdmin("providerServices")}
@@ -1626,7 +1622,6 @@ function ServicesManager({ provider, lookups, locale }: Props) {
                             placeholder={tAdmin("searchAndSelectServiceDefinition")}
                             searchPlaceholder="Search service definitions..."
                             initialOptions={lookups.serviceDefinitions}
-                            excludeIds={excludedServiceDefinitionIds}
                             disabled={isPending}
                             contentClassName="w-[520px]"
                           />
