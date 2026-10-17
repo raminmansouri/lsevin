@@ -29,7 +29,7 @@ if ($eth) { $checks += @{ n = "lsevin.ir (Iranian site, A) from the Iranian line
 foreach ($c in $checks) { $r = Code $c.u $c.x; if ($r -ne $c.ok) { $failures[$c.n] = "HTTP $r (expected $($c.ok))" } }
 # the alerter on B must have completed a cycle in the last 10 minutes
 $sshKey = Join-Path $env:USERPROFILE ".ssh\lsevin_b"
-$beat = & ssh -i $sshKey -o BatchMode=yes -o ConnectTimeout=20 agent@202.133.90.50 "cat /var/lib/lsevin-alerter/last-cycle; date +%s" 2>$null
+$beat = & ssh -i $sshKey -o BatchMode=yes -o ConnectTimeout=20 agent@202.133.90.50 "cat /var/lib/lsevin-alerter/last-cycle; echo; date +%s" 2>$null
 if ($beat -and $beat.Count -ge 2) {
     $age = [int]$beat[1] - [int]$beat[0]
     if ($age -gt 600) { $failures["alerter on server B"] = "no monitoring cycle for $([int]($age/60)) minutes" }
