@@ -239,8 +239,8 @@
       "name": "sync_stalled",
       "severity": "critical",
       "for": 120,
-      "expr": "lsevin_sync_last_ok_age_seconds > 900",
-      "summary": "no {direction} replication batch moved for {value}s"
+      "expr": "lsevin_sync_last_ok_age_seconds{direction=\"outgoing\"} > 900 and on(site) lsevin_sync_outgoing_pending_batches > 0",
+      "summary": "batches are waiting to be sent but none moved for {value}s: replication is stuck (an idle system with nothing to send is NOT an alert)"
     },
     {
       "name": "sync_backlog",
@@ -346,6 +346,34 @@
       "for": 0,
       "expr": "lsevin_provider_sends_15m{result=\"error\"} >= 3 and on(provider, site) lsevin_provider_sends_15m{result=\"ok\"} == 0",
       "summary": "{provider}: {value} failed sends and no successful one in 15 minutes (real user OTPs are failing)"
+    },
+    {
+      "name": "vpn_down",
+      "severity": "critical",
+      "for": 120,
+      "expr": "lsevin_vpn_interface_up == 0 or lsevin_vpn_b_https_ok == 0",
+      "summary": "the VPN tunnel from server A to B is down or cannot reach B:443: database/file sync and metrics from A are cut"
+    },
+    {
+      "name": "vpn_service_down",
+      "severity": "critical",
+      "for": 120,
+      "expr": "lsevin_vpn_service_up == 0",
+      "summary": "VPN service {unit} is not running on A"
+    },
+    {
+      "name": "vpn_packet_loss",
+      "severity": "warning",
+      "for": 300,
+      "expr": "lsevin_vpn_ping_loss_percent > 20 and lsevin_vpn_ping_loss_percent < 100",
+      "summary": "VPN link loses {value}% of packets"
+    },
+    {
+      "name": "vpn_slow",
+      "severity": "warning",
+      "for": 600,
+      "expr": "lsevin_vpn_rtt_ms > 600",
+      "summary": "VPN round trip is {value} ms (normal ~130)"
     }
   ]
 }

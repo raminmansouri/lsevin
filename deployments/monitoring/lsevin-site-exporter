@@ -263,8 +263,35 @@ def collect_providers():
     return lines
 
 
+def collect_vpn():
+    """The OpenVPN link from the Iranian server to B (only exists on A). Probes through the tunnel route itself."""
+    iface = os.environ.get("VPN_IFACE", "lsvpn0")
+    if not os.path.isdir("/sys/class/net/" + iface):
+        return []
+    target = os.environ.get("VPN_TARGET", "202.133.90.50")
+    up = 1 if open("/sys/class/net/%s/operstate" % iface).read().strip() in ("up", "unknown") else 0
+    out = run(["ping", "-c", "5", "-W", "2", "-i", "0.3", target], 20)
+    m = re.search(r"([\d.]+)% packet loss", out)
+    loss = float(m.group(1)) if m else 100.0
+    m = re.search(r"= [\d.]+/([\d.]+)/", out)
+    rtt = float(m.group(1)) if m else -1
+    try:
+        socket.create_connection((target, 443), 8).close()
+        tcp = 1
+    except OSError:
+        tcp = 0
+    units = [("openvpn-client@lsevin-vpn", os.environ.get("VPN_UNIT", "openvpn-client@lsevin-vpn.service")), ("lsevin-vpn-manager", "lsevin-vpn-manager.service")]
+    svc = [({"unit": n}, 1 if run(["systemctl", "is-active", u], 10).strip() == "active" else 0) for n, u in units]
+    lines = gauge("lsevin_vpn_interface_up", "1 when the VPN network interface is up", [({}, up)])
+    lines += gauge("lsevin_vpn_ping_loss_percent", "Packet loss to B through the tunnel (5 pings)", [({}, loss)])
+    lines += gauge("lsevin_vpn_rtt_ms", "Average round trip to B through the tunnel in ms (-1 = no reply)", [({}, rtt)])
+    lines += gauge("lsevin_vpn_b_https_ok", "1 when a TCP connection to B:443 works through the tunnel", [({}, tcp)])
+    lines += gauge("lsevin_vpn_service_up", "1 when the VPN systemd unit is active", svc)
+    return lines
+
+
 def background():
-    schedule = [("sync", collect_sync, 60), ("jenkins", collect_jenkins, 60), ("providers", collect_providers, 300), ("k8s", collect_k8s, 30)]
+    schedule = [("sync", collect_sync, 60), ("jenkins", collect_jenkins, 60), ("providers", collect_providers, 300), ("k8s", collect_k8s, 30), ("vpn", collect_vpn, 60)]
     last = {n: 0 for n, _, _ in schedule}
     while True:
         for name, fn, every in schedule:
