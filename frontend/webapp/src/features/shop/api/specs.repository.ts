@@ -12,7 +12,10 @@ export async function getProductSpecs(productId: string, locale: string): Promis
   const rows = await sql<{ attributeId: string; name: string; textValue: string | null; values: string[] | null }[]>`
     select a.id::text as "attributeId",
       common.get_translation_t(a.name_translations, ${lang}, 'en') as name,
-      nullif(btrim(pa.text_value), '') as "textValue",
+      coalesce(
+        nullif(common.get_translation_t(pa.text_value_translations, ${lang}, 'en'), ''),
+        nullif(btrim(pa.text_value), '')
+      ) as "textValue",
       (
         select array_agg(
           coalesce(nullif(common.get_translation_t(av.display_name_translations, ${lang}, 'en'), ''), av.value)

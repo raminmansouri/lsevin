@@ -26,6 +26,7 @@ import {
   setProductGallery,
   updateDeliveryMethod,
   updateWarehouse,
+  updateAttributeValue,
   upsertAttribute,
   upsertBrand,
   upsertCategory,
@@ -217,7 +218,9 @@ export async function upsertAttributeForm(formData: FormData) {
     displayType: String(formData.get("displayType") || "select"),
     isVariantDefining: formData.get("isVariantDefining") === "on",
   });
+  revalidateShopCatalog();
   revalidatePath("/[locale]/admin/shop/attributes", "page");
+  revalidatePath("/[locale]/n/app/mobile/shop/product/[slug]", "page");
 }
 export async function upsertAttributeAction(input: {
   id?: string;
@@ -275,6 +278,16 @@ export async function addAttributeValueAction(input: {
   return { ok: true as const };
 }
 
+export async function updateAttributeValueForm(formData: FormData) {
+  await updateAttributeValue({
+    id: shopId.parse(formData.get("id")),
+    displayNameTranslations: fromForm3(formData, "label"),
+  });
+  revalidateShopCatalog();
+  revalidatePath("/[locale]/admin/shop/attributes", "page");
+  revalidatePath("/[locale]/n/app/mobile/shop/product/[slug]", "page");
+}
+
 export async function deleteAttributeValueForm(formData: FormData) {
   await deleteAttributeValue({ id: shopId.parse(formData.get("id")) });
   revalidateShopCatalog();
@@ -291,13 +304,20 @@ export async function setProductAttributeForm(formData: FormData) {
   const productId = shopId.parse(formData.get("productId"));
   // Only the per-attribute "values" form sends setValues=1; the attach form leaves values as they are.
   const setValues = formData.get("setValues") === "1";
+  // Text-type attributes send one input per language (textValue_en/fa/ar); older forms send a single textValue.
+  const textValueTranslations = fromForm3(formData, "textValue");
+  const textValue =
+    String(formData.get("textValue") ?? "").trim() ||
+    [textValueTranslations.en, textValueTranslations.fa, textValueTranslations.ar].map((v) => v.trim()).find(Boolean) ||
+    null;
   await setProductAttribute({
     productId,
     attributeId: shopId.parse(formData.get("attributeId")),
     isRequired: formData.get("isRequired") === "on",
     displayOrder: Number(formData.get("displayOrder") || 0),
     valueIds: setValues ? formData.getAll("valueIds").map((v) => shopId.parse(v)) : undefined,
-    textValue: setValues ? String(formData.get("textValue") ?? "").trim() || null : undefined,
+    textValue: setValues ? textValue : undefined,
+    textValueTranslations: setValues ? textValueTranslations : undefined,
   });
   revalidateShopCatalog();
   revalidatePath(`/[locale]/admin/shop/products/${productId}`, "page");

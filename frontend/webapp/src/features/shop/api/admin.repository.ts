@@ -222,7 +222,7 @@ export async function getAdminProductForEdit(productId: string) {
       select a.id::text as attribute_id, a.slug, a.display_type, a.is_variant_defining,
         common.get_translation_t(a.name_translations, 'en', 'en') as name,
         pa.is_required, pa.display_order,
-        pa.value_ids::text[] as value_ids, pa.text_value
+        pa.value_ids::text[] as value_ids, pa.text_value, pa.text_value_translations
       from shop.product_attributes pa
       join shop.attributes a on a.id = pa.attribute_id
       where pa.product_id = ${productId}::uuid
@@ -434,7 +434,8 @@ export async function listAttributesAdmin() {
       coalesce((
         select jsonb_agg(jsonb_build_object(
           'id', v.id, 'value', v.value, 'colorHex', v.color_hex, 'imageUrl', v.image_url,
-          'name', common.get_translation_t(v.display_name_translations, 'en', 'en')
+          'name', common.get_translation_t(v.display_name_translations, 'en', 'en'),
+          'translations', v.display_name_translations
         ) order by v.value)
         from shop.attribute_values v where v.attribute_id = a.id
       ), '[]'::jsonb) as values

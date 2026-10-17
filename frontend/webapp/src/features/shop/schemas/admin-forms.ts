@@ -85,6 +85,7 @@ export const attributeValueFormSchema = z.object({
   value: str.min(1).max(80),
   labelEn: str.default(""),
   labelFa: str.default(""),
+  labelAr: str.default(""),
   colorHex: str.default(""),
   imageUrl: str.default(""),
 });

@@ -494,6 +494,17 @@ export async function addAttributeValue(input: {
   return row.id;
 }
 
+export async function updateAttributeValue(input: {
+  id: string;
+  displayNameTranslations: Record<string, string>;
+}): Promise<void> {
+  await assertShopPermission(SHOP_PERMISSIONS.catalogManage);
+  await sql`
+    update shop.attribute_values set display_name_translations = ${j(input.displayNameTranslations)}
+    where id = ${input.id}::uuid
+  `;
+}
+
 export async function deleteAttributeValue(input: {
   id: string;
 }): Promise<void> {
@@ -509,22 +520,26 @@ export async function setProductAttribute(input: {
   /** undefined = keep the stored values (e.g. when only attaching the attribute). */
   valueIds?: string[];
   textValue?: string | null;
+  /** Per-locale text for text-type attributes ({ en, fa, ar }); `textValue` keeps the EN/first value. */
+  textValueTranslations?: Record<string, string> | null;
 }): Promise<void> {
   await assertShopPermission(SHOP_PERMISSIONS.catalogManage);
   const setValues = input.valueIds !== undefined || input.textValue !== undefined;
   const valueIdsCsv = (input.valueIds ?? []).join(",");
   await sql`
-    insert into shop.product_attributes (product_id, attribute_id, is_required, display_order, value_ids, text_value)
+    insert into shop.product_attributes (product_id, attribute_id, is_required, display_order, value_ids, text_value, text_value_translations)
     values (
       ${input.productId}::uuid, ${input.attributeId}::uuid, ${input.isRequired}, ${input.displayOrder},
-      string_to_array(${valueIdsCsv}::text, ',')::uuid[], ${input.textValue ?? null}::text
+      string_to_array(${valueIdsCsv}::text, ',')::uuid[], ${input.textValue ?? null}::text,
+      ${j(input.textValueTranslations ?? {})}
     )
     on conflict (product_id, attribute_id)
     do update set
       is_required = excluded.is_required,
       display_order = excluded.display_order,
       value_ids = case when ${setValues}::boolean then excluded.value_ids else shop.product_attributes.value_ids end,
-      text_value = case when ${setValues}::boolean then excluded.text_value else shop.product_attributes.text_value end
+      text_value = case when ${setValues}::boolean then excluded.text_value else shop.product_attributes.text_value end,
+      text_value_translations = case when ${setValues}::boolean then excluded.text_value_translations else shop.product_attributes.text_value_translations end
   `;
 }
 

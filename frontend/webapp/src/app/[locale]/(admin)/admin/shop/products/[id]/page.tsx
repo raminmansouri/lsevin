@@ -209,7 +209,18 @@ export default async function AdminProductEditPage({ params }: { params: Promise
                     <input type="hidden" name="setValues" value="1" />
                     {a.is_required ? <input type="hidden" name="isRequired" value="on" /> : null}
                     {a.display_type === "text" ? (
-                      <input name="textValue" defaultValue={a.text_value ?? ""} placeholder={e("attrTextValue")} className={input} />
+                      <div className="grid gap-2 sm:grid-cols-3">
+                        {(["en", "fa", "ar"] as const).map((lang) => (
+                          <input
+                            key={lang}
+                            name={`textValue_${lang}`}
+                            dir={lang === "en" ? "ltr" : "rtl"}
+                            defaultValue={a.text_value_translations?.[lang] ?? (lang === "en" ? a.text_value ?? "" : "")}
+                            placeholder={`${e("attrTextValue")} (${lang.toUpperCase()})`}
+                            className={input}
+                          />
+                        ))}
+                      </div>
                     ) : (attributeValuesById.get(a.attribute_id) ?? []).length ? (
                       <div className="flex flex-wrap gap-2">
                         {(attributeValuesById.get(a.attribute_id) ?? []).map((v: any) => (
