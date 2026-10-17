@@ -1,6 +1,13 @@
 import { describe, expect, it } from "vitest";
 
-import { exceedsLimit, hasPermission, PANEL_ROLES, ROLE_PERMISSIONS, type AccountingPermission } from "./permissions";
+import {
+  canManageRole,
+  exceedsLimit,
+  hasPermission,
+  PANEL_ROLES,
+  ROLE_PERMISSIONS,
+  type AccountingPermission,
+} from "./permissions";
 
 /**
  * The role table is the whole access policy of the financial panel, so it is pinned here
@@ -24,6 +31,7 @@ const EXPECTED: Record<AccountingPermission, { manager: boolean; accounting_mana
   "withdrawal.pay": { manager: true, accounting_manager: true, accountant: false },
   "payout_account.manage": { manager: true, accounting_manager: true, accountant: false },
   "settings.manage": { manager: true, accounting_manager: false, accountant: false },
+  "users.manage": { manager: true, accounting_manager: true, accountant: false },
 };
 
 describe("financial panel roles", () => {
@@ -52,6 +60,24 @@ describe("financial panel roles", () => {
   it("grants nothing to a missing or unknown role", () => {
     expect(hasPermission(null, "books.view")).toBe(false);
     expect(hasPermission("finance_admin" as never, "books.view")).toBe(false);
+  });
+});
+
+describe("who may add or remove whom", () => {
+  it("lets the manager handle accounting managers and accountants", () => {
+    expect(canManageRole("manager", "accounting_manager")).toBe(true);
+    expect(canManageRole("manager", "accountant")).toBe(true);
+  });
+
+  it("lets the accounting manager handle accountants only", () => {
+    expect(canManageRole("accounting_manager", "accountant")).toBe(true);
+    expect(canManageRole("accounting_manager", "accounting_manager")).toBe(false);
+  });
+
+  it("lets nobody handle a manager, and accountants handle nobody", () => {
+    for (const role of PANEL_ROLES) expect(canManageRole(role, "manager")).toBe(false);
+    for (const role of PANEL_ROLES) expect(canManageRole("accountant", role)).toBe(false);
+    expect(canManageRole(null, "accountant")).toBe(false);
   });
 });
 

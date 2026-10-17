@@ -48,6 +48,8 @@ const NAV_GROUPS: {
       { href: "/financial/templates", key: "templatesTitle" },
       { href: "/financial/audit", key: "auditTitle", requires: "audit.view" },
       { href: "/financial/settings", key: "settingsTitle", requires: "settings.manage" },
+      { href: "/financial/users", key: "usersTitle", requires: "users.manage" },
+      { href: "/financial/account", key: "myAccountTitle" },
     ],
   },
 ];
@@ -114,8 +116,8 @@ export async function PanelShell({ user, children }: PropsWithChildren<{ user: P
             {user.mustChangePassword && (
               <div className="mb-4 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900 print:hidden">
                 {t("mustChangePassword")}{" "}
-                <Link href="/financial/settings" className="underline">
-                  {t("settingsTitle")}
+                <Link href="/financial/account" className="underline">
+                  {t("myAccountTitle")}
                 </Link>
               </div>
             )}

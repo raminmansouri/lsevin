@@ -5332,6 +5332,8 @@ declare const messages: {
         "cancelled": "Cancelled"
       },
       "settingsTitle": "Accounting settings",
+      "usersTitle": "Users & roles",
+      "myAccountTitle": "My account",
       "settingsDescription": "Your business numbers. Changed here, not in code — and every change is recorded in the audit log.",
       "settingsGroup": {
         "core": "Core",

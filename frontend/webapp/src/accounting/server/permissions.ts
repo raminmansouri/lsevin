@@ -15,6 +15,13 @@ export type PanelRole = "manager" | "accounting_manager" | "accountant";
 
 export const PANEL_ROLES: PanelRole[] = ["manager", "accounting_manager", "accountant"];
 
+/** How the panel (Persian-only) names each role. */
+export const PANEL_ROLE_LABEL: Record<PanelRole, string> = {
+  manager: "مدیر",
+  accounting_manager: "مدیر حسابداری",
+  accountant: "حسابدار",
+};
+
 export type AccountingPermission =
   /** Dashboard, journal, ledger, reports, statements, lists, attachments, exports. */
   | "books.view"
@@ -42,7 +49,9 @@ export type AccountingPermission =
   | "withdrawal.pay"
   /** Add, edit or remove a provider's bank account. */
   | "payout_account.manage"
-  | "settings.manage";
+  | "settings.manage"
+  /** Open the Users page; which roles a person may add or remove is canManageRole. */
+  | "users.manage";
 
 const ACCOUNTANT: AccountingPermission[] = [
   "books.view",
@@ -64,6 +73,7 @@ const ACCOUNTING_MANAGER: AccountingPermission[] = [
   "withdrawal.approve",
   "withdrawal.pay",
   "payout_account.manage",
+  "users.manage",
 ];
 
 const MANAGER: AccountingPermission[] = [...ACCOUNTING_MANAGER, "settings.manage"];
@@ -73,6 +83,22 @@ export const ROLE_PERMISSIONS: Record<PanelRole, readonly AccountingPermission[]
   accounting_manager: ACCOUNTING_MANAGER,
   accountant: ACCOUNTANT,
 };
+
+/**
+ * Which panel accounts each role may add, deactivate or reactivate: the manager looks
+ * after accounting managers and accountants, an accounting manager after accountants.
+ * Nobody manages a manager from the panel (that stays with the financial-user script),
+ * so no one can lock the top role out or grant it to themselves.
+ */
+export const MANAGEABLE_ROLES: Record<PanelRole, readonly PanelRole[]> = {
+  manager: ["accounting_manager", "accountant"],
+  accounting_manager: ["accountant"],
+  accountant: [],
+};
+
+export function canManageRole(actor: PanelRole | null | undefined, target: PanelRole): boolean {
+  return Boolean(actor && MANAGEABLE_ROLES[actor]?.includes(target));
+}
 
 export function hasPermission(role: PanelRole | null | undefined, permission: AccountingPermission): boolean {
   return Boolean(role && ROLE_PERMISSIONS[role]?.includes(permission));

@@ -4460,6 +4460,8 @@ declare const messages: {
         "cancelled": "لغو شده"
       },
       "settingsTitle": "تنظیمات حسابداری",
+      "usersTitle": "کاربران و نقش‌ها",
+      "myAccountTitle": "حساب من",
       "settingsDescription": "اعداد کسب‌وکار شما. تغییرشان از اینجا انجام می‌شود، نه در کد — و هر تغییر در لاگ ممیزی ثبت می‌شود.",
       "settingsGroup": {
         "core": "پایه",
