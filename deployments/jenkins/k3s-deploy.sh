@@ -92,6 +92,16 @@ case "${1:-}" in
       echo "less than 10 GiB is free; deployment was not started" >&2
       exit 1
     }
+   
+    # Never start a heavy build while the host is short of memory or busy: a build on top of the live site is what exhausted
+    # server A on 2026-10-18. Wait up to 15 minutes for the host to calm down, then give up (the build fails; the site is untouched).
+    min_mb="${LSEVIN_BUILD_MIN_AVAILABLE_MB:-2800}"; max_load="${LSEVIN_BUILD_MAX_LOAD:-6}"; waited=0
+    while :; do
+      avail_mb="$(awk '/^MemAvailable:/ {print int($2 / 1024)}' /proc/meminfo)"; load1="$(cut -d ' ' -f 1 /proc/loadavg)"
+      if [ "$avail_mb" -ge "$min_mb" ] && [ "${load1%.*}" -lt "$max_load" ]; then break; fi
+      [ "$waited" -lt 900 ] || { echo "host is busy (available memory ${avail_mb} MB, need ${min_mb}; load ${load1}, limit ${max_load}); build not started to protect the live site" >&2; exit 1; }
+      echo "waiting for the host to calm down: available memory ${avail_mb} MB (need ${min_mb}), load ${load1} (limit ${max_load})"; sleep 30; waited=$((waited + 30))
+    done
     ;;
   deploy-core)
     shift
