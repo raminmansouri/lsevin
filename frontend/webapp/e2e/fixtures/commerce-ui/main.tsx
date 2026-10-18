@@ -12,6 +12,10 @@ import { useSectionScroll } from "../../../src/hooks/use-section-scroll";
 
 import "./style.css";
 
+import { BookingProgress } from "../../../src/features/booking-pro/components/BookingProgress";
+import { HomeHeroCard } from "../../../src/features/home/components/home-hero-card";
+import { ProviderActionBar } from "../../../src/features/service-providers/components/details/provider-action-bar";
+
 const longTitle =
   "خدمت تخصصی با عنوان طولانی برای بررسی نمایش کامل اطلاعات انتخاب‌شده در تلفن همراه";
 const quote = {
@@ -42,6 +46,46 @@ function Fixture() {
   const [services, setServices] = useState(false);
   const { sectionRef, requestScroll } = useSectionScroll(services);
   const scenario = new URLSearchParams(location.search).get("case");
+  if (scenario === "layouts")
+    return (
+      <>
+        <div className="p-5">
+          <BookingProgress
+            label="Booking steps"
+            currentIndex={3}
+            steps={[
+              "انتخاب مرکز",
+              "انتخاب خدمت",
+              "انتخاب متخصص",
+              "تاریخ و ساعت",
+              "اطلاعات مراجعه‌کننده",
+              "بررسی و پرداخت",
+              "تأیید رزرو",
+            ].map((label, key) => ({ key, label }))}
+          />
+        </div>
+        <HomeHeroCard
+          imageAlt=""
+          badge="پیشنهادهای ویژه"
+          title="خدمات ممتاز سلامت و زیبایی را کشف کنید"
+          description={
+            <p className="mb-4 text-sm text-white">
+              بهترین خدمات سلامت و زیبایی با پیشنهادهای ویژه برای شما
+            </p>
+          }
+          href="/offers"
+          buttonLabel="مشاهده پیشنهادها"
+        />
+        <ProviderActionBar
+          categoryName="سلامت"
+          consultationLabel="مشاوره قبل از خرید"
+          contactLabel="تماس"
+          servicesLabel="مشاهده خدمات"
+          onContact={() => {}}
+          onServices={() => {}}
+        />
+      </>
+    );
   if (scenario === "services")
     return (
       <>

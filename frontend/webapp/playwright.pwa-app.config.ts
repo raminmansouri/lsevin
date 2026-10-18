@@ -12,6 +12,9 @@ export default defineConfig({
     channel: "chrome",
     baseURL: process.env.E2E_BASE_URL || "http://localhost:3188",
     serviceWorkers: "allow",
+    proxy: process.env.PWA_E2E_PROXY
+      ? { server: process.env.PWA_E2E_PROXY }
+      : undefined,
     trace: "retain-on-failure",
   },
   webServer: process.env.E2E_BASE_URL

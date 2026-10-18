@@ -13184,6 +13184,22 @@ declare const messages: {
     }
   },
   "Shop": {
+    "checkoutHints": {
+      "completeToPay": "Complétez ces éléments pour payer :",
+      "required": "Saisissez {field}.",
+      "minLength": "{field} doit contenir au moins {min} caractères.",
+      "maxLength": "{field} ne doit pas dépasser {max} caractères.",
+      "email": "Saisissez une adresse e-mail valide.",
+      "delivery": "Choisissez un mode de livraison.",
+      "noDelivery": "La livraison est indisponible à cette adresse. Changez de destination.",
+      "payment": "Choisissez un mode de paiement.",
+      "noPayment": "Aucun moyen de paiement disponible. Réessayez plus tard.",
+      "coupon": "Ce code promotionnel est expiré. Vérifiez votre panier.",
+      "unavailable": "Vérifiez votre panier avant de payer.",
+      "quoteFailed": "Impossible de mettre à jour la livraison ou le paiement. Touchez pour réessayer.",
+      "updating": "Mise à jour de la livraison et du paiement…",
+      "retryNotice": "Votre commande est enregistrée. Réessayez de payer sans créer une autre commande."
+    },
     "changeCurrency": "Changer la devise affichée",
     "currencyChangeFailed": "Impossible de changer de devise. Veuillez réessayer."
   },

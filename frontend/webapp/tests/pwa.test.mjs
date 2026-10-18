@@ -4,6 +4,7 @@ import {
   MutationCache,
   onlineManager,
   QueryClient,
+  QueryObserver,
 } from "@tanstack/react-query";
 
 import {
@@ -11,6 +12,7 @@ import {
   PROFILE_TTL,
   sealProfile,
 } from "../public/pwa/profile-crypto.js";
+import { appStoreLinks } from "../src/config/app-stores.ts";
 import { catalogDataLocale } from "../src/lib/pwa/data-locale.ts";
 import {
   assertMutationConnection,
@@ -18,7 +20,138 @@ import {
   offlineMutationOptions,
 } from "../src/lib/pwa/mutation-connection.ts";
 import { canSavePublicPage } from "../src/lib/pwa/public-snapshot.ts";
+import { initializeQueryConnection } from "../src/lib/pwa/query-connection.ts";
 import { confirmsSessionChange } from "../src/lib/pwa/session-snapshot.ts";
+
+test("a cold offline document keeps cached query data without attempting a failing refetch", async () => {
+  const navigatorDescriptor = Object.getOwnPropertyDescriptor(
+    globalThis,
+    "navigator"
+  );
+  const previousOnline = onlineManager.isOnline();
+  const client = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  });
+  let requests = 0;
+  let unsubscribe;
+  try {
+    Object.defineProperty(globalThis, "navigator", {
+      configurable: true,
+      value: { onLine: false },
+    });
+    onlineManager.setOnline(true);
+    initializeQueryConnection();
+    client.mount();
+    const observer = new QueryObserver(client, {
+      queryKey: ["offline-view"],
+      initialData: "SAVED_VIEW",
+      initialDataUpdatedAt: 0,
+      queryFn: async () => {
+        requests++;
+        return "LIVE_VIEW";
+      },
+    });
+    unsubscribe = observer.subscribe(() => {});
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    assert.equal(requests, 0);
+    assert.equal(observer.getCurrentResult().data, "SAVED_VIEW");
+    assert.equal(observer.getCurrentResult().fetchStatus, "paused");
+    const refreshed = new Promise((resolve) =>
+      observer.subscribe((result) => {
+        if (result.data === "LIVE_VIEW") resolve();
+      })
+    );
+    onlineManager.setOnline(true);
+    await refreshed;
+    assert.equal(requests, 1);
+  } finally {
+    unsubscribe?.();
+    client.unmount();
+    client.clear();
+    onlineManager.setOnline(previousOnline);
+    if (navigatorDescriptor)
+      Object.defineProperty(globalThis, "navigator", navigatorDescriptor);
+    else delete globalThis.navigator;
+  }
+});
+
+test("only configured HTTPS store links appear for the browser platform and region", () => {
+  const stores = [
+    { name: "Not published", platform: "android", url: "" },
+    {
+      name: "Myket",
+      platform: "android",
+      url: "https://myket.ir/app/example",
+      region: "iran",
+    },
+    {
+      name: "Global Android",
+      platform: "android",
+      url: "https://example.com/android",
+      region: "global",
+    },
+    { name: "iOS", platform: "ios", url: "https://apps.apple.com/app/example" },
+    { name: "Unsafe", platform: "android", url: "javascript:alert(1)" },
+    {
+      name: "Credential URL",
+      platform: "android",
+      url: "https://user:password@example.com",
+    },
+  ];
+  assert.deepEqual(
+    appStoreLinks("Android Chrome Safari", "lsevin.ir", false, stores).map(
+      (s) => s.name
+    ),
+    ["Myket"]
+  );
+  assert.deepEqual(
+    appStoreLinks("Android Chrome Safari", "lsevincare.com", false, stores).map(
+      (s) => s.name
+    ),
+    ["Global Android"]
+  );
+  assert.deepEqual(
+    appStoreLinks(
+      "iPhone AppleWebKit Safari",
+      "lsevincare.com",
+      false,
+      stores
+    ).map((s) => s.name),
+    ["iOS"]
+  );
+  assert.deepEqual(
+    appStoreLinks("Desktop Chrome Safari", "lsevin.ir", false, stores).map(
+      (s) => s.name
+    ),
+    ["Myket", "iOS"]
+  );
+  assert.deepEqual(
+    appStoreLinks("Android Chrome Safari", "lsevin.ir", false),
+    []
+  );
+});
+
+test("configured store links stay hidden inside Android/iOS wrappers and installed applications", () => {
+  const stores = [
+    {
+      name: "Android",
+      platform: "android",
+      url: "https://example.com/android",
+    },
+    { name: "iOS", platform: "ios", url: "https://example.com/ios" },
+  ];
+  for (const ua of [
+    "Android; wv AppleWebKit Chrome Safari",
+    "Android LsevinApp Chrome Safari",
+    "iPhone AppleWebKit Mobile",
+    "Macintosh AppleWebKit Mobile",
+  ])
+    assert.deepEqual(appStoreLinks(ua, "lsevin.ir", false, stores), []);
+  assert.deepEqual(
+    appStoreLinks("Android Chrome Safari", "lsevin.ir", true, stores),
+    []
+  );
+});
 
 test("only public landing, provider, staff and service paths may be saved", () => {
   for (const path of [

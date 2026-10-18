@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
 
+import "../../../public/pwa/view-store.js";
+
 import { confirmsSessionChange } from "@/lib/pwa/session-snapshot";
 
 import {
@@ -19,6 +21,8 @@ export function OfflineProfileGuard() {
     const controller = new AbortController();
     const checkOwner = async () => {
       if (status === "loading") return;
+      if (status === "authenticated")
+        await LsevinViewStore.checkOwner(owner || null).catch(() => {});
       try {
         const saved = localStorage.getItem(PROFILE_KEY);
         if (!saved) return;

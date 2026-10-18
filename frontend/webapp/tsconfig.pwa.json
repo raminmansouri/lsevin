@@ -8,6 +8,7 @@
     "src/types/next-auth.d.ts",
     "src/app/manifest.ts",
     "e2e/pwa.spec.ts",
+    "e2e/pwa-ui.spec.ts",
     "e2e/pwa-app.spec.ts",
     "playwright.pwa-app.config.ts",
     "playwright.pwa.config.ts"

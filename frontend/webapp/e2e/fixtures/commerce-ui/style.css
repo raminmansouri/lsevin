@@ -1,6 +1,9 @@
 @import "tailwindcss";
 @source "../../../src/features/booking-pro/components";
 @source "../../../src/features/shop/components";
+@source "../../../src/features/home/components";
+@source "../../../src/features/service-providers/components/details";
+@source "../../../src/features/consultation/components";
 body {
   margin: 0;
   background: #f8fafc;

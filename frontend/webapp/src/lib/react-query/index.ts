@@ -12,6 +12,7 @@ import {
   assertMutationConnection,
   offlineMutationOptions,
 } from "@/lib/pwa/mutation-connection";
+import { initializeQueryConnection } from "@/lib/pwa/query-connection";
 import { IProblem } from "@/types/error";
 
 let browserQueryClient: QueryClient | undefined = undefined;
@@ -76,7 +77,10 @@ export const getQueryClient = () => {
   if (isServer) {
     return makeQueryClient();
   } else {
-    if (!browserQueryClient) browserQueryClient = makeQueryClient();
+    if (!browserQueryClient) {
+      initializeQueryConnection();
+      browserQueryClient = makeQueryClient();
+    }
     return browserQueryClient;
   }
 };

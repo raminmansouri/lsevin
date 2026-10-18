@@ -42,7 +42,7 @@ export function ConsultationCtaButton({ categoryName, label, className }: Props)
           "flex h-14 flex-1 items-center justify-center gap-2 rounded-2xl border border-[#083f30]/20 bg-[#083f30]/5 font-bold text-[#083f30] transition-all hover:bg-[#083f30]/10 active:scale-95"
         }
       >
-        <PhoneCall size={18} /> {label}
+        <PhoneCall size={18} className="shrink-0" /> <span>{label}</span>
       </button>
 
       <Dialog open={open} onOpenChange={setOpen}>

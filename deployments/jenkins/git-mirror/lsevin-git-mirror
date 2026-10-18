@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+# lsevin-git-mirror - run ON SERVER A (systemd timer, every 2 minutes).
+# Keeps a local bare mirror of the main repository at /opt/lsevin-mirror/lsevin.git. A's Jenkins builds from this
+# mirror (file:// URL), because a full clone from GitHub over A's connection breaks half way ("bytes of body are
+# still expected"), while small incremental fetches work. Each run only transfers new commits and retries a few times.
+# The initial copy of the mirror was seeded from a clone made on server B.
+set -uo pipefail
+REPO=${REPO:-/opt/lsevin-mirror/lsevin.git}
+URL=${URL:-https://github.com/raminmansouri/lsevin.git}
+LOG=/var/log/lsevin-git-mirror.log
+exec 9>/run/lock/lsevin-git-mirror.lock; flock -n 9 || exit 0       # one run at a time
+export GIT_TERMINAL_PROMPT=0
+[ -d "$REPO" ] || { echo "$(date -u +%FT%TZ) mirror missing at $REPO" >> "$LOG"; exit 1; }
+for attempt in 1 2 3 4; do
+  if timeout 240 git --git-dir="$REPO" -c http.lowSpeedLimit=1000 -c http.lowSpeedTime=60 fetch --prune --quiet "$URL" '+refs/heads/*:refs/heads/*' 2>>"$LOG"; then
+    tip=$(git --git-dir="$REPO" rev-parse --short refs/heads/Lsevin-New 2>/dev/null)
+    [ "$tip" = "$(cat /run/lsevin-git-mirror.tip 2>/dev/null)" ] || echo "$(date -u +%FT%TZ) Lsevin-New now at $tip" >> "$LOG"
+    echo "$tip" > /run/lsevin-git-mirror.tip
+    git --git-dir="$REPO" update-server-info 2>/dev/null
+    exit 0
+  fi
+  sleep 5
+done
+echo "$(date -u +%FT%TZ) fetch from GitHub failed 4 times; mirror unchanged" >> "$LOG"
+exit 1

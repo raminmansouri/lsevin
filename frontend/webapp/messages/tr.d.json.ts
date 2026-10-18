@@ -5794,6 +5794,22 @@ declare const messages: {
     "searchNow": "Şimdi Ara"
   },
   "Shop": {
+    "checkoutHints": {
+      "completeToPay": "Ödeme için bunları tamamlayın:",
+      "required": "{field} girin.",
+      "minLength": "{field} en az {min} karakter olmalıdır.",
+      "maxLength": "{field} en fazla {max} karakter olmalıdır.",
+      "email": "Geçerli bir e-posta adresi girin.",
+      "delivery": "Bir teslimat yöntemi seçin.",
+      "noDelivery": "Bu adrese teslimat yapılamıyor. Hedefi değiştirin.",
+      "payment": "Bir ödeme yöntemi seçin.",
+      "noPayment": "Ödeme yöntemi mevcut değil. Daha sonra tekrar deneyin.",
+      "coupon": "Bu kupon artık geçerli değil. Sepetinizi kontrol edin.",
+      "unavailable": "Ödemeden önce sepetinizi kontrol edin.",
+      "quoteFailed": "Teslimat veya ödeme seçenekleri güncellenemedi. Tekrar denemek için dokunun.",
+      "updating": "Teslimat ve ödeme seçenekleri güncelleniyor…",
+      "retryNotice": "Siparişiniz kaydedildi. Yeni sipariş oluşturmadan ödemeyi tekrar deneyin."
+    },
     "title": "Mağaza",
     "tab": "Mağaza",
     "searchPlaceholder": "Ürün, marka ara…",

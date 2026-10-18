@@ -8,6 +8,7 @@ import { DynamicServiceForm } from '@/features/form-builder/components/DynamicSe
 import { ConsultationStep } from '@/features/consultation/components/consultation-step';
 import type { BookingDraftState, ChildBookingDraft, ProviderCardItem, ProviderTypeAddonItem, ServiceCardItem, SpecialistCardItem, UploadRequirementItem } from '../types';
 import { AddressPicker } from './AddressPicker';
+import { BookingProgress } from './BookingProgress';
 import { ChildAddonBookingCard } from './ChildAddonBookingCard';
 import { TourDeparturePicker } from './TourDeparturePicker';
 import { BookingShopProductsStep, type BookingShopProductGroup } from './BookingShopProductsStep';
@@ -1218,16 +1219,7 @@ export function BookingWizard() {
                         <p className="text-sm text-slate-500">{tBooking("draftFirstBookingWithChildAddOnSubBookings")}</p>
                     </div>
                 </div>
-                <div className="flex items-center gap-2 overflow-x-auto">
-                    {/* Progress is measured by position in visibleSteps, not by key: the keys are
-                stored ids and no longer ascend in display order (6 sits between 2 and 3),
-                so the badge shows the position and `>=` compares indices. */}
-                    {visibleSteps.map((step, index) => (<div key={step.key} className="flex items-center gap-2">
-                        <div className={`flex h-9 min-w-9 items-center justify-center rounded-full text-sm font-bold ${currentStepIndex >= index ? 'bg-[#083f30] text-white' : 'bg-slate-200 text-slate-500'}`}>{currentStepIndex > index ? <CheckCircle2 className="h-4 w-4"/> : index + 1}</div>
-                        <div className={`text-sm font-medium ${currentStepIndex >= index ? 'text-[#083f30]' : 'text-slate-500'}`}>{tBooking(step.labelKey)}</div>
-                        {index < visibleSteps.length - 1 ? <div className={`mx-2 h-0.5 w-10 ${currentStepIndex > index ? 'bg-[#083f30]' : 'bg-slate-200'}`}/> : null}
-                    </div>))}
-                </div>
+                <BookingProgress steps={visibleSteps.map((step) => ({ key: step.key, label: tBooking(step.labelKey) }))} currentIndex={currentStepIndex} label={tBooking("bookWithLSevin")} />
             </div>
         </div>
 

@@ -15457,6 +15457,22 @@
     }
   },
   "Shop": {
+    "checkoutHints": {
+      "completeToPay": "Complete these items to pay:",
+      "required": "Enter {field}.",
+      "minLength": "{field} needs at least {min} characters.",
+      "maxLength": "{field} must be at most {max} characters.",
+      "email": "Enter a valid email address.",
+      "delivery": "Choose a delivery method.",
+      "noDelivery": "Delivery is unavailable for this address. Change your destination.",
+      "payment": "Choose a payment method.",
+      "noPayment": "No payment method is available. Please try again later.",
+      "coupon": "This coupon is no longer valid. Review your cart.",
+      "unavailable": "Review your cart before continuing to payment.",
+      "quoteFailed": "Delivery or payment options could not be updated. Tap to retry.",
+      "updating": "Updating delivery and payment options…",
+      "retryNotice": "Your order is saved. Retry payment without placing another order."
+    },
     "iban": "IBAN:",
     "ge00Ls0000000000000000": "GE00 LS00 0000 0000 0000 00",
     "ref": "Ref:",

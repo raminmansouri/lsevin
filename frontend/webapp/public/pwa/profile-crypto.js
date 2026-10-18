@@ -65,6 +65,7 @@ export async function openProfile(record, passphrase) {
   return payload;
 }
 export function clearOfflineProfile() {
+  void globalThis.LsevinViewStore?.clear().catch(() => {});
   try {
     localStorage.removeItem(PROFILE_KEY);
   } catch {

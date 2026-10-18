@@ -1,15 +1,17 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useTranslations } from "next-intl";
 import { User } from "lucide-react";
+import { useTranslations } from "next-intl";
 
+import { useOfflineHomeIdentity } from "@/components/pwa/home-identity";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
-import { Link } from "@/i18n/navigation";
 import { resolveHomeMediaUrl } from "@/features/home/components/home-media";
 import { getProfileAvatar } from "@/features/profile/actions/profile.actions";
-import { Skeleton } from "../../../design-system/components";
 import { useCurrentSession } from "@/hooks/use-current-session";
+import { Link } from "@/i18n/navigation";
+
+import { Skeleton } from "../../../design-system/components";
 
 type Props = {
   profile?: { profileImageUrl?: string | null } | null;
@@ -50,12 +52,21 @@ export default function UserInfoSubBar({ profile }: Props) {
     };
   }, [user?.id]);
 
-  const resolvedImageUrl = useMemo(
+  const liveImageUrl = useMemo(
     () => resolveHomeMediaUrl(avatarUrl),
     [avatarUrl]
   );
+  const offlineIdentity = useOfflineHomeIdentity(
+    user?.id,
+    user?.firstName,
+    user?.lastName,
+    liveImageUrl,
+    status
+  );
+  const displayedUser = user || offlineIdentity;
+  const resolvedImageUrl = offlineIdentity?.avatar || liveImageUrl;
 
-  if (status === "loading") {
+  if (status === "loading" && !offlineIdentity) {
     return (
       <div className="flex items-center justify-between gap-3">
         <div className="flex-1 space-y-2">
@@ -70,12 +81,16 @@ export default function UserInfoSubBar({ profile }: Props) {
   // Guests used to render nothing here, which left a band of empty pine between the
   // app bar and the destination pill. Give them the same row shape with the one
   // action they actually need.
-  if (!user) {
+  if (!displayedUser) {
     return (
       <div className="flex items-center justify-between gap-3">
         <div className="min-w-0 flex-1">
-          <p className="text-xs font-medium text-white/60">{homeT("guestEyebrow")}</p>
-          <h1 className="truncate text-xl font-bold text-white">{homeT("guestTitle")}</h1>
+          <p className="text-xs font-medium text-white/60">
+            {homeT("guestEyebrow")}
+          </p>
+          <h1 className="truncate text-xl font-bold text-white">
+            {homeT("guestTitle")}
+          </h1>
         </div>
 
         <Link
@@ -88,12 +103,16 @@ export default function UserInfoSubBar({ profile }: Props) {
     );
   }
 
-  const fullName = [user.firstName, user.lastName].filter(Boolean).join(" ");
+  const fullName = [displayedUser.firstName, displayedUser.lastName]
+    .filter(Boolean)
+    .join(" ");
 
   return (
     <div className="flex items-center justify-between gap-3">
       <div className="min-w-0 flex-1">
-        <p className="text-xs font-medium text-white/60">{homeT("goodMorning")}</p>
+        <p className="text-xs font-medium text-white/60">
+          {homeT("goodMorning")}
+        </p>
         <h1 className="truncate text-xl font-bold text-white">{fullName}</h1>
       </div>
 
@@ -111,7 +130,10 @@ export default function UserInfoSubBar({ profile }: Props) {
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center bg-white/10">
-            <User className="h-5 w-5 text-white/70" aria-label={homeT("profileAlt")} />
+            <User
+              className="h-5 w-5 text-white/70"
+              aria-label={homeT("profileAlt")}
+            />
           </div>
         )}
       </Link>

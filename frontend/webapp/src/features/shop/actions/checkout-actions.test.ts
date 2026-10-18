@@ -1,6 +1,11 @@
+import { revalidatePath } from "next/cache";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { placeOrderAction, quoteCheckoutAction } from "./checkout.actions";
+import {
+  placeOrderAction,
+  quoteCheckoutAction,
+  saveCheckoutAddressAction,
+} from "./checkout.actions";
 
 const mocks = vi.hoisted(() => ({
   quote: vi.fn(),
@@ -96,6 +101,7 @@ describe("checkout request and payment failure boundaries", () => {
     expect(mocks.order).toHaveBeenCalledWith(
       expect.objectContaining({ paymentMethodId: id, paymentCurrency: "IRT" })
     );
+    expect(revalidatePath).not.toHaveBeenCalled();
   });
   it("rejects an unavailable payment method before creating an order", async () => {
     mocks.methods.mockResolvedValueOnce([]);
@@ -113,6 +119,11 @@ describe("checkout request and payment failure boundaries", () => {
     expect(JSON.stringify(log.mock.calls)).not.toContain(
       "secret gateway detail"
     );
+    expect(revalidatePath).not.toHaveBeenCalled();
     log.mockRestore();
+  });
+  it("saves an optional checkout address without re-rendering the cart guard", async () => {
+    await saveCheckoutAddressAction(input.shippingAddress);
+    expect(revalidatePath).not.toHaveBeenCalled();
   });
 });

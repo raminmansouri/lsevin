@@ -68,6 +68,14 @@ export async function saveAddressAction(input: unknown) {
   return { ok: true as const, id, addresses: await listCustomerAddresses() };
 }
 
+// Checkout must not re-render its active-cart guard while handing an order to
+// the payment provider. Address management retains its normal revalidation.
+export async function saveCheckoutAddressAction(input: unknown) {
+  const parsed = saveAddressSchema.parse(input);
+  const id = await saveCustomerAddress(parsed);
+  return { ok: true as const, id };
+}
+
 export async function deleteAddressAction(id: string) {
   await deleteCustomerAddress(String(id));
   revalidatePath("/n/app/mobile/shop/checkout");
@@ -136,7 +144,9 @@ export async function placeOrderAction(input: unknown) {
     };
   }
 
-  revalidatePath("/n/app/mobile/shop/orders");
+  // These pages read orders dynamically. Invalidating from this action also
+  // re-renders checkout after its cart was converted, which redirects to cart
+  // and can discard the IPG handoff or the payment failure/retry UI.
   return { ok: true as const, order, payment };
 }
 

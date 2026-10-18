@@ -13184,6 +13184,22 @@ declare const messages: {
     }
   },
   "Shop": {
+    "checkoutHints": {
+      "completeToPay": "Zum Bezahlen bitte ergänzen:",
+      "required": "{field} eingeben.",
+      "minLength": "{field} benötigt mindestens {min} Zeichen.",
+      "maxLength": "{field} darf höchstens {max} Zeichen enthalten.",
+      "email": "Eine gültige E-Mail-Adresse eingeben.",
+      "delivery": "Eine Versandart auswählen.",
+      "noDelivery": "An diese Adresse ist kein Versand möglich. Ziel ändern.",
+      "payment": "Eine Zahlungsart auswählen.",
+      "noPayment": "Keine Zahlungsart verfügbar. Bitte später erneut versuchen.",
+      "coupon": "Dieser Gutschein ist nicht mehr gültig. Warenkorb prüfen.",
+      "unavailable": "Vor der Zahlung den Warenkorb prüfen.",
+      "quoteFailed": "Versand- oder Zahlungsoptionen konnten nicht aktualisiert werden. Zum Wiederholen antippen.",
+      "updating": "Versand- und Zahlungsoptionen werden aktualisiert…",
+      "retryNotice": "Die Bestellung ist gespeichert. Zahlung wiederholen, ohne erneut zu bestellen."
+    },
     "changeCurrency": "Anzeigewährung ändern",
     "currencyChangeFailed": "Die Währung konnte nicht geändert werden. Bitte versuche es erneut."
   },

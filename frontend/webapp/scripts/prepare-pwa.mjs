@@ -5,7 +5,20 @@ import { readFile, writeFile } from "node:fs/promises";
 // the same cache and do not trigger an unnecessary update prompt.
 const publicRoot = new URL("../public/", import.meta.url);
 const workerURL = new URL("sw.js", publicRoot);
-const worker = await readFile(workerURL, "utf8");
+let worker = await readFile(workerURL, "utf8");
+// Bundle the shared store into the worker: installation must not depend on a
+// second unprotected importScripts request succeeding through a flaky gateway.
+const viewStore = await readFile(
+  new URL("pwa/view-store.js", publicRoot),
+  "utf8"
+);
+const bundledStore = `/* PROFILE_VIEW_STORE_START */\n${viewStore}\n/* PROFILE_VIEW_STORE_END */`;
+worker = worker
+  .replace(
+    /\/\* PROFILE_VIEW_STORE_START \*\/[\s\S]*?\/\* PROFILE_VIEW_STORE_END \*\//,
+    bundledStore
+  )
+  .replace('importScripts("/pwa/view-store.js");', bundledStore);
 const versionPattern = /const VERSION = "[^"]+";/;
 if (!versionPattern.test(worker))
   throw new Error("PWA worker version marker is missing.");
@@ -14,6 +27,8 @@ hash.update(worker.replace(versionPattern, 'const VERSION = "generated";'));
 for (const path of [
   "offline.html",
   "pwa/offline.js",
+  "pwa/view-store.js",
+  "pwa/live-view.js",
   "pwa/offline.css",
   "pwa/profile-crypto.js",
   "pwa/icon-192.png",

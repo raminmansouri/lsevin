@@ -4,6 +4,12 @@
 
 def githubCredentialsId = System.getenv('JENKINS_GITHUB_CREDENTIALS_ID') ?: ''
 
+// Optional repository polling, e.g. 'H/5 * * * *'. Needed where GitHub cannot call the /github-webhook/ endpoint
+// (the Iran server): Jenkins asks GitHub for new commits itself. Empty = webhook only (the default).
+def pollScmSpec = System.getenv('JENKINS_POLL_SCM') ?: ''
+// Only these jobs poll (comma separated). Private repositories need JENKINS_GITHUB_CREDENTIALS_ID before they can.
+def pollScmJobs = (System.getenv('JENKINS_POLL_SCM_JOBS') ?: 'lsevin-main-production').split(',')*.trim()
+
 def applications = [
   [
     job: 'lsevin-main-production',
@@ -75,6 +81,12 @@ applications.each { application ->
             branches("*/${application.branch}")
           }
         }
+      }
+    }
+
+    if (pollScmSpec && application.job in pollScmJobs) {
+      triggers {
+        scm(pollScmSpec)
       }
     }
 

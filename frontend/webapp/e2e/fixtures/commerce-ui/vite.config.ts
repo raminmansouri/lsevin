@@ -17,6 +17,7 @@ export default defineConfig({
         "@/features/booking/components/rich-text-preview",
         "@/i18n/navigation",
         "../actions/checkout.actions",
+        "./consultation-step",
       ].map((find) => ({ find, replacement: stub })),
       { find: "@", replacement: path.resolve(root, "../../../src") },
     ],

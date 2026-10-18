@@ -10,6 +10,8 @@ const appRoot = fileURLToPath(new URL("../../", import.meta.url));
 const publicRoot = resolve(appRoot, "public");
 let version = 1;
 let networkDisabled = false;
+let shellFailures = 0;
+let sessionOwner = "test-owner";
 const mime = {
   ".js": "application/javascript",
   ".css": "text/css",
@@ -19,6 +21,21 @@ const mime = {
 const server = createServer(async (req, res) => {
   try {
     const url = new URL(req.url, "http://127.0.0.1:4177");
+    if (url.pathname === "/__fixture/session") {
+      sessionOwner = url.searchParams.get("owner") || "";
+      res.end("OK");
+      return;
+    }
+    if (url.pathname === "/__fixture/shell-failures") {
+      shellFailures = Math.max(
+        0,
+        Math.min(3, Number(url.searchParams.get("count")) || 0)
+      );
+      res.end("OK");
+      return;
+    }
+    if (url.pathname.endsWith("/specialist/http-cached"))
+      res.setHeader("Cache-Control", "public, max-age=3600");
     if (
       url.pathname === "/__fixture/offline-on" ||
       url.pathname === "/__fixture/offline-off"
@@ -29,6 +46,88 @@ const server = createServer(async (req, res) => {
     }
     if (networkDisabled) {
       req.socket.destroy();
+      return;
+    }
+    if (url.pathname === "/api/auth/session") {
+      res.setHeader("Content-Type", "application/json");
+      if (url.searchParams.has("failure")) {
+        res.statusCode = 503;
+        res.end('{"error":"SessionUnavailable"}');
+      } else
+        res.end(
+          JSON.stringify(sessionOwner ? { user: { id: sessionOwner } } : {})
+        );
+      return;
+    }
+    if (url.pathname === "/offline.html" && shellFailures > 0) {
+      shellFailures -= 1;
+      res.statusCode = 503;
+      res.end();
+      return;
+    }
+    if (
+      ["/fixtures/application-cache.js", "/fixtures/profile-view.js"].includes(
+        url.pathname
+      )
+    ) {
+      const name = url.pathname.includes("application")
+        ? "application-cache"
+        : "profile-view";
+      const source = (
+        await readFile(resolve(appRoot, "src/lib/pwa/" + name + ".ts"), "utf8")
+      ).replace('"./public-snapshot"', '"/fixtures/public-snapshot.js"');
+      res.setHeader("Content-Type", "application/javascript");
+      res.end(
+        ts.transpileModule(source, {
+          compilerOptions: {
+            target: ts.ScriptTarget.ES2022,
+            module: ts.ModuleKind.ES2022,
+          },
+        }).outputText
+      );
+      return;
+    }
+    if (url.pathname === "/_next/static/ui.css") {
+      res.setHeader("Content-Type", "text/css");
+      res.setHeader("Cache-Control", "public,max-age=31536000,immutable");
+      res.end(
+        "body{margin:0;background:#f5f6fb;font:16px Arial;color:#101e33}header{background:white;padding:24px;display:flex;gap:16px}main{padding:24px}.cards{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}.card{background:white;border-radius:24px;padding:24px;border:1px solid #e5e7eb}img{width:64px;height:64px}nav{background:white;padding:20px;display:flex;gap:16px}button{padding:12px;border-radius:12px;background:#101e33;color:white;border:0}input{padding:12px;border-radius:12px;border:1px solid #ddd}footer{padding:24px}h1{font-size:24px}.fragment-example{clip-path:url(\\#clip)}.encoded-fragment{clip-path:url(%23clip)}"
+      );
+      return;
+    }
+    if (url.pathname === "/_next/static/ui.js") {
+      res.setHeader("Content-Type", "application/javascript");
+      res.setHeader("Cache-Control", "public,max-age=31536000,immutable");
+      res.end(
+        `document.documentElement.dataset.hydrated="true";document.querySelector('#services').onclick=()=>document.querySelector('#tab-content').textContent='Services and staff';document.querySelector('#search').oninput=e=>document.querySelectorAll('.card').forEach(c=>c.hidden=!c.textContent.toLowerCase().includes(e.target.value.toLowerCase()));`
+      );
+      return;
+    }
+    if (
+      url.searchParams.has("visual") ||
+      req.headers["x-lsevin-public-snapshot"] === "1"
+    ) {
+      const privateText = req.headers.cookie
+        ? "SIGNED_IN_SECRET"
+        : "Public application";
+      res.setHeader("Content-Type", "text/html");
+      res.end(
+        `<!doctype html><html lang="en"><head><title>Application view</title><link rel="stylesheet" href="/_next/static/ui.css"><script defer src="/_next/static/ui.js"></script></head><body><header><img src="/pwa/icon-192.png" alt="LSevin"><h1>${privateText}</h1></header><nav><a href="/en/n/app/mobile/home">Home</a><a href="/en/n/app/mobile/providers">Providers</a><a href="/en/n/app/mobile/specialist/visual">Staff</a><a href="/en/n/app/mobile/service/visual">Services</a></nav><main><input id="search" placeholder="Search"><div class="cards"><article class="card"><h2>Clinic One</h2><p>Provider and services</p><button id="services">Services</button><p id="tab-content">About the provider</p></article><article class="card"><h2>Clinic Two</h2><p>Staff information</p><button data-pwa-signout>Sign out</button></article></div></main><footer>LSevin</footer></body></html>`
+      );
+      return;
+    }
+    const documentStatus = new Map([
+      ["/en/n/app/mobile/provider/server-error", 500],
+      ["/en/n/app/mobile/provider/gateway-error", 503],
+      ["/en/n/app/mobile/provider/forbidden", 403],
+      ["/en/n/app/mobile/provider/not-found", 404],
+    ]).get(url.pathname);
+    if (documentStatus) {
+      res.statusCode = documentStatus;
+      res.setHeader("Content-Type", "text/html; charset=utf-8");
+      res.end(
+        `<html><title>Origin failure</title><h1>Origin status ${documentStatus}</h1></html>`
+      );
       return;
     }
     if (url.pathname.endsWith("-prefix")) {

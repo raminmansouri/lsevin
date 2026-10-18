@@ -205,7 +205,7 @@
 # .env for free. It used to point at a bare `lsevin-webapp:3000`, which resolved
 # only to a hand-run orphan container from the pre-`-1`/`-2` compose layout —
 # stale image, no .env mount, updated by nobody.
-{$FINANCIAL_DOMAIN:financial.lsevin.com} {
+{$FINANCIAL_DOMAIN:financial.lsevin.com}, {$FINANCIAL_DOMAIN:financial.lsevin.ir} {
     import common_headers
 
     # The books are not for search engines, and must never be framed.
