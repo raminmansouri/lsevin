@@ -46,7 +46,9 @@ const server = createServer(async (req, res) => {
       if (assetFailure && url.pathname.endsWith("-12.js")) {
         res.statusCode = assetFailureHtml ? 200 : 503;
         if (assetFailureHtml) res.setHeader("Content-Type", "text/html");
-        res.end(assetFailureHtml ? "<html><h1>Gateway failure</h1></html>" : "");
+        res.end(
+          assetFailureHtml ? "<html><h1>Gateway failure</h1></html>" : ""
+        );
       } else res.end("/* static application chunk */");
       return;
     }
@@ -278,7 +280,7 @@ const server = createServer(async (req, res) => {
       if (url.pathname === "/offline.html")
         data = data
           .toString()
-          .replace("<main>", `<main data-shell-version="${version}">`);
+          .replace("<main ", `<main data-shell-version="${version}" `);
       if (url.pathname === "/sw.js")
         data = data
           .toString()
