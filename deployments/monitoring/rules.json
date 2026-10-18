@@ -182,21 +182,21 @@
     {
       "name": "load_high",
       "severity": "warning",
-      "for": 600,
-      "expr": "node_load5 > 14",
-      "summary": "load average {value} on 8 CPUs"
+      "for": 180,
+      "expr": "node_load1 > 16",
+      "summary": "load average {value} on 8 CPUs for 3 minutes"
     },
     {
       "name": "memory_low",
       "severity": "warning",
-      "for": 600,
-      "expr": "node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes * 100 < 8",
-      "summary": "only {value}% memory available"
+      "for": 180,
+      "expr": "node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes * 100 < 12",
+      "summary": "only {value}% memory available: a few heavy queries can now exhaust the server (look at pg_stat_activity and pod memory)"
     },
     {
       "name": "memory_critical",
       "severity": "critical",
-      "for": 300,
+      "for": 60,
       "expr": "node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes * 100 < 4",
       "summary": "only {value}% memory available: the kernel will start killing processes"
     },
@@ -374,6 +374,41 @@
       "for": 600,
       "expr": "lsevin_vpn_rtt_ms > 600",
       "summary": "VPN round trip is {value} ms (normal ~130)"
+    },
+    {
+      "name": "oom_kill",
+      "severity": "critical",
+      "for": 0,
+      "expr": "increase(node_vmstat_oom_kill[15m]) > 0",
+      "summary": "the kernel killed {value} process(es) for lack of memory in the last 15 minutes: the server is in memory trouble (journalctl -k | grep -i oom)"
+    },
+    {
+      "name": "memory_pressure",
+      "severity": "critical",
+      "for": 60,
+      "expr": "rate(node_pressure_memory_waiting_seconds_total[2m]) > 0.2",
+      "summary": "processes wait for memory {value} of the time: the server is thrashing and about to stop answering (SSH included)"
+    },
+    {
+      "name": "swap_thrash",
+      "severity": "warning",
+      "for": 120,
+      "expr": "rate(node_vmstat_pswpin[2m]) + rate(node_vmstat_pswpout[2m]) > 1500",
+      "summary": "{value} pages/s are moving to and from swap: the server is short of memory"
+    },
+    {
+      "name": "load_extreme",
+      "severity": "critical",
+      "for": 60,
+      "expr": "node_load1 > 40",
+      "summary": "load average {value}: the server is overloaded and may stop answering"
+    },
+    {
+      "name": "long_running_query",
+      "severity": "warning",
+      "for": 0,
+      "expr": "max by (site) (pg_stat_activity_max_tx_duration{state=\"active\"}) > 900",
+      "summary": "a database query has been running for {value}s (not a backup or replication job? check pg_stat_activity)"
     }
   ]
 }
