@@ -187,6 +187,7 @@ export type AdminBugReportFilters = {
   pageSize: number;
   view: AdminBugReportView;
   ownership: AdminBugReportOwnershipFilter;
+  showOlderResolved: boolean;
 };
 
 export type AdminBugReportPageInfo = {

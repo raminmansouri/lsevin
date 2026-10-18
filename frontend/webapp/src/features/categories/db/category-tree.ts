@@ -110,7 +110,7 @@ export function categoryProviderCountsCte() {
       -- Filed by an admin: authoritative, and the provider appears nowhere else.
       select sp.id as provider_id, sp.category_id as node_id
       from category.service_providers sp
-      where sp.is_active = true
+      where sp.is_active = true and category.provider_type_is_public(sp.provider_type_id)
         and sp.category_id is not null
       union
       -- Not filed yet: fall back to wherever its services are catalogued, so the
@@ -123,7 +123,7 @@ export function categoryProviderCountsCte() {
       join category.service_definitions sd
         on sd.id = ps.service_definition_id
        and sd.is_active = true
-      where sp.is_active = true
+      where sp.is_active = true and category.provider_type_is_public(sp.provider_type_id)
         and sp.category_id is null
         and sd.category_id is not null
     ),

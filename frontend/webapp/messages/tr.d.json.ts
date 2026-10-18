@@ -2720,6 +2720,8 @@ declare const messages: {
         "label": "Açıklama"
       },
       "isActive": "Aktif",
+      "addonOnly": "Add-on only (translator, car, ...)",
+      "addonOnlyHelp": "When on, providers of this type appear only in the booking add-ons step, filtered by city, and are hidden from search, home and every other listing.",
       "attributes": "Öznitelik Tanımları",
       "attributesPlaceholder": "Öznitelikler ({count} tanımlı)",
       "create": "Sağlayıcı Türü Oluştur",
@@ -3058,7 +3060,8 @@ declare const messages: {
   },
   "AdminGenerated": {
     "updateBookingTitle": "Rezervasyonu düzenle: {service} – {customer}",
-    "stayCheckIn": "Giriş tarihi", "stayCheckOut": "Çıkış tarihi",
+    "stayCheckIn": "Giriş tarihi",
+    "stayCheckOut": "Çıkış tarihi",
     "deleteCurrency": "Delete currency",
     "deleteCurrencyConfirm": "Delete this currency? It is removed from the lists while past records stay untouched.",
     "currencyDeleted": "Currency deleted.",
@@ -4907,7 +4910,11 @@ declare const messages: {
     }
   },
   "Booking": {
-    "dayParts": { "morning": "Sabah", "afternoon": "Öğleden sonra", "evening": "Akşam" },
+    "dayParts": {
+      "morning": "Sabah",
+      "afternoon": "Öğleden sonra",
+      "evening": "Akşam"
+    },
     "mealPlan": {
       "label": "Yemek planı",
       "chooseTitle": "Yemek planı seçin",
@@ -5531,7 +5538,6 @@ declare const messages: {
     "caseSharedSuccessfully": "Vaka sağlayıcıyla paylaşıldı",
     "caseShareFailed": "Vaka paylaşılamadı. Lütfen tekrar deneyin.",
     "caseShareSavedPending": "Rezervasyonunuz onaylandığında \"{title}\" bu sağlayıcıyla paylaşılacak şekilde seçim yaptınız.",
-    "changeSelection": "Değiştir",
     "removeSelection": "Kaldır",
     "reschedule": "Ertele",
     "reservationManagement": "Rezervasyon yönetimi",
@@ -5798,7 +5804,22 @@ declare const messages: {
     "searchNow": "Şimdi Ara"
   },
   "Shop": {
-    "specifications": "Özellikler",
+    "checkoutHints": {
+      "completeToPay": "Ödeme için bunları tamamlayın:",
+      "required": "{field} girin.",
+      "minLength": "{field} en az {min} karakter olmalıdır.",
+      "maxLength": "{field} en fazla {max} karakter olmalıdır.",
+      "email": "Geçerli bir e-posta adresi girin.",
+      "delivery": "Bir teslimat yöntemi seçin.",
+      "noDelivery": "Bu adrese teslimat yapılamıyor. Hedefi değiştirin.",
+      "payment": "Bir ödeme yöntemi seçin.",
+      "noPayment": "Ödeme yöntemi mevcut değil. Daha sonra tekrar deneyin.",
+      "coupon": "Bu kupon artık geçerli değil. Sepetinizi kontrol edin.",
+      "unavailable": "Ödemeden önce sepetinizi kontrol edin.",
+      "quoteFailed": "Teslimat veya ödeme seçenekleri güncellenemedi. Tekrar denemek için dokunun.",
+      "updating": "Teslimat ve ödeme seçenekleri güncelleniyor…",
+      "retryNotice": "Siparişiniz kaydedildi. Yeni sipariş oluşturmadan ödemeyi tekrar deneyin."
+    },
     "title": "Mağaza",
     "tab": "Mağaza",
     "searchPlaceholder": "Ürün, marka ara…",
@@ -8741,7 +8762,10 @@ declare const messages: {
     }
   },
   "ProviderPage": {
-    "locationMap": { "title": "Haritada konum", "getDirections": "Yol tarifi al" },
+    "locationMap": {
+      "title": "Haritada konum",
+      "getDirections": "Yol tarifi al"
+    },
     "actions": {
       "addFavorite": "Sağlayıcıyı favorilere ekle",
       "back": "Geri dön",
@@ -10566,7 +10590,10 @@ declare const messages: {
     }
   },
   "ServicePage": {
-    "attributeValue": { "yes": "Evet", "no": "Hayır" },
+    "attributeValue": {
+      "yes": "Evet",
+      "no": "Hayır"
+    },
     "actions": {
       "back": "Geri dön",
       "bookNow": "Hemen Randevu Al",
@@ -13283,7 +13310,9 @@ declare const messages: {
     "customer": {
       "title": "Spor salonu üyeliklerim",
       "empty": "Henüz bir spor salonu üyeliğiniz yok.",
-      "plan": { "monthlyPriceLabel": "Aylık fiyat" },
+      "plan": {
+        "monthlyPriceLabel": "Aylık fiyat"
+      },
       "subscribe": {
         "title": "Abone ol",
         "selectMonths": "Ödemek istediğiniz ayları seçin",

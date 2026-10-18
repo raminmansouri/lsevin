@@ -1,30 +1,59 @@
 "use server";
 
+import { getTranslations } from "next-intl/server";
 import { revalidatePath } from "next/cache";
 
-import { getShopContext } from "../lib/context";
-import {
-  checkoutQuoteSchema,
-  placeOrderSchema,
-  saveAddressSchema,
-} from "../schemas/checkout";
-import { quoteCheckout, placeOrder } from "../api/checkout.repository";
 import {
   deleteCustomerAddress,
   listCustomerAddresses,
   saveCustomerAddress,
 } from "../api/address.repository";
-import { startOrderPayment } from "../server/shop-payment.service";
-import { startPaymentSchema } from "../schemas/checkout";
+import { getCartView } from "../api/cart.repository";
+import {
+  getPaymentMethods,
+  placeOrder,
+  quoteCheckout,
+} from "../api/checkout.repository";
 import { emitCommerceEvent } from "../lib/analytics";
+import { getShopContext } from "../lib/context";
+import {
+  checkoutQuoteSchema,
+  placeOrderSchema,
+  saveAddressSchema,
+  startPaymentSchema,
+} from "../schemas/checkout";
+import { startOrderPayment } from "../server/shop-payment.service";
 
 export async function quoteCheckoutAction(input: unknown) {
+  const t = await getTranslations("Shop");
+  const parsed = checkoutQuoteSchema.safeParse(input);
+  if (!parsed.success)
+    return {
+      ok: false as const,
+      category: "ValidationError" as const,
+      message: t("somethingWrong"),
+    };
   try {
-    const parsed = checkoutQuoteSchema.parse(input);
-    const quote = await quoteCheckout(parsed);
+    const quote = await quoteCheckout(parsed.data);
     return { ok: true as const, quote };
   } catch (error) {
-    return { ok: false as const, message: error instanceof Error ? error.message : "Could not re-quote the cart." };
+    const code = (error as { code?: string })?.code;
+    const category =
+      error instanceof Error && error.message === "Cart mismatch."
+        ? "ConflictError"
+        : code
+          ? "InfrastructureError"
+          : "UnexpectedError";
+    if (category !== "ConflictError")
+      console.error("shop.checkout.quote failed", {
+        errorType: error instanceof Error ? error.name : typeof error,
+        code,
+      });
+    return {
+      ok: false as const,
+      category,
+      message: t("somethingWrong"),
+    };
   }
 }
 
@@ -37,6 +66,14 @@ export async function saveAddressAction(input: unknown) {
   const id = await saveCustomerAddress(parsed);
   revalidatePath("/n/app/mobile/shop/checkout");
   return { ok: true as const, id, addresses: await listCustomerAddresses() };
+}
+
+// Checkout must not re-render its active-cart guard while handing an order to
+// the payment provider. Address management retains its normal revalidation.
+export async function saveCheckoutAddressAction(input: unknown) {
+  const parsed = saveAddressSchema.parse(input);
+  const id = await saveCustomerAddress(parsed);
+  return { ok: true as const, id };
 }
 
 export async function deleteAddressAction(id: string) {
@@ -54,15 +91,26 @@ export async function placeOrderAction(input: unknown) {
   const parsed = placeOrderSchema.parse(input);
   const ctx = await getShopContext();
 
+  const cart = await getCartView();
+  const methods = await getPaymentMethods(
+    ctx.locale,
+    parsed.paymentCurrency || cart.currency
+  );
+  const method = methods.find((item) => item.code === parsed.paymentMethodCode);
+  if (!method) throw new Error("The selected payment method is not available.");
+
   const order = await placeOrder({
     cartId: parsed.cartId,
     idempotencyKey: parsed.idempotencyKey,
     email: parsed.email,
     shippingAddress: parsed.shippingAddress,
-    billingAddress: parsed.sameBilling || !parsed.billingAddress ? parsed.shippingAddress : parsed.billingAddress,
+    billingAddress:
+      parsed.sameBilling || !parsed.billingAddress
+        ? parsed.shippingAddress
+        : parsed.billingAddress,
     deliveryMethodId: parsed.deliveryMethodId,
-    paymentMethodId: parsed.paymentMethodId ?? "",
-    paymentCurrency: parsed.paymentCurrency,
+    paymentMethodId: method.id,
+    paymentCurrency: method.currency,
     note: parsed.note,
     sourceSurface: parsed.sourceSurface ?? "shop_checkout",
   });
@@ -74,7 +122,9 @@ export async function placeOrderAction(input: unknown) {
     idempotencyKey: parsed.idempotencyKey,
   });
 
-  let payment: Awaited<ReturnType<typeof startOrderPayment>> | { mode: "error"; message: string };
+  let payment:
+    | Awaited<ReturnType<typeof startOrderPayment>>
+    | { mode: "error"; message: string };
   try {
     payment = await startOrderPayment({
       orderId: order.orderId,
@@ -82,16 +132,31 @@ export async function placeOrderAction(input: unknown) {
       locale: ctx.locale,
     });
   } catch (e) {
-    payment = { mode: "error", message: e instanceof Error ? e.message : "Payment could not be started." };
+    console.error("shop.payment.start failed", {
+      orderId: order.orderId,
+      errorType: e instanceof Error ? e.name : typeof e,
+      code: (e as { code?: string })?.code,
+    });
+    const t = await getTranslations("Shop");
+    payment = {
+      mode: "error",
+      message: t("somethingWrong"),
+    };
   }
 
-  revalidatePath("/n/app/mobile/shop/orders");
+  // These pages read orders dynamically. Invalidating from this action also
+  // re-renders checkout after its cart was converted, which redirects to cart
+  // and can discard the IPG handoff or the payment failure/retry UI.
   return { ok: true as const, order, payment };
 }
 
 export async function startPaymentAction(input: unknown) {
   const parsed = startPaymentSchema.parse(input);
   const ctx = await getShopContext();
-  const payment = await startOrderPayment({ orderId: parsed.orderId, methodCode: parsed.methodCode, locale: ctx.locale });
+  const payment = await startOrderPayment({
+    orderId: parsed.orderId,
+    methodCode: parsed.methodCode,
+    locale: ctx.locale,
+  });
   return { ok: true as const, payment };
 }

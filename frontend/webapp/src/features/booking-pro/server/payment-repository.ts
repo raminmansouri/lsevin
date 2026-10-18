@@ -21,17 +21,17 @@ export interface PaymentMethodItem {
 }
 
 function pickJsonTranslation(value: any, fallback: string, locale = 'fa-IR') {
-    if (!value) return fallback;
-    // fa-IR first: this call site has no access to the request locale, and the
-    // platform's primary market is Persian (see booking-admin-shared/server/lookups.ts,
-    // which defaults its own locale-aware lookup to 'fa-IR'). Preferring en-US
-    // unconditionally meant every admin-configured payment method name -- including the
-    // pay-on-delivery/bank-receipt Persian labels seeded for this feature -- silently
-    // rendered in English for every customer regardless of the site's locale.
-    const normalized = locale.replace('_', '-');
-    const base = normalized.split('-')[0];
-    return value[normalized] ?? value[locale] ?? value[base] ?? value[`${base}-${base.toUpperCase()}`]
-        ?? value['fa-IR'] ?? value['en-US'] ?? value.en ?? Object.values(value)[0] ?? fallback;
+  if (!value) return fallback;
+  // fa-IR first: this call site has no access to the request locale, and the
+  // platform's primary market is Persian (see booking-admin-shared/server/lookups.ts,
+  // which defaults its own locale-aware lookup to 'fa-IR'). Preferring en-US
+  // unconditionally meant every admin-configured payment method name -- including the
+  // pay-on-delivery/bank-receipt Persian labels seeded for this feature -- silently
+  // rendered in English for every customer regardless of the site's locale.
+  const normalized = locale.replace('_', '-');
+  const base = normalized.split('-')[0];
+  return value[normalized] ?? value[locale] ?? value[base] ?? value[`${base}-${base.toUpperCase()}`]
+    ?? value['fa-IR'] ?? value['en-US'] ?? value.en ?? Object.values(value)[0] ?? fallback;
 }
 
 function normalizePaymentStatus(status?: string | null) {
@@ -44,24 +44,24 @@ function normalizePaymentStatus(status?: string | null) {
 }
 
 export async function listPaymentMethodsForUser(userId: string, locale = 'fa-IR'): Promise<PaymentMethodItem[]> {
-    const rows = await db`
-        select code, provider, description_translations, name_translations,
-               supports_authorize, supports_capture, supports_refund, configuration
-        from shop.payment_methods
-        where is_active = true
-        order by sort_order asc, create_date asc
-    `;
+  const rows = await db`
+    select code, provider, description_translations, name_translations,
+           supports_authorize, supports_capture, supports_refund, configuration
+    from shop.payment_methods
+    where is_active = true
+    order by sort_order asc, create_date asc
+  `;
 
-    const methods: PaymentMethodItem[] = rows.map((row: any) => ({
-        code: row.code,
-        name: pickJsonTranslation(row.name_translations, row.code, locale),
-        description: pickJsonTranslation(row.description_translations, row.code, locale),
-        provider: row.provider,
-        supportsAuthorize: row.supports_authorize,
-        supportsCapture: row.supports_capture,
-        supportsRefund: row.supports_refund,
-        configuration: row.configuration ?? {},
-    }));
+  const methods: PaymentMethodItem[] = rows.map((row: any) => ({
+    code: row.code,
+    name: pickJsonTranslation(row.name_translations, row.code, locale),
+    description: pickJsonTranslation(row.description_translations, row.code, locale),
+    provider: row.provider,
+    supportsAuthorize: row.supports_authorize,
+    supportsCapture: row.supports_capture,
+    supportsRefund: row.supports_refund,
+    configuration: row.configuration ?? {},
+  }));
 
     const walletRows = await db`
         select id
@@ -70,19 +70,19 @@ export async function listPaymentMethodsForUser(userId: string, locale = 'fa-IR'
             limit 1
     `;
 
-    if (walletRows.length && !methods.some((x) => x.code === 'wallet')) {
-        methods.unshift({
-            code: 'wallet',
-            name: locale.startsWith('fa') ? 'کیف پول' : 'Wallet',
-            description: locale.startsWith('fa') ? 'پرداخت فوری از موجودی کیف پول' : 'Pay instantly from available wallet balance',
-            provider: 'internal_wallet',
-            supportsAuthorize: false,
-            supportsCapture: true,
-            supportsRefund: true,
-            configuration: {},
-            isWallet: true,
-        });
-    }
+  if (walletRows.length && !methods.some((x) => x.code === 'wallet')) {
+    methods.unshift({
+      code: 'wallet',
+      name: locale.startsWith('fa') ? 'کیف پول' : 'Wallet',
+      description: locale.startsWith('fa') ? 'پرداخت فوری از موجودی کیف پول' : 'Pay instantly from available wallet balance',
+      provider: 'internal_wallet',
+      supportsAuthorize: false,
+      supportsCapture: true,
+      supportsRefund: true,
+      configuration: {},
+      isWallet: true,
+    });
+  }
 
     // No hardcoded "bank transfer" fallback. It used to be appended unconditionally, so a
     // method nobody had configured always appeared at checkout — carrying the literal

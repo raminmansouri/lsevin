@@ -1,0 +1,9 @@
+[Unit]
+Description=Copy staged application images to the other site (encrypted)
+After=network-online.target
+
+[Service]
+Type=oneshot
+Nice=15
+IOSchedulingClass=idle
+ExecStart=/usr/local/sbin/lsevin-dr-images

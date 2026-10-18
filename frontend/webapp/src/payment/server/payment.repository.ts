@@ -69,14 +69,35 @@ export type GatewayPaymentRow = {
     gatewayPayload: unknown;
 };
 
+/**
+ * Decides how much of `totalGatewayAmount` a single gateway charge may take.
+ * Never exceeds `maximumAmount`, and never leaves a remainder below
+ * `minimumAmount` (the gateway would reject that final installment).
+ */
+export function splitGatewayAmount(input: {
+  totalGatewayAmount: number;
+  maximumAmount?: number | null;
+  minimumAmount?: number | null;
+}): { chargeAmount: number; isPartial: boolean } {
+  const total = input.totalGatewayAmount;
+  const max = input.maximumAmount && input.maximumAmount > 0 ? input.maximumAmount : null;
+  if (!max || total <= max) return { chargeAmount: total, isPartial: false };
+
+  const min = input.minimumAmount && input.minimumAmount > 0 ? input.minimumAmount : 0;
+  let charge = max;
+  if (total - charge < min) charge = total - min;
+  return { chargeAmount: charge, isPartial: true };
+}
+
 export async function prepareBookingPaymentAttempt(input: {
-    bookingId: string;
-    userId: string;
-    gateway: PaymentGatewayCode;
-    locale?: string | null;
-    targetCurrency: string;
+  bookingId: string;
+  userId: string;
+  gateway: PaymentGatewayCode;
+  locale?: string | null;
+  targetCurrency: string;
+  maximumAmount?: number | null;
+  minimumAmount?: number | null;
   passThroughCurrencies?: string[];
-    maximumAmount?: number | null;
 }): Promise<PaymentAttempt> {
     if (!isUuid(input.bookingId) || !isUuid(input.userId)) {
         throw new Error("Invalid booking or user id.");
@@ -173,9 +194,10 @@ export async function prepareBookingPaymentAttempt(input: {
     if (roundedGatewayAmount <= 0) {
         throw new Error("Converted payment amount is not valid.");
     }
-    if (input.maximumAmount && roundedGatewayAmount > input.maximumAmount) {
-        throw new Error("ZARINPAL_AMOUNT_LIMIT_EXCEEDED");
-    }
+    const split = splitGatewayAmount({ totalGatewayAmount: roundedGatewayAmount, maximumAmount: input.maximumAmount, minimumAmount: input.minimumAmount });
+    const gatewayChargeAmount = split.chargeAmount;
+    const sourceChargeAmount = split.isPartial ? roundAmountForCurrency(sourceAmount * gatewayChargeAmount / roundedGatewayAmount, sourceCurrency) : sourceAmount;
+    if (gatewayChargeAmount <= 0 || sourceChargeAmount <= 0) throw new Error("Converted payment amount is not valid.");
 
     const pendingRows = await sql<{ id: string }[]>`
         insert into booking.payments (
@@ -197,15 +219,15 @@ export async function prepareBookingPaymentAttempt(input: {
                      ${input.userId}::uuid,
                      ${input.gateway},
                      ${input.gateway},
-                     ${roundedGatewayAmount},
+                     ${gatewayChargeAmount},
                      ${targetCurrency},
                      'Pending',
                      ${sourceCurrency},
                      ${targetCurrency},
-                     ${sourceAmount},
-                     ${roundedGatewayAmount},
+                     ${sourceChargeAmount},
+                     ${gatewayChargeAmount},
                      ${appliedRate},
-                     ${jsonb({ stage: "created", sourceCurrency, sourceAmount, targetCurrency, targetAmount: roundedGatewayAmount })}::jsonb
+                     ${jsonb({ stage: "created", sourceCurrency, sourceAmount: sourceChargeAmount, targetCurrency, targetAmount: gatewayChargeAmount })}::jsonb
                  )
             returning id::text
     `;
@@ -225,9 +247,9 @@ export async function prepareBookingPaymentAttempt(input: {
         paymentId,
         bookingId: booking.bookingId,
         userId: booking.userId,
-        amount: roundedGatewayAmount,
+        amount: gatewayChargeAmount,
         currency: targetCurrency,
-        sourceAmount,
+        sourceAmount: sourceChargeAmount,
         sourceCurrency,
         exchangeRate: appliedRate,
         description: `LSevin booking ${booking.serviceName || booking.bookingId}`,
@@ -349,15 +371,16 @@ export async function getGatewayPaymentById(paymentId: string): Promise<GatewayP
 }
 
 export async function markGatewayPaymentVerified(input: {
-    payment: GatewayPaymentRow;
-    verification: PaymentVerificationResult;
-}): Promise<{ credited: boolean }> {
-    if (!isUuid(input.payment.paymentId) || !isUuid(input.payment.bookingId)) return { credited: false };
+  payment: GatewayPaymentRow;
+  verification: PaymentVerificationResult;
+}): Promise<{ credited: boolean; remainingAmount: number }> {
+  if (!isUuid(input.payment.paymentId) || !isUuid(input.payment.bookingId)) return { credited: false, remainingAmount: 0 };
 
     const referenceId = input.verification.referenceId ? String(input.verification.referenceId) : null;
     const paymentAmount = toNumber(input.payment.amount);
     const sourcePaidAmount = toNumber(input.payment.sourceAmount, paymentAmount);
     let credited = false;
+    let remainingAmount = 0;
 
     // BTCPay settles from two directions at once — the InvoiceSettled webhook and
     // the customer's browser return — so this can run twice within milliseconds
@@ -409,7 +432,7 @@ export async function markGatewayPaymentVerified(input: {
 
         await tx`
             update booking.bookings
-            set payment_status = 'Paid',
+            set payment_status = case when coalesce(paid_amount, 0) + ${sourcePaidAmount} >= coalesce(display_total_amount, total_amount, source_total_amount, 0) then 'Paid' else 'PartiallyPaid' end,
                 payment_method = ${input.payment.gateway || 'zarinpal'},
                 payment_reference = coalesce(${referenceId}, payment_reference),
                 paid_amount = coalesce(paid_amount, 0) + ${sourcePaidAmount},
@@ -441,5 +464,10 @@ export async function markGatewayPaymentVerified(input: {
         `;
     });
 
-    return { credited };
+    const [balance] = await sql<{ remaining: string }[]>`
+      select greatest(coalesce(display_total_amount, total_amount, source_total_amount, 0) - coalesce(paid_amount, 0), 0)::text as remaining
+      from booking.bookings where id = ${input.payment.bookingId}::uuid
+    `;
+    remainingAmount = toNumber(balance?.remaining);
+    return { credited, remainingAmount };
 }

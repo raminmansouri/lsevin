@@ -8,6 +8,7 @@ import { DynamicServiceForm } from '@/features/form-builder/components/DynamicSe
 import { ConsultationStep } from '@/features/consultation/components/consultation-step';
 import type { BookingDraftState, ChildBookingDraft, ProviderCardItem, ProviderTypeAddonItem, ServiceCardItem, SpecialistCardItem, UploadRequirementItem } from '../types';
 import { AddressPicker } from './AddressPicker';
+import { BookingProgress } from './BookingProgress';
 import { ChildAddonBookingCard } from './ChildAddonBookingCard';
 import { TourDeparturePicker } from './TourDeparturePicker';
 import { BookingShopProductsStep, type BookingShopProductGroup } from './BookingShopProductsStep';
@@ -24,7 +25,7 @@ import { BookingDatePicker } from './BookingDatePicker';
 import { formatBookingDateTime, isBookingTimeZone, BOOKING_CALENDARS, bookingCalendarLabel, type BookingCalendar, formatBookingDate, isReasonableBookingIsoDate, normalizeBookingCalendar, toIsoDate } from '../lib/calendar';
 import { RichTextPreview } from '@/features/booking/components/rich-text-preview';
 import { ShareMedicalCaseStep } from './ShareMedicalCaseStep';
-
+import { formatCurrencyAmount } from '@/features/finance/lib/money';
 async function getJson<T>(url: string, init?: RequestInit): Promise<T> {
     const response = await fetch(url, {
         ...init,
@@ -178,16 +179,10 @@ function addMinutes(time: string, minutes: number) {
 function useMoneyFormatter(locale: string) {
     return useMemo(() => (value?: number | null, currency?: string | null) => {
         const amount = Number(value ?? 0);
-        const code = String(currency || '').trim().toUpperCase();
         if (!Number.isFinite(amount))
             return '';
-        try {
-            return new Intl.NumberFormat(locale, { style: 'currency', currency: code || 'USD', maximumFractionDigits: 0 }).format(amount);
-        }
-        catch {
-            // Unknown/invalid ISO code — still group the digits rather than dumping them raw.
-            return `${code} ${new Intl.NumberFormat(locale, { maximumFractionDigits: 0 }).format(amount)}`.trim();
-        }
+        // IRR/IRT print as "ریال"/"تومان" (Intl would show the raw "IRR" or throw).
+        return formatCurrencyAmount(amount, currency || 'USD', locale, { maximumFractionDigits: 0 });
     }, [locale]);
 }
 function useDebouncedValue<T>(value: T, delayMs = 350) {
@@ -364,6 +359,7 @@ export function BookingWizard() {
     const defaultCalendar = localeToCalendar(locale);
     const formatMoney = useMoneyFormatter(locale);
     const [draft, setDraft] = useState<BookingDraftState | null>(null);
+    const [paymentReady, setPaymentReady] = useState(false);
     const [resumeChoiceRequired, setResumeChoiceRequired] = useState(false);
     const [loadingDraft, setLoadingDraft] = useState(true);
     const [seedEntryResolved, setSeedEntryResolved] = useState(!hasSeedSelection);
@@ -1098,12 +1094,12 @@ export function BookingWizard() {
         } else if (PAYMENT_DONE_STATUSES.has(String((result as any)?.status || '').toLowerCase())) {
             // No further redirect needed (wallet/pay_on_delivery/bank_receipt all
             // settle inline) -- the invoice is the natural "you're done" landing spot.
-            router.push(`/n/app/mobile/bookings/${bookingId}/invoice`);
+            router.push(`/${locale}/n/app/mobile/bookings/${bookingId}/invoice`);
         }
         return result;
     }
     async function handleCheckout() {
-        if (!draft?.id)
+        if (!draft?.id || submitting)
             return;
         if (
             draft.paymentMethod === 'pay_on_delivery' &&
@@ -1127,7 +1123,7 @@ export function BookingWizard() {
             } else if ((result as any)?.bookingId) {
                 // Nothing left to pay (a fully comped/free booking) -- checkout is
                 // already the finished state, so go straight to the invoice.
-                router.push(`/n/app/mobile/bookings/${(result as any).bookingId}/invoice`);
+                router.push(`/${locale}/n/app/mobile/bookings/${(result as any).bookingId}/invoice`);
             }
         }
         catch (e: any) {
@@ -1178,7 +1174,7 @@ export function BookingWizard() {
         (currentStep === 2 && !canContinueScheduleStep) ||
         (currentStep === 3 && !canContinueAddonsStep) ||
         (currentStep === 4 && !canContinueFilesStep) ||
-        (currentStep === CHECKOUT_STEP && (submitting || paymentIsDone));
+        (currentStep === CHECKOUT_STEP && (submitting || paymentIsDone || !paymentReady));
     function handlePrimaryAction() {
         if (currentStep === CHECKOUT_STEP) {
             if (paymentIsDone)
@@ -1226,16 +1222,7 @@ export function BookingWizard() {
                         <p className="text-sm text-slate-500">{tBooking("draftFirstBookingWithChildAddOnSubBookings")}</p>
                     </div>
                 </div>
-                <div className="flex items-center gap-2 overflow-x-auto">
-                    {/* Progress is measured by position in visibleSteps, not by key: the keys are
-                stored ids and no longer ascend in display order (6 sits between 2 and 3),
-                so the badge shows the position and `>=` compares indices. */}
-                    {visibleSteps.map((step, index) => (<div key={step.key} className="flex items-center gap-2">
-                        <div className={`flex h-9 min-w-9 items-center justify-center rounded-full text-sm font-bold ${currentStepIndex >= index ? 'bg-[#083f30] text-white' : 'bg-slate-200 text-slate-500'}`}>{currentStepIndex > index ? <CheckCircle2 className="h-4 w-4"/> : index + 1}</div>
-                        <div className={`text-sm font-medium ${currentStepIndex >= index ? 'text-[#083f30]' : 'text-slate-500'}`}>{tBooking(step.labelKey)}</div>
-                        {index < visibleSteps.length - 1 ? <div className={`mx-2 h-0.5 w-10 ${currentStepIndex > index ? 'bg-[#083f30]' : 'bg-slate-200'}`}/> : null}
-                    </div>))}
-                </div>
+                <BookingProgress steps={visibleSteps.map((step) => ({ key: step.key, label: tBooking(step.labelKey) }))} currentIndex={currentStepIndex} label={tBooking("bookWithLSevin")} />
             </div>
         </div>
 
@@ -1295,18 +1282,6 @@ export function BookingWizard() {
                     }} />) : null}
 
                     {draft.bookingUiMode === 'default_slot' && !chosenService?.hasTourDepartures ? (<div className="space-y-6">
-                        <div className="flex flex-wrap items-center justify-between gap-3">
-                            <div className="w-full text-sm font-semibold text-slate-700 sm:w-auto sm:min-w-[260px]">
-                                <span>{tBooking('date2')}</span>
-                                <div className="mt-2">
-                                    <BookingDatePicker calendar={calendar} label={tBooking('date2')} value={draft.selectedDate} onChange={(iso) => {
-                                        const next = { ...draft, selectedDate: iso, selectedDateFrom: iso, selectedDateTo: iso, selectedTime: undefined, selectedTimeFrom: undefined, selectedTimeTo: undefined };
-                                        setDraft(next); patchDraft(next).catch(er => setError(er.message));
-                                    }} />
-                                </div>
-                                {!isReasonableBookingIsoDate(draft.selectedDate) && draft.selectedDate ? (<p className="mt-2 text-xs text-red-600">{tBooking("thisDraftContainsAnOldInvalidConvertedDatePlease")}</p>) : null}
-                            </div>
-                        </div>
 
                         <div>
                             <div className="mb-3 flex items-center justify-between">
@@ -1415,7 +1390,7 @@ export function BookingWizard() {
                     return <div className="rounded-2xl bg-slate-50 p-3 text-sm text-slate-700">{tBooking('stay.nightsLine', { nights, price: nightly ? formatMoney(nightly.amount, nightly.currency) : '' })}{nightly ? <span className="font-semibold text-slate-900"> = {formatMoney(Math.round(nightly.amount * nights * 100) / 100, nightly.currency)}</span> : null}</div>;
                   })()}</div>
                   {draft.serviceId ? (<div className="md:col-span-3"><MealPlanPicker serviceId={draft.serviceId} value={(draft.metadata as any)?.mealPlan ?? null} disabled={submitting} onPlansLoaded={setMealPlans} onChange={(code) => { patchDraft({ metadata: { ...(draft.metadata ?? {}), mealPlan: code } }).then(() => refreshDraftAfterPriceChange()).catch((er) => setError(er.message)); }} /></div>) : null}
-                  
+
                     </div>) : null}
 
                     {chosenService?.requiresCustomerAddress ? (<AddressPicker selectedId={draft.customerAddressId} onSelect={(address) => {
@@ -1512,13 +1487,13 @@ export function BookingWizard() {
                         <div className="mt-4 space-y-3 text-sm text-slate-700">
                             <div className="flex justify-between"><span>{tBooking("mainBooking")}</span><span>{chosenProvider?.name} / {chosenService?.name}{chosenSpecialist ? ` / ${chosenSpecialist.name}` : ''}</span></div>
                             {(draft.metadata as any)?.mealPlan && (draft.metadata as any).mealPlan !== 'room_only' ? (<div className="flex justify-between"><span>{tBooking('mealPlan.label')}</span><span>{tBooking(('mealPlan.' + (draft.metadata as any).mealPlan + '.name') as never)}</span></div>) : null}
-                  <div className="flex justify-between"><span>{tBooking("mainSubtotal")}</span><span>{draft.currency} {draft.subtotalAmount ?? 0}</span></div>
+                  <div className="flex justify-between"><span>{tBooking("mainSubtotal")}</span><span>{formatMoney(draft.subtotalAmount ?? 0, draft.currency)}</span></div>
                             {draft.useLsevin ? <>
                                 <div className="flex justify-between"><span>{tBooking("addOnSubBookings2")}</span><span>{draft.childBookings.length}</span></div>
-                                <div className="flex justify-between"><span>{tBooking("addOnSubtotal")}</span><span>{draft.currency} {draft.addonsAmount ?? 0}</span></div>
+                                <div className="flex justify-between"><span>{tBooking("addOnSubtotal")}</span><span>{formatMoney(draft.addonsAmount ?? 0, draft.currency)}</span></div>
                             </> : <div className="rounded-2xl bg-slate-50 p-3 text-xs text-slate-600">{tBooking("extraLSevinSupportServicesWereNotRequestedForThis")}</div>}
-                            {Number(draft.metadata?.appliedDiscountAmount ?? 0) > 0 ? (<div className="flex justify-between text-green-700"><span>{tBooking("couponDiscount")}{String(draft.metadata?.appliedCouponCode || draft.metadata?.couponCode || draft.metadata?.couponTitle || '')})</span><span>-{draft.currency} {Number(draft.metadata?.appliedDiscountAmount ?? 0)}</span></div>) : null}
-                            <div className="flex justify-between border-t border-slate-200 pt-3 text-base font-bold text-slate-900"><span>{tBooking("totalAfterDiscounts")}</span><span>{draft.currency} {draft.totalAmount ?? 0}</span></div>
+                            {Number(draft.metadata?.appliedDiscountAmount ?? 0) > 0 ? (<div className="flex justify-between text-green-700"><span>{tBooking("couponDiscount")}{String(draft.metadata?.appliedCouponCode || draft.metadata?.couponCode || draft.metadata?.couponTitle || '')})</span><span>-{formatMoney(Number(draft.metadata?.appliedDiscountAmount ?? 0), draft.currency)}</span></div>) : null}
+                            <div className="flex justify-between border-t border-slate-200 pt-3 text-base font-bold text-slate-900"><span>{tBooking("totalAfterDiscounts")}</span><span>{formatMoney(draft.totalAmount ?? 0, draft.currency)}</span></div>
                             <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-4">
                                 <div className="text-sm font-semibold text-slate-700">{tBooking("coupon")}</div>
                                 <div className="mt-2 flex flex-col gap-2 sm:flex-row">
@@ -1532,7 +1507,7 @@ export function BookingWizard() {
                                 <div>
                                     <div className="text-sm font-semibold text-slate-700">{tBooking("paymentMethod2")}</div>
                                     <div className="mt-2">
-                                        <PaymentMethodsPanel selected={draft.paymentMethod ?? 'gateway_card'} onChange={(code) => {
+                                        <PaymentMethodsPanel onReadyChange={setPaymentReady} selected={draft.paymentMethod ?? 'gateway_card'} onChange={(code) => {
                                             const next = { ...draft, paymentMethod: code };
                                             setDraft(next);
                                             // Leaving pay in place drops its plan, so a stale choice can't linger on the draft.
@@ -1560,33 +1535,8 @@ export function BookingWizard() {
                             </div>
                         </div>
                     </div>
-                    {checkoutResult ? (<div className="rounded-[28px] border border-green-200 bg-green-50 p-6 text-green-800 shadow-lg">
-                        <div className="text-lg font-bold">{tBooking("bookingSubmitted")}</div>
-                        <div className="mt-2 text-sm">{tBooking("bookingID2")}{checkoutResult.bookingId}</div>
-                        <div className="text-sm">{tBooking("paymentStatus")}{translateWithFallback(tBooking, BOOKING_PAYMENT_STATUS_LABEL_KEYS, checkoutResult.paymentStatus)}</div>
-                        {/* Once a payment intent already exists for this booking (including the
-                      pay-on-delivery/bank-receipt cases, which never redirect anywhere),
-                      there is nothing left to "continue" to -- this button re-triggering
-                      startPaymentForBooking is what read as the flow going nowhere. */}
-                        {!paymentIntentResult ? (
-                            <button type="button" onClick={handleCreatePaymentIntent} className="mt-4 rounded-2xl bg-[#083f30] px-4 py-3 text-sm font-semibold text-white">{tBooking("continueToPayment")}</button>
-                        ) : null}
-                    </div>) : null}
-
-                    {paymentIntentResult ? (<div className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-lg">
-                        <div className="text-lg font-bold text-slate-900">{tBooking("paymentAction")}</div>
-                        <div className="mt-2 text-sm text-slate-600">{tBooking("method")}{translateWithFallback(tBooking, PAYMENT_METHOD_LABEL_KEYS, paymentIntentResult.method)}</div>
-                        <div className="text-sm text-slate-600">{tBooking("status2")}{translateWithFallback(tBooking, PAYMENT_STATUS_LABEL_KEYS, paymentIntentResult.status)}</div>
-                        {paymentIntentResult.status === 'pending_review' ? (
-                            <div className="mt-3 rounded-2xl bg-amber-50 p-4 text-sm text-amber-800">{tBooking("pendingReviewMessage")}</div>
-                        ) : null}
-                        {paymentIntentResult.status === 'pending_collection' ? (
-                            <div className="mt-3 rounded-2xl bg-amber-50 p-4 text-sm text-amber-800">{tBooking("pendingCollectionMessage")}</div>
-                        ) : null}
-                        {paymentIntentResult.instructions ? <div className="mt-3 rounded-2xl bg-slate-50 p-4 text-sm text-slate-700">{paymentIntentResult.instructions}</div> : null}
-                        {paymentIntentResult.actionUrl ? <a href={paymentIntentResult.actionUrl} className="mt-4 inline-flex rounded-2xl bg-[#083f30] px-4 py-3 text-sm font-semibold text-white">{tBooking("openGatewayAction")}</a> : null}
-                    </div>) : null}
                 </div>) : null}
+
             </div>
 
             <aside className="min-w-0 space-y-4">
@@ -1607,9 +1557,9 @@ export function BookingWizard() {
                         <div>{tBooking("mode")}<span className="font-semibold text-slate-900">{draft.bookingUiMode ?? 'default_slot'}</span></div>
                     </div>
                     <div className="mt-5 rounded-2xl bg-slate-50 p-4">
-                        <div className="flex justify-between text-sm"><span>{tBooking("mainSubtotal")}</span><span>{draft.currency ?? 'USD'} {draft.subtotalAmount ?? 0}</span></div>
-                        {draft.useLsevin ? <div className="mt-1 flex justify-between text-sm"><span>{tBooking("addOnsSubtotal")}</span><span>{draft.currency ?? 'USD'} {draft.addonsAmount ?? 0}</span></div> : null}
-                        <div className="mt-3 flex justify-between border-t border-slate-200 pt-3 text-base font-bold text-slate-900"><span>{tBooking("total")}</span><span>{draft.currency ?? 'USD'} {draft.totalAmount ?? ((draft.subtotalAmount ?? 0) + (draft.addonsAmount ?? 0))}</span></div>
+                        <div className="flex justify-between text-sm"><span>{tBooking("mainSubtotal")}</span><span>{formatMoney(draft.subtotalAmount ?? 0, draft.currency)}</span></div>
+                        {draft.useLsevin ? <div className="mt-1 flex justify-between text-sm"><span>{tBooking("addOnsSubtotal")}</span><span>{formatMoney(draft.addonsAmount ?? 0, draft.currency)}</span></div> : null}
+                        <div className="mt-3 flex justify-between border-t border-slate-200 pt-3 text-base font-bold text-slate-900"><span>{tBooking("total")}</span><span>{formatMoney(draft.totalAmount ?? ((draft.subtotalAmount ?? 0) + (draft.addonsAmount ?? 0)), draft.currency)}</span></div>
                     </div>
                 </div>
 
@@ -1618,7 +1568,7 @@ export function BookingWizard() {
                     <div className="mb-4 text-sm font-bold uppercase tracking-wide text-slate-500">{tBooking("continue")}</div>
                     <button type="button" disabled={continueDisabled} onClick={handlePrimaryAction} className={`flex w-full items-center justify-center gap-2 rounded-2xl px-5 py-4 text-sm font-bold shadow-lg ${continueDisabled ? 'bg-slate-200 text-slate-500' : 'bg-[#083f30] text-white'}`}>
                         {currentStep === 5 ? <CreditCard className="h-4 w-4"/> : <ChevronRight className="h-4 w-4"/>}
-                        {currentStep === 5 ? (paymentIsDone ? tBooking('bookingConfirmed2') : tBooking('submitCheckout')) : tBooking('continue')}
+                        {currentStep === 5 ? (paymentIsDone ? tBooking('bookingConfirmed2') : tBooking('continueToPayment')) : tBooking('continue')}
                     </button>
                     {currentStep === 3 ? <div className="mt-3 text-xs text-slate-500">{tBooking("requiredAddOnProviderTypesMustBeCompletedBefore")}</div> : null}
                 </div>
@@ -1633,11 +1583,11 @@ export function BookingWizard() {
             <div className="mx-auto flex max-w-6xl items-center gap-3">
                 <div className="min-w-0 flex-1">
                     <div className="text-[11px] text-slate-500">{tBooking('total')}</div>
-                    <div className="truncate text-sm font-bold text-slate-900">{formatMoney(draft.totalAmount ?? ((draft.subtotalAmount ?? 0) + (draft.addonsAmount ?? 0)), draft.currency)}</div>
+                    <div className="break-words text-sm font-bold text-slate-900 [overflow-wrap:anywhere]">{formatMoney(draft.totalAmount ?? ((draft.subtotalAmount ?? 0) + (draft.addonsAmount ?? 0)), draft.currency)}</div>
                 </div>
                 <button type="button" disabled={continueDisabled} onClick={handlePrimaryAction} className={`flex shrink-0 items-center justify-center gap-2 rounded-2xl px-6 py-3.5 text-sm font-bold shadow-lg ${continueDisabled ? 'bg-slate-200 text-slate-500' : 'bg-[#083f30] text-white'}`}>
                     {currentStep === 5 ? <CreditCard className="h-4 w-4"/> : <ChevronRight className="h-4 w-4"/>}
-                    {currentStep === 5 ? (paymentIsDone ? tBooking('bookingConfirmed2') : tBooking('submitCheckout')) : tBooking('continue')}
+                    {currentStep === 5 ? (paymentIsDone ? tBooking('bookingConfirmed2') : tBooking('continueToPayment')) : tBooking('continue')}
                 </button>
             </div>
         </div>

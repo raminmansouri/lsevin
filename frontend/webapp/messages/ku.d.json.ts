@@ -2716,6 +2716,8 @@ declare const messages: {
         "label": "پەسناس"
       },
       "isActive": "چالاک",
+      "addonOnly": "Add-on only (translator, car, ...)",
+      "addonOnlyHelp": "When on, providers of this type appear only in the booking add-ons step, filtered by city, and are hidden from search, home and every other listing.",
       "attributes": "پەسناسی تایبەتمەندی",
       "attributesPlaceholder": "تایبەتمەندی ({count} دیاریکراوە)",
       "create": "دروستکردنی جۆری دابینکەر",
@@ -13188,6 +13190,22 @@ declare const messages: {
     }
   },
   "Shop": {
+    "checkoutHints": {
+      "completeToPay": "بۆ پارەدان ئەمانە تەواو بکە:",
+      "required": "{field} پڕ بکەرەوە.",
+      "minLength": "{field} دەبێت لانیکەم {min} پیت بێت.",
+      "maxLength": "{field} نابێت لە {max} پیت زیاتر بێت.",
+      "email": "ئیمەیڵێکی دروست بنووسە.",
+      "delivery": "شێوازی گەیاندن هەڵبژێرە.",
+      "noDelivery": "گەیاندن بۆ ئەم ناونیشانە بەردەست نییە. شوێنەکە بگۆڕە.",
+      "payment": "شێوازی پارەدان هەڵبژێرە.",
+      "noPayment": "هیچ شێوازێکی پارەدان بەردەست نییە. دواتر هەوڵ بدەرەوە.",
+      "coupon": "ئەم کۆدی داشکاندنە چیتر دروست نییە. سەبەتەکەت بپشکنە.",
+      "unavailable": "پێش پارەدان سەبەتەکەت بپشکنە.",
+      "quoteFailed": "نوێکردنەوەی شێوازەکان سەرکەوتوو نەبوو. بۆ هەوڵدانەوە دابگرە.",
+      "updating": "شێوازەکانی گەیاندن و پارەدان نوێ دەکرێنەوە…",
+      "retryNotice": "داواکارییەکەت تۆمار کرا. پارەدان دووبارە بکەرەوە بەبێ داواکاریی نوێ."
+    },
     "changeCurrency": "گۆڕینی دراوی پیشاندان",
     "currencyChangeFailed": "گۆڕینی دراو سەرکەوتوو نەبوو. تکایە دووبارە هەوڵ بدەوە."
   },

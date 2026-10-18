@@ -1,0 +1,245 @@
+#!/usr/bin/env bash
+# lsevin-rebuild - rebuild a lost LSevin server (A = Iran, B = global) on a fresh Ubuntu 24.04 machine, in phases.
+# Runbook: deployments/dr/RESTORE-SERVER.md   (read it first; this script is what the runbook calls)
+#
+#   lsevin-rebuild A|B plan                  show what is present in the recovery folder and what will happen
+#   lsevin-rebuild A|B all [--dump FILE]     run every phase in order (asks before the phases that change data)
+#   lsevin-rebuild A|B <phase> [...]         run one phase:
+#       base        packages, Docker, rclone, Java (offline-friendly: uses tools/ in the recovery folder first)
+#       config      unpack the config bundle (secrets, Caddy, units, SymmetricDS config, Jenkins home ...) - never overwrites fstab/netplan/hosts
+#       k3s         install k3s (images archive first, so the application images are already there) and wait for the node
+#       code        put the repository at /opt/lsevin/app
+#       data-tier   create namespace, secrets, services and the data pods (postgres, pgbouncer, redis, eventstore, seaweedfs, elasticsearch)
+#       database    restore the database dump (--dump FILE) without SymmetricDS objects
+#       apps        start the application pods (api, webapp, crm, providers ...)
+#       edge        start Caddy (+ Jenkins), VPN (A), enable the timers/services that ran on the old server
+#       sync        SymmetricDS (A: client, B: hub) and the media sync
+#       verify      health checks and a checklist
+#   lsevin-rebuild A|B check-bundle FILE     verify that a config bundle contains everything this script needs
+#
+# Recovery folder (default /root/recovery, override with RECOVERY_DIR): config-<SITE>-*.tar.gz (decrypted), optional images-<SITE>-*.tar,
+# dumps (lsevin-*.dump), tools/ (k3s, k3s-install.sh, rclone, symmetric-server-3.16.17.zip, lego), optional repo.tar.gz / repo.bundle.
+# The database phase refuses to touch a database that already has tables.
+set -uo pipefail
+SITE=${1:-}; PHASE=${2:-plan}; shift 2 2>/dev/null || true
+case "$SITE" in A|B) ;; *) sed -n 2,26p "$0"; exit 2;; esac
+HERE=$(cd "$(dirname "$0")" && pwd)
+R=${RECOVERY_DIR:-/root/recovery}; TOOLS=$R/tools; STAGE=$R/extracted; ROOT=${REBUILD_ROOT:-/}
+APP=/opt/lsevin/app; NS=lsevin; K3S_VERSION=${K3S_VERSION:-v1.36.4+k3s1}; RCLONE_VERSION=${RCLONE_VERSION:-v1.75.1}
+YES=0; DUMP=""; EXTRA=()
+while [ $# -gt 0 ]; do case "$1" in --yes) YES=1;; --dump) DUMP=$2; shift;; *) EXTRA+=("$1");; esac; shift; done
+say() { printf '\n== %s\n' "$*"; }
+ok() { printf '   ok: %s\n' "$*"; }
+warn() { printf '   WARNING: %s\n' "$*"; }
+die() { printf '\n   STOP: %s\n' "$*" >&2; exit 1; }
+confirm() { [ "$YES" = 1 ] && return 0; read -r -p "   $1 [type yes] " a; [ "$a" = yes ] || die "not confirmed"; }
+need_root() { [ "$(id -u)" = 0 ] || die "run as root (sudo -i)"; }
+kc() { kubectl "$@"; }
+latest() { ls -1t $1 2>/dev/null | head -1; }
+BUNDLE=$(latest "$R/config-$SITE-*.tar.gz"); IMAGES=$(latest "$R/images-$SITE-*.tar")
+[ -z "$DUMP" ] && DUMP=$(latest "$R/lsevin-2*.dump")
+running_pod() { kc -n $NS get pods --no-headers 2>/dev/null | awk -v p="^$1-[0-9a-f]+-[a-z0-9]+\$" '$1 ~ p && $3 == "Running" {print $1; exit}'; }
+pg() { kc -n $NS exec -i "$(running_pod postgres)" -- sh -c "$1"; }
+SQ="'"
+tables() { pg "psql -U \"\$POSTGRES_USER\" -d lsevin -Atc \"select count(*) from pg_tables where schemaname not in (${SQ}pg_catalog${SQ},${SQ}information_schema${SQ})\"" 2>/dev/null | tail -1; }
+get_tool() {   # get_tool NAME URL DEST - the recovery folder's tools/ first (works without internet), then the URL
+  [ -f "$TOOLS/$1" ] && { install -m 755 "$TOOLS/$1" "$3"; return 0; }
+  curl -fsSL -m 600 -o "$3.part" "$2" && install -m 755 "$3.part" "$3" && rm -f "$3.part"
+}
+
+check_bundle() {
+  local f=${1:-$BUNDLE}; [ -f "$f" ] || die "no config bundle (config-$SITE-*.tar.gz) in $R"
+  local list; list=$(tar -tzf "$f") || die "bundle is damaged: $f"
+  local need="manifest/info.env manifest/enabled-units.txt k8s/secret.yaml k8s/deployment.yaml k8s/service.yaml etc/lsevin-dr/rclone.conf usr/local/sbin/lsevin-dr-offsite etc/systemd/system/lsevin-dr-offsite.timer"
+  if [ "$SITE" = A ]; then
+    need="$need etc/openvpn etc/lsevin-certs opt/lsevin/caddy/Caddyfile opt/symds/node-a/engines root/.ssh etc/lsevin-files/rclone.conf opt/lsevin/app/deployments/docker/.env etc/systemd/system/symds-node-a.service"
+  else
+    need="$need etc/lsevin-acme opt/symds/hub/engines opt/lsevin/app/deployments/docker/.env opt/lsevin/app/deployments/docker/Caddyfile.server etc/lsevin-alerter etc/systemd/system/symds-hub.service"
+  fi
+  local miss=0 p; for p in $need; do echo "$list" | grep -qE "^(\./)?${p}(/|$)" || { warn "missing in bundle: $p"; miss=1; }; done
+  [ $miss = 0 ] && ok "bundle $(basename "$f") contains everything the rebuild needs ($(echo "$list" | wc -l) entries)"
+  return $miss
+}
+
+phase_plan() {
+  say "Recovery folder $R"
+  printf '   %-20s %s\n' "config bundle" "${BUNDLE:--  (NOT FOUND)}" "images archive" "${IMAGES:--  (none: images must be built by Jenkins)}" \
+    "database dump" "${DUMP:--  (none: needed for the database phase)}" \
+    "k3s binary" "$([ -f $TOOLS/k3s ] && echo yes || echo '-  (will download)')" "rclone" "$([ -f $TOOLS/rclone ] && echo yes || echo '-  (will download)')" \
+    "SymmetricDS zip" "$(ls $TOOLS/symmetric-server-*.zip 2>/dev/null | head -1 || true)" \
+    "repository" "$(ls $R/repo.tar.gz $R/repo.bundle 2>/dev/null | head -1 || true)"
+  if [ -f "$BUNDLE" ]; then say "Bundle manifest"; tar -xzOf "$BUNDLE" manifest/info.env 2>/dev/null | sed 's/^/   /'; check_bundle; fi
+  say "This machine"; echo "   $(. /etc/os-release; echo $PRETTY_NAME), $(nproc) CPUs, $(free -m | awk '/Mem:/{print $2}') MB RAM, $(df -BG --output=avail / | tail -1 | tr -dc 0-9) GB free on /"
+  echo "   Next: lsevin-rebuild $SITE all   (or one phase at a time)"
+}
+
+phase_base() {
+  need_root; say "base packages"
+  export DEBIAN_FRONTEND=noninteractive
+  apt-get update -q >/dev/null; apt-get install -y -q ca-certificates curl git jq rsync unzip python3-yaml docker.io openjdk-21-jre-headless postgresql-client chrony logrotate sysstat >/dev/null || die "apt install failed"
+  [ "$SITE" = A ] && apt-get install -y -q openvpn >/dev/null
+  systemctl enable --now docker >/dev/null; ok "$(docker --version)"
+  if ! command -v rclone >/dev/null; then
+    if [ -f "$TOOLS/rclone" ]; then install -m 755 "$TOOLS/rclone" /usr/local/bin/rclone
+    else
+      local z; z=$(mktemp -d); curl -fsSL -m 300 -o "$z/r.zip" "https://downloads.rclone.org/$RCLONE_VERSION/rclone-$RCLONE_VERSION-linux-amd64.zip" && unzip -q "$z/r.zip" -d "$z" && install -m 755 "$z"/rclone-*/rclone /usr/local/bin/rclone || warn "rclone not installed (put tools/rclone in the recovery folder)"
+    fi
+  fi
+  command -v rclone >/dev/null && ok "$(rclone --version | head -1)"
+  if swapon --show | grep -q .; then ok "swap present"; else fallocate -l 4G /swap.img && chmod 600 /swap.img && mkswap /swap.img >/dev/null && swapon /swap.img && echo '/swap.img none swap sw 0 0' >> /etc/fstab && ok "4G swap created"; fi
+}
+
+phase_config() {
+  need_root; say "config bundle"
+  check_bundle || confirm "the bundle is incomplete; continue anyway?"
+  rm -rf "$STAGE"; mkdir -p "$STAGE"; tar -xzf "$BUNDLE" -C "$STAGE" || die "cannot unpack $BUNDLE"
+  # machine-specific files are NOT copied over a new machine: they stay in $STAGE for manual review
+  rsync -a --exclude=/etc/fstab --exclude=/etc/netplan --exclude=/etc/hosts --exclude=/etc/ufw --exclude=/etc/iptables --exclude=/k8s --exclude=/manifest \
+        --exclude=/etc/rancher/k3s/k3s.yaml --exclude=/var/lib/lsevin/jenkins/workspace "$STAGE"/ "$ROOT"/ || die "copy failed"
+  chmod 700 "$ROOT/root/.ssh" 2>/dev/null; chmod 600 "$ROOT"/root/.ssh/* "$ROOT"/etc/lsevin-dr/* "$ROOT"/etc/lsevin-alerter/* 2>/dev/null
+  mkdir -p "$ROOT/var/lib/lsevin" "$ROOT/var/backups/lsevin/db" "$ROOT/var/backups/lsevin/config" "$ROOT/opt/lsevin/backups/logical"
+  [ "$ROOT" = / ] && systemctl daemon-reload; ok "configuration restored; hosts/fstab/netplan stay in $STAGE/etc - compare by hand"
+  [ "$ROOT" = / ] && [ -f "$STAGE/etc/hosts" ] && diff <(grep -v '^#' /etc/hosts) <(grep -v '^#' "$STAGE/etc/hosts") | sed 's/^/   hosts diff: /' | head -10
+  return 0
+}
+
+phase_k3s() {
+  need_root; say "k3s"
+  if [ -n "$IMAGES" ]; then
+    mkdir -p /var/lib/rancher/k3s/agent/images && tar -xf "$IMAGES" -C /var/lib/rancher/k3s/agent/images && ok "image archives staged (k3s imports them at start): $(ls /var/lib/rancher/k3s/agent/images | tr '\n' ' ')"
+  else warn "no images archive: the application images must be built (Jenkins jobs, runbook step 'Images')"; fi
+  if ! command -v k3s >/dev/null; then
+    [ -f "$TOOLS/k3s" ] && install -m 755 "$TOOLS/k3s" /usr/local/bin/k3s
+    if [ -f "$TOOLS/k3s-install.sh" ]; then
+      INSTALL_K3S_VERSION=$K3S_VERSION INSTALL_K3S_SKIP_DOWNLOAD=$([ -f "$TOOLS/k3s" ] && echo true || echo false) sh "$TOOLS/k3s-install.sh" || die "k3s install failed"
+    else
+      curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION=$K3S_VERSION sh - || die "k3s install failed (offline? put tools/k3s and tools/k3s-install.sh in the recovery folder)"
+    fi
+  fi
+  for i in $(seq 1 60); do kc get nodes --no-headers 2>/dev/null | grep -q ' Ready' && break; sleep 5; done
+  kc get nodes --no-headers | grep -q ' Ready' || die "k3s node is not Ready"
+  ok "$(kc get nodes --no-headers | head -1)"; [ -n "$IMAGES" ] && ok "lsevin images in containerd: $(k3s ctr -n k8s.io images ls -q | grep -c lsevin)"
+  return 0
+}
+
+phase_code() {
+  need_root; say "repository -> $APP"
+  if [ -d "$APP/deployments" ]; then ok "$APP present ($(git -C $APP rev-parse --short HEAD 2>/dev/null))"; return 0; fi
+  local want; want=$(sed -n 's/^app_commit=//p' "$STAGE/manifest/info.env" 2>/dev/null); mkdir -p /opt/lsevin
+  if [ -f "$R/repo.tar.gz" ]; then tar -xzf "$R/repo.tar.gz" -C /opt/lsevin || die "repo.tar.gz"
+  elif [ -f "$R/repo.bundle" ]; then git clone -q "$R/repo.bundle" $APP || die "repo.bundle"
+  elif [ -n "${REPO_URL:-}" ]; then git clone -q "$REPO_URL" $APP || die "git clone failed"
+  else die "no repository: put repo.tar.gz (tar of the app folder) or repo.bundle (git bundle create repo.bundle --all) in $R, or set REPO_URL"; fi
+  if [ -n "$want" ] && git -C $APP checkout -q "$want" 2>/dev/null; then ok "checked out the commit the old server ran ($want)"; else warn "kept the default branch; old server ran: ${want:-unknown}"; fi
+  [ -d "$STAGE/opt/lsevin/app" ] && rsync -a "$STAGE/opt/lsevin/app/" "$APP/"   # the restored secret .env files win over the checkout
+  return 0
+}
+
+apply_kind() { python3 "$HERE/k8s-clean.py" "$STAGE/k8s" "$@" | kc apply -f - 2>&1 | sed 's/^/   /'; }
+DATA="postgres,pgbouncer,redis,eventstore,seaweedfs,elasticsearch,minio"
+
+phase_data_tier() {
+  need_root; say "namespace, secrets, services, data pods"
+  [ -d "$STAGE/k8s" ] || die "run the config phase first"
+  kc get ns $NS >/dev/null 2>&1 || kc create ns $NS
+  local k; for k in secret configmap persistentvolumeclaim service; do apply_kind $k; done
+  apply_kind statefulset --only "$DATA"; apply_kind deployment --only "$DATA"
+  for i in $(seq 1 90); do [ -n "$(running_pod postgres)" ] && break; sleep 5; done
+  [ -n "$(running_pod postgres)" ] || die "postgres pod did not start (kubectl -n $NS get pods; kubectl -n $NS describe pod <postgres pod>)"
+  for i in $(seq 1 30); do pg 'pg_isready -U "$POSTGRES_USER"' >/dev/null 2>&1 && break; sleep 3; done
+  ok "postgres is running: $(running_pod postgres)"
+}
+
+phase_database() {
+  need_root; say "database restore"
+  local t; t=$(tables); t=${t:-0}
+  if [ "$t" -gt 20 ]; then warn "database already has $t tables: nothing restored (this phase never overwrites a populated database)"; return 0; fi
+  [ -f "$DUMP" ] || die "no dump. Take a fresh one on the SURVIVING server (runbook, 'Database') and copy it into $R, or pass --dump FILE"
+  confirm "restore $(basename "$DUMP") into the EMPTY database?"
+  pg "psql -U \"\$POSTGRES_USER\" -d postgres -Atc \"select 1 from pg_database where datname=${SQ}lsevin${SQ}\"" | grep -q 1 || pg 'psql -U "$POSTGRES_USER" -d postgres -qc "create database lsevin"'
+  # SymmetricDS's own tables/triggers are left out: the sync phase creates them fresh for this node
+  local L; L=$(mktemp); pg_restore -l "$DUMP" 2>/dev/null | grep -viE '(sym_[a-z_]+)' > "$L"
+  [ -s "$L" ] || die "pg_restore cannot read the dump (needs postgresql-client 17: apt install postgresql-client-17)"
+  kc -n $NS cp "$L" "$(running_pod postgres):/tmp/restore.list" && rm -f "$L"
+  pg 'pg_restore -U "$POSTGRES_USER" -d lsevin --no-owner --no-privileges -L /tmp/restore.list 2>/tmp/restore.err; echo "pg_restore exit=$?  error lines: $(grep -ci error /tmp/restore.err)"; grep -i error /tmp/restore.err | head -5' < "$DUMP" | sed 's/^/   /'
+  t=$(tables); ok "tables now: ${t:-0}"
+  [ "${t:-0}" -gt 20 ] || die "restore looks incomplete"
+  pg 'su -s /bin/sh postgres -c "pgbackrest --stanza=lsevin stanza-create"' >/dev/null 2>&1 && ok "pgBackRest stanza created" || warn "pgBackRest stanza not created: kubectl -n $NS exec deploy/postgres -- su -s /bin/sh postgres -c 'pgbackrest --stanza=lsevin stanza-create'"
+}
+
+phase_apps() {
+  need_root; say "application pods"
+  apply_kind statefulset --except "$DATA"; apply_kind deployment --except "$DATA"; apply_kind cronjob; apply_kind ingress
+  local bad=1; for i in $(seq 1 60); do
+    bad=$(kc -n $NS get pods --no-headers | awk '$3!="Running" && $3!="Completed"{n++} END{print n+0}'); [ "$bad" = 0 ] && break; sleep 10
+  done
+  kc -n $NS get pods --no-headers | awk '{print "   "$1, $2, $3}' | head -40
+  if [ "$bad" = 0 ]; then ok "all pods Running"; else warn "$bad pod(s) not Running: ImagePullBackOff/ErrImagePull = an image is missing (runbook, 'Images')"; fi
+  return 0
+}
+
+phase_edge() {
+  need_root; say "edge: Caddy, Jenkins, VPN, timers"
+  if [ "$SITE" = A ]; then
+    docker image inspect lsevin-caddy:geoip >/dev/null 2>&1 || docker build -q -t lsevin-caddy:geoip -f $APP/deployments/docker/caddy.Dockerfile $APP/deployments/docker || warn "caddy image build failed"
+    docker rm -f lsevin-caddy >/dev/null 2>&1
+    docker run -d --name lsevin-caddy --restart unless-stopped --network host -v /etc/lsevin-certs:/certs -v lsevin_caddy_data:/data -v /var/lib/lsevin-health:/health \
+      -v /opt/lsevin/caddy/Caddyfile:/etc/caddy/Caddyfile -v $APP/deployments/docker/geoip:/etc/caddy/geoip lsevin-caddy:geoip >/dev/null && ok "caddy started"
+    systemctl enable --now openvpn-client@lsevin-vpn lsevin-vpn-manager 2>&1 | tail -1; sleep 15
+    if ping -c2 -W3 202.133.90.50 >/dev/null; then ok "VPN: B reachable"; else warn "VPN: B not reachable yet (lsevin-vpn status)"; fi
+  else
+    (cd $APP/deployments/docker && docker compose -f docker-compose.server.yml up -d --build caddy 2>&1 | tail -2) && ok "caddy started"
+  fi
+  if [ -f $APP/deployments/jenkins/docker-compose.yml ]; then
+    (cd $APP/deployments/jenkins && docker compose -f docker-compose.yml $([ -f docker-compose.override.yml ] && echo "-f docker-compose.override.yml") up -d --build 2>&1 | tail -2) && ok "jenkins started"
+  fi
+  # enable what the old server had enabled (symds-* waits for the sync phase; docker/k3s/ssh/openvpn are already handled)
+  local u; while read -r u; do
+    case "$u" in symds-*|docker.*|k3s.*|ssh.*|openvpn*|"") continue;; esac
+    if [ -e "/etc/systemd/system/$u" ] || [ -e "/lib/systemd/system/$u" ]; then systemctl enable --now "$u" >/dev/null 2>&1 && printf '   enabled %s\n' "$u"; fi
+  done < "$STAGE/manifest/enabled-units.txt"
+  return 0
+}
+
+phase_sync() {
+  need_root; say "replication + media sync"
+  local zip; zip=$(ls $TOOLS/symmetric-server-*.zip 2>/dev/null | head -1)
+  if [ -n "$zip" ]; then mkdir -p /opt/symds; cp -n "$zip" /opt/symds/; cp -n "$zip" /root/; fi
+  confirm "start SymmetricDS now? (creates the sym_* tables and capture triggers in the database)"
+  if [ "$SITE" = B ]; then
+    bash $APP/deployments/symmetricds/scripts/b-01-install-hub.sh && bash $APP/deployments/symmetricds/scripts/b-03-start-hub.sh || die "hub setup failed"
+    ok "hub started; A's client reconnects by itself (check on A: lsevin-sync-status)"
+    echo "   Media: B's SeaweedFS is empty - run  lsevin-files-sync --resync  ON SERVER A now (copies the bucket to B)."
+  else
+    bash $APP/deployments/symmetricds/scripts/a-01-prepare-node-a.sh && bash $APP/deployments/symmetricds/scripts/a-02-start-node-a.sh || die "node A setup failed"
+    systemctl enable --now lsevin-files-tunnel lsevin-files-sync.timer >/dev/null 2>&1; lsevin-files-sync --resync 2>&1 | tail -3
+  fi
+  # GENERATED ALWAYS identity columns break replication (replica mode): keep them BY DEFAULT
+  pg 'psql -U "$POSTGRES_USER" -d lsevin -q' < $APP/deployments/symmetricds/sql/identity-by-default.sql >/dev/null 2>&1 && ok "identity columns set BY DEFAULT"
+  return 0
+}
+
+phase_verify() {
+  say "verify"; local bad=0 host; host=$([ "$SITE" = A ] && echo lsevin.ir || echo lsevincare.com)
+  chk() { if eval "$2" >/dev/null 2>&1; then ok "$1"; else warn "FAILED: $1"; bad=1; fi; }
+  chk "node Ready" "kc get nodes --no-headers | grep -q ' Ready'"
+  chk "no pod in a bad state" "[ \$(kc -n $NS get pods --no-headers | awk '\$3!=\"Running\" && \$3!=\"Completed\"{n++} END{print n+0}') = 0 ]"
+  chk "database has tables" "[ \"\$(tables)\" -gt 20 ]"
+  chk "caddy container running" "docker ps --format '{{.Names}}' | grep -q caddy"
+  chk "webapp /app-health answers 204 through Caddy" "[ \$(curl -s -m 20 -o /dev/null -w '%{http_code}' -k --resolve $host:443:127.0.0.1 https://$host/app-health) = 204 ]"
+  chk "API readiness" "[ \$(curl -s -m 15 -o /dev/null -w '%{http_code}' http://127.0.0.1:30081/readiness) = 200 ]"
+  [ "$SITE" = A ] && chk "VPN: B reachable" "ping -c2 -W3 202.133.90.50"
+  chk "replication service running" "systemctl is-active $([ "$SITE" = A ] && echo symds-node-a || echo symds-hub)"
+  echo
+  if [ $bad = 0 ]; then echo "   ALL CHECKS PASSED. Still by hand: DNS/Cloudflare if the IP changed, final checklist in the runbook."; else echo "   Some checks failed - see the runbook's troubleshooting table."; fi
+  return $bad
+}
+
+case "$PHASE" in
+  plan) phase_plan;;
+  check-bundle) check_bundle "${EXTRA[0]:-}";;
+  base|config|k3s|code|data-tier|database|apps|edge|sync|verify) "phase_${PHASE//-/_}";;
+  all) phase_plan; confirm "rebuild server $SITE on THIS machine ($(hostname))?"
+       for p in base config k3s code data_tier database apps edge sync verify; do "phase_$p" || die "phase $p failed"; done;;
+  *) sed -n 2,26p "$0"; exit 2;;
+esac

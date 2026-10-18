@@ -51,8 +51,6 @@ declare const messages: {
     "next": "التالي",
     "confirm": "استخدام الملفات المحددة"
   },
-  
-
   "BookingCart": {
     "title": "الحجوزات المحفوظة",
     "hint": "هذه تقديرات وليست حجوزات مؤكدة. راجع كل حجز للتحقق من التوفر والدفع. تُدفع المنتجات حالياً بشكل منفصل.",
@@ -80,7 +78,11 @@ declare const messages: {
     "searchNow": "ابحث الآن"
   },
   "Booking": {
-    "dayParts": { "morning": "الصباح", "afternoon": "بعد الظهر", "evening": "المساء" },
+    "dayParts": {
+      "morning": "الصباح",
+      "afternoon": "بعد الظهر",
+      "evening": "المساء"
+    },
     "mealPlan": {
       "label": "خطة الوجبات",
       "chooseTitle": "اختر خطة الوجبات",
@@ -928,7 +930,6 @@ declare const messages: {
     "transferServices": "خدمات النقل",
     "treatments": "العلاجات",
     "yesCancel": "نعم، إلغاء",
-    "changeSelection": "تغيير",
     "onlyOption": "الخيار الوحيد",
     "chooseProvider": "اختر مقدّم الخدمة",
     "chooseService": "اختر الخدمة",
@@ -1054,7 +1055,8 @@ declare const messages: {
   },
   "AdminGenerated": {
     "updateBookingTitle": "تعديل الحجز: {service} – {customer}",
-    "stayCheckIn": "تاريخ الوصول", "stayCheckOut": "تاريخ المغادرة",
+    "stayCheckIn": "تاريخ الوصول",
+    "stayCheckOut": "تاريخ المغادرة",
     "deleteCurrency": "Delete currency",
     "deleteCurrencyConfirm": "Delete this currency? It is removed from the lists while past records stay untouched.",
     "currencyDeleted": "Currency deleted.",
@@ -4082,7 +4084,10 @@ declare const messages: {
     "description": "يرجى استخدم  رئيسي صفحة من  الموقع الإلكتروني."
   },
   "ServicePage": {
-    "attributeValue": { "yes": "نعم", "no": "لا" },
+    "attributeValue": {
+      "yes": "نعم",
+      "no": "لا"
+    },
     "metadata": {
       "title": "تفاصيل الخدمة",
       "description": "راجع تفاصيل الخدمة ومقدميها والمتخصصين والعروض والمتطلبات وخيارات الحجز."
@@ -6926,6 +6931,8 @@ declare const messages: {
         "label": "الوصف"
       },
       "isActive": "نشط",
+      "addonOnly": "للإضافات فقط (مترجم، سيارة ...)",
+      "addonOnlyHelp": "عند التفعيل يظهر مقدمو هذا النوع في قسم إضافات الحجز فقط حسب المدينة ولا يظهرون في البحث أو الصفحة الرئيسية.",
       "attributes": "السمة التعريفات",
       "attributesPlaceholder": "السمات ({count} defined)",
       "create": "إنشاء نوع المزوّد",
@@ -11334,7 +11341,10 @@ declare const messages: {
     "openRecommendation": "فتح {title}"
   },
   "ProviderPage": {
-    "locationMap": { "title": "الموقع على الخريطة", "getDirections": "احصل على الاتجاهات" },
+    "locationMap": {
+      "title": "الموقع على الخريطة",
+      "getDirections": "احصل على الاتجاهات"
+    },
     "actions": {
       "back": "رجوع",
       "share": "مشاركة مقدم الخدمة",
@@ -13451,7 +13461,9 @@ declare const messages: {
     "customer": {
       "title": "عضويات الصالة الرياضية الخاصة بي",
       "empty": "ليس لديك أي عضوية في صالة رياضية بعد.",
-      "plan": { "monthlyPriceLabel": "السعر الشهري" },
+      "plan": {
+        "monthlyPriceLabel": "السعر الشهري"
+      },
       "subscribe": {
         "title": "اشتراك",
         "selectMonths": "اختر الأشهر التي تريد دفعها",
@@ -13711,7 +13723,22 @@ declare const messages: {
     }
   },
   "Shop": {
-    "specifications": "المواصفات",
+    "checkoutHints": {
+      "completeToPay": "أكمل هذه العناصر للدفع:",
+      "required": "أدخل {field}.",
+      "minLength": "يجب أن يحتوي {field} على {min} أحرف على الأقل.",
+      "maxLength": "يجب ألا يتجاوز {field} عدد {max} حرفًا.",
+      "email": "أدخل بريدًا إلكترونيًا صالحًا.",
+      "delivery": "اختر طريقة التوصيل.",
+      "noDelivery": "التوصيل غير متاح لهذا العنوان. غيّر الوجهة.",
+      "payment": "اختر طريقة الدفع.",
+      "noPayment": "لا توجد طريقة دفع متاحة. حاول لاحقًا.",
+      "coupon": "لم يعد رمز الخصم صالحًا. راجع سلة التسوق.",
+      "unavailable": "راجع سلة التسوق قبل الدفع.",
+      "quoteFailed": "تعذر تحديث خيارات التوصيل أو الدفع. اضغط للمحاولة مجددًا.",
+      "updating": "جارٍ تحديث خيارات التوصيل والدفع…",
+      "retryNotice": "تم حفظ طلبك. أعد محاولة الدفع دون إنشاء طلب آخر."
+    },
     "title": "المتجر",
     "tab": "المتجر",
     "searchPlaceholder": "ابحث عن منتجات، علامات…",
@@ -13829,7 +13856,6 @@ declare const messages: {
     "onSale": "تخفيضات",
     "rating4plus": "٤ نجوم فأكثر",
     "allBrands": "كل العلامات",
-    "apply": "تطبيق",
     "filters": "عوامل التصفية",
     "priceRange": "نطاق السعر",
     "minPrice": "الأدنى",
@@ -14186,7 +14212,9 @@ declare const messages: {
       "banner": "بانر الفئة",
       "save": "حفظ الفئة"
     },
-    "categoryNew": { "title": "فئة جديدة" },
+    "categoryNew": {
+      "title": "فئة جديدة"
+    },
     "categoryEdit": {
       "delete": "حذف الفئة",
       "servicesTitle": "خدمات لِسِفين المرتبطة",
@@ -14493,7 +14521,9 @@ declare const messages: {
     "admin": {
       "title": "المرضى",
       "description": "ابحث عن مريض أو افتح سجله الشامل (360).",
-      "detail": { "title": "السجل الشامل للمريض" },
+      "detail": {
+        "title": "السجل الشامل للمريض"
+      },
       "schemaMissing": {
         "title": "لم يتم تشغيل ترحيل قاعدة البيانات بعد",
         "body": "لتفعيل هذا القسم، نفّذ الترحيل 0048_patient_foundation.sql."

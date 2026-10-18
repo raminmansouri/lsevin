@@ -8446,6 +8446,8 @@
         "placeholder": "选择图标"
       },
       "isActive": "启用",
+      "addonOnly": "Add-on only (translator, car, ...)",
+      "addonOnlyHelp": "When on, providers of this type appear only in the booking add-ons step, filtered by city, and are hidden from search, home and every other listing.",
       "name": {
         "label": "名称"
       },
@@ -13209,5 +13211,23 @@
     "previous": "上一页",
     "next": "下一页",
     "confirm": "使用所选文件"
+  },
+  "Shop": {
+    "checkoutHints": {
+      "completeToPay": "请补全以下信息后付款：",
+      "required": "请填写{field}。",
+      "minLength": "{field}至少需要{min}个字符。",
+      "maxLength": "{field}不能超过{max}个字符。",
+      "email": "请输入有效的电子邮箱。",
+      "delivery": "请选择配送方式。",
+      "noDelivery": "此地址暂不支持配送，请更改目的地。",
+      "payment": "请选择付款方式。",
+      "noPayment": "暂无可用的付款方式，请稍后重试。",
+      "coupon": "此优惠码已失效，请检查购物车。",
+      "unavailable": "请在付款前检查购物车。",
+      "quoteFailed": "无法更新配送或付款选项，点击重试。",
+      "updating": "正在更新配送和付款选项…",
+      "retryNotice": "订单已保存，请重试付款，无需重复下单。"
+    }
   }
 }

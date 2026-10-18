@@ -1,4 +1,5 @@
 'use client';
+import { formatCurrencyAmount } from '@/features/finance/lib/money';
 import { useEffect, useMemo, useState } from 'react';
 import { ChevronDown, ChevronUp, Hotel, Layers3, PlusCircle } from 'lucide-react';
 import { DynamicServiceForm } from '@/features/form-builder/components/DynamicServiceForm';
@@ -32,6 +33,11 @@ async function getJson<T>(url: string): Promise<T> {
 export function ChildAddonBookingCard({ locale, draftId, addon, city, country, value, onChange, onSaved }: Props) {
     const tBooking = useTranslations("Booking");
     const [expanded, setExpanded] = useState(Boolean(addon.isRequired || value?.providerId));
+    // The customer picks the city the translator/car is needed in; it starts at the main
+    // provider's city when that city has providers of this type.
+    const [selectedCity, setSelectedCity] = useState(city ?? '');
+    const [cities, setCities] = useState<string[]>([]);
+    const [citiesLoaded, setCitiesLoaded] = useState(false);
     const [providerSearch, setProviderSearch] = useState('');
     const [serviceSearch, setServiceSearch] = useState('');
     const [specialistSearch, setSpecialistSearch] = useState('');
@@ -57,16 +63,36 @@ export function ChildAddonBookingCard({ locale, draftId, addon, city, country, v
     useEffect(() => {
         if (!expanded)
             return;
+        let cancelled = false;
+        getJson<{
+            cities: string[];
+        }>(`/api/booking-pro/catalog/addon-cities?providerTypeId=${encodeURIComponent(addon.providerTypeId)}`)
+            .then((data) => {
+            if (cancelled)
+                return;
+            const list = data.cities ?? [];
+            setCities(list);
+            setSelectedCity((current) => list.find((item) => item.toLowerCase() === current.trim().toLowerCase()) ?? list[0] ?? '');
+            setCitiesLoaded(true);
+        })
+            .catch((error) => { console.error(error); if (!cancelled)
+            setCitiesLoaded(true); });
+        return () => { cancelled = true; };
+    }, [expanded, addon.providerTypeId]);
+    useEffect(() => {
+        // Wait for the city list: fetching first with a guessed city would flash the wrong providers.
+        if (!expanded || !citiesLoaded)
+            return;
         getJson<{
             items: ProviderCardItem[];
             hasMore: boolean;
-        }>(`/api/booking-pro/catalog/providers?locale=${encodeURIComponent(locale)}&providerTypeId=${encodeURIComponent(addon.providerTypeId)}${scope === 'country' && country ? `&country=${encodeURIComponent(country)}` : `&city=${encodeURIComponent(city ?? '')}`}&search=${encodeURIComponent(providerSearch)}&offset=${providerOffset}&take=3`)
+        }>(`/api/booking-pro/catalog/providers?locale=${encodeURIComponent(locale)}&providerTypeId=${encodeURIComponent(addon.providerTypeId)}&context=addon${scope === 'country' && country ? `&country=${encodeURIComponent(country)}` : `&city=${encodeURIComponent(selectedCity)}`}&search=${encodeURIComponent(providerSearch)}&offset=${providerOffset}&take=3`)
             .then((data) => {
             setProviders((prev) => (providerOffset === 0 ? data.items : [...prev, ...data.items]));
             setHasMoreProviders(data.hasMore);
         })
             .catch(console.error);
-    }, [expanded, locale, addon.providerTypeId, city, country, scope, providerSearch, providerOffset]);
+    }, [expanded, citiesLoaded, locale, addon.providerTypeId, selectedCity, providerSearch, providerOffset, country, scope]);
     useEffect(() => {
         if (!expanded || !model.providerId)
             return;
@@ -154,6 +180,19 @@ export function ChildAddonBookingCard({ locale, draftId, addon, city, country, v
       </button>
 
       {expanded ? (<div className="space-y-5 border-t border-slate-100 p-5">
+          {cities.length > 0 ? (<label className="block text-sm font-semibold text-slate-700">{tBooking("city")}
+              <select value={selectedCity} onChange={(e) => {
+                    setSelectedCity(e.target.value);
+                    setProviderOffset(0);
+                    setProviders([]);
+                    setServices([]);
+                    setSpecialists([]);
+                    // A provider from the previous city must not stay selected.
+                    onChange({ ...model, providerId: undefined, serviceId: undefined, specialistId: undefined, formSubmissionId: undefined });
+                }} className="ms-3 min-h-11 rounded-xl border border-slate-200 bg-white px-3">
+                {cities.map((item) => <option key={item} value={item}>{item}</option>)}
+              </select>
+            </label>) : null}
           {city && country ? (<div className="flex justify-end">
               <button type="button" onClick={() => { setProviderOffset(0); setProviders([]); setScope((x) => (x === 'city' ? 'country' : 'city')); }} className="rounded-2xl border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 hover:border-[#083f30]">
                 {scope === 'city' ? tBooking('addonScope.showAllInCountry', { country }) : tBooking('addonScope.showOnlyCity', { city })}
@@ -173,7 +212,7 @@ export function ChildAddonBookingCard({ locale, draftId, addon, city, country, v
           {model.providerId ? (<SearchLoadMoreList title={tBooking("addonServicesTitle", { addon: addon.label })} search={serviceSearch} onSearchChange={(v) => {
                     setServiceOffset(0);
                     setServiceSearch(v);
-                }} items={services} hasMore={hasMoreServices} emptyText={tBooking("noServicesFound")} onLoadMore={() => setServiceOffset((x) => x + 3)} renderItem={(item) => (<EntityCard title={item.name} subtitle={`${item.currency} ${item.value}${item.bookingUiMode === 'date_range' ? ` · ${tBooking('stay.perNight')}` : ''}`} description={item.description} imageUrl={item.imageUrl} selected={model.serviceId === item.id} featured={Boolean(item.isPopular)} meta={serviceMeta(item, tBooking)} onClick={() => {
+                }} items={services} hasMore={hasMoreServices} emptyText={tBooking("noServicesFound")} onLoadMore={() => setServiceOffset((x) => x + 3)} renderItem={(item) => (<EntityCard title={item.name} subtitle={`${formatCurrencyAmount(item.value, item.currency, locale)}${item.bookingUiMode === 'date_range' ? ` · ${tBooking('stay.perNight')}` : ''}`} description={item.description} imageUrl={item.imageUrl} selected={model.serviceId === item.id} featured={Boolean(item.isPopular)} meta={serviceMeta(item, tBooking)} onClick={() => {
                         setSpecialistOffset(0);
                         setSpecialists([]);
                         onChange({ ...model, serviceId: item.id, serviceDefinitionId: item.serviceDefinitionId, specialistId: undefined, requiresSpecialist: Boolean(item.requiresSpecialist), bookingUiMode: (item.bookingUiMode ?? 'default_slot') as any, subtotalAmount: item.value, currency: item.currency, selectedDate: undefined, selectedDateFrom: undefined, selectedDateTo: undefined, selectedTime: undefined, selectedTimeFrom: undefined, selectedTimeTo: undefined, formSubmissionId: undefined });

@@ -2,6 +2,7 @@
 
 
 import { useTranslations } from "next-intl";
+import { formatCurrencyAmount } from "@/features/finance/lib/money";
 import { useEffect, useMemo, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import {
@@ -274,12 +275,9 @@ function formatMoney(
   currency?: string | null,
   locale = "fa-IR",
 ) {
-  const numericValue = Number(value || 0);
-  const formatter = new Intl.NumberFormat(locale || "en-US", {
-    minimumFractionDigits: numericValue % 1 === 0 ? 0 : 2,
-    maximumFractionDigits: 2,
-  });
-  return `${currency || ""} ${formatter.format(Number.isFinite(numericValue) ? numericValue : 0)}`.trim();
+  return currency
+    ? formatCurrencyAmount(value, currency, locale || "en-US", { maximumFractionDigits: 2 })
+    : new Intl.NumberFormat(locale || "en-US", { maximumFractionDigits: 2 }).format(Number(value) || 0);
 }
 
 function normalizeLocalizedDigits(value: string) {

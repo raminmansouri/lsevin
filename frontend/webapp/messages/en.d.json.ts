@@ -51,8 +51,6 @@ declare const messages: {
     "next": "Next",
     "confirm": "Use selected files"
   },
-
-  
   "BookingCart": {
     "title": "Saved bookings",
     "hint": "Saved estimates are not confirmed reservations. Review each booking to check availability and pay. Products are currently paid for separately.",
@@ -362,7 +360,11 @@ declare const messages: {
     "searchNow": "Search Now"
   },
   "Booking": {
-    "dayParts": { "morning": "Morning", "afternoon": "Afternoon", "evening": "Evening" },
+    "dayParts": {
+      "morning": "Morning",
+      "afternoon": "Afternoon",
+      "evening": "Evening"
+    },
     "mealPlan": {
       "label": "Meal plan",
       "chooseTitle": "Choose a meal plan",
@@ -1215,7 +1217,6 @@ declare const messages: {
     "transferServices": "Transfer services",
     "treatments": "Treatments",
     "yesCancel": "Yes, cancel",
-    "changeSelection": "Change",
     "onlyOption": "Only option",
     "chooseProvider": "Choose a provider",
     "chooseService": "Choose a service",
@@ -1343,7 +1344,8 @@ declare const messages: {
   },
   "AdminGenerated": {
     "updateBookingTitle": "Edit booking: {service} – {customer}",
-    "stayCheckIn": "Check-in date", "stayCheckOut": "Check-out date",
+    "stayCheckIn": "Check-in date",
+    "stayCheckOut": "Check-out date",
     "configureSignInSignUpForgotPasswordOtp": "Configure sign-in, sign-up, forgot-password, OTP, and onboarding content without code changes.",
     "useItemKeysSignInSignUpForgot": "Use item keys: sign-in, sign-up, forgot-password, otp, or step keys like step-1.",
     "previousImage": "Previous image",
@@ -1506,13 +1508,13 @@ declare const messages: {
     "addonsPageTitle": "Add-ons",
     "manageServices": "Manage services",
     "linkedServices": "Linked services",
-    "searchServicesPlaceholder": "Search by service, provider or category…",
+    "searchServicesPlaceholder": "Search services...",
     "noServicesLinkedYet": "No services linked yet.",
     "noServicesFound": "No services found.",
     "applyChanges": "Apply changes",
     "changesApplied": "Changes applied",
     "selectedCount": "{count} selected",
-    "unsavedChanges": "You have unsaved changes",
+    "unsavedChanges": "Unsaved Changes",
     "pageIndicator": "Page {page} of {totalPages}",
     "addonProviderTypesPageTitle": "Add-on Provider Types",
     "addonProviderTypesPageDescription": "Attach a provider type (hotel, translator, home nursing, transfers, tours) to many service definitions at once, so it can be added as a full add-on booking.",
@@ -1881,7 +1883,6 @@ declare const messages: {
     "inactiveSlidesAreHiddenFromFrontend": "Inactive Slides Are Hidden From Frontend",
     "indonesia": "Indonesia",
     "internalNote": "Internal note",
-    "issued": "Issued",
     "itemKey": "Item Key",
     "jalaliDateEG14050210": "Jalali date, e.g. 1405/02/10",
     "jalaliPersian": "Jalali Persian",
@@ -2375,7 +2376,6 @@ declare const messages: {
     "weekStartsOn": "Week Starts On",
     "yearToDate": "Year to date",
     "zipCode": "Zip Code",
-    "searchServicesPlaceholder": "Search services...",
     "aEDUAEDirham": "AED - UAE Dirham",
     "accept": "Accept",
     "accessibleTables": "Accessible tables",
@@ -2383,10 +2383,8 @@ declare const messages: {
     "addProviderService": "Add provider service",
     "addReply": "Add reply",
     "addReview": "Add review",
-    "addSlide": "Add slide",
     "addon": "addon",
     "admin": "Admin",
-    "adminAnswer": "Admin answer",
     "adminRoleGranted": "Admin Role Granted",
     "advanceBookingLimitDays": "Advance Booking Limit (days)",
     "advancedFilters": "Advanced Filters",
@@ -2400,7 +2398,6 @@ declare const messages: {
     "antalyaTurkey": "Antalya, Turkey",
     "anyStatus": "Any status",
     "apply": "Apply",
-    "approveAndCreateProvider": "Approve and create provider",
     "approveToWallet": "Approve to wallet",
     "approvedRefunds": "Approved refunds",
     "arabic": "Arabic",
@@ -2609,7 +2606,6 @@ declare const messages: {
     "manageImageGIFVideoSlidesAndAllFrontendCopyFromTheAdminPanel": "Manage image, GIF, video slides and all frontend copy from the admin panel.",
     "manageMobileHomePageEditorialSections": "Manage mobile home page editorial sections.",
     "manageRequestedApprovedProcessingAndRefundedBookingRefunds": "Manage requested, approved, processing, and refunded booking refunds.",
-    "manageServiceDefinitions": "Manage service definitions",
     "manageTheCompleteProviderProfileDirectlyFromPostgreSQLImageFieldsStoreTheSelecte": "Manage the complete provider profile directly from PostgreSQL. Image fields store the selected media URL.",
     "manageTheTextMediaLinkAndActiveStateFor": "Manage the text, media, link, and active state for",
     "manualRatesNowExternalAPISyncCanUpsertIntoThisSameTableLater": "Manual rates now; external API sync can upsert into this same table later.",
@@ -2655,7 +2651,6 @@ declare const messages: {
     "noNotificationTemplatesFound": "No notification templates found.",
     "noRelatedRecordsFound": "No related records found.",
     "noShowFee": "No-Show Fee (%)",
-    "noSponsoredSliderItemsYet": "No sponsored slider items yet.",
     "noVariablesDocumented": "No variables documented.",
     "noahWilson": "Noah Wilson",
     "notificationPreferences": "Notification Preferences",
@@ -2863,7 +2858,6 @@ declare const messages: {
     "turkish": "Turkish",
     "twoFactorAuthentication": "Two-Factor Authentication",
     "uSDUSDollar": "USD - US Dollar",
-    "unsavedChanges": "Unsaved Changes",
     "updateHomeSection": "Update home section",
     "updateMobileHomeSectionContent": "Update mobile home section content.",
     "updatePriorityScopePricingModelAndActiveWindowsForThisCompensationRule": "Update priority, scope, pricing model, and active windows for this compensation rule.",
@@ -2883,7 +2877,6 @@ declare const messages: {
     "users2": "Users",
     "usersWillSeeAMaintenancePageWhenEnabled": "Users will see a maintenance page when enabled",
     "variables": "Variables",
-    "verifiedBadge": "Verified badge",
     "view": "View",
     "viewAndManageOneToManyChildRecordsWithoutLeavingTheParentEditPage": "View and manage one-to-many child records without leaving the parent edit page.",
     "viewDetails": "View Details",
@@ -2931,7 +2924,6 @@ declare const messages: {
     "managesCategoryProviderServicesProviderServiceAddonsAndServiceImageReferences": "Manages category.provider_services, provider_service_addons, and service image references.",
     "max": "Max: $",
     "nameAndDescriptionKeepTheFullLocalizedJSONObjectIncludingLexicalRichTextValues": "Name and description keep the full localized JSON object, including Lexical rich-text values.",
-    "newLinkActive": "New link active",
     "optionalStoresTheResolvedMediaURLInProviderCertificationsImageUrl": "Optional. Stores the resolved media URL in provider_certifications.image_url.",
     "optionalStoresTheResolvedMediaURLInProviderCertificationsSecondaryImageUrl": "Optional. Stores the resolved media URL in provider_certifications.secondary_image_url.",
     "page": "Page",
@@ -4621,7 +4613,10 @@ declare const messages: {
     "description": "Please use the main page of the website."
   },
   "ServicePage": {
-    "attributeValue": { "yes": "Yes", "no": "No" },
+    "attributeValue": {
+      "yes": "Yes",
+      "no": "No"
+    },
     "metadata": {
       "title": "Service details",
       "description": "Review service details, providers, specialists, offers, requirements, and booking options."
@@ -7850,6 +7845,8 @@ declare const messages: {
         "label": "Description"
       },
       "isActive": "Active",
+      "addonOnly": "Add-on only (translator, car, ...)",
+      "addonOnlyHelp": "When on, providers of this type appear only in the booking add-ons step, filtered by city, and are hidden from search, home and every other listing.",
       "attributes": "Attribute Definitions",
       "attributesPlaceholder": "Attributes ({count} defined)",
       "create": "Create Provider Type",
@@ -12303,7 +12300,10 @@ declare const messages: {
     "openRecommendation": "Open {title}"
   },
   "ProviderPage": {
-    "locationMap": { "title": "Location on map", "getDirections": "Get directions" },
+    "locationMap": {
+      "title": "Location on map",
+      "getDirections": "Get directions"
+    },
     "reviewSubmitted": "Review Submitted!",
     "thankYouForSharingYourExperienceYourReview": "Thank you for sharing your experience. Your review is pending admin approval before it becomes public.",
     "writeAReview": "Write a Review",
@@ -15483,7 +15483,22 @@ declare const messages: {
     }
   },
   "Shop": {
-    "specifications": "Specifications",
+    "checkoutHints": {
+      "completeToPay": "Complete these items to pay:",
+      "required": "Enter {field}.",
+      "minLength": "{field} needs at least {min} characters.",
+      "maxLength": "{field} must be at most {max} characters.",
+      "email": "Enter a valid email address.",
+      "delivery": "Choose a delivery method.",
+      "noDelivery": "Delivery is unavailable for this address. Change your destination.",
+      "payment": "Choose a payment method.",
+      "noPayment": "No payment method is available. Please try again later.",
+      "coupon": "This coupon is no longer valid. Review your cart.",
+      "unavailable": "Review your cart before continuing to payment.",
+      "quoteFailed": "Delivery or payment options could not be updated. Tap to retry.",
+      "updating": "Updating delivery and payment options…",
+      "retryNotice": "Your order is saved. Retry payment without placing another order."
+    },
     "iban": "IBAN:",
     "ge00Ls0000000000000000": "GE00 LS00 0000 0000 0000 00",
     "ref": "Ref:",
@@ -15606,7 +15621,6 @@ declare const messages: {
     "onSale": "On sale",
     "rating4plus": "4★ & up",
     "allBrands": "All brands",
-    "apply": "Apply",
     "filters": "Filters",
     "priceRange": "Price range",
     "minPrice": "Min",
@@ -15964,7 +15978,9 @@ declare const messages: {
       "banner": "Category banner",
       "save": "Save category"
     },
-    "categoryNew": { "title": "New category" },
+    "categoryNew": {
+      "title": "New category"
+    },
     "categoryEdit": {
       "delete": "Delete category",
       "servicesTitle": "Linked LSevin services",
@@ -16271,7 +16287,9 @@ declare const messages: {
     "admin": {
       "title": "Patients",
       "description": "Search for a patient or open their Patient 360 record.",
-      "detail": { "title": "Patient 360" },
+      "detail": {
+        "title": "Patient 360"
+      },
       "schemaMissing": {
         "title": "Database migration pending",
         "body": "Apply migration 0048_patient_foundation.sql to enable this section."

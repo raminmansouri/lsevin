@@ -1409,35 +1409,49 @@ export async function searchAdminProviderLookupOptions(
         limit ${limit} offset ${offset}
       `;
     } else if (params.type === "cities") {
-      const label = translated(sql`l.value_translations`, locale);
+      const label = translated(sql`page.value_translations`, locale);
       const countryLabel = translated(sql`matched_country.value_translations`, locale);
       const parentId = params.parentId?.trim();
-      // The admin form thinks in country → city, so report the city's COUNTRY as its
-      // parentId even when a province sits between them; l.parent_id would hand the UI
-      // a province id it has no country selector for. The filter accepts either hop for
-      // the same reason.
+      // category.locations holds ~2 million cities. Pick the page with cheap, indexable columns FIRST and only
+      // then build the translated label and the country for those few rows: computing the label for every city
+      // (the old "order by label") scanned the whole table for each keystroke and exhausted the server's memory.
+      // The admin form thinks in country → city, so report the city's COUNTRY as its parentId even when a
+      // province sits between them; the filter accepts either hop for the same reason.
       rows = await sql<AdminLookupOption[]>`
-        select l.id::text, l.code, ${label} as label, l_country.id::text as "parentId"
-        from category.locations l
-        ${countryOfLocation("l")} l_country on true
-        where l.location_type_id = 2
-          and ${
-            parentId
-              ? sql`l_country.id in (
-              select matched_country.id
-              from category.locations matched_country
-              where matched_country.location_type_id = 1
-                and (
+        with matched as (
+          select matched_country.id
+          from category.locations matched_country
+          where matched_country.location_type_id = 1
+            and ${
+              parentId
+                ? sql`(
                   matched_country.id::text = ${parentId}
                   or lower(matched_country.code) = lower(${parentId})
                   or lower(${countryLabel}) = lower(${parentId})
-                )
-            )`
-              : sql`true`
-          }
-          and ${hasQuery ? sql`(${label} ilike ${like} or l.code ilike ${like})` : sql`true`}
-        order by l.display_order nulls last, label
-        limit ${limit} offset ${offset}
+                )`
+                : sql`true`
+            }
+        ),
+        page as (
+          select l.id, l.code, l.parent_id, l.display_order, l.value_translations
+          from category.locations l
+          where l.location_type_id = 2
+            and ${
+              parentId
+                ? sql`(
+                  l.parent_id in (select id from matched)
+                  or l.parent_id in (select p.id from category.locations p where p.parent_id in (select id from matched))
+                )`
+                : sql`true`
+            }
+            and ${hasQuery ? sql`(l.code ilike ${like} or l.value_translations::text ilike ${like})` : sql`true`}
+          order by l.display_order nulls last, l.code
+          limit ${limit} offset ${offset}
+        )
+        select page.id::text, page.code, ${label} as label, l_country.id::text as "parentId"
+        from page
+        ${countryOfLocation("page")} l_country on true
+        order by page.display_order nulls last, label
       `;
     } else if (params.type === "categories") {
       const label = translated(sql`c.name_translations`, locale);
@@ -1645,12 +1659,17 @@ export async function getAdminProviderLookupData(
         limit 75
       `,
       sql<AdminLookupOption[]>`
-        select l.id::text, l.code, ${translated(sql`l.value_translations`, locale)} as label, l_country.id::text as "parentId"
-        from category.locations l
-        ${countryOfLocation("l")} l_country on true
-        where l.location_type_id = 2
-        order by l.display_order nulls last, label
-        limit 50
+        with page as (
+          select l.id, l.code, l.display_order, l.parent_id, l.value_translations
+          from category.locations l
+          where l.location_type_id = 2
+          order by l.display_order nulls last, l.code
+          limit 50
+        )
+        select page.id::text, page.code, ${translated(sql`page.value_translations`, locale)} as label, l_country.id::text as "parentId"
+        from page
+        ${countryOfLocation("page")} l_country on true
+        order by page.display_order nulls last, label
       `,
       sql<AdminLookupOption[]>`
         select

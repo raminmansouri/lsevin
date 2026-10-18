@@ -12,6 +12,7 @@ export async function GET(request: NextRequest) {
     serviceDefinitionId: s.get('serviceDefinitionId') ?? undefined,
     specialistId: s.get('specialistId') ?? undefined,
     city: s.get('city') || undefined,
+    addonContext: s.get('context') === 'addon',
     country: s.get('country') || undefined,
     take: Number(s.get('take') ?? 8),
     offset: Number(s.get('offset') ?? 0),

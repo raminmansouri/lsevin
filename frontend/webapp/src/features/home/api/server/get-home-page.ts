@@ -301,7 +301,7 @@ export async function getFeaturedHomeServices(input: HomeQueryInput, limit = 8):
     from category.provider_services ps
     join category.service_providers sp
       on sp.id = ps.service_provider_id
-     and sp.is_active = true
+     and sp.is_active = true and category.provider_type_is_public(sp.provider_type_id)
     join category.service_definitions sd
       on sd.id = ps.service_definition_id
      and sd.is_active = true
@@ -313,7 +313,7 @@ export async function getFeaturedHomeServices(input: HomeQueryInput, limit = 8):
        and definition_ps.is_active = true
       join category.service_providers definition_sp
         on definition_sp.id = definition_ps.service_provider_id
-       and definition_sp.is_active = true
+       and definition_sp.is_active = true and category.provider_type_is_public(definition_sp.provider_type_id)
       where definition_ps.service_definition_id = sd.id
       order by
         psgi.is_primary desc,
@@ -419,7 +419,7 @@ export async function getTrendingHomeServices(input: HomeQueryInput, limit = 8):
     from category.provider_services ps
     join category.service_providers sp
       on sp.id = ps.service_provider_id
-     and sp.is_active = true
+     and sp.is_active = true and category.provider_type_is_public(sp.provider_type_id)
     join category.service_definitions sd
       on sd.id = ps.service_definition_id
      and sd.is_active = true
@@ -508,7 +508,7 @@ export async function getTrustedHomeProviders(input: HomeQueryInput, limit = 8):
     ) gallery on true
     left join media.media_library gm on gm.id::text = gallery.url
     left join media.media_library spm on spm.id::text = sp.image_url
-    where sp.is_active = true
+    where sp.is_active = true and category.provider_type_is_public(sp.provider_type_id)
       -- Trim as well as fold case. upper(sp.country) = upper('IR') drops every
       -- provider whose stored code carries stray whitespace, which is why the
       -- listing showed only part of the providers for a country. This matches
@@ -567,7 +567,7 @@ export async function getHomeHeroOffer(input: HomeQueryInput): Promise<HomeHeroO
      and ps.is_active = true
     join category.service_providers sp
       on sp.id = ps.service_provider_id
-     and sp.is_active = true
+     and sp.is_active = true and category.provider_type_is_public(sp.provider_type_id)
     join category.service_definitions sd
       on sd.id = ps.service_definition_id
      and sd.is_active = true
@@ -612,7 +612,7 @@ export async function getNearbyProviderCount(input: HomeQueryInput): Promise<num
   const rows = await sql<{ count: string | number }[]>`
     select count(*)::int as count
     from category.service_providers sp
-    where sp.is_active = true
+    where sp.is_active = true and category.provider_type_is_public(sp.provider_type_id)
       and (${countryCode}::text is null or upper(sp.country) = upper(${countryCode}::text))
       and (${cityCode}::text is null or upper(sp.city) = upper(${cityCode}::text))
   `;

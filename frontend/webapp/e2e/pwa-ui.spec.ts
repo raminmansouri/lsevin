@@ -181,8 +181,8 @@ test("structured profile uses the shared React view with identical offline rende
   expect(record).not.toContain("Offline Customer");
   expect(record).not.toContain("test@example.invalid");
   await request.get("/__fixture/offline-on");
-  await page.request.get("/__fixture/offline-on");
-  await context.setOffline(true);
+  // Disconnect the real origin. Browser offline emulation can cancel a
+  // service-worker navigation and leave the previous fixture URL displayed.
   await page.goto("/en/n/app/mobile/profile");
   await expect(
     page.getByRole("heading", { name: "Offline Customer" })

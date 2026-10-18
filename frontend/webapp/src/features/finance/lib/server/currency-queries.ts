@@ -3,7 +3,7 @@ import { getCountries, getCountryCallingCode, parsePhoneNumberFromString, type C
 
 import sql from '@/config/database/db';
 
-import { normalizeCurrencyCode, roundMoney } from '../money';
+import { getRialTomanLabel, normalizeCurrencyCode, roundMoney } from '../money';
 import { getDefaultInternationalMultiplier } from '../../server/pricing-settings.repository';
 import type { ConvertedMoney, Currency, FxQuote, PreferredCurrencyInput } from '../../types';
 
@@ -425,7 +425,7 @@ export async function createFxQuote(input: {
 export async function getCurrencyOptionsForPicker(): Promise<{ label: string; value: string; symbol: string }[]> {
   const currencies = await getActiveCurrencies({ displayOnly: true });
   return currencies.map((currency) => ({
-    label: `${currency.code} — ${currency.name}`,
+    label: getRialTomanLabel(currency.code) ?? `${currency.code} — ${currency.name}`,
     value: currency.code,
     symbol: currency.symbol,
   }));

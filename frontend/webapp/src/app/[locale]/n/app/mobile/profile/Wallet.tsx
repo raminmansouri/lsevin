@@ -1,5 +1,6 @@
 "use client"
 
+import { getRialTomanLabel as currencyName } from "@/features/finance/lib/money";
 import { useNavigate } from '@/hooks/use-navigate';
 import { 
   ArrowLeft,
@@ -196,7 +197,7 @@ export default function Wallet() {
           <div className="flex gap-2 mb-6">
             {['USD', 'EUR', 'GBP', 'AED'].map(currency => (
               <button
-                key={currency}
+                key={currencyName(currency) ?? currency}
                 onClick={() => setSelectedCurrency(currency)}
                 className={`px-4 py-2 rounded-xl font-semibold text-sm transition-all ${
                   selectedCurrency === currency
@@ -204,7 +205,7 @@ export default function Wallet() {
                     : 'bg-white/10 text-white hover:bg-white/20'
                 }`}
               >
-                {currency}
+                {currencyName(currency) ?? currency}
               </button>
             ))}
           </div>

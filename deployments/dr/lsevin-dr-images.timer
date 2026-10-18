@@ -1,0 +1,10 @@
+[Unit]
+Description=Weekly copy of staged application images to the other site
+
+[Timer]
+OnCalendar=Sun *-*-* 02:40:00
+RandomizedDelaySec=1800
+Persistent=true
+
+[Install]
+WantedBy=timers.target

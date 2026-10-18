@@ -21,7 +21,8 @@ export async function GET(
   const authority = request.nextUrl.searchParams.get('Authority') ?? request.nextUrl.searchParams.get('authority') ?? '';
   const status = request.nextUrl.searchParams.get('Status') ?? request.nextUrl.searchParams.get('status') ?? '';
 
-  const result = await verifyGatewayPayment({ gateway: gateway as any, authority, status });
+  const result = await verifyGatewayPayment({ gateway: gateway as any, authority, status, locale });
+  if (result.nextActionUrl) return NextResponse.redirect(result.nextActionUrl);
   // Back to the customer's reservations (that booking's page when known), on the public
   // origin: request.nextUrl.origin is the internal 0.0.0.0:3000 behind the proxy.
   const bookingPath = result.bookingId

@@ -51,8 +51,6 @@ declare const messages: {
     "next": "بعدی",
     "confirm": "استفاده از فایل‌های انتخاب‌شده"
   },
-
-  
   "BookingCart": {
     "title": "رزروهای ذخیره‌شده",
     "hint": "این موارد برآورد هستند و رزرو قطعی نیستند. برای بررسی ظرفیت و پرداخت، هر رزرو را باز کنید. پرداخت محصولات فعلاً جداگانه است.",
@@ -467,7 +465,8 @@ declare const messages: {
   },
   "AdminGenerated": {
     "updateBookingTitle": "ویرایش رزرو: {service} – {customer}",
-    "stayCheckIn": "تاریخ ورود", "stayCheckOut": "تاریخ خروج",
+    "stayCheckIn": "تاریخ ورود",
+    "stayCheckOut": "تاریخ خروج",
     "configureSignInSignUpForgotPasswordOtp": "ورود، ثبت‌نام، فراموشی رمز و کد یک‌بارمصرف را تنظیم کنید.",
     "useItemKeysSignInSignUpForgot": "از کلیدهای sign-in، sign-up و forgot-password استفاده کنید.",
     "previousImage": "تصویر قبلی",
@@ -557,8 +556,8 @@ declare const messages: {
     "howLongTheCustomerHasToPayBefore": "مشتری تا چه مدت فرصت پرداخت دارد پیش از آنکه نرخ منقضی شود.",
     "usdUsDollar": "USD - دلار آمریکا",
     "eurEuro": "EUR - یورو",
-    "irrRial": "IRR - ریال",
-    "irtToman": "IRT - تومان",
+    "irrRial": "ریال",
+    "irtToman": "تومان",
     "minimumAmount": "حداقل مبلغ",
     "paymentDescriptionTemplate": "قالب توضیح پرداخت",
     "customRequestEndpoint": "اندپوینت درخواست سفارشی",
@@ -588,7 +587,7 @@ declare const messages: {
     "deleteCurrencyConfirm": "این ارز حذف شود؟ از فهرست‌ها برداشته می‌شود ولی داده‌های گذشته دست‌نخورده می‌مانند.",
     "currencyDeleted": "ارز حذف شد.",
     "currencyInUseCannotDelete": "این ارز حذف نشد چون در این بخش‌ها استفاده شده است:",
-    "approveAndCreateProvider": "تأیید و ایجاد ارائه‌دهنده",
+    "approveAndCreateProvider": "approve And Create ارائه‌دهنده",
     "rejectionReason": "دلیل رد",
     "applicationCouldNotBeApproved": "درخواست تأیید نشد.",
     "applicationCouldNotBeRejected": "درخواست رد نشد.",
@@ -615,14 +614,14 @@ declare const messages: {
     "invited": "تاریخ دعوت",
     "recentCoupons": "کوپن‌های اخیر",
     "reward": "پاداش",
-    "issued": "تاریخ صدور",
+    "issued": "صادرشده",
     "manageSponsoredSliderDescription": "مدیریت اسلایدهای تصویر، گیف و ویدیو و تمام متن‌های نمایشی از پنل مدیریت.",
-    "addSlide": "افزودن اسلاید",
-    "noSponsoredSliderItemsYet": "هنوز اسلایدی ثبت نشده است.",
-    "newLinkActive": "لینک جدید فعال است",
+    "addSlide": "افزودن Slide",
+    "noSponsoredSliderItemsYet": "هنوز موردی برای اسلایدر حمایت‌شده ثبت نشده است.",
+    "newLinkActive": "new Link فعال",
     "curatedEditorialCommentsNotice": "این گزینه فقط برای نظرات ویرایش‌شده تحریریه یا نظرات وارد‌شده از منابع دیگر استفاده شود. نظرات مشتریان باید از مشتریانی باشد که رزرو کرده‌اند.",
-    "verifiedBadge": "نشان تأییدشده",
-    "adminAnswer": "پاسخ مدیر",
+    "verifiedBadge": "نشان تأیید",
+    "adminAnswer": "مدیریت Answer",
     "reviewsAndCommentsDescription": "بازخورد مشتری وابسته به رزرو است و تا تأیید مدیر در حالت در انتظار می‌ماند. مدیر می‌تواند نظرات عمومی سئو را نیز اضافه کند.",
     "serviceAddons": "افزودنی‌های خدمت",
     "addonFieldLabel": "افزودنی",
@@ -630,19 +629,19 @@ declare const messages: {
     "addonsPageTitle": "افزودنی‌ها",
     "manageServices": "مدیریت خدمات",
     "linkedServices": "خدمات متصل‌شده",
-    "searchServicesPlaceholder": "جستجو بر اساس خدمت، ارائه‌دهنده یا دسته‌بندی…",
+    "searchServicesPlaceholder": "جستجوی خدمات...",
     "noServicesLinkedYet": "هنوز خدمتی متصل نشده است.",
     "noServicesFound": "خدمتی یافت نشد.",
     "applyChanges": "اعمال تغییرات",
     "changesApplied": "تغییرات اعمال شد",
     "selectedCount": "{count} مورد انتخاب شد",
-    "unsavedChanges": "تغییرات ذخیره‌نشده دارید",
+    "unsavedChanges": "تغییرات ذخیره‌نشده",
     "pageIndicator": "صفحه {page} از {totalPages}",
     "addonProviderTypesPageTitle": "انواع ارائه‌دهنده افزونه",
     "addonProviderTypesPageDescription": "یک نوع ارائه‌دهنده (هتل، مترجم، پرستاری در منزل، ترانسفر، تور) را یک‌جا به چند تعریف خدمت وصل کنید تا به‌عنوان یک رزرو کامل افزونه قابل افزودن باشد.",
     "linkedServiceDefinitions": "تعریف خدمات متصل‌شده",
     "noServiceDefinitionsLinkedYet": "هنوز تعریف خدمتی متصل نشده است.",
-    "manageServiceDefinitions": "مدیریت تعریف خدمات",
+    "manageServiceDefinitions": "manage خدمت تعاریف",
     "searchServiceDefinitionsPlaceholder": "جستجو بر اساس تعریف خدمت یا دسته‌بندی…",
     "noServiceDefinitionsFound": "تعریف خدمتی یافت نشد.",
     "addonLinked": "افزودنی متصل شد",
@@ -1005,7 +1004,6 @@ declare const messages: {
     "inactiveSlidesAreHiddenFromFrontend": "غیرفعال Slides Are Hidden From Frontend",
     "indonesia": "اندونزی",
     "internalNote": "یادداشت داخلی",
-    "issued": "صادرشده",
     "itemKey": "کلید مورد",
     "jalaliDateEG14050210": "تاریخ جلالی، مثلا ۱۴۰۵/۰۲/۱۰",
     "jalaliPersian": "جلالی شمسی",
@@ -1355,9 +1353,6 @@ declare const messages: {
     "serviceDeleted": "خدمت Deleted",
     "serviceImage": "خدمت تصویر",
     "serviceProviderDeleted": "خدمت ارائه‌دهنده Deleted",
-    "duplicateProvider": "ایجاد نسخه مشابه",
-    "serviceProviderDuplicated": "نسخه مشابه ارائه‌دهنده ساخته شد",
-    "duplicateServiceProviderConfirm": "از «{name}» یک نسخه مشابه ساخته شود؟",
     "serviceRoomTypeUUID": "خدمت Room نوع UUID",
     "serviceType": "نوع خدمت",
     "services": "خدمات",
@@ -1499,7 +1494,6 @@ declare const messages: {
     "weekStartsOn": "شروع هفته از",
     "yearToDate": "از ابتدای سال",
     "zipCode": "کد پستی",
-    "searchServicesPlaceholder": "جستجوی خدمات...",
     "aEDUAEDirham": "AED - درهم امارات",
     "accept": "پذیرش",
     "accessibleTables": "میزهای دسترس‌پذیر",
@@ -1507,10 +1501,8 @@ declare const messages: {
     "addProviderService": "افزودن ارائه‌دهنده خدمت",
     "addReply": "افزودن پاسخ",
     "addReview": "افزودن بررسی",
-    "addSlide": "افزودن Slide",
     "addon": "افزودنی",
     "admin": "مدیریت",
-    "adminAnswer": "مدیریت Answer",
     "adminRoleGranted": "مدیریت نقش Granted",
     "advanceBookingLimitDays": "advance رزرو Limit Days",
     "advancedFilters": "فیلترهای پیشرفته",
@@ -1524,7 +1516,6 @@ declare const messages: {
     "antalyaTurkey": "antalya ترکیه",
     "anyStatus": "هر وضعیت",
     "apply": "اعمال",
-    "approveAndCreateProvider": "approve And Create ارائه‌دهنده",
     "approveToWallet": "approve To کیف پول",
     "approvedRefunds": "بازپرداخت‌های تأییدشده",
     "arabic": "عربی",
@@ -1733,7 +1724,6 @@ declare const messages: {
     "manageImageGIFVideoSlidesAndAllFrontendCopyFromTheAdminPanel": "manage تصویر GIF Video Slides And همه Frontend Copy From The مدیریت Panel",
     "manageMobileHomePageEditorialSections": "manage Mobile خانه Page Editorial بخش‌ها",
     "manageRequestedApprovedProcessingAndRefundedBookingRefunds": "manage Requested تأییدشده Processing And Refunded رزرو بازپرداخت‌ها",
-    "manageServiceDefinitions": "manage خدمت تعاریف",
     "manageTheCompleteProviderProfileDirectlyFromPostgreSQLImageFieldsStoreTheSelecte": "manage The Complete ارائه‌دهنده پروفایل Directly From Postgre SQL تصویر Fields Store The Selecte",
     "manageTheTextMediaLinkAndActiveStateFor": "manage The Text رسانه Link And فعال State For",
     "manualRatesNowExternalAPISyncCanUpsertIntoThisSameTableLater": "manual نرخ‌ها Now External API Sync Can Upsert Into This Same Table Later",
@@ -1779,7 +1769,6 @@ declare const messages: {
     "noNotificationTemplatesFound": "no اعلان قالب‌ها Found",
     "noRelatedRecordsFound": "رکورد مرتبطی یافت نشد.",
     "noShowFee": "جریمه عدم حضور (%)",
-    "noSponsoredSliderItemsYet": "هنوز موردی برای اسلایدر حمایت‌شده ثبت نشده است.",
     "noVariablesDocumented": "هیچ متغیری مستند نشده است.",
     "noahWilson": "نوآ ویلسون",
     "notificationPreferences": "اعلان Preferences",
@@ -1987,7 +1976,6 @@ declare const messages: {
     "turkish": "ترکی",
     "twoFactorAuthentication": "احراز هویت دومرحله‌ای",
     "uSDUSDollar": "USD - دلار آمریکا",
-    "unsavedChanges": "تغییرات ذخیره‌نشده",
     "updateHomeSection": "به‌روزرسانی خانه بخش",
     "updateMobileHomeSectionContent": "به‌روزرسانی Mobile خانه بخش محتوا",
     "updatePriorityScopePricingModelAndActiveWindowsForThisCompensationRule": "به‌روزرسانی اولویت محدوده Pricing Model And فعال Windows For This Compensation قانون",
@@ -2007,7 +1995,6 @@ declare const messages: {
     "users2": "کاربران 2",
     "usersWillSeeAMaintenancePageWhenEnabled": "کاربران Will See Maintenance Page When فعال",
     "variables": "متغیرها",
-    "verifiedBadge": "نشان تأیید",
     "view": "مشاهده",
     "viewAndManageOneToManyChildRecordsWithoutLeavingTheParentEditPage": "view And Manage One To Many Child Records Without Leaving The Parent ویرایش Page",
     "viewDetails": "view جزئیات",
@@ -2055,7 +2042,6 @@ declare const messages: {
     "managesCategoryProviderServicesProviderServiceAddonsAndServiceImageReferences": "manages Category ارائه‌دهنده Services ارائه‌دهنده خدمت Addons و خدمت تصویر References",
     "max": "حداکثر: $",
     "nameAndDescriptionKeepTheFullLocalizedJSONObjectIncludingLexicalRichTextValues": "نام و توضیحات، کل شیء JSON محلی‌سازی‌شده را همراه با مقادیر متن غنی Lexical نگه می‌دارند.",
-    "newLinkActive": "new Link فعال",
     "optionalStoresTheResolvedMediaURLInProviderCertificationsImageUrl": "optional ذخیره می‌کند The Resolved رسانه URL در ارائه‌دهنده Certifications تصویر URL",
     "optionalStoresTheResolvedMediaURLInProviderCertificationsSecondaryImageUrl": "اختیاری. URL نهایی رسانه را در provider_certifications.secondary_image_url ذخیره می‌کند.",
     "page": "صفحه",
@@ -2260,7 +2246,10 @@ declare const messages: {
     "placementNotMounted": "هنوز هیچ صفحه‌ای این جایگاه را نمایش نمی‌دهد",
     "allPlacements": "همه جایگاه‌ها",
     "slidesPerPlacement": "هر اسلاید فقط در جایگاهی که اینجا انتخاب می‌شود نمایش داده می‌شود.",
-    "renderedOn": "نمایش در"
+    "renderedOn": "نمایش در",
+    "duplicateProvider": "ایجاد نسخه مشابه",
+    "serviceProviderDuplicated": "نسخه مشابه ارائه‌دهنده ساخته شد",
+    "duplicateServiceProviderConfirm": "از «{name}» یک نسخه مشابه ساخته شود؟"
   },
   "HomeHero": {
     "title": "سفر درمانی شما به ایران، همه‌چیز در یک جا",
@@ -4075,7 +4064,10 @@ declare const messages: {
     "wallettransactions": "تراکنش‌های کیف پول"
   },
   "ServicePage": {
-    "attributeValue": { "yes": "بله", "no": "خیر" },
+    "attributeValue": {
+      "yes": "بله",
+      "no": "خیر"
+    },
     "metadata": {
       "title": "جزئیات خدمت",
       "description": "جزئیات خدمت، ارائه‌دهندگان، متخصصان، پیشنهادها، الزامات و گزینه‌های رزرو را بررسی کنید."
@@ -6979,6 +6971,8 @@ declare const messages: {
         "label": "توضیحات"
       },
       "isActive": "فعال",
+      "addonOnly": "فقط برای افزودنی‌ها (مترجم، ماشین و ...)",
+      "addonOnlyHelp": "اگر فعال باشد، ارائه‌دهندگان این نوع فقط در بخش افزودنی‌های رزرو و بر اساس شهر نمایش داده می‌شوند و در جستجو، صفحه اصلی و سایر فهرست‌ها دیده نمی‌شوند.",
       "attributes": "تعاریف ویژگی",
       "attributesPlaceholder": "ویژگی‌ها ({count} تعریف شده)",
       "create": "ایجاد نوع ارائه‌دهنده",
@@ -7096,7 +7090,11 @@ declare const messages: {
     "loadMore": "بارگذاری بیشتر"
   },
   "Booking": {
-    "dayParts": { "morning": "صبح", "afternoon": "بعدازظهر", "evening": "عصر و شب" },
+    "dayParts": {
+      "morning": "صبح",
+      "afternoon": "بعدازظهر",
+      "evening": "عصر و شب"
+    },
     "mealPlan": {
       "label": "طرح غذایی",
       "chooseTitle": "طرح غذایی را انتخاب کنید",
@@ -7949,7 +7947,6 @@ declare const messages: {
     "transferServices": "خدمات ترانسفر",
     "treatments": "درمان‌ها",
     "yesCancel": "بله، لغو شود",
-    "changeSelection": "تغییر",
     "onlyOption": "تنها گزینه",
     "chooseProvider": "ارائه‌دهنده را انتخاب کنید",
     "chooseService": "خدمت را انتخاب کنید",
@@ -12309,7 +12306,10 @@ declare const messages: {
     "openRecommendation": "مشاهده {title}"
   },
   "ProviderPage": {
-    "locationMap": { "title": "موقعیت روی نقشه", "getDirections": "مسیریابی" },
+    "locationMap": {
+      "title": "موقعیت روی نقشه",
+      "getDirections": "مسیریابی"
+    },
     "reviewSubmitted": "نظر شما ثبت شد!",
     "thankYouForSharingYourExperienceYourReview": "ممنون که تجربه‌تان را به اشتراک گذاشتید. نظر شما پس از بررسی منتشر می‌شود.",
     "writeAReview": "ثبت نظر",
@@ -15487,7 +15487,22 @@ declare const messages: {
     }
   },
   "Shop": {
-    "specifications": "مشخصات",
+    "checkoutHints": {
+      "completeToPay": "برای پرداخت این موارد را تکمیل کنید:",
+      "required": "{field} را وارد کنید.",
+      "minLength": "{field} باید حداقل {min} نویسه داشته باشد.",
+      "maxLength": "{field} باید حداکثر {max} نویسه داشته باشد.",
+      "email": "یک نشانی ایمیل معتبر وارد کنید.",
+      "delivery": "روش ارسال را انتخاب کنید.",
+      "noDelivery": "ارسال به این نشانی امکان‌پذیر نیست. مقصد را تغییر دهید.",
+      "payment": "روش پرداخت را انتخاب کنید.",
+      "noPayment": "در حال حاضر روش پرداختی در دسترس نیست. لطفاً بعداً تلاش کنید.",
+      "coupon": "این کد تخفیف دیگر معتبر نیست. سبد خرید را بررسی کنید.",
+      "unavailable": "پیش از پرداخت، سبد خرید را بررسی کنید.",
+      "quoteFailed": "به‌روزرسانی روش‌های ارسال یا پرداخت انجام نشد. برای تلاش مجدد بزنید.",
+      "updating": "در حال به‌روزرسانی روش‌های ارسال و پرداخت…",
+      "retryNotice": "سفارش شما ثبت شده است. برای پرداخت دوباره تلاش کنید؛ سفارش تکراری ایجاد نمی‌شود."
+    },
     "iban": "شبا:",
     "ge00Ls0000000000000000": "GE00 LS00 0000 0000 0000 00",
     "ref": "کد پیگیری:",
@@ -15610,7 +15625,6 @@ declare const messages: {
     "onSale": "تخفیف‌دار",
     "rating4plus": "۴ ستاره و بالاتر",
     "allBrands": "همه برندها",
-    "apply": "اعمال",
     "filters": "فیلترها",
     "priceRange": "بازه قیمت",
     "minPrice": "حداقل",
@@ -15968,7 +15982,9 @@ declare const messages: {
       "banner": "بنر دسته",
       "save": "ذخیرهٔ دسته"
     },
-    "categoryNew": { "title": "دستهٔ جدید" },
+    "categoryNew": {
+      "title": "دستهٔ جدید"
+    },
     "categoryEdit": {
       "delete": "حذف دسته",
       "servicesTitle": "خدمات مرتبط لسوین",
@@ -16275,7 +16291,9 @@ declare const messages: {
     "admin": {
       "title": "بیماران",
       "description": "بیمار را جستجو کنید یا پرونده ۳۶۰ او را باز کنید.",
-      "detail": { "title": "پرونده ۳۶۰ بیمار" },
+      "detail": {
+        "title": "پرونده ۳۶۰ بیمار"
+      },
       "schemaMissing": {
         "title": "مایگریشن پایگاه‌داده اجرا نشده است",
         "body": "برای فعال‌سازی این بخش، مایگریشن 0048_patient_foundation.sql را اجرا کنید."
@@ -17088,7 +17106,11 @@ declare const messages: {
     "templateEditor": {
       "identity": "مشخصات الگوی فرآیند",
       "archivedVersion": "این نسخه بایگانی شده است. برای انتشار تغییرات، نسخه فعال را باز کنید.",
-      "name": { "fa": "نام فارسی", "en": "نام انگلیسی", "ar": "نام عربی" },
+      "name": {
+        "fa": "نام فارسی",
+        "en": "نام انگلیسی",
+        "ar": "نام عربی"
+      },
       "description": {
         "fa": "توضیح فارسی",
         "en": "توضیح انگلیسی",

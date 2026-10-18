@@ -2719,6 +2719,8 @@ declare const messages: {
         "label": "Descripción"
       },
       "isActive": "Activo",
+      "addonOnly": "Add-on only (translator, car, ...)",
+      "addonOnlyHelp": "When on, providers of this type appear only in the booking add-ons step, filtered by city, and are hidden from search, home and every other listing.",
       "attributes": "Definiciones de atributos",
       "attributesPlaceholder": "Atributos ({count} definidos)",
       "create": "Crear tipo de proveedor",
@@ -13191,6 +13193,22 @@ declare const messages: {
     }
   },
   "Shop": {
+    "checkoutHints": {
+      "completeToPay": "Completa estos datos para pagar:",
+      "required": "Introduce {field}.",
+      "minLength": "{field} necesita al menos {min} caracteres.",
+      "maxLength": "{field} admite como máximo {max} caracteres.",
+      "email": "Introduce un correo electrónico válido.",
+      "delivery": "Elige un método de envío.",
+      "noDelivery": "No hay envío a esta dirección. Cambia el destino.",
+      "payment": "Elige un método de pago.",
+      "noPayment": "No hay métodos de pago disponibles. Inténtalo más tarde.",
+      "coupon": "Este cupón ya no es válido. Revisa tu carrito.",
+      "unavailable": "Revisa tu carrito antes de pagar.",
+      "quoteFailed": "No se pudieron actualizar las opciones de envío o pago. Pulsa para reintentar.",
+      "updating": "Actualizando opciones de envío y pago…",
+      "retryNotice": "Tu pedido está guardado. Reintenta el pago sin crear otro pedido."
+    },
     "changeCurrency": "Cambiar moneda de visualización",
     "currencyChangeFailed": "No se pudo cambiar la moneda. Inténtalo de nuevo."
   },

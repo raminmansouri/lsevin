@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { formatCurrencyAmount } from '@/features/finance/lib/money';
+import { useEffect, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 
 import {
@@ -26,14 +27,7 @@ export function PayInPlacePlanPicker(props: {
     const locale = useLocale();
     const t = useTranslations('Booking');
 
-    const numberFormat = useMemo(() => {
-        try {
-            return new Intl.NumberFormat(locale, { maximumFractionDigits: 2 });
-        } catch {
-            return new Intl.NumberFormat('en', { maximumFractionDigits: 2 });
-        }
-    }, [locale]);
-    const money = (amount: number) => `${props.currency} ${numberFormat.format(amount)}`;
+    const money = (amount: number) => formatCurrencyAmount(amount, props.currency, locale);
 
     const [methods, setMethods] = useState<DepositMethod[]>([]);
     const [loaded, setLoaded] = useState(false);

@@ -1,2 +1,10 @@
 *.sh text eol=lf
 Jenkinsfile* text eol=lf
+# extensionless server scripts and units must stay LF (they run on Linux)
+deployments/dr/lsevin-* text eol=lf
+deployments/dr/rebuild/* text eol=lf
+deployments/monitoring/lsevin-* text eol=lf
+deployments/monitoring/*.json text eol=lf
+deployments/dr/*.env text eol=lf
+deployments/symmetricds/tests/* text eol=lf
+deployments/symmetricds/scripts/* text eol=lf

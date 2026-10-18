@@ -3,14 +3,20 @@ import "server-only";
 import { createHash } from "node:crypto";
 
 import sql from "@/config/database/db";
-import { getShopContext, normalizeLocale } from "../lib/context";
-import { resolveDisplayCurrency, lockPayableQuote } from "../lib/pricing";
-import { calculateShipping, calculateTax, buildCartTotals } from "../lib/calculations";
-import { getCartView } from "./cart.repository";
+import { listEnabledPaymentGatewayOptions } from "@/payment/server/payment-gateway.repository";
+
 import { emitCommerceEvent } from "../lib/analytics";
-import { notifyShopOrderEvent } from "../server/shop-notifications";
+import {
+  buildCartTotals,
+  calculateShipping,
+  calculateTax,
+} from "../lib/calculations";
+import { getShopContext, normalizeLocale } from "../lib/context";
 import { applyGeoRules } from "../lib/delivery-geo";
+import { lockPayableQuote, resolveDisplayCurrency } from "../lib/pricing";
+import { notifyShopOrderEvent } from "../server/shop-notifications";
 import type { CartTotals } from "../types/domain";
+import { getCartView } from "./cart.repository";
 
 /**
  * Checkout = quote (server-computed totals + locked FX) then place-order
@@ -61,7 +67,12 @@ export async function getDeliveryOptions(
   const out: DeliveryOption[] = [];
   for (const r of rows) {
     const geo = applyGeoRules(
-      { baseFee: Number(r.baseFee), etaMin: r.etaMin ?? null, etaMax: r.etaMax ?? null, rules: r.rules },
+      {
+        baseFee: Number(r.baseFee),
+        etaMin: r.etaMin ?? null,
+        etaMax: r.etaMax ?? null,
+        rules: r.rules,
+      },
       destination ?? {}
     );
     if (!geo) continue; // not served at this destination
@@ -92,20 +103,48 @@ export async function isDeliveryMethodEligible(
   if (!row) return false;
   return (
     applyGeoRules(
-      { baseFee: Number(row.baseFee), etaMin: row.etaMin ?? null, etaMax: row.etaMax ?? null, rules: row.rules },
+      {
+        baseFee: Number(row.baseFee),
+        etaMin: row.etaMin ?? null,
+        etaMax: row.etaMax ?? null,
+        rules: row.rules,
+      },
       destination
     ) !== null
   );
 }
 
-export async function getPaymentMethods(lang: string) {
-  return sql<any[]>`
+export async function getPaymentMethods(lang: string, currency?: string) {
+  const rows = await sql<any[]>`
     select id::text as id, code, provider,
       common.get_translation_t(name_translations, ${lang}, 'en') as name,
       common.get_translation_t(description_translations, ${lang}, 'en') as description,
       supports_refund as "supportsRefund"
     from shop.payment_methods where is_active = true order by sort_order asc
   `;
+  const gateways = await listEnabledPaymentGatewayOptions();
+  const preferredGateway = ["IRR", "IRT"].includes(
+    (currency || "IRR").toUpperCase()
+  )
+    ? "zarinpal"
+    : "btcpay";
+  return rows
+    .flatMap((method) => {
+      if (method.provider === "manual" || method.code === "bank_transfer")
+        return [{ ...method, currency: currency || "IRR" }];
+      const code =
+        method.provider === "zarinpal" || method.provider === "btcpay"
+          ? method.provider
+          : ["gateway_card", "card", "online_card"].includes(method.code)
+            ? preferredGateway
+            : null;
+      const gateway = gateways.find((item) => item.code === code);
+      return gateway ? [{ ...method, currency: gateway.currency }] : [];
+    })
+    .sort(
+      (a, b) =>
+        Number(a.provider === "manual") - Number(b.provider === "manual")
+    );
 }
 
 /**
@@ -131,7 +170,8 @@ export async function quoteCheckout(input: {
   const blockingIssues: string[] = [];
   if (!active.length) blockingIssues.push("cart_empty");
   for (const line of active) {
-    if (line.priceUnavailable) blockingIssues.push(`price_unavailable:${line.id}`);
+    if (line.priceUnavailable)
+      blockingIssues.push(`price_unavailable:${line.id}`);
     if (!line.hasStock) blockingIssues.push(`out_of_stock:${line.id}`);
   }
 
@@ -140,9 +180,12 @@ export async function quoteCheckout(input: {
     country: input.destinationCountry,
     region: input.destinationRegion,
   });
-  if (input.destinationCountry && !deliveryOptions.length) blockingIssues.push("no_delivery_to_destination");
+  if (input.destinationCountry && !deliveryOptions.length)
+    blockingIssues.push("no_delivery_to_destination");
   const selected =
-    deliveryOptions.find((d) => d.id === input.deliveryMethodId) ?? deliveryOptions[0] ?? null;
+    deliveryOptions.find((d) => d.id === input.deliveryMethodId) ??
+    deliveryOptions[0] ??
+    null;
 
   // coupon: authoritative re-evaluation at quote time (SHP-CHK-002/015)
   let discountTotal = 0;
@@ -160,7 +203,14 @@ export async function quoteCheckout(input: {
     if (ev.valid) {
       discountTotal = ev.discountAmount;
       freeShipping = ev.freeShipping;
-      couponEvidence = { couponId: ev.couponId, code: ev.code, type: ev.couponType, scope: ev.scope, discount: ev.discountAmount, freeShipping };
+      couponEvidence = {
+        couponId: ev.couponId,
+        code: ev.code,
+        type: ev.couponType,
+        scope: ev.scope,
+        discount: ev.discountAmount,
+        freeShipping,
+      };
     } else {
       blockingIssues.push(`coupon_invalid:${ev.reason}`);
     }
@@ -243,18 +293,22 @@ export type PlaceOrderResult = {
  * reserved inside the same transaction with a conditional UPDATE, so concurrent
  * final-unit checkouts cannot oversell (SHP-V01-016, SHP-NFR-003, SHP-INV-002).
  */
-export async function placeOrder(input: PlaceOrderInput): Promise<PlaceOrderResult> {
+export async function placeOrder(
+  input: PlaceOrderInput
+): Promise<PlaceOrderResult> {
   const ctx = await getShopContext();
   const lang = normalizeLocale(ctx.locale);
   const scopeKind: "customer" | "guest" = ctx.customerId ? "customer" : "guest";
   const scopeId = ctx.customerId ?? ctx.guestToken;
   if (!scopeId) throw new Error("No checkout identity.");
-  if (!input.idempotencyKey || input.idempotencyKey.length < 8) throw new Error("A valid idempotency key is required.");
+  if (!input.idempotencyKey || input.idempotencyKey.length < 8)
+    throw new Error("A valid idempotency key is required.");
 
   // A signed-in checkout may omit the email — fall back to the account email so
   // the order still has a contact and stays findable in the customer's list.
   const orderEmail = (input.email?.trim() || ctx.email || "").toLowerCase();
-  if (!orderEmail) throw new Error("An email address is required to place the order.");
+  if (!orderEmail)
+    throw new Error("An email address is required to place the order.");
 
   // Idempotency short-circuit BEFORE re-quoting: a retry hits a cart that the
   // first call already converted, so re-quoting would fail with "cart mismatch"
@@ -283,14 +337,19 @@ export async function placeOrder(input: PlaceOrderInput): Promise<PlaceOrderResu
 
   // Server-authoritative geographic eligibility (SHP-V03-012): the client may
   // have quoted with a different address than the one it is now submitting.
-  const destCountry = (input.shippingAddress?.country as string | undefined) ?? null;
-  const destRegion = (input.shippingAddress?.stateRegion as string | undefined) ?? null;
+  const destCountry =
+    (input.shippingAddress?.country as string | undefined) ?? null;
+  const destRegion =
+    (input.shippingAddress?.stateRegion as string | undefined) ?? null;
   if (input.deliveryMethodId && destCountry) {
     const eligible = await isDeliveryMethodEligible(input.deliveryMethodId, {
       country: destCountry,
       region: destRegion,
     });
-    if (!eligible) throw new Error("The selected delivery method does not ship to this address.");
+    if (!eligible)
+      throw new Error(
+        "The selected delivery method does not ship to this address."
+      );
   }
 
   const quote = await quoteCheckout({
@@ -301,11 +360,19 @@ export async function placeOrder(input: PlaceOrderInput): Promise<PlaceOrderResu
     destinationRegion: destRegion,
   });
   if (quote.blockingIssues.length) {
-    throw new Error(`Checkout cannot proceed: ${quote.blockingIssues.join(", ")}`);
+    throw new Error(
+      `Checkout cannot proceed: ${quote.blockingIssues.join(", ")}`
+    );
   }
 
   const requestHash = createHash("sha256")
-    .update(JSON.stringify({ cartId: input.cartId, total: quote.totals.grandTotal, email: orderEmail }))
+    .update(
+      JSON.stringify({
+        cartId: input.cartId,
+        total: quote.totals.grandTotal,
+        email: orderEmail,
+      })
+    )
     .digest("hex");
 
   const result = await sql.begin(async (tx) => {
@@ -319,7 +386,9 @@ export async function placeOrder(input: PlaceOrderInput): Promise<PlaceOrderResu
       limit 1
     `;
     if (existing[0]?.orderId) {
-      return { ...existing[0], reused: true } as PlaceOrderResult & { reused: true };
+      return { ...existing[0], reused: true } as PlaceOrderResult & {
+        reused: true;
+      };
     }
 
     await tx`
@@ -356,7 +425,8 @@ export async function placeOrder(input: PlaceOrderInput): Promise<PlaceOrderResu
     `;
     if (!lines.length) throw new Error("Cart is empty.");
     for (const l of lines) {
-      if (!l.productActive) throw new Error(`"${l.nameEn}" is no longer available.`);
+      if (!l.productActive)
+        throw new Error(`"${l.nameEn}" is no longer available.`);
     }
 
     // 3. reserve stock atomically (skips backorder-allowed lines)
@@ -410,7 +480,8 @@ export async function placeOrder(input: PlaceOrderInput): Promise<PlaceOrderResu
         ref: l,
         amount: Number(l.sourceUnitPrice),
         sourceCurrency: l.sourceCurrency,
-        compareAtAmount: l.sourceCompareAt != null ? Number(l.sourceCompareAt) : null,
+        compareAtAmount:
+          l.sourceCompareAt != null ? Number(l.sourceCompareAt) : null,
       })),
       quote.currency
     );
@@ -443,7 +514,10 @@ export async function placeOrder(input: PlaceOrderInput): Promise<PlaceOrderResu
     `;
 
     for (const addressType of ["shipping", "billing"] as const) {
-      const a = addressType === "shipping" ? input.shippingAddress : input.billingAddress;
+      const a =
+        addressType === "shipping"
+          ? input.shippingAddress
+          : input.billingAddress;
       await tx`
         insert into shop.order_addresses
           (order_id, address_type, full_name, phone_number_country_code, phone_number, country, city, state_region, address_line_1, address_line_2, postal_code, company)
@@ -457,7 +531,8 @@ export async function placeOrder(input: PlaceOrderInput): Promise<PlaceOrderResu
     for (const p of priced) {
       const l = p.ref;
       const unit = p.price.amount;
-      const lineTotal = Math.round((unit * l.quantity + Number.EPSILON) * 100) / 100;
+      const lineTotal =
+        Math.round((unit * l.quantity + Number.EPSILON) * 100) / 100;
       await tx`
         insert into shop.order_items (
           order_id, product_id, variant_id, sku, quantity, currency,
@@ -487,10 +562,14 @@ export async function placeOrder(input: PlaceOrderInput): Promise<PlaceOrderResu
 
     // coupon redemption audit row (SHP-CHK-002)
     if (quote.couponEvidence && quote.couponEvidence.couponId) {
-      const { recordCouponRedemption } = await import("../server/coupon.service");
+      const { recordCouponRedemption } = await import(
+        "../server/coupon.service"
+      );
       await recordCouponRedemption(tx, {
         couponId: String(quote.couponEvidence.couponId),
-        code: String(quote.couponEvidence.code ?? quote.totals.couponCode ?? ""),
+        code: String(
+          quote.couponEvidence.code ?? quote.totals.couponCode ?? ""
+        ),
         orderId: order.id,
         cartId: input.cartId,
         customerId: ctx.customerId,
@@ -527,9 +606,15 @@ export async function placeOrder(input: PlaceOrderInput): Promise<PlaceOrderResu
       currency: result.currency,
       surface: input.sourceSurface ?? "shop_checkout",
     });
-    await notifyShopOrderEvent({ orderId: result.orderId, event: "order.placed", locale: ctx.locale });
+    await notifyShopOrderEvent({
+      orderId: result.orderId,
+      event: "order.placed",
+      locale: ctx.locale,
+    });
     // Close the loop for abandoned-cart reporting (SHP-V03-011).
-    await import("../server/cart-recovery.service").then((m) => m.markCartRecovered(input.cartId)).catch(() => undefined);
+    await import("../server/cart-recovery.service")
+      .then((m) => m.markCartRecovered(input.cartId))
+      .catch(() => undefined);
   }
   return result;
 }

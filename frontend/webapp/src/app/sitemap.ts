@@ -18,7 +18,7 @@ export const dynamic = "force-dynamic";
 export const revalidate = 3600;
 
 /** Public, locale-prefixed routes that exist for every visitor. */
-const STATIC_PATHS = ["", "/consulting"];
+const STATIC_PATHS = ["", "/consulting", "/privacy-policy"];
 
 const entriesFor = (
   path: string,
@@ -39,7 +39,7 @@ const listActiveProviderIds = async (): Promise<string[]> => {
     const rows = await sql<{ id: string }[]>`
       select sp.id::text as id
       from category.service_providers sp
-      where sp.is_active = true
+      where sp.is_active = true and category.provider_type_is_public(sp.provider_type_id)
     `;
     return rows.map((row) => row.id);
   } catch {

@@ -1,5 +1,6 @@
 'use client';
 import { useState, useTransition } from 'react';
+import { formatCurrencyAmount } from "@/features/finance/lib/money";
 import { useTranslations } from 'next-intl';
 import { Link, useRouter } from '@/i18n/navigation';
 import { changeBookingCart } from '../actions/cart';
@@ -19,7 +20,7 @@ export function CartBookings({ bookings, locale }: { bookings: CartBooking[]; lo
       <h3 className="font-semibold text-neutral-900">{booking.service || t('title')}</h3>
       <p className="text-sm text-neutral-600">{booking.provider}</p>
       <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
-        <span className="text-sm font-semibold">{new Intl.NumberFormat(locale, { style: 'currency', currency: booking.currency }).format(booking.amount)}</span>
+        <span className="text-sm font-semibold">{formatCurrencyAmount(booking.amount, booking.currency, locale)}</span>
         <div className="flex items-center gap-4">
           <button type="button" disabled={pending} className="min-h-11 text-sm text-red-700 disabled:opacity-50" onClick={() => {
             setError(false);

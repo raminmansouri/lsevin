@@ -65,7 +65,7 @@ export default async function ProductDetailPage({
     serviceRelated?.byRelation.reduce((n, g) => n + g.products.length, 0) ?? 0;
 
   return (
-    <div className="min-h-screen bg-neutral-50 pb-40">
+    <div className="min-h-screen bg-neutral-50 pb-56">
       <ShopHeader currency={product.currency} back="/n/app/mobile/shop" />
 
       <div className="bg-white">

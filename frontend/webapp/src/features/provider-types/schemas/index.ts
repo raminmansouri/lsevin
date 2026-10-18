@@ -14,6 +14,7 @@ export const ProviderTypeSchema = z.object({
   name: LocalizedContentSchema,
   description: LocalizedContentSchema,
   isActive: z.boolean().default(true),
+  isAddonOnly: z.boolean().default(false),
   iconUrl: OptionalText,
   imageUrl: OptionalText,
 });

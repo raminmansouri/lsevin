@@ -15,7 +15,7 @@ pipeline {
     // build sandbox below one CPU and bound memory so health probes remain
     // responsive even after the BuildKit cache has been pruned.
     // JENKINS_BUILD_LIMITS (controller environment) overrides the default, e.g. on the Iran server (7.9 GB host).
-    DOCKER_BUILD_LIMITS = "${env.JENKINS_BUILD_LIMITS ?: '--resource cpu-quota=100000 --resource memory=2560m'}"
+    DOCKER_BUILD_LIMITS = "${env.JENKINS_BUILD_LIMITS ?: '--resource cpu-quota=100000 --resource memory=2560m --resource memory-swap=2560m'}"
   }
   stages {
     stage('Checkout') { steps { deleteDir(); checkout scm } }
@@ -112,7 +112,7 @@ pipeline {
           # Site variant (server A / Iran): only when the Jenkins controller defines SITE_REWRITE_TO. The public host
           # compiled into the image is rewritten under the same tag, so the import and deploy below are unchanged.
           if [ -n "${SITE_REWRITE_TO:-}" ]; then
-            SKIP_CONTAINERD=1 /opt/lsevin/app/deployments/jenkins/site-variant/build-site-variant.sh \
+            SKIP_CONTAINERD=1 "${SITE_VARIANT_SCRIPT:-/opt/lsevin/app/deployments/jenkins/site-variant/build-site-variant.sh}" \
               "lsevin-webapp:$IMAGE_TAG" "${SITE_REWRITE_FROM:-appmain.lsevin.com}" \
               "$SITE_REWRITE_TO" "lsevin-webapp:$IMAGE_TAG"
           fi

@@ -7755,6 +7755,8 @@
         "placeholder": "Нишонаро интихоб кунед"
       },
       "isActive": "Фаъол",
+      "addonOnly": "Add-on only (translator, car, ...)",
+      "addonOnlyHelp": "When on, providers of this type appear only in the booking add-ons step, filtered by city, and are hidden from search, home and every other listing.",
       "name": {
         "label": "Ном"
       },
@@ -13209,5 +13211,23 @@
     "previous": "Қаблӣ",
     "next": "Баъдӣ",
     "confirm": "Истифодаи файлҳои интихобшуда"
+  },
+  "Shop": {
+    "checkoutHints": {
+      "completeToPay": "Барои пардохт ин маълумотро пур кунед:",
+      "required": "{field}-ро ворид кунед.",
+      "minLength": "{field} бояд ҳадди ақал {min} аломат дошта бошад.",
+      "maxLength": "{field} набояд аз {max} аломат зиёд бошад.",
+      "email": "Нишонии дурусти почтаи электрониро ворид кунед.",
+      "delivery": "Усули расониданро интихоб кунед.",
+      "noDelivery": "Расонидан ба ин нишонӣ дастрас нест. Нишониро иваз кунед.",
+      "payment": "Усули пардохтро интихоб кунед.",
+      "noPayment": "Усули пардохт дастрас нест. Баъдтар кӯшиш кунед.",
+      "coupon": "Ин рамзи тахфиф дигар эътибор надорад. Сабадро санҷед.",
+      "unavailable": "Пеш аз пардохт сабадро санҷед.",
+      "quoteFailed": "Навсозии усулҳои расонидан ё пардохт ноком шуд. Барои такрор пахш кунед.",
+      "updating": "Навсозии усулҳои расонидан ва пардохт…",
+      "retryNotice": "Фармоиш сабт шуд. Пардохтро бе фармоиши такрорӣ аз нав кӯшиш кунед."
+    }
   }
 }
