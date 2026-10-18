@@ -7141,6 +7141,8 @@ declare const messages: {
     "activeAssignment": "Active assignment",
     "addService": "Add service",
     "noServiceAssignedYet": "No service assigned yet.",
+    "addProviderBeforeServices": "Add a provider in \"Provider assignments\" first. Only services offered by the selected providers can be chosen.",
+    "serviceNotOfferedBySelectedProviders": "This service is not offered by any of the selected providers. Pick another service or remove it.",
     "activeService": "Active service",
     "addSlot": "Add slot",
     "noAvailabilitySlotDefinedYet": "No availability slot defined yet.",

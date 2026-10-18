@@ -18,7 +18,7 @@ import {
   UserRound,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import { useFieldArray, useForm } from "react-hook-form";
+import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 
 import { ZodErrorProvider } from "@/components/providers/zod-error-provider";
@@ -275,7 +275,7 @@ export function StaffForm({ staff, options, locale = "fa-IR" }: StaffFormProps) 
     [options.serviceProviders, staff?.providerAssignments]
   );
 
-  const serviceDefinitionInitialOptions = useMemo(
+  const allServiceDefinitionOptions = useMemo(
     () =>
       uniqueLookupOptions([
         ...options.serviceDefinitions.map((service) =>
@@ -299,6 +299,55 @@ export function StaffForm({ staff, options, locale = "fa-IR" }: StaffFormProps) 
       ]),
     [options.serviceDefinitions, staff?.services]
   );
+
+  // Services are limited to what the providers picked in "Provider assignments" offer.
+  const watchedProviderAssignments = useWatch({ control: form.control, name: "providerAssignments" });
+  const selectedProviderKey = useMemo(
+    () =>
+      [...new Set((watchedProviderAssignments || []).map((item) => item?.serviceProviderId || "").filter(Boolean))]
+        .sort()
+        .join(","),
+    [watchedProviderAssignments]
+  );
+  const hasSelectedProvider = selectedProviderKey !== "";
+
+  const providerIdsByServiceDefinition = useMemo(
+    () => new Map(options.serviceDefinitions.map((service) => [service.id, service.providerIds || []])),
+    [options.serviceDefinitions]
+  );
+
+  // true/false when we know the service's providers, undefined when it is outside the preloaded options (the server still validates it).
+  const isServiceOfferedBySelectedProviders = useMemo(() => {
+    const selected = new Set(selectedProviderKey ? selectedProviderKey.split(",") : []);
+    return (serviceDefinitionId: string): boolean | undefined => {
+      const providerIds = providerIdsByServiceDefinition.get(serviceDefinitionId);
+      if (!providerIds) return selected.size === 0 ? false : undefined;
+      return providerIds.some((providerId) => selected.has(providerId));
+    };
+  }, [providerIdsByServiceDefinition, selectedProviderKey]);
+
+  const serviceDefinitionInitialOptions = useMemo(
+    () => allServiceDefinitionOptions.filter((option) => isServiceOfferedBySelectedProviders(option.id) === true),
+    [allServiceDefinitionOptions, isServiceOfferedBySelectedProviders]
+  );
+
+  const serviceDefinitionQueryParams = useMemo(() => ({ providerIds: selectedProviderKey }), [selectedProviderKey]);
+
+  const watchedServices = useWatch({ control: form.control, name: "services" });
+  const selectedServiceKey = (watchedServices || []).map((item) => item?.serviceDefinitionId || "").join(",");
+
+  // Each row also keeps its own current value so an already-saved service still shows its name after a provider is removed.
+  const serviceRowInitialOptions = useMemo(() => {
+    const allowedIds = new Set(serviceDefinitionInitialOptions.map((option) => option.id));
+    const byId = new Map(allServiceDefinitionOptions.map((option) => [option.id, option]));
+    const result = new Map<string, StaffLookupOption[]>();
+    for (const id of selectedServiceKey.split(",")) {
+      if (!id || result.has(id)) continue;
+      const option = byId.get(id);
+      result.set(id, option && !allowedIds.has(id) ? [...serviceDefinitionInitialOptions, option] : serviceDefinitionInitialOptions);
+    }
+    return result;
+  }, [allServiceDefinitionOptions, serviceDefinitionInitialOptions, selectedServiceKey]);
 
   const availabilityStatusInitialOptions = useMemo(
     () => options.availabilityStatuses.map((status) => toLookupOption(status.id, status.name)).filter(Boolean) as StaffLookupOption[],
@@ -336,6 +385,17 @@ export function StaffForm({ staff, options, locale = "fa-IR" }: StaffFormProps) 
   });
 
   const onSubmit = async (values: StaffFormInput) => {
+    let hasServiceOutsideProviders = false;
+    (values.services || []).forEach((item, index) => {
+      if (!item.serviceDefinitionId || isServiceOfferedBySelectedProviders(item.serviceDefinitionId) !== false) return;
+      hasServiceOutsideProviders = true;
+      form.setError(`services.${index}.serviceDefinitionId`, { type: "manual", message: t("serviceNotOfferedBySelectedProviders") });
+    });
+    if (hasServiceOutsideProviders) {
+      toast.error(t("serviceNotOfferedBySelectedProviders"));
+      return;
+    }
+
     const payload = {
       ...values,
       name: normalizeStaffLocalized(values.name),
@@ -536,22 +596,30 @@ export function StaffForm({ staff, options, locale = "fa-IR" }: StaffFormProps) 
             <Card className="border-gray-200 shadow-sm">
               <CardHeader className="flex flex-row items-start justify-between gap-3">
                 <SectionHeader icon={Stethoscope} title="Service definitions" description="Services this staff member can perform." />
-                <Button type="button" variant="outline" onClick={() => services.append({ serviceDefinitionId: "", notes: emptyLocalized(), isActive: true })}><Plus className="mr-2 h-4 w-4" /> {t("addService")}</Button>
+                <Button type="button" variant="outline" disabled={!hasSelectedProvider} onClick={() => services.append({ serviceDefinitionId: "", notes: emptyLocalized(), isActive: true })}><Plus className="mr-2 h-4 w-4" /> {t("addService")}</Button>
               </CardHeader>
               <CardContent className="space-y-4">
-                {services.fields.length === 0 && <p className="rounded-2xl border border-dashed p-6 text-sm text-muted-foreground">{t("noServiceAssignedYet")}</p>}
+                {!hasSelectedProvider && <p className="rounded-2xl border border-dashed border-amber-300 bg-amber-50 p-4 text-sm text-amber-800">{t("addProviderBeforeServices")}</p>}
+                {hasSelectedProvider && services.fields.length === 0 && <p className="rounded-2xl border border-dashed p-6 text-sm text-muted-foreground">{t("noServiceAssignedYet")}</p>}
                 {services.fields.map((field, index) => (
                   <ArrayItemShell key={field.id} onRemove={() => services.remove(index)}>
+                    <div className="space-y-1">
                     <RHFStaffLazySelectField
                       control={form.control}
                       name={`services.${index}.serviceDefinitionId` as any}
                       label="Service definition"
                       resource="serviceDefinitions"
                       locale={locale}
-                      initialOptions={serviceDefinitionInitialOptions}
+                      disabled={!hasSelectedProvider}
+                      queryParams={serviceDefinitionQueryParams}
+                      initialOptions={serviceRowInitialOptions.get(watchedServices?.[index]?.serviceDefinitionId || "") || serviceDefinitionInitialOptions}
                       placeholder={t("searchAndSelectService")}
                       searchPlaceholder="Search service definitions by name, category, or pricing model..."
                     />
+                    {watchedServices?.[index]?.serviceDefinitionId && isServiceOfferedBySelectedProviders(watchedServices[index].serviceDefinitionId) === false && !form.formState.errors.services?.[index]?.serviceDefinitionId ? (
+                      <p className="text-sm text-amber-700">{t("serviceNotOfferedBySelectedProviders")}</p>
+                    ) : null}
+                    </div>
                     <FormField control={form.control} name={`services.${index}.isActive`} render={({ field }) => (
                       <FormItem className="flex items-center justify-between rounded-xl border p-3"><FormLabel>{t("activeService")}</FormLabel><FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl></FormItem>
                     )} />

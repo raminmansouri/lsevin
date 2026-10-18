@@ -37,55 +37,27 @@ type CaptureState =
   | "unavailable"
   | "denied";
 
+// Admin-only UI: always English so server and client render identical markup.
 const COPY = {
-  en: {
-    button: "Report a bug",
-    title: "Report an admin issue",
-    subtitle:
-      "Describe the problem. A screenshot and safe diagnostic details will be attached.",
-    issueTitle: "Short title",
-    description: "What happened, and what were you trying to do?",
-    severity: "Severity",
-    screenshot: "Screenshot",
-    captured: "Screenshot captured",
-    capturing: "Choose this browser tab in the capture dialog",
-    denied: "Screen capture was cancelled. You can retry or submit without it.",
-    unavailable: "Screen capture is unavailable in this browser.",
-    retry: "Capture again",
-    remove: "Remove",
-    cancel: "Cancel",
-    submit: "Submit report",
-    submitting: "Submitting…",
-    success: "Bug report submitted",
-  },
-  fa: {
-    button: "گزارش باگ",
-    title: "گزارش مشکل پنل ادمین",
-    subtitle:
-      "مشکل را توضیح دهید. اسکرین‌شات و اطلاعات فنی امن به گزارش اضافه می‌شود.",
-    issueTitle: "عنوان کوتاه",
-    description: "چه اتفاقی افتاد و قصد انجام چه کاری را داشتید؟",
-    severity: "شدت مشکل",
-    screenshot: "اسکرین‌شات",
-    captured: "اسکرین‌شات ثبت شد",
-    capturing: "در پنجره بازشده همین تب مرورگر را انتخاب کنید",
-    denied: "ثبت صفحه لغو شد. دوباره تلاش کنید یا گزارش را بدون تصویر بفرستید.",
-    unavailable: "ثبت صفحه در این مرورگر در دسترس نیست.",
-    retry: "ثبت دوباره",
-    remove: "حذف تصویر",
-    cancel: "انصراف",
-    submit: "ارسال گزارش",
-    submitting: "در حال ارسال…",
-    success: "گزارش باگ ثبت شد",
-  },
+  button: "Report a bug",
+  title: "Report an admin issue",
+  subtitle:
+    "Describe the problem. A screenshot and safe diagnostic details will be attached.",
+  issueTitle: "Short title",
+  description: "What happened, and what were you trying to do?",
+  severity: "Severity",
+  screenshot: "Screenshot",
+  captured: "Screenshot captured",
+  capturing: "Choose this browser tab in the capture dialog",
+  denied: "Screen capture was cancelled. You can retry or submit without it.",
+  unavailable: "Screen capture is unavailable in this browser.",
+  retry: "Capture again",
+  remove: "Remove",
+  cancel: "Cancel",
+  submit: "Submit report",
+  submitting: "Submitting…",
+  success: "Bug report submitted",
 } as const;
-
-function getLocale(): keyof typeof COPY {
-  if (typeof document === "undefined") return "en";
-  return document.documentElement.lang.toLowerCase().startsWith("fa")
-    ? "fa"
-    : "en";
-}
 
 function detectBrowserName() {
   const userAgent = navigator.userAgent;
@@ -135,7 +107,7 @@ async function captureCurrentScreen(): Promise<File> {
 }
 
 export function AdminBugReportFloatingButton() {
-  const copy = COPY[getLocale()];
+  const copy = COPY;
   const [open, setOpen] = useState(false);
   const [captureState, setCaptureState] = useState<CaptureState>("idle");
   const [screenshot, setScreenshot] = useState<File | null>(null);

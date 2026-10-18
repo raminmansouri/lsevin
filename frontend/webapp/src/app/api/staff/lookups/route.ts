@@ -10,6 +10,7 @@ export async function GET(request: NextRequest) {
   const q = searchParams.get("q") || searchParams.get("search") || "";
   const page = Number(searchParams.get("page") || "1");
   const pageSize = Number(searchParams.get("pageSize") || "30");
+  const providerIds = searchParams.get("providerIds");
 
   const result = await searchStaffLookupOptions({
     resource,
@@ -17,6 +18,7 @@ export async function GET(request: NextRequest) {
     q,
     page,
     pageSize,
+    providerIds,
   });
 
   return NextResponse.json(result);

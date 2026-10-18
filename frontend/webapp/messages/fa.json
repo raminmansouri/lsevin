@@ -6264,6 +6264,8 @@
     "activeAssignment": "تخصیص فعال",
     "addService": "افزودن خدمت",
     "noServiceAssignedYet": "هنوز خدمتی تخصیص داده نشده است.",
+    "addProviderBeforeServices": "ابتدا در بخش «Provider assignments» یک ارائه‌دهنده اضافه کنید. فقط خدمات ارائه‌دهندگان انتخاب‌شده قابل انتخاب هستند.",
+    "serviceNotOfferedBySelectedProviders": "این خدمت توسط هیچ‌یک از ارائه‌دهندگان انتخاب‌شده ارائه نمی‌شود. خدمت دیگری انتخاب کنید یا آن را حذف کنید.",
     "activeService": "خدمت فعال",
     "addSlot": "افزودن بازه",
     "noAvailabilitySlotDefinedYet": "هنوز بازه زمانی تعریف نشده است.",
