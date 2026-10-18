@@ -36,10 +36,10 @@ export default async function AdminProductEditPage({ params }: { params: Promise
   const locale = await getLocale();
   const { id } = await params;
   const [product, categories, services, allAttributes] = await Promise.all([
-    getAdminProductForEdit(id),
+    getAdminProductForEdit(id, locale),
     listAdminCategories(),
     listServiceDefinitionsForPicker(),
-    listAttributesAdmin(),
+    listAttributesAdmin(locale),
   ]);
   if (!product) notFound();
   const attachedIds = new Set((product.attributes ?? []).map((a: any) => a.attribute_id));

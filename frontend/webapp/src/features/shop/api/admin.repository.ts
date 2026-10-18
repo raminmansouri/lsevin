@@ -1,6 +1,6 @@
 import "server-only";
 
-import { assertShopAdmin } from "../lib/context";
+import { assertShopAdmin, normalizeLocale } from "../lib/context";
 import { sql } from "../lib/db";
 
 /**
@@ -180,8 +180,9 @@ export async function listServiceDefinitionsForPicker(q?: string) {
   `;
 }
 
-export async function getAdminProductForEdit(productId: string) {
+export async function getAdminProductForEdit(productId: string, locale?: string) {
   await assertShopAdmin();
+  const lang = normalizeLocale(locale);
   const [p] = await sql<any[]>`
     select
       id::text as id, status, slug, base_price::float as base_price, base_currency,
@@ -220,7 +221,7 @@ export async function getAdminProductForEdit(productId: string) {
     `,
     sql<any[]>`
       select a.id::text as attribute_id, a.slug, a.display_type, a.is_variant_defining,
-        common.get_translation_t(a.name_translations, 'en', 'en') as name,
+        common.get_translation_t(a.name_translations, ${lang}, 'en') as name,
         pa.is_required, pa.display_order,
         pa.value_ids::text[] as value_ids, pa.text_value, pa.text_value_translations
       from shop.product_attributes pa
@@ -424,17 +425,18 @@ export async function getHomeSectionWithItems(id: string) {
 // ======================================================================
 // Attributes (SHP-ADM-007)
 // ======================================================================
-export async function listAttributesAdmin() {
+export async function listAttributesAdmin(locale?: string) {
   await assertShopAdmin();
+  const lang = normalizeLocale(locale);
   return sql<any[]>`
     select a.id::text as id, a.slug, a.display_type, a.is_variant_defining,
       a.name_translations,
-      common.get_translation_t(a.name_translations, 'en', 'en') as name,
+      common.get_translation_t(a.name_translations, ${lang}, 'en') as name,
       coalesce((select count(*)::int from shop.product_attributes pa where pa.attribute_id = a.id), 0) as product_count,
       coalesce((
         select jsonb_agg(jsonb_build_object(
           'id', v.id, 'value', v.value, 'colorHex', v.color_hex, 'imageUrl', v.image_url,
-          'name', common.get_translation_t(v.display_name_translations, 'en', 'en'),
+          'name', coalesce(nullif(common.get_translation_t(v.display_name_translations, ${lang}, 'en'), ''), v.value),
           'translations', v.display_name_translations
         ) order by v.value)
         from shop.attribute_values v where v.attribute_id = a.id

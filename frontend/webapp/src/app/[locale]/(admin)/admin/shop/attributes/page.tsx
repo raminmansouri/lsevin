@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 
 import { listAttributesAdmin } from "@/features/shop/api/admin.repository";
 import {
@@ -23,7 +23,7 @@ const cellInput = "h-8 w-full rounded border border-gray-200 px-2 text-xs";
  */
 export default async function AdminAttributesPage() {
   const t = await getTranslations("ShopAdmin");
-  const attributes = await listAttributesAdmin();
+  const attributes = await listAttributesAdmin(await getLocale());
 
   return (
     <div className="min-h-screen bg-gray-50 px-6 py-6">
