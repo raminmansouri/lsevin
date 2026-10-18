@@ -36,32 +36,18 @@ Known causes of "the site is down / slow" and their fixes:
   origin (B, plain HTTP) which B answers with a redirect to `lsevincare.com` (already configured on B).
 * **Webapp slow, `/_next/image` slow** - CPU throttling of the pod (limit is 2 CPUs) or DNS failures from the pod (CoreDNS rule for `lsevin.ir`
   must also answer AAAA; see `failover/coredns-custom.lsevin-ir.override`).
-* **B disk above 90 %** - leftover Docker volumes (`docker_elasticsearch_data` ~57 GB, legacy) are the biggest item; archive, then remove with owner approval.
+* **B disk above 85 %** - `/var/lib/docker/volumes/docker_elasticsearch_data` (~57 GB) is the LIVE Elasticsearch data (a hostPath of the Kubernetes pod), not a leftover:
+  do not delete it. Logs older than 7 days are removed daily by `lsevin-es-retention.timer`; image/build caches by `lsevin-docker-cleanup` and Docker's build-cache GC (6 GB).
+* **A or B stops answering SSH but pings** - memory exhaustion (2026-10-18: the admin providers form scanned 1.95 M cities per request). Reboot from the provider panel, then see
+  Grafana / Telegram alerts `oom_kill`, `memory_pressure`. Cause was fixed in the webapp (`admin-service-providers.queries.ts`); pgbouncer now cancels application queries after 120 s.
 
 ## 3. Recovery procedures
 
-### 3.1 Rebuild server A (A lost or reinstalled)
-1. New Ubuntu 24.04 server (8 CPU / 8 GB / 80 GB+), DNS set to `172.29.2.100` / `172.29.0.100`, root SSH key from the PC.
-2. Install: `docker.io`, k3s, `rclone`, OpenVPN, Caddy image `lsevin-caddy:geoip`, Jenkins image `lsevin-jenkins:lts-jdk21`
-   (the repo `deployments/jenkins`, `deployments/docker`, `deployments/kubernetes/platform`).
-3. Get the config bundle: from B (`/var/backups/lsevin-offsite/A/`) or the PC kit. Decrypt (kit: `decrypt-backups.ps1`; server: `rclone --config /etc/lsevin-dr/rclone.conf copy peer:config /tmp/cfg`).
-   Unpack at `/` (`tar xzf config-A-*.tar.gz -C /`): restores `/etc/lsevin*`, `/etc/openvpn`, certificates, Caddyfile, systemd units, SymmetricDS node config, Jenkins
-   credentials/secrets, `/root/.ssh`. The `k8s/` folder holds the Kubernetes secrets/configmaps/deployments as YAML (`kubectl apply -f`).
-4. Start the VPN (`lsevin-vpn status`), then bring up the stack with `deployments/kubernetes/platform` manifests and images (Jenkins build or `docker save`
-   from B). Database: either let SymmetricDS initial-load from B (`deployments/symmetricds/scripts/a-01..a-02`, preferred: always current), or restore the newest
-   dump of A (decrypt `peer:db` on B / the PC) with `pg_restore -U lsevin -d lsevin --no-owner --clean --if-exists`.
-5. Media: `lsevin-files-sync --resync` pulls the bucket from B. Certificates: `lsevin-fetch-cert`.
-6. Check with `lsevin-sync-status`, `tests/lsevin-sync-verify`, `status.ps1`.
-
-### 3.2 Rebuild server B (B lost)
-Same idea with the Ansible roles in `deployments/ansible` and `deployments/docker/Caddyfile.server`. Data source: A has a live copy of the database and
-media (the bucket) - **B must not be treated as master while empty**: restore B's database from A's newest encrypted dump (`/var/backups/lsevin-offsite/B/` on A holds
-B's old dumps; A's own live DB is newer) and re-create the SymmetricDS hub (`scripts/b-01..b-03`). A cannot reach B until B has its address back (VPN
-route is to `202.133.90.50` only). Meanwhile Cloudflare keeps pointing `lsevincare.com` at B: point it at the new address (DNS API token on B `/etc/lsevin-acme/`
-is lost with B - create a new one; the kit does not store it).
-
-### 3.3 Both servers lost
-PC kit -> `pull-backups.ps1` (newest copies), `decrypt-backups.ps1`, then 3.2 and 3.1 using the decrypted config bundles and dumps.
+### 3.1 – 3.3 Rebuild a lost server (A, B, or both)
+**Follow [RESTORE-SERVER.md](RESTORE-SERVER.md).** It prepares the recovery folder from the PC kit, copies it to a fresh Ubuntu 24.04 machine and runs
+`deployments/dr/rebuild/lsevin-rebuild` (phases: base, config, k3s, code, data-tier, database, apps, edge, sync, verify), then lists the manual steps
+(DNS, VPN address if B's IP changed, Jenkins builds for images not in the archive). The loss of one server loses no data, because the other holds a live replica.
+Both lost: restore B first from the PC kit, then A.
 
 ### 3.4 Wrong data was replicated (restore into a scratch database first)
 1. **Stop replication first** or the repair spreads/undoes: `systemctl stop symds-node-a` (A) and stop the hub (`scripts/rollback.sh` / `docker stop` on B).
@@ -77,12 +63,18 @@ PC kit -> `pull-backups.ps1` (newest copies), `decrypt-backups.ps1`, then 3.2 an
 
 Tested: encrypted off-site copy in both directions; decryption on the PC; weekly automated restore of the newest dump into a scratch database (A and B: PASS,
 712 tables); config bundle contents; two-way DB/file sync tests; A reboot recovery; outage replay (145 s). **Not rehearsed end to end:** a complete
-bare-metal rebuild of A or B from the bundles (steps above are assembled from the pieces that were each tested). Do one rehearsal on a spare VM
-and correct this document.
+bare-metal rebuild of A or B (`lsevin-rebuild` and RESTORE-SERVER.md are assembled from pieces that were each tested; the bundle completeness check and the Kubernetes export cleaner were run on the real A bundle). Do one rehearsal on a spare VM (RESTORE-SERVER.md §8).
 
-Known data finding (2026-10-14): `tests/lsevin-sync-verify` shows rows that differ between A and B in `category.provider_services` (2 rows missing on B, which leaves 5
-orphaned `service_before_after` rows on B), `category.service_definitions` (1 row, B newer) and `shop.product_attributes` (7 rows). Not repaired yet (needs an
-owner decision); see the report.
+Data finding of 2026-10-14 (provider_services / service_definitions / product_attributes differences) was repaired on 2026-10-15/16; `tests/lsevin-sync-verify` now reports
+the replicated tables identical (cosmetic `shop.product_attributes` text differences converge once both sites run the same webapp version).
+
+## 4b. Monitoring and alerting (Telegram)
+
+`deployments/monitoring/`: `lsevin-site-exporter` (both servers; replication, file sync, VPN, Jenkins, providers, Kubernetes, backups, disk, certificates),
+`lsevin-alerter` on B (44 Prometheus rules + 10 public URL checks, `rules.json`; Telegram, retries, daily summary 07:00 UTC; mute a rule by listing it in `/var/lib/lsevin-alerter/muted`),
+and the PC `watchdog.ps1` (kit; every 5 minutes: public sites, lsevin.ir via the Iranian line, the alerter's heartbeat) as the safety net for B itself being down.
+Secrets: `/etc/lsevin-alerter/telegram.env` (B) and `secrets	elegram.env` (kit). Bot token rotation: BotFather `/revoke`, then update both files and restart `lsevin-alerter`.
+Image archives for fast rebuilds: `lsevin-dr-images.timer` (weekly, encrypted, to the other site).
 
 ## 5. Installing the tooling on a (new) server
 

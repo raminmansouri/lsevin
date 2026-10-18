@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+# lsevin-dr-images - weekly: copy this server's staged application images (k3s auto-imports /var/lib/rancher/k3s/agent/images at start)
+# to the other site, encrypted. A rebuilt server then starts the application in minutes instead of rebuilding every image through Jenkins.
+# Run from lsevin-dr-images.timer on A and B. Uses the same site.env / rclone.conf as lsevin-dr-offsite. Only ~1 GB, uploaded as a single tar.
+set -uo pipefail
+. "${ENV_FILE:-/etc/lsevin-dr/site.env}"
+export RCLONE_CONFIG=/etc/lsevin-dr/rclone.conf
+STATE=/var/lib/lsevin-dr; LOG=/var/log/lsevin-dr.log; SRC=/var/lib/rancher/k3s/agent/images
+: # the other site's copy arrives through the regular lsevin-dr-offsite pull (it syncs the whole _backups/<OTHER> folder)
+log() { printf '%s images %s\n' "$(date -u +%FT%TZ)" "$*" | tee -a "$LOG"; }
+exec 9>/run/lock/lsevin-dr-images.lock; flock -n 9 || { log "another run is in progress"; exit 0; }
+[ -d "$SRC" ] && ls "$SRC"/*.tar >/dev/null 2>&1 || { log "FAIL: no image archives in $SRC"; exit 1; }
+rclone lsd "s3:$BUCKET" >/dev/null 2>&1 || { log "SKIP: shared store not reachable"; exit 1; }
+T=/var/backups/lsevin/images-$SITE-$(date -u +%Y%m%dT%H%M%SZ).tar
+mkdir -p /var/backups/lsevin; tar -cf "$T" -C "$SRC" . || { log "FAIL: tar"; rm -f "$T"; exit 1; }
+rclone copy "$T" crypt:images --bwlimit "${BWLIMIT:-6M}" --retries 3 --timeout 30m >>"$LOG" 2>&1 || { log "FAIL: upload"; rm -f "$T"; exit 1; }
+rm -f "$T"
+rclone delete crypt:images --min-age 9d >>"$LOG" 2>&1 || true
+touch "$STATE/last-images-ok"; log "image archives uploaded ($(rclone lsf crypt:images 2>/dev/null | wc -l) stored)"

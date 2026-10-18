@@ -35,9 +35,25 @@ if command -v kubectl >/dev/null 2>&1; then
     kubectl -n lsevin get "$kind" -o yaml > "$W/k8s/$kind.yaml" 2>/dev/null || true
   done
 fi
+# manifest: everything the rebuild script needs to know about this server that is not a file (versions, enabled units, containers, images)
+mkdir -p "$W/manifest"
+{
+  echo "site=$SITE"; echo "created=$(date -u +%FT%TZ)"; echo "host=$(hostname)"
+  echo "os=$(. /etc/os-release && echo "$PRETTY_NAME")"; echo "kernel=$(uname -r)"
+  echo "cpus=$(nproc)"; echo "mem_mb=$(free -m | awk '/Mem:/{print $2}')"; echo "disk_gb=$(df -BG --output=size / | tail -1 | tr -dc 0-9)"
+  echo "k3s=$(k3s --version 2>/dev/null | head -1)"; echo "docker=$(docker --version 2>/dev/null)"; echo "rclone=$(rclone --version 2>/dev/null | head -1)"
+  echo "app_commit=$(git -C /opt/lsevin/app rev-parse HEAD 2>/dev/null)"; echo "app_remote=$(git -C /opt/lsevin/app remote get-url origin 2>/dev/null | sed -E 's#(https?://)[^@/]*@##')"
+} > "$W/manifest/info.env"
+systemctl list-unit-files --no-legend --state=enabled 2>/dev/null | awk '{print $1}' | grep -E '^(lsevin|symds|openvpn|docker|k3s|ssh)' > "$W/manifest/enabled-units.txt" || true
+docker ps --format '{{.Names}}|{{.Image}}|{{.Label "com.docker.compose.project"}}|{{.Label "com.docker.compose.project.working_dir"}}|{{.Label "com.docker.compose.project.config_files"}}' > "$W/manifest/containers.txt" 2>/dev/null || true
+docker ps -q 2>/dev/null | xargs -r docker inspect > "$W/manifest/containers-inspect.json" 2>/dev/null || true
+(k3s ctr -n k8s.io images ls -q 2>/dev/null || true) | grep -v '^sha256' | grep -v '@sha256' > "$W/manifest/k3s-images.txt" || true
+crontab -l > "$W/manifest/root-crontab.txt" 2>/dev/null || true
+dpkg-query -W -f='${Package} ${Version}
+' > "$W/manifest/packages.txt" 2>/dev/null || true
 existing=(); for p in $CONFIG_PATHS; do [ -e "$p" ] && existing+=("$p"); done
 tar --ignore-failed-read --warning=no-file-changed -czf "$B.part" -C / --exclude='*/workspace/*' --exclude='*/builds/*' --exclude='*.log' \
-    "${existing[@]/#\//}" -C "$W" k8s 2>/dev/null
+    "${existing[@]/#\//}" -C "$W" k8s manifest 2>/dev/null
 mv "$B.part" "$B"; chmod 600 "$B"; rm -rf "$W"
 find "$CONFIG_OUT" -name 'config-*.tar.gz' -mtime +14 -delete
 log "config bundle $(basename "$B") $(du -h "$B" | cut -f1)"
