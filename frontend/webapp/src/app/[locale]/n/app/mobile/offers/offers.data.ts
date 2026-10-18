@@ -109,7 +109,8 @@ function coalesceImage(...candidates: Array<string | null | undefined>) {
     const value = candidate?.trim();
     if (value) return value;
   }
-  return "/placeholder.svg";
+  // Empty lets the card draw its branded block; /placeholder.svg does not exist.
+  return "";
 }
 
 function joinSql(parts: any[], separator: any) {
@@ -235,6 +236,8 @@ export async function getOffersPageData({
       coalesce(
         nullif(btrim(ps_media.file_url), ''),
         nullif(btrim(split_part(coalesce(ps.image_url, ''), ',', 1)), ''),
+        nullif(btrim(sd_media.file_url), ''),
+        nullif(btrim(split_part(coalesce(sd.image_url, ''), ',', 1)), ''),
         nullif(btrim(psgi_media.file_url), ''),
         nullif(btrim(split_part(coalesce(psgi.url, ''), ',', 1)), ''),
         nullif(btrim(sp_media.file_url), ''),
@@ -297,6 +300,8 @@ export async function getOffersPageData({
     ) pgi on true
     left join media.media_library ps_media
       on ps_media.id::text = nullif(btrim(split_part(coalesce(ps.image_url, ''), ',', 1)), '')
+    left join media.media_library sd_media
+      on sd_media.id::text = nullif(btrim(split_part(coalesce(sd.image_url, ''), ',', 1)), '')
     left join media.media_library psgi_media
       on psgi_media.id::text = nullif(btrim(split_part(coalesce(psgi.url, ''), ',', 1)), '')
     left join media.media_library sp_media

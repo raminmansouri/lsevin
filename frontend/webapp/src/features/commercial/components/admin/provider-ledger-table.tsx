@@ -3,27 +3,10 @@
 
 import { useTranslations } from "next-intl";
 import Link from 'next/link';
-import { useTransition } from 'react';
-import { toast } from 'sonner';
-
-import { Button } from '@/components/ui/button';
-import { updateProviderLedgerStatusAction } from '../../actions/admin-commercial-actions';
 
 export function ProviderLedgerTable({ rows }: { rows: any[] }) {
-  const t = useTranslations("AdminGenerated");
   const tAdmin = useTranslations("AdminGenerated");
-  const [isPending, startTransition] = useTransition();
-
-  const updateStatus = (ledgerId: string, status: 'pending' | 'approved' | 'paid' | 'cancelled') => {
-    startTransition(async () => {
-      try {
-        await updateProviderLedgerStatusAction({ ledgerId, status });
-        toast.success(`Ledger marked ${status}.`);
-      } catch (error) {
-        toast.error(error instanceof Error ? error.message : 'Failed to update provider ledger.');
-      }
-    });
-  };
+  // Read-only: approving and paying a provider happens in the financial panel.
 
   return (
     <div className="rounded-xl border overflow-hidden">
@@ -37,7 +20,6 @@ export function ProviderLedgerTable({ rows }: { rows: any[] }) {
             <th className="p-3 text-left">{tAdmin("status")}</th>
             <th className="p-3 text-left">{tAdmin("reference")}</th>
             <th className="p-3 text-left">{tAdmin("booking")}</th>
-            <th className="p-3 text-right">{tAdmin("actions")}</th>
           </tr>
         </thead>
         <tbody>
@@ -53,13 +35,6 @@ export function ProviderLedgerTable({ rows }: { rows: any[] }) {
               <td className="p-3">{row.status}</td>
               <td className="p-3 text-xs text-muted-foreground">{row.referenceType ?? '—'}</td>
               <td className="p-3">{row.bookingId ? <Link href={`/admin/bookings/${row.bookingId}/financial`} className="underline">{tAdmin("openFinancials")}</Link> : '—'}</td>
-              <td className="p-3 text-right">
-                <div className="flex justify-end gap-2">
-                  <Button size="sm" variant="outline" disabled={isPending} onClick={() => updateStatus(row.id, 'approved')}>{t("approve")}</Button>
-                  <Button size="sm" variant="outline" disabled={isPending} onClick={() => updateStatus(row.id, 'paid')}>{t("markPaid")}</Button>
-                  <Button size="sm" variant="ghost" disabled={isPending} onClick={() => updateStatus(row.id, 'cancelled')}>{t("cancel")}</Button>
-                </div>
-              </td>
             </tr>
           ))}
         </tbody>

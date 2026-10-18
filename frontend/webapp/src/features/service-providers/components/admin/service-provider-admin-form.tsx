@@ -163,17 +163,23 @@ function LocalizedInputBridge({
   locale,
   ...props
 }: LocalizedInputBridgeProps) {
-  const normalizedValue = useMemo(
-    () => toLocalizedInputValue(value, locale, SUPPORTED_LOCALE_HEADERS),
-    [value, locale]
-  );
+  // Keep text exactly as typed while editing. Normalizing on every keystroke trimmed
+  // spaces away and refilled an emptied locale from its sibling key, so the last letter
+  // could not be deleted. Clean-up for the database happens on save.
+  const normalizedValue = useMemo(() => {
+    const maybeInput = value as AdminLocalizedInputValue | null | undefined;
+    if (maybeInput && typeof maybeInput === "object" && maybeInput.translations && typeof maybeInput.translations === "object") {
+      return maybeInput;
+    }
+    return toLocalizedInputValue(value, locale, SUPPORTED_LOCALE_HEADERS);
+  }, [value, locale]);
 
   return (
     <LocalizedInput
       {...props}
       value={normalizedValue}
       onChange={(nextValue) =>
-        onChange(toLocalizedInputValue(nextValue, locale, SUPPORTED_LOCALE_HEADERS))
+        onChange({ translations: { ...(nextValue.translations as Record<string, string>) } })
       }
       supportedLocales={SUPPORTED_LOCALE_HEADERS}
     />

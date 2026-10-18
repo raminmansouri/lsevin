@@ -15,6 +15,7 @@ import { BookingShopProductsStep, type BookingShopProductGroup } from './Booking
 import { PaymentMethodsPanel } from './PaymentMethodsPanel';
 import { PayInPlacePlanPicker } from './PayInPlacePlanPicker';
 import { MealPlanPicker } from './MealPlanPicker';
+import { AdultsStepper } from './AdultsStepper';
 import { isPayInPlacePlanId } from '../utils/pay-in-place-plans';
 import { SaveBookingCartButton } from './SaveBookingCartButton';
 import { DecisionStack } from './step-service/DecisionStack';
@@ -438,6 +439,8 @@ export function BookingWizard() {
     const [couponCode, setCouponCode] = useState('');
     const [couponLoading, setCouponLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    // False while the adults field is empty or below 1, so the schedule step can't continue.
+    const [adultsValid, setAdultsValid] = useState(true);
     const providerRequestSeq = useRef(0);
     const serviceRequestSeq = useRef(0);
     const specialistRequestSeq = useRef(0);
@@ -955,7 +958,7 @@ export function BookingWizard() {
     const canContinueScheduleStep = Boolean(draft && (draft.bookingUiMode === 'custom_form'
         ? draft.formSubmissionId
         : draft.bookingUiMode === 'date_range'
-            ? draft.selectedDateFrom && draft.selectedDateTo && draft.selectedDateTo > draft.selectedDateFrom
+            ? draft.selectedDateFrom && draft.selectedDateTo && draft.selectedDateTo > draft.selectedDateFrom && adultsValid
             : draft.selectedDate && draft.selectedTimeFrom && draft.selectedTimeTo));
     const canContinueAddonsStep = allChildBookingsCompleted;
     const canContinueFilesStep = allRequiredUploadsPresent;
@@ -1373,7 +1376,7 @@ export function BookingWizard() {
                         <div className="text-sm font-semibold text-slate-700"><span>{tBooking("toDate")}</span><div className="mt-2"><BookingDatePicker calendar={calendar} label={tBooking("toDate")} value={draft.selectedDateTo} onChange={(iso) => {
                             const next = { ...draft, selectedDateTo: iso, metadata: { ...(draft.metadata ?? {}), selectedDateTo: iso } }; setDraft(next); patchDraft(next).catch(er => setError(er.message));
                         }} /></div></div>
-                        <label className="text-sm font-semibold text-slate-700">{tBooking("adults")}<input type="number" min={1} value={draft.adults ?? 1} onChange={(e) => { const next = { ...draft, adults: Number(e.target.value || 1) }; setDraft(next); patchDraft(next).catch((er) => setError(er.message)); }} className="mt-2 h-12 w-full rounded-2xl border border-slate-200 px-4 outline-none focus:border-[#155e75]"/></label>
+                        <AdultsStepper label={tBooking("adults")} value={draft.adults} onValidityChange={setAdultsValid} onChange={(adults) => { const next = { ...draft, adults }; setDraft(next); patchDraft(next).catch((er) => setError(er.message)); }}/>
                         <div className="md:col-span-3">{(() => {
                     const from = draft.selectedDateFrom;
                     const to = draft.selectedDateTo;
@@ -1489,7 +1492,7 @@ export function BookingWizard() {
                                 <div className="flex justify-between"><span>{tBooking("addOnSubBookings2")}</span><span>{draft.childBookings.length}</span></div>
                                 <div className="flex justify-between"><span>{tBooking("addOnSubtotal")}</span><span>{formatMoney(draft.addonsAmount ?? 0, draft.currency)}</span></div>
                             </> : <div className="rounded-2xl bg-slate-50 p-3 text-xs text-slate-600">{tBooking("extraLSevinSupportServicesWereNotRequestedForThis")}</div>}
-                            {Number(draft.metadata?.appliedDiscountAmount ?? 0) > 0 ? (<div className="flex justify-between text-green-700"><span>{tBooking("couponDiscount")}{String(draft.metadata?.appliedCouponCode ?? draft.metadata?.couponCode ?? '')})</span><span>-{formatMoney(Number(draft.metadata?.appliedDiscountAmount ?? 0), draft.currency)}</span></div>) : null}
+                            {Number(draft.metadata?.appliedDiscountAmount ?? 0) > 0 ? (<div className="flex justify-between text-green-700"><span>{tBooking("couponDiscount")}{String(draft.metadata?.appliedCouponCode || draft.metadata?.couponCode || draft.metadata?.couponTitle || '')})</span><span>-{formatMoney(Number(draft.metadata?.appliedDiscountAmount ?? 0), draft.currency)}</span></div>) : null}
                             <div className="flex justify-between border-t border-slate-200 pt-3 text-base font-bold text-slate-900"><span>{tBooking("totalAfterDiscounts")}</span><span>{formatMoney(draft.totalAmount ?? 0, draft.currency)}</span></div>
                             <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-4">
                                 <div className="text-sm font-semibold text-slate-700">{tBooking("coupon")}</div>

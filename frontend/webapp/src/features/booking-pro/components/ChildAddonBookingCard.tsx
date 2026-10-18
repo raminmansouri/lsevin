@@ -7,6 +7,7 @@ import type { ChildBookingDraft, ProviderCardItem, ProviderTypeAddonItem, Servic
 import { EntityCard, providerMeta, serviceMeta } from './EntityCard';
 import { SearchLoadMoreList } from './SearchLoadMoreList';
 import { MealPlanPicker } from './MealPlanPicker';
+import { AdultsStepper } from './AdultsStepper';
 import { RichTextPreview } from '@/features/booking/components/rich-text-preview';
 import { useTranslations } from "next-intl";
 interface Props {
@@ -235,7 +236,7 @@ export function ChildAddonBookingCard({ locale, draftId, addon, city, country, v
               {model.bookingUiMode === 'date_range' ? (<div className="grid grid-cols-1 gap-3 md:grid-cols-3">
                   <label className="text-sm font-medium text-slate-700">{tBooking("checkIn")}<input type="date" value={model.selectedDateFrom ?? ''} onChange={(e) => onChange({ ...model, selectedDateFrom: e.target.value })} className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 outline-none focus:border-[#155e75]"/></label>
                   <label className="text-sm font-medium text-slate-700">{tBooking("checkOut")}<input type="date" value={model.selectedDateTo ?? ''} onChange={(e) => onChange({ ...model, selectedDateTo: e.target.value })} className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 outline-none focus:border-[#155e75]"/></label>
-                  <label className="text-sm font-medium text-slate-700">{tBooking("adults")}<input type="number" min={1} value={model.adults ?? 1} onChange={(e) => onChange({ ...model, adults: Number(e.target.value || 1) })} className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 outline-none focus:border-[#155e75]"/></label>
+                  <AdultsStepper label={tBooking("adults")} value={model.adults} size="md" labelClassName="text-sm font-medium text-slate-700" onChange={(adults) => onChange({ ...model, adults })}/>
                 </div>) : null}
 
               {model.bookingUiMode === 'date_range' && model.selectedDateFrom && model.selectedDateTo ? (model.selectedDateTo <= model.selectedDateFrom

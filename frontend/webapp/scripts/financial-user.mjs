@@ -2,8 +2,9 @@
 /**
  * Create or reset a financial-panel account.
  *
- *   pnpm financial:user create <username> "<display name>" [accountant|finance_admin]
+ *   pnpm financial:user create <username> "<display name>" [accountant|accounting_manager|manager]
  *   pnpm financial:user reset  <username>
+ *   pnpm financial:user role   <username> <accountant|accounting_manager|manager>
  *
  * The password is generated here and printed once. It is never taken as an argument,
  * because a password on the command line ends up in shell history and in `ps` output
@@ -47,25 +48,47 @@ const ALPHABET = "abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 const generatePassword = () =>
   Array.from({ length: 20 }, () => ALPHABET[randomInt(ALPHABET.length)]).join("");
 
-const [command, username, displayName, role = "accountant"] = process.argv.slice(2);
+const ROLES = ["accountant", "accounting_manager", "manager"];
+
+const [command, username, third, fourth] = process.argv.slice(2);
+const displayName = command === "create" ? third : undefined;
+const role = command === "role" ? third : (fourth ?? "accountant");
 
 if (!command || !username) {
-  console.error("usage: financial-user.mjs create <username> \"<display name>\" [accountant|finance_admin]");
+  console.error(`usage: financial-user.mjs create <username> "<display name>" [${ROLES.join("|")}]`);
   console.error("       financial-user.mjs reset  <username>");
+  console.error(`       financial-user.mjs role   <username> <${ROLES.join("|")}>`);
   process.exit(1);
 }
 
 const sql = postgres(databaseUrl(), { max: 1, prepare: false });
 
 try {
+  if (command === "role") {
+    if (!ROLES.includes(role)) throw new Error(`Role must be one of: ${ROLES.join(", ")}.`);
+    const rows = await sql`
+      update accounting.panel_users set role = ${role}, updated_at = now()
+       where lower(username) = lower(${username})
+      returning id
+    `;
+    if (!rows.length) throw new Error(`No panel user named "${username}".`);
+    // Signed-in sessions start again, so nobody keeps working under the old role.
+    await sql`
+      update accounting.panel_sessions
+         set revoked_at = now(), revoke_reason = 'role changed'
+       where user_id = ${rows[0].id} and revoked_at is null
+    `;
+    console.log(`\n"${username}" is now ${role} — existing sessions revoked\n`);
+    await sql.end({ timeout: 5 });
+    process.exit(0);
+  }
+
   const password = generatePassword();
   const hash = await hashPassword(password);
 
   if (command === "create") {
     if (!displayName) throw new Error("A display name is required.");
-    if (!["accountant", "finance_admin"].includes(role)) {
-      throw new Error("Role must be accountant or finance_admin.");
-    }
+    if (!ROLES.includes(role)) throw new Error(`Role must be one of: ${ROLES.join(", ")}.`);
     await sql`
       insert into accounting.panel_users (username, display_name, password_hash, role)
       values (${username}, ${displayName}, ${hash}, ${role})

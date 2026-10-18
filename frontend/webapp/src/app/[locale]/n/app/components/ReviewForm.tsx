@@ -4,8 +4,10 @@ import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { X, Star, Check, AlertCircle, Upload, Plus, MinusCircle } from "lucide-react";
 
-export type ReviewEligibilityState = "unknown" | "checking" | "allowed" | "blocked";
-export type ReviewEligibilityReason = "not_signed_in" | "not_booked" | "already_reviewed" | "invalid_target" | null;
+// "moderated": the visitor may review but has no booking, so the review waits for approval.
+export type ReviewEligibilityState = "unknown" | "checking" | "allowed" | "moderated" | "blocked";
+export type ReviewEligibilityReason = "not_signed_in" | "not_booked" | "already_reviewed" | "invalid_target" | "needs_approval" | null;
+export type ReviewSubmitResult = { requiresModeration?: boolean };
 export type ReviewTargetType = "provider" | "service" | "specialist";
 
 export type ReviewFormSubmitValue = {
@@ -21,7 +23,7 @@ interface ReviewFormProps {
   providerName: string;
   treatmentName?: string;
   onClose: () => void;
-  onSubmit?: (review: ReviewFormSubmitValue) => Promise<void> | void;
+  onSubmit?: (review: ReviewFormSubmitValue) => Promise<ReviewSubmitResult | void> | ReviewSubmitResult | void;
   locale?: string | null;
   eligibilityState?: ReviewEligibilityState;
   eligibilityMessage?: string | null;
@@ -81,6 +83,22 @@ const REVIEW_ELIGIBILITY_TEXT = {
   fr: { not_signed_in: "Connectez-vous d’abord. Seuls les utilisateurs ayant réservé peuvent envoyer un avis.", not_booked: "Seuls les utilisateurs ayant réservé cet élément peuvent envoyer un avis.", already_reviewed: "Vous avez déjà envoyé un avis pour cet élément réservé.", invalid_target: "Cette cible d’avis n’est pas disponible pour le moment." },
 } as const;
 
+const REVIEW_APPROVAL_TEXT = {
+  en: { needsApproval: "You haven't booked this, so your review will appear after our team checks it.", published: "Thank you! Your review is now live." },
+  fa: { needsApproval: "شما این مورد را رزرو نکرده‌اید، بنابراین نظرتان پس از بررسی و تأیید تیم ما نمایش داده می‌شود.", published: "ممنون! نظر شما ثبت شد و اکنون نمایش داده می‌شود." },
+  ar: { needsApproval: "لم تحجز هذا العنصر، لذا سيظهر تقييمك بعد مراجعة فريقنا له.", published: "شكراً! تقييمك منشور الآن." },
+  tr: { needsApproval: "Bunu rezerve etmediğiniz için yorumunuz ekibimiz inceledikten sonra görünecek.", published: "Teşekkürler! Yorumunuz yayında." },
+  es: { needsApproval: "No has reservado esto, así que tu reseña aparecerá cuando nuestro equipo la revise.", published: "¡Gracias! Tu reseña ya está publicada." },
+  ku: { needsApproval: "ئەمەت حجز نەکردووە، بۆیە هەڵسەنگاندنەکەت دوای پشکنینی تیمەکەمان پیشان دەدرێت.", published: "سوپاس! هەڵسەنگاندنەکەت ئێستا بڵاوکرایەوە." },
+  de: { needsApproval: "Sie haben dies nicht gebucht, daher erscheint Ihre Bewertung nach Prüfung durch unser Team.", published: "Danke! Ihre Bewertung ist jetzt sichtbar." },
+  fr: { needsApproval: "Vous n’avez pas réservé cet élément : votre avis sera visible après vérification par notre équipe.", published: "Merci ! Votre avis est maintenant publié." },
+} as const;
+
+function approvalText(locale?: string | null) {
+  const key = String(locale || "fa").split("-")[0]?.toLowerCase() as keyof typeof REVIEW_APPROVAL_TEXT;
+  return REVIEW_APPROVAL_TEXT[key] || REVIEW_APPROVAL_TEXT.en;
+}
+
 function reviewText(locale?: string | null) {
   const key = String(locale || "fa").split("-")[0]?.toLowerCase() as keyof typeof REVIEW_FORM_TEXT;
   return REVIEW_FORM_TEXT[key] || REVIEW_FORM_TEXT.en;
@@ -88,6 +106,7 @@ function reviewText(locale?: string | null) {
 
 export function getLocalizedReviewEligibilityMessage(locale?: string | null, reason?: ReviewEligibilityReason): string | null {
   if (!reason) return null;
+  if (reason === "needs_approval") return approvalText(locale).needsApproval;
   const key = String(locale || "fa").split("-")[0]?.toLowerCase() as keyof typeof REVIEW_ELIGIBILITY_TEXT;
   const messages = REVIEW_ELIGIBILITY_TEXT[key] || REVIEW_ELIGIBILITY_TEXT.en;
   return messages[reason] || messages.not_booked;
@@ -96,6 +115,8 @@ export function getLocalizedReviewEligibilityMessage(locale?: string | null, rea
 export default function ReviewForm({ providerName, treatmentName, onClose, onSubmit, locale, eligibilityState = "unknown", eligibilityMessage }: ReviewFormProps) {
   const t = useTranslations("ProviderPage");
   const text = reviewText(locale);
+  const approval = approvalText(locale);
+  const [pendingApproval, setPendingApproval] = useState(false);
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
   const [title, setTitle] = useState("");
@@ -128,7 +149,13 @@ export default function ReviewForm({ providerName, treatmentName, onClose, onSub
     setSubmitStatus("submitting");
     setSubmitError(null);
     try {
-      await onSubmit?.({ rating, title, comment, pros, cons, images });
+      const result = await onSubmit?.({ rating, title, comment, pros, cons, images });
+      // The server has the final word on whether the review needs approval.
+      setPendingApproval(
+        result && typeof result.requiresModeration === "boolean"
+          ? result.requiresModeration
+          : eligibilityState === "moderated",
+      );
       setSubmitStatus("success");
       window.setTimeout(() => onClose(), 1200);
     } catch (error) {
@@ -175,7 +202,7 @@ export default function ReviewForm({ providerName, treatmentName, onClose, onSub
           <div className="p-12 text-center">
             <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-green-600"><Check size={40} className="text-white" /></div>
             <h2 className="mb-2 text-2xl font-bold text-gray-900">{t("reviewSubmitted")}</h2>
-            <p className="text-gray-600">{t("thankYouForSharingYourExperienceYourReview")}</p>
+            <p className="text-gray-600">{pendingApproval ? t("thankYouForSharingYourExperienceYourReview") : approval.published}</p>
           </div>
         ) : (
           <>
@@ -189,6 +216,7 @@ export default function ReviewForm({ providerName, treatmentName, onClose, onSub
             <div className="space-y-6 p-6">
               {eligibilityState === "checking" ? <div className="flex items-start gap-2 rounded-xl border border-blue-200 bg-blue-50 p-3 text-sm text-blue-800"><AlertCircle size={16} className="mt-0.5 flex-shrink-0" /><span>{text.checking}</span></div> : null}
               {eligibilityState === "blocked" && eligibilityMessage ? <div className="flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800"><AlertCircle size={16} className="mt-0.5 flex-shrink-0" /><span>{eligibilityMessage}</span></div> : null}
+              {eligibilityState === "moderated" && eligibilityMessage ? <div className="flex items-start gap-2 rounded-xl border border-blue-200 bg-blue-50 p-3 text-sm text-blue-800"><AlertCircle size={16} className="mt-0.5 flex-shrink-0" /><span>{eligibilityMessage}</span></div> : null}
               {submitError ? <div className="flex items-start gap-2 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700"><AlertCircle size={16} className="mt-0.5 flex-shrink-0" /><span>{submitError}</span></div> : null}
 
               <div>

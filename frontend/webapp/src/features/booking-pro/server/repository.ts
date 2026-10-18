@@ -205,7 +205,7 @@ function choosePersistedScheduleLineType(semanticType: "deposit" | "balance", al
 }
 
 type DraftCouponSnapshot = {
-    source: "loyalty" | "marketing";
+    source: "loyalty" | "marketing" | "offer";
     id: string;
     code: string;
     discountType: "percent" | "fixed";
@@ -227,7 +227,32 @@ function calculateCouponDiscount(type: "percent" | "fixed", value: number, gross
     return Math.min(grossAmount, Math.round(safeValue * 100) / 100);
 }
 
-async function resolveDraftCoupon(draftId: string, grossAmount: number): Promise<DraftCouponSnapshot | null> {
+// A special offer (marketing.offers, set up under admin > marketing > offers) is a
+// percentage off one provider service. An offer without a code applies on its own;
+// one with a code applies when the customer enters that code. Either way the
+// percentage comes off the main service only, never the add-on bookings.
+const ACTIVE_OFFER_FILTER = (serviceId: string) => db`
+    o.provider_service_id = ${serviceId}::uuid
+      and coalesce(o.is_active, false) = true
+      and o.valid_until >= now()
+      and (o.usage_limit is null or coalesce(o.used_count, 0) < o.usage_limit)
+`;
+
+function offerSnapshot(offer: any, mainAmount: number): DraftCouponSnapshot {
+    const discountValue = Number(offer.discount_percent ?? 0);
+    return {
+        source: "offer",
+        id: String(offer.id),
+        code: String(offer.code ?? "").trim(),
+        title: offer.title ?? null,
+        discountType: "percent",
+        discountValue,
+        discountAmount: calculateCouponDiscount("percent", discountValue, mainAmount),
+        customerCouponId: null,
+    };
+}
+
+async function resolveDraftCoupon(draftId: string, grossAmount: number, mainAmount: number = grossAmount): Promise<DraftCouponSnapshot | null> {
     const [draft] = await db<any[]>`
         select d.user_id, d.service_id, coalesce(d.metadata, '{}'::jsonb) as metadata
         from booking.booking_drafts d
@@ -242,7 +267,21 @@ async function resolveDraftCoupon(draftId: string, grossAmount: number): Promise
         ""
     ).trim();
 
-    if (!rawCode || grossAmount <= 0 || !draft?.user_id) return null;
+    if (grossAmount <= 0 || !draft?.user_id) return null;
+
+    if (!rawCode) {
+        if (!draft.service_id || mainAmount <= 0) return null;
+        const [autoOffer] = await db<any[]>`
+            select o.id, o.code, o.title, o.discount_percent
+            from marketing.offers o
+            where ${ACTIVE_OFFER_FILTER(draft.service_id)}
+              and nullif(btrim(coalesce(o.code, '')), '') is null
+              and coalesce(o.discount_percent, 0) > 0
+            order by o.discount_percent desc, o.valid_until asc
+            limit 1
+        `;
+        return autoOffer ? offerSnapshot(autoOffer, mainAmount) : null;
+    }
 
     const [loyalty] = await db<any[]>`
         select c.id,
@@ -307,6 +346,18 @@ async function resolveDraftCoupon(draftId: string, grossAmount: number): Promise
             discountAmount: calculateCouponDiscount(discountType, discountValue, grossAmount),
             customerCouponId: null,
         };
+    }
+
+    if (draft.service_id && mainAmount > 0) {
+        const [codeOffer] = await db<any[]>`
+            select o.id, o.code, o.title, o.discount_percent
+            from marketing.offers o
+            where ${ACTIVE_OFFER_FILTER(draft.service_id)}
+              and lower(btrim(o.code)) = lower(${rawCode})
+            order by o.discount_percent desc
+            limit 1
+        `;
+        if (codeOffer) return offerSnapshot(codeOffer, mainAmount);
     }
 
     return null;
@@ -1645,7 +1696,7 @@ export async function recalculateDraftTotals(draftId: string, options?: { paymen
     }
     const draftCurrencyOverride: string | null = billInForeignCurrency ? mainCurrency : null;
     const grossTotal = Math.round((mainAmount + childAmount) * 100) / 100;
-    const coupon = await resolveDraftCoupon(draftId, grossTotal);
+    const coupon = await resolveDraftCoupon(draftId, grossTotal, mainAmount);
     const discountAmount = coupon ? Math.min(grossTotal, coupon.discountAmount) : 0;
     const baseTotal = Math.round(Math.max(0, grossTotal - discountAmount) * 100) / 100;
 
@@ -1679,7 +1730,9 @@ export async function recalculateDraftTotals(draftId: string, options?: { paymen
                 subtotal_amount = ${mainAmount},          addons_amount = ${childAmount},
                 total_amount = ${total},
                 metadata = (${cleanCouponMetadataSql}) || ${JSON.stringify({
-                    couponCode: coupon.code,
+                    // An automatic offer has no code. Leaving couponCode unset keeps the
+                    // coupon box empty and free for a code the customer types later.
+                    ...(coupon.code ? { couponCode: coupon.code } : {}),
                     appliedCouponCode: coupon.code,
                     appliedCouponId: coupon.id,
                     appliedCouponSource: coupon.source,
@@ -2109,6 +2162,14 @@ export async function checkoutDraft(
                     booking_id = ${bookingId}
                 where id = ${totals.customerCouponId}
                   and customer_id = ${userId}
+            `;
+        }
+
+        if (totals.appliedCouponSource === 'offer' && totals.appliedCouponId) {
+            await tx`
+                update marketing.offers
+                set used_count = coalesce(used_count, 0) + 1
+                where id = ${Number(totals.appliedCouponId)}
             `;
         }
 

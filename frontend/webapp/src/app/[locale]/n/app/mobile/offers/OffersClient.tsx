@@ -20,7 +20,39 @@ import {
 } from "lucide-react";
 
 import type { OfferCard, OfferTab, OffersFiltersInput } from "./offers.data";
+
+const MOBILE_BASE_PATH = "/n/app/mobile";
+const BARE_UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+// The query returns media paths relative to the files host (or a raw media id
+// when the library row is missing). Used as-is, the browser asked the web app
+// for them and every offer picture 404'd, so resolve them like Explore does.
+function offerImageUrl(value?: string | null): string {
+  const raw = String(value || "").trim();
+  if (!raw || BARE_UUID_RE.test(raw)) return "";
+  return resolveHomeMediaUrl(raw);
+}
+
+function serviceHref(providerServiceId: string) {
+  return `${MOBILE_BASE_PATH}/service/${providerServiceId}`;
+}
+
+function bookingHref(providerServiceId: string) {
+  return `${MOBILE_BASE_PATH}/booking?serviceId=${encodeURIComponent(providerServiceId)}`;
+}
+
+function OfferImage({ src, alt }: { src: string; alt: string }) {
+  const [failed, setFailed] = useState(false);
+  const url = offerImageUrl(src);
+
+  if (!url || failed) {
+    return <div className="h-full w-full bg-gradient-to-br from-[#083f30] to-[#0f6b56]" />;
+  }
+
+  return <img src={url} alt={alt} className="w-full h-full object-cover" onError={() => setFailed(true)} />;
+}
 import { formatMoney } from "@/features/finance/lib/money";
+import { resolveHomeMediaUrl } from "@/features/home/components/home-media";
 
 type FilterFormValues = {
   q: string;
@@ -346,9 +378,9 @@ export default function OffersClient({
         <div className="px-5 pt-4 pb-2">
           <div
             className="relative h-40 rounded-2xl overflow-hidden shadow-lg cursor-pointer"
-            onClick={() => router.push(`/app/treatment/${featuredOffer.providerServiceId}`)}
+            onClick={() => router.push(serviceHref(featuredOffer.providerServiceId))}
           >
-            <img src={featuredOffer.image} alt={featuredOffer.title} className="w-full h-full object-cover" />
+            <OfferImage src={featuredOffer.image} alt={featuredOffer.title} />
             <div className="absolute inset-0 bg-gradient-to-r from-[#083f30]/95 to-[#083f30]/60" />
 
             <div className="absolute inset-0 flex flex-col justify-center px-6">
@@ -394,11 +426,11 @@ export default function OffersClient({
           return (
             <div
               key={offer.id}
-              onClick={() => router.push(`/app/treatment/${offer.providerServiceId}`)}
+              onClick={() => router.push(serviceHref(offer.providerServiceId))}
               className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-md transition-all active:scale-[0.98] cursor-pointer"
             >
               <div className="relative h-48">
-                <img src={offer.image} alt={offer.title} className="w-full h-full object-cover" />
+                <OfferImage src={offer.image} alt={offer.title} />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
 
                 <div className="absolute top-3 right-3 bg-[#eacb7f] px-3 py-1.5 rounded-full shadow-lg">
@@ -470,7 +502,7 @@ export default function OffersClient({
                   className="w-full h-11 bg-[#083f30] text-white rounded-xl font-semibold hover:bg-[#0a5a44] transition-colors active:scale-[0.98]"
                   onClick={(e) => {
                     e.stopPropagation();
-                    router.push(`/app/booking/${offer.providerServiceId}`);
+                    router.push(bookingHref(offer.providerServiceId));
                   }}
                 >
                   {t("cta.bookNow")}

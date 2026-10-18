@@ -280,7 +280,7 @@ function ProviderOfferingCard({ provider, currentProviderServiceId, locale }: { 
               {provider.verified && <span className="inline-flex items-center gap-1 rounded-full bg-green-50 px-2 py-1 text-[10px] font-semibold text-green-700"><BadgeCheck size={11} /> {t("badges.verified")}</span>}
               {provider.sponsored && <span className="rounded-full bg-amber-50 px-2 py-1 text-[10px] font-semibold text-amber-700">{t("badges.sponsored")}</span>}
             </div>
-              <ViewerPrice amount={provider.displayPrice.sourceAmount ?? provider.displayPrice.amount} sourceCurrencyCode={provider.displayPrice.sourceCurrencyCode ?? provider.displayPrice.code} providerId={provider.displayPrice.providerId ?? null} valueToman={provider.displayPrice.valueToman ?? null} locale={locale} className="whitespace-nowrap text-sm font-bold text-[#083f30]" />          </div>
+              <ViewerPrice amount={provider.displayPrice.sourceAmount ?? provider.displayPrice.amount} sourceCurrencyCode={provider.displayPrice.sourceCurrencyCode ?? provider.displayPrice.code} providerId={provider.displayPrice.providerId ?? null} valueToman={provider.displayPrice.valueToman ?? null} locale={locale} className="min-w-0 break-words text-[13px] font-bold leading-5 text-[#083f30] sm:text-sm" />          </div>
         </div>
 
         <ChevronRight size={16} className="self-center text-gray-400" />
@@ -379,7 +379,7 @@ function AddonsSection({ addOns, locale }: { addOns: ServiceAddon[]; locale: str
                 </div>
                 {addon.description && <LexicalDescription content={addon.description} className="text-sm leading-relaxed text-gray-600" />}
               </div>
-              <PriceTextClient amount={addon.displayPrice.amount} currencyCode={addon.displayPrice.code} locale={locale} className="whitespace-nowrap text-sm font-bold text-[#083f30]" />
+              <PriceTextClient amount={addon.displayPrice.amount} currencyCode={addon.displayPrice.code} locale={locale} className="min-w-0 break-words text-[13px] font-bold leading-5 text-[#083f30] sm:text-sm" />
             </div>
             {addon.details.length > 0 && (
               <ul className="mt-3 space-y-1 text-sm text-gray-700">
@@ -696,16 +696,18 @@ export default function ServicePage({ data, serviceId, locale }: ServicePageProp
       throw new Error(problem?.title || t("errors.submitReview"));
     }
 
-    // The review is stored as pending and stays hidden from the public list until an
-    // admin approves it. Optimistically show it to its author so the submission feels real.
+    // Reviews from people who booked are published at once. Anyone else's stays hidden
+    // until an admin approves it; show it to its author marked as pending.
     const payload = await response.json().catch(() => null);
+    const requiresModeration = Boolean(payload?.requiresModeration);
     const created = payload?.review as TopReview | undefined;
     if (created?.id) {
       setVisibleReviews((current) => [
-        { ...created, date: "", pending: true },
+        { ...created, date: requiresModeration ? "" : created.date, pending: requiresModeration },
         ...current.filter((item) => String(item.id) !== String(created.id)),
       ]);
     }
+    return { requiresModeration };
   };
 
 

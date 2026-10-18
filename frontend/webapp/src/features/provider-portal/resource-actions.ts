@@ -1,7 +1,9 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
+
+import { getProviderPageDataTag } from "@/features/service-providers/db/cache";
 
 import { requireCurrentUserId } from "./server/session";
 import {
@@ -44,6 +46,8 @@ export async function updateProviderResourceAction(formData: FormData) {
     recordId,
     formData,
   );
+  // Showing/hiding a review changes the public provider page, which is cached for hours.
+  if (resource === "reviews") revalidateTag(getProviderPageDataTag(providerId));
   revalidatePath(providerBase(locale, providerId));
   revalidatePath(`${providerBase(locale, providerId)}/manage/${resource}`);
   redirect(`${providerBase(locale, providerId)}/manage/${resource}`);

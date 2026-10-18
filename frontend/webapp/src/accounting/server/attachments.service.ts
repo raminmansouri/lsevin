@@ -62,7 +62,7 @@ export type AttachmentRow = {
 };
 
 export async function listAttachments(entryId: string): Promise<AttachmentRow[]> {
-  await assertAccounting("read");
+  await assertAccounting("books.view");
 
   const rows = await db<
     {
@@ -108,7 +108,7 @@ export async function listAttachments(entryId: string): Promise<AttachmentRow[]>
 export async function listAttachmentsForEntries(
   entryIds: string[]
 ): Promise<Map<string, AttachmentRow[]>> {
-  await assertAccounting("read");
+  await assertAccounting("books.view");
   if (entryIds.length === 0) return new Map();
 
   const rows = await db<
@@ -159,7 +159,7 @@ export async function addAttachment(input: {
   kind: AttachmentKind;
   note?: string | null;
 }): Promise<{ id: string }> {
-  await assertAccounting("operate");
+  await assertAccounting("entry.edit");
   const user = await getPanelUser();
   if (!user) throw new AttachmentError("Not signed in");
 
@@ -203,7 +203,7 @@ export async function addAttachment(input: {
 export async function readAttachment(
   id: string
 ): Promise<{ fileName: string; contentType: string; bytes: Buffer } | null> {
-  await assertAccounting("read");
+  await assertAccounting("books.view");
 
   const [row] = await db<
     { file_name: string; content_type: string | null; content: Buffer | null }[]
@@ -224,6 +224,6 @@ export async function readAttachment(
 
 /** Removes an attachment. The database refuses once the entry is in the books. */
 export async function deleteAttachment(id: string): Promise<void> {
-  await assertAccounting("operate");
+  await assertAccounting("entry.edit");
   await db`delete from accounting.entry_attachments where id = ${id}`;
 }

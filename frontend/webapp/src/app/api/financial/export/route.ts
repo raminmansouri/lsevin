@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { csvResponse, toCsv, type CsvColumn } from "@/accounting/lib/csv";
-import { assertAccounting } from "@/accounting/server/access";
+import { assertAccounting, canAccounting } from "@/accounting/server/access";
 import {
   getTrialBalanceForScope,
   listAuditLog,
@@ -29,7 +29,7 @@ function pickName(name: Record<string, string> | null, locale: string): string {
 
 export async function GET(request: NextRequest) {
   try {
-    await assertAccounting("read");
+    await assertAccounting("books.view");
   } catch {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
@@ -248,6 +248,10 @@ export async function GET(request: NextRequest) {
     }
 
     case "audit": {
+      // The audit log is not for every panel account (accountants are not shown it).
+      if (!(await canAccounting("audit.view"))) {
+        return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+      }
       const rows = await listAuditLog(10000);
       const columns: CsvColumn<(typeof rows)[number]>[] = [
         { header: "occurred_at", value: (r) => r.occurredAt },

@@ -1,6 +1,7 @@
 import { PANEL_LOCALE } from "@/accounting/lib/panel-locale";
 import { formatAmount } from "@/accounting/lib/format";
 import { listPostableAccounts } from "@/accounting/server/manual-entry.queries";
+import { canAccounting } from "@/accounting/server/access";
 import { listSchedules, listTemplates } from "@/accounting/server/templates.service";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -22,10 +23,11 @@ const FREQUENCY_LABEL: Record<string, string> = {
 
 export default async function TemplatesPage() {
   const locale = PANEL_LOCALE;
-  const [templates, schedules, accounts] = await Promise.all([
+  const [templates, schedules, accounts, canManage] = await Promise.all([
     listTemplates(locale),
     listSchedules(locale),
     listPostableAccounts(locale),
+    canAccounting("templates.manage"),
   ]);
 
   const dueCount = schedules.filter((s) => s.isDue).length;
@@ -33,6 +35,7 @@ export default async function TemplatesPage() {
 
   return (
     <div className="space-y-6">
+      {canManage && (
       <Card>
         <CardHeader className="border-b">
           <CardTitle>الگوی سند</CardTitle>
@@ -46,6 +49,7 @@ export default async function TemplatesPage() {
           <TemplateForm accounts={accounts} />
         </CardContent>
       </Card>
+      )}
 
       <Card>
         <CardHeader className="border-b">
@@ -77,11 +81,13 @@ export default async function TemplatesPage() {
                     </div>
                     <div className="flex gap-2">
                       {t.isActive && <ApplyTemplateButton id={t.id} today={today} />}
-                      <ToggleButton
-                        kind="template"
-                        id={t.id}
-                        isActive={t.isActive}
-                      />
+                      {canManage && (
+                        <ToggleButton
+                          kind="template"
+                          id={t.id}
+                          isActive={t.isActive}
+                        />
+                      )}
                     </div>
                   </div>
                   <table className="w-full text-xs">
@@ -140,7 +146,7 @@ export default async function TemplatesPage() {
             <RunSchedulesButton dueCount={dueCount} />
           </div>
 
-          {templates.filter((t) => t.isActive).length > 0 && (
+          {canManage && templates.filter((t) => t.isActive).length > 0 && (
             <div className="mb-4 rounded-md border p-3">
               <ScheduleForm templates={templates.filter((t) => t.isActive)} today={today} />
             </div>
@@ -193,7 +199,7 @@ export default async function TemplatesPage() {
                         </span>
                       </td>
                       <td className="p-2">
-                        <ToggleButton kind="schedule" id={s.id} isActive={s.isActive} />
+                        {canManage && <ToggleButton kind="schedule" id={s.id} isActive={s.isActive} />}
                       </td>
                     </tr>
                   ))}

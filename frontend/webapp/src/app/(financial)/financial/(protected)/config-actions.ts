@@ -15,7 +15,7 @@ import { AccountingAccessError, assertAccounting } from "@/accounting/server/acc
 /**
  * Configuration actions for the accounting panel.
  *
- * assertAccounting("configure") on the first line of each is the authorization boundary —
+ * assertAccounting(...) on the first line of each is the authorization boundary —
  * a `"use server"` export is a public POST endpoint reachable by action id, and these
  * change the platform fee and the chart of accounts. Deliberately a higher bar than the
  * approval queues: approving a deposit and rewriting the fee are different jobs.
@@ -38,12 +38,12 @@ export type AccountFormState = { error?: string; ok?: string };
  *
  * These actions used to throw straight out of the server action. A throw from a
  * form action renders the route's error boundary — or, in production, nothing at
- * all — so an `accountant` who lacks `configure` pressed save on the chart of
+ * all — so an `accountant` who lacks `accounts.manage` pressed save on the chart of
  * accounts and saw the page simply not change.
  */
 function accountMessageFor(error: unknown): string {
   if (error instanceof AccountingAccessError) {
-    return "تغییر کدینگ حساب‌ها دسترسی «مدیر مالی» می‌خواهد و حساب شما «حسابدار» است.";
+    return "تغییر کدینگ حساب‌ها دسترسی «مدیر حسابداری» یا «مدیر» می‌خواهد.";
   }
 
   const raw = error instanceof Error ? error.message : "";
@@ -96,7 +96,7 @@ function accountMessageFor(error: unknown): string {
 }
 
 export async function updateSettingAction(formData: FormData) {
-  const { userId } = await assertAccounting("configure");
+  const { userId } = await assertAccounting("settings.manage");
 
   const key = String(formData.get("key") ?? "").trim();
   const definition = SETTING_DEFINITIONS.find((d) => d.key === key);
@@ -126,7 +126,7 @@ export async function createAccountAction(
   formData: FormData
 ): Promise<AccountFormState> {
   try {
-    const { userId } = await assertAccounting("configure");
+    const { userId } = await assertAccounting("accounts.manage");
 
     await createDetailAccount({
       parentId: String(formData.get("parentId") ?? "").trim(),
@@ -149,7 +149,7 @@ export async function renameAccountAction(
   formData: FormData
 ): Promise<AccountFormState> {
   try {
-    const { userId } = await assertAccounting("configure");
+    const { userId } = await assertAccounting("accounts.manage");
 
     await renameAccount({
       accountId: String(formData.get("accountId") ?? "").trim(),
@@ -170,7 +170,7 @@ export async function toggleAccountActiveAction(
   formData: FormData
 ): Promise<AccountFormState> {
   try {
-    const { userId } = await assertAccounting("configure");
+    const { userId } = await assertAccounting("accounts.manage");
     const isActive = String(formData.get("isActive") ?? "") === "true";
 
     await setAccountActive({
@@ -198,7 +198,7 @@ export async function deleteAccountAction(
   formData: FormData
 ): Promise<AccountFormState> {
   try {
-    const { userId } = await assertAccounting("configure");
+    const { userId } = await assertAccounting("accounts.manage");
 
     const { code } = await deleteAccount({
       accountId: String(formData.get("accountId") ?? "").trim(),

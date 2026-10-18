@@ -4212,6 +4212,9 @@ declare const messages: {
     "serviceImage": "وێنەی خزمەت",
     "serviceManagement": "بەڕێوەبردنی خزمەتەکان",
     "serviceProviderDeleted": "دابینکەری خزمەت سڕایەوە",
+    "duplicateProvider": "کۆپیکردن",
+    "serviceProviderDuplicated": "دابینکەری خزمەت کۆپی کرا",
+    "duplicateServiceProviderConfirm": "کۆپییەک لە {name} دروست بکرێت؟",
     "serviceRoomTypeUUID": "UUIDی جۆری ژووری خزمەت",
     "services": "خزمەتەکان",
     "serviceType": "جۆری خزمەت",
@@ -4881,7 +4884,10 @@ declare const messages: {
     "stay": {
       "perNight": "بۆ هەر شەوێک",
       "nightsLine": "ژمارەی شەوەکان: {nights} × {price} بۆ هەر شەوێک",
-      "checkoutAfterCheckin": "بەرواری دەرچوون دەبێت دوای بەرواری چوونەژوورەوە بێت."
+      "checkoutAfterCheckin": "بەرواری دەرچوون دەبێت دوای بەرواری چوونەژوورەوە بێت.",
+      "adultsMin": "لانیکەم {min} گەورەساڵ پێویستە.",
+      "decreaseAdults": "کەمکردنەوەی گەورەساڵان",
+      "increaseAdults": "زیادکردنی گەورەساڵان"
     },
     "addonScope": {
       "showAllInCountry": "هەموو لە {country} پیشان بدە",

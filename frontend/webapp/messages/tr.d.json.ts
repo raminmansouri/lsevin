@@ -3060,7 +3060,8 @@ declare const messages: {
   },
   "AdminGenerated": {
     "updateBookingTitle": "Rezervasyonu düzenle: {service} – {customer}",
-    "stayCheckIn": "Giriş tarihi", "stayCheckOut": "Çıkış tarihi",
+    "stayCheckIn": "Giriş tarihi",
+    "stayCheckOut": "Çıkış tarihi",
     "deleteCurrency": "Delete currency",
     "deleteCurrencyConfirm": "Delete this currency? It is removed from the lists while past records stay untouched.",
     "currencyDeleted": "Currency deleted.",
@@ -4256,6 +4257,9 @@ declare const messages: {
     "serviceImage": "Hizmet Görseli",
     "serviceManagement": "Hizmet yönetimi",
     "serviceProviderDeleted": "Hizmet Sağlayıcı Silindi",
+    "duplicateProvider": "Kopyala",
+    "serviceProviderDuplicated": "Hizmet sağlayıcı kopyalandı",
+    "duplicateServiceProviderConfirm": "{name} için bir kopya oluşturulsun mu?",
     "serviceRoomTypeUUID": "Hizmet Oda Tipi UUID",
     "services": "Hizmetler",
     "serviceType": "Hizmet tipi",
@@ -4906,7 +4910,11 @@ declare const messages: {
     }
   },
   "Booking": {
-    "dayParts": { "morning": "Sabah", "afternoon": "Öğleden sonra", "evening": "Akşam" },
+    "dayParts": {
+      "morning": "Sabah",
+      "afternoon": "Öğleden sonra",
+      "evening": "Akşam"
+    },
     "mealPlan": {
       "label": "Yemek planı",
       "chooseTitle": "Yemek planı seçin",
@@ -4926,7 +4934,10 @@ declare const messages: {
     "stay": {
       "perNight": "gecelik",
       "nightsLine": "Gece sayısı: {nights} × gecelik {price}",
-      "checkoutAfterCheckin": "Çıkış tarihi giriş tarihinden sonra olmalıdır."
+      "checkoutAfterCheckin": "Çıkış tarihi giriş tarihinden sonra olmalıdır.",
+      "adultsMin": "En az {min} yetişkin gereklidir.",
+      "decreaseAdults": "Yetişkin sayısını azalt",
+      "increaseAdults": "Yetişkin sayısını artır"
     },
     "addonScope": {
       "showAllInCountry": "{country} genelindeki tümünü göster",
@@ -5527,7 +5538,6 @@ declare const messages: {
     "caseSharedSuccessfully": "Vaka sağlayıcıyla paylaşıldı",
     "caseShareFailed": "Vaka paylaşılamadı. Lütfen tekrar deneyin.",
     "caseShareSavedPending": "Rezervasyonunuz onaylandığında \"{title}\" bu sağlayıcıyla paylaşılacak şekilde seçim yaptınız.",
-    "changeSelection": "Değiştir",
     "removeSelection": "Kaldır",
     "reschedule": "Ertele",
     "reservationManagement": "Rezervasyon yönetimi",
@@ -8752,7 +8762,10 @@ declare const messages: {
     }
   },
   "ProviderPage": {
-    "locationMap": { "title": "Haritada konum", "getDirections": "Yol tarifi al" },
+    "locationMap": {
+      "title": "Haritada konum",
+      "getDirections": "Yol tarifi al"
+    },
     "actions": {
       "addFavorite": "Sağlayıcıyı favorilere ekle",
       "back": "Geri dön",
@@ -10577,7 +10590,10 @@ declare const messages: {
     }
   },
   "ServicePage": {
-    "attributeValue": { "yes": "Evet", "no": "Hayır" },
+    "attributeValue": {
+      "yes": "Evet",
+      "no": "Hayır"
+    },
     "actions": {
       "back": "Geri dön",
       "bookNow": "Hemen Randevu Al",
@@ -13294,7 +13310,9 @@ declare const messages: {
     "customer": {
       "title": "Spor salonu üyeliklerim",
       "empty": "Henüz bir spor salonu üyeliğiniz yok.",
-      "plan": { "monthlyPriceLabel": "Aylık fiyat" },
+      "plan": {
+        "monthlyPriceLabel": "Aylık fiyat"
+      },
       "subscribe": {
         "title": "Abone ol",
         "selectMonths": "Ödemek istediğiniz ayları seçin",

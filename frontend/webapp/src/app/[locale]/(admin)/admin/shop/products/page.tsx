@@ -68,6 +68,10 @@ export default async function AdminProductsPage({
                   </span>
                 </td>
                 <td className="px-4 py-3 text-right">
+                  <div className="flex items-center justify-end gap-2">
+                  <Link href={`/admin/shop/products/${p.id}`} className="rounded bg-[#083f30] px-3 py-1 text-xs font-semibold text-white">
+                    {t("products.edit")}
+                  </Link>
                   <form action={setProductPublishedForm}>
                     <input type="hidden" name="productId" value={p.id} />
                     <input type="hidden" name="published" value={p.status === "active" ? "false" : "true"} />
@@ -75,6 +79,7 @@ export default async function AdminProductsPage({
                       {p.status === "active" ? t("products.unpublish") : t("products.publish")}
                     </button>
                   </form>
+                  </div>
                 </td>
               </tr>
             ))}

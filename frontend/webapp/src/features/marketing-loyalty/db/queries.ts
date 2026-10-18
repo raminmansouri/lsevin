@@ -2,6 +2,8 @@ import "server-only";
 
 import sql from "@/config/database/db";
 
+import { searchAdminProviderLookupOptions } from "@/features/service-providers/db/admin-service-providers.queries";
+
 import { getEntityConfig } from "../constants";
 import type {
   AdminDashboardStats,
@@ -158,15 +160,19 @@ async function listMarketingOffers({ q, locale, pageSize, offset }: ReturnType<t
           else ''
         end,
         ' / ',
-        case
-          when jsonb_typeof(ps.display_name_translations) = 'object' then common.get_translation_t(ps.display_name_translations, ${locale}, 'en-US')
-          when jsonb_typeof(ps.display_name_translations) in ('string', 'number', 'boolean') then coalesce(nullif(btrim(ps.display_name_translations #>> '{}'), ''), '')
-          else ''
-        end
+        coalesce(
+          nullif(case
+            when jsonb_typeof(ps.display_name_translations) = 'object' then common.get_translation_t(ps.display_name_translations, ${locale}, 'en-US')
+            when jsonb_typeof(ps.display_name_translations) in ('string', 'number', 'boolean') then btrim(ps.display_name_translations #>> '{}')
+          end, ''),
+          nullif(common.get_translation_t(sd.name_translations, ${locale}, 'en-US'), ''),
+          ''
+        )
       ) as "providerServiceLabel"
     from marketing.offers o
     join category.provider_services ps on ps.id = o.provider_service_id
     join category.service_providers sp on sp.id = ps.service_provider_id
+    left join category.service_definitions sd on sd.id = ps.service_definition_id
     where (${q} = '' or o.title ilike ${like} or coalesce(o.subtitle, '') ilike ${like} or coalesce(o.code, '') ilike ${like})
     order by coalesce(o.is_featured, false) desc, coalesce(o.is_active, false) desc, o.created_at desc nulls last, o.id desc
     limit ${pageSize} offset ${offset}
@@ -278,16 +284,20 @@ async function listLoyaltyCoupons({ q, locale, pageSize, offset }: ReturnType<ty
           else ''
         end,
         ' / ',
-        case
-          when jsonb_typeof(ps.display_name_translations) = 'object' then common.get_translation_t(ps.display_name_translations, ${locale}, 'en-US')
-          when jsonb_typeof(ps.display_name_translations) in ('string', 'number', 'boolean') then coalesce(nullif(btrim(ps.display_name_translations #>> '{}'), ''), '')
-          else ''
-        end
+        coalesce(
+          nullif(case
+            when jsonb_typeof(ps.display_name_translations) = 'object' then common.get_translation_t(ps.display_name_translations, ${locale}, 'en-US')
+            when jsonb_typeof(ps.display_name_translations) in ('string', 'number', 'boolean') then btrim(ps.display_name_translations #>> '{}')
+          end, ''),
+          nullif(common.get_translation_t(sd.name_translations, ${locale}, 'en-US'), ''),
+          ''
+        )
       ) end as "providerServiceLabel",
       count(cc.id)::int as "assignedCount"
     from loyalty.coupons c
     left join category.provider_services ps on ps.id = c.provider_service_id
     left join category.service_providers sp on sp.id = ps.service_provider_id
+    left join category.service_definitions sd on sd.id = ps.service_definition_id
     left join loyalty.customer_coupons cc on cc.coupon_id = c.id
     where (${q} = '' or c.code ilike ${like} or c.title ilike ${like} or coalesce(c.description, '') ilike ${like} or c.discount_type ilike ${like})
     group by c.id, ps.id, sp.id
@@ -512,30 +522,21 @@ export async function getSelectOptions(key: SelectOptionKey, locale = DEFAULT_TR
       return rowsToOptions(rows);
     }
     case "providerServices": {
-      const rows = await sql<Array<{ value: string; label: string; helper: string }>>`
-        select
-          ps.id::text as value,
-          concat(
-            case
-          when jsonb_typeof(sp.name_translations) = 'object' then common.get_translation_t(sp.name_translations, ${normalizedLocale}, 'en-US')
-          when jsonb_typeof(sp.name_translations) in ('string', 'number', 'boolean') then coalesce(nullif(btrim(sp.name_translations #>> '{}'), ''), '')
-          else ''
-        end,
-            ' / ',
-            case
-          when jsonb_typeof(ps.display_name_translations) = 'object' then common.get_translation_t(ps.display_name_translations, ${normalizedLocale}, 'en-US')
-          when jsonb_typeof(ps.display_name_translations) in ('string', 'number', 'boolean') then coalesce(nullif(btrim(ps.display_name_translations #>> '{}'), ''), '')
-          else ''
-        end
-          ) as label,
-          concat(ps.currency, ' ', ps.value::text) as helper
-        from category.provider_services ps
-        join category.service_providers sp on sp.id = ps.service_provider_id
-        where ps.is_active = true
-        order by sp.create_date desc, ps.create_date desc
-        limit 500
-      `;
-      return rowsToOptions(rows);
+      // Use the same query as the picker's search endpoint. The picker keeps the
+      // first copy of each id and lists these initial options first, so a label
+      // built differently here (one that skipped the service definition's name)
+      // showed "Provider / " until the admin typed a search.
+      const result = await searchAdminProviderLookupOptions({
+        type: "providerServices",
+        locale: normalizedLocale,
+        page: 1,
+        pageSize: 30,
+      });
+      return (result.data?.items ?? []).map((item) => ({
+        value: String(item.id),
+        label: item.label,
+        helper: item.code ?? undefined,
+      }));
     }
     case "loyaltyCoupons": {
       const rows = await sql<Array<{ value: string; label: string; helper: string }>>`

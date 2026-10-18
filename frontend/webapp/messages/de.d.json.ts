@@ -3294,6 +3294,9 @@ declare const messages: {
     "serviceImage": "Leistungsbild",
     "serviceManagement": "Leistungsverwaltung",
     "serviceProviderDeleted": "Dienstleister gelöscht",
+    "duplicateProvider": "Duplizieren",
+    "serviceProviderDuplicated": "Dienstleister dupliziert",
+    "duplicateServiceProviderConfirm": "Eine Kopie von {name} erstellen?",
     "serviceRoomTypeUUID": "UUID Leistung-Zimmertyp",
     "services": "Leistungen",
     "serviceType": "Leistungstyp",
@@ -4881,7 +4884,10 @@ declare const messages: {
     "stay": {
       "perNight": "pro Nacht",
       "nightsLine": "Nächte: {nights} × {price} pro Nacht",
-      "checkoutAfterCheckin": "Das Abreisedatum muss nach dem Anreisedatum liegen."
+      "checkoutAfterCheckin": "Das Abreisedatum muss nach dem Anreisedatum liegen.",
+      "adultsMin": "Mindestens {min} Erwachsener ist erforderlich.",
+      "decreaseAdults": "Erwachsene verringern",
+      "increaseAdults": "Erwachsene erhöhen"
     },
     "addonScope": {
       "showAllInCountry": "Alle in {country} anzeigen",

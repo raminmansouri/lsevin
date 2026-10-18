@@ -62,7 +62,7 @@ const createSqlClient = () =>
     // Flat 1s reconnect delay during the build instead of the escalating
     // default, so a page that can't reach the DB exhausts its queries in
     // seconds rather than minutes. Untouched at runtime.
-    ...(isNextBuildPhase ? { backoff: 1 } : {}),
+    ...(isNextBuildPhase ? { backoff: () => 1 } : {}),
 
     // Off behind PgBouncer transaction pooling and during `next build` (see above).
     prepare: usePreparedStatements,

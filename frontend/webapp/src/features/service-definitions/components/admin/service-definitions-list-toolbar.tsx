@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useEffect, useMemo, useState, useTransition } from "react";
+import { useEffect, useMemo, useState, useTransition, useRef } from "react";
 import { Check, ChevronsUpDown, PlusCircle, Search, X } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useDebouncedCallback } from "use-debounce";
@@ -25,6 +25,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useRouter as useI18nRouter } from "@/i18n/navigation";
 
+
 import type { AdminServiceDefinitionCategoryOption } from "../../db/admin-service-definitions.queries";
 
 type Props = {
@@ -43,8 +44,17 @@ export function ServiceDefinitionsListToolbar({ categories }: Props) {
   const [categoryOpen, setCategoryOpen] = useState(false);
   const selectedCategoryId = searchParams.get("categoryId") || "";
 
+  // Last search text we wrote to the URL ourselves. The URL lags behind typing, so
+  // refilling the box on every URL change deleted letters typed in the meantime.
+  const lastCommittedRef = useRef(searchParams.get("filters") || "");
+
   useEffect(() => {
-    setSearch(searchParams.get("filters") || "");
+    const fromUrl = searchParams.get("filters") || "";
+    // Only take the URL value when it changed from outside (back button, reset, link).
+    if (fromUrl !== lastCommittedRef.current) {
+      lastCommittedRef.current = fromUrl;
+      setSearch(fromUrl);
+    }
   }, [searchParams]);
 
   const selectedCategory = useMemo(
@@ -71,6 +81,7 @@ export function ServiceDefinitionsListToolbar({ categories }: Props) {
   };
 
   const commitSearch = useDebouncedCallback((value: string) => {
+    lastCommittedRef.current = value.trim();
     replaceQuery((params) => {
       const normalized = value.trim();
       if (normalized) {
@@ -101,6 +112,13 @@ export function ServiceDefinitionsListToolbar({ categories }: Props) {
       } else {
         params.delete("categoryId");
       }
+    });
+    setCategoryOpen(false);
+  };
+
+  const handleClearCategory = () => {
+    replaceQuery((params) => {
+      params.delete("categoryId");
     });
     setCategoryOpen(false);
   };

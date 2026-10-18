@@ -13,7 +13,7 @@ type ReviewEligibilityInput = {
   locale?: string | null;
 };
 
-type ReviewEligibilityResponse = { canReview?: boolean; reason?: ReviewEligibilityReason };
+type ReviewEligibilityResponse = { canReview?: boolean; reason?: ReviewEligibilityReason; requiresApproval?: boolean };
 
 export function useReviewEligibility(input: ReviewEligibilityInput) {
   const [state, setState] = useState<ReviewEligibilityState>("unknown");
@@ -42,6 +42,7 @@ export function useReviewEligibility(input: ReviewEligibilityInput) {
       })
       .then((payload) => {
         if (controller.signal.aborted) return;
+        if (payload.canReview && payload.requiresApproval) { setState("moderated"); setReason("needs_approval"); return; }
         if (payload.canReview) { setState("allowed"); setReason(null); return; }
         setState("blocked");
         setReason(payload.reason || "not_booked");

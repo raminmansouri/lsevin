@@ -8,6 +8,8 @@ import type { MoneyString } from "../types";
 import { postJournalEntry, reverseJournalEntry } from "./ledger.service";
 import { consumeRateLimit } from "./rate-limit";
 import { getCurrencyLimit, getSetting } from "./settings.repository";
+import { approvalLimitFor } from "./access";
+import type { PanelRole } from "./permissions";
 
 type Tx = TransactionSql<Record<string, never>>;
 
@@ -22,6 +24,8 @@ export class WithdrawalRuleError extends Error {
       | "no_limit_configured"
       | "wallet_frozen"
       | "invalid_state"
+      | "over_approval_limit"
+      | "same_approver"
   ) {
     super(message);
     this.name = "WithdrawalRuleError";
@@ -238,6 +242,8 @@ export async function requestWithdrawal(input: RequestWithdrawalInput) {
 export async function approveWithdrawal(params: {
   withdrawalRequestId: string;
   actorUserId: string;
+  /** The approver's panel role; an accounting manager is held to the approval limit. */
+  approverRole: PanelRole;
   note?: string;
 }) {
   return db.begin(async (tx) => {
@@ -249,6 +255,20 @@ export async function approveWithdrawal(params: {
         `Only a pending withdrawal can be approved (this one is ${request.status}).`,
         "invalid_state"
       );
+    }
+
+    // Above the accounting manager's limit the request waits for the manager.
+    const limit = await approvalLimitFor(params.approverRole, request.currency_code, client);
+    if (limit !== null) {
+      const [{ over }] = await client<{ over: boolean }[]>`
+        select ${request.amount}::numeric > ${limit}::numeric as over
+      `;
+      if (over) {
+        throw new WithdrawalRuleError(
+          "This withdrawal is above the accounting manager's approval limit.",
+          "over_approval_limit"
+        );
+      }
     }
 
     await client`
@@ -339,6 +359,12 @@ export async function markWithdrawalPaid(params: {
       );
     }
 
+    // Whoever approved it does not also record it as sent. An automatic approval has no
+    // reviewer, so any accounting manager or manager may pay it.
+    if (request.reviewed_by && request.reviewed_by === params.actorUserId) {
+      throw new WithdrawalRuleError("The approver cannot also record the payment.", "same_approver");
+    }
+
     const payoutAccount =
       request.destination_type === "crypto_address" ? ("crypto_cold" as const) : ("bank_platform" as const);
 
@@ -415,12 +441,13 @@ async function lockRequest(tx: Tx, id: string) {
       status: string;
       destination_type: string;
       hold_entry_id: string | null;
+      reviewed_by: string | null;
     }[]
   >`
     select id::text as id, user_id::text as user_id, wallet_id::text as wallet_id,
            currency_code, amount::text as amount, fee_amount::text as fee_amount,
            net_amount::text as net_amount, status, destination_type,
-           hold_entry_id::text as hold_entry_id
+           hold_entry_id::text as hold_entry_id, reviewed_by::text as reviewed_by
     from accounting.withdrawal_requests
     where id = ${id}
     limit 1

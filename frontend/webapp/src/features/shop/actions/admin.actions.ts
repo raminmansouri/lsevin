@@ -166,6 +166,7 @@ const productCoreSchema = z.object({
   baseCurrency: z.string().trim().min(3).max(15),
   nameTranslations: z.record(z.string(), z.string()).default({}),
   shortDescriptionTranslations: z.record(z.string(), z.string()).default({}),
+  descriptionTranslations: z.record(z.string(), z.string()).optional(),
   primaryCategoryId: shopId.optional().nullable(),
   categoryIds: z.array(shopId).default([]),
   isFeatured: z.coerce.boolean().default(false),
@@ -184,13 +185,30 @@ const productCoreSchema = z.object({
     .optional()
     .nullable(),
 });
-export async function updateProductCoreAction(input: unknown) {
-  const p = productCoreSchema.parse(input);
-  await updateProductCore(p);
+// Returns the failure instead of throwing: production builds replace a thrown
+// server-action message with a generic "Server Components render" error, so the
+// admin never saw why saving a product failed.
+export async function updateProductCoreAction(
+  input: unknown
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const parsed = productCoreSchema.safeParse(input);
+  if (!parsed.success) {
+    return {
+      ok: false,
+      error: parsed.error.issues.map((i) => `${i.path.join(".") || "form"}: ${i.message}`).join("; "),
+    };
+  }
+  const p = parsed.data;
+  try {
+    await updateProductCore(p);
+  } catch (error) {
+    console.error("[admin/shop] updateProductCore failed:", error);
+    return { ok: false, error: error instanceof Error ? error.message : "Could not save the product." };
+  }
   revalidateCatalog();
   revalidatePath(`/admin/shop/products/${p.productId}`);
   revalidatePath("/admin/shop/products");
-  return { ok: true as const };
+  return { ok: true };
 }
 
 const linkSchema = z.object({
@@ -222,7 +240,7 @@ export async function deleteProductAction(input: unknown) {
 
 export async function updateProductCoreForm(formData: FormData) {
   const cats = formData.getAll("categoryIds").map(String).filter(Boolean);
-  await updateProductCoreAction({
+  const res = await updateProductCoreAction({
     productId: formData.get("productId"),
     status: formData.get("status"),
     slug: formData.get("slug"),
@@ -244,6 +262,7 @@ export async function updateProductCoreForm(formData: FormData) {
     isBestSeller: formData.get("isBestSeller") === "on",
     isNewArrival: formData.get("isNewArrival") === "on",
   });
+  if ("error" in res) throw new Error(res.error);
 }
 export async function linkProductServiceForm(formData: FormData) {
   await linkProductServiceAction({

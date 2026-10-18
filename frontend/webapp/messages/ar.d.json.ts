@@ -51,8 +51,6 @@ declare const messages: {
     "next": "التالي",
     "confirm": "استخدام الملفات المحددة"
   },
-  
-
   "BookingCart": {
     "title": "الحجوزات المحفوظة",
     "hint": "هذه تقديرات وليست حجوزات مؤكدة. راجع كل حجز للتحقق من التوفر والدفع. تُدفع المنتجات حالياً بشكل منفصل.",
@@ -80,7 +78,11 @@ declare const messages: {
     "searchNow": "ابحث الآن"
   },
   "Booking": {
-    "dayParts": { "morning": "الصباح", "afternoon": "بعد الظهر", "evening": "المساء" },
+    "dayParts": {
+      "morning": "الصباح",
+      "afternoon": "بعد الظهر",
+      "evening": "المساء"
+    },
     "mealPlan": {
       "label": "خطة الوجبات",
       "chooseTitle": "اختر خطة الوجبات",
@@ -100,7 +102,10 @@ declare const messages: {
     "stay": {
       "perNight": "لكل ليلة",
       "nightsLine": "عدد الليالي: {nights} × {price} لكل ليلة",
-      "checkoutAfterCheckin": "يجب أن يكون تاريخ المغادرة بعد تاريخ الوصول."
+      "checkoutAfterCheckin": "يجب أن يكون تاريخ المغادرة بعد تاريخ الوصول.",
+      "adultsMin": "يلزم وجود {min} بالغ على الأقل.",
+      "decreaseAdults": "تقليل عدد البالغين",
+      "increaseAdults": "زيادة عدد البالغين"
     },
     "addonScope": {
       "showAllInCountry": "عرض الكل في {country}",
@@ -925,7 +930,6 @@ declare const messages: {
     "transferServices": "خدمات النقل",
     "treatments": "العلاجات",
     "yesCancel": "نعم، إلغاء",
-    "changeSelection": "تغيير",
     "onlyOption": "الخيار الوحيد",
     "chooseProvider": "اختر مقدّم الخدمة",
     "chooseService": "اختر الخدمة",
@@ -1051,7 +1055,8 @@ declare const messages: {
   },
   "AdminGenerated": {
     "updateBookingTitle": "تعديل الحجز: {service} – {customer}",
-    "stayCheckIn": "تاريخ الوصول", "stayCheckOut": "تاريخ المغادرة",
+    "stayCheckIn": "تاريخ الوصول",
+    "stayCheckOut": "تاريخ المغادرة",
     "deleteCurrency": "Delete currency",
     "deleteCurrencyConfirm": "Delete this currency? It is removed from the lists while past records stay untouched.",
     "currencyDeleted": "Currency deleted.",
@@ -1710,6 +1715,9 @@ declare const messages: {
     "serviceDeleted": "تم حذف الخدمة.",
     "serviceImage": "صورة الخدمة",
     "serviceProviderDeleted": "تم حذف الخدمة المزوّد.",
+    "duplicateProvider": "إنشاء نسخة مماثلة",
+    "serviceProviderDuplicated": "تم إنشاء نسخة من مقدم الخدمة",
+    "duplicateServiceProviderConfirm": "هل تريد إنشاء نسخة من «{name}»؟",
     "serviceRoomTypeUUID": "الخدمة/الغرفة النوع UUID",
     "serviceType": "نوع الخدمة",
     "services": "الخدمات",
@@ -4076,7 +4084,10 @@ declare const messages: {
     "description": "يرجى استخدم  رئيسي صفحة من  الموقع الإلكتروني."
   },
   "ServicePage": {
-    "attributeValue": { "yes": "نعم", "no": "لا" },
+    "attributeValue": {
+      "yes": "نعم",
+      "no": "لا"
+    },
     "metadata": {
       "title": "تفاصيل الخدمة",
       "description": "راجع تفاصيل الخدمة ومقدميها والمتخصصين والعروض والمتطلبات وخيارات الحجز."
@@ -11330,7 +11341,10 @@ declare const messages: {
     "openRecommendation": "فتح {title}"
   },
   "ProviderPage": {
-    "locationMap": { "title": "الموقع على الخريطة", "getDirections": "احصل على الاتجاهات" },
+    "locationMap": {
+      "title": "الموقع على الخريطة",
+      "getDirections": "احصل على الاتجاهات"
+    },
     "actions": {
       "back": "رجوع",
       "share": "مشاركة مقدم الخدمة",
@@ -13447,7 +13461,9 @@ declare const messages: {
     "customer": {
       "title": "عضويات الصالة الرياضية الخاصة بي",
       "empty": "ليس لديك أي عضوية في صالة رياضية بعد.",
-      "plan": { "monthlyPriceLabel": "السعر الشهري" },
+      "plan": {
+        "monthlyPriceLabel": "السعر الشهري"
+      },
       "subscribe": {
         "title": "اشتراك",
         "selectMonths": "اختر الأشهر التي تريد دفعها",
@@ -13840,7 +13856,6 @@ declare const messages: {
     "onSale": "تخفيضات",
     "rating4plus": "٤ نجوم فأكثر",
     "allBrands": "كل العلامات",
-    "apply": "تطبيق",
     "filters": "عوامل التصفية",
     "priceRange": "نطاق السعر",
     "minPrice": "الأدنى",
@@ -14072,6 +14087,7 @@ declare const messages: {
       "refundHistory": "سجل الاسترداد"
     },
     "products": {
+      "edit": "تعديل",
       "title": "المنتجات",
       "new": "+ منتج جديد",
       "searchPlaceholder": "بحث في المنتجات…",
@@ -14105,6 +14121,9 @@ declare const messages: {
       "draftNote": "أُنشئ كمسودة. أضف الصور وانشر من صفحة المنتج."
     },
     "productEdit": {
+      "attrSaveValues": "حفظ القيم",
+      "attrTextValue": "القيمة",
+      "attrNoValues": "أضف قيمًا لهذه الخاصية أولاً",
       "coreTitle": "الحقول الأساسية",
       "nameEn": "الاسم (EN)",
       "nameFa": "الاسم (FA)",
@@ -14112,6 +14131,11 @@ declare const messages: {
       "shortDescEn": "وصف مختصر (EN)",
       "shortDescFa": "وصف مختصر (FA)",
       "shortDescAr": "وصف مختصر (AR)",
+      "fullDescEn": "الوصف الكامل (EN)",
+      "fullDescFa": "الوصف الكامل (FA)",
+      "fullDescAr": "الوصف الكامل (AR)",
+      "slugTaken": "هذا المُعرّف مستخدم لمنتج آخر. اختر مُعرّفاً مختلفاً.",
+      "fixErrors": "يجب تصحيح بعض الحقول قبل الحفظ",
       "slug": "المُعرّف",
       "status": "الحالة",
       "sourcePrice": "سعر المصدر",
@@ -14188,7 +14212,9 @@ declare const messages: {
       "banner": "بانر الفئة",
       "save": "حفظ الفئة"
     },
-    "categoryNew": { "title": "فئة جديدة" },
+    "categoryNew": {
+      "title": "فئة جديدة"
+    },
     "categoryEdit": {
       "delete": "حذف الفئة",
       "servicesTitle": "خدمات لِسِفين المرتبطة",
@@ -14358,19 +14384,21 @@ declare const messages: {
       "delete": "حذف",
       "noValuesYet": "لا قيم بعد.",
       "valuePlaceholder": "القيمة (مثل cotton)",
-      "labelEn": "التسمية EN",
-      "labelFa": "التسمية",
+      "labelEn": "التسمية (EN)",
+      "labelFa": "التسمية (FA)",
+      "labelAr": "التسمية (AR)",
       "hexPlaceholder": "#hex",
       "addValue": "إضافة قيمة",
       "noAttributes": "لا خصائص معرّفة بعد.",
       "newAttribute": "خاصية جديدة",
-      "nameEn": "الاسم EN",
-      "nameFa": "الاسم",
-      "nameAr": "الاسم",
+      "nameEn": "الاسم (EN)",
+      "nameFa": "الاسم (FA)",
+      "nameAr": "الاسم (AR)",
       "slugPlaceholder": "المُعرّف (kebab-case)",
       "displayType": "نوع العرض",
       "isVariantDefining": "مُحدِّد للمتغيرات",
-      "createAttribute": "إنشاء خاصية"
+      "createAttribute": "إنشاء خاصية",
+      "editTranslations": "تعديل الترجمات"
     },
     "reportRelations": {
       "title": "أداء المنتجات المرتبطة بالخدمات",
@@ -14493,7 +14521,9 @@ declare const messages: {
     "admin": {
       "title": "المرضى",
       "description": "ابحث عن مريض أو افتح سجله الشامل (360).",
-      "detail": { "title": "السجل الشامل للمريض" },
+      "detail": {
+        "title": "السجل الشامل للمريض"
+      },
       "schemaMissing": {
         "title": "لم يتم تشغيل ترحيل قاعدة البيانات بعد",
         "body": "لتفعيل هذا القسم، نفّذ الترحيل 0048_patient_foundation.sql."

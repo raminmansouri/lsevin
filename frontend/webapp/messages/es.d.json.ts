@@ -4215,6 +4215,9 @@ declare const messages: {
     "serviceImage": "Imagen del servicio",
     "serviceManagement": "Gestión de servicios",
     "serviceProviderDeleted": "Proveedor de servicios eliminado",
+    "duplicateProvider": "Duplicar",
+    "serviceProviderDuplicated": "Proveedor de servicios duplicado",
+    "duplicateServiceProviderConfirm": "¿Crear una copia de {name}?",
     "serviceRoomTypeUUID": "UUID del tipo de habitación del servicio",
     "services": "Servicios",
     "serviceType": "Tipo de servicio",
@@ -4884,7 +4887,10 @@ declare const messages: {
     "stay": {
       "perNight": "por noche",
       "nightsLine": "Noches: {nights} × {price} por noche",
-      "checkoutAfterCheckin": "La salida debe ser posterior a la entrada."
+      "checkoutAfterCheckin": "La salida debe ser posterior a la entrada.",
+      "adultsMin": "Se requiere al menos {min} adulto.",
+      "decreaseAdults": "Reducir adultos",
+      "increaseAdults": "Aumentar adultos"
     },
     "addonScope": {
       "showAllInCountry": "Mostrar todo en {country}",

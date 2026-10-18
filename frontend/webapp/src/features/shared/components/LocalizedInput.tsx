@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import {
   SerializedEditorState,
   SerializedElementNode,
@@ -22,6 +22,8 @@ import {
 import { LocaleHeaderTypes, LocaleTypes } from "@/types/common";
 
 import { LocalizedContent } from "../types/localization";
+
+
 
 interface LocalizedInputProps {
   label: string;
@@ -60,7 +62,27 @@ export function LocalizedInput({
     setActiveLocale(currentLocaleHeader);
   }, [currentLocaleHeader]);
 
-  const translations = value?.translations || {};
+  // Keep what the user typed locally. Some parent forms normalize the value on every
+  // keystroke (trim, drop empty locales, refill from sibling keys), which ate spaces and
+  // made the last letter undeletable. We show our own draft and ignore the parent's
+  // immediate echo of our change; real outside changes (reset, other record) still apply.
+  const incoming = (value?.translations || {}) as Record<string, string>;
+  const incomingKey = JSON.stringify(incoming);
+  const [draft, setDraft] = useState<Record<string, string>>(incoming);
+  const echoRef = useRef(false);
+
+  useEffect(() => {
+    if (echoRef.current) return;
+    setDraft(incoming);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [incomingKey]);
+
+  // Runs after every render: the echo window closes once the parent has re-rendered us.
+  useEffect(() => {
+    echoRef.current = false;
+  });
+
+  const translations = draft;
 
   // Helper to get initial editor state from stored JSON string
   const getEditorState = (
@@ -106,24 +128,20 @@ export function LocalizedInput({
   };
 
   const handleChange = (locale: LocaleHeaderTypes, text: string) => {
-    onChange({
-      translations: {
-        ...translations,
-        [locale]: text,
-      },
-    });
+    const next = { ...draft, [locale]: text };
+    setDraft(next);
+    echoRef.current = true;
+    onChange({ translations: next });
   };
 
   const handleRichTextChange = (
     locale: LocaleHeaderTypes,
     editorState: SerializedEditorState
   ) => {
-    onChange({
-      translations: {
-        ...translations,
-        [locale]: JSON.stringify(editorState),
-      },
-    });
+    const next = { ...draft, [locale]: JSON.stringify(editorState) };
+    setDraft(next);
+    echoRef.current = true;
+    onChange({ translations: next });
   };
 
   // Helper to check if a translation has content

@@ -36,6 +36,7 @@ export async function updateProductCore(input: {
   baseCurrency: string;
   nameTranslations: Record<string, string>;
   shortDescriptionTranslations: Record<string, string>;
+  descriptionTranslations?: Record<string, string>;
   primaryCategoryId?: string | null;
   categoryIds: string[];
   isFeatured: boolean;
@@ -54,15 +55,24 @@ export async function updateProductCore(input: {
   )
     ? input.preorderPaymentPolicy
     : "full";
+  const slug = input.slug.trim();
   await sql.begin(async (tx) => {
-    await tx`
+    // shop.products.slug is UNIQUE across every row (archived/deleted included), so
+    // a taken slug used to abort the save with a hidden database error.
+    const [clash] = await tx<{ id: string }[]>`
+      select id::text as id from shop.products
+      where slug = ${slug} and id <> ${input.productId}::uuid limit 1
+    `;
+    if (clash) throw new Error(`slug_taken: the slug "${slug}" is already used by another product.`);
+    const updated = await tx`
       update shop.products set
         status = ${input.status}::shop.product_status,
-        slug = ${input.slug},
+        slug = ${slug},
         base_price = ${input.basePrice},
         base_currency = ${input.baseCurrency.toUpperCase()},
         name_translations = ${j(input.nameTranslations)},
         short_description_translations = ${j(input.shortDescriptionTranslations)},
+        description_translations = coalesce(${input.descriptionTranslations ? j(input.descriptionTranslations) : null}::jsonb, description_translations),
         primary_category_id = ${input.primaryCategoryId ?? null}::uuid,
         is_featured = ${input.isFeatured},
         is_best_seller = ${input.isBestSeller},
@@ -76,6 +86,7 @@ export async function updateProductCore(input: {
         last_modified_date = now()
       where id = ${input.productId}::uuid and deleted_at is null
     `;
+    if (updated.count === 0) throw new Error("This product no longer exists (it may have been deleted).");
     await tx`delete from shop.product_categories where product_id = ${input.productId}::uuid`;
     for (const cid of new Set([
       ...(input.categoryIds ?? []),
@@ -188,13 +199,24 @@ export async function createProduct(input: {
 }): Promise<string> {
   await assertShopPermission(SHOP_PERMISSIONS.catalogManage);
   return sql.begin(async (tx) => {
+    // shop.products.slug is UNIQUE across every row, archived ones included. A reused
+    // slug used to fail the insert, and production hides the database message, so
+    // creating a product just showed "An error occurred in the Server Components
+    // render". Take the next free slug instead (slug, slug-2, slug-3, ...).
+    const wanted = input.slug.trim();
+    const takenRows = await tx<{ slug: string }[]>`
+      select slug from shop.products where slug = ${wanted} or slug like ${`${wanted}-%`}
+    `;
+    const taken = new Set(takenRows.map((r) => r.slug));
+    let slug = wanted;
+    for (let n = 2; taken.has(slug); n += 1) slug = `${wanted}-${n}`;
     const [row] = await tx<{ id: string }[]>`
       insert into shop.products (
         product_type, status, slug, base_currency, base_price,
         name_translations, short_description_translations, description_translations,
         primary_category_id, tax_class, requires_shipping
       ) values (
-        ${input.productType}::shop.product_type, 'draft', ${input.slug}, ${input.baseCurrency.toUpperCase()}, ${input.basePrice},
+        ${input.productType}::shop.product_type, 'draft', ${slug}, ${input.baseCurrency.toUpperCase()}, ${input.basePrice},
         ${j(input.nameTranslations)}, ${j(input.shortDescriptionTranslations)}, ${j(input.shortDescriptionTranslations)},
         ${input.primaryCategoryId ?? null}::uuid, 'standard', ${input.productType !== "digital"}
       )
@@ -453,6 +475,36 @@ export async function deleteAttribute(input: { id: string }): Promise<void> {
   await sql`delete from shop.attributes where id = ${input.id}::uuid`;
 }
 
+/**
+ * Internal value for a new attribute value, built from its EN label (then FA, AR):
+ * "USB Cable" -> "usb-cable". Gets a -2, -3… suffix if the attribute already has it.
+ */
+async function deriveAttributeValue(
+  attributeId: string,
+  labels: Record<string, string>
+): Promise<string> {
+  const slugify = (label = "") =>
+    label
+      .toLowerCase()
+      .replace(/[^\p{L}\p{N}]+/gu, "-")
+      .replace(/^-+|-+$/g, "")
+      .slice(0, 76)
+      .replace(/-+$/, "");
+  const base = [labels.en, labels.fa, labels.ar].map(slugify).find(Boolean) ?? "";
+  if (!base) return "";
+  const taken = new Set(
+    (
+      await sql<{ value: string }[]>`
+        select value from shop.attribute_values
+        where attribute_id = ${attributeId}::uuid and (value = ${base} or value like ${base + "-%"})
+      `
+    ).map((r) => r.value)
+  );
+  let value = base;
+  for (let n = 2; taken.has(value); n++) value = `${base}-${n}`;
+  return value;
+}
+
 export async function addAttributeValue(input: {
   attributeId: string;
   value: string;
@@ -461,7 +513,7 @@ export async function addAttributeValue(input: {
   imageUrl?: string | null;
 }): Promise<string> {
   await assertShopPermission(SHOP_PERMISSIONS.catalogManage);
-  const value = input.value.trim();
+  const value = input.value.trim() || (await deriveAttributeValue(input.attributeId, input.displayNameTranslations));
   if (!value) throw new Error("Value is required.");
   const [row] = await sql<{ id: string }[]>`
     insert into shop.attribute_values (attribute_id, value, display_name_translations, color_hex, image_url)
@@ -470,6 +522,17 @@ export async function addAttributeValue(input: {
     returning id::text as id
   `;
   return row.id;
+}
+
+export async function updateAttributeValue(input: {
+  id: string;
+  displayNameTranslations: Record<string, string>;
+}): Promise<void> {
+  await assertShopPermission(SHOP_PERMISSIONS.catalogManage);
+  await sql`
+    update shop.attribute_values set display_name_translations = ${j(input.displayNameTranslations)}
+    where id = ${input.id}::uuid
+  `;
 }
 
 export async function deleteAttributeValue(input: {
@@ -484,13 +547,29 @@ export async function setProductAttribute(input: {
   attributeId: string;
   isRequired: boolean;
   displayOrder: number;
+  /** undefined = keep the stored values (e.g. when only attaching the attribute). */
+  valueIds?: string[];
+  textValue?: string | null;
+  /** Per-locale text for text-type attributes ({ en, fa, ar }); `textValue` keeps the EN/first value. */
+  textValueTranslations?: Record<string, string> | null;
 }): Promise<void> {
   await assertShopPermission(SHOP_PERMISSIONS.catalogManage);
+  const setValues = input.valueIds !== undefined || input.textValue !== undefined;
+  const valueIdsCsv = (input.valueIds ?? []).join(",");
   await sql`
-    insert into shop.product_attributes (product_id, attribute_id, is_required, display_order)
-    values (${input.productId}::uuid, ${input.attributeId}::uuid, ${input.isRequired}, ${input.displayOrder})
+    insert into shop.product_attributes (product_id, attribute_id, is_required, display_order, value_ids, text_value, text_value_translations)
+    values (
+      ${input.productId}::uuid, ${input.attributeId}::uuid, ${input.isRequired}, ${input.displayOrder},
+      string_to_array(${valueIdsCsv}::text, ',')::uuid[], ${input.textValue ?? null}::text,
+      ${j(input.textValueTranslations ?? {})}
+    )
     on conflict (product_id, attribute_id)
-    do update set is_required = excluded.is_required, display_order = excluded.display_order
+    do update set
+      is_required = excluded.is_required,
+      display_order = excluded.display_order,
+      value_ids = case when ${setValues}::boolean then excluded.value_ids else shop.product_attributes.value_ids end,
+      text_value = case when ${setValues}::boolean then excluded.text_value else shop.product_attributes.text_value end,
+      text_value_translations = case when ${setValues}::boolean then excluded.text_value_translations else shop.product_attributes.text_value_translations end
   `;
 }
 

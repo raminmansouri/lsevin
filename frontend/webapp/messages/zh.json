@@ -1423,6 +1423,9 @@
     "serviceImage": "服务图片",
     "serviceManagement": "服务管理",
     "serviceProviderDeleted": "服务商已删除",
+    "duplicateProvider": "复制",
+    "serviceProviderDuplicated": "服务商已复制",
+    "duplicateServiceProviderConfirm": "要创建 {name} 的副本吗？",
     "serviceRoomTypeUUID": "服务房型UUID",
     "services": "服务",
     "serviceType": "服务类型",
@@ -2266,7 +2269,10 @@
     "stay": {
       "perNight": "每晚",
       "nightsLine": "晚数：{nights} × 每晚 {price}",
-      "checkoutAfterCheckin": "退房日期必须晚于入住日期。"
+      "checkoutAfterCheckin": "退房日期必须晚于入住日期。",
+      "adultsMin": "至少需要 {min} 位成人。",
+      "decreaseAdults": "减少成人人数",
+      "increaseAdults": "增加成人人数"
     },
     "addonScope": {
       "showAllInCountry": "显示{country}全部",

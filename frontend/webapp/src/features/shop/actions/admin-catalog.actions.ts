@@ -26,6 +26,7 @@ import {
   setProductGallery,
   updateDeliveryMethod,
   updateWarehouse,
+  updateAttributeValue,
   upsertAttribute,
   upsertBrand,
   upsertCategory,
@@ -66,12 +67,28 @@ const createProductSchema = z.object({
   primaryCategoryId: shopId.optional().nullable(),
   categoryIds: z.array(shopId).default([]),
 });
-export async function createProductAction(input: unknown) {
-  const p = createProductSchema.parse(input);
-  const id = await createProduct(p);
-  revalidateShopCatalog();
-  revalidatePath("/[locale]/admin/shop/products", "page");
-  return { ok: true as const, id };
+// Returns the failure instead of throwing: production builds replace a thrown
+// server-action message with a generic "Server Components render" error, so the
+// admin never saw why a product could not be created.
+export async function createProductAction(
+  input: unknown
+): Promise<{ ok: true; id: string } | { ok: false; error: string }> {
+  const parsed = createProductSchema.safeParse(input);
+  if (!parsed.success) {
+    return {
+      ok: false,
+      error: parsed.error.issues.map((i) => `${i.path.join(".") || "form"}: ${i.message}`).join("; "),
+    };
+  }
+  try {
+    const id = await createProduct(parsed.data);
+    revalidateShopCatalog();
+    revalidatePath("/[locale]/admin/shop/products", "page");
+    return { ok: true, id };
+  } catch (error) {
+    console.error("[admin/shop] createProduct failed:", error);
+    return { ok: false, error: error instanceof Error ? error.message : "Could not create the product." };
+  }
 }
 export async function createProductForm(formData: FormData) {
   const res = await createProductAction({
@@ -84,6 +101,7 @@ export async function createProductForm(formData: FormData) {
     primaryCategoryId: formData.get("primaryCategoryId") || undefined,
     categoryIds: formData.getAll("categoryIds").map(String).filter(Boolean),
   });
+  if ("error" in res) throw new Error(res.error);
   redirect(`/admin/shop/products/${res.id}`);
 }
 
@@ -200,7 +218,9 @@ export async function upsertAttributeForm(formData: FormData) {
     displayType: String(formData.get("displayType") || "select"),
     isVariantDefining: formData.get("isVariantDefining") === "on",
   });
+  revalidateShopCatalog();
   revalidatePath("/[locale]/admin/shop/attributes", "page");
+  revalidatePath("/[locale]/n/app/mobile/shop/product/[slug]", "page");
 }
 export async function upsertAttributeAction(input: {
   id?: string;
@@ -258,6 +278,16 @@ export async function addAttributeValueAction(input: {
   return { ok: true as const };
 }
 
+export async function updateAttributeValueForm(formData: FormData) {
+  await updateAttributeValue({
+    id: shopId.parse(formData.get("id")),
+    displayNameTranslations: fromForm3(formData, "label"),
+  });
+  revalidateShopCatalog();
+  revalidatePath("/[locale]/admin/shop/attributes", "page");
+  revalidatePath("/[locale]/n/app/mobile/shop/product/[slug]", "page");
+}
+
 export async function deleteAttributeValueForm(formData: FormData) {
   await deleteAttributeValue({ id: shopId.parse(formData.get("id")) });
   revalidateShopCatalog();
@@ -272,13 +302,27 @@ export async function deleteAttributeValueAction(input: { id: string }) {
 
 export async function setProductAttributeForm(formData: FormData) {
   const productId = shopId.parse(formData.get("productId"));
+  // Only the per-attribute "values" form sends setValues=1; the attach form leaves values as they are.
+  const setValues = formData.get("setValues") === "1";
+  // Text-type attributes send one input per language (textValue_en/fa/ar); older forms send a single textValue.
+  const textValueTranslations = fromForm3(formData, "textValue");
+  const textValue =
+    String(formData.get("textValue") ?? "").trim() ||
+    [textValueTranslations.en, textValueTranslations.fa, textValueTranslations.ar].map((v) => v.trim()).find(Boolean) ||
+    null;
   await setProductAttribute({
     productId,
     attributeId: shopId.parse(formData.get("attributeId")),
     isRequired: formData.get("isRequired") === "on",
     displayOrder: Number(formData.get("displayOrder") || 0),
+    valueIds: setValues ? formData.getAll("valueIds").map((v) => shopId.parse(v)) : undefined,
+    textValue: setValues ? textValue : undefined,
+    textValueTranslations: setValues ? textValueTranslations : undefined,
   });
+  revalidateShopCatalog();
   revalidatePath(`/[locale]/admin/shop/products/${productId}`, "page");
+  // The storefront product page is cached; refresh it so the new specs show.
+  revalidatePath("/[locale]/n/app/mobile/shop/product/[slug]", "page");
 }
 
 export async function removeProductAttributeForm(formData: FormData) {
@@ -287,7 +331,9 @@ export async function removeProductAttributeForm(formData: FormData) {
     productId,
     attributeId: shopId.parse(formData.get("attributeId")),
   });
+  revalidateShopCatalog();
   revalidatePath(`/[locale]/admin/shop/products/${productId}`, "page");
+  revalidatePath("/[locale]/n/app/mobile/shop/product/[slug]", "page");
 }
 
 // ======================================================================
@@ -353,7 +399,7 @@ export async function updateDeliveryMethodAction(input: {
 // ======================================================================
 export async function setProductGalleryAction(input: unknown) {
   const p = productGallerySchema.parse(input);
-  await setProductGallery(p);
+  await setProductGallery({ productId: p.productId, urls: p.urls ?? [] });
   revalidateShopCatalog();
   revalidatePath(`/[locale]/admin/shop/products/${p.productId}`, "page");
   return { ok: true as const };

@@ -48,8 +48,6 @@
     "next": "Next",
     "confirm": "Use selected files"
   },
-
-  
   "BookingCart": {
     "title": "Saved bookings",
     "hint": "Saved estimates are not confirmed reservations. Review each booking to check availability and pay. Products are currently paid for separately.",
@@ -359,7 +357,11 @@
     "searchNow": "Search Now"
   },
   "Booking": {
-    "dayParts": { "morning": "Morning", "afternoon": "Afternoon", "evening": "Evening" },
+    "dayParts": {
+      "morning": "Morning",
+      "afternoon": "Afternoon",
+      "evening": "Evening"
+    },
     "mealPlan": {
       "label": "Meal plan",
       "chooseTitle": "Choose a meal plan",
@@ -379,7 +381,10 @@
     "stay": {
       "perNight": "per night",
       "nightsLine": "Nights: {nights} × {price} per night",
-      "checkoutAfterCheckin": "Check-out must be after check-in."
+      "checkoutAfterCheckin": "Check-out must be after check-in.",
+      "adultsMin": "At least {min} adult is required.",
+      "decreaseAdults": "Decrease adults",
+      "increaseAdults": "Increase adults"
     },
     "addonScope": {
       "showAllInCountry": "Show all in {country}",
@@ -1209,7 +1214,6 @@
     "transferServices": "Transfer services",
     "treatments": "Treatments",
     "yesCancel": "Yes, cancel",
-    "changeSelection": "Change",
     "onlyOption": "Only option",
     "chooseProvider": "Choose a provider",
     "chooseService": "Choose a service",
@@ -1337,7 +1341,8 @@
   },
   "AdminGenerated": {
     "updateBookingTitle": "Edit booking: {service} – {customer}",
-    "stayCheckIn": "Check-in date", "stayCheckOut": "Check-out date",
+    "stayCheckIn": "Check-in date",
+    "stayCheckOut": "Check-out date",
     "configureSignInSignUpForgotPasswordOtp": "Configure sign-in, sign-up, forgot-password, OTP, and onboarding content without code changes.",
     "useItemKeysSignInSignUpForgot": "Use item keys: sign-in, sign-up, forgot-password, otp, or step keys like step-1.",
     "previousImage": "Previous image",
@@ -1500,13 +1505,13 @@
     "addonsPageTitle": "Add-ons",
     "manageServices": "Manage services",
     "linkedServices": "Linked services",
-    "searchServicesPlaceholder": "Search by service, provider or category…",
+    "searchServicesPlaceholder": "Search services...",
     "noServicesLinkedYet": "No services linked yet.",
     "noServicesFound": "No services found.",
     "applyChanges": "Apply changes",
     "changesApplied": "Changes applied",
     "selectedCount": "{count} selected",
-    "unsavedChanges": "You have unsaved changes",
+    "unsavedChanges": "Unsaved Changes",
     "pageIndicator": "Page {page} of {totalPages}",
     "addonProviderTypesPageTitle": "Add-on Provider Types",
     "addonProviderTypesPageDescription": "Attach a provider type (hotel, translator, home nursing, transfers, tours) to many service definitions at once, so it can be added as a full add-on booking.",
@@ -1875,7 +1880,6 @@
     "inactiveSlidesAreHiddenFromFrontend": "Inactive Slides Are Hidden From Frontend",
     "indonesia": "Indonesia",
     "internalNote": "Internal note",
-    "issued": "Issued",
     "itemKey": "Item Key",
     "jalaliDateEG14050210": "Jalali date, e.g. 1405/02/10",
     "jalaliPersian": "Jalali Persian",
@@ -2225,6 +2229,9 @@
     "serviceDeleted": "Service Deleted",
     "serviceImage": "Service Image",
     "serviceProviderDeleted": "Service Provider Deleted",
+    "duplicateProvider": "Duplicate",
+    "serviceProviderDuplicated": "Service provider duplicated",
+    "duplicateServiceProviderConfirm": "Create a copy of {name}?",
     "serviceRoomTypeUUID": "Service Room Type Uuid",
     "serviceType": "Service type",
     "services": "Services",
@@ -2366,7 +2373,6 @@
     "weekStartsOn": "Week Starts On",
     "yearToDate": "Year to date",
     "zipCode": "Zip Code",
-    "searchServicesPlaceholder": "Search services...",
     "aEDUAEDirham": "AED - UAE Dirham",
     "accept": "Accept",
     "accessibleTables": "Accessible tables",
@@ -2374,10 +2380,8 @@
     "addProviderService": "Add provider service",
     "addReply": "Add reply",
     "addReview": "Add review",
-    "addSlide": "Add slide",
     "addon": "addon",
     "admin": "Admin",
-    "adminAnswer": "Admin answer",
     "adminRoleGranted": "Admin Role Granted",
     "advanceBookingLimitDays": "Advance Booking Limit (days)",
     "advancedFilters": "Advanced Filters",
@@ -2391,7 +2395,6 @@
     "antalyaTurkey": "Antalya, Turkey",
     "anyStatus": "Any status",
     "apply": "Apply",
-    "approveAndCreateProvider": "Approve and create provider",
     "approveToWallet": "Approve to wallet",
     "approvedRefunds": "Approved refunds",
     "arabic": "Arabic",
@@ -2600,7 +2603,6 @@
     "manageImageGIFVideoSlidesAndAllFrontendCopyFromTheAdminPanel": "Manage image, GIF, video slides and all frontend copy from the admin panel.",
     "manageMobileHomePageEditorialSections": "Manage mobile home page editorial sections.",
     "manageRequestedApprovedProcessingAndRefundedBookingRefunds": "Manage requested, approved, processing, and refunded booking refunds.",
-    "manageServiceDefinitions": "Manage service definitions",
     "manageTheCompleteProviderProfileDirectlyFromPostgreSQLImageFieldsStoreTheSelecte": "Manage the complete provider profile directly from PostgreSQL. Image fields store the selected media URL.",
     "manageTheTextMediaLinkAndActiveStateFor": "Manage the text, media, link, and active state for",
     "manualRatesNowExternalAPISyncCanUpsertIntoThisSameTableLater": "Manual rates now; external API sync can upsert into this same table later.",
@@ -2646,7 +2648,6 @@
     "noNotificationTemplatesFound": "No notification templates found.",
     "noRelatedRecordsFound": "No related records found.",
     "noShowFee": "No-Show Fee (%)",
-    "noSponsoredSliderItemsYet": "No sponsored slider items yet.",
     "noVariablesDocumented": "No variables documented.",
     "noahWilson": "Noah Wilson",
     "notificationPreferences": "Notification Preferences",
@@ -2854,7 +2855,6 @@
     "turkish": "Turkish",
     "twoFactorAuthentication": "Two-Factor Authentication",
     "uSDUSDollar": "USD - US Dollar",
-    "unsavedChanges": "Unsaved Changes",
     "updateHomeSection": "Update home section",
     "updateMobileHomeSectionContent": "Update mobile home section content.",
     "updatePriorityScopePricingModelAndActiveWindowsForThisCompensationRule": "Update priority, scope, pricing model, and active windows for this compensation rule.",
@@ -2874,7 +2874,6 @@
     "users2": "Users",
     "usersWillSeeAMaintenancePageWhenEnabled": "Users will see a maintenance page when enabled",
     "variables": "Variables",
-    "verifiedBadge": "Verified badge",
     "view": "View",
     "viewAndManageOneToManyChildRecordsWithoutLeavingTheParentEditPage": "View and manage one-to-many child records without leaving the parent edit page.",
     "viewDetails": "View Details",
@@ -2922,7 +2921,6 @@
     "managesCategoryProviderServicesProviderServiceAddonsAndServiceImageReferences": "Manages category.provider_services, provider_service_addons, and service image references.",
     "max": "Max: $",
     "nameAndDescriptionKeepTheFullLocalizedJSONObjectIncludingLexicalRichTextValues": "Name and description keep the full localized JSON object, including Lexical rich-text values.",
-    "newLinkActive": "New link active",
     "optionalStoresTheResolvedMediaURLInProviderCertificationsImageUrl": "Optional. Stores the resolved media URL in provider_certifications.image_url.",
     "optionalStoresTheResolvedMediaURLInProviderCertificationsSecondaryImageUrl": "Optional. Stores the resolved media URL in provider_certifications.secondary_image_url.",
     "page": "Page",
@@ -4612,7 +4610,10 @@
     "description": "Please use the main page of the website."
   },
   "ServicePage": {
-    "attributeValue": { "yes": "Yes", "no": "No" },
+    "attributeValue": {
+      "yes": "Yes",
+      "no": "No"
+    },
     "metadata": {
       "title": "Service details",
       "description": "Review service details, providers, specialists, offers, requirements, and booking options."
@@ -5203,6 +5204,21 @@
       "walletWithdrawalsTitle": "Customer wallet withdrawals",
       "providerPayoutAccount": "Payout account",
       "providerNoPayoutAccount": "No bank account is on file for this provider.",
+      "bankAccountHolder": "Account holder name",
+      "bankAccountBank": "Bank name",
+      "bankAccountCard": "Card number",
+      "bankAccountIban": "Sheba (IBAN)",
+      "bankAccountNumber": "Account number",
+      "bankAccountDefault": "Default",
+      "bankAccountMakeDefault": "Pay to this account by default",
+      "addBankAccount": "Add bank account",
+      "addSecondBankAccount": "Add a second account",
+      "editBankAccount": "Edit",
+      "deleteBankAccount": "Delete",
+      "deleteBankAccountConfirm": "Delete this bank account?",
+      "saveBankAccount": "Save account",
+      "cancelBankAccountEdit": "Cancel",
+      "bankAccountLimit": "At most two bank accounts per provider.",
       "providerCustomerPaid": "Customer paid",
       "providerShare": "Provider share",
       "providerEntryStatus": "Status",
@@ -5308,9 +5324,12 @@
         "cancelled": "Cancelled"
       },
       "settingsTitle": "Accounting settings",
+      "usersTitle": "Users & roles",
+      "myAccountTitle": "My account",
       "settingsDescription": "Your business numbers. Changed here, not in code — and every change is recorded in the audit log.",
       "settingsGroup": {
         "core": "Core",
+        "approval": "Approval limit",
         "fees": "Fees",
         "withdrawal": "Withdrawal",
         "deposit": "Deposit",
@@ -5378,7 +5397,8 @@
       "passwordWrong": "The current password is incorrect",
       "panelRoles": {
         "accountant": "Accountant",
-        "finance_admin": "Finance admin"
+        "accounting_manager": "Accounting manager",
+        "manager": "Manager"
       },
       "entriesTitle": "Journal entries",
       "analyticsTitle": "Analytics",
@@ -12277,7 +12297,10 @@
     "openRecommendation": "Open {title}"
   },
   "ProviderPage": {
-    "locationMap": { "title": "Location on map", "getDirections": "Get directions" },
+    "locationMap": {
+      "title": "Location on map",
+      "getDirections": "Get directions"
+    },
     "reviewSubmitted": "Review Submitted!",
     "thankYouForSharingYourExperienceYourReview": "Thank you for sharing your experience. Your review is pending admin approval before it becomes public.",
     "writeAReview": "Write a Review",
@@ -15595,7 +15618,6 @@
     "onSale": "On sale",
     "rating4plus": "4★ & up",
     "allBrands": "All brands",
-    "apply": "Apply",
     "filters": "Filters",
     "priceRange": "Price range",
     "minPrice": "Min",
@@ -15828,6 +15850,7 @@
       "refundHistory": "Refund history"
     },
     "products": {
+      "edit": "Edit",
       "title": "Products",
       "new": "+ New product",
       "searchPlaceholder": "Search products…",
@@ -15861,6 +15884,9 @@
       "draftNote": "Created as draft. Add images and publish from the product page."
     },
     "productEdit": {
+      "attrSaveValues": "Save values",
+      "attrTextValue": "Value",
+      "attrNoValues": "Add values to this attribute first",
       "coreTitle": "Core fields",
       "nameEn": "Name (EN)",
       "nameFa": "Name (FA)",
@@ -15868,6 +15894,11 @@
       "shortDescEn": "Short description (EN)",
       "shortDescFa": "Short description (FA)",
       "shortDescAr": "Short description (AR)",
+      "fullDescEn": "Full description (EN)",
+      "fullDescFa": "Full description (FA)",
+      "fullDescAr": "Full description (AR)",
+      "slugTaken": "This slug is already used by another product. Pick a different one.",
+      "fixErrors": "Some fields need fixing before saving",
       "slug": "Slug",
       "status": "Status",
       "sourcePrice": "Source price",
@@ -15944,7 +15975,9 @@
       "banner": "Category banner",
       "save": "Save category"
     },
-    "categoryNew": { "title": "New category" },
+    "categoryNew": {
+      "title": "New category"
+    },
     "categoryEdit": {
       "delete": "Delete category",
       "servicesTitle": "Linked LSevin services",
@@ -16114,19 +16147,21 @@
       "delete": "delete",
       "noValuesYet": "No values yet.",
       "valuePlaceholder": "value (e.g. cotton)",
-      "labelEn": "label EN",
-      "labelFa": "label",
+      "labelEn": "label (EN)",
+      "labelFa": "label (FA)",
+      "labelAr": "label (AR)",
       "hexPlaceholder": "#hex",
       "addValue": "Add value",
       "noAttributes": "No attributes defined yet.",
       "newAttribute": "New attribute",
-      "nameEn": "Name EN",
-      "nameFa": "Name",
-      "nameAr": "Name",
+      "nameEn": "Name (EN)",
+      "nameFa": "Name (FA)",
+      "nameAr": "Name (AR)",
       "slugPlaceholder": "slug (kebab-case)",
       "displayType": "Display type",
       "isVariantDefining": "variant-defining",
-      "createAttribute": "Create attribute"
+      "createAttribute": "Create attribute",
+      "editTranslations": "Edit translations"
     },
     "reportRelations": {
       "title": "Service-related product performance",
@@ -16249,7 +16284,9 @@
     "admin": {
       "title": "Patients",
       "description": "Search for a patient or open their Patient 360 record.",
-      "detail": { "title": "Patient 360" },
+      "detail": {
+        "title": "Patient 360"
+      },
       "schemaMissing": {
         "title": "Database migration pending",
         "body": "Apply migration 0048_patient_foundation.sql to enable this section."

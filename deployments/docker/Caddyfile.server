@@ -80,8 +80,10 @@
 	# Public media is streamed by the API from private SeaweedFS storage. The API
 	# permits only Categories/* and ServiceProviders/*; customer documents stay private.
 	handle_path /files/* {
-		header Cache-Control "public,max-age=31536000,immutable"
 		header -Server
+		# media is read through the API (SeaweedFS behind it); MinIO is no longer part of the path. The API sets Cache-Control itself
+		# (a second copy from Caddy made Cloudflare answer 502). Do NOT point this back at MinIO: when MinIO is down every media request
+		# fails (connection refused is not a 404, so there is no fallback) and Cloudflare caches the 502.
 		rewrite * /files{uri}
 		reverse_proxy {$K3S_NODE_ADDRESS:172.18.0.1}:{$API_NODE_PORT:30081} {
 			header_up X-Forwarded-For {remote_host}
@@ -114,12 +116,22 @@
 		rewrite * /sync{uri}
 		reverse_proxy 172.18.0.1:31415
 	}
+	# Server A (Iran) pushes its Prometheus metrics here (remote write); B cannot call A. Password-protected.
+	handle_path /prom-write/* {
+		basic_auth {
+			site-a $2a$14$eI2FF4QZaHuQkqxQJq9rmu3n4CmJSdxEzErGzgcjdwS8sy9R2LGTy
+		}
+		rewrite * /api/v1/write
+		reverse_proxy 10.43.213.65:9090
+	}
 	import common_headers
 
 	# Public media is streamed by the API from private SeaweedFS storage.
 	handle_path /files/* {
-		header Cache-Control "public,max-age=31536000,immutable"
 		header -Server
+		# media is read through the API (SeaweedFS behind it); MinIO is no longer part of the path. The API sets Cache-Control itself
+		# (a second copy from Caddy made Cloudflare answer 502). Do NOT point this back at MinIO: when MinIO is down every media request
+		# fails (connection refused is not a 404, so there is no fallback) and Cloudflare caches the 502.
 		rewrite * /files{uri}
 		reverse_proxy {$K3S_NODE_ADDRESS:172.18.0.1}:{$API_NODE_PORT:30081} {
 			header_up X-Forwarded-For {remote_host}
@@ -254,4 +266,10 @@
 	}
 
 	reverse_proxy {$K3S_NODE_ADDRESS:172.18.0.1}:{$KIBANA_NODE_PORT:30085}
+}
+
+# lsevin.ir is the Iranian site (server A). Visitors whose traffic reaches ArvanCloud from OUTSIDE Iran (VPN users, the diaspora)
+# cannot be served by A, so ArvanCloud's backup origin points here (plain HTTP, no certificate needed) and sends them to the global site.
+http://lsevin.ir, http://www.lsevin.ir, http://crm.lsevin.ir, http://providers.lsevin.ir, http://financial.lsevin.ir {
+	redir https://lsevincare.com{uri} 302
 }

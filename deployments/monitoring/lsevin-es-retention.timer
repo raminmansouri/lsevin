@@ -1,0 +1,10 @@
+[Unit]
+Description=Daily Elasticsearch log retention
+
+[Timer]
+OnCalendar=*-*-* 03:20:00
+Persistent=true
+RandomizedDelaySec=10min
+
+[Install]
+WantedBy=timers.target

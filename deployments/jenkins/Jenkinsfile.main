@@ -1,5 +1,6 @@
 pipeline {
-  agent { node { label 'built-in'; customWorkspace '/opt/lsevin-platform' } }
+  // Clean a child workspace, never the bind-mounted directory itself.
+  agent { node { label 'built-in'; customWorkspace '/opt/lsevin-platform/workspace' } }
   options {
     skipDefaultCheckout(true)
     disableConcurrentBuilds(abortPrevious: true)
@@ -13,7 +14,8 @@ pipeline {
     // Builds share this four-core production host with Kubernetes. Keep the
     // build sandbox below one CPU and bound memory so health probes remain
     // responsive even after the BuildKit cache has been pruned.
-    DOCKER_BUILD_LIMITS = '--resource cpu-quota=100000 --resource memory=2560m'
+    // JENKINS_BUILD_LIMITS (controller environment) overrides the default, e.g. on the Iran server (7.9 GB host).
+    DOCKER_BUILD_LIMITS = "${env.JENKINS_BUILD_LIMITS ?: '--resource cpu-quota=100000 --resource memory=2560m'}"
   }
   stages {
     stage('Checkout') { steps { deleteDir(); checkout scm } }
@@ -64,7 +66,7 @@ pipeline {
           ).toString()
           env.BUILD_WEB = changedSince(
             deployedCommit(webImage),
-            'frontend/webapp'
+            'frontend/webapp ":(exclude)frontend/webapp/e2e" ":(exclude)frontend/webapp/tests" ":(exclude)frontend/webapp/docs" ":(exclude)frontend/webapp/playwright.*.config.ts"'
           ).toString()
           env.BUILD_MIGRATIONS = changedSince(
             deployedCommit(migrationImage),
@@ -110,7 +112,9 @@ pipeline {
           # Site variant (server A / Iran): only when the Jenkins controller defines SITE_REWRITE_TO. The public host
           # compiled into the image is rewritten under the same tag, so the import and deploy below are unchanged.
           if [ -n "${SITE_REWRITE_TO:-}" ]; then
-            SKIP_CONTAINERD=1 "${SITE_VARIANT_SCRIPT:-/opt/lsevin/app/deployments/jenkins/site-variant/build-site-variant.sh}"               "lsevin-webapp:$IMAGE_TAG" "${SITE_REWRITE_FROM:-appmain.lsevin.com}" "$SITE_REWRITE_TO" "lsevin-webapp:$IMAGE_TAG"
+            SKIP_CONTAINERD=1 "${SITE_VARIANT_SCRIPT:-/opt/lsevin/app/deployments/jenkins/site-variant/build-site-variant.sh}" \
+              "lsevin-webapp:$IMAGE_TAG" "${SITE_REWRITE_FROM:-appmain.lsevin.com}" \
+              "$SITE_REWRITE_TO" "lsevin-webapp:$IMAGE_TAG"
           fi
           "$DEPLOY" import "web-$IMAGE_TAG.tar" "lsevin-webapp:$IMAGE_TAG"
         '''
@@ -157,9 +161,9 @@ pipeline {
     unsuccessful {
       sh '''set +e
         test -n "${IMAGE_TAG:-}" || exit 0
-        rm -f "/opt/lsevin/releases/api-$IMAGE_TAG.tar" \
-          "/opt/lsevin/releases/web-$IMAGE_TAG.tar" \
-          "/opt/lsevin/releases/migrations-$IMAGE_TAG.tar"
+        rm -f "${K3S_RELEASE_DIR:-/var/lib/lsevin/releases}/api-$IMAGE_TAG.tar" \
+          "${K3S_RELEASE_DIR:-/var/lib/lsevin/releases}/web-$IMAGE_TAG.tar" \
+          "${K3S_RELEASE_DIR:-/var/lib/lsevin/releases}/migrations-$IMAGE_TAG.tar"
         images=""
         [ "${BUILD_API:-false}" = true ] && images="$images lsevin-api:$IMAGE_TAG"
         [ "${BUILD_WEB:-false}" = true ] && images="$images lsevin-webapp:$IMAGE_TAG"

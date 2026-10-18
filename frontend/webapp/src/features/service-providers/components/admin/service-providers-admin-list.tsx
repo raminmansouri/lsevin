@@ -4,7 +4,7 @@
 import { useTranslations } from "next-intl";
 import { useOptimistic, useTransition } from "react";
 import { ColumnDef } from "@tanstack/react-table";
-import { Eye, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { Copy, Eye, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { DataTable, DataTableSkeleton } from "@/components/data-table";
@@ -20,7 +20,7 @@ import useAction from "@/hooks/use-action";
 import { Link, useRouter } from "@/i18n/navigation";
 import { Pagination } from "@/types/filter";
 
-import { deleteServiceProviderDirectAction } from "../../actions/admin";
+import { deleteServiceProviderDirectAction, duplicateServiceProviderDirectAction } from "../../actions/admin";
 import { AdminServiceProviderListItem } from "../../db/admin-service-providers.queries";
 import { ServiceProvidersListToolbar } from "../service-providers-list/service-providers-list-toolbar";
 
@@ -38,7 +38,10 @@ function formatDate(value?: string | null) {
   }
 }
 
-function columns(onDelete: (item: AdminServiceProviderListItem) => void): ColumnDef<AdminServiceProviderListItem>[] {
+function columns(
+  onDelete: (item: AdminServiceProviderListItem) => void,
+  onDuplicate: (item: AdminServiceProviderListItem) => void,
+): ColumnDef<AdminServiceProviderListItem>[] {
   const t = useTranslations("AdminGenerated");
   return [
     {
@@ -114,6 +117,7 @@ function columns(onDelete: (item: AdminServiceProviderListItem) => void): Column
           <DropdownMenuContent align="end">
             <Link href={`/admin/service-providers/${row.original.id}/details`}><DropdownMenuItem><Eye className="mr-2 h-4 w-4" /> {t("details")}</DropdownMenuItem></Link>
             <Link href={`/admin/service-providers/${row.original.id}/update`}><DropdownMenuItem><Pencil className="mr-2 h-4 w-4" /> {t("edit")}</DropdownMenuItem></Link>
+            <DropdownMenuItem onClick={() => onDuplicate(row.original)}><Copy className="mr-2 h-4 w-4" /> {t("duplicateProvider")}</DropdownMenuItem>
             <DropdownMenuItem className="text-destructive" onClick={() => onDelete(row.original)}><Trash2 className="mr-2 h-4 w-4" /> {t("delete")}</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -136,6 +140,20 @@ export function ServiceProvidersAdminList({ items, pagination }: Props) {
     onError: (error) => toast.error(error.detail || error.title || "Could not delete service provider."),
   });
 
+  const duplicate = useAction(duplicateServiceProviderDirectAction, {
+    startTransition,
+    onSuccess: () => {
+      toast.success(tAdmin("serviceProviderDuplicated"));
+      router.refresh();
+    },
+    onError: (error) => toast.error(error.detail || error.title || "Could not duplicate service provider."),
+  });
+
+  const onDuplicate = (item: AdminServiceProviderListItem) => {
+    if (!window.confirm(tAdmin("duplicateServiceProviderConfirm", { name: item.name }))) return;
+    duplicate.execute({ id: item.id });
+  };
+
   const onDelete = (item: AdminServiceProviderListItem) => {
     if (!window.confirm(`Delete ${item.name}? This also deletes child rows with cascade constraints.`)) return;
     removeOptimistic(item.id);
@@ -143,7 +161,7 @@ export function ServiceProvidersAdminList({ items, pagination }: Props) {
   };
 
   return (
-    <DataTable columns={columns(onDelete)} data={optimisticItems} pagination={pagination}>
+    <DataTable columns={columns(onDelete, onDuplicate)} data={optimisticItems} pagination={pagination}>
       <ServiceProvidersListToolbar />
     </DataTable>
   );

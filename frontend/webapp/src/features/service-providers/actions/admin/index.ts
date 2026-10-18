@@ -7,6 +7,7 @@ import { createAuthenticatedSafeAction } from "@/lib/safe-action";
 import { LocaleHeaderTypes } from "@/types/common";
 
 import { revalidateAdminServiceProvider } from "../../db/admin-service-providers.queries";
+import { duplicateServiceProvider } from "../../server/duplicate-provider";
 import { refreshReviewStats } from "../../server/review-stats";
 import {
   normalizeLocalizedContentForDatabase,
@@ -425,6 +426,27 @@ export const deleteServiceProviderDirectAction = createAuthenticatedSafeAction(
           500,
           error?.message,
         ),
+        payload: input,
+      };
+    }
+  },
+  { adminRequired: true },
+);
+
+const duplicateServiceProviderDirectSchema = z.object({ id: uuidSchema });
+
+export const duplicateServiceProviderDirectAction = createAuthenticatedSafeAction(
+  duplicateServiceProviderDirectSchema,
+  async (input) => {
+    try {
+      const copy = await duplicateServiceProvider(input.id);
+      revalidateAdminServiceProvider(copy.id);
+      return { data: copy, error: undefined };
+    } catch (error: any) {
+      console.error("duplicateServiceProviderDirectAction failed", error);
+      return {
+        data: undefined,
+        error: problem("Could not duplicate service provider.", 500, error?.message),
         payload: input,
       };
     }

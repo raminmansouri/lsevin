@@ -1425,6 +1425,9 @@
     "serviceImage": "Изображение услуги",
     "serviceManagement": "Управление услугами",
     "serviceProviderDeleted": "Поставщик услуг удалён",
+    "duplicateProvider": "Дублировать",
+    "serviceProviderDuplicated": "Поставщик услуг продублирован",
+    "duplicateServiceProviderConfirm": "Создать копию {name}?",
     "serviceRoomTypeUUID": "UUID типа номера услуги",
     "services": "Услуги",
     "serviceType": "Тип услуги",
@@ -2269,7 +2272,10 @@
     "stay": {
       "perNight": "за ночь",
       "nightsLine": "Ночей: {nights} × {price} за ночь",
-      "checkoutAfterCheckin": "Дата выезда должна быть позже даты заезда."
+      "checkoutAfterCheckin": "Дата выезда должна быть позже даты заезда.",
+      "adultsMin": "Требуется минимум {min} взрослый.",
+      "decreaseAdults": "Уменьшить число взрослых",
+      "increaseAdults": "Увеличить число взрослых"
     },
     "addonScope": {
       "showAllInCountry": "Показать все: {country}",

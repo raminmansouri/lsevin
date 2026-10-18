@@ -54,7 +54,7 @@ export type TemplateRow = {
 };
 
 export async function listTemplates(locale = "fa"): Promise<TemplateRow[]> {
-  await assertAccounting("read");
+  await assertAccounting("books.view");
 
   const templates = await db<
     {
@@ -123,7 +123,7 @@ export async function createTemplate(input: {
   description?: string | null;
   lines: { accountId: string; side: "debit" | "credit"; amount?: string | null; memo?: string | null }[];
 }): Promise<{ id: string }> {
-  await assertAccounting("configure");
+  await assertAccounting("templates.manage");
   const user = await getPanelUser();
   if (!user) throw new TemplateError("Not signed in");
 
@@ -178,7 +178,7 @@ export async function createTemplate(input: {
 }
 
 export async function setTemplateActive(id: string, isActive: boolean): Promise<void> {
-  await assertAccounting("configure");
+  await assertAccounting("templates.manage");
   await db`update accounting.entry_templates set is_active = ${isActive} where id = ${id}`;
 }
 
@@ -192,7 +192,7 @@ export async function applyTemplate(
   templateId: string,
   entryDate: string
 ): Promise<{ id: string; entryNumber: string }> {
-  await assertAccounting("operate");
+  await assertAccounting("templates.run");
   const user = await getPanelUser();
   if (!user) throw new TemplateError("Not signed in");
 
@@ -273,7 +273,7 @@ export type ScheduleRow = {
 };
 
 export async function listSchedules(locale = "fa"): Promise<ScheduleRow[]> {
-  await assertAccounting("read");
+  await assertAccounting("books.view");
 
   const rows = await db<
     {
@@ -327,7 +327,7 @@ export async function createSchedule(input: {
   startsOn: string;
   endsOn?: string | null;
 }): Promise<{ id: string }> {
-  await assertAccounting("configure");
+  await assertAccounting("templates.manage");
   const user = await getPanelUser();
   if (!user) throw new TemplateError("Not signed in");
 
@@ -352,7 +352,7 @@ export async function createSchedule(input: {
 }
 
 export async function setScheduleActive(id: string, isActive: boolean): Promise<void> {
-  await assertAccounting("configure");
+  await assertAccounting("templates.manage");
   await db`update accounting.recurring_schedules set is_active = ${isActive} where id = ${id}`;
 }
 
@@ -368,7 +368,7 @@ export async function setScheduleActive(id: string, isActive: boolean): Promise<
  * locked, so running this twice at once cannot double-generate.
  */
 export async function runDueSchedules(): Promise<{ generated: number; details: string[] }> {
-  await assertAccounting("operate");
+  await assertAccounting("templates.run");
   const user = await getPanelUser();
   if (!user) throw new TemplateError("Not signed in");
 

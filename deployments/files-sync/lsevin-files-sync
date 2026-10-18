@@ -62,6 +62,7 @@ ARGS=(bisync "a:$BUCKET" "b:$BUCKET"
   --create-empty-src-dirs=false
   --exclude "_scratch/**"       # reserved prefix for tests; never synced
   --exclude "Categories/_health/**"   # heartbeat is written directly to both sides by lsevin-health
+  --exclude "_backups/**"             # encrypted recovery copies (lsevin-dr-offsite) are handled separately, never mirrored
   --log-file "$LOG" --log-level NOTICE)
 
 if [ "${1:-}" = "--resync" ] || [ -z "$(ls -A "$WORKDIR" 2>/dev/null)" ]; then

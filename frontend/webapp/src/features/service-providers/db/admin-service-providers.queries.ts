@@ -13,6 +13,7 @@ import { ApiReturnType, PaginatedResult } from "@/types/network";
 
 import {
   getCpCategoryGroupsTag,
+  getProviderPageDataTag,
   getServiceProviderGlobalTag,
   getServiceProviderIdTag,
 } from "./cache";
@@ -1408,35 +1409,49 @@ export async function searchAdminProviderLookupOptions(
         limit ${limit} offset ${offset}
       `;
     } else if (params.type === "cities") {
-      const label = translated(sql`l.value_translations`, locale);
+      const label = translated(sql`page.value_translations`, locale);
       const countryLabel = translated(sql`matched_country.value_translations`, locale);
       const parentId = params.parentId?.trim();
-      // The admin form thinks in country → city, so report the city's COUNTRY as its
-      // parentId even when a province sits between them; l.parent_id would hand the UI
-      // a province id it has no country selector for. The filter accepts either hop for
-      // the same reason.
+      // category.locations holds ~2 million cities. Pick the page with cheap, indexable columns FIRST and only
+      // then build the translated label and the country for those few rows: computing the label for every city
+      // (the old "order by label") scanned the whole table for each keystroke and exhausted the server's memory.
+      // The admin form thinks in country → city, so report the city's COUNTRY as its parentId even when a
+      // province sits between them; the filter accepts either hop for the same reason.
       rows = await sql<AdminLookupOption[]>`
-        select l.id::text, l.code, ${label} as label, l_country.id::text as "parentId"
-        from category.locations l
-        ${countryOfLocation("l")} l_country on true
-        where l.location_type_id = 2
-          and ${
-            parentId
-              ? sql`l_country.id in (
-              select matched_country.id
-              from category.locations matched_country
-              where matched_country.location_type_id = 1
-                and (
+        with matched as (
+          select matched_country.id
+          from category.locations matched_country
+          where matched_country.location_type_id = 1
+            and ${
+              parentId
+                ? sql`(
                   matched_country.id::text = ${parentId}
                   or lower(matched_country.code) = lower(${parentId})
                   or lower(${countryLabel}) = lower(${parentId})
-                )
-            )`
-              : sql`true`
-          }
-          and ${hasQuery ? sql`(${label} ilike ${like} or l.code ilike ${like})` : sql`true`}
-        order by l.display_order nulls last, label
-        limit ${limit} offset ${offset}
+                )`
+                : sql`true`
+            }
+        ),
+        page as (
+          select l.id, l.code, l.parent_id, l.display_order, l.value_translations
+          from category.locations l
+          where l.location_type_id = 2
+            and ${
+              parentId
+                ? sql`(
+                  l.parent_id in (select id from matched)
+                  or l.parent_id in (select p.id from category.locations p where p.parent_id in (select id from matched))
+                )`
+                : sql`true`
+            }
+            and ${hasQuery ? sql`(l.code ilike ${like} or l.value_translations::text ilike ${like})` : sql`true`}
+          order by l.display_order nulls last, l.code
+          limit ${limit} offset ${offset}
+        )
+        select page.id::text, page.code, ${label} as label, l_country.id::text as "parentId"
+        from page
+        ${countryOfLocation("page")} l_country on true
+        order by page.display_order nulls last, label
       `;
     } else if (params.type === "categories") {
       const label = translated(sql`c.name_translations`, locale);
@@ -1514,7 +1529,7 @@ export async function searchAdminProviderLookupOptions(
       const providerLabel = sql`coalesce(nullif(${translated(sql`sp.name_translations`, locale)}, ''), ${scalarText(sql`sp.name_translations`)})`;
       const serviceLabel = sql`coalesce(
         nullif(${translated(sql`ps.display_name_translations`, locale)}, ''),
-        ${scalarText(sql`ps.display_name_translations`)},
+        nullif(${scalarText(sql`ps.display_name_translations`)}, ''),
         nullif(${translated(sql`sd.name_translations`, locale)}, '')
       )`;
 
@@ -1570,10 +1585,12 @@ export async function searchAdminProviderLookupOptions(
       `;
     } else if (params.type === "currencies") {
       rows = await sql<AdminLookupOption[]>`
-        select symbol as id, symbol as code, concat(symbol, case when nullif(name, '') is not null then concat(' · ', name) else '' end) as label
-        from category.currencies
-        where ${hasQuery ? sql`(symbol ilike ${like} or name ilike ${like})` : sql`true`}
-        order by symbol
+        select code as id, code, concat(code, case when nullif(name, '') is not null then concat(' · ', name) else '' end) as label
+        from finance.currencies
+        where deleted_at is null
+          and is_active = true
+          and ${hasQuery ? sql`(code ilike ${like} or name ilike ${like})` : sql`true`}
+        order by sort_order asc, code asc
         limit ${limit} offset ${offset}
       `;
     } else if (params.type === "addons") {
@@ -1642,12 +1659,17 @@ export async function getAdminProviderLookupData(
         limit 75
       `,
       sql<AdminLookupOption[]>`
-        select l.id::text, l.code, ${translated(sql`l.value_translations`, locale)} as label, l_country.id::text as "parentId"
-        from category.locations l
-        ${countryOfLocation("l")} l_country on true
-        where l.location_type_id = 2
-        order by l.display_order nulls last, label
-        limit 50
+        with page as (
+          select l.id, l.code, l.display_order, l.parent_id, l.value_translations
+          from category.locations l
+          where l.location_type_id = 2
+          order by l.display_order nulls last, l.code
+          limit 50
+        )
+        select page.id::text, page.code, ${translated(sql`page.value_translations`, locale)} as label, l_country.id::text as "parentId"
+        from page
+        ${countryOfLocation("page")} l_country on true
+        order by page.display_order nulls last, label
       `,
       sql<AdminLookupOption[]>`
         select
@@ -1709,9 +1731,11 @@ export async function getAdminProviderLookupData(
         limit 50
       `,
       sql<AdminLookupOption[]>`
-        select symbol as id, symbol as code, concat(symbol, case when nullif(name, '') is not null then concat(' · ', name) else '' end) as label
-        from category.currencies
-        order by symbol
+        select code as id, code, concat(code, case when nullif(name, '') is not null then concat(' · ', name) else '' end) as label
+        from finance.currencies
+        where deleted_at is null
+          and is_active = true
+        order by sort_order asc, code asc
         limit 50
       `,
       sql<AdminLookupOption[]>`
@@ -1752,6 +1776,13 @@ export function revalidateAdminServiceProvider(serviceProviderId?: string) {
   // provider under a category in the admin panel leaves the app showing the old
   // count — including "0 providers" on the subcategory the admin just filled.
   revalidateTag(getCpCategoryGroupsTag());
-  if (serviceProviderId)
+  // The public provider/service/specialist pages are cached for hours under their own
+  // tags. Without these, approving or editing a review (or anything else here) left the
+  // old page up, so approved comments never seemed to appear.
+  revalidateTag("service-page");
+  revalidateTag("specialist-page");
+  if (serviceProviderId) {
     revalidateTag(getServiceProviderIdTag(serviceProviderId));
+    revalidateTag(getProviderPageDataTag(serviceProviderId));
+  }
 }

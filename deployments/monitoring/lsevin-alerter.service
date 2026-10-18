@@ -1,0 +1,20 @@
+[Unit]
+Description=LSevin alerter: Prometheus rules + public URL checks -> Telegram
+After=network-online.target k3s.service
+Wants=network-online.target
+
+[Service]
+ExecStart=/usr/bin/python3 /usr/local/sbin/lsevin-alerter
+Environment=KUBECONFIG=/etc/rancher/k3s/k3s.yaml
+Restart=always
+RestartSec=10
+# watchdog: the unit is restarted if the alerter stops cycling (it touches its state every minute)
+ProtectSystem=strict
+ReadWritePaths=/var/lib/lsevin-alerter
+ProtectHome=true
+PrivateTmp=true
+NoNewPrivileges=true
+MemoryMax=200M
+
+[Install]
+WantedBy=multi-user.target

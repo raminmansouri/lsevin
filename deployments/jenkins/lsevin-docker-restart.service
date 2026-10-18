@@ -1,0 +1,7 @@
+[Unit]
+Description=Restart dockerd to give back the memory image builds leave behind (containers keep running: live-restore)
+
+[Service]
+Type=oneshot
+# never while an image build is running; the next week's run catches up
+ExecStart=/bin/sh -c 'if pgrep -f "[d]ocker build" >/dev/null || pgrep -f "[d]ocker-buildx" >/dev/null; then echo "build active, skipped"; else systemctl restart docker; fi'

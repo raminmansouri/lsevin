@@ -305,7 +305,7 @@ export default function RewardsClient({ data }: { data: RewardsPageData }) {
                           </div>
                         </div>
                         <button
-                          onClick={() => router.push(coupon.providerServiceId ? `/app/booking/${coupon.providerServiceId}` : "/app/explore")}
+                          onClick={() => router.push(coupon.providerServiceId ? `/n/app/mobile/booking?serviceId=${encodeURIComponent(coupon.providerServiceId)}` : "/n/app/mobile/explore")}
                           className="w-full h-11 bg-[#083f30] text-white rounded-xl font-semibold hover:bg-[#0a5a44] transition-colors flex items-center justify-center gap-2"
                         >
                           {t("actions.useCoupon")} <ChevronRight size={18} />

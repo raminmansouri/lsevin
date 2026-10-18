@@ -26,7 +26,7 @@ export type SettingDefinition = {
   key: string;
   kind: SettingKind;
   /** Grouping for the UI. */
-  group: "fees" | "withdrawal" | "deposit" | "crypto" | "limits" | "core";
+  group: "fees" | "withdrawal" | "deposit" | "crypto" | "limits" | "core" | "approval";
 };
 
 /**
@@ -36,6 +36,7 @@ export type SettingDefinition = {
  */
 export const SETTING_DEFINITIONS: SettingDefinition[] = [
   { key: "base_currency", kind: "readonly", group: "core" },
+  { key: "approval.accounting_manager_limit", kind: "per_currency_amount", group: "approval" },
   { key: "platform_fee_percent", kind: "percent", group: "fees" },
   { key: "withdrawal.fee_percent", kind: "percent", group: "fees" },
   { key: "withdrawal.min_amount", kind: "per_currency_amount", group: "withdrawal" },

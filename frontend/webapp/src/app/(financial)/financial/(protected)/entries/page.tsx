@@ -39,15 +39,15 @@ const TYPE_LABEL: Record<string, string> = {
 
 export default async function EntriesPage() {
   const locale = PANEL_LOCALE;
-  const [accounts, dimensions, entries, coverage, viewer, canConfigure] = await Promise.all([
+  const [accounts, dimensions, entries, coverage, viewer, canApprove] = await Promise.all([
     listPostableAccounts(locale),
     listDimensions(locale),
     listEntries({ limit: 100 }),
     getPeriodCoverage(),
     getPanelUser(),
-    // The approval half of the ladder needs `configure`. Reading it here lets the row
+    // The approval half of the ladder needs `entry.approve`. Reading it here lets the row
     // say so on the button instead of the accountant finding out by being refused.
-    canAccounting("configure"),
+    canAccounting("entry.approve"),
   ]);
 
   const attachmentsByEntry = await listAttachmentsForEntries(entries.map((e) => e.id));
@@ -155,7 +155,7 @@ export default async function EntriesPage() {
                           <EntryWorkflowButtons
                             entryId={entry.id}
                             status={entry.status}
-                            canConfigure={canConfigure}
+                            canApprove={canApprove}
                             isAuthor={Boolean(viewer && entry.createdById === viewer.id)}
                           />
                         ) : (

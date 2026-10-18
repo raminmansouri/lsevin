@@ -58,7 +58,7 @@ export type EntryListRow = {
  * parent too would make the tree stop adding up.
  */
 export async function listPostableAccounts(locale = "fa"): Promise<PostableAccount[]> {
-  await assertAccounting("read");
+  await assertAccounting("books.view");
 
   const rows = await db<
     {
@@ -98,7 +98,7 @@ export async function listPostableAccounts(locale = "fa"): Promise<PostableAccou
 }
 
 export async function listDimensions(locale = "fa"): Promise<DimensionOption[]> {
-  await assertAccounting("read");
+  await assertAccounting("books.view");
 
   const rows = await db<
     { id: string; kind: string; code: string; name_translations: Record<string, string> | null }[]
@@ -124,7 +124,7 @@ export async function listDimensions(locale = "fa"): Promise<DimensionOption[]> 
 export async function listEntries(
   filters: { status?: string; manualOnly?: boolean; limit?: number } = {}
 ): Promise<EntryListRow[]> {
-  await assertAccounting("read");
+  await assertAccounting("books.view");
 
   const rows = await db<
     {
@@ -202,7 +202,7 @@ export async function getPeriodCoverage(): Promise<{
   coveredUntil: string | null;
   daysOfRunway: number;
 }> {
-  await assertAccounting("read");
+  await assertAccounting("books.view");
 
   const [row] = await db<
     { open_periods_today: number; covered_until: string | null; days_of_runway: number }[]

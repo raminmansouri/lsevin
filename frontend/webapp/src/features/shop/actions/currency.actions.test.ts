@@ -4,13 +4,17 @@ import { setDisplayCurrencyAction } from "./currency.actions";
 
 const mocks = vi.hoisted(() => ({
   cookie: vi.fn(),
+  ctx: vi.fn(),
   mode: vi.fn(),
   options: vi.fn(),
   event: vi.fn(),
   path: vi.fn(),
 }));
 vi.mock("next/cache", () => ({ revalidatePath: mocks.path }));
-vi.mock("../lib/context", () => ({ setSelectedCurrencyCookie: mocks.cookie }));
+vi.mock("../lib/context", () => ({
+  setSelectedCurrencyCookie: mocks.cookie,
+  getShopContext: mocks.ctx,
+}));
 vi.mock("../lib/pricing", () => ({
   getShopPricingMode: mocks.mode,
   getDisplayCurrencyOptions: mocks.options,
@@ -21,13 +25,14 @@ beforeEach(() => {
   vi.resetAllMocks();
   mocks.mode.mockResolvedValue("market_default_with_selector");
   mocks.options.mockResolvedValue([{ code: "IRR" }, { code: "EUR" }]);
+  mocks.ctx.mockResolvedValue({ locale: "fa" });
 });
 describe("customer currency changes", () => {
   it("persists a validated choice and refreshes every localized shop route", async () => {
     await expect(
       setDisplayCurrencyAction({ currency: "eur" })
     ).resolves.toEqual({ ok: true, currency: "EUR" });
-    expect(mocks.cookie).toHaveBeenCalledWith("EUR");
+    expect(mocks.cookie).toHaveBeenCalledWith("EUR", "fa");
     expect(mocks.path).toHaveBeenCalledWith(
       "/[locale]/n/app/mobile/shop",
       "layout"
