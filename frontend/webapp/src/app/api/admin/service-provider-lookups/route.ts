@@ -54,6 +54,7 @@ export async function GET(request: NextRequest) {
     pageSize: toPositiveInt(searchParams.get("pageSize"), 30),
     parentId: searchParams.get("parentId"),
     providerTypeId: searchParams.get("providerTypeId"),
+    providerTypeKey: searchParams.get("providerTypeKey"),
     categoryId: searchParams.get("categoryId"),
     excludeProviderId: searchParams.get("excludeProviderId"),
     ids: idsParam ? idsParam.split(",").map((id) => id.trim()).filter(Boolean) : undefined,

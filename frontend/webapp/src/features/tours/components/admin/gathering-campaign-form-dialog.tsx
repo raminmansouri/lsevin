@@ -92,6 +92,7 @@ export function GatheringCampaignFormDialog({
             <Label>{t("admin.departures.tour")}</Label>
             <StaffLazySearchableSelect
               resource="providerServices"
+              queryParams={{ providerTypeKey: "tourism" }}
               locale={locale}
               value={providerServiceId}
               onValueChange={setProviderServiceId}

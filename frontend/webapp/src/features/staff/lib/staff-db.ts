@@ -292,6 +292,8 @@ type StaffLookupRequest = {
   pageSize?: number;
   /** Comma-separated provider ids; when present, serviceDefinitions only returns services those providers offer. */
   providerIds?: string | null;
+  /** Filter provider services by provider type English name, e.g. "tourism". */
+  providerTypeKey?: string | null;
 };
 
 function staticLookupResult(items: StaffLookupOption[], request: StaffLookupRequest): StaffLookupResult {
@@ -428,20 +430,32 @@ export async function searchStaffLookupOptions(request: StaffLookupRequest): Pro
   }
 
   if (resource === "providerServices") {
+    // Optional provider-type filter by English name (e.g. "tourism"), stable across databases.
+    const typeKey = request.providerTypeKey?.trim().toLowerCase() || null;
     const rows = await sql<(StaffLookupOption & { totalCount: number })[]>`
       select
         ps.id::text as id,
-        ${tr("ps.display_name_translations", locale)} as label,
-        concat_ws(' • ', nullif(${tr("sp.name_translations", locale)}, ''), ps.currency::text, ps.value::text) as description,
+        -- Most rows have no per-provider display name; fall back to the service's own name.
+        coalesce(
+          nullif(${tr("ps.display_name_translations", locale)}, ''),
+          nullif(${tr("sd.name_translations", locale)}, '')
+        ) as label,
+        concat_ws(' • ', nullif(${tr("sp.name_translations", locale)}, ''), nullif(btrim(sp.city), '')) as description,
         null::text as code,
         ps.is_active as "isActive",
         count(*) over()::int as "totalCount"
       from category.provider_services ps
       join category.service_providers sp on sp.id = ps.service_provider_id
-      where ${search === ""}
-        or ps.id::text = ${search}
-        or ${allTranslationValuesMatch("ps.display_name_translations", like)}
-        or ${allTranslationValuesMatch("sp.name_translations", like)}
+      join category.service_definitions sd on sd.id = ps.service_definition_id
+      left join category.provider_types pt on pt.id = sp.provider_type_id
+      where (
+          ${search === ""}
+          or ps.id::text = ${search}
+          or ${allTranslationValuesMatch("ps.display_name_translations", like)}
+          or ${allTranslationValuesMatch("sd.name_translations", like)}
+          or ${allTranslationValuesMatch("sp.name_translations", like)}
+        )
+        and ${typeKey ? sql`lower(pt.name_translations->>'en-US') = ${typeKey}` : sql`true`}
       order by ps.is_active desc, label asc, ps.create_date desc
       limit ${pageSize} offset ${offset}
     `;

@@ -109,6 +109,7 @@ export function TourDepartureFormDialog({
             <Label>{t("admin.departures.tour")}</Label>
             <StaffLazySearchableSelect
               resource="providerServices"
+              queryParams={{ providerTypeKey: "tourism" }}
               locale={locale}
               value={form.providerServiceId}
               onValueChange={(value) => setForm((prev) => ({ ...prev, providerServiceId: value }))}

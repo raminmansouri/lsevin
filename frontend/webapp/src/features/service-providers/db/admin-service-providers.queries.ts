@@ -59,6 +59,8 @@ export type SearchAdminLookupOptionsParams = {
   pageSize?: number;
   parentId?: string | null;
   providerTypeId?: string | null;
+  /** Filter by provider type English name, e.g. "tourism". Stable across databases, unlike ids. */
+  providerTypeKey?: string | null;
   categoryId?: string | null;
   excludeProviderId?: string | null;
   ids?: string[];
@@ -1351,10 +1353,9 @@ export async function searchAdminProviderLookupOptions(
         `;
 
         rows = rawRows.map((row) => {
-          const scalarServiceName =
-            typeof row.serviceNameRaw === "string" || typeof row.serviceNameRaw === "number"
-              ? String(row.serviceNameRaw).trim()
-              : "";
+          // A bare string can be a real name; numbers and id-like strings are bad data, never names.
+          const rawText = typeof row.serviceNameRaw === "string" ? row.serviceNameRaw.trim() : "";
+          const scalarServiceName = /^[\d\s.,-]+$|^[0-9a-f-]{20,}$/i.test(rawText) ? "" : rawText;
           const serviceName = row.serviceName?.trim() || scalarServiceName || row.definitionName?.trim() || "";
           return {
             id: row.id,
@@ -1521,11 +1522,15 @@ export async function searchAdminProviderLookupOptions(
       // Without falling through to sd.name_translations, every such row
       // produced a blank "Provider / " label, which is why this dropdown looked
       // empty even though it had matching rows.
+      // Only a bare string can be a name; numbers and id-like strings are bad data.
       const scalarText = (columnSql: any) => sql`case
-        when jsonb_typeof(${columnSql}) in ('string', 'number', 'boolean')
+        when jsonb_typeof(${columnSql}) = 'string'
+          and btrim(${columnSql} #>> '{}') !~ '^[0-9 .,-]+$'
+          and btrim(${columnSql} #>> '{}') !~* '^[0-9a-f-]{20,}$'
           then coalesce(nullif(btrim(${columnSql} #>> '{}'), ''), '')
         else ''
       end`;
+      const providerTypeKey = params.providerTypeKey?.trim().toLowerCase() || null;
       const providerLabel = sql`coalesce(nullif(${translated(sql`sp.name_translations`, locale)}, ''), ${scalarText(sql`sp.name_translations`)})`;
       const serviceLabel = sql`coalesce(
         nullif(${translated(sql`ps.display_name_translations`, locale)}, ''),
@@ -1537,11 +1542,13 @@ export async function searchAdminProviderLookupOptions(
         select
           ps.id::text,
           concat(${providerLabel}, ' / ', ${serviceLabel}) as label,
-          concat(ps.currency, ' ', ps.value::text) as code
+          ${providerTypeKey ? sql`null` : sql`concat(ps.currency, ' ', ps.value::text)`} as code
         from category.provider_services ps
         join category.service_providers sp on sp.id = ps.service_provider_id
         join category.service_definitions sd on sd.id = ps.service_definition_id
+        left join category.provider_types pt on pt.id = sp.provider_type_id
         where ps.is_active = true
+          and ${providerTypeKey ? sql`lower(pt.name_translations->>'en-US') = ${providerTypeKey}` : sql`true`}
           and ${hasQuery ? sql`(${providerLabel} ilike ${like} or ${serviceLabel} ilike ${like})` : sql`true`}
         order by label
         limit ${limit} offset ${offset}
