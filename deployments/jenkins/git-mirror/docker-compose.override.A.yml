@@ -24,6 +24,8 @@ services:
       JENKINS_POLL_SCM_JOBS: lsevin-main-production
       # One CPU and 2 GB per image build; the host also has 6 GB of swap (/swap.img + /swap2.img).
       JENKINS_BUILD_LIMITS: --resource cpu-quota=100000 --resource memory=2304m --resource memory-swap=2304m
+      # server A idles at ~2.4 GB available; a build is capped at 2304 MB without swap, so it cannot push the host into thrash
+      LSEVIN_BUILD_MIN_AVAILABLE_MB: "2000"
       SITE_REWRITE_TO: lsevin.ir
       SITE_REWRITE_FROM: appmain.lsevin.com
       SITE_VARIANT_SCRIPT: /opt/lsevin/app/deployments/jenkins/site-variant/build-site-variant.sh
