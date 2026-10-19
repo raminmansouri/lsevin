@@ -22,7 +22,7 @@ NS = "lsevin"
 BACKUPS = {
     "logical_dump": os.environ.get("LOGICAL_GLOB", "/var/backups/lsevin/db/lsevin-2*.dump"),
     "pgbackrest": os.environ.get("PGBACKREST_GLOB", "/opt/lsevin/backups/pgbackrest/backup/lsevin/2*"),
-    "object_storage": os.environ.get("OBJECT_GLOB", "/var/backups/lsevin/object-storage/*"),
+    "object_storage": os.environ.get("OBJECT_GLOB", "/var/backups/lsevin/object-storage/*/sha256.txt"),
     "offsite_upload": os.environ.get("OFFSITE_FILE", "/var/lib/lsevin-dr/last-offsite-ok"),
     "restore_test": os.environ.get("RESTORE_TEST_FILE", "/var/lib/lsevin-dr/last-restore-test-ok"),
 }

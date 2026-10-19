@@ -1,4 +1,5 @@
 {
+  "ipv4_only": true,
   "prometheus": "",
   "eval_seconds": 60,
   "daily_summary_utc": "07:00",

@@ -153,8 +153,16 @@ spec:
                   stamp="$(date -u +%Y%m%dT%H%M%SZ)"
                   target="/backup/$stamp"
                   mkdir -p "$target/objects"
+                  # a failed run must not leave an incomplete snapshot behind (monitoring reads the verified sha256.txt, not the folder)
+                  trap 'rc=$?; if [ "$rc" -ne 0 ]; then echo "backup failed ($rc): removing incomplete $target"; rm -rf "$target"; fi' EXIT
                   rclone copy seaweed:lsevin-media "$target/objects" --checksum --metadata
-                  rclone check seaweed:lsevin-media "$target/objects" --one-way --download
+                  # the sites are live: an object uploaded between copy and check is not a corrupt backup,
+                  # so copy once more and re-check before declaring failure
+                  if ! rclone check seaweed:lsevin-media "$target/objects" --one-way --download; then
+                    echo "check found differences (uploads during the backup?); copying again and re-checking"
+                    rclone copy seaweed:lsevin-media "$target/objects" --checksum --metadata
+                    rclone check seaweed:lsevin-media "$target/objects" --one-way --download
+                  fi
                   rclone size seaweed:lsevin-media --json > "$target/source-size.json"
                   find "$target/objects" -type f -print0 | sort -z | xargs -0 -r sha256sum > "$target/sha256.txt"
                   # Retain two weeks of verified daily snapshots. The current
