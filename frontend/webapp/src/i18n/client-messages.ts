@@ -85,6 +85,7 @@ export const SEGMENT_NAMESPACES = {
     "ProviderOnboarding",
     "ProviderPage",
     "MapShared",
+    "Footer",
     "AdminGenerated",
     "BookingCart",
     "RecommendationSection",
@@ -172,6 +173,7 @@ export const SEGMENT_NAMESPACES = {
     "List",
     "LocalizedInput",
     "MapShared",
+    "Footer",
     "AdminGenerated",
     "BookingCart",
     // The public provider-details route builds these namespace names through

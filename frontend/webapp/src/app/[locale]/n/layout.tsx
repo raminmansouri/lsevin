@@ -4,6 +4,9 @@ import MobileAppBar from "@/components/mobile-app-bar";
 import Shell from "@/components/shell";
 import { BottomTabBar } from "./app/design-system/mobile-components";
 import { getClientMessages } from "@/i18n/client-messages";
+import { DesktopFooter } from "@/features/web-desktop/components/DesktopFooter";
+import { DesktopHeader } from "@/features/web-desktop/components/DesktopHeader";
+
 
 type LocalePageProps = {
   children: React.ReactNode;
@@ -35,9 +38,14 @@ export default async function MainLayout({
         <div className="flex flex-col">
           <MobileAppBar />
           <div className="pb-[calc(var(--bottom-nav-h)+env(safe-area-inset-bottom))]">
+            <DesktopHeader />
             {children}
+            <DesktopFooter />
           </div>
-          <BottomTabBar />
+          {/* The bottom tab bar is the mobile/tablet navigation; desktop uses DesktopHeader. */}
+          <div className="xl:hidden">
+            <BottomTabBar />
+          </div>
         </div>
       </Shell>
     </NextIntlClientProvider>

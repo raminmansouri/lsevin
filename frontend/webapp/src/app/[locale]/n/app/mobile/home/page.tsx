@@ -32,6 +32,8 @@ import { resolveHomeMediaUrl } from '@/features/home/components/home-media';
 import { SponsoredMediaCarouselSection } from '@/features/home/components/sponsored-media-carousel-section';
 import { countActiveSpecialPackages } from '@/features/special-packages/server/repository';
 
+import { DesktopHome } from "@/features/web-desktop/home/DesktopHome";
+
 // Static / ISR — the landing page shell no longer reads the visitor's location
 // or profile on the server; see `Home` below.
 //
@@ -330,7 +332,8 @@ async function Home({ params }: PageProps) {
   ]);
 
   return (
-    <div className="min-h-screen bg-white">
+    <>
+    <div className="min-h-screen bg-white xl:hidden">
       {/* The canopy: greeting, destination and search live on one continuous pine
           surface that runs up into the app bar, so the top of the app reads as a
           single control area instead of two stacked website bars. The search field
@@ -508,6 +511,71 @@ async function Home({ params }: PageProps) {
       </a>
    </div>
     </div>
+    <DesktopHome
+      locale={locale}
+      categories={categories}
+      specialPackagesCount={specialPackagesCount}
+      slots={{
+        sponsoredTop: <SponsoredMediaCarouselSection locale={locale} placement="home_top" />,
+        heroBanner: (
+          <HomeHeroBanner offer={heroOffer} section={homeSections.hero_featured} labels={labels.hero} noDescription={labels.common.noDescription} />
+        ),
+        featured: (
+          <HomeFeaturedServicesSuspenseBoundary
+            services={featuredServices}
+            locale={locale}
+            selectedCountryCode={queryInput.countryCode}
+            labels={{
+              emptyTitle: labels.featured.emptyTitle,
+              emptyDescription: labels.featured.emptyDescription,
+              discountOff: labels.featured.discountOff,
+              availableDestination: labels.featured.availableDestination,
+              noDescription: labels.common.noDescription,
+            }}
+          />
+        ),
+        nativeAd: <SponsoredMediaCarouselSection locale={locale} placement="home_native_ad" />,
+        trending: (
+          <HomeTrendingServicesSuspenseBoundary
+            services={trendingServices}
+            labels={{
+              emptyTitle: labels.trending.emptyTitle,
+              emptyDescription: labels.trending.emptyDescription,
+              bookings: labels.trending.bookings,
+            }}
+          />
+        ),
+        nearby: (
+          <ExploreNearbySection
+            section={homeSections.explore_nearby}
+            nearbyProviderCount={nearbyProviderCount}
+            countryCode={queryInput.countryCode}
+            cityCode={queryInput.cityCode}
+            latitude={nearbyLat}
+            longitude={nearbyLng}
+            locale={locale}
+            labels={labels.exploreNearby}
+          />
+        ),
+        trusted: (
+          <HomeTrustedProvidersSuspenseBoundary
+            providers={trustedProviders}
+            locale={locale}
+            labels={{
+              emptyTitle: labels.trusted.emptyTitle,
+              emptyDescription: labels.trusted.emptyDescription,
+              noDescription: labels.common.noDescription,
+            }}
+          />
+        ),
+        packages: (
+          <PremiumPackagesSection section={homeSections.premium_packages} labels={labels.premiumPackages} activePackagesCount={specialPackagesCount} />
+        ),
+        loyalty: <LoyaltyClubSection section={homeSections.loyalty_club} locale={locale} labels={labels.loyaltyClub} />,
+        sponsoredBottom: <SponsoredMediaCarouselSection locale={locale} placement="home_bottom" />,
+      }}
+    />
+    </>
   );
 }
 

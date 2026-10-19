@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+@import "../features/web-desktop/styles/desktop.css";
+
+
 @plugin "tailwindcss-animate";
 
 @custom-variant dark (&:is(.dark *));
