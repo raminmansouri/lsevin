@@ -36,8 +36,12 @@ export default async function MainLayout({
       <Shell className="gap-0 py-0">
         {/* No gap: the app bar and each page's own header must meet without a seam. */}
         <div className="flex flex-col">
-          <MobileAppBar />
-          <div className="pb-[calc(var(--bottom-nav-h)+env(safe-area-inset-bottom))]">
+          {/* The mobile app bar; on desktop its language and notifications live in DesktopHeader. */}
+          <div className="xl:hidden">
+            <MobileAppBar />
+          </div>
+          {/* Room for the mobile bottom tab bar; desktop has none. */}
+          <div className="pb-[calc(var(--bottom-nav-h)+env(safe-area-inset-bottom))] xl:pb-0">
             {children}
           </div>
           <BottomTabBar />
