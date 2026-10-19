@@ -203,3 +203,36 @@ export function CountUp({ value, duration = 1600, locale }: { value: number; dur
 
   return <span ref={ref}>{new Intl.NumberFormat(locale).format(0)}</span>;
 }
+
+/** Moves its content slower than the page while scrolling, for depth. */
+export function ScrollParallax({ children, className = "", strength = 60 }: { children: ReactNode; className?: string; strength?: number }) {
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const node = ref.current;
+    if (!node || prefersReducedMotion()) return;
+    let frame = 0;
+    const update = () => {
+      const rect = node.getBoundingClientRect();
+      // -1 when the element is below the viewport centre, +1 above it.
+      const progress = (window.innerHeight / 2 - (rect.top + rect.height / 2)) / window.innerHeight;
+      node.style.transform = `translate3d(0, ${(progress * strength).toFixed(1)}px, 0) scale(1.15)`;
+    };
+    const onScroll = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(update);
+    };
+    update();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      cancelAnimationFrame(frame);
+    };
+  }, [strength]);
+
+  return (
+    <div ref={ref} className={className} style={{ transform: "scale(1.15)" }}>
+      {children}
+    </div>
+  );
+}

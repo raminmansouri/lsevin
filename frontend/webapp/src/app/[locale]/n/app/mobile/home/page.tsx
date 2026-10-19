@@ -515,6 +515,10 @@ async function Home({ params }: PageProps) {
       locale={locale}
       categories={categories}
       specialPackagesCount={specialPackagesCount}
+      heroOffer={heroOffer}
+      heroSection={homeSections.hero_featured}
+      featuredServices={featuredServices}
+      selectedCountryCode={queryInput.countryCode}
       slots={{
         sponsoredTop: <SponsoredMediaCarouselSection locale={locale} placement="home_top" />,
         heroBanner: (

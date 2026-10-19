@@ -58,8 +58,7 @@ export async function DesktopHero({
           priority
         />
 
-        <div className="lsd-container relative grid grid-cols-[1.05fr_0.95fr] items-center gap-16 pb-36 pt-44">
-          {/* Copy */}
+        <div className="lsd-container relative grid grid-cols-[1.05fr_0.95fr] items-center gap-16 pb-64 pt-44">          {/* Copy */}
           <div className="flex flex-col gap-8">
             <Reveal delay={60}>
               <span className="inline-flex items-center gap-2 rounded-full border border-[#eacb7f]/40 px-4 py-2 text-[13px] font-semibold text-[#eacb7f]">
@@ -173,7 +172,7 @@ export async function DesktopHero({
 
         {/* Endless ribbon of categories */}
         {ribbon.length ? (
-          <div className="lsd-marquee-mask absolute inset-x-0 bottom-0 overflow-hidden border-t border-[#eacb7f]/15 py-5" aria-hidden="true">
+          <div className="lsd-marquee-mask absolute inset-x-0 bottom-32 overflow-hidden border-y border-[#eacb7f]/15 py-5" aria-hidden="true">
             <div className="lsd-marquee gap-10 text-lg text-[#eacb7f]/70">
               {[...ribbon, ...ribbon, ...ribbon, ...ribbon].map((label, index) => (
                 <span key={index} className="flex shrink-0 items-center gap-10">
@@ -185,7 +184,7 @@ export async function DesktopHero({
           </div>
         ) : null}
 
-        <div className="absolute bottom-24 start-1/2 -translate-x-1/2" aria-hidden="true">
+        <div className="absolute bottom-56 start-1/2 -translate-x-1/2" aria-hidden="true">
           <div className="lsd-scroll-cue" />
         </div>
       </section>

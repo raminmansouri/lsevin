@@ -9,6 +9,17 @@ import { Reveal } from "../components/motion";
 import { DesktopCategories } from "./DesktopCategories";
 import { DesktopHero } from "./DesktopHero";
 
+import { DesktopSponsoredSection } from "./DesktopSponsoredSection";
+
+import type { HomeHeroOffer } from "@/features/home/api/server/get-home-page";
+import type { HomeManagedSection } from "@/features/home/api/server/get-home-sections";
+
+import { DesktopFeatureBanner } from "./DesktopFeatureBanner";
+
+import type { HomeFeaturedService } from "@/features/home/api/server/get-home-page";
+
+import { DesktopFeaturedServices } from "./DesktopFeaturedServices";
+
 /** The home page's existing sections, passed in so nothing is lost while each gets its desktop design. */
 export type DesktopHomeSlots = {
   sponsoredTop: ReactNode;
@@ -29,11 +40,19 @@ export async function DesktopHome({
   categories,
   specialPackagesCount,
   slots,
+  heroOffer,
+  heroSection,
+  featuredServices,
+  selectedCountryCode,
 }: {
   locale: string;
   categories: HomeCategory[];
   specialPackagesCount: number;
   slots: DesktopHomeSlots;
+  heroOffer: HomeHeroOffer | null;
+  heroSection: HomeManagedSection;
+  featuredServices: HomeFeaturedService[];
+  selectedCountryCode?: string;
 }) {
   const t = await getTranslations({ locale, namespace: "Home" });
 
@@ -41,14 +60,12 @@ export async function DesktopHome({
     <div className="lsd hidden xl:block">
       <DesktopHero locale={locale} categories={categories} specialPackagesCount={specialPackagesCount} />
 
-      <Block>{slots.sponsoredTop}</Block>
-      <Block>{slots.heroBanner}</Block>
+      <DesktopSponsoredSection locale={locale} placement="home_top" overlapHero />
+      <DesktopFeatureBanner locale={locale} offer={heroOffer} section={heroSection} />
 
       <DesktopCategories locale={locale} categories={categories} />
 
-      <Rail title={t("featured.title")} subtitle={t("featured.subtitle")} href="/n/app/mobile/featured" seeAll={t("common.seeAll")}>
-        {slots.featured}
-      </Rail>
+      <DesktopFeaturedServices locale={locale} services={featuredServices} selectedCountryCode={selectedCountryCode} />
 
       <Block>{slots.nativeAd}</Block>
 

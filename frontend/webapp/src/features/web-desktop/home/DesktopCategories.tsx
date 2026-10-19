@@ -9,6 +9,8 @@ import { Link } from "@/i18n/navigation";
 
 import { Reveal, Tilt } from "../components/motion";
 
+import { categoryCardHref } from "@/features/categories/utils/category-href";
+
 export async function DesktopCategories({ locale, categories }: { locale: string; categories: HomeCategory[] }) {
   if (!categories.length) return null;
   const t = await getTranslations({ locale, namespace: "Home" });
@@ -29,7 +31,7 @@ export async function DesktopCategories({ locale, categories }: { locale: string
       <div className="grid grid-cols-3 gap-7">
         {categories.map((category, index) => (
           <Reveal key={category.id} delay={index * 90}>
-            <Link href={`/n/app/mobile/categories/${category.id}`} className="group block">
+            <Link href={categoryCardHref(category)} className="group block">
             <Tilt className="h-[360px] bg-[#062a20]">
               {category.imageUrl ? (
                 <ImageWithFallback

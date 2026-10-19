@@ -12,7 +12,7 @@ import { Magnetic } from "./motion";
 const HOME = "/n/app/mobile/home";
 
 /** Desktop-only floating capsule header (>= 1280px), with a gold indicator that glides between links. */
-export function DesktopHeader() {
+export function DesktopHeader({ actions }: { actions?: React.ReactNode }) {
   const tTab = useTranslations("BottomTabBar");
   const pathname = usePathname();
   const isHome = pathname === HOME;
@@ -59,7 +59,7 @@ export function DesktopHeader() {
   return (
     <div className="lsd hidden xl:block" style={{ background: "transparent" }}>
       <header className="pointer-events-none fixed inset-x-0 top-0 z-50">
-        <div className="lsd-container pt-4">
+        <div className="mx-auto max-w-[1480px] px-6 pt-4">
           <div
             data-scrolled={scrolled || !isHome ? "true" : "false"}
             className="lsd-capsule pointer-events-auto flex items-center gap-6 pe-2.5 ps-6"
@@ -94,6 +94,7 @@ export function DesktopHeader() {
             </div>
 
             <div className="flex shrink-0 items-center gap-2">
+              {actions ? <div className="lsd-action-pair">{actions}</div> : null}
               <Link
                 href="/n/app/mobile/search"
                 aria-label="Search"
