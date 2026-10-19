@@ -20,6 +20,11 @@ import { StaffLazySearchableSelect } from "@/features/staff/components/staff-laz
 import { createGatheringCampaignAction } from "../../server/actions";
 import { TOURS_TRANSLATION_KEY } from "../../types";
 
+
+// Created once: an inline object would be a new value on every render and loop the lookup.
+const TOUR_LOOKUP_PARAMS = { providerTypeKey: "tourism" };
+
+
 export function GatheringCampaignFormDialog({
   open,
   onOpenChange,
@@ -92,7 +97,7 @@ export function GatheringCampaignFormDialog({
             <Label>{t("admin.departures.tour")}</Label>
             <StaffLazySearchableSelect
               resource="providerServices"
-              queryParams={{ providerTypeKey: "tourism" }}
+              queryParams={TOUR_LOOKUP_PARAMS}
               locale={locale}
               value={providerServiceId}
               onValueChange={setProviderServiceId}
