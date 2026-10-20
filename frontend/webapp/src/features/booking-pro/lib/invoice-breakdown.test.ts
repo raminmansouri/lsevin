@@ -8,7 +8,7 @@ describe('invoice itemization', () => {
     expect(invoiceBreakdown({ price: 170, currency: 'USD', discountAmount: 0, addons: [addon], childBookings: [child] }).main).toBe(100);
   });
   it('restores the pre-discount main amount for legacy records', () => {
-    expect(invoiceBreakdown({ price: 150, currency: 'USD', discountAmount: 20, addons: [addon], childBookings: [child] })).toEqual({ main: 100, discount: 20 });
+    expect(invoiceBreakdown({ price: 150, currency: 'USD', discountAmount: 20, addons: [addon], childBookings: [child] })).toEqual({ main: 100, discount: 20, surcharge: null, surchargePercent: null });
   });
   it('uses the saved main subtotal rather than current catalog pricing', () => {
     expect(invoiceBreakdown({ price: 150, mainSubtotal: 100, discountAmount: 20 }).main).toBe(100);
@@ -22,6 +22,12 @@ describe('invoice itemization', () => {
   it('preserves zero-price services and zero-quantity add-ons', () => {
     expect(invoiceBreakdown({ price: 0, discountAmount: 0, addons: [{ ...addon, quantity: 0 }] }).main).toBe(0);
     expect(invoiceBreakdown({ price: 50, mainSubtotal: 0 }).main).toBe(0);
+  });
+  it('itemizes the pay-in-place addition instead of folding it into the main line', () => {
+    // plan '20': 960 + 5% = 1008
+    expect(invoiceBreakdown({ price: 1008, mainSubtotal: 960, discountAmount: 0, payInPlaceSurcharge: 48, payInPlaceSurchargePercent: 5 }))
+      .toEqual({ main: 960, discount: 0, surcharge: 48, surchargePercent: 5 });
+    expect(invoiceBreakdown({ price: 1008, discountAmount: 0, payInPlaceSurcharge: 48 }).main).toBe(960);
   });
   it('does not hide inconsistent or non-finite amounts behind a zero main price', () => {
     expect(invoiceBreakdown({ price: 10, discountAmount: 0, childBookings: [child] }).main).toBeNull();
