@@ -1,0 +1,118 @@
+{
+  "TourShared": {
+    "calendar": {
+      "label": "Calendar",
+      "persian": "Solar Hijri (Jalali)",
+      "gregory": "Gregorian",
+      "islamic-umalqura": "Lunar Hijri (Umm al-Qura)",
+      "shownIn": "Dates shown in {calendar}"
+    },
+    "traveler": {
+      "adult": "Adult",
+      "child": "Child",
+      "infant": "Infant",
+      "student": "Student",
+      "senior": "Senior"
+    },
+    "bookingStatus": {
+      "pending_payment": "Awaiting payment",
+      "requested": "Waiting for operator",
+      "confirmed": "Confirmed",
+      "declined": "Declined",
+      "cancelled": "Cancelled",
+      "completed": "Completed",
+      "no_show": "No-show",
+      "expired": "Expired"
+    },
+    "departureStatus": {
+      "scheduled": "Scheduled",
+      "delayed": "Delayed",
+      "in_progress": "In progress",
+      "completed": "Completed",
+      "cancelled": "Cancelled"
+    },
+    "tourStatus": {
+      "draft": "Draft",
+      "submitted": "In review",
+      "approved": "Approved",
+      "published": "Published",
+      "paused": "Paused",
+      "retired": "Archived",
+      "rejected": "Changes requested"
+    },
+    "contentStatus": {
+      "missing": "Missing",
+      "draft": "Draft",
+      "submitted": "Submitted",
+      "approved": "Approved",
+      "published": "Published",
+      "outdated": "Needs review"
+    },
+    "common": {
+      "loading": "Loading…",
+      "retry": "Try again",
+      "save": "Save",
+      "cancel": "Cancel",
+      "close": "Close",
+      "back": "Back",
+      "next": "Next",
+      "fromPrice": "From {price}",
+      "perPerson": "per person",
+      "perGroup": "per group",
+      "days": "{count, plural, one {# day} other {# days}}",
+      "nights": "{count, plural, one {# night} other {# nights}}",
+      "hours": "{count, plural, one {# hour} other {# hours}}",
+      "minutes": "{count, plural, one {# minute} other {# minutes}}",
+      "seatsLeft": "{count, plural, one {# seat left} other {# seats left}}",
+      "translatedFrom": "Shown in {language} — not yet available in your language",
+      "offline": "You are offline. Showing saved information.",
+      "unavailable": "Not available",
+      "notProvided": "Not provided by the operator",
+      "timezone": "Local time ({zone})"
+    },
+    "errors": {
+      "insufficient_capacity": "Not enough seats are left on this departure.",
+      "departure_unavailable": "This departure can no longer be booked.",
+      "booking_cutoff_passed": "Booking for this departure has closed.",
+      "hold_expired": "Your seat reservation expired. Please choose the departure again.",
+      "hold_not_found": "Your seat reservation could not be found. Please start again.",
+      "price_changed": "The price changed while you were booking. Review the new total before continuing.",
+      "policy_changed": "The booking rules were updated. Please review and accept them again.",
+      "group_size": "This number of travelers is outside the allowed group size.",
+      "no_travelers": "Add at least one traveler.",
+      "unpriced_traveler_class": "This traveler type is not offered for this option.",
+      "invalid_guest_details": "Please correct the highlighted fields.",
+      "sign_in_required": "Please sign in to continue.",
+      "forbidden": "You do not have permission to do this.",
+      "provider_role_required": "Your role in this organization does not allow this action.",
+      "admin_required": "Administrator access is required.",
+      "locale_not_assigned": "You are not assigned to this language.",
+      "not_found": "Not found.",
+      "tour_not_found": "This tour is not available.",
+      "booking_not_found": "This booking was not found.",
+      "not_cancellable": "This booking can no longer be cancelled.",
+      "publish_requirements_unmet": "Some required information is missing before this tour can be published.",
+      "invalid_status_transition": "This change is not allowed in the current state.",
+      "duplicate": "This already exists.",
+      "invalid_value": "One of the values is not valid.",
+      "service_unavailable": "The service is temporarily unavailable. Please try again shortly.",
+      "unexpected_error": "Something went wrong. Please try again.",
+      "overlapping_assignment": "This guide or resource is already assigned at that time.",
+      "changes_need_review": "Your changes need review before the tour can be published again.",
+      "last_published_image": "A published tour needs at least one image.",
+      "invalid_date": "Enter a valid date in the selected calendar.",
+      "invalid_time": "Enter a valid time (HH:MM).",
+      "invalid_calendar": "Choose a calendar.",
+      "invalid_slug": "Use lowercase letters, numbers and dashes."
+    },
+    "errorKind": {
+      "validation": "Please check your input.",
+      "authentication": "Please sign in to continue.",
+      "authorization": "You do not have permission to do this.",
+      "not_found": "Not found.",
+      "conflict": "This could not be completed because something changed.",
+      "infrastructure": "The service is temporarily unavailable. Please try again shortly.",
+      "unexpected": "Something went wrong. Please try again."
+    }
+  }
+}

@@ -118,7 +118,7 @@ describe("month grid (AT-22, AT-34)", () => {
     const cells = monthGrid(2026, 12, "gregory", 1).flat();
     const isos = cells.map((c) => c.iso);
     for (let i = 1; i < isos.length; i += 1) expect(isos[i]).toBe(addDaysIso(isos[i - 1], 1));
-    expect(isos.at(-1)! >= "2026-12-31").toBe(true);
+    expect(isos[isos.length - 1] >= "2026-12-31").toBe(true);
   });
 });
 

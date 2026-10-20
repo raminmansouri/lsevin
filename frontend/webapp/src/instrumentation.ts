@@ -7,5 +7,11 @@ export async function register() {
       "./features/notification/server/dispatch-loop"
     );
     startNotificationDispatchLoop();
+
+    // Tours housekeeping (holds/payment deadlines, tracking retention, departure
+    // completion, waitlist offers). One process per tick via an advisory lock;
+    // TOURS_SWEEPER=off disables it.
+    const { startToursSweeper } = await import("./features/tours/server/ops/sweeper");
+    startToursSweeper();
   }
 }
