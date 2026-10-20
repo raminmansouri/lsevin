@@ -12744,6 +12744,25 @@ declare const messages: {
     "withdrawal_requests": "Solicitudes de retiro"
   },
   "Consultation": {
+    "finder": {
+      "open": "Consultar a un médico",
+      "title": "Consultar a un médico",
+      "subtitle": "Elige el área médica que creas más adecuada para ver sus médicos.",
+      "doctorsSubtitle": "Consulta los médicos de esta área y elige el que prefieras.",
+      "all": "Todos",
+      "back": "Atrás",
+      "doctorCount": "{count, plural, one {# médico} other {# médicos}}",
+      "rating": "{rating, number} ({count, number} reseñas)",
+      "experience": "{years, number} años de experiencia",
+      "viewProfile": "Ver",
+      "empty": "Aún no hay médicos en esta área.",
+      "noCategories": "Todavía no hay áreas con médicos activos.",
+      "retry": "Reintentar",
+      "errors": {
+        "loadFailed": "No se pudo cargar. Inténtalo de nuevo.",
+        "invalidCategory": "No se encontró esta área."
+      }
+    },
     "step": {
       "label": "Consulta gratuita",
       "title": "¿No sabes qué reservar? Habla primero con un asesor.",

@@ -13118,6 +13118,25 @@
     "withdrawal_requests": "Para Çekme Talepleri"
   },
   "Consultation": {
+    "finder": {
+      "open": "Doktora danış",
+      "title": "Doktora danış",
+      "subtitle": "Doktorlarını görmek için size en uygun tıbbi alanı seçin.",
+      "doctorsSubtitle": "Bu alandaki doktorlara göz atın ve istediğinizi seçin.",
+      "all": "Tümü",
+      "back": "Geri",
+      "doctorCount": "{count, plural, other {# doktor}}",
+      "rating": "{rating, number} ({count, number} yorum)",
+      "experience": "{years, number} yıl deneyim",
+      "viewProfile": "Görüntüle",
+      "empty": "Bu alanda henüz doktor yok.",
+      "noCategories": "Henüz aktif doktoru olan alan yok.",
+      "retry": "Tekrar dene",
+      "errors": {
+        "loadFailed": "Yüklenemedi. Lütfen tekrar deneyin.",
+        "invalidCategory": "Bu alan bulunamadı."
+      }
+    },
     "step": {
       "label": "Ücretsiz danışmanlık",
       "title": "Ne rezerve edeceğinizden emin değil misiniz? Önce bir danışmanla konuşun.",

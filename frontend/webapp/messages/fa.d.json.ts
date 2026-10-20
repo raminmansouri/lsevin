@@ -14268,6 +14268,25 @@ declare const messages: {
     "zip_code": "کد پستی"
   },
   "Consultation": {
+    "finder": {
+      "open": "مشاوره با پزشک",
+      "title": "مشاوره با پزشک",
+      "subtitle": "حوزه درمانی که فکر می‌کنید برایتان مناسب است را انتخاب کنید تا پزشکان آن را ببینید.",
+      "doctorsSubtitle": "پزشکان این حوزه را ببینید و پزشک مورد نظرتان را انتخاب کنید.",
+      "all": "همه",
+      "back": "بازگشت",
+      "doctorCount": "{count, plural, other {# پزشک}}",
+      "rating": "{rating, number} ({count, number} نظر)",
+      "experience": "{years, number} سال سابقه",
+      "viewProfile": "مشاهده",
+      "empty": "هنوز پزشکی در این حوزه ثبت نشده است.",
+      "noCategories": "فعلاً حوزه‌ای با پزشک فعال وجود ندارد.",
+      "retry": "تلاش دوباره",
+      "errors": {
+        "loadFailed": "بارگذاری انجام نشد. دوباره تلاش کنید.",
+        "invalidCategory": "این حوزه پیدا نشد."
+      }
+    },
     "step": {
       "label": "مشاوره رایگان",
       "title": "مطمئن نیستید چه چیزی رزرو کنید؟ اول با کارشناس ما صحبت کنید.",

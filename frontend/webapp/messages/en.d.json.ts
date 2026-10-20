@@ -14262,6 +14262,25 @@ declare const messages: {
     "office_hours": "Office Hours"
   },
   "Consultation": {
+    "finder": {
+      "open": "Consult a doctor",
+      "title": "Consult a doctor",
+      "subtitle": "Choose the medical field you think fits you best to see its doctors.",
+      "doctorsSubtitle": "Browse the doctors in this field and pick the one you want.",
+      "all": "All",
+      "back": "Back",
+      "doctorCount": "{count, plural, one {# doctor} other {# doctors}}",
+      "rating": "{rating, number} ({count, number} reviews)",
+      "experience": "{years, number} yrs experience",
+      "viewProfile": "View",
+      "empty": "No doctors are listed in this field yet.",
+      "noCategories": "No fields with active doctors yet.",
+      "retry": "Try again",
+      "errors": {
+        "loadFailed": "Couldn't load. Please try again.",
+        "invalidCategory": "This field was not found."
+      }
+    },
     "step": {
       "label": "Free consultation",
       "title": "Not sure what to book? Talk to an advisor first.",
