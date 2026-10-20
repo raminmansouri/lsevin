@@ -23,6 +23,7 @@ import {
 } from "@/features/shop/actions/admin-catalog.actions";
 import { ProductCoreForm } from "@/features/shop/components/admin/ProductCoreForm";
 import { ProductGalleryEditor } from "@/features/shop/components/admin/ProductGalleryEditor";
+import { PendingSubmitButton } from "@/features/shop/components/admin/PendingSubmitButton";
 import { ShopDeleteButton } from "@/features/shop/components/admin/ShopDeleteButton";
 import { ServiceDefinitionPicker } from "@/features/shop/components/admin/ServiceDefinitionPicker";
 
@@ -108,7 +109,7 @@ export default async function AdminProductEditPage({ params }: { params: Promise
                   <form action={unlinkProductServiceForm}>
                     <input type="hidden" name="linkId" value={l.id} />
                     <input type="hidden" name="productId" value={product.id} />
-                    <button className="text-xs text-red-600">{t("common.remove")}</button>
+                    <PendingSubmitButton className="text-xs text-red-600">{t("common.remove")}</PendingSubmitButton>
                   </form>
                 </li>
               ))}
@@ -127,7 +128,7 @@ export default async function AdminProductEditPage({ params }: { params: Promise
                 {RELATION.map((r) => <option key={r} value={r}>{t.has(`relation.${r}`) ? t(`relation.${r}`) : r}</option>)}
               </select>
               <input name="displayOrder" type="number" defaultValue={0} className={input} />
-              <button className="w-full rounded bg-[#083f30] px-3 py-2 text-sm font-semibold text-white">{e("addServiceLink")}</button>
+              <PendingSubmitButton className="w-full rounded bg-[#083f30] px-3 py-2 text-sm font-semibold text-white">{e("addServiceLink")}</PendingSubmitButton>
             </form>
           </section>
 
