@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
+import { Trash2 } from "lucide-react";
 
 import { Link, useRouter } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
@@ -122,19 +123,28 @@ export function CartClient({
               </span>
               <div className="flex items-center rounded-lg border border-neutral-200">
                 <button
-                  aria-label="decrease"
-                  disabled={pending || item.quantity <= 1}
+                  aria-label={item.quantity <= 1 ? t("remove") : "decrease"}
+                  disabled={pending}
                   onClick={() =>
                     run(() =>
-                      updateCartLineQuantityAction({
-                        cartItemId: item.id,
-                        quantity: item.quantity - 1,
-                      })
+                      item.quantity <= 1
+                        ? removeCartLineAction(item.id)
+                        : updateCartLineQuantityAction({
+                            cartItemId: item.id,
+                            quantity: item.quantity - 1,
+                          })
                     )
                   }
-                  className="px-2.5 py-1 text-neutral-600 disabled:opacity-40"
+                  className={cn(
+                    "px-2.5 py-1 disabled:opacity-40",
+                    item.quantity <= 1 ? "text-[#e02e2a]" : "text-neutral-600"
+                  )}
                 >
-                  −
+                  {item.quantity <= 1 ? (
+                    <Trash2 className="h-4 w-4" aria-hidden />
+                  ) : (
+                    "−"
+                  )}
                 </button>
                 <span className="min-w-[2rem] text-center text-sm font-semibold">
                   {item.quantity}
