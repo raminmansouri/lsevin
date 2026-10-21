@@ -464,15 +464,11 @@ export async function upsertAttribute(input: {
 
 export async function deleteAttribute(input: { id: string }): Promise<void> {
   await assertShopPermission(SHOP_PERMISSIONS.catalogManage);
-  const [inUse] = await sql<{ n: number }[]>`
-    select count(*)::int as n from shop.product_attributes where attribute_id = ${input.id}::uuid
-  `;
-  if (inUse.n > 0)
-    throw new Error(
-      `Attribute is attached to ${inUse.n} product(s) — detach it first.`
-    );
-  await sql`delete from shop.attribute_values where attribute_id = ${input.id}::uuid`;
-  await sql`delete from shop.attributes where id = ${input.id}::uuid`;
+  await sql.begin(async (tx) => {
+    await tx`delete from shop.product_attributes where attribute_id = ${input.id}::uuid`;
+    await tx`delete from shop.attribute_values where attribute_id = ${input.id}::uuid`;
+    await tx`delete from shop.attributes where id = ${input.id}::uuid`;
+  });
 }
 
 /**

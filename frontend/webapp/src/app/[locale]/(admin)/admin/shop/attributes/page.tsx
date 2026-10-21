@@ -49,8 +49,9 @@ export default async function AdminAttributesPage() {
                 <ShopDeleteButton
                   action={deleteAttributeAction.bind(null, { id: a.id })}
                   title={`${t("attributes.delete")} — ${a.name}`}
-                  description={t("attributes.title")}
-                  disabled={a.product_count > 0}
+                  description={
+                    a.product_count > 0 ? t("attributes.deleteInUse", { n: a.product_count }) : t("attributes.title")
+                  }
                   variant="ghost"
                 />
               </div>
