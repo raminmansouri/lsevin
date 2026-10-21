@@ -13267,25 +13267,6 @@ declare const messages: {
     "withdrawal_requests": "طلبات السحب"
   },
   "Consultation": {
-    "finder": {
-      "open": "استشارة طبيب",
-      "title": "استشارة طبيب",
-      "subtitle": "اختر المجال الطبي الذي تراه مناسبًا لك لعرض أطبائه.",
-      "doctorsSubtitle": "تصفح أطباء هذا المجال واختر الطبيب الذي تريده.",
-      "all": "الكل",
-      "back": "رجوع",
-      "doctorCount": "{count, plural, one {طبيب واحد} two {طبيبان} few {# أطباء} other {# طبيب}}",
-      "rating": "{rating, number} ({count, number} تقييم)",
-      "experience": "{years, number} سنوات خبرة",
-      "viewProfile": "عرض",
-      "empty": "لا يوجد أطباء في هذا المجال بعد.",
-      "noCategories": "لا توجد مجالات بأطباء نشطين حاليًا.",
-      "retry": "حاول مرة أخرى",
-      "errors": {
-        "loadFailed": "تعذر التحميل. حاول مرة أخرى.",
-        "invalidCategory": "لم يتم العثور على هذا المجال."
-      }
-    },
     "step": {
       "label": "استشارة مجانية",
       "title": "لست متأكداً مما تحجزه؟ تحدث أولاً مع أحد المستشارين.",
@@ -13955,6 +13936,7 @@ declare const messages: {
     "relCompatible": "يعمل مع هذا",
     "relGeneral": "ذات صلة",
     "serviceProductsHeading": "منتجات موصى بها",
+    "serviceRelatedProductsTitle": "منتجات ذات صلة",
     "cancelOrder": "إلغاء الطلب",
     "cancelReason": "السبب (اختياري)",
     "confirmCancel": "نعم، ألغِ هذا الطلب",

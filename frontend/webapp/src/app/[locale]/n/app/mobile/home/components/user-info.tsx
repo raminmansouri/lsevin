@@ -5,7 +5,6 @@ import { User } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { useOfflineHomeIdentity } from "@/components/pwa/home-identity";
-import { DoctorFinderButton } from "@/features/consultation/components/doctor-finder-button";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { resolveHomeMediaUrl } from "@/features/home/components/home-media";
 import { getProfileAvatar } from "@/features/profile/actions/profile.actions";
@@ -94,15 +93,12 @@ export default function UserInfoSubBar({ profile }: Props) {
           </h1>
         </div>
 
-        <div className="flex shrink-0 items-center gap-3">
-          <DoctorFinderButton />
-          <Link
-            href="/sign-in"
-            className="shrink-0 rounded-full bg-[#eacb7f] px-4 py-2 text-sm font-bold text-[#083f30] transition hover:bg-[#f0d795]"
-          >
-            {homeT("signIn")}
-          </Link>
-        </div>
+        <Link
+          href="/sign-in"
+          className="shrink-0 rounded-full bg-[#eacb7f] px-4 py-2 text-sm font-bold text-[#083f30] transition hover:bg-[#f0d795]"
+        >
+          {homeT("signIn")}
+        </Link>
       </div>
     );
   }
@@ -120,30 +116,27 @@ export default function UserInfoSubBar({ profile }: Props) {
         <h1 className="truncate text-xl font-bold text-white">{fullName}</h1>
       </div>
 
-      <div className="flex shrink-0 items-center gap-3">
-        <DoctorFinderButton />
-        <Link
-          href="/n/app/mobile/profile"
-          className="size-11 shrink-0 overflow-hidden rounded-full ring-2 ring-[#eacb7f]/60 ring-offset-2 ring-offset-[#083f30]"
-        >
-          {resolvedImageUrl ? (
-            <ImageWithFallback
-              width={100}
-              height={100}
-              src={resolvedImageUrl}
-              alt={homeT("profileAlt")}
-              className="h-full w-full object-cover"
+      <Link
+        href="/n/app/mobile/profile"
+        className="size-11 shrink-0 overflow-hidden rounded-full ring-2 ring-[#eacb7f]/60 ring-offset-2 ring-offset-[#083f30]"
+      >
+        {resolvedImageUrl ? (
+          <ImageWithFallback
+            width={100}
+            height={100}
+            src={resolvedImageUrl}
+            alt={homeT("profileAlt")}
+            className="h-full w-full object-cover"
+          />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center bg-white/10">
+            <User
+              className="h-5 w-5 text-white/70"
+              aria-label={homeT("profileAlt")}
             />
-          ) : (
-            <div className="flex h-full w-full items-center justify-center bg-white/10">
-              <User
-                className="h-5 w-5 text-white/70"
-                aria-label={homeT("profileAlt")}
-              />
-            </div>
-          )}
-        </Link>
-      </div>
+          </div>
+        )}
+      </Link>
     </div>
   );
 }

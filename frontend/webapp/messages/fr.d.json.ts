@@ -12741,25 +12741,6 @@ declare const messages: {
     "withdrawal_requests": "Demandes de retrait"
   },
   "Consultation": {
-    "finder": {
-      "open": "Consulter un médecin",
-      "title": "Consulter un médecin",
-      "subtitle": "Choisissez le domaine médical qui vous convient le mieux pour voir ses médecins.",
-      "doctorsSubtitle": "Parcourez les médecins de ce domaine et choisissez celui qui vous convient.",
-      "all": "Tous",
-      "back": "Retour",
-      "doctorCount": "{count, plural, one {# médecin} other {# médecins}}",
-      "rating": "{rating, number} ({count, number} avis)",
-      "experience": "{years, number} ans d'expérience",
-      "viewProfile": "Voir",
-      "empty": "Aucun médecin n'est encore référencé dans ce domaine.",
-      "noCategories": "Aucun domaine avec des médecins actifs pour le moment.",
-      "retry": "Réessayer",
-      "errors": {
-        "loadFailed": "Échec du chargement. Veuillez réessayer.",
-        "invalidCategory": "Ce domaine est introuvable."
-      }
-    },
     "step": {
       "label": "Consultation gratuite",
       "title": "Vous ne savez pas quoi réserver ? Parlez d'abord à un conseiller.",
