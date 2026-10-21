@@ -390,7 +390,11 @@ suite("tours platform (real database)", () => {
     const live = await catalog.getTourDetail(id, "fa-IR");
     expect(live?.text.summary?.value).toBe("خلاصه");
     const [anchor] = await sql<any[]>`select ps.is_active from tour.tours t join category.provider_services ps on ps.id = t.provider_service_id where t.id = ${id}`;
-    expect(anchor.is_active).toBe(true);
+    // The booking anchor never becomes a generic, bookable catalog service (0082):
+    // only the Tours checkout (holds, pricing, policy snapshot) may book a tour.
+    expect(anchor.is_active).toBe(false);
+    const [tags] = await sql<any[]>`select ps.tags from tour.tours t join category.provider_services ps on ps.id = t.provider_service_id where t.id = ${id}`;
+    expect(tags.tags).toContain("tour-booking-anchor");
   });
 
   it("AT-17 one guide cannot be assigned to overlapping departures unless explicitly overridden", async () => {
