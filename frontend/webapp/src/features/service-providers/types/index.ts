@@ -322,6 +322,9 @@ export interface Booking {
 export interface BookingRecord {
     mainSubtotal?: number | null;
     discountAmount?: number | null;
+    /** Pay-in-place plan addition, included in price but in no line item. */
+    payInPlaceSurcharge?: number | null;
+    payInPlaceSurchargePercent?: number | null;
     id: string;
     service: string;
     provider: string;

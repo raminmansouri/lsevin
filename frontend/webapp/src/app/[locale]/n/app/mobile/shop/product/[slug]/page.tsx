@@ -9,9 +9,7 @@ import { ProductDetailClient } from "@/features/shop/components/ProductDetailCli
 import { ProductGrid } from "@/features/shop/components/home-sections";
 import { ShopPrice } from "@/features/shop/components/ShopPrice";
 import { WishlistHeart } from "@/features/shop/components/WishlistHeart";
-import { getProductsForService } from "@/features/shop/api/service-relations.repository";
 import { CompareButton } from "@/features/shop/components/CompareButton";
-import { ServiceRelatedRail } from "@/features/shop/components/ServiceRelatedRail";
 import { ProductPersonalSections } from "@/features/shop/components/ProductPersonalSections";
 import { shopImageSrc } from "@/features/shop/lib/image";
 import { ConsultationCtaButton } from "@/features/consultation/components/consultation-cta-button";
@@ -56,13 +54,6 @@ export default async function ProductDetailPage({
 
   const product = await getProductBySlugCached(slug, locale);
   if (!product) notFound();
-
-  const primaryServiceId = product.relatedServices[0]?.serviceDefinitionId ?? null;
-  const serviceRelated = primaryServiceId
-    ? await getProductsForService(primaryServiceId, { limit: 16, locale, displayCurrency: "USD", noFx: true }).catch(() => null)
-    : null;
-  const serviceRelatedCount =
-    serviceRelated?.byRelation.reduce((n, g) => n + g.products.length, 0) ?? 0;
 
   return (
     <div className="min-h-screen bg-neutral-50 pb-56">
@@ -195,21 +186,16 @@ export default async function ProductDetailPage({
           <h2 className="mb-2 text-sm font-bold text-neutral-900">{t("relatedServices")}</h2>
           <div className="flex flex-wrap gap-2">
             {product.relatedServices.map((s) => (
-              <span key={s.serviceDefinitionId} className="rounded-full bg-[#083f30]/5 px-3 py-1 text-xs font-medium text-[#083f30]">
+              <Link
+                key={s.serviceDefinitionId}
+                href={`/n/app/mobile/service/${s.serviceDefinitionId}`}
+                className="rounded-full bg-[#083f30]/5 px-3 py-1 text-xs font-medium text-[#083f30] transition-colors hover:bg-[#083f30]/10"
+              >
                 {s.name || s.relationType}
-              </span>
+              </Link>
             ))}
           </div>
         </section>
-      ) : null}
-
-      {serviceRelated && serviceRelated.byRelation.length ? (
-        <ServiceRelatedRail
-          serviceDefinitionId={serviceRelated.serviceDefinitionId}
-          serviceName={serviceRelated.serviceName}
-          groups={serviceRelated.byRelation}
-          locale={locale}
-        />
       ) : null}
 
       {product.relatedProducts.length ? (
@@ -227,8 +213,6 @@ export default async function ProductDetailPage({
         reviews={product.reviews}
         reviewCount={product.reviewCount}
         questions={product.questions}
-        relatedServiceKey={serviceRelated?.serviceDefinitionId ?? null}
-        relatedServiceCount={serviceRelatedCount}
       />
 
       <div className="p-4 text-center">

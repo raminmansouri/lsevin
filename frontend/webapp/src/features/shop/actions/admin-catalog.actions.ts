@@ -238,11 +238,17 @@ export async function deleteAttributeForm(formData: FormData) {
   await deleteAttribute({ id: shopId.parse(formData.get("id")) });
   revalidatePath("/[locale]/admin/shop/attributes", "page");
 }
+
+
 export async function deleteAttributeAction(input: { id: string }) {
   await deleteAttribute({ id: shopId.parse(input.id) });
+  // Product pages showed this attribute in their specifications; refresh them too.
+  revalidateShopCatalog();
+  revalidatePath("/[locale]/n/app/mobile/shop/product/[slug]", "page");
   revalidatePath("/[locale]/admin/shop/attributes", "page");
   return { ok: true as const };
 }
+
 
 export async function addAttributeValueForm(formData: FormData) {
   await addAttributeValue({

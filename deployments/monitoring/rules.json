@@ -1,4 +1,5 @@
 {
+  "ipv4_only": true,
   "prometheus": "",
   "eval_seconds": 60,
   "daily_summary_utc": "07:00",
@@ -310,14 +311,14 @@
       "severity": "warning",
       "for": 0,
       "expr": "lsevin_jenkins_last_build_result == 0 and lsevin_jenkins_last_build_age_seconds < 86400",
-      "summary": "the last build of {job} FAILED"
+      "summary": "the last build of {exported_job} FAILED"
     },
     {
       "name": "jenkins_repeated_failures",
       "severity": "critical",
       "for": 0,
       "expr": "lsevin_jenkins_consecutive_failures >= 3 and lsevin_jenkins_last_build_age_seconds < 86400",
-      "summary": "{job}: {value} builds failed in a row"
+      "summary": "{exported_job}: {value} builds failed in a row"
     },
     {
       "name": "sms_provider_login_failed",

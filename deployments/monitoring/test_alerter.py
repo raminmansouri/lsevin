@@ -1,11 +1,12 @@
 """Tests for lsevin-alerter's decision logic (no network, no Prometheus, no Telegram). Run:  python test_alerter.py"""
-import importlib.machinery, importlib.util, os, sys, tempfile, unittest
+import importlib.machinery, importlib.util, os, sys, tempfile, time, unittest
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 loader = importlib.machinery.SourceFileLoader("alerter", os.path.join(HERE, "lsevin-alerter"))
 spec = importlib.util.spec_from_loader("alerter", loader)
 A = importlib.util.module_from_spec(spec)
 loader.exec_module(A)
+REAL_HTTP_CHECK = A.http_check          # Env() replaces A.http_check with a fake; keep the real one for the HTTP tests
 
 
 class Env:
@@ -130,6 +131,39 @@ class T(unittest.TestCase):
         e, st = fresh()
         e.rows["E2"] = [({}, 1.0)]
         e.tick(CFG, st); self.assertEqual(len(e.sent), 1); self.assertIn("?", e.sent[0])
+
+
+class HttpCheck(unittest.TestCase):
+    """the real http_check against a local server: one slow answer is retried before it counts as 'slow'"""
+    def serve(self, delays):
+        import http.server, threading
+        hits = []
+        class H(http.server.BaseHTTPRequestHandler):
+            def do_GET(self):
+                n = len(hits); hits.append(1)
+                time.sleep(delays[min(n, len(delays) - 1)])
+                self.send_response(200); self.end_headers(); self.wfile.write(b"ok")
+            def log_message(self, *a): pass
+        srv = http.server.ThreadingHTTPServer(("127.0.0.1", 0), H)
+        threading.Thread(target=srv.serve_forever, daemon=True).start()
+        self.addCleanup(srv.shutdown)
+        return "http://127.0.0.1:%d/" % srv.server_address[1], hits
+
+    def test_single_slow_answer_is_not_a_failure(self):
+        url, hits = self.serve([1.3, 0])
+        ok, detail = REAL_HTTP_CHECK({"url": url, "slow_seconds": 1})
+        self.assertTrue(ok, detail); self.assertEqual(len(hits), 2)
+
+    def test_persistently_slow_is_a_failure(self):
+        url, hits = self.serve([1.3, 1.3])
+        ok, detail = REAL_HTTP_CHECK({"url": url, "slow_seconds": 1})
+        self.assertFalse(ok); self.assertIn("slow", detail)
+
+    def test_fast_answer_is_checked_once(self):
+        url, hits = self.serve([0])
+        ok, _ = REAL_HTTP_CHECK({"url": url, "slow_seconds": 1})
+        self.assertTrue(ok); self.assertEqual(len(hits), 1)
+
 
 
 if __name__ == "__main__":

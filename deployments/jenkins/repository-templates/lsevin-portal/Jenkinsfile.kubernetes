@@ -35,6 +35,7 @@ pipeline {
     stage('Deploy') {
       steps {
         sh '''set -eu
+          touch .portal-deploy-started   # only a build that reached this point may roll the deployment back
           "$DEPLOY" kubectl -n "$NAMESPACE" set image deployment/lsevin-portal \
             web="lsevin-portal:$IMAGE_TAG" migrate="lsevin-portal-db:$IMAGE_TAG"
           "$DEPLOY" kubectl -n "$NAMESPACE" rollout status deployment/lsevin-portal --timeout=10m
@@ -49,6 +50,8 @@ pipeline {
     }
   }
   post {
-    failure { sh '"$DEPLOY" kubectl -n "$NAMESPACE" rollout undo deployment/lsevin-portal || true' }
+    // Undo only when this build changed the deployment. A build that failed earlier (e.g. at compile) has nothing to undo;
+    // an unconditional undo flips a healthy deployment to its older revision (2026-10-19 providers portal outage).
+    failure { sh '''if [ -f .portal-deploy-started ]; then "$DEPLOY" kubectl -n "$NAMESPACE" rollout undo deployment/lsevin-portal || true; fi''' }
   }
 }

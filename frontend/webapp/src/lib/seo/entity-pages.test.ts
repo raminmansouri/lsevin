@@ -6,7 +6,6 @@ vi.mock("next/navigation", () => ({ notFound: () => { throw new Error("NEXT_HTTP
 vi.mock("next-intl/server", () => ({ setRequestLocale: vi.fn(), getTranslations: async () => (key: string) => key }));
 vi.mock("@/features/shop/api/catalog.repository.cached", () => ({ getProductBySlugCached: mocks.product }));
 vi.mock("@/features/shop/api/catalog.repository", () => ({ listActiveProductSlugs: async () => [] }));
-vi.mock("@/features/shop/api/service-relations.repository", () => ({ getProductsForService: async () => null }));
 vi.mock("@/features/service-providers/server/provider-page.repository.cached", () => ({ getProviderPageDataFromDbCached: mocks.provider }));
 vi.mock("@/features/service-providers/server/provider-page.repository", () => ({ listActiveProviderPageIds: async () => [] }));
 vi.mock("@/i18n/navigation", () => ({ Link: () => null }));
@@ -16,7 +15,6 @@ vi.mock("@/features/shop/components/home-sections", () => ({ ProductGrid: () => 
 vi.mock("@/features/shop/components/ShopPrice", () => ({ ShopPrice: () => null }));
 vi.mock("@/features/shop/components/WishlistHeart", () => ({ WishlistHeart: () => null }));
 vi.mock("@/features/shop/components/CompareButton", () => ({ CompareButton: () => null }));
-vi.mock("@/features/shop/components/ServiceRelatedRail", () => ({ ServiceRelatedRail: () => null }));
 vi.mock("@/features/shop/components/ProductPersonalSections", () => ({ ProductPersonalSections: () => null }));
 vi.mock("@/features/shop/lib/image", () => ({ shopImageSrc: () => null }));
 vi.mock("@/features/sponsered-slider/components/sponsored-placement-slot", () => ({ SponsoredPlacementSlot: () => null }));

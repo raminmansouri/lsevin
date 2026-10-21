@@ -142,6 +142,16 @@ def prom_query(base, expr):
     return out
 
 
+_real_getaddrinfo = socket.getaddrinfo
+
+def apply_network_prefs(cfg):
+    """rules.json {"ipv4_only": true}: resolve to IPv4 only, so checks measure the stable IPv4 path"""
+    if cfg.get("ipv4_only"):
+        socket.getaddrinfo = lambda host, port, family=0, *a, **k: _real_getaddrinfo(host, port, socket.AF_INET, *a, **k)
+    else:
+        socket.getaddrinfo = _real_getaddrinfo
+
+
 def http_check(c):
     """-> (ok, detail)"""
     url, timeout = c["url"], c.get("timeout", 20)
@@ -167,6 +177,8 @@ def http_check(c):
     except Exception as e:
         return False, f"{type(e).__name__}: {str(e)[:80]}"
     secs = time.time() - t
+    if code in expect and secs > c.get("slow_seconds", 8) and not c.get("_retried"):   # a single slow answer is usually the network, not the site
+        return http_check(dict(c, _retried=True))
     if code not in expect:
         return False, f"HTTP {code} (expected {sorted(expect)})"
     if secs > c.get("slow_seconds", 8):
@@ -321,6 +333,7 @@ def main():
     load_env()
     args = sys.argv[1:]
     cfg = load_json(os.path.join(CFG_DIR, "rules.json"), {})
+    apply_network_prefs(cfg)
     if not cfg:
         log("no rules.json"); sys.exit(2)
     os.makedirs(STATE_DIR, exist_ok=True)
@@ -345,6 +358,7 @@ def main():
     while True:
         try:
             cfg = load_json(os.path.join(CFG_DIR, "rules.json"), cfg)
+            apply_network_prefs(cfg)
             flush_outbox(st)
             step(cfg, st, True)
             save_state(st)
