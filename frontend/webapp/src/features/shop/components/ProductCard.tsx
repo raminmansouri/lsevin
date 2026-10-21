@@ -35,13 +35,18 @@ export function ProductCard({
   labels,
   className,
   priority = false,
+  compact = false,
 }: {
   product: ProductCardModel;
   locale?: string;
   labels: Labels;
   className?: string;
   priority?: boolean;
+  /** ~70% scale for rails embedded in other pages (service page, booking). Shop pages keep the default. */
+  compact?: boolean;
 }) {
+  // [default, compact] class pairs
+  const sz = (normal: string, small: string) => (compact ? small : normal);
   const href = `/n/app/mobile/shop/product/${product.slug}`;
   const ranged = product.priceMax > product.price + 0.001;
 
@@ -49,7 +54,9 @@ export function ProductCard({
     <Link
       href={href}
       className={cn(
-        "group flex flex-col overflow-hidden rounded-2xl bg-white shadow-[0_1px_3px_rgba(0,0,0,0.06)] ring-1 ring-black/[0.04] transition active:scale-[0.985]",
+        "group flex flex-col overflow-hidden bg-white",
+        sz("rounded-2xl", "rounded-xl"),
+        "shadow-[0_1px_3px_rgba(0,0,0,0.06)] ring-1 ring-black/[0.04] transition active:scale-[0.985]",
         className
       )}
     >
@@ -63,60 +70,60 @@ export function ProductCard({
             className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center text-3xl">🛍️</div>
+          <div className={cn("flex h-full w-full items-center justify-center", sz("text-3xl", "text-xl"))}>🛍️</div>
         )}
 
         {product.discountPercent != null && product.discountPercent > 0 ? (
-          <span suppressHydrationWarning className="absolute start-2 top-2 rounded-md bg-[#e02e2a] px-1.5 py-0.5 text-[11px] font-bold text-white shadow">
+          <span suppressHydrationWarning className={cn("absolute rounded-md bg-[#e02e2a] font-bold text-white shadow", sz("start-2 top-2 px-1.5 py-0.5 text-[11px]", "start-1 top-1 px-1 py-px text-[8px]"))}>
             −{product.discountPercent}%
           </span>
         ) : null}
 
-        <WishlistHeart productId={product.id} initialActive={product.wishlistActive} resolveOnMount className="absolute end-1.5 top-1.5 h-7 w-7" size={16} />
+        <WishlistHeart productId={product.id} initialActive={product.wishlistActive} resolveOnMount className={cn("absolute", sz("end-1.5 top-1.5 h-7 w-7", "end-1 top-1 h-5 w-5"))} size={compact ? 11 : 16} />
 
         {product.isPreorder ? (
-          <span className="absolute end-2 top-10 rounded-md bg-[#083f30] px-1.5 py-0.5 text-[10px] font-semibold text-white">
+          <span className={cn("absolute rounded-md bg-[#083f30] font-semibold text-white", sz("end-2 top-10 px-1.5 py-0.5 text-[10px]", "end-1 top-7 px-1 py-px text-[8px]"))}>
             {labels.preorder}
           </span>
         ) : !product.hasStock ? (
-          <span className="absolute inset-x-0 bottom-0 bg-black/55 py-1 text-center text-[11px] font-semibold text-white">
+          <span className={cn("absolute inset-x-0 bottom-0 bg-black/55 text-center font-semibold text-white", sz("py-1 text-[11px]", "py-0.5 text-[8px]"))}>
             {labels.outOfStock}
           </span>
         ) : null}
       </div>
 
-      <div className="flex flex-1 flex-col gap-1 p-2.5">
-        <h3 className="line-clamp-2 min-h-[2.5rem] text-[13px] leading-tight text-neutral-800">
+      <div className={cn("flex flex-1 flex-col", sz("gap-1 p-2.5", "gap-0.5 p-1.5"))}>
+        <h3 className={cn("line-clamp-2 text-neutral-800", sz("min-h-[2.5rem] text-[13px]", "min-h-[1.75rem] text-[10px]"), "leading-tight")}>
           {product.name}
         </h3>
 
         <div className="mt-0.5 flex items-baseline gap-1.5">
           {product.priceUnavailable ? (
-            <span className="text-[13px] font-semibold text-muted-foreground">{labels.priceUnavailable}</span>
+            <span className={cn("font-semibold text-muted-foreground", sz("text-[13px]", "text-[10px]"))}>{labels.priceUnavailable}</span>
           ) : (
             <>
               {ranged ? (
-                <span className="text-[11px] font-medium text-[#e02e2a]">{labels.from}</span>
+                <span className={cn("font-medium text-[#e02e2a]", sz("text-[11px]", "text-[8px]"))}>{labels.from}</span>
               ) : null}
               <ShopPrice
                 amount={product.price}
                 currency={product.currency}
                 locale={locale}
-                className="text-[15px] font-extrabold text-[#e02e2a]"
+                className={cn("font-extrabold text-[#e02e2a]", sz("text-[15px]", "text-[11px]"))}
               />
               {product.compareAtPrice ? (
                 <ShopPrice
                   amount={product.compareAtPrice}
                   currency={product.currency}
                   locale={locale}
-                  className="text-[11px] font-normal text-neutral-400 line-through"
+                  className={cn("font-normal text-neutral-400 line-through", sz("text-[11px]", "text-[8px]"))}
                 />
               ) : null}
             </>
           )}
         </div>
 
-        <div className="mt-auto flex items-center gap-2 pt-1 text-[11px] text-neutral-500">
+        <div className={cn("mt-auto flex items-center text-neutral-500", sz("gap-2 pt-1 text-[11px]", "gap-1 pt-0.5 text-[8px]"))}>
           {product.rating > 0 ? (
             <span className="flex items-center gap-0.5">
               <span className="text-amber-500">★</span>

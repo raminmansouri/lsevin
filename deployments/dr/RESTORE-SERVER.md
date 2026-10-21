@@ -58,6 +58,7 @@ scp <the fresh lsevin-2*.dump>                          root@${ip}:/root/recover
 scp tools\*                                             root@${ip}:/root/recovery/tools/
 scp repo.bundle                                         root@${ip}:/root/recovery/
 scp -r <repo>\deployments\dr\rebuild                    root@${ip}:/root/rebuild
+ssh root@$ip "sed -i 's/\r$//' /root/rebuild/lsevin-rebuild /root/rebuild/k8s-clean.py"   # a Windows checkout can add CRLF line endings; Linux then fails with 'bash\r: No such file'
 ```
 (Use the newest config bundle only; older ones are fallbacks.)
 

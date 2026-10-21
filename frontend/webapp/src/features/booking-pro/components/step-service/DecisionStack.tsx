@@ -2,7 +2,7 @@
 
 import React, { useMemo, useState } from 'react';
 import { AlertCircle, Languages, MapPin, Star } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import type { BookingDraftState, ProviderCardItem, ServiceCardItem, SpecialistCardItem } from '../../types';
 import { deriveSlots, firstOpenSlot, type SlotKey } from '../../lib/decision-stack';
 import { cascadeFor, cascadeImpact, type CascadeLoss } from '../../lib/cascade';
@@ -12,6 +12,7 @@ import { OptionRow } from './OptionRow';
 import { OpenQuestion } from './OpenQuestion';
 import { CascadeConfirmSheet } from './CascadeConfirmSheet';
 import { EntityDetailsSheet } from './EntityDetailsSheet';
+import { BookingServiceProductsRow } from '@/features/shop/components/BookingServiceProductsRow';
 
 type AnyItem = ProviderCardItem | ServiceCardItem | SpecialistCardItem;
 
@@ -77,6 +78,7 @@ export function DecisionStack({
   formatDate,
 }: Props) {
   const tBooking = useTranslations('Booking');
+  const locale = useLocale();
   const [openSlot, setOpenSlot] = useState<SlotKey | null>(null);
   const [pending, setPending] = useState<{ slot: SlotKey; item: AnyItem; losing: CascadeLoss[] } | null>(null);
   const [details, setDetails] = useState<{ slot: SlotKey; item: AnyItem } | null>(null);
@@ -296,6 +298,15 @@ export function DecisionStack({
   return (
     <div className="space-y-2.5">
       {(['provider', 'service', 'specialist'] as const).map((key) => renderSlot(key))}
+
+      {/* Shop products linked to the chosen service. Display only: no effect on the draft or totals. */}
+      {draft.serviceId && draft.serviceDefinitionId ? (
+        <BookingServiceProductsRow
+          serviceDefinitionId={draft.serviceDefinitionId}
+          serviceName={service.resolved?.id === draft.serviceId ? service.resolved.name : null}
+          locale={locale}
+        />
+      ) : null}
 
       <CascadeConfirmSheet
         open={Boolean(pending)}
