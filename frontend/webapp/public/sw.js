@@ -173,7 +173,7 @@
 })();
 
 /* PROFILE_VIEW_STORE_END */
-const VERSION = "v1-e18e9877134c382d";
+const VERSION = "v1-fa5cd0e1f4faa7c7";
 const SHELL_CACHE = `lsevin-pwa-shell-${VERSION}`;
 const ASSET_CACHE = "lsevin-pwa-assets-v2";
 const APPLICATION_CACHE = "lsevin-pwa-application-v2";
@@ -590,8 +590,8 @@ self.addEventListener("fetch", (event) => {
     return;
   }
   if (
-    !url.search &&
-    (SHELL.includes(url.pathname) || url.pathname.startsWith("/_next/static/"))
+    SHELL.includes(url.pathname) ||
+    (!url.search && url.pathname.startsWith("/_next/static/"))
   ) {
     const asset = cachedAsset(request);
     event.respondWith(asset.then((result) => result.response));
