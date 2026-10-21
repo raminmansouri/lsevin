@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache';
 
 import { getUserId } from '@/lib/auth/session';
-import { getIsFavorite } from '../server/favorites.repository';
+import { getIsFavorite, getFavoriteKeys } from '../server/favorites.repository';
 
 import {
   isValidFavoriteEntityId,
@@ -165,5 +165,21 @@ export async function setFavoriteAction(input: {
       isFavorite: false,
       message: error instanceof Error ? error.message : 'Unable to update favorite.',
     };
+  }
+}
+
+
+export async function getFavoriteKeysAction(
+  items: { entityType: FavoriteEntityType; entityId: string }[]
+): Promise<string[]> {
+  try {
+    const resolved = await getFavoritesCustomerId();
+    if (!resolved.customerId) return [];
+    return await getFavoriteKeys({
+      customerId: resolved.customerId,
+      items: items.map((item) => ({ favoriteType: item.entityType, entityId: item.entityId })),
+    });
+  } catch {
+    return [];
   }
 }
