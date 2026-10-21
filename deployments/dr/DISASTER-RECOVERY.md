@@ -74,6 +74,7 @@ the replicated tables identical (cosmetic `shop.product_attributes` text differe
 `lsevin-alerter` on B (44 Prometheus rules + 10 public URL checks, `rules.json`; Telegram, retries, daily summary 07:00 UTC; mute a rule by listing it in `/var/lib/lsevin-alerter/muted`),
 and the PC `watchdog.ps1` (kit; every 5 minutes: public sites, lsevin.ir via the Iranian line, the alerter's heartbeat) as the safety net for B itself being down.
 Secrets: `/etc/lsevin-alerter/telegram.env` (B) and `secrets	elegram.env` (kit). Bot token rotation: BotFather `/revoke`, then update both files and restart `lsevin-alerter`.
+Releases: **B builds, A applies B's release** (`deployments/release-sync`): A no longer builds the webapp (it cannot: ~3 GB RAM per build on a 7.9 GB host); `lsevin-release-sync` on A (5-min timer) fetches the images B runs over the VPN, rewrites the host and deploys with rollback; alerts `release_behind`, `release_check_failing`.
 Image archives for fast rebuilds: `lsevin-dr-images.timer` (weekly, encrypted, to the other site).
 
 ## 5. Installing the tooling on a (new) server
