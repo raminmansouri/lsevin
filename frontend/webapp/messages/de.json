@@ -12738,25 +12738,6 @@
     "withdrawal_requests": "Auszahlungsanträge"
   },
   "Consultation": {
-    "finder": {
-      "open": "Arzt konsultieren",
-      "title": "Arzt konsultieren",
-      "subtitle": "Wählen Sie das medizinische Fachgebiet, das am besten zu Ihnen passt, um die Ärzte zu sehen.",
-      "doctorsSubtitle": "Sehen Sie sich die Ärzte dieses Fachgebiets an und wählen Sie einen aus.",
-      "all": "Alle",
-      "back": "Zurück",
-      "doctorCount": "{count, plural, one {# Arzt} other {# Ärzte}}",
-      "rating": "{rating, number} ({count, number} Bewertungen)",
-      "experience": "{years, number} J. Erfahrung",
-      "viewProfile": "Ansehen",
-      "empty": "In diesem Fachgebiet sind noch keine Ärzte gelistet.",
-      "noCategories": "Noch keine Fachgebiete mit aktiven Ärzten.",
-      "retry": "Erneut versuchen",
-      "errors": {
-        "loadFailed": "Laden fehlgeschlagen. Bitte erneut versuchen.",
-        "invalidCategory": "Dieses Fachgebiet wurde nicht gefunden."
-      }
-    },
     "step": {
       "label": "Kostenlose Beratung",
       "title": "Unsicher, was Sie buchen sollen? Sprechen Sie zuerst mit unserer Beratung.",

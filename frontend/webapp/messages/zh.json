@@ -12715,25 +12715,6 @@
     "withdrawal_requests": "提现申请"
   },
   "Consultation": {
-    "finder": {
-      "open": "咨询医生",
-      "title": "咨询医生",
-      "subtitle": "选择您认为最适合的医疗领域，查看该领域的医生。",
-      "doctorsSubtitle": "浏览该领域的医生并选择您想要的医生。",
-      "all": "全部",
-      "back": "返回",
-      "doctorCount": "{count, plural, other {# 位医生}}",
-      "rating": "{rating, number}（{count, number} 条评价）",
-      "experience": "{years, number} 年经验",
-      "viewProfile": "查看",
-      "empty": "该领域暂无医生。",
-      "noCategories": "暂无有在职医生的领域。",
-      "retry": "重试",
-      "errors": {
-        "loadFailed": "加载失败，请重试。",
-        "invalidCategory": "未找到该领域。"
-      }
-    },
     "step": {
       "label": "免费咨询",
       "title": "不确定该预约什么？先和顾问聊一聊。",
