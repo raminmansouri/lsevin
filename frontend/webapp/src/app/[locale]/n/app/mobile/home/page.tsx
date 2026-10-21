@@ -518,6 +518,11 @@ async function Home({ params }: PageProps) {
       heroOffer={heroOffer}
       heroSection={homeSections.hero_featured}
       featuredServices={featuredServices}
+      trendingServices={trendingServices}
+      nearbySection={homeSections.explore_nearby}
+      nearbyProviderCount={nearbyProviderCount}
+      cityCode={queryInput.cityCode}
+      trustedProviders={trustedProviders}
       selectedCountryCode={queryInput.countryCode}
       slots={{
         sponsoredTop: <SponsoredMediaCarouselSection locale={locale} placement="home_top" />,

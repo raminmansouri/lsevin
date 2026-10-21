@@ -20,7 +20,19 @@ import type { HomeFeaturedService } from "@/features/home/api/server/get-home-pa
 
 import { DesktopFeaturedServices } from "./DesktopFeaturedServices";
 
-/** The home page's existing sections, passed in so nothing is lost while each gets its desktop design. */
+
+import { DesktopNativeAdSection } from "./DesktopNativeAdSection";
+
+import type { HomeTrendingService } from "@/features/home/api/server/get-home-page";
+
+import { DesktopTrendingSection } from "./DesktopTrendingSection";
+
+import { DesktopNearbySection } from "./DesktopNearbySection";
+
+import type { HomeTrustedProvider } from "@/features/home/api/server/get-home-page";
+
+import { DesktopTrustedSection } from "./DesktopTrustedSection";
+
 export type DesktopHomeSlots = {
   sponsoredTop: ReactNode;
   heroBanner: ReactNode;
@@ -44,6 +56,11 @@ export async function DesktopHome({
   heroSection,
   featuredServices,
   selectedCountryCode,
+  trendingServices,
+  nearbySection,
+  nearbyProviderCount,
+  cityCode,
+  trustedProviders,
 }: {
   locale: string;
   categories: HomeCategory[];
@@ -53,6 +70,11 @@ export async function DesktopHome({
   heroSection: HomeManagedSection;
   featuredServices: HomeFeaturedService[];
   selectedCountryCode?: string;
+  trendingServices: HomeTrendingService[];
+  nearbySection: HomeManagedSection;
+  nearbyProviderCount: number;
+  cityCode?: string;
+  trustedProviders: HomeTrustedProvider[];
 }) {
   const t = await getTranslations({ locale, namespace: "Home" });
 
@@ -67,17 +89,19 @@ export async function DesktopHome({
 
       <DesktopFeaturedServices locale={locale} services={featuredServices} selectedCountryCode={selectedCountryCode} />
 
-      <Block>{slots.nativeAd}</Block>
+      <DesktopNativeAdSection locale={locale} placement="home_native_ad" />
 
-      <Rail title={t("trending.title")} subtitle={t("trending.subtitle")}>
-        {slots.trending}
-      </Rail>
+      <DesktopTrendingSection locale={locale} services={trendingServices} />
 
-      <Block>{slots.nearby}</Block>
+      <DesktopNearbySection
+        locale={locale}
+        section={nearbySection}
+        nearbyProviderCount={nearbyProviderCount}
+        countryCode={selectedCountryCode}
+        cityCode={cityCode}
+      />
 
-      <Rail title={t("trusted.title")} subtitle={t("trusted.subtitle")} href="/n/app/mobile/providers" seeAll={t("common.seeAll")}>
-        {slots.trusted}
-      </Rail>
+      <DesktopTrustedSection locale={locale} providers={trustedProviders} />
 
       <Block>{slots.packages}</Block>
       <Block>{slots.loyalty}</Block>

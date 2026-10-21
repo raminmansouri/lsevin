@@ -63,6 +63,22 @@
   to { transform: rotate(360deg); }
 }
 
+@keyframes lsd-ring {
+  from { stroke-dashoffset: 163.4; }
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes lsd-pin-drop {
+  0% { opacity: 0; transform: translateY(-70px); }
+  60% { opacity: 1; transform: translateY(6px); }
+  80% { transform: translateY(-3px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+@keyframes lsd-ping {
+  0% { transform: scale(0.4); opacity: 0.8; }
+  100% { transform: scale(2.6); opacity: 0; }
+}
+
 
 @media (min-width: 1280px) {
   .lsd {
@@ -423,7 +439,104 @@
   }
 
 
+    /* Champagne vitrine (native ad) */
+  .lsd-champagne-bg {
+    background:
+      radial-gradient(700px 420px at 15% 50%, rgba(234, 203, 127, 0.45), transparent 65%),
+      radial-gradient(circle at 1px 1px, rgba(140, 107, 44, 0.16) 1px, transparent 0) 0 0 / 22px 22px,
+      var(--lsd-champagne);
+  }
+  .lsd-deck-card {
+    transition: transform 0.9s var(--lsd-ease), opacity 0.9s ease, filter 0.9s ease;
+  }
+  .lsd-ring-progress {
+    stroke-dasharray: 163.4;
+    stroke-dashoffset: 163.4;
+    animation: lsd-ring 7s linear forwards;
+  }
+  [data-paused="true"] .lsd-ring-progress { animation-play-state: paused; }
+
+
+    /* Trending chart */
+  .lsd-bar {
+    width: 0;
+    transition: width 1.6s var(--lsd-ease);
+    transition-delay: var(--bar-delay, 0ms);
+  }
+  .is-visible .lsd-bar { width: var(--bar-width, 0%); }
+  .lsd-rank {
+    color: transparent;
+    -webkit-text-stroke: 1px #c9a55a;
+    transition: color 0.4s ease;
+  }
+  .lsd-row:hover .lsd-rank { color: #c9a55a; }
+  .lsd-row-arrow {
+    opacity: 0;
+    transform: translateX(12px);
+    transition: opacity 0.4s ease, transform 0.5s var(--lsd-ease);
+  }
+  [dir="ltr"] .lsd-row-arrow { transform: translateX(-12px); }
+  .lsd-row:hover .lsd-row-arrow { opacity: 1; transform: none; }
+  .lsd-preview {
+    transition: opacity 0.35s ease, scale 0.45s var(--lsd-ease);
+  }
+
+
+    /* Map portal */
+  .lsd-map-bg {
+    background:
+      radial-gradient(circle at 50% 50%, rgba(15, 90, 69, 0.9), transparent 70%),
+      repeating-linear-gradient(28deg, transparent 0 58px, rgba(234, 203, 127, 0.07) 58px 59px),
+      repeating-linear-gradient(-62deg, transparent 0 74px, rgba(234, 203, 127, 0.06) 74px 75px),
+      var(--lsd-night);
+  }
+  .lsd-radar {
+    background: conic-gradient(from 0deg, rgba(234, 203, 127, 0.38), rgba(234, 203, 127, 0.05) 22%, transparent 26%);
+    animation: lsd-rotate 7s linear infinite;
+    mask-image: radial-gradient(circle, #000 60%, transparent 71%);
+  }
+  .lsd-pin { opacity: 0; }
+  .is-visible .lsd-pin { animation: lsd-pin-drop 0.9s var(--lsd-ease) forwards; animation-delay: var(--pin-delay, 0ms); }
+  .lsd-ping { animation: lsd-ping 2.4s ease-out infinite; animation-delay: var(--pin-delay, 0ms); }
+
+
+  /* Wall of trust: certificate cards that flip in 3D */
+  .lsd-flip { perspective: 1400px; }
+  .lsd-flip-inner {
+    position: relative;
+    height: 100%;
+    transform-style: preserve-3d;
+    transition: transform 0.95s var(--lsd-ease);
+  }
+  .lsd-flip:hover .lsd-flip-inner,
+  .lsd-flip:focus-within .lsd-flip-inner { transform: rotateY(180deg); }
+  .lsd-face {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    border-radius: 28px;
+    overflow: hidden;
+  }
+  .lsd-face-back { transform: rotateY(180deg); }
+  .lsd-certificate {
+    background:
+      radial-gradient(circle at 50% 0%, rgba(234, 203, 127, 0.18), transparent 60%),
+      #fffaf0;
+    box-shadow: 0 30px 60px -35px rgba(6, 42, 32, 0.5);
+  }
+  .lsd-certificate::before,
+  .lsd-certificate::after {
+    content: "";
+    position: absolute;
+    border-radius: 22px;
+    pointer-events: none;
+  }
+  .lsd-certificate::before { inset: 8px; border: 1.5px solid rgba(201, 165, 90, 0.75); }
+  .lsd-certificate::after { inset: 13px; border: 0.75px solid rgba(201, 165, 90, 0.45); border-radius: 18px; }
+
   
+
   /* Respect users who turn motion off in their OS */
   @media (prefers-reduced-motion: reduce) {
     .lsd *,
