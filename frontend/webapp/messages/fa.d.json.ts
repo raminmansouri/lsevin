@@ -15724,6 +15724,8 @@ declare const messages: {
     "relGeneral": "مرتبط",
     "serviceProductsHeading": "محصولات پیشنهادی",
     "serviceRelatedProductsTitle": "محصولات مرتبط",
+    "bookingRelatedProductsTitle": "محصولات مرتبط با {service}",
+    "bookingRelatedProductsSubtitle": "محصولاتی که برای این خدمت پیشنهاد می‌شود",
     "cancelOrder": "لغو سفارش",
     "cancelReason": "دلیل (اختیاری)",
     "confirmCancel": "بله، این سفارش لغو شود",

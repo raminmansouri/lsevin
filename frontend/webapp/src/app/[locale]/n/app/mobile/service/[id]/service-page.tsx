@@ -839,6 +839,17 @@ export default function ServicePage({ data, serviceId, locale }: ServicePageProp
 
         <ProviderProfileSection data={data} />
         <SpecialistsSection specialists={data.specialists} locale={locale} />
+        {/* Shop products linked to this service: right under the specialists, above offers / alerts / policies. */}
+        {service.serviceDefinitionId ? (
+          <ServiceProductsRail
+            src={`/api/shop/service/${service.serviceDefinitionId}/products`}
+            serviceDefinitionId={service.serviceDefinitionId}
+            locale={locale}
+            title={tShop("serviceRelatedProductsTitle")}
+            compact
+            className="mb-6 mt-0"
+          />
+        ) : null}
         <OffersSection offers={data.offers} locale={locale} />
         <ServiceAttributesSection attributes={data.serviceAttributes} currency={service.currency} locale={locale} />
         <AddonsSection addOns={data.addOns} locale={locale} />
@@ -879,15 +890,6 @@ export default function ServicePage({ data, serviceId, locale }: ServicePageProp
 
         <ProvidersForServiceSection providers={data.providers} currentProviderServiceId={service.providerServiceId} locale={locale} />
         {(data.localRecommendations.length > 0 || data.internationalRecommendations.length > 0) && <RecommendationSection localRecommendations={data.localRecommendations} internationalRecommendations={data.internationalRecommendations} userCountry={service.country || t("recommendations.yourCountry")} />}
-
-        {service.serviceDefinitionId ? (
-          <ServiceProductsRail
-            src={`/api/shop/service/${service.serviceDefinitionId}/products`}
-            serviceDefinitionId={service.serviceDefinitionId}
-            locale={locale}
-            title={tShop("serviceRelatedProductsTitle")}
-          />
-        ) : null}
 
         <section className="mb-6">
           <div className="mb-4 flex items-center justify-between gap-3">

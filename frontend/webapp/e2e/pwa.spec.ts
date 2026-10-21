@@ -30,12 +30,30 @@ test("transient setup failure retries the atomic offline shell installation", as
       );
     })
   ).toBe(true);
+  // CDN entries for unversioned URLs may still contain the retired reader.
+  // The normalized offline key must contain a response fetched for this release.
+  expect(
+    await page.evaluate(async () => {
+      const names = await caches.keys();
+      const shell = await caches.open(
+        names.find((name) => name.startsWith("lsevin-pwa-shell-"))!
+      );
+      return (await shell.match("/offline.html"))!.url;
+    })
+  ).toMatch(/\?pwa=/);
   await request.get("/__fixture/offline-on");
   try {
     await page.reload();
     await expect(
-      page.getByRole("heading", { name: "Saved pages", exact: true })
+      page.getByRole("heading", { name: "Connection unavailable", exact: true })
     ).toBeVisible();
+    await expect
+      .poll(() =>
+        page
+          .locator('img[alt="LSevin"]')
+          .evaluate((img: HTMLImageElement) => img.naturalWidth)
+      )
+      .toBeGreaterThan(0);
   } finally {
     await request.get("/__fixture/offline-off");
   }
@@ -54,11 +72,9 @@ test("a disconnected origin serves saved text without browser offline emulation"
   try {
     await page.reload();
     await expect(
-      page.getByRole("heading", { name: "Saved pages", exact: true })
+      page.getByRole("heading", { name: "Connection unavailable", exact: true })
     ).toBeVisible();
-    await expect(page.locator("details[open]")).toContainText(
-      "Guest information about staff and services."
-    );
+    await expect(page.locator("article, details, input, form")).toHaveCount(0);
   } finally {
     await request.get("/__fixture/offline-off");
   }
@@ -76,14 +92,14 @@ test("HTTP-cached document cannot replace the offline reader", async ({
   try {
     await page.goto(path);
     await expect(
-      page.getByRole("heading", { name: "Saved pages", exact: true })
+      page.getByRole("heading", { name: "Connection unavailable", exact: true })
     ).toBeVisible();
     await expect(page.getByRole("button", { name: "Save page" })).toHaveCount(
       0
     );
     await page.reload();
     await expect(
-      page.getByRole("heading", { name: "Saved pages", exact: true })
+      page.getByRole("heading", { name: "Connection unavailable", exact: true })
     ).toBeVisible();
   } finally {
     await request.get("/__fixture/offline-off");
@@ -102,7 +118,7 @@ test("document 5xx responses use the reader without changing origin API status",
     expect((await request.get(path)).status()).toBe(status);
     await page.goto(path);
     await expect(
-      page.getByRole("heading", { name: "Saved pages", exact: true })
+      page.getByRole("heading", { name: "Connection unavailable", exact: true })
     ).toBeVisible();
     expect(await page.evaluate(() => navigator.onLine)).toBe(true);
     await page.reload();
@@ -133,52 +149,26 @@ test("document permission and not-found failures keep their real status", async 
   }
 });
 
-test("offline direct navigation, search, keyboard, refresh and reconnection", async ({
+test("fallback retry supports keyboard recovery without a saved-directory screen", async ({
   page,
   context,
 }) => {
   await installed(page);
-  await page.evaluate(() =>
-    fetch("/api/booking-pro/catalog/providers?locale=en")
-  );
-  await expect
-    .poll(() =>
-      page.evaluate(
-        async () =>
-          !!(await (
-            await caches.open("lsevin-pwa-directory-v1")
-          ).match("/pwa/directory/en"))
-      )
-    )
-    .toBe(true);
   await page.request.get("/__fixture/offline-on");
   await context.setOffline(true);
   await page.goto("/en/n/app/mobile/provider/test-clinic");
   await expect(
-    page.getByRole("heading", { name: "Test Clinic" })
+    page.getByRole("heading", { name: "Connection unavailable", exact: true })
   ).toBeVisible();
-  await expect(
-    page.getByText("You are offline.", { exact: false })
-  ).toBeVisible();
-  await page.getByRole("searchbox").fill("no-such-provider");
-  await expect(page.getByText("No matching saved providers.")).toBeVisible();
-  await page.getByRole("searchbox").press("ControlOrMeta+A");
-  await page.getByRole("searchbox").press("Backspace");
-  await expect(
-    page.getByRole("heading", { name: "Test Clinic" })
-  ).toBeVisible();
+  await expect(page.locator("input, article, details, form")).toHaveCount(0);
   await page.reload();
-  await expect(
-    page.getByRole("heading", { name: "Test Clinic" })
-  ).toBeVisible();
-  await page.request.get("/__fixture/offline-off");
+  await expect(page.locator("#retry")).toBeVisible();
   await context.setOffline(false);
+  await page.request.get("/__fixture/offline-off");
+  await page.locator("#retry").focus();
+  await page.keyboard.press("Enter");
   await expect(
-    page.getByText("Connection available.", { exact: false })
-  ).toBeVisible();
-  await page.getByRole("button", { name: "Try again" }).click();
-  await expect(
-    page.getByRole("heading", { name: "Public provider information" })
+    page.getByRole("button", { name: "Save page", exact: true })
   ).toBeVisible();
 });
 
@@ -211,9 +201,8 @@ test("public snapshots save guest reading text and no scripts/forms/account data
   await page.request.get("/__fixture/offline-on");
   await context.setOffline(true);
   await page.reload();
-  await expect(
-    page.getByText("Guest information about staff and services.")
-  ).toBeVisible();
+  await expect(page.locator("#title")).toHaveText("Connection unavailable");
+  await expect(page.locator("details, article")).toHaveCount(0);
 });
 
 test("all requested public page families survive offline refresh", async ({
@@ -242,13 +231,15 @@ test("all requested public page families survive offline refresh", async ({
     "/en/n/app/mobile/service/service-one",
   ]) {
     await page.goto(path);
-    await expect(page.locator("details[open]")).toContainText(
-      "Guest information"
-    );
+    await expect(
+      page.getByRole("heading", { name: "Connection unavailable", exact: true })
+    ).toBeVisible();
+    await expect(page.locator("details, article")).toHaveCount(0);
     await page.reload();
-    await expect(page.locator("details[open]")).toContainText(
-      "Guest information"
-    );
+    await expect(
+      page.getByRole("heading", { name: "Connection unavailable", exact: true })
+    ).toBeVisible();
+    await expect(page.locator("details, article")).toHaveCount(0);
   }
 });
 
@@ -324,12 +315,7 @@ test("unsafe catalogue HTML displays as inert text and server failures remain er
     )
     .toBe(true);
   await page.goto("/offline.html");
-  await expect(
-    page.getByText("<img src=x onerror=alert(1)> Public description", {
-      exact: true,
-    })
-  ).toBeVisible();
-  expect(await page.locator("#directory img").count()).toBe(0);
+  await expect(page.locator("article, details, input, form")).toHaveCount(0);
   const result = await page.evaluate(async () => {
     const response = await fetch(
       "/api/booking-pro/catalog/providers?locale=en&fail=1"
@@ -345,55 +331,24 @@ test("unsafe catalogue HTML displays as inert text and server failures remain er
   await expect(page.getByText("Server failed")).toBeVisible();
 });
 
-test("profile unlock, incorrect passphrase, reload lock and sign-out in another tab", async ({
+test("fallback never exposes legacy saved profile data or an unlock form", async ({
   page,
   context,
 }) => {
   await installed(page);
-  await page.evaluate(async () => {
-    const cryptoUrl = "/pwa/profile-crypto.js";
-    const crypto = await import(cryptoUrl);
-    const record = await crypto.sealProfile(
-      { name: "Test Person", email: "test@example.invalid" },
-      "correct horse battery",
-      "account-one"
-    );
-    localStorage.setItem(crypto.PROFILE_KEY, JSON.stringify(record));
-  });
+  await page.evaluate(() =>
+    localStorage.setItem("lsevin-offline-profile", "PRIVATE_LEGACY_SENTINEL")
+  );
   await page.request.get("/__fixture/offline-on");
   await context.setOffline(true);
   await page.goto("/en/n/app/mobile/profile");
-  await page
-    .getByLabel("Offline passphrase", { exact: true })
-    .fill("incorrect passphrase");
-  await page.getByRole("button", { name: "Unlock saved profile" }).click();
-  await expect(page.locator("#profile-status")).toContainText(
-    "Could not unlock"
+  await expect(
+    page.getByRole("heading", { name: "Connection unavailable", exact: true })
+  ).toBeVisible();
+  await expect(page.locator("input, form, article, details")).toHaveCount(0);
+  await expect(page.locator("body")).not.toContainText(
+    "PRIVATE_LEGACY_SENTINEL"
   );
-  await page
-    .getByLabel("Offline passphrase", { exact: true })
-    .fill("correct horse battery");
-  await page.getByLabel("Offline passphrase", { exact: true }).press("Enter");
-  await expect(page.locator("#profile-content")).toContainText("Test Person");
-  await page.reload();
-  await expect(page.locator("#profile-content")).toBeEmpty();
-  await page
-    .getByLabel("Offline passphrase", { exact: true })
-    .fill("correct horse battery");
-  await page.getByRole("button", { name: "Unlock saved profile" }).click();
-  await expect(page.locator("#profile-content")).toContainText("Test Person");
-  const otherTab = await context.newPage();
-  await otherTab.goto("/offline.html");
-  await page.bringToFront();
-  await page
-    .getByLabel("Offline passphrase", { exact: true })
-    .fill("correct horse battery");
-  await page.getByRole("button", { name: "Unlock saved profile" }).click();
-  await expect(page.locator("#profile-content")).toContainText("Test Person");
-  await otherTab.evaluate(() =>
-    localStorage.removeItem("lsevin-pwa-profile-v1")
-  );
-  await expect(page.locator("#profile-content")).toBeEmpty();
 });
 
 test("worker update waits for consent and preserves saved public pages", async ({
@@ -447,28 +402,33 @@ test("slow document navigation falls back within the network deadline", async ({
   const start = Date.now();
   await page.goto("/slow");
   await expect(
-    page.getByRole("heading", { name: "Saved pages", exact: true })
+    page.getByRole("heading", { name: "Connection unavailable", exact: true })
   ).toBeVisible();
   expect(Date.now() - start).toBeLessThan(12000);
 });
 
-test("empty state, Persian RTL and clearing saved information", async ({
+test("uncached Persian page uses branded RTL fallback and retry preserves its URL", async ({
   page,
   context,
 }) => {
   await installed(page);
   await page.request.get("/__fixture/offline-on");
   await context.setOffline(true);
-  await page.goto("/fa/n/app/mobile/home");
+  const target = "/fa/n/app/mobile/provider/not-saved?tab=services";
+  await page.goto(target);
   await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
+  await expect(page.locator("#title")).toHaveText("اتصال برقرار نیست");
+  await expect(page.getByRole("img", { name: "LSevin" })).toBeVisible();
+  await expect(page.locator("article, details, input, form")).toHaveCount(0);
+  await page.getByRole("button", { name: "تلاش دوباره" }).click();
+  await expect(page).toHaveURL(
+    new RegExp("/fa/n/app/mobile/provider/not-saved\\?tab=services$")
+  );
+  await context.setOffline(false);
+  await page.request.get("/__fixture/offline-off");
+  await page.getByRole("button", { name: "تلاش دوباره" }).click();
   await expect(
-    page.getByText("مرکزی ذخیره نشده است.", { exact: false })
-  ).toBeVisible();
-  await page.getByRole("button", { name: "English", exact: true }).click();
-  await expect(page.locator("html")).toHaveAttribute("dir", "ltr");
-  await page.getByRole("button", { name: "Clear saved directory" }).click();
-  await expect(
-    page.getByText("No saved providers.", { exact: false })
+    page.getByRole("button", { name: "Save page", exact: true })
   ).toBeVisible();
 });
 
@@ -538,9 +498,7 @@ test("cached assets work offline, private assets fail and expired snapshots disa
   await page.goto("/en/n/app/mobile/service/stale");
   await expect(page.getByText("EXPIRED_PAGE")).toHaveCount(0);
   await expect(page.getByText("EXPIRED_PROVIDER")).toHaveCount(0);
-  await expect(
-    page.getByText("No saved providers.", { exact: false })
-  ).toBeVisible();
+  await expect(page.locator("#title")).toHaveText("Connection unavailable");
 });
 
 test("profile expiry and root launch remember the last language", async ({
@@ -565,17 +523,9 @@ test("profile expiry and root launch remember the last language", async ({
   await page.goto("/");
   await expect(page.locator("html")).toHaveAttribute("lang", "fa");
   await page.goto("/en/n/app/mobile/profile");
-  await page
-    .getByLabel("Offline passphrase", { exact: true })
-    .fill("correct horse battery");
-  await page.getByRole("button", { name: "Unlock saved profile" }).click();
-  await expect(page.locator("#profile-status")).toContainText(
-    "Could not unlock"
-  );
-  await expect(page.locator("#profile-content")).toBeEmpty();
-  expect(
-    await page.evaluate(() => localStorage.getItem("lsevin-pwa-profile-v1"))
-  ).toBeNull();
+  await expect(page.locator("form, input")).toHaveCount(0);
+  await expect(page.locator("body")).not.toContainText("Expired Person");
+  await expect(page.locator("#title")).toHaveText("Connection unavailable");
 });
 
 test("cache eviction gives a useful fallback and the shell recovers online", async ({
@@ -614,7 +564,7 @@ test("cache eviction gives a useful fallback and the shell recovers online", asy
   await context.setOffline(true);
   await page.reload();
   await expect(
-    page.getByRole("heading", { name: "Saved pages", exact: true })
+    page.getByRole("heading", { name: "Connection unavailable", exact: true })
   ).toBeVisible();
 });
 
@@ -715,12 +665,8 @@ test("slow guest streams save marked partial text and cancelled navigations do n
   await page.request.get("/__fixture/offline-on");
   await context.setOffline(true);
   await page.goto("/en/n/app/mobile/provider/slow-prefix");
-  await expect(
-    page.getByText("Partial page saved. Reconnect to see all content.")
-  ).toBeVisible();
-  await expect(
-    page.getByText("Already available guest information.")
-  ).toBeVisible();
+  await expect(page.locator("#title")).toHaveText("Connection unavailable");
+  await expect(page.locator("details, article")).toHaveCount(0);
 });
 
 test("offline payment callbacks, APIs and downloads are not disguised as HTML pages", async ({
@@ -737,7 +683,7 @@ test("offline payment callbacks, APIs and downloads are not disguised as HTML pa
   ]) {
     await expect(page.goto(path)).rejects.toThrow();
     await expect(
-      page.getByRole("heading", { name: "Saved pages", exact: true })
+      page.getByRole("heading", { name: "Connection unavailable", exact: true })
     ).toHaveCount(0);
   }
 });
