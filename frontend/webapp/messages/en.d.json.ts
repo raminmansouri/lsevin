@@ -15720,6 +15720,8 @@ declare const messages: {
     "relGeneral": "Related",
     "serviceProductsHeading": "Recommended products",
     "serviceRelatedProductsTitle": "Related products",
+    "bookingRelatedProductsTitle": "Products related to {service}",
+    "bookingRelatedProductsSubtitle": "Products recommended for this service",
     "cancelOrder": "Cancel order",
     "cancelReason": "Reason (optional)",
     "confirmCancel": "Yes, cancel this order",
