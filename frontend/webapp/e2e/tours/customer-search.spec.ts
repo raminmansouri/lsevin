@@ -14,8 +14,8 @@ test.afterAll(closeDb);
 test.describe.configure({ timeout: 360_000 });
 
 async function slugs(page: Page) {
-  await page.getByTestId("results-count").waitFor();
-  return page.getByTestId("tour-card").evaluateAll((els) => els.map((e) => e.getAttribute("data-tour-slug")).sort());
+  await page.getByTestId("tours-shell").getByTestId("results-count").waitFor();
+  return page.getByTestId("tours-shell").getByTestId("tour-card").evaluateAll((els) => els.map((e) => e.getAttribute("data-tour-slug")).sort());
 }
 
 test("filters, sort and shareable URL", async ({ page, context, browser }) => {
@@ -93,12 +93,12 @@ test("recent searches are kept and can be cleared", async ({ page, context }) =>
   const c = await seedCatalog([{}]);
   await skipIntro(context);
   await page.goto(`/en/tours/explore?destination=${c.destination.slug}&q=persepolis`);
-  await page.getByTestId("results-count").waitFor();
+  await page.getByTestId("tours-shell").getByTestId("results-count").waitFor();
   // Recorded by a server action after load.
   await page.waitForTimeout(1500);
   await page.goto("/en/tours/explore");
   await expect(page.getByRole("heading", { name: "Recent searches" })).toBeVisible();
-  await page.getByTestId("clear-recent-searches").click();
+  await page.getByTestId("tours-shell").getByTestId("clear-recent-searches").click();
   await expect(page.getByRole("heading", { name: "Recent searches" })).toHaveCount(0);
   await page.reload();
   await expect(page.getByRole("heading", { name: "Recent searches" })).toHaveCount(0);

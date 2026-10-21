@@ -131,6 +131,21 @@ suite("tours platform (real database)", () => {
     expect(catalog.parseTourSearch(Object.fromEntries(params))).toMatchObject({ destination: dest.slug, dateFrom: day, party: 4, sort: "price_desc" });
   });
 
+  it("C-021 regression: destinations list never drops a real destination because of empty or numerous others", async () => {
+    const owner = await seedUser(sql);
+    const p = await seedProvider(sql, owner.id);
+    // Empty published destinations that sort first must not use up the limit.
+    for (let i = 0; i < 3; i += 1) await seedDestination(sql, { slug: `aaa-empty-${Date.now()}-${i}` });
+    const dest = await seedDestination(sql, { slug: `zzz-real-${Date.now()}` });
+    await seedTour(sql, { providerId: p.id, destinationId: dest.id });
+    const small = await catalog.listDestinations("en-US", { limit: 1 });
+    expect(small).toHaveLength(1);
+    expect(small[0].tourCount).toBeGreaterThan(0);
+    expect((await catalog.listDestinations("en-US")).map((d) => d.slug)).toContain(dest.slug);
+    expect((await catalog.listDestinations("en-US", { slug: dest.slug }))[0]?.slug).toBe(dest.slug);
+    expect(await catalog.listDestinations("en-US", { slug: "aaa-empty-none" })).toEqual([]);
+  });
+
   it("C-023 search matches Persian with Arabic letter variants and the other language's title", async () => {
     const owner = await seedUser(sql);
     const p = await seedProvider(sql, owner.id);

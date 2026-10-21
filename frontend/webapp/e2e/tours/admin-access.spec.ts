@@ -19,10 +19,16 @@ test("a guest is sent to sign-in and a signed-in non-admin is redirected away fr
   const u = await seedUser(db());
   await signIn(context, { ...u, roles: ["user"] });
   for (const path of ["/en/admin/tours-platform", "/en/admin/tours-platform/settings", "/en/admin/tours-platform/bookings", "/fa/admin/tours-platform/tours?queue=1"]) {
-    // The redirect target is the (heavy) home page; only where we land matters here.
-    await page.goto(path, { waitUntil: "commit" });
-    await expect(page, path).not.toHaveURL(/\/admin\//);
+    // Assert the server's own answer with the signed-in cookies: a redirect away
+    // from /admin, never page content. (Chaining page.goto here raced the heavy
+    // home page's client navigation in production mode and aborted the next goto.)
+    const res = await page.request.get(path, { maxRedirects: 0 });
+    expect([302, 303, 307, 308], path).toContain(res.status());
+    expect(res.headers().location ?? "", path).not.toMatch(/\/admin\//);
   }
+  // A real browser navigation still ends outside the admin area.
+  await page.goto("/en/admin/tours-platform/settings");
+  await expect(page).not.toHaveURL(/\/admin\//);
   // The CSV export route is gated too and never returns data to a non-admin.
   const res = await page.request.get("/en/admin/tours-platform/reports/export", { maxRedirects: 0 });
   expect([302, 307, 308, 401, 403]).toContain(res.status());

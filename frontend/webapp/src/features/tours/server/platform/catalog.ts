@@ -401,21 +401,32 @@ export type DestinationCard = {
   latitude: number | null; longitude: number | null;
 };
 
-export async function listDestinations(locale: string, opts: { featuredOnly?: boolean; limit?: number } = {}): Promise<DestinationCard[]> {
+/**
+ * Published destinations that have at least one bookable-catalog tour.
+ * Emptiness is filtered in SQL *before* the limit — filtering afterwards let
+ * empty destinations use up the page, so real ones silently vanished from the
+ * Explore filter once there were more than `limit` destinations.
+ */
+export async function listDestinations(locale: string, opts: { featuredOnly?: boolean; limit?: number; slug?: string } = {}): Promise<DestinationCard[]> {
   const rows = await db<any[]>`
     select d.id::text, d.slug, d.name_translations, d.region_translations, d.description_translations, d.country_code,
-           d.cover_url, d.cover_alt_translations, d.latitude, d.longitude,
-           (select count(*)::int from tour.tours t where t.destination_id = d.id and t.status = 'published') as tour_count
+           d.cover_url, d.cover_alt_translations, d.latitude, d.longitude, x.tour_count
       from tour.destinations d
+      cross join lateral (
+        select count(*)::int as tour_count
+          from tour.tours t
+          join category.service_providers sp on sp.id = t.service_provider_id and sp.is_active
+         where t.destination_id = d.id and t.status = 'published') x
      where d.is_published
+       and x.tour_count > 0
        and (d.publish_from is null or d.publish_from <= now())
        and (d.publish_until is null or d.publish_until > now())
        and (${!!opts.featuredOnly} = false or d.is_featured)
+       and (${opts.slug ?? null}::text is null or d.slug = ${opts.slug ?? null})
      order by d.sort_order, d.slug
-     limit ${opts.limit ?? 50}
+     limit ${opts.limit ?? 1000}
   `;
   return rows
-    .filter((r) => r.tour_count > 0)
     .map((r) => ({
       id: r.id, slug: r.slug,
       name: lt(pickTranslation(r.name_translations, locale)),

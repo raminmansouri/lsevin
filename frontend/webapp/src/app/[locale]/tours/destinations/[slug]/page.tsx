@@ -16,7 +16,7 @@ export default async function DestinationPage({
   const { locale, slug } = await params;
   setRequestLocale(locale);
   const content = contentLocaleFor(locale);
-  const destination = (await listDestinations(content, { limit: 500 })).find((d) => d.slug === slug);
+  const [destination] = /^[a-z0-9-]{1,80}$/.test(slug) ? await listDestinations(content, { slug, limit: 1 }) : [];
   if (!destination) notFound();
   const search = { ...parseTourSearch(await searchParams), destination: slug };
   const actor = await currentActor();

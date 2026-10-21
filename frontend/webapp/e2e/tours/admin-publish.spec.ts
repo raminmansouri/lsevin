@@ -34,8 +34,14 @@ test("AT-16 missing policy/media/price blocks publication; repaired in admin it 
   await signInAdmin(context);
   await page.goto(`/en/admin/tours-platform/tours?queue=1&q=${t.slug}`);
   await expect(page.getByRole("heading", { name: "Review queue" })).toBeVisible();
-  await page.locator(`tr[data-tour-slug="${t.slug}"]`).getByRole("link").first().click();
-  await page.waitForURL(new RegExp(`/tours/${t.id}$`), { timeout: 180_000 });
+  const editorLink = page.locator(`tr[data-tour-slug="${t.slug}"]`).getByRole("link").first();
+  await expect(editorLink).toHaveAttribute("href", new RegExp(`/admin/tours-platform/tours/${t.id}$`));
+  // On a cold dev compile the click can land before the queue page hydrates and
+  // be swallowed; retry the click until navigation actually happens.
+  await expect(async () => {
+    await editorLink.click();
+    await page.waitForURL(new RegExp(`/tours/${t.id}$`), { timeout: 30_000 });
+  }).toPass({ timeout: 180_000 });
 
   const reqs = page.getByTestId("requirements");
   for (const code of ["missing_media", "missing_price", "missing_policy"]) {
@@ -52,7 +58,13 @@ test("AT-16 missing policy/media/price blocks publication; repaired in admin it 
 
   // Repair 2: price.
   await editorTab(page, "Options & prices");
-  await page.locator("#op-0-adult").fill("15000000");
+  // The tab mounts a fresh form after a server refresh; a value typed before it
+  // settles is reset. Re-type until the value sticks and Save becomes enabled.
+  await expect(async () => {
+    await page.locator("#op-0-adult").fill("15000000");
+    await expect(page.locator("#op-0-adult")).toHaveValue("15000000", { timeout: 2_000 });
+    await expect(page.getByTestId("save-options")).toBeEnabled({ timeout: 2_000 });
+  }).toPass({ timeout: 60_000 });
   await page.getByTestId("save-options").click();
   await expectToast(page);
 
