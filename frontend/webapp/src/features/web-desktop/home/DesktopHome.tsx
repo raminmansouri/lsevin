@@ -33,6 +33,10 @@ import type { HomeTrustedProvider } from "@/features/home/api/server/get-home-pa
 
 import { DesktopTrustedSection } from "./DesktopTrustedSection";
 
+import { DesktopPackagesSection } from "./DesktopPackagesSection";
+
+import { DesktopLoyaltySection } from "./DesktopLoyaltySection";
+
 export type DesktopHomeSlots = {
   sponsoredTop: ReactNode;
   heroBanner: ReactNode;
@@ -61,6 +65,8 @@ export async function DesktopHome({
   nearbyProviderCount,
   cityCode,
   trustedProviders,
+  packagesSection,
+  loyaltySection,
 }: {
   locale: string;
   categories: HomeCategory[];
@@ -75,6 +81,8 @@ export async function DesktopHome({
   nearbyProviderCount: number;
   cityCode?: string;
   trustedProviders: HomeTrustedProvider[];
+   packagesSection: HomeManagedSection;
+  loyaltySection: HomeManagedSection;
 }) {
   const t = await getTranslations({ locale, namespace: "Home" });
 
@@ -103,9 +111,16 @@ export async function DesktopHome({
 
       <DesktopTrustedSection locale={locale} providers={trustedProviders} />
 
-      <Block>{slots.packages}</Block>
-      <Block>{slots.loyalty}</Block>
-      <Block>{slots.sponsoredBottom}</Block>
+      <DesktopPackagesSection
+        locale={locale}
+        section={packagesSection}
+        activeCount={specialPackagesCount}
+        selectedCountryCode={selectedCountryCode}
+      />
+      <DesktopLoyaltySection locale={locale} section={loyaltySection} />
+      <div className="pb-24 pt-8">
+        <DesktopSponsoredSection locale={locale} placement="home_bottom" />
+      </div>
     </div>
   );
 }

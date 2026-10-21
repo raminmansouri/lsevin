@@ -523,6 +523,8 @@ async function Home({ params }: PageProps) {
       nearbyProviderCount={nearbyProviderCount}
       cityCode={queryInput.cityCode}
       trustedProviders={trustedProviders}
+      packagesSection={homeSections.premium_packages}
+      loyaltySection={homeSections.loyalty_club}
       selectedCountryCode={queryInput.countryCode}
       slots={{
         sponsoredTop: <SponsoredMediaCarouselSection locale={locale} placement="home_top" />,

@@ -2,6 +2,9 @@
 
 import { useEffect, useRef, type CSSProperties, type ElementType, type ReactNode } from "react";
 
+import { ArrowUp } from "lucide-react";
+
+
 const prefersReducedMotion = () =>
   typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -234,5 +237,49 @@ export function ScrollParallax({ children, className = "", strength = 60 }: { ch
     <div ref={ref} className={className} style={{ transform: "scale(1.15)" }}>
       {children}
     </div>
+  );
+}
+
+
+/** A card that tilts in 3D toward the pointer, with a metallic sheen that follows it. */
+export function HoloCard({ children, className = "" }: { children: ReactNode; className?: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+
+  const onPointerMove = (event: React.PointerEvent) => {
+    const node = ref.current;
+    if (!node || event.pointerType !== "mouse" || prefersReducedMotion()) return;
+    const rect = node.getBoundingClientRect();
+    const x = (event.clientX - rect.left) / rect.width;
+    const y = (event.clientY - rect.top) / rect.height;
+    node.style.setProperty("--lsd-ry", `${((x - 0.5) * 18).toFixed(2)}deg`);
+    node.style.setProperty("--lsd-rx", `${(-(y - 0.5) * 14).toFixed(2)}deg`);
+    node.style.setProperty("--sheen", `${(x * 100).toFixed(1)}%`);
+  };
+  const onPointerLeave = () => {
+    const node = ref.current;
+    if (!node) return;
+    node.style.setProperty("--lsd-ry", "0deg");
+    node.style.setProperty("--lsd-rx", "0deg");
+    node.style.setProperty("--sheen", "50%");
+  };
+
+  return (
+    <div ref={ref} className={`lsd-holo ${className}`} onPointerMove={onPointerMove} onPointerLeave={onPointerLeave}>
+      {children}
+    </div>
+  );
+}
+
+/** Smoothly scrolls back to the top of the page. */
+export function BackToTop({ label }: { label: string }) {
+  return (
+    <button
+      type="button"
+      aria-label={label}
+      onClick={() => window.scrollTo({ top: 0, behavior: prefersReducedMotion() ? "auto" : "smooth" })}
+      className="lsd-btn lsd-btn-ghost h-12 w-12 !px-0"
+    >
+      <ArrowUp size={18} />
+    </button>
   );
 }
