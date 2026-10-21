@@ -2,6 +2,35 @@
 // See: https://next-intl.dev/docs/workflows/typescript#messages-arguments
 
 declare const messages: {
+  "Assistant": {
+    "journey": { "title": "Seyahat planınız", "kinds": { "arrival": "Varış", "treatment": "Tedavi günü", "recovery": "İyileşme", "departure": "Dönüş" }, "day": "{day, number}. gün", "days": "{from, number}–{to, number}. günler", "nights": "{count, number} gece", "checkout": "Otelden çıkış", "book": "Rezerve et", "total": "Tahmini toplam", "note": "Fiyatlar tahminidir ve rezervasyonda kesinleşir.", "partial": "Bazı fiyatlar danışmadan sonra belirlenir ve toplama dahil değildir.", "priceOnRequest": "Danışmadan sonra" },
+    "launcher": { "open": "Asistanı aç", "close": "Kapat", "expand": "Tam ekran", "collapse": "Küçült" },
+    "entry": {
+      "title": "LSevin akıllı asistan",
+      "subtitle": "Ne aradığınızı söyleyin, sizin için en iyi seçenekleri bulalım."
+    },
+    "chat": {
+      "title": "LSevin Asistanı",
+      "welcome": "Aradığınız hizmeti söyleyin, sizin için en iyi seçenekleri bulayım.",
+      "placeholder": "örn. Tahran'da saç ekimi",
+      "history": "Önceki sohbetler",
+      "closeHistory": "Önceki sohbetleri kapat",
+      "untitled": "Sohbet",
+      "newChat": "Yeni sohbet",
+      "send": "Gönder",
+      "thinking": "Aranıyor…",
+      "error": "Bir sorun oluştu. Tekrar deneyin.",
+      "disclaimer": "Asistan doktor değildir; tedavi kararları için bir uzmana danışın.",
+      "suggestions": { "hair": "Saç ekimi", "dental": "Diş tedavisi", "nose": "Burun estetiği" }
+    },
+    "card": {
+      "priceOnRequest": "Fiyat danışmadan sonra",
+      "perNight": "/ gece",
+      "viewService": "Görüntüle",
+      "types": { "provider": "Klinik", "specialist": "Doktor", "hotel": "Otel" , 	"transfer": "Transfer"}
+    }
+  },
+
   "BookingCart": {
     "title": "Kaydedilen rezervasyonlar",
     "hint": "Bunlar tahminlerdir, kesin rezervasyon değildir. Uygunluğu doğrulamak ve ödeme yapmak için her rezervasyonu inceleyin. Ürünler şu anda ayrı ödenir.",

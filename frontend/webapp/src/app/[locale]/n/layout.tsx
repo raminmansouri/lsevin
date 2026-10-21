@@ -10,6 +10,9 @@ import { DesktopHeader } from "@/features/web-desktop/components/DesktopHeader";
 import LocaleSwitcher from "@/components/locale/locale-switcher";
 import NotificationsBar from "@/features/shared/components/Notifications/notifications-bar";
 
+import { AssistantLauncher } from "@/features/assistant/components/assistant-launcher";
+
+
 type LocalePageProps = {
   children: React.ReactNode;
   params: Promise<{ locale: string }>;
@@ -42,17 +45,8 @@ export default async function MainLayout({
           <div className="xl:hidden">
             <MobileAppBar />
           </div>
-
           {/* Room for the mobile bottom tab bar; desktop has none. */}
           <div className="pb-[calc(var(--bottom-nav-h)+env(safe-area-inset-bottom))] xl:pb-0">
-            <DesktopHeader
-              actions={
-                <>
-                  <NotificationsBar variant="glass" />
-                  <LocaleSwitcher variant="glass" />
-                </>
-              }
-            />
             {children}
             <DesktopFooter />
           </div>
@@ -63,6 +57,7 @@ export default async function MainLayout({
           </div>
         </div>
       </Shell>
+      <AssistantLauncher />
     </NextIntlClientProvider>
   );
 }

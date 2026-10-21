@@ -2,6 +2,37 @@
 // See: https://next-intl.dev/docs/workflows/typescript#messages-arguments
 
 declare const messages: {
+  "Assistant": {
+    "journey": { "title": "برنامهٔ سفر شما", "kinds": { "arrival": "رسیدن", "treatment": "روز درمان", "recovery": "نقاهت", "departure": "بازگشت" }, "day": "روز {day, number}", "days": "روز {from, number} تا {to, number}", "nights": "{count, number} شب", "checkout": "خروج از هتل", "book": "رزرو", "total": "جمع تقریبی", "note": "قیمت‌ها تقریبی‌اند و هنگام رزرو نهایی می‌شوند.", "partial": "قیمت برخی موارد پس از مشاوره مشخص می‌شود و در جمع نیامده است.", "priceOnRequest": "پس از مشاوره" },
+    "launcher": { "open": "باز کردن دستیار", "close": "بستن", "expand": "تمام‌صفحه", "collapse": "کوچک کردن" },
+    "entry": {
+      "title": "دستیار هوشمند Lsevin",
+      "subtitle": "بگویید دنبال چه هستید؛ بهترین گزینه‌ها را برایتان پیدا می‌کنیم."
+    },
+    "chat": {
+      "title": "دستیار Lsevin",
+      "welcome": "بگویید دنبال چه خدمتی هستید؛ گزینه‌های مناسب را برایتان پیدا می‌کنم.",
+      "placeholder": "مثلاً: کاشت مو در تهران",
+      "history": "گفتگوهای قبلی",
+      "closeHistory": "بستن گفتگوهای قبلی",
+      "untitled": "گفتگو",
+      "newChat": "گفتگوی جدید",
+      "send": "ارسال",
+      "thinking": "در حال جستجو…",
+      "error": "مشکلی پیش آمد. دوباره تلاش کنید.",
+      "disclaimer": "دستیار پزشک نیست؛ برای تصمیم درمانی با متخصص مشورت کنید.",
+      "suggestions": { "hair": "کاشت مو", "dental": "دندانپزشکی", "nose": "جراحی بینی" }
+    },
+    "card": {
+      "priceOnRequest": "قیمت پس از مشاوره",
+      "perNight": "/ شب",
+      "viewService": "مشاهده",
+      "types": { "provider": "کلینیک", "specialist": "پزشک", "hotel": "هتل" , 	"transfer": "ترانسفر"}
+
+    }
+  },
+
+
   "ShopMedia": {
     "hint": "اولین تصویر، تصویر اصلی است. برای اعمال تغییرات ذخیره کنید.",
     "empty": "هنوز تصویری برای محصول وجود ندارد.",
