@@ -33,16 +33,11 @@ export function DesktopTrendingChart({
   favorite: ReactNode;
 }) {
   const locale = useLocale();
-  const [preview, setPreview] = useState<{ index: number; x: number; y: number } | null>(null);
-  // Only show the floating preview once its picture has actually loaded.
-  const [loadedSrc, setLoadedSrc] = useState<string | null>(null);
   const [top, ...rest] = items;
   const max = Math.max(...items.map((item) => item.bookingCount), 1);
   const rank = (value: number) => new Intl.NumberFormat(locale, { minimumIntegerDigits: 2 }).format(value);
 
   if (!top) return null;
-  const previewItem = preview ? rest[preview.index] : null;
-  const showPreview = Boolean(previewItem?.imageSrc && loadedSrc === previewItem.imageSrc);
 
   return (
     <section className="lsd-container py-24">
@@ -95,26 +90,11 @@ export function DesktopTrendingChart({
         </Reveal>
 
         {/* The rest of the chart */}
-        <div
-          className="relative"
-          onMouseMove={(event) => {
-            if (!preview) return;
-            const rect = event.currentTarget.getBoundingClientRect();
-            setPreview({ ...preview, x: event.clientX - rect.left, y: event.clientY - rect.top });
-          }}
-          onMouseLeave={() => setPreview(null)}
-        >
+        <div className="relative">
           <ol className="divide-y divide-[#dce4e0] border-y border-[#dce4e0]">
             {rest.map((item, index) => (
               <Reveal as="li" key={item.id} delay={index * 80}>
-                <Link
-                  href={item.href}
-                  onMouseEnter={(event) => {
-                    const rect = event.currentTarget.closest("ol")!.parentElement!.getBoundingClientRect();
-                    setPreview({ index, x: event.clientX - rect.left, y: event.clientY - rect.top });
-                  }}
-                  className="lsd-row grid grid-cols-[64px_64px_1fr_auto] items-center gap-5 py-5"
-                >
+                <Link href={item.href} className="lsd-row grid grid-cols-[64px_64px_1fr_auto] items-center gap-5 py-5">
                   <span className="lsd-rank text-[40px] font-black leading-none">{rank(index + 2)}</span>
                   <span className="relative h-16 w-16 overflow-hidden rounded-2xl bg-[#0f5a45]">
                     {item.imageSrc ? (
@@ -153,29 +133,6 @@ export function DesktopTrendingChart({
             ))}
           </ol>
 
-          {/* Floating preview that follows the pointer */}
-          <div
-            aria-hidden="true"
-            className="lsd-preview pointer-events-none absolute start-0 top-0 z-30 h-[260px] w-[200px] overflow-hidden rounded-[28px] border-4 border-white bg-[#0f5a45] shadow-[0_40px_80px_-30px_rgba(6,42,32,0.6)]"
-            style={{
-              opacity: showPreview ? 1 : 0,
-              scale: showPreview ? "1" : "0.85",
-              translate: preview ? `${preview.x - 100}px ${preview.y - 290}px` : undefined,
-              rotate: "-4deg",
-            }}
-          >
-            {previewItem?.imageSrc ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                key={previewItem.imageSrc}
-                src={previewItem.imageSrc}
-                alt=""
-                className="h-full w-full object-cover"
-                onLoad={() => setLoadedSrc(previewItem.imageSrc)}
-                onError={() => setLoadedSrc(null)}
-              />
-            ) : null}
-          </div>
         </div>
       </div>
     </section>

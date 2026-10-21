@@ -49,6 +49,18 @@ export function AssistantLauncher() {
   const { chat, startNewChat, conversations, refreshConversations, openConversation } = useAssistantChat(locale);
   const history = { conversations, onOpen: openConversation, onShow: refreshConversations };
 
+  // Other parts of the page (e.g. the desktop teaser strip) open the assistant with this
+  // event, optionally sending a first question.
+  useEffect(() => {
+    const onOpen = (event: Event) => {
+      const prompt = (event as CustomEvent<{ prompt?: string }>).detail?.prompt?.trim();
+      setOpen(true);
+      if (prompt) void chat.sendMessage({ text: prompt });
+    };
+    window.addEventListener("lsevin:assistant-open", onOpen);
+    return () => window.removeEventListener("lsevin:assistant-open", onOpen);
+  }, [chat]);
+
   const close = () => {
     setOpen(false);
     setExpanded(false);

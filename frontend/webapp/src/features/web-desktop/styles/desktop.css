@@ -621,7 +621,31 @@
   .lsd-footer-link:hover::before { width: 16px; }
 
 
+  /* Assistant teaser strip with a running gold edge */
+  .lsd-teaser {
+    position: relative;
+    isolation: isolate;
+    border-radius: 999px;
+    background: linear-gradient(100deg, #062a20, #0b4535 55%, #062a20);
+  }
+  .lsd-teaser::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    padding: 1px;
+    border-radius: inherit;
+    background: conic-gradient(from var(--lsd-angle), rgba(234, 203, 127, 0.15) 0 60%, var(--lsd-gold) 75%, rgba(234, 203, 127, 0.15) 90%);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    animation: lsd-spin 7s linear infinite;
+  }
+
+  /* Detail pages: anchored sections stop below the floating header and the sticky section nav */
+  .lsd-anchor { scroll-margin-top: 170px; }
   
+
   /* Respect users who turn motion off in their OS */
   @media (prefers-reduced-motion: reduce) {
     .lsd *,

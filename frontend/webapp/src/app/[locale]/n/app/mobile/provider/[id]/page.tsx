@@ -10,6 +10,8 @@ import { SponsoredPlacementSlot } from "@/features/sponsered-slider/components/s
 
 import { ProviderDetailView } from "./provider-detail-view";
 
+import { DesktopProviderView } from "@/features/web-desktop/provider/DesktopProviderView";
+
 type RouteParams = { locale: string; id: string };
 type PageProps = {
   params: Promise<RouteParams> | RouteParams;
@@ -68,7 +70,10 @@ export default async function ProviderDetailPage({ params }: PageProps) {
 
   return (
     <>
-      <ProviderDetailView initialData={result.data} />
+      <div className="xl:hidden">
+        <ProviderDetailView initialData={result.data} />
+      </div>
+      <DesktopProviderView initialData={result.data} />
       <div className="pb-36">
         <SponsoredPlacementSlot locale={locale} placement="provider_detail" />
       </div>
