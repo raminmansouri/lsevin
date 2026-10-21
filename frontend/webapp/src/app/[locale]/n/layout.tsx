@@ -47,6 +47,14 @@ export default async function MainLayout({
           </div>
           {/* Room for the mobile bottom tab bar; desktop has none. */}
           <div className="pb-[calc(var(--bottom-nav-h)+env(safe-area-inset-bottom))] xl:pb-0">
+            <DesktopHeader
+              actions={
+                <>
+                  <NotificationsBar variant="glass" />
+                  <LocaleSwitcher variant="glass" />
+                </>
+              }
+            />
             {children}
             <DesktopFooter />
           </div>
