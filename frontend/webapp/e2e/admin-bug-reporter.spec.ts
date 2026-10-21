@@ -25,8 +25,16 @@ test.describe("admin floating bug reporter", () => {
     });
 
     await page.goto("/en/admin/bug-reports");
-    const trigger = page.getByRole("button", { name: "Report a bug" });
+    // Regression: the trigger used to be a large fixed bottom-corner pill that
+    // covered data-table rows/pagination. It now lives in the sticky header.
+    // The header sits inside SidebarInset's <main>, so it has no banner role.
+    const trigger = page
+      .locator("header")
+      .getByRole("button", { name: "Report a bug" });
     await expect(trigger).toBeVisible();
+    await expect(trigger).not.toHaveCSS("position", "fixed");
+    const box = await trigger.boundingBox();
+    expect(box?.height ?? 0).toBeLessThanOrEqual(36);
     await trigger.click();
 
     await expect(page.getByRole("dialog")).toBeVisible();
