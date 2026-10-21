@@ -24,6 +24,7 @@
     "test:watch": "vitest",
     "test:pwa": "node scripts/prepare-pwa.mjs && playwright test --config playwright.pwa.config.ts",
     "test:pwa:app": "playwright test --config playwright.pwa-app.config.ts",
+    "test:itinerary": "node scripts/test-env/booking-itinerary.mjs",
     "test:pwa:safety": "node --test tests/pwa.test.mjs",
     "financial:user": "node scripts/financial-user.mjs"
   },
