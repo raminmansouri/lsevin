@@ -52,6 +52,8 @@ type BookingListRow = {
 type BookingDetailRow = BookingListRow & {
   mainSubtotal: number | string | null;
   discountAmount: number | string | null;
+  payInPlaceSurcharge: number | string | null;
+  payInPlaceSurchargePercent: number | string | null;
   providerImage: string | null;
   serviceImage: string | null;
   providerDescription: string | null;
@@ -170,6 +172,8 @@ function toBookingRecord(row: BookingDetailRow, locale: string): BookingRecord {
     ...toBooking({ ...row, image: image ?? null }, locale),
     mainSubtotal: row.mainSubtotal == null ? null : toNumber(row.mainSubtotal),
     discountAmount: row.discountAmount == null ? null : toNumber(row.discountAmount),
+    payInPlaceSurcharge: row.payInPlaceSurcharge == null ? null : toNumber(row.payInPlaceSurcharge),
+    payInPlaceSurchargePercent: row.payInPlaceSurchargePercent == null ? null : toNumber(row.payInPlaceSurchargePercent),
     providerImage,
     providerDescription: row.providerDescription || undefined,
     serviceDescription: row.serviceDescription || undefined,
@@ -408,6 +412,12 @@ export async function getMyBookingByIdFromDb(input: GetMyBookingByIdInput): Prom
           then base.source_subtotal_amount end)::text as "mainSubtotal",
       case when upper(coalesce(base.currency_code, 'USD')) = upper(coalesce(base.display_currency_code, base.currency_code, 'USD'))
         then coalesce(base.applied_discount_amount, 0)::text end as "discountAmount",
+      -- Pay-in-place plans (pay 20/50/80% now) add a percentage to the bill. It is part of
+      -- the total but not of any line, so the invoice needs it to make the lines add up.
+      -- Billed in currency_code, so only exposed when that is also the display currency.
+      case when upper(coalesce(base.currency_code, 'USD')) = upper(coalesce(base.display_currency_code, base.currency_code, 'USD'))
+        then pip.plan ->> 'surchargeAmount' end as "payInPlaceSurcharge",
+      pip.plan ->> 'surchargePercent' as "payInPlaceSurchargePercent",
       greatest(coalesce(base.display_total_amount, base.total_amount, base.source_total_amount, base.provider_service_value, 0) - coalesce(base.paid_amount, 0), 0)::text as remaining,
       upper(coalesce(nullif(base.display_currency_code, ''), nullif(base.currency_code, ''), nullif(base.payment_currency_code, ''), nullif(base.provider_service_currency, ''), 'USD')) as currency,
       coalesce(base.provider_accredited, false) as verified,
@@ -488,6 +498,13 @@ export async function getMyBookingByIdFromDb(input: GetMyBookingByIdInput): Prom
         else 'upcoming'
       end as "groupName"
     from base
+    left join lateral (
+      select bpt.terms_snapshot -> 'payInPlace' as plan
+      from commercial.booking_payment_terms bpt
+      where bpt.booking_id = base.id
+      order by bpt.created_at desc
+      limit 1
+    ) pip on true
   `;
 
   if (!rows[0]) return null;

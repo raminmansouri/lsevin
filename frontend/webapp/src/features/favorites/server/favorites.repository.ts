@@ -148,3 +148,28 @@ export async function toggleFavoriteState(input: {
 
   return true;
 }
+
+
+export async function getFavoriteKeys(input: {
+  customerId?: string | null;
+  items: { favoriteType: FavoriteEntityType; entityId: string }[];
+}): Promise<string[]> {
+  if (!input.customerId || !isValidFavoriteEntityId(input.customerId)) return [];
+
+  const valid = input.items
+    .filter((item) => isValidFavoriteEntityType(item.favoriteType) && isValidFavoriteEntityId(item.entityId))
+    .slice(0, 200);
+  if (!valid.length) return [];
+
+  const wanted = new Set(valid.map((item) => `${item.favoriteType}:${item.entityId.toLowerCase()}`));
+  const ids = [...new Set(valid.map((item) => item.entityId.toLowerCase()))];
+
+  const rows = await sql<{ type: string; id: string }[]>`
+    select f.favorite_type::text as type, f.entity_id::text as id
+    from customer.favorites f
+    where f.customer_id = ${input.customerId}::uuid
+      and f.entity_id = any(${ids}::uuid[])
+  `;
+
+  return rows.map((row) => `${row.type}:${row.id}`).filter((key) => wanted.has(key));
+}

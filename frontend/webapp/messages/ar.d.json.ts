@@ -13936,6 +13936,7 @@ declare const messages: {
     "relCompatible": "يعمل مع هذا",
     "relGeneral": "ذات صلة",
     "serviceProductsHeading": "منتجات موصى بها",
+    "serviceRelatedProductsTitle": "منتجات ذات صلة",
     "cancelOrder": "إلغاء الطلب",
     "cancelReason": "السبب (اختياري)",
     "confirmCancel": "نعم، ألغِ هذا الطلب",
@@ -13950,6 +13951,7 @@ declare const messages: {
     "qty": "الكمية"
   },
   "ShopAdmin": {
+
     "nav": {
       "dashboard": "لوحة التحكم",
       "orders": "الطلبات",
@@ -14380,6 +14382,7 @@ declare const messages: {
     "attributes": {
       "title": "الخصائص",
       "productCount": "{n} منتج",
+      "deleteInUse": "ستُزال هذه الخاصية من {n, number} منتج وتُحذف مع جميع قيمها. لا يمكن التراجع عن ذلك.",
       "variantDefining": "مُحدِّد للمتغيرات",
       "delete": "حذف",
       "noValuesYet": "لا قيم بعد.",

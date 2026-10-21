@@ -56,6 +56,10 @@ const SAFE_DRAFT_METADATA_KEYS = new Set([
     'payInPlacePlan',
     'depositMethod',
     'mealPlan',
+    // Mobile itinerary: where an at-your-place add-on happens ('stay' = the customer's booked
+    // stay in this itinerary, 'other' = an address they give the provider) and a readable note.
+    'serviceLocation',
+    'serviceLocationNote',
 ]);
 
 let draftProviderNotifiedColumnEnsured = false;
@@ -478,9 +482,19 @@ export async function getOrCreateActiveDraft(userId: string, draftId?: string): 
                                         'subtotalAmount', c.subtotal_amount,
                                         'currency', c.currency,
                                         'metadata', c.metadata,
-                                        'status', c.status
+                                        'status', c.status,
+                                        -- Read-only display fields for the mobile itinerary (names are translation maps;
+                                        -- the client picks the locale). Never written back: the child route strips them.
+                                        'providerNameTranslations', csp.name_translations,
+                                        'serviceNameTranslations', coalesce(cps.display_name_translations, csd.name_translations),
+                                        'providerImageUrl', csp.image_url,
+                                        'durationMinutes', coalesce(nullif(cps.duration_minutes, 0), nullif(csd.duration_minutes, 0)),
+                                        'requiresCustomerAddress', coalesce(csd.requires_customer_address, false)
                                                  ) order by c.create_date asc)
                                 from booking.booking_draft_child_bookings c
+                                         left join category.service_providers csp on csp.id = c.provider_id
+                                         left join category.provider_services cps on cps.id = c.service_id
+                                         left join category.service_definitions csd on csd.id = cps.service_definition_id
                                 where c.parent_draft_id = d.id
                             ), '[]'::jsonb) as child_bookings,
                    coalesce((
@@ -556,9 +570,19 @@ export async function getActiveDraft(userId: string, draftId?: string): Promise<
                                     'subtotalAmount', c.subtotal_amount,
                                     'currency', c.currency,
                                     'metadata', c.metadata,
-                                    'status', c.status
+                                    'status', c.status,
+                                    -- Read-only display fields for the mobile itinerary (names are translation maps;
+                                    -- the client picks the locale). Never written back: the child route strips them.
+                                    'providerNameTranslations', csp.name_translations,
+                                    'serviceNameTranslations', coalesce(cps.display_name_translations, csd.name_translations),
+                                    'providerImageUrl', csp.image_url,
+                                    'durationMinutes', coalesce(nullif(cps.duration_minutes, 0), nullif(csd.duration_minutes, 0)),
+                                    'requiresCustomerAddress', coalesce(csd.requires_customer_address, false)
                                              ) order by c.create_date asc)
                             from booking.booking_draft_child_bookings c
+                                     left join category.service_providers csp on csp.id = c.provider_id
+                                     left join category.provider_services cps on cps.id = c.service_id
+                                     left join category.service_definitions csd on csd.id = cps.service_definition_id
                             where c.parent_draft_id = d.id
                         ), '[]'::jsonb) as child_bookings,
                coalesce((
@@ -762,25 +786,103 @@ export async function saveDraftCaseShare(userId: string, draftId: string, caseSh
     `;
 }
 
+/**
+ * Thrown for a child (add-on) booking request the customer can fix or that names a row
+ * they cannot touch. Routes map `code` to a 4xx status; anything else is a 500.
+ */
+export class ChildBookingError extends Error {
+    constructor(public readonly code: 'CHILD_NOT_FOUND' | 'ADDON_NOT_ALLOWED' | 'INVALID_SELECTION') {
+        super(code);
+        this.name = 'ChildBookingError';
+    }
+}
+
+/**
+ * Saves one add-on sub-booking. A draft may hold several children of the same provider
+ * type (migration 0078), so rows are addressed by their own id: with `child.id` the row
+ * is updated in place, without it a new row is inserted.
+ *
+ * The provider type must be one an admin linked to the main service's definition, and the
+ * service must be an active listing of an active provider of that type -- the client only
+ * proposes ids, it never decides what can be sold together. Prices are not taken from the
+ * client either: subtotal/currency come from the listing (recalculateDraftTotals and
+ * checkout re-price from provider_services as well).
+ */
 export async function saveChildDraft(userId: string, draftId: string, child: ChildBookingDraft) {
     const active = await getOrCreateActiveDraft(userId, draftId);
     if (active.id !== draftId) {
-        throw new Error('Draft mismatch');
+        throw new Error('BOOKING_DRAFT_NOT_EDITABLE');
+    }
+
+    const allowed = await db`
+        select ps.id,
+               ps.service_definition_id,
+               ps.currency,
+               ps.value,
+               sd.booking_ui_mode
+        from category.provider_services ps
+                 join category.service_providers sp on sp.id = ps.service_provider_id
+                 join category.service_definitions sd on sd.id = ps.service_definition_id
+        where ps.id = ${child.serviceId ?? null}
+          and sp.id = ${child.providerId ?? null}
+          and sp.provider_type_id = ${child.providerTypeId}
+          and ps.is_active = true
+          and sp.is_active = true
+          and exists (
+                select 1
+                from category.service_definition_addon_provider_types sapt
+                where sapt.provider_type_id = ${child.providerTypeId}
+                  and sapt.service_definition_id = ${active.serviceDefinitionId ?? null}
+            )
+        limit 1
+    `;
+    if (!allowed.length) {
+        const linked = await db`
+            select 1
+            from category.service_definition_addon_provider_types
+            where provider_type_id = ${child.providerTypeId}
+              and service_definition_id = ${active.serviceDefinitionId ?? null}
+            limit 1
+        `;
+        throw new ChildBookingError(linked.length ? 'INVALID_SELECTION' : 'ADDON_NOT_ALLOWED');
+    }
+    const listing = allowed[0];
+    const uiMode = child.bookingUiMode ?? listing.booking_ui_mode ?? 'default_slot';
+    const metadata = sanitizeDraftMetadataPatch(child.metadata) as any;
+
+    if (child.id) {
+        const updated = await db`
+            update booking.booking_draft_child_bookings
+            set provider_type_id = ${child.providerTypeId},
+                provider_id = ${child.providerId ?? null},
+                service_id = ${child.serviceId ?? null},
+                specialist_id = ${child.specialistId ?? null},
+                selected_date = ${child.selectedDate ?? null},
+                selected_date_from = ${child.selectedDateFrom ?? null},
+                selected_date_to = ${child.selectedDateTo ?? null},
+                selected_time = ${child.selectedTime ?? null},
+                selected_time_from = ${child.selectedTimeFrom ?? null},
+                selected_time_to = ${child.selectedTimeTo ?? null},
+                adults = ${child.adults ?? null},
+                children = ${child.children ?? null},
+                infants = ${child.infants ?? null},
+                rooms = ${child.rooms ?? null},
+                booking_ui_mode = ${uiMode},
+                form_submission_id = ${child.formSubmissionId ?? null},
+                subtotal_amount = ${listing.value ?? 0},
+                currency = ${listing.currency ?? 'USD'},
+                metadata = ${metadata},
+                status = 'Completed',
+                last_modified_date = now()
+            where id = ${child.id}
+              and parent_draft_id = ${draftId}
+            returning id
+        `;
+        if (!updated.length) throw new ChildBookingError('CHILD_NOT_FOUND');
+        return updated[0];
     }
 
     const rows = await db`
-        with service_meta as (
-            select ps.id,
-                   ps.service_definition_id,
-                   ps.currency,
-                   ps.value,
-                   sd.requires_specialist,
-                   sd.booking_ui_mode
-            from category.provider_services ps
-                     join category.service_definitions sd on sd.id = ps.service_definition_id
-            where ps.id = ${child.serviceId ?? null}
-            limit 1
-            )
         insert into booking.booking_draft_child_bookings (
             parent_draft_id,
             provider_type_id,
@@ -819,37 +921,32 @@ export async function saveChildDraft(userId: string, draftId: string, child: Chi
             ${child.children ?? null},
             ${child.infants ?? null},
             ${child.rooms ?? null},
-            coalesce(${child.bookingUiMode ?? null}, (select booking_ui_mode from service_meta), 'default_slot'),
+            ${uiMode},
             ${child.formSubmissionId ?? null},
-            coalesce(${child.subtotalAmount ?? null}, (select value from service_meta), 0),
-            coalesce(${child.currency ?? null}, (select currency from service_meta), 'USD'),
-            ${sanitizeDraftMetadataPatch(child.metadata) as any},
+            ${listing.value ?? 0},
+            ${listing.currency ?? 'USD'},
+            ${metadata},
             'Completed'
-            )
-        on conflict (parent_draft_id, provider_type_id)
-            do update set
-            provider_id = excluded.provider_id,
-                   service_id = excluded.service_id,
-                   specialist_id = excluded.specialist_id,
-                   selected_date = excluded.selected_date,
-                   selected_date_from = excluded.selected_date_from,
-                   selected_date_to = excluded.selected_date_to,
-                   selected_time = excluded.selected_time,
-                   selected_time_from = excluded.selected_time_from,
-                   selected_time_to = excluded.selected_time_to,
-                   adults = excluded.adults,
-                   children = excluded.children,
-                   infants = excluded.infants,
-                   rooms = excluded.rooms,
-                   booking_ui_mode = excluded.booking_ui_mode,
-                   form_submission_id = excluded.form_submission_id,
-                   subtotal_amount = excluded.subtotal_amount,
-                   currency = excluded.currency,
-                   metadata = excluded.metadata,
-                   status = excluded.status
-                   returning id
+        )
+        returning id
     `;
 
+    return rows[0];
+}
+
+/** Removes one add-on sub-booking from the customer's own editable draft. */
+export async function deleteChildDraft(userId: string, draftId: string, childId: string) {
+    const active = await getOrCreateActiveDraft(userId, draftId);
+    if (active.id !== draftId) {
+        throw new Error('BOOKING_DRAFT_NOT_EDITABLE');
+    }
+    const rows = await db`
+        delete from booking.booking_draft_child_bookings
+        where id = ${childId}
+          and parent_draft_id = ${draftId}
+        returning id
+    `;
+    if (!rows.length) throw new ChildBookingError('CHILD_NOT_FOUND');
     return rows[0];
 }
 
@@ -1537,7 +1634,8 @@ export async function listAddonProviderTypes(providerServiceId: string, locale =
                sapt.is_required,
                sapt.metadata,
                pt.name_translations,
-               pt.description_translations
+               pt.description_translations,
+               pt.image_url
         from category.service_definition_addon_provider_types sapt
                  join category.provider_services ps on ps.service_definition_id = sapt.service_definition_id
                  join category.provider_types pt on pt.id = sapt.provider_type_id
@@ -1551,6 +1649,7 @@ export async function listAddonProviderTypes(providerServiceId: string, locale =
         description: pickTranslation(row.description_translations, locale),
         icon: row.icon,
         isRequired: row.is_required,
+        imageUrl: row.image_url ?? null,
         metadata: row.metadata ?? {},
     }));
 

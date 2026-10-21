@@ -46,7 +46,11 @@ export function ServiceProductsRail({
 
   useEffect(() => {
     let alive = true;
-    fetch(src, { headers: { accept: "application/json" } })
+    // The /api/shop/* routes live under the [locale] segment, so an unprefixed
+    // path 404s and the rail silently stays hidden. Prefixing also gives the
+    // route the page's locale for localized product/service names.
+    const url = src.startsWith("/api/") ? `/${locale}${src}` : src;
+    fetch(url, { headers: { accept: "application/json" } })
       .then((r) => (r.ok ? r.json() : null))
       .then((data) => {
         if (!alive) return;
@@ -56,7 +60,7 @@ export function ServiceProductsRail({
     return () => {
       alive = false;
     };
-  }, [src]);
+  }, [src, locale]);
 
   if (!groups || !groups.length) return null;
 

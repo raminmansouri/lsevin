@@ -617,6 +617,18 @@ function BookingDetailContent({
         </div>
 
         <div className="mb-3 space-y-2">
+          {booking.payInPlaceSurcharge != null && booking.payInPlaceSurcharge > 0 && (
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-gray-600">
+                {booking.payInPlaceSurchargePercent != null
+                  ? tBooking("receiptPayInPlaceFeePercent", { percent: booking.payInPlaceSurchargePercent.toLocaleString(resolveIntlLocale(locale)) })
+                  : tBooking("receiptPayInPlaceFee")}
+              </span>
+              <span className="font-semibold text-gray-900">
+                {formatMoney(booking.payInPlaceSurcharge, booking.currency, locale)}
+              </span>
+            </div>
+          )}
           <div className="flex items-center justify-between text-sm">
             <span className="text-gray-600">{tBooking("totalAmount")}</span>
             <span className="font-semibold text-gray-900">
@@ -748,7 +760,7 @@ function BookingDetailContent({
 
         <button
           type="button"
-          onClick={() => window.print()}
+          onClick={() => navigate(`/n/app/mobile/bookings/${booking.id}/invoice?print=1`)}
           className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-gray-900 font-semibold text-white transition-colors hover:bg-black"
         >
           <Download size={20} />

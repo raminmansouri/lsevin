@@ -567,6 +567,7 @@ function PoliciesSection({ policies }: { policies: ProviderPolicy[] }) {
 
 export default function ServicePage({ data, serviceId, locale }: ServicePageProps) {
   const t = useTranslations("ServicePage");
+  const tShop = useTranslations("Shop");
   const tConsultation = useTranslations("Consultation");
   const navigate = useNavigate();
   const service = data.service;
@@ -884,6 +885,7 @@ export default function ServicePage({ data, serviceId, locale }: ServicePageProp
             src={`/api/shop/service/${service.serviceDefinitionId}/products`}
             serviceDefinitionId={service.serviceDefinitionId}
             locale={locale}
+            title={tShop("serviceRelatedProductsTitle")}
           />
         ) : null}
 

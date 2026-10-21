@@ -310,14 +310,14 @@
       "name": "jenkins_build_failed",
       "severity": "warning",
       "for": 0,
-      "expr": "lsevin_jenkins_last_build_result == 0 and lsevin_jenkins_last_build_age_seconds < 86400",
+      "expr": "lsevin_jenkins_last_build_result == 0 and lsevin_jenkins_last_build_age_seconds < 86400 unless lsevin_jenkins_last_build_result{site=\"A\",exported_job=\"lsevin-main-production\"}",
       "summary": "the last build of {exported_job} FAILED"
     },
     {
       "name": "jenkins_repeated_failures",
       "severity": "critical",
       "for": 0,
-      "expr": "lsevin_jenkins_consecutive_failures >= 3 and lsevin_jenkins_last_build_age_seconds < 86400",
+      "expr": "lsevin_jenkins_consecutive_failures >= 3 and lsevin_jenkins_last_build_age_seconds < 86400 unless lsevin_jenkins_consecutive_failures{site=\"A\",exported_job=\"lsevin-main-production\"}",
       "summary": "{exported_job}: {value} builds failed in a row"
     },
     {
@@ -410,6 +410,20 @@
       "for": 0,
       "expr": "max by (site) (pg_stat_activity_max_tx_duration{state=\"active\"}) > 900",
       "summary": "a database query has been running for {value}s (not a backup or replication job? check pg_stat_activity)"
+    },
+    {
+      "name": "release_behind",
+      "severity": "warning",
+      "for": 1800,
+      "expr": "lsevin_release_behind == 1",
+      "summary": "server A has not applied B's latest release for 30 minutes (lsevin-release-sync on A; log /var/log/lsevin-release-sync.log)"
+    },
+    {
+      "name": "release_check_failing",
+      "severity": "warning",
+      "for": 0,
+      "expr": "lsevin_release_check_age_seconds > 1800",
+      "summary": "server A cannot read B's release manifest for {value}s: new publishes will not reach A (VPN down? B's /_releases route or password?)"
     }
   ]
 }

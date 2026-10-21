@@ -62,6 +62,8 @@ export const SEGMENT_NAMESPACES = {
   mobileApp: [
     "AsyncSelect",
     "Booking",
+    // booking-pro step 3 on phones (components/itinerary/*).
+    "BookingItinerary",
     "BottomTabBar",
     // n/app/mobile/categories/page.tsx renders category-browser-client.tsx,
     // a "use client" component calling useTranslations("CategoryBrowser").
