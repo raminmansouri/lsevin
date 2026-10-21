@@ -290,8 +290,28 @@ def collect_vpn():
     return lines
 
 
+def collect_release():
+    """Release channel (server A only): is A running the release that B publishes? State files are written by lsevin-release-sync."""
+    d = os.environ.get("RELEASE_STATE", "/var/lib/lsevin-release")
+    if not os.path.isdir(d):
+        return []
+    def age(name):
+        try:
+            return round(time.time() - os.path.getmtime(os.path.join(d, name)), 1)
+        except OSError:
+            return 1e9
+    try:
+        behind = int(open(os.path.join(d, "behind")).read().strip() or 0)
+    except (OSError, ValueError):
+        behind = 0
+    lines = gauge("lsevin_release_behind", "1 when server B runs a newer release than server A", [({}, behind)])
+    lines += gauge("lsevin_release_check_age_seconds", "Seconds since A last read B's release manifest successfully (1e9 = never)", [({}, age("last-check"))])
+    lines += gauge("lsevin_release_ok_age_seconds", "Seconds since A was last confirmed up to date with B or applied a release (1e9 = never)", [({}, age("last-ok"))])
+    return lines
+
+
 def background():
-    schedule = [("sync", collect_sync, 60), ("jenkins", collect_jenkins, 60), ("providers", collect_providers, 300), ("k8s", collect_k8s, 30), ("vpn", collect_vpn, 60)]
+    schedule = [("sync", collect_sync, 60), ("jenkins", collect_jenkins, 60), ("providers", collect_providers, 300), ("k8s", collect_k8s, 30), ("vpn", collect_vpn, 60), ("release", collect_release, 60)]
     last = {n: 0 for n, _, _ in schedule}
     while True:
         for name, fn, every in schedule:
