@@ -1,0 +1,42 @@
+#!/usr/bin/env python3
+"""lsevin-release-server - serves /var/lib/lsevin/release-export read-only (GET/HEAD, no directory listing) on the Docker bridge
+address, so Caddy (which adds TLS and the password) can reach it and nothing else can. Runs on server B.
+
+  lsevin-release-server [--bind 172.18.0.1] [--port 31480] [--root /var/lib/lsevin/release-export]
+"""
+import argparse, http.server, os, re, socketserver
+
+SAFE = re.compile(r"^/[A-Za-z0-9._-]+$")
+
+
+class H(http.server.SimpleHTTPRequestHandler):
+    def do_GET(self):
+        if not SAFE.match(self.path.split("?", 1)[0]):          # one flat file name, no subfolders, no listing, no traversal
+            self.send_error(404); return
+        super().do_GET()
+
+    def do_HEAD(self):
+        if not SAFE.match(self.path.split("?", 1)[0]):
+            self.send_error(404); return
+        super().do_HEAD()
+
+    def do_POST(self): self.send_error(405)
+    do_PUT = do_DELETE = do_PATCH = do_POST
+
+    def log_message(self, fmt, *a): pass
+
+
+class S(socketserver.ThreadingMixIn, http.server.HTTPServer):
+    daemon_threads = True
+    allow_reuse_address = True
+
+
+if __name__ == "__main__":
+    p = argparse.ArgumentParser()
+    p.add_argument("--bind", default="172.18.0.1"); p.add_argument("--port", type=int, default=31480)
+    p.add_argument("--root", default="/var/lib/lsevin/release-export")
+    a = p.parse_args()
+    os.makedirs(a.root, exist_ok=True)
+    H.directory = a.root
+    handler = lambda *args, **kw: H(*args, directory=a.root, **kw)
+    S((a.bind, a.port), handler).serve_forever()

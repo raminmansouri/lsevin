@@ -124,6 +124,13 @@
 		rewrite * /api/v1/write
 		reverse_proxy 10.43.213.65:9090
 	}
+	# Server A (Iran) fetches the application images B runs (deployments/release-sync). Password-protected; TLS from this site.
+	handle_path /_releases/* {
+		basic_auth {
+			site-a Connection closed by 202.133.90.50 port 22
+		}
+		reverse_proxy 172.18.0.1:31480
+	}
 	import common_headers
 
 	# Public media is streamed by the API from private SeaweedFS storage.

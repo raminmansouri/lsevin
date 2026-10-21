@@ -10,6 +10,7 @@ import type { BookingDraftState, ChildBookingDraft, ProviderCardItem, ProviderTy
 import { AddressPicker } from './AddressPicker';
 import { BookingProgress } from './BookingProgress';
 import { ChildAddonBookingCard } from './ChildAddonBookingCard';
+import { MobileItinerary } from './itinerary/MobileItinerary';
 import { TourDeparturePicker } from './TourDeparturePicker';
 import { BookingShopProductsStep, type BookingShopProductGroup } from './BookingShopProductsStep';
 import { PaymentMethodsPanel } from './PaymentMethodsPanel';
@@ -48,6 +49,24 @@ async function getJson<T>(url: string, init?: RequestInit): Promise<T> {
         throw new Error(message);
     }
     return response.json();
+}
+/**
+ * Puts one add-on into the draft's list. A draft can hold several add-ons of the same provider
+ * type (migration 0078), so saved rows are matched by id; a row still being filled in on the
+ * desktop card (no id yet) is matched by its provider type.
+ */
+function upsertChildBooking(list: ChildBookingDraft[] | undefined, next: ChildBookingDraft): ChildBookingDraft[] {
+    const current = list ?? [];
+    const index = next.id
+        ? current.findIndex((item) => item.id === next.id)
+        : current.findIndex((item) => !item.id && item.providerTypeId === next.providerTypeId);
+    if (index < 0) {
+        // A first save returns the new id: replace the unsaved row it came from rather than adding a twin.
+        const unsaved = next.id ? current.findIndex((item) => !item.id && item.providerTypeId === next.providerTypeId) : -1;
+        if (unsaved >= 0) return current.map((item, position) => (position === unsaved ? next : item));
+        return [...current, next];
+    }
+    return current.map((item, position) => (position === index ? next : item));
 }
 const steps = [
     { key: 1, labelKey: 'stepService' },
@@ -858,6 +877,30 @@ export function BookingWizard() {
         const found = specialists.find((p) => p.id === draft?.specialistId);
         if (found && found.id !== resolvedSpecialist?.id) setResolvedSpecialist(found);
     }, [specialists, draft?.specialistId, resolvedSpecialist?.id]);
+    // Past step 1 the provider/service lists are never loaded, so a refresh on a later step left
+    // the main selection unnamed (the mobile itinerary's trip card lost its city and photo).
+    // Resolve it read-only through the same entry endpoint; nothing is written to the draft.
+    useEffect(() => {
+        if (!draft?.providerId || currentStep === 1 || resumeChoiceRequired) return;
+        const needsProvider = resolvedProvider?.id !== draft.providerId;
+        const needsService = Boolean(draft.serviceId) && resolvedService?.id !== draft.serviceId;
+        const needsSpecialist = Boolean(draft.specialistId) && resolvedSpecialist?.id !== draft.specialistId;
+        if (!needsProvider && !needsService && !needsSpecialist) return;
+        let cancelled = false;
+        getJson<BookingEntryResolution>(`/api/booking-pro/entry?locale=${locale}&providerId=${encodeURIComponent(draft.providerId)}&serviceId=${encodeURIComponent(draft.serviceId ?? '')}&specialistId=${encodeURIComponent(draft.specialistId ?? '')}`)
+            .then((entry) => {
+                if (cancelled) return;
+                const provider = entry.providers.find((item) => item.id === draft.providerId);
+                const service = entry.services.find((item) => item.id === draft.serviceId);
+                const specialist = entry.specialists.find((item) => item.id === draft.specialistId);
+                if (provider) setResolvedProvider({ id: provider.id, name: provider.name, city: provider.city, country: provider.country, imageUrl: provider.image, rating: provider.rating, reviewCount: provider.reviewCount });
+                if (service) setResolvedService({ id: service.id, serviceDefinitionId: service.serviceDefinitionId, name: service.name, description: service.description ?? undefined, imageUrl: service.image, currency: service.currency, value: service.price, durationMinutes: service.durationMinutes, slotIntervalMinutes: service.slotIntervalMinutes });
+                if (specialist) setResolvedSpecialist({ id: specialist.id, name: specialist.name, title: specialist.title ?? undefined, imageUrl: specialist.image, rating: specialist.rating, reviewCount: specialist.reviewCount });
+            })
+            // Display-only: the step still works without the names, so a failure is logged, not shown.
+            .catch((error) => console.error('booking entry resolution for a resumed draft failed', error));
+        return () => { cancelled = true; };
+    }, [draft?.providerId, draft?.serviceId, draft?.specialistId, currentStep, resumeChoiceRequired, locale, resolvedProvider?.id, resolvedService?.id, resolvedSpecialist?.id]);
     const childMap = useMemo(() => Object.fromEntries((draft?.childBookings ?? []).map((child) => [child.providerTypeId, child])), [draft?.childBookings]);
     const allRequiredUploadsPresent = useMemo(() => {
         const requiredIds = uploadRequirements.filter((x) => x.isRequired).map((x) => x.id);
@@ -1437,13 +1480,26 @@ export function BookingWizard() {
               customer can submit nothing and press Continue. */}
                 {currentStep === 6 ? (<ConsultationStep bookingDraftId={draft.id} onContinue={goNext}/>) : null}
 
-                {currentStep === 3 ? (<div className="space-y-4">
+                {currentStep === 3 ? (<div className="lg:hidden">
+                    <MobileItinerary
+                        locale={locale}
+                        calendar={calendar}
+                        draft={draft}
+                        addonTypes={addonProviderTypes}
+                        main={{ title: chosenService?.name ?? tBooking('stepService'), providerName: [chosenProvider?.name, draft.requiresSpecialist ? chosenSpecialist?.name : null].filter(Boolean).join(' · '), city: chosenProvider?.city, country: chosenProvider?.country, imageUrl: chosenProvider?.imageUrl, durationMinutes: chosenService?.durationMinutes }}
+                        formatMoney={formatMoney}
+                        onChildSaved={(child, totals) => setDraft((prev) => ({ ...(prev as BookingDraftState), childBookings: upsertChildBooking(prev?.childBookings, child), ...(totals ?? {}) }))}
+                        onChildRemoved={(childId, totals) => setDraft((prev) => ({ ...(prev as BookingDraftState), childBookings: (prev?.childBookings ?? []).filter((item) => item.id !== childId), ...(totals ?? {}) }))}
+                    />
+                </div>) : null}
+
+                {currentStep === 3 ? (<div className="hidden space-y-4 lg:block">
                     <div className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-lg">
                         <h2 className="text-xl font-bold text-slate-900">{tBooking("addOnSubBookings2")}</h2>
                         <p className="mt-2 text-sm text-slate-600">{tBooking("everySelectedProviderTypeAddOnStartsAnEmbedded")}</p>
                     </div>
                     {addonProviderTypes.length === 0 ? (<div className="rounded-[28px] border border-dashed border-slate-300 bg-slate-50 p-6 text-sm text-slate-600">{tBooking("noAddOnsConfigured")}</div>) : null}
-                    {addonProviderTypes.map((addon) => (<ChildAddonBookingCard key={addon.providerTypeId} locale={locale} draftId={draft.id!} addon={addon} city={chosenProvider?.city} country={chosenProvider?.country} value={childMap[addon.providerTypeId]} onChange={(next) => setDraft((prev) => ({ ...(prev as BookingDraftState), childBookings: [...(prev?.childBookings ?? []).filter((x) => x.providerTypeId !== next.providerTypeId), next] }))} onSaved={(next, totals) => setDraft((prev) => ({ ...(prev as BookingDraftState), childBookings: [...(prev?.childBookings ?? []).filter((x) => x.providerTypeId !== next.providerTypeId), next], ...(totals ?? {}) }))}/>))}
+                    {addonProviderTypes.map((addon) => (<ChildAddonBookingCard key={addon.providerTypeId} locale={locale} draftId={draft.id!} addon={addon} city={chosenProvider?.city} country={chosenProvider?.country} value={childMap[addon.providerTypeId]} onChange={(next) => setDraft((prev) => ({ ...(prev as BookingDraftState), childBookings: upsertChildBooking(prev?.childBookings, next) }))} onSaved={(next, totals) => setDraft((prev) => ({ ...(prev as BookingDraftState), childBookings: upsertChildBooking(prev?.childBookings, next), ...(totals ?? {}) }))}/>))}
                 </div>) : null}
 
                 {currentStep === 4 ? (<div className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-lg">
