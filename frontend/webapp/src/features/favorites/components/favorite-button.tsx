@@ -9,6 +9,8 @@ import { cn } from '@/lib/utils';
 import { toggleFavoriteAction } from '../actions/favorite-actions';
 import type { FavoriteEntityType } from '../types';
 
+import { rememberFavoriteStatus, requestFavoriteStatus } from './favorite-status-store';
+
 export function FavoriteButton({
   entityId,
   entityType,
@@ -45,6 +47,12 @@ export function FavoriteButton({
     setIsFavorite(initialIsFavorite);
   }, [initialIsFavorite]);
 
+  // Static pages render every heart as "not favourite"; ask the server (batched) once mounted.
+  useEffect(() => {
+    if (initialIsFavorite) return;
+    return requestFavoriteStatus(entityType, entityId, (value) => setIsFavorite(value));
+  }, [entityId, entityType, initialIsFavorite]);
+
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     // The button usually sits inside a card that's itself a clickable <Link>
     // (navigates to the detail page). Without these, clicking the heart would
@@ -57,6 +65,7 @@ export function FavoriteButton({
     const previousValue = isFavorite;
     const nextValue = !previousValue;
     setIsFavorite(nextValue);
+    rememberFavoriteStatus(entityType, entityId, nextValue);
     onChange?.(nextValue);
 
     // startTransition(async () => {
@@ -76,6 +85,7 @@ export function FavoriteButton({
 
       if (result.requiresAuth) {
         setIsFavorite(previousValue);
+        rememberFavoriteStatus(entityType, entityId, previousValue);
         onChange?.(previousValue);
 
         if (onAuthRequired) {

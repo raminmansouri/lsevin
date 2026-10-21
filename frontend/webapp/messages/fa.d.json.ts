@@ -15739,6 +15739,7 @@ declare const messages: {
   },
   "ShopAdmin": {
     "acmeHealth": "acme-health",
+    
     "nav": {
       "dashboard": "داشبورد",
       "orders": "سفارش‌ها",
@@ -16169,6 +16170,7 @@ declare const messages: {
     "attributes": {
       "title": "ویژگی‌ها",
       "productCount": "{n} محصول",
+      "deleteInUse": "این ویژگی از {n, number} محصول برداشته و همراه با همهٔ مقدارهایش حذف می‌شود. این کار برگشت‌پذیر نیست.",
       "variantDefining": "تنوع‌ساز",
       "delete": "حذف",
       "noValuesYet": "هنوز مقداری وجود ندارد.",

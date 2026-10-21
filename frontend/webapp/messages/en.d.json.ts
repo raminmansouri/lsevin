@@ -16165,6 +16165,7 @@ declare const messages: {
     "attributes": {
       "title": "Attributes",
       "productCount": "{n} product(s)",
+      "deleteInUse": "This attribute will be removed from {n, number} product(s) and deleted with all its values. This cannot be undone.",
       "variantDefining": "variant-defining",
       "delete": "delete",
       "noValuesYet": "No values yet.",

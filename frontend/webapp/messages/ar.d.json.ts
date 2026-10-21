@@ -13951,6 +13951,7 @@ declare const messages: {
     "qty": "الكمية"
   },
   "ShopAdmin": {
+
     "nav": {
       "dashboard": "لوحة التحكم",
       "orders": "الطلبات",
@@ -14381,6 +14382,7 @@ declare const messages: {
     "attributes": {
       "title": "الخصائص",
       "productCount": "{n} منتج",
+      "deleteInUse": "ستُزال هذه الخاصية من {n, number} منتج وتُحذف مع جميع قيمها. لا يمكن التراجع عن ذلك.",
       "variantDefining": "مُحدِّد للمتغيرات",
       "delete": "حذف",
       "noValuesYet": "لا قيم بعد.",
