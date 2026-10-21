@@ -149,10 +149,14 @@ suite("tours platform (real database)", () => {
   it("C-023 search matches Persian with Arabic letter variants and the other language's title", async () => {
     const owner = await seedUser(sql);
     const p = await seedProvider(sql, owner.id);
-    const t = await seedTour(sql, { providerId: p.id, titles: { "fa-IR": `تور کیش ${Date.now()}`, "en-US": "Kish island tour" }, translateTo: ["en-US"] });
-    const arabicVariant = (await catalog.searchTours({ q: "تور كيش" }, "fa-IR")).items.map((i) => i.id);
+    // A unique number keeps the assertion independent of tours left by earlier
+    // runs; typing it with Persian digits also exercises digit normalization.
+    const n = String(Date.now()).slice(-7);
+    const persianDigits = n.replace(/\d/g, (d) => "۰۱۲۳۴۵۶۷۸۹"[Number(d)]);
+    const t = await seedTour(sql, { providerId: p.id, titles: { "fa-IR": `تور کیش ${n}`, "en-US": `Kish island tour ${n}` }, translateTo: ["en-US"] });
+    const arabicVariant = (await catalog.searchTours({ q: `تور كيش ${persianDigits}` }, "fa-IR")).items.map((i) => i.id);
     expect(arabicVariant).toContain(t.id);
-    const english = (await catalog.searchTours({ q: "kish island" }, "fa-IR")).items.map((i) => i.id);
+    const english = (await catalog.searchTours({ q: `kish island ${n}` }, "fa-IR")).items.map((i) => i.id);
     expect(english).toContain(t.id);
   });
 
