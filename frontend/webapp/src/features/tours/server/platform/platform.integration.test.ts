@@ -474,6 +474,23 @@ suite("tours platform (real database)", () => {
     expect((await authoring.publishRequirements(t.id)).map((r) => r.code)).toContain("outdated_translations");
   });
 
+  it("AT-37 regression: an approved translated cancellation text reaches customers; booked snapshots stay frozen", async () => {
+    const owner = await seedUser(sql);
+    const translator = await seedUser(sql);
+    const p = await seedProvider(sql, owner.id);
+    const t = await seedTour(sql, { providerId: p.id, translateTo: ["en-US"], departures: 1, adultPrice: 0 });
+    const c = await seedUser(sql);
+    const b = await bookOnce(t, c.id);
+    await sql`insert into tour.translator_assignments (user_id, locale, service_provider_id) values (${translator.id}, 'en-US', ${p.id})`;
+    await authoring.saveContent(user(translator.id), t.id, { locale: "en-US", fields: { cancellation_policy: "Reviewed English cancellation terms" } });
+    await authoring.approveContent(user(translator.id), t.id, "en-US", { fieldKeys: ["cancellation_policy"] });
+    const live = await catalog.getTourDetail(t.slug, "en-US");
+    expect(live!.policy!.text.cancellation?.value).toBe("Reviewed English cancellation terms");
+    expect(live!.text.cancellation_policy?.value).toBe("Reviewed English cancellation terms");
+    const [snap] = await sql<any[]>`select policy_snapshot from tour.bookings where booking_id = ${b.bookingId}`;
+    expect(JSON.stringify(snap.policy_snapshot)).not.toContain("Reviewed English cancellation terms");
+  });
+
   it("AT-38 a locale reviewer edits/approves only assigned text — never prices, other locales or other providers", async () => {
     const owner = await seedUser(sql);
     const translator = await seedUser(sql);

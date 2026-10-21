@@ -5530,7 +5530,18 @@
       "tableBrowser": "Table browser",
       "searchPlaceholder": "Search",
       "noResults": "No matches",
-      "databaseTables": "Database tables"
+      "databaseTables": "Database tables",
+      "toursPlatform": "Tours platform",
+      "toursPlatformDashboard": "Tours overview",
+      "toursPlatformTours": "Tours & review queue",
+      "toursPlatformDestinations": "Tour destinations",
+      "toursPlatformEditorial": "Tours landing content",
+      "toursPlatformDepartures": "Tour departures",
+      "toursPlatformBookings": "Tour bookings",
+      "toursPlatformDisputes": "Tour disputes",
+      "toursPlatformTranslations": "Tour translations",
+      "toursPlatformReports": "Tour reports",
+      "toursPlatformSettings": "Tours settings"
     }
   },
   "HomePage": {

@@ -245,8 +245,32 @@ export async function approveContent(actor: Actor, tourId: string, locale: strin
          and draft_value is not null and btrim(draft_value) <> ''
          and (${opts.fieldKeys ?? null}::text[] is null or field_key = any(${opts.fieldKeys ?? null}::text[]))
     `;
+    await syncPolicyTexts(tx as unknown as Tx, tourId);
     await audit(tx as unknown as Tx, actor, owner.serviceProviderId, "content", tourId, "content_approved", { locale, fields: opts.fieldKeys ?? "all" });
   });
+}
+
+/**
+ * Customers read cancellation text from the current policy version, but
+ * translators approve it as tour.content (field cancellation_policy). Copy every
+ * published translation into the current version so an approved translation
+ * actually reaches customers, and clear its "outdated" mark. Existing bookings
+ * are unaffected: each carries its own frozen policy_snapshot (AT-13).
+ */
+async function syncPolicyTexts(tx: Tx, tourId: string) {
+  await tx`
+    update tour.policy_versions pv
+       set texts = pv.texts || coalesce((
+             select jsonb_object_agg(c.locale,
+                      coalesce(pv.texts -> c.locale, '{}'::jsonb)
+                      || jsonb_build_object('cancellation', c.published_value, 'outdated', false))
+               from tour.content c
+              where c.tour_id = pv.tour_id and c.entity_type = 'tour' and c.entity_id = pv.tour_id
+                and c.field_key = 'cancellation_policy' and c.status = 'published'
+                and c.published_value is not null and btrim(c.published_value) <> ''), '{}'::jsonb)
+     where pv.tour_id = ${tourId}::uuid
+       and pv.version = (select max(version) from tour.policy_versions where tour_id = ${tourId}::uuid)
+  `;
 }
 
 export async function contentForEditor(actor: Actor, tourId: string) {
@@ -679,6 +703,7 @@ export async function approveAndPublish(actor: Actor, tourId: string, note?: str
              on conflict (tour_id, revision) do nothing`;
     await tx`select tour.ensure_booking_anchor(${tourId}::uuid)`;
     await tx`select tour.refresh_search_text(${tourId}::uuid)`;
+    await syncPolicyTexts(tx as unknown as Tx, tourId);
     await audit(tx as unknown as Tx, actor, owner.serviceProviderId, "tour", tourId, "published", { note });
   });
 }

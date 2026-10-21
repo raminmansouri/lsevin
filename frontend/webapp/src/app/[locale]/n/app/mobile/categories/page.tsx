@@ -5,6 +5,7 @@ import { setRequestLocale } from "next-intl/server";
 import { getCategoryBrowserGroups } from "@/features/service-providers/actions/categories/get-category-browser-groups";
 import { CategoryBrowserClient } from "@/features/service-providers/components/categories/category-browser-client";
 import { SponsoredPlacementSlot } from "@/features/sponsered-slider/components/sponsored-placement-slot";
+import { getTourSettings } from "@/features/tours/server/platform/settings";
 
 export const metadata: Metadata = {
   title: "Categories",
@@ -33,12 +34,18 @@ export default async function CategoryBrowserPage({
     totalProviders: 0,
   }));
 
+  // Tourism opens the Tours sub-application (C-001); its id is configuration, not code.
+  const tourismCategoryId = await getTourSettings()
+    .then((s) => s.tourismCategoryId)
+    .catch(() => null);
+
   return (
     <Suspense fallback={null}>
       <CategoryBrowserClient
         categoryGroups={data.groups}
         totalCategories={data.totalCategories}
         totalProviders={data.totalProviders}
+        tourismCategoryId={tourismCategoryId}
       />
       <SponsoredPlacementSlot locale={locale} placement="categories" />
     </Suspense>
