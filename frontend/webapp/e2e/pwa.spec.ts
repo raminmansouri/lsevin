@@ -47,6 +47,13 @@ test("transient setup failure retries the atomic offline shell installation", as
     await expect(
       page.getByRole("heading", { name: "Connection unavailable", exact: true })
     ).toBeVisible();
+    await expect
+      .poll(() =>
+        page
+          .locator('img[alt="LSevin"]')
+          .evaluate((img: HTMLImageElement) => img.naturalWidth)
+      )
+      .toBeGreaterThan(0);
   } finally {
     await request.get("/__fixture/offline-off");
   }

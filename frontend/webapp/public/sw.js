@@ -173,7 +173,7 @@
 })();
 
 /* PROFILE_VIEW_STORE_END */
-const VERSION = "v1-fa5cd0e1f4faa7c7";
+const VERSION = "v1-1c957f5f5357764a";
 const SHELL_CACHE = `lsevin-pwa-shell-${VERSION}`;
 const ASSET_CACHE = "lsevin-pwa-assets-v2";
 const APPLICATION_CACHE = "lsevin-pwa-application-v2";
@@ -539,7 +539,11 @@ async function saveDirectory(url, response) {
 self.addEventListener("fetch", (event) => {
   const request = event.request;
   const url = new URL(request.url);
-  if (request.method === "GET" && request.destination === "image") {
+  if (
+    request.method === "GET" &&
+    request.destination === "image" &&
+    !(url.origin === self.location.origin && SHELL.includes(url.pathname))
+  ) {
     event.respondWith(
       (async () => {
         const cached = await (
