@@ -30,6 +30,17 @@ test("transient setup failure retries the atomic offline shell installation", as
       );
     })
   ).toBe(true);
+  // CDN entries for unversioned URLs may still contain the retired reader.
+  // The normalized offline key must contain a response fetched for this release.
+  expect(
+    await page.evaluate(async () => {
+      const names = await caches.keys();
+      const shell = await caches.open(
+        names.find((name) => name.startsWith("lsevin-pwa-shell-"))!
+      );
+      return (await shell.match("/offline.html"))!.url;
+    })
+  ).toMatch(/\?pwa=/);
   await request.get("/__fixture/offline-on");
   try {
     await page.reload();

@@ -173,7 +173,7 @@
 })();
 
 /* PROFILE_VIEW_STORE_END */
-const VERSION = "v1-f51e71dcefee3b15";
+const VERSION = "v1-e18e9877134c382d";
 const SHELL_CACHE = `lsevin-pwa-shell-${VERSION}`;
 const ASSET_CACHE = "lsevin-pwa-assets-v2";
 const APPLICATION_CACHE = "lsevin-pwa-application-v2";
@@ -209,7 +209,17 @@ let directoryWrites = Promise.resolve();
 async function installShell() {
   for (let attempt = 0; attempt < 3; attempt += 1) {
     try {
-      await (await caches.open(SHELL_CACHE)).addAll(SHELL);
+      const cache = await caches.open(SHELL_CACHE);
+      // Fetch each release through a unique CDN key. Keep addAll atomic, then
+      // normalize keys so offline requests never depend on network or queries.
+      const versioned = SHELL.map((path) => `${path}?pwa=${VERSION}`);
+      await cache.addAll(versioned);
+      for (let i = 0; i < SHELL.length; i += 1) {
+        const response = await cache.match(versioned[i]);
+        if (!response) throw new Error("Incomplete offline shell");
+        await cache.put(SHELL[i], response);
+        await cache.delete(versioned[i]);
+      }
       return;
     } catch (error) {
       if (attempt === 2) throw error;
