@@ -103,6 +103,8 @@ export interface ProviderTypeAddonItem {
   label: string;
   description?: string;
   icon?: string | null;
+  /** category.provider_types.image_url (stored path; resolve before rendering). */
+  imageUrl?: string | null;
   isRequired: boolean;
   metadata?: Record<string, unknown>;
 }
@@ -131,6 +133,13 @@ export interface ChildBookingDraft {
   currency?: string;
   metadata?: Record<string, unknown>;
   status?: string;
+  /** Read-only display fields returned with the draft for the mobile itinerary; the child
+   * route never accepts them back. Names are translation maps (pick with pickTranslation). */
+  providerNameTranslations?: Record<string, string> | null;
+  serviceNameTranslations?: Record<string, string> | null;
+  providerImageUrl?: string | null;
+  durationMinutes?: number | null;
+  requiresCustomerAddress?: boolean;
 }
 
 export interface BookingDraftState {

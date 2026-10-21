@@ -163,7 +163,8 @@ export function ChildAddonBookingCard({ locale, draftId, addon, city, country, v
         if (!res.ok)
             throw new Error(tBooking("failedToSaveChildBooking"));
         const data = await res.json();
-        onSaved({ ...model, status: 'Completed' }, data.totals);
+        // Keep the row id the server returned: later saves must update this row, not insert a twin.
+        onSaved({ ...model, id: data.item?.id ?? model.id, status: 'Completed' }, data.totals);
     }
     return (<div className={`rounded-3xl border ${complete ? 'border-[#083f30]/20 bg-white shadow-lg' : 'border-slate-200 bg-white'}`}>
       <button type="button" onClick={() => setExpanded((x) => !x)} className="flex w-full items-center justify-between gap-3 p-5">
