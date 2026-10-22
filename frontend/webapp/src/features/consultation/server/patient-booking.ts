@@ -11,13 +11,18 @@ import {
   type BookingOptions,
   type CreateVideoSessionInput,
   type PatientVideoSession,
+  type PatientVideoSessionListItem,
+  type PatientVideoSessionLists,
 } from "../patient-booking-types";
+import { canJoinSession, sessionCallWindow } from "../doctor-panel-types";
 import type { ConsultationActionResult } from "../types";
 import {
   createVideoSessionIfFree,
   getAccountName,
+  getMediaFiles,
   getPatientSession,
   listFreeSlots,
+  listPatientSessions,
   videoDoctorIsBookable,
 } from "./patient-booking-repository";
 import { getVideoConsultationSettings } from "./repository";
@@ -145,6 +150,22 @@ export async function createVideoSessionAction(
   }
 }
 
+type PatientRow = NonNullable<Awaited<ReturnType<typeof getPatientSession>>>;
+
+function toPatientListItem(row: PatientRow, persian: boolean): PatientVideoSessionListItem {
+  return {
+    id: row.id,
+    status: row.status,
+    scheduledAt: new Date(row.scheduled_at).toISOString(),
+    durationMinutes: row.duration_minutes,
+    doctor: {
+      name: (persian ? row.doctor_name_fa : row.doctor_name_en || row.doctor_name_fa) || "—",
+      imageUrl: row.doctor_image_url,
+    },
+    expired: row.expired,
+  };
+}
+
 /** One of the signed-in patient's own sessions. */
 export async function getMyVideoSessionAction(
   sessionId: string
@@ -157,25 +178,89 @@ export async function getMyVideoSessionAction(
   try {
     const row = await getPatientSession(userId, id.data);
     if (!row) return fail("notFound");
-    const [locale, offer] = await Promise.all([getLocale(), getVideoConsultationOfferAction()]);
+    const [locale, offer, files] = await Promise.all([
+      getLocale(),
+      getVideoConsultationOfferAction(),
+      getMediaFiles(row.attachment_media_ids ?? []),
+    ]);
     const persian = locale.toLowerCase().startsWith("fa");
     return {
       ok: true,
       data: {
-        id: row.id,
-        status: row.status,
-        scheduledAt: new Date(row.scheduled_at).toISOString(),
-        durationMinutes: row.duration_minutes,
+        ...toPatientListItem(row, persian),
         // Shown the way the home card shows it to this visitor (Toman for Iran);
         // the amount actually charged is settled by the payment step.
         priceLabel: offer.priceLabel,
-        doctor: {
-          name: (persian ? row.doctor_name_fa : row.doctor_name_en || row.doctor_name_fa) || "—",
-          imageUrl: row.doctor_image_url,
-        },
         patientNote: row.patient_note,
+        attachments: files.map((file) => ({
+          id: file.id,
+          name: file.original_name,
+          url: file.file_url,
+          mimeType: file.mime_type,
+        })),
+        summary: row.summary_written_at
+          ? {
+              advice: row.summary_advice,
+              nextSteps: row.summary_next_steps,
+              suggestion: row.summary_suggestion,
+            }
+          : null,
       },
     };
+  } catch (error) {
+    return fail("loadFailed", error);
+  }
+}
+
+/**
+ * The signed-in patient's consultations for the bookings page. A session is
+ * upcoming until its call room closes; cancelled ones and unpaid requests
+ * whose hold ran out go under cancelled.
+ */
+export async function listMyVideoSessionsAction(): Promise<
+  ConsultationActionResult<PatientVideoSessionLists>
+> {
+  const userId = await signedInUserId();
+  if (!userId) return { ok: true, data: { upcoming: [], past: [], cancelled: [] } };
+
+  try {
+    const [rows, locale] = await Promise.all([listPatientSessions(userId), getLocale()]);
+    const persian = locale.toLowerCase().startsWith("fa");
+    const now = Date.now();
+    const lists: PatientVideoSessionLists = { upcoming: [], past: [], cancelled: [] };
+    for (const row of rows) {
+      const item = toPatientListItem(row, persian);
+      if (item.status === "cancelled" || item.status === "no_show" || item.expired) {
+        lists.cancelled.push(item);
+      } else if (item.status === "completed" || now > sessionCallWindow(item).closesAt) {
+        lists.past.push(item);
+      } else {
+        lists.upcoming.push(item);
+      }
+    }
+    // Soonest first for what is coming; newest first for the rest.
+    lists.upcoming.reverse();
+    return { ok: true, data: lists };
+  } catch (error) {
+    return fail("loadFailed", error);
+  }
+}
+
+/** Lets the patient into the call room: their own session, paid, inside its window. */
+export async function joinMyVideoSessionAction(
+  sessionId: string
+): Promise<ConsultationActionResult<PatientVideoSessionListItem>> {
+  const userId = await signedInUserId();
+  if (!userId) return fail("signIn");
+  const id = DoctorIdSchema.safeParse(sessionId);
+  if (!id.success) return fail("notFound");
+  try {
+    const row = await getPatientSession(userId, id.data);
+    if (!row) return fail("notFound");
+    const locale = await getLocale();
+    const item = toPatientListItem(row, locale.toLowerCase().startsWith("fa"));
+    if (!canJoinSession(item)) return fail("notJoinable");
+    return { ok: true, data: item };
   } catch (error) {
     return fail("loadFailed", error);
   }

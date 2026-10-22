@@ -5,15 +5,17 @@ import { usePathname } from "@/i18n/navigation";
 import { BottomTabBar } from "./app/design-system/mobile-components";
 
 /**
- * Pages that are their own app inside the /n tree (the consultation GP's panel)
- * and must not show the patient app's top bar and bottom tabs.
+ * Pages that are their own screen inside the /n tree and must not show the
+ * patient app's top bar and bottom tabs: the consultation GP's panel, and the
+ * patient's video call.
  */
-const STANDALONE_PREFIXES = ["/n/app/mobile/consultation/doctor"];
+const STANDALONE_PATHS = [
+  /^\/n\/app\/mobile\/consultation\/doctor(\/|$)/,
+  /^\/n\/app\/mobile\/consultation\/sessions\/[^/]+\/call\/?$/,
+];
 
 export function isStandaloneAppPath(pathname: string | null) {
-  return STANDALONE_PREFIXES.some(
-    (prefix) => pathname === prefix || pathname?.startsWith(`${prefix}/`)
-  );
+  return Boolean(pathname && STANDALONE_PATHS.some((pattern) => pattern.test(pathname)));
 }
 
 /** The app bar, page and bottom tabs, minus the bars on standalone pages. */

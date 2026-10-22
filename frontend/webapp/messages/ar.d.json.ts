@@ -13627,7 +13627,6 @@ declare const messages: {
       "summarySave": "Save summary",
       "summaryUpdate": "Update summary",
       "summarySaved": "Summary saved",
-      "videoPlaceholder": "The video (LiveKit) connects here in the next step. The timer and ending the call already work.",
       "errors": {
         "loadFailed": "Something went wrong. Please try again.",
         "notFound": "This consultation wasn't found.",
@@ -13640,14 +13639,7 @@ declare const messages: {
         "forbidden": "You don't have access."
       },
       "callWindow": "The call room is open {from}–{to}; you can join and leave as often as you like.",
-      "callWindowClosed": "The call room has closed ({from}–{to}).",
-      "callPhase": {
-        "before": "Until the booked time",
-        "during": "Left of the consultation",
-        "after": "Until the room closes"
-      },
-      "leaveCall": "Leave call",
-      "roomClosed": "The call room's time is over."
+      "callWindowClosed": "The call room has closed ({from}–{to})."
     },
     "booking": {
       "back": "Back",
@@ -13691,8 +13683,30 @@ declare const messages: {
         "pickTime": "Please pick a time.",
         "name": "Enter your full name.",
         "age": "The age isn't valid.",
-        "note": "Please describe your problem in at least one sentence."
-      }
+        "note": "Please describe your problem in at least one sentence.",
+        "notJoinable": "It isn't time to join this call."
+      },
+      "joinCall": "Join call",
+      "joinLater": "The join button opens when the call room opens.",
+      "joinAfterPayment": "The join button appears here once you've paid.",
+      "callWindowClosed": "The call room has closed ({from}–{to}).",
+      "expired": "This request's payment time ran out and the time was released. Please book again.",
+      "expiredBadge": "Expired",
+      "doctorSummary": "Doctor's summary",
+      "summaryAdvice": "Advice",
+      "summaryNextSteps": "Next steps",
+      "summarySuggestion": "Suggested treatment or centre",
+      "backToSession": "Back to consultation"
+    },
+    "call": {
+      "phase": {
+        "before": "Until the booked time",
+        "during": "Left of the consultation",
+        "after": "Until the room closes"
+      },
+      "leave": "Leave call",
+      "roomClosed": "The call room's time is over.",
+      "videoPlaceholder": "The video connects here in the LiveKit step. The timer and joining/leaving already work."
     }
   },
   "GymMemberships": {

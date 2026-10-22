@@ -107,7 +107,7 @@ export function VideoBookingPage({ doctorId }: { doctorId: string }) {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-32">
+    <div className="min-h-screen bg-gray-50 pb-8">
       <div className="sticky top-0 z-40 border-b border-gray-100 bg-white">
         <div className="flex items-center gap-3 px-5 pt-3 pb-4">
           <button
@@ -244,11 +244,9 @@ export function VideoBookingPage({ doctorId }: { doctorId: string }) {
               />
             </Field>
           </section>
-        </div>
-      )}
 
-      {options && days.length > 0 && (
-        <div className="fixed inset-x-0 bottom-0 z-50 border-t border-gray-100 bg-white px-5 py-3">
+          {/* In the page flow, not fixed: the app's bottom tabs sit fixed at the
+              bottom of the screen and would cover a fixed button. */}
           <button
             type="button"
             onClick={submit}
@@ -259,12 +257,15 @@ export function VideoBookingPage({ doctorId }: { doctorId: string }) {
               <Loader2 className="mx-auto h-5 w-5 animate-spin" aria-hidden />
             ) : slot ? (
               t("submit", { time: `${formatSessionDate(locale, slot)} ${formatSessionTime(locale, slot)}` })
+            ) : days.length === 0 ? (
+              t("noSlots")
             ) : (
               t("pickTimeFirst")
             )}
           </button>
         </div>
       )}
+
     </div>
   );
 }

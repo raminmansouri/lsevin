@@ -134,25 +134,55 @@ type PatientSessionRow = {
   status: VideoSessionStatus;
   scheduled_at: Date;
   duration_minutes: number;
-  price_amount: string | number;
-  price_currency: string;
+  expired: boolean;
   patient_note: string | null;
+  attachment_media_ids: string[] | null;
+  summary_advice: string | null;
+  summary_next_steps: string | null;
+  summary_suggestion: string | null;
+  summary_written_at: Date | null;
   doctor_name_fa: string;
   doctor_name_en: string | null;
   doctor_image_url: string | null;
 };
 
+const patientSessionSelect = () => db`
+  select s.id::text as id, s.status, s.scheduled_at, s.duration_minutes,
+         (s.status = 'awaiting_payment'
+          and s.created_at <= now() - make_interval(mins => ${UNPAID_HOLD_MINUTES})) as expired,
+         s.patient_note, s.attachment_media_ids,
+         s.summary_advice, s.summary_next_steps, s.summary_suggestion, s.summary_written_at,
+         vd.name_fa as doctor_name_fa, vd.name_en as doctor_name_en,
+         coalesce(m.file_url, nullif(vd.image_media_id, '')) as doctor_image_url
+  from consultation.video_sessions s
+  join consultation.video_doctors vd on vd.id = s.doctor_id
+  left join media.media_library m on m.id::text = nullif(vd.image_media_id, '')
+`;
+
 /** One of this patient's own sessions, or null. */
 export async function getPatientSession(userId: string, sessionId: string) {
   const rows = await db<PatientSessionRow[]>`
-    select s.id::text as id, s.status, s.scheduled_at, s.duration_minutes,
-           s.price_amount, s.price_currency, s.patient_note,
-           vd.name_fa as doctor_name_fa, vd.name_en as doctor_name_en,
-           coalesce(m.file_url, nullif(vd.image_media_id, '')) as doctor_image_url
-    from consultation.video_sessions s
-    join consultation.video_doctors vd on vd.id = s.doctor_id
-    left join media.media_library m on m.id::text = nullif(vd.image_media_id, '')
+    ${patientSessionSelect()}
     where s.id = ${sessionId}::uuid and s.patient_user_id = ${userId}::uuid
   `;
   return rows[0] ?? null;
+}
+
+/** All of this patient's sessions, newest booked time first. */
+export async function listPatientSessions(userId: string) {
+  return db<PatientSessionRow[]>`
+    ${patientSessionSelect()}
+    where s.patient_user_id = ${userId}::uuid
+    order by s.scheduled_at desc
+    limit 200
+  `;
+}
+
+export async function getMediaFiles(ids: string[]) {
+  if (!ids.length) return [];
+  return db<{ id: string; original_name: string; file_url: string; mime_type: string }[]>`
+    select id::text as id, original_name, file_url, mime_type
+    from media.media_library
+    where id::text = any(${ids}::text[])
+  `;
 }
