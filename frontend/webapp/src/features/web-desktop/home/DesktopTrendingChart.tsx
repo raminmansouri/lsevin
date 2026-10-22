@@ -40,7 +40,7 @@ export function DesktopTrendingChart({
   if (!top) return null;
 
   return (
-    <section className="lsd-container py-24">
+    <section className="lsd-container py-14">
       <Reveal className="mb-12 flex items-end justify-between gap-10">
         <div>
           <span className="mb-4 inline-flex items-center gap-2 rounded-full bg-[#fbf3de] px-3 py-1 text-xs font-bold text-[#8c6b2c]">

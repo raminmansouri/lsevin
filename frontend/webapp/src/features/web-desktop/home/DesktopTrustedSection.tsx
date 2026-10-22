@@ -17,7 +17,7 @@ export async function DesktopTrustedSection({ locale, providers }: { locale: str
   const number = (value: number, digits = 0) => new Intl.NumberFormat(locale, { maximumFractionDigits: digits }).format(value);
 
   return (
-    <section className="lsd-container py-24">
+    <section className="lsd-container py-14">
       <Reveal className="mb-14 flex items-end justify-between gap-10">
         <div>
           <h2 className="lsd-heading text-5xl font-black text-[#0e1a16]">{t("trusted.title")}</h2>

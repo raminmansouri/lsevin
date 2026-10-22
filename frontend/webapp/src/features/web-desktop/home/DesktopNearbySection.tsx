@@ -42,7 +42,7 @@ export async function DesktopNearbySection({
   const href = section.buttonHref || "/n/app/mobile/map-discovery";
 
   return (
-    <section className="lsd-container py-20">
+    <section className="lsd-container py-12">
       <Reveal>
         <div className="grid min-h-[540px] grid-cols-[0.85fr_1.15fr] overflow-hidden rounded-[40px] bg-[#062a20] text-white shadow-[0_50px_120px_-50px_rgba(6,42,32,0.7)]">
           {/* Copy */}

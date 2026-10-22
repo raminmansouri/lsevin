@@ -29,7 +29,7 @@ export async function DesktopFeatureBanner({
   const discount = offer?.discountPercent ? Math.round(Number(offer.discountPercent)) : null;
 
   return (
-    <section className="lsd-container py-24">
+    <section className="lsd-container py-10">
       <Reveal>
         <div className="group relative grid min-h-[380px] grid-cols-[0.95fr_1.05fr] overflow-hidden rounded-[40px] bg-[#062a20] text-white shadow-[0_50px_120px_-50px_rgba(6,42,32,0.7)]">
           {/* Giant outlined word behind everything, like a magazine cover */}

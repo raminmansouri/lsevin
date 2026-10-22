@@ -122,7 +122,7 @@ export function ProductDetailClient({
         selected.inventoryAvailable > 0 &&
         selected.inventoryAvailable <= 5 ? (
           <span className="text-xs font-medium text-[#e02e2a]">
-            {t("lowStock", { count: selected.inventoryAvailable })}
+            {t("lowStock", { count: new Intl.NumberFormat(locale).format(selected.inventoryAvailable) })}
           </span>
         ) : null}
       </div>
@@ -142,7 +142,7 @@ export function ProductDetailClient({
       ) : null}
 
       {/* sticky action bar */}
-      <div className="fixed inset-x-0 bottom-[calc(4.75rem+env(safe-area-inset-bottom))] z-40 border-t border-neutral-200 bg-white/95 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur">
+      <div className="fixed inset-x-0 bottom-[calc(4.75rem+env(safe-area-inset-bottom))] z-40 border-t border-neutral-200 bg-white/95 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur xl:static xl:z-auto xl:mt-2 xl:rounded-[24px] xl:border xl:border-[#dce4e0] xl:bg-white xl:p-5 xl:backdrop-blur-none">
         <div className="mx-auto flex max-w-md flex-wrap items-center gap-2">
           <div className="min-w-0 flex-1 basis-36 [overflow-wrap:anywhere] break-words">
             <span className="text-[10px] text-neutral-500">

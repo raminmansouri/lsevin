@@ -79,6 +79,14 @@
   100% { transform: scale(2.6); opacity: 0; }
 }
 
+@keyframes lsd-swing {
+  0% { transform: rotate(0deg); }
+  20% { transform: rotate(9deg); }
+  45% { transform: rotate(-7deg); }
+  70% { transform: rotate(4deg); }
+  100% { transform: rotate(0deg); }
+}
+
 
 @media (min-width: 1280px) {
   .lsd {
@@ -644,7 +652,63 @@
 
   /* Detail pages: anchored sections stop below the floating header and the sticky section nav */
   .lsd-anchor { scroll-margin-top: 170px; }
+
+
+  /* Treatment steps: a gold line drawn down the timeline as it comes into view */
+  .lsd-timeline { position: relative; }
+  .lsd-timeline::before {
+    content: "";
+    position: absolute;
+    inset-block: 24px;
+    inset-inline-start: 23px;
+    width: 2px;
+    background: linear-gradient(var(--lsd-gold), rgba(234, 203, 127, 0.15));
+    transform: scaleY(0);
+    transform-origin: top;
+    transition: transform 1.8s var(--lsd-ease) 0.2s;
+  }
+  .is-visible .lsd-timeline::before { transform: scaleY(1); }
+
+
+    /* Jewel boutique */
+  .lsd-jewel {
+    background: radial-gradient(120% 90% at 50% 8%, #ffffff 0%, #f7f0e1 55%, #ead9b5 100%);
+  }
+  .lsd-tag { transform-origin: top center; }
+  .group:hover .lsd-tag { animation: lsd-swing 1.3s var(--lsd-ease); }
+  .lsd-pedestal {
+    background: radial-gradient(ellipse at 50% 25%, #ffffff, #ece6d8 55%, #c9bfa6);
+    box-shadow: 0 34px 60px -24px rgba(0, 0, 0, 0.7), inset 0 -10px 18px rgba(0, 0, 0, 0.12);
+  }
+  .lsd-spotlight {
+    background: conic-gradient(from 180deg at 50% 0%, transparent 155deg, rgba(234, 203, 127, 0.22) 180deg, transparent 205deg);
+    mask-image: linear-gradient(to bottom, #000 40%, transparent);
+  }
+  .lsd-orb { position: relative; }
+  .lsd-orb::before {
+    content: "";
+    position: absolute;
+    inset: -6px;
+    border-radius: 999px;
+    padding: 2px;
+    background: conic-gradient(from var(--lsd-angle), #c9a55a, #f6e2a8, transparent 60%, #c9a55a);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    animation: lsd-spin 3s linear infinite;
+  }
+  .group:hover .lsd-orb::before { opacity: 1; }
+  .lsd-curtain { transition: transform 0.9s var(--lsd-ease); }
+  .group:hover .lsd-curtain { transform: translateY(-101%); }
+  .lsd-snap {
+    scroll-snap-type: x mandatory;
+    mask-image: linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent);
+  }
+  .lsd-snap > * { scroll-snap-align: start; }
   
+
 
   /* Respect users who turn motion off in their OS */
   @media (prefers-reduced-motion: reduce) {

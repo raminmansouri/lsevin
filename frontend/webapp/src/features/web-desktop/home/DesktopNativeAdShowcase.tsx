@@ -36,8 +36,8 @@ function deckStyle(offset: number, count: number): CSSProperties {
   if (count > 2 && offset === count - 1) {
     return { transform: "translateX(140px) rotate(14deg) scale(0.9)", opacity: 0, zIndex: 40, pointerEvents: "none" };
   }
-  if (offset === 1) return { transform: "translate(-40px, -26px) rotate(-4deg) scale(0.94)", opacity: 0.85, zIndex: 20, filter: "saturate(0.7)" };
-  if (offset === 2) return { transform: "translate(-80px, -52px) rotate(-8deg) scale(0.88)", opacity: 0.55, zIndex: 10, filter: "saturate(0.5)" };
+  if (offset === 1) return { transform: "translate(-32px, -20px) rotate(-4deg) scale(0.94)", opacity: 0.85, zIndex: 20, filter: "saturate(0.7)" };
+  if (offset === 2) return { transform: "translate(-64px, -40px) rotate(-8deg) scale(0.88)", opacity: 0.55, zIndex: 10, filter: "saturate(0.5)" };
   return { transform: "translateX(-120px) rotate(-16deg) scale(0.84)", opacity: 0, zIndex: 0 };
 }
 
@@ -66,9 +66,9 @@ export function DesktopNativeAdShowcase({ slides, labels }: { slides: SponsoredS
       data-paused={paused ? "true" : "false"}
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
-      className="lsd-champagne-bg relative my-16 overflow-hidden"
+      className="lsd-champagne-bg relative my-8 overflow-hidden"
     >
-      <div className="lsd-container grid grid-cols-[0.75fr_1.25fr] items-center gap-14 py-24">
+      <div className="lsd-container grid grid-cols-[0.75fr_1.25fr] items-center gap-12 py-5">
         {/* Copy */}
         <div key={slide.id} className="lsd-slide-in flex flex-col items-start gap-5">
           <span className="inline-flex items-center gap-2 rounded-full bg-[#062a20] px-4 py-1.5 text-xs font-bold text-[#eacb7f]">
@@ -76,11 +76,11 @@ export function DesktopNativeAdShowcase({ slides, labels }: { slides: SponsoredS
           </span>
           {slide.eyebrow ? <span className="text-sm font-bold text-[#8c6b2c]">{slide.eyebrow}</span> : null}
           {slide.title ? (
-            <h2 className="text-[46px] font-black leading-[1.3] text-[#0e1a16]">
+            <h2 className="text-[34px] font-black leading-[1.3] text-[#0e1a16]">
               <AnimatedWords text={slide.title} />
             </h2>
           ) : null}
-          {slide.subtitle ? <p className="max-w-lg text-lg leading-8 text-[#5c5242]">{slide.subtitle}</p> : null}
+          {slide.subtitle ? <p className="line-clamp-2 max-w-lg text-base leading-7 text-[#5c5242]">{slide.subtitle}</p> : null}
 
           <div className="mt-4 flex items-center gap-5">
             {slide.link ? (
@@ -134,8 +134,8 @@ export function DesktopNativeAdShowcase({ slides, labels }: { slides: SponsoredS
         </div>
 
         {/* Deck of oval mirror cards */}
-        <div className="relative grid h-[540px] place-items-center">
-          <svg viewBox="0 0 200 200" className="lsd-rotate absolute h-[600px] w-[600px]" aria-hidden="true">
+        <div className="relative grid h-[430px] place-items-center">
+          <svg viewBox="0 0 200 200" className="lsd-rotate absolute h-[480px] w-[480px]" aria-hidden="true">
             <circle cx="100" cy="100" r="96" fill="none" stroke="#c9a55a" strokeWidth="0.6" strokeDasharray="2 6" />
           </svg>
 
@@ -150,7 +150,7 @@ export function DesktopNativeAdShowcase({ slides, labels }: { slides: SponsoredS
                 onClick={() => {
                   if (!isFront) setActive(index);
                 }}
-                className="lsd-deck-card absolute h-[440px] w-[640px] cursor-pointer overflow-hidden rounded-[40px] border-[6px] border-white bg-[#062a20] shadow-[0_40px_80px_-30px_rgba(6,42,32,0.55)]"
+                className="lsd-deck-card absolute h-[360px] w-[610px] cursor-pointer overflow-hidden rounded-[40px] border-[6px] border-white bg-[#062a20] shadow-[0_40px_80px_-30px_rgba(6,42,32,0.55)]"
                 style={deckStyle(offset, count)}
               >
                 {item.mediaType === "video" ? (
@@ -163,16 +163,11 @@ export function DesktopNativeAdShowcase({ slides, labels }: { slides: SponsoredS
                     loop
                     playsInline
                     preload={isFront ? "auto" : "none"}
-                    className="h-full w-full object-contain"
+                    className="h-full w-full object-cover"
                   />
                 ) : (
-                  <>
-                    {/* The same picture, blurred and enlarged, fills the frame behind the full ad */}
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={src} alt="" aria-hidden="true" className="absolute inset-0 h-full w-full scale-125 object-cover opacity-60 blur-2xl" />
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={src} alt={item.ariaLabel || item.title || ""} className="relative h-full w-full object-contain" />
-                  </>
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={src} alt={item.ariaLabel || item.title || ""} className="h-full w-full object-cover" />
                 )}
                 <div className="pointer-events-none absolute inset-0 rounded-[34px] ring-1 ring-inset ring-[#eacb7f]/50" />
               </div>

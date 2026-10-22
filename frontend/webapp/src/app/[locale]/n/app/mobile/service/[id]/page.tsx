@@ -8,6 +8,9 @@ import { buildPublicMetadata } from "@/lib/seo/metadata";
 import { isFastBuild } from "@/lib/build-mode";
 import { SponsoredPlacementSlot } from '@/features/sponsered-slider/components/sponsored-placement-slot';
 
+import { DesktopServiceView } from '@/features/web-desktop/service/DesktopServiceView';
+import { DesktopSponsoredSection } from '@/features/web-desktop/home/DesktopSponsoredSection';
+
 import ServicePage from './service-page';
 
 type ServiceRouteParams = {
@@ -66,9 +69,16 @@ export default async function TreatmentDetailPage({ params }: ServicePageRoutePr
 
   return (
     <>
-      <ServicePage data={data} serviceId={id} locale={locale} />
-      <div className="pb-36">
+      <div className="xl:hidden">
+        <ServicePage data={data} serviceId={id} locale={locale} />
+      </div>
+      <DesktopServiceView data={data} serviceId={id} locale={locale} />
+      <div className="pb-36 xl:hidden">
         <SponsoredPlacementSlot locale={locale} placement="service_detail" />
+      </div>
+      {/* Desktop: the same slides, in the home page's sponsored showcase */}
+      <div className="lsd hidden pb-14 pt-4 xl:block">
+        <DesktopSponsoredSection locale={locale} placement="service_detail" />
       </div>
     </>
   );

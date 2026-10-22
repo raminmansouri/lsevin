@@ -71,10 +71,10 @@ export function DesktopSponsoredShowcase({
         onMouseLeave={() => setPaused(false)}
         onFocus={() => setPaused(true)}
         onBlur={() => setPaused(false)}
-        className="relative grid min-h-[470px] grid-cols-[1fr_1.15fr] overflow-hidden rounded-[36px] bg-white shadow-[0_50px_120px_-40px_rgba(6,42,32,0.55)] ring-1 ring-[#eacb7f]/30"
+        className="relative grid min-h-[390px] grid-cols-[0.78fr_1.22fr] overflow-hidden rounded-[36px] bg-white shadow-[0_50px_120px_-40px_rgba(6,42,32,0.55)] ring-1 ring-[#eacb7f]/30"
       >
         {/* Copy */}
-        <div className="relative flex flex-col justify-between gap-10 p-14">
+        <div className="relative flex flex-col justify-between gap-6 px-11 py-9">
           <Image
             src="/brand/lsevin-mark.png"
             alt=""
@@ -90,11 +90,11 @@ export function DesktopSponsoredShowcase({
             </span>
             {slide.eyebrow ? <span className="text-sm font-semibold text-[#8c6b2c]">{slide.eyebrow}</span> : null}
             {slide.title ? (
-              <h2 className="text-[44px] font-black leading-[1.3] text-[#0e1a16]">
+              <h2 className="text-[34px] font-black leading-[1.3] text-[#0e1a16]">
                 <AnimatedWords text={slide.title} />
               </h2>
             ) : null}
-            {slide.subtitle ? <p className="max-w-lg text-lg leading-8 text-[#56675f]">{slide.subtitle}</p> : null}
+            {slide.subtitle ? <p className="line-clamp-2 max-w-lg text-base leading-7 text-[#56675f]">{slide.subtitle}</p> : null}
             {slide.link ? (
               <Magnetic>
                 <SlideLink slide={slide} className="lsd-btn lsd-btn-green mt-2">
@@ -154,7 +154,7 @@ export function DesktopSponsoredShowcase({
         </div>
 
         {/* Media, with a large arch where it meets the copy */}
-        <div className="relative overflow-hidden rounded-ss-[240px] bg-[#0f5a45]">
+        <div className="relative overflow-hidden rounded-ss-[200px] bg-[#062a20]">
           {slides.map((item, index) => {
             const src = resolveHomeMediaUrl(item.url) ?? "";
             const isActive = index === active;

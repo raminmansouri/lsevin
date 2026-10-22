@@ -39,7 +39,7 @@ export async function DesktopLoyaltySection({ locale, section }: { locale: strin
   });
 
   return (
-    <section className="lsd-container py-28">
+    <section className="lsd-container py-16">
       <div className="grid grid-cols-[1.05fr_0.95fr] items-center gap-16">
         {/* Copy and medallions */}
         <Reveal className="flex flex-col gap-7">

@@ -46,7 +46,7 @@ export async function DesktopPackagesSection({
   const href = section.buttonHref || "/n/app/mobile/packages";
 
   return (
-    <section className="relative my-16 overflow-hidden bg-gradient-to-br from-[#0f5a45] via-[#083f30] to-[#062a20] py-28 text-white">
+    <section className="relative my-8 overflow-hidden bg-gradient-to-br from-[#0f5a45] via-[#083f30] to-[#062a20] py-20 text-white">
       {CONFETTI.map((dot, index) => (
         <span
           key={index}

@@ -121,7 +121,7 @@ export async function DesktopHome({
         selectedCountryCode={selectedCountryCode}
       />
       <DesktopLoyaltySection locale={locale} section={loyaltySection} />
-      <div className="pb-24 pt-8">
+      <div className="pb-14 pt-4">
         <DesktopSponsoredSection locale={locale} placement="home_bottom" />
       </div>
     </div>
@@ -152,7 +152,7 @@ function Rail({
   children: ReactNode;
 }) {
   return (
-    <section className="lsd-container py-20">
+    <section className="lsd-container py-12">
       <Reveal className="mb-10 flex items-end justify-between gap-8">
         <div>
           <h2 className="lsd-heading text-5xl font-black text-[#0e1a16]">{title}</h2>

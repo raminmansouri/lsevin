@@ -4,7 +4,7 @@ import Image from "next/image";
 import { ArrowLeft, Award, BadgeCheck, Clock, Loader2, Mail, MapPin, Phone, Share2, Shield, Star } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useParams, useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo,useRef, useState, type ReactNode } from "react";
 
 import { MapViewer } from "@/components/map/map-viewer";
 import { isProviderConfigured, resolveMapProvider } from "@/components/map/map-provider";
@@ -23,11 +23,10 @@ import { DigikalaReviewCard } from "@/app/[locale]/n/app/components/DigikalaRevi
 import RecommendationsSection from "@/app/[locale]/n/app/components/RecommendationsSection";
 import ReviewForm, { type ReviewFormSubmitValue } from "@/app/[locale]/n/app/components/ReviewForm";
 import { useReviewEligibility } from "@/app/[locale]/n/app/components/useReviewEligibility";
-
 import { AnimatedWords, CountUp, Magnetic, Reveal, ScrollParallax, Tilt } from "../components/motion";
 
 type ReviewSort = "newest" | "buyers" | "helpful";
-const SECTIONS = ["about", "services", "specialists", "reviews"] as const;
+const SECTIONS = ["about", "services", "beforeAfter", "specialists", "reviews"] as const;
 type SectionId = (typeof SECTIONS)[number];
 
 /** Rich text may be Lexical JSON; render it as plain paragraphs. */
@@ -68,6 +67,7 @@ export function DesktopProviderView({ initialData }: { initialData?: ProviderPag
   const locale = useLocale();
   const t = useTranslations("ProviderPage");
   const tConsultation = useTranslations("Consultation");
+  const tGallery = useTranslations("SpecialistPage");
   const { user } = useCurrentSession(false);
   const providerId = String(Array.isArray(params.id) ? params.id[0] : params.id ?? "");
 
@@ -107,23 +107,35 @@ export function DesktopProviderView({ initialData }: { initialData?: ProviderPag
     return () => window.clearTimeout(timer);
   }, [heroIndex, heroCount, heroPaused]);
 
-  // Highlight the section in view in the sticky section nav.
+  // Highlight, in the sticky section nav, the section right under it: we look at the point
+  // just below the nav and ask which section is there. Robust for short sections and any scroller.
+  const navRef = useRef<HTMLElement>(null);
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visible = entries.filter((entry) => entry.isIntersecting).sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)[0];
-        if (visible) setActiveSection(visible.target.id.replace("lsd-", "") as SectionId);
-      },
-      { rootMargin: "-180px 0px -55% 0px" }
-    );
-    SECTIONS.forEach((id) => {
-      const node = document.getElementById(`lsd-${id}`);
-      if (node) observer.observe(node);
-    });
-    return () => observer.disconnect();
+    let frame = 0;
+    const update = () => {
+      const nav = navRef.current;
+      if (!nav) return;
+      const rect = nav.getBoundingClientRect();
+      const hit = document.elementFromPoint(rect.left + 30, rect.bottom + 70)?.closest<HTMLElement>('[id^="lsd-"]');
+      const id = hit?.id.replace("lsd-", "");
+      if (id && (SECTIONS as readonly string[]).includes(id)) setActiveSection(id as SectionId);
+    };
+    const onScroll = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(update);
+    };
+    update();
+    window.addEventListener("scroll", onScroll, { passive: true, capture: true });
+    window.addEventListener("resize", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll, { capture: true });
+      window.removeEventListener("resize", onScroll);
+      cancelAnimationFrame(frame);
+    };
   }, [data?.provider?.id]);
 
   if (!data?.provider) return null;
+  
   const { provider } = data;
 
   const images = (provider.images?.length ? provider.images : provider.image ? [provider.image] : []).map((src) => resolveMediaUrl(src));
@@ -135,6 +147,7 @@ export function DesktopProviderView({ initialData }: { initialData?: ProviderPag
   const sectionLabels: Record<SectionId, string> = {
     about: t("tabs.overview"),
     services: t("tabs.services"),
+    beforeAfter: tGallery("gallery.beforeAfterTitle"),
     specialists: t("tabs.specialists"),
     reviews: t("tabs.reviews"),
   };
@@ -350,8 +363,8 @@ export function DesktopProviderView({ initialData }: { initialData?: ProviderPag
       <div className="lsd-container mt-14 grid grid-cols-[1fr_370px] gap-12">
         <div className="min-w-0">
           {/* Sticky section nav */}
-          <nav className="sticky top-24 z-20 mb-12 flex w-fit gap-1 rounded-full bg-white/85 p-1.5 shadow-sm ring-1 ring-[#dce4e0] backdrop-blur-md">
-            {SECTIONS.map((id) => (
+          <nav ref={navRef} className="sticky top-24 z-20 mb-12 flex w-fit gap-1 rounded-full bg-white/85 p-1.5 shadow-sm ring-1 ring-[#dce4e0] backdrop-blur-md">
+            {SECTIONS.filter((id) => id !== "beforeAfter" || data.beforeAfter?.length).map((id) => (
               <button
                 key={id}
                 type="button"
@@ -481,16 +494,12 @@ export function DesktopProviderView({ initialData }: { initialData?: ProviderPag
           </section>
 
           {data.beforeAfter?.length ? (
-            <Reveal className="mt-20">
-              <Heading>{t("sections.gallery")}</Heading>
-              <BeforeAfterGallery
-                items={data.beforeAfter.map((item) => ({
-                  ...item,
-                  before: item.before ? resolveMediaUrl(item.before) : null,
-                  after: item.after ? resolveMediaUrl(item.after) : null,
-                }))}
-              />
-            </Reveal>
+            <section id="lsd-beforeAfter" className="lsd-anchor mt-20">
+              <Reveal>
+                <Heading>{tGallery("gallery.beforeAfterTitle")}</Heading>
+                <BeforeAfterGallery items={data.beforeAfter} />
+              </Reveal>
+            </section>
           ) : null}
 
           {/* Specialists */}
