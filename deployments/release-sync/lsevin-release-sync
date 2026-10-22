@@ -25,7 +25,34 @@ log() { printf '%s %s\n' "$(date -u +%FT%TZ)" "$*" | tee -a "$LOG" >&2; }
 fail() { log "ERROR: $*"; printf '%s %s\n' "$(date -u +%FT%TZ)" "$*" > "$STATE/last-error"; exit "${2:-1}"; }
 exec 9>/run/lock/lsevin-release-sync.lock; flock -n 9 || { echo "another run is in progress" >&2; exit 0; }
 
+# Every release leaves ~1.2 GB of images behind on A (Docker staging copy, Kubernetes copy, persisted archive). Keep what is
+# running plus the previous release (rollback); remove the rest. Kubelet's own image GC only starts at 85% disk, which is where
+# the site health check turns red (2026-10-22).
+tidy_images() {
+  local keep; keep=$(mktemp)
+  { kubectl -n "$NS" get pods,deploy,sts,cronjob -o jsonpath='{..image}' 2>/dev/null | tr ' ' '
+'
+    py "import json; d=json.load(open('$STATE/applied.json')); print('
+'.join(d.get(k,'') for k in ('webapp','migrations','api')))" 2>/dev/null
+    [ -s "$STATE/applied.prev.json" ] && py "import json; d=json.load(open('$STATE/applied.prev.json')); print('
+'.join(d.get(k,'') for k in ('webapp','migrations','api')))" 2>/dev/null
+  } | sed 's#^docker.io/library/##' | grep -E '^lsevin-' | sort -u > "$keep"
+  local ref removed=0
+  for ref in $(k3s ctr -n k8s.io images ls -q 2>/dev/null | sed 's#^docker.io/library/##' | grep -E '^lsevin-(webapp|webapp-migrations|api):'); do
+    grep -qxF "$ref" "$keep" && continue
+    k3s ctr -n k8s.io images rm --sync "docker.io/library/$ref" >/dev/null 2>&1 && removed=$((removed + 1))
+  done
+  # the Docker copies were only staging for the import
+  docker images --format '{{.Repository}}:{{.Tag}}' | grep -E '^lsevin-(webapp|webapp-migrations|api):' | xargs -r docker rmi -f >/dev/null 2>&1
+  docker builder prune -f --reserved-space 2GB >/dev/null 2>&1 || true
+  log "tidy: removed $removed old Kubernetes images; kept $(wc -l < "$keep") (running + previous release); disk now $(df -h --output=pcent / | tail -1 | tr -d ' ')"
+  rm -f "$keep"
+}
+
+
 [ -r "$PWFILE" ] || fail "password file $PWFILE missing" 2
+py() { python3 -c "$@"; }
+[ "$MODE" = "--tidy" ] && { tidy_images; exit 0; }
 fetch() {   # fetch <path> <output-file|->   (TLS verified; connects straight to B through the VPN route)
   printf 'user = "%s:%s"\n' "$USER_NAME" "$(cat "$PWFILE")" | curl -sS -f -m "${CURL_MAX:-900}" -K - --connect-timeout 15 --retry 2 --limit-rate "${RATE:-0}" \
     --resolve "$HOST:443:$B_IP" -o "$2" "https://$HOST/_releases/$1"
@@ -51,6 +78,7 @@ need_mig=0; [ -n "$mig" ] && [ "$(key_of "$mig")" != "$(key_of "${a_mig:-x:x-x}"
 [ "$MODE" = "--force" ] && { need_api=1; need_web=1; need_mig=1; }
 
 if [ $need_api = 0 ] && [ $need_web = 0 ]; then
+  [ "$(df --output=pcent / | tail -1 | tr -dc 0-9)" -ge 80 ] && [ "$MODE" != "--check" ] && tidy_images
   echo 0 > "$STATE/behind"; log "up to date with B (webapp $web, api $api)"; [ "$MODE" = "--check" ] && exit 0; touch "$STATE/last-ok"; exit 0
 fi
 echo 1 > "$STATE/behind"; log "behind B: api=$need_api web=$need_web  (B: webapp $web, migrations ${mig:-none}, api $api)"
@@ -113,6 +141,8 @@ fi
 sleep 5
 code=$(curl -s -m 20 -o /dev/null -w '%{http_code}' --resolve "$SITE_TO:443:127.0.0.1" -k "https://$SITE_TO/app-health" || true)
 [ "$code" = 204 ] || log "WARNING: https://$SITE_TO/app-health answered $code after the deployment (check the site)"
+[ -s "$applied" ] && cp -f "$applied" "$STATE/applied.prev.json"
 py "import json; json.dump({'webapp':'$web','migrations':'$mig','api':'$api','applied_at':'$(date -u +%FT%TZ)'}, open('$applied','w'))"
 echo 0 > "$STATE/behind"; rm -f "$retry_file" "$STATE/last-error"; touch "$STATE/last-ok"
 log "applied B's release: webapp $web, api $api${mig:+, migrations $mig} (site check $code)"
+tidy_images
