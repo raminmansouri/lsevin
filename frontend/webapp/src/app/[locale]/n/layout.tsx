@@ -2,7 +2,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
 import MobileAppBar from "@/components/mobile-app-bar";
 import Shell from "@/components/shell";
-import { BottomTabBar } from "./app/design-system/mobile-components";
+import { AppChrome } from "./app-chrome";
 import { getClientMessages } from "@/i18n/client-messages";
 
 type LocalePageProps = {
@@ -33,11 +33,7 @@ export default async function MainLayout({
       <Shell className="gap-0 py-0">
         {/* No gap: the app bar and each page's own header must meet without a seam. */}
         <div className="flex flex-col">
-          <MobileAppBar />
-          <div className="pb-[calc(var(--bottom-nav-h)+env(safe-area-inset-bottom))]">
-            {children}
-          </div>
-          <BottomTabBar />
+          <AppChrome appBar={<MobileAppBar />}>{children}</AppChrome>
         </div>
       </Shell>
     </NextIntlClientProvider>

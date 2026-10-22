@@ -27,6 +27,10 @@ export const protectedPrefixes: string[] = [
   "/admin",
   "/provider-panel",
   "/provider-portal",
+  "/n/app/mobile/consultation/doctor",
+  // Booking a GP (the doctors list itself stays public) and the patient's sessions.
+  "/n/app/mobile/consultation/doctors/",
+  "/n/app/mobile/consultation/sessions",
 ];
 
 /**
@@ -35,7 +39,14 @@ export const protectedPrefixes: string[] = [
  */
 export const isProtectedPath = (pathnameWithoutLocale: string): boolean => {
   const path = pathnameWithoutLocale || "/";
-  if (protectedPrefixes.some((prefix) => path.startsWith(prefix))) return true;
+  // Whole segments only, so "/n/app/mobile/consultation/doctor" (the GP panel)
+  // does not also capture the public ".../doctors" list. A prefix ending in "/"
+  // protects only what is beneath it.
+  const underPrefix = (prefix: string) =>
+    prefix.endsWith("/")
+      ? path.startsWith(prefix)
+      : path === prefix || path.startsWith(`${prefix}/`);
+  if (protectedPrefixes.some(underPrefix)) return true;
   const segments = path.split("/").filter(Boolean);
   return segments.some((segment) => protectedSegments.includes(segment));
 };

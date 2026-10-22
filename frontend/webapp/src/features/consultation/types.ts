@@ -109,6 +109,38 @@ export type ConsultationSmsSettings = {
   rateLimitPerHour: number;
 };
 
+/**
+ * The paid video consultation with a doctor: one fixed length and one price for
+ * every doctor, both set by an admin and shown on the home card.
+ *
+ * `priceToman` mirrors the provider pricing rule (finance/lib/server/toman-price):
+ * Iranian visitors see that Toman price when it is set, everyone else sees
+ * `priceAmount` in `priceCurrency`.
+ */
+export type VideoConsultationSettings = {
+  /** Off by default, so the home card stays hidden until an admin sets a price. */
+  enabled: boolean;
+  durationMinutes: number;
+  priceAmount: number;
+  priceCurrency: string;
+  priceToman: number | null;
+};
+
+export const VIDEO_CONSULTATION_DEFAULTS: VideoConsultationSettings = {
+  enabled: false,
+  durationMinutes: 20,
+  priceAmount: 0,
+  priceCurrency: "USD",
+  priceToman: null,
+};
+
+/** What the home card needs: already resolved for the visitor and formatted. */
+export type VideoConsultationOffer = {
+  enabled: boolean;
+  durationMinutes: number;
+  priceLabel: string;
+};
+
 export type ConsultationStats = {
   total: number;
   newCount: number;
@@ -142,6 +174,9 @@ export type ConsultationAdminPageData = {
   stats: ConsultationStats;
   recipients: ConsultationRecipient[];
   smsSettings: ConsultationSmsSettings;
+  videoSettings: VideoConsultationSettings;
+  /** Active currency codes for the video price picker. */
+  currencyCodes: string[];
   filters: ConsultationListFilters;
   /**
    * True when migration 0019 has not been applied yet. The page renders an

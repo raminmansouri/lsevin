@@ -229,7 +229,8 @@
   },
   "AdminGenerated": {
     "updateBookingTitle": "Изменить бронирование: {service} – {customer}",
-    "stayCheckIn": "Дата заезда", "stayCheckOut": "Дата выезда",
+    "stayCheckIn": "Дата заезда",
+    "stayCheckOut": "Дата выезда",
     "deleteCurrency": "Delete currency",
     "deleteCurrencyConfirm": "Delete this currency? It is removed from the lists while past records stay untouched.",
     "currencyDeleted": "Currency deleted.",
@@ -2252,7 +2253,11 @@
     }
   },
   "Booking": {
-    "dayParts": { "morning": "Утро", "afternoon": "День", "evening": "Вечер" },
+    "dayParts": {
+      "morning": "Утро",
+      "afternoon": "День",
+      "evening": "Вечер"
+    },
     "mealPlan": {
       "label": "Тип питания",
       "chooseTitle": "Выберите тип питания",
@@ -2876,7 +2881,6 @@
     "caseSharedSuccessfully": "Дело передано поставщику услуг",
     "caseShareFailed": "Не удалось поделиться делом. Попробуйте снова.",
     "caseShareSavedPending": "Вы выбрали передать \"{title}\" этому поставщику услуг после подтверждения бронирования.",
-    "changeSelection": "Изменить",
     "removeSelection": "Удалить",
     "reschedule": "Перенести",
     "reservationManagement": "Управление бронированиями",
@@ -7203,7 +7207,10 @@
     }
   },
   "ProviderPage": {
-    "locationMap": { "title": "Расположение на карте", "getDirections": "Проложить маршрут" },
+    "locationMap": {
+      "title": "Расположение на карте",
+      "getDirections": "Проложить маршрут"
+    },
     "actions": {
       "addFavorite": "Добавить поставщика в избранное",
       "back": "Назад",
@@ -7266,7 +7273,6 @@
       "policies": "Правила",
       "providerDetails": "Информация о поставщике"
     },
-
     "services": {
       "from": "от",
       "popular": "Популярно",
@@ -9339,7 +9345,10 @@
     }
   },
   "ServicePage": {
-    "attributeValue": { "yes": "Да", "no": "Нет" },
+    "attributeValue": {
+      "yes": "Да",
+      "no": "Нет"
+    },
     "actions": {
       "back": "Назад",
       "bookNow": "Записаться",
@@ -12766,6 +12775,30 @@
     "withdrawal_requests": "Заявки на вывод средств"
   },
   "Consultation": {
+    "finder": {
+      "open": "Консультация врача",
+      "title": "Консультация врача",
+      "subtitle": "Выберите медицинское направление, которое вам подходит, чтобы увидеть его врачей.",
+      "doctorsSubtitle": "Посмотрите врачей этого направления и выберите подходящего.",
+      "all": "Все",
+      "back": "Назад",
+      "doctorCount": "{count, plural, one {# врач} few {# врача} many {# врачей} other {# врача}}",
+      "rating": "{rating, number} ({count, number} отзывов)",
+      "experience": "Опыт {years, number} лет",
+      "viewProfile": "Открыть",
+      "empty": "В этом направлении пока нет врачей.",
+      "noCategories": "Пока нет направлений с активными врачами.",
+      "retry": "Повторить",
+      "errors": {
+        "loadFailed": "Не удалось загрузить. Попробуйте ещё раз.",
+        "invalidCategory": "Направление не найдено."
+      }
+    },
+    "homeCard": {
+      "title": "Поговорите с врачом до лечения",
+      "details": "Видеоконсультация {minutes, number} мин · {price}",
+      "cta": "Начать"
+    },
     "step": {
       "label": "Бесплатная консультация",
       "title": "Не знаете, что выбрать? Сначала поговорите с консультантом.",
@@ -12844,6 +12877,16 @@
       "duplicatePhone": "Этот номер телефона уже есть в списке."
     },
     "admin": {
+      "video": {
+        "title": "Video consultation with a doctor",
+        "description": "Length and price of the video consultation, the same for every doctor. The home page card shows exactly these values.",
+        "enabled": "Show the consultation card on the home page",
+        "duration": "Length (minutes)",
+        "price": "Base price",
+        "currency": "Currency",
+        "priceToman": "Price in Toman (optional)",
+        "priceTomanHint": "When set, Iranian visitors see this Toman price instead."
+      },
       "title": "Заявки на консультацию",
       "description": "Запросы обратного звонка на бесплатную консультацию из процесса бронирования.",
       "empty": "Заявок на консультацию пока нет.",
@@ -12948,6 +12991,210 @@
         "confirmDelete": "Удалить этого получателя?",
         "empty": "Получателей пока нет — уведомления никому не приходят.",
         "cancel": "Отмена"
+      },
+      "videoDoctors": {
+        "title": "Терапевты для видеоконсультаций",
+        "description": "Регистрируйте здесь врачей общей практики. Только они показываются на странице, которую открывает карточка на главной, отдельно от других врачей приложения.",
+        "migrationMissing": "Таблица врачей консультаций ещё не создана. Сначала выполните pnpm migrate.",
+        "listTitle": "Зарегистрированные врачи ({count, number})",
+        "empty": "Врачи ещё не зарегистрированы.",
+        "addTitle": "Зарегистрировать терапевта",
+        "editTitle": "Редактировать врача",
+        "nameFa": "Полное имя (на персидском)",
+        "nameEn": "Имя (на английском, необязательно)",
+        "nameRequired": "Введите имя врача на персидском.",
+        "councilNumber": "Номер лицензии",
+        "experience": "Стаж (лет)",
+        "bioFa": "Краткое описание (на персидском)",
+        "bioEn": "Краткое описание (на английском, необязательно)",
+        "photo": "Фото врача",
+        "photoPlaceholder": "Выбрать фото",
+        "active": "Показывать пациентам",
+        "add": "Зарегистрировать",
+        "save": "Сохранить",
+        "cancelEdit": "Отмена",
+        "added": "Врач зарегистрирован",
+        "updated": "Изменения сохранены",
+        "edit": "Редактировать",
+        "remove": "Удалить",
+        "removed": "Врач удалён",
+        "confirmRemove": "Удалить этого врача?",
+        "moveUp": "Выше",
+        "moveDown": "Ниже",
+        "accountTitle": "Doctor sign-in account",
+        "accountHint": "The doctor signs in on the app's normal login page with this phone and password, then gets an SMS code. If an account with this phone or email already exists, that account is linked and its password stays the same.",
+        "accountPhone": "Mobile number",
+        "accountEmail": "Email",
+        "accountPassword": "Password (at least 6 characters)",
+        "hasAccount": "Has account",
+        "noAccount": "No account",
+        "accountCreated": "Doctor registered and their sign-in account created",
+        "unlink": "Unlink account",
+        "unlinked": "Account unlinked",
+        "confirmUnlink": "Unlink this account from the doctor? The account itself is not deleted.",
+        "errors": {
+          "invalidPhone": "The mobile number isn't valid.",
+          "emailRequired": "An email is needed to create a new account.",
+          "passwordTooShort": "The password must be at least 6 characters.",
+          "registerFailed": "The account couldn't be created.",
+          "accountTaken": "This account is already linked to {name}.",
+          "savedWithoutAccount": "The doctor was saved, but the sign-in account wasn't created:"
+        }
+      }
+    },
+    "doctorsPage": {
+      "back": "Назад",
+      "title": "Видеоконсультация",
+      "subtitle": "Поговорите с одним из наших терапевтов",
+      "offerTitle": "Видеоконсультация перед лечением",
+      "offerDetails": "{minutes, number} мин · {price}",
+      "experience": "Опыт {years, number} лет",
+      "empty": "Пока нет врачей для видеоконсультации.",
+      "unavailable": "Видеоконсультация сейчас недоступна.",
+      "loadFailed": "Не удалось загрузить. Попробуйте снова.",
+      "retry": "Повторить",
+      "generalPractitioner": "Врач общей практики",
+      "councilNumber": "Лицензия № {number}",
+      "book": "Book a consultation"
+    },
+    "doctorPanel": {
+      "title": "Кабинет врача",
+      "greeting": "Добро пожаловать",
+      "role": "Терапевт видеоконсультаций",
+      "signOut": "Выйти",
+      "emptyTitle": "Консультаций пока нет",
+      "emptyBody": "Запросы пациентов скоро появятся здесь.",
+      "availability": "Availability",
+      "online": "I'm available",
+      "offline": "I'm unavailable",
+      "tabs": {
+        "upcoming": "Consultations",
+        "history": "History",
+        "hours": "Hours"
+      },
+      "today": "Today",
+      "minutes": "{minutes, number} min",
+      "age": "{age, number} years old",
+      "gender": {
+        "male": "Male",
+        "female": "Female",
+        "other": "Other"
+      },
+      "hasSummary": "Summary written",
+      "status": {
+        "awaiting_payment": "Awaiting payment",
+        "scheduled": "Scheduled",
+        "in_progress": "In call",
+        "completed": "Completed",
+        "cancelled": "Cancelled",
+        "no_show": "No-show"
+      },
+      "historySearch": "Search patient name, note or summary",
+      "historyEmpty": "No consultations yet.",
+      "historyNoResults": "No results.",
+      "loadMore": "Load more",
+      "hoursHint": "Times are Tehran time. Patients can only book within these hours.",
+      "weekdays": {
+        "0": "Saturday",
+        "1": "Sunday",
+        "2": "Monday",
+        "3": "Tuesday",
+        "4": "Wednesday",
+        "5": "Thursday",
+        "6": "Friday"
+      },
+      "addRange": "Add range",
+      "removeRange": "Remove range",
+      "dayOff": "Day off",
+      "from": "From",
+      "to": "To",
+      "saveHours": "Save hours",
+      "hoursSaved": "Hours saved",
+      "sessionTitle": "Consultation",
+      "backToPanel": "Back to panel",
+      "backToSession": "Back to consultation",
+      "join": "Join call",
+      "rejoin": "Return to call",
+      "awaitingPaymentHint": "The patient hasn't paid yet. The consultation is confirmed once they pay.",
+      "patientTitle": "Patient",
+      "patientNote": "Patient's note",
+      "noNote": "No note written.",
+      "attachments": "Files and photos",
+      "noAttachments": "No files attached.",
+      "summaryTitle": "After-call summary",
+      "summaryLocked": "You can write the summary after first joining the call. Saving it marks the consultation completed.",
+      "summaryAdvice": "Advice",
+      "summaryNextSteps": "Next steps",
+      "summarySuggestion": "Suggested treatment or centre",
+      "summarySuggestionHint": "Optional; shown to the patient.",
+      "summarySave": "Save summary",
+      "summaryUpdate": "Update summary",
+      "summarySaved": "Summary saved",
+      "videoPlaceholder": "The video (LiveKit) connects here in the next step. The timer and ending the call already work.",
+      "errors": {
+        "loadFailed": "Something went wrong. Please try again.",
+        "notFound": "This consultation wasn't found.",
+        "notJoinable": "It isn't time to join this call.",
+        "invalid": "Check the hours.",
+        "overlap": "Ranges on the same day can't overlap.",
+        "endBeforeStart": "The end time must be after the start time.",
+        "summaryEmpty": "Write at least one part of the summary.",
+        "summaryNotAllowed": "A summary can't be written for this consultation right now.",
+        "forbidden": "You don't have access."
+      },
+      "callWindow": "The call room is open {from}–{to}; you can join and leave as often as you like.",
+      "callWindowClosed": "The call room has closed ({from}–{to}).",
+      "callPhase": {
+        "before": "Until the booked time",
+        "during": "Left of the consultation",
+        "after": "Until the room closes"
+      },
+      "leaveCall": "Leave call",
+      "roomClosed": "The call room's time is over."
+    },
+    "booking": {
+      "back": "Back",
+      "title": "Book a video consultation",
+      "generalPractitioner": "General practitioner",
+      "offer": "{minutes, number} min · {price}",
+      "pickTime": "Pick a day and time",
+      "noSlots": "This doctor has no free time in the next two weeks.",
+      "tehranTime": "Times are Tehran time.",
+      "aboutYou": "About you",
+      "name": "Full name",
+      "age": "Age",
+      "gender": "Gender",
+      "genders": {
+        "female": "Female",
+        "male": "Male"
+      },
+      "note": "Describe your problem",
+      "noteHint": "Symptoms, when they started, medicines you take.",
+      "files": "Files and photos (optional)",
+      "filesHint": "Test results, photos or prescriptions; up to 10 files.",
+      "addFiles": "Add files",
+      "submit": "Send request for {time}",
+      "pickTimeFirst": "Pick a time first",
+      "sessionTitle": "Video consultation",
+      "requestSent": "Your request was sent",
+      "payNext": "This time is held for you for 15 minutes. Payment will be added to this page in the next step.",
+      "when": "When",
+      "length": "Length",
+      "price": "Price",
+      "minutes": "{minutes, number} min",
+      "callWindow": "The call room is open {from}–{to}; you can join and leave as often as you like.",
+      "yourNote": "Your note",
+      "errors": {
+        "signIn": "Please sign in to book.",
+        "unavailable": "Video consultation isn't available right now.",
+        "notFound": "This doctor or consultation wasn't found.",
+        "slotTaken": "This time was just booked. Please pick another.",
+        "invalid": "Please check the highlighted fields.",
+        "loadFailed": "Something went wrong. Please try again.",
+        "pickTime": "Please pick a time.",
+        "name": "Enter your full name.",
+        "age": "The age isn't valid.",
+        "note": "Please describe your problem in at least one sentence."
       }
     }
   },
@@ -12955,7 +13202,9 @@
     "customer": {
       "title": "Мои абонементы в спортзал",
       "empty": "У вас пока нет абонементов в спортзал.",
-      "plan": { "monthlyPriceLabel": "Цена в месяц" },
+      "plan": {
+        "monthlyPriceLabel": "Цена в месяц"
+      },
       "subscribe": {
         "title": "Оформить абонемент",
         "selectMonths": "Выберите месяцы для оплаты",
