@@ -2,7 +2,7 @@
   "TourApp": {
     "meta": {
       "title": "Turlar",
-      "description": "Rehberli turlar ve günübirlik geziler — Lsevin ile inceleyin, karşılaştırın ve rezervasyon yapın."
+      "description": "İran'da yerel rehberlerle günübirlik ve çok günlü turlar — Lsevin'de karşılaştırın ve rezervasyon yapın."
     },
     "nav": {
       "home": "Ana sayfa",
@@ -71,18 +71,20 @@
       "failed": "Favorileriniz güncellenemedi."
     },
     "intro": {
-      "eyebrow": "Lsevin Turlar",
-      "title": "Bir sonraki yolculuğunuzu bulun",
-      "subtitle": "Doğrulanmış yerel tur operatörlerinden rehberli turlar, günübirlik geziler ve iyileşme dostu deneyimler.",
-      "cta": "Turları keşfet",
-      "point1": "Doğrulanmış tur operatörlerinden gerçek kalkışlar ve fiyatlar",
-      "point2": "Sizin diliniz, sizin takviminiz — Hicri Şemsi (İran takvimi), Miladi veya Hicri (Ay takvimi)",
-      "point3": "Lsevin hesabınız ve cüzdanınızla güvenle rezervasyon yapın",
-      "continuing": "Turlar açılıyor…"
+      "eyebrow": "Lsevin Turları",
+      "title": "İran'ı yakından görün",
+      "subtitle": "Persepolis'in sütunlarından Nasir-ül Mülk Camii'nin renkli ışığına — yerel rehberlerle günübirlik ve çok günlü turlar.",
+      "cta": "Keşfetmeye başla",
+      "point1": "Şehrini evi gibi tanıyan yerel rehberler",
+      "point2": "Net bir plan: kalkış saati, rota ve fiyat önceden belli",
+      "point3": "Her turun kurallarına göre kolay iptal — gizli ücret yok",
+      "continuing": "Seyahatiniz hazırlanıyor…",
+      "photoPlace": "Nasir-ül Mülk Camii, Şiraz",
+      "photoAlt": "Nasir-ül Mülk Camii'nin renkli camlarından halılara düşen ışık"
     },
     "home": {
-      "heroTitle": "Yolculuğa değer turları keşfedin",
-      "heroSubtitle": "Gerçek müsaitliğe sahip özenle seçilmiş kalkışlar",
+      "heroTitle": "Sıradaki durak neresi?",
+      "heroSubtitle": "İran'ın en güzel şehirlerinde günübirlik ve çok günlü turlar",
       "searchLabel": "Tur ara",
       "searchPlaceholder": "Nereye gitmek istiyorsunuz?",
       "search": "Ara",
@@ -93,8 +95,8 @@
         "cleared": "Görüntüleme geçmişiniz temizlendi."
       },
       "discover": {
-        "title": "Keşfetmeye başlayın",
-        "subtitle": "Yaklaşan kalkışları olan en iyi turlar"
+        "title": "Önerdiğimiz turlar",
+        "subtitle": "Yakında yola çıkıyor"
       },
       "popular": {
         "title": "Popüler destinasyonlar",
@@ -106,8 +108,8 @@
       },
       "categories": "Türe göre göz atın",
       "empty": {
-        "title": "Henüz yayınlanmış tur yok",
-        "body": "Yeni turlar, tur operatörleri yayınlar yayınlamaz burada görünür. Lütfen yakında tekrar bakın."
+        "title": "Yeni turlar yolda",
+        "body": "Yeni turlar hazırlıyoruz. Lütfen kısa süre sonra tekrar bakın."
       },
       "sponsored": "Sponsorlu"
     },
@@ -503,7 +505,7 @@
         "total": "Toplam",
         "updating": "Fiyat güncelleniyor…",
         "seats": "{count, plural, one {# yer} other {# yer}}",
-        "liveNote": "Tur operatörünün güncel fiyatlarından Lsevin tarafından hesaplanmıştır."
+        "liveNote": "Nihai fiyat budur — gizli ücret yok."
       },
       "continue": "Devam et",
       "back": "Geri",
@@ -553,9 +555,9 @@
         "buyer": "İletişim",
         "travelers": "Katılımcılar",
         "policy": "İptal kuralları",
-        "policyVersion": "Politika sürümü {version}, {language} dilinde gösteriliyor",
+        "policyVersion": "İptal kuralları {language} dilinde gösteriliyor",
         "important": "Önemli bilgiler",
-        "accept": "İptal kurallarını (sürüm {version}) ve rezervasyon koşullarını okudum ve kabul ediyorum.",
+        "accept": "İptal kurallarını ve rezervasyon koşullarını okudum, kabul ediyorum.",
         "acceptRequired": "Devam etmek için lütfen kuralları kabul edin.",
         "submit": "Rezervasyonu onayla",
         "submitPay": "Onayla ve öde",
@@ -565,7 +567,7 @@
       },
       "changed": {
         "price": "Rezervasyon sırasında fiyat {total} olarak değişti. Herhangi bir ücret alınmadı. Yeni toplamı kontrol edip tekrar onaylayın.",
-        "policy": "İptal kuralları güncellendi (sürüm {version}). Lütfen tekrar okuyup kabul edin.",
+        "policy": "Bu turun iptal kuralları güncellendi. Lütfen yeniden okuyup kabul edin.",
         "hold": "Yer ayırma süreniz doldu. Bilgileriniz korundu — devam etmek için yerleri yeniden ayırın.",
         "capacity": "Bu kalkışta yeterli yer kalmadı. Bilgileriniz korundu — başka bir tarih veya daha az katılımcı seçin.",
         "accept": "Yeni fiyatı kullan"
@@ -645,7 +647,7 @@
       "cancel": {
         "button": "Rezervasyonu iptal et",
         "title": "Bu rezervasyon iptal edilsin mi?",
-        "quote": "Kabul ettiğiniz politikaya (sürüm {version}) göre size {amount} (%{percent}) iade edilecek.",
+        "quote": "Kabul ettiğiniz iptal kurallarına göre {amount} (%{percent}) iade edilecek.",
         "noPayment": "Ödeme alınmadığı için iade edilecek bir şey yok.",
         "afterDeparture": "Kalkış saati geçti; iptal artık iade sağlamaz.",
         "reason": "Neden (isteğe bağlı)",

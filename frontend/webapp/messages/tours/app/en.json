@@ -2,7 +2,7 @@
   "TourApp": {
     "meta": {
       "title": "Tours",
-      "description": "Guided tours and day trips — browse, compare and book with Lsevin."
+      "description": "Day trips and multi-day tours across Iran with local guides — compare and book online with Lsevin."
     },
     "nav": {
       "home": "Home",
@@ -72,17 +72,19 @@
     },
     "intro": {
       "eyebrow": "Lsevin Tours",
-      "title": "Find your next journey",
-      "subtitle": "Guided tours, day trips and recovery-friendly experiences from verified local operators.",
-      "cta": "Explore tours",
-      "point1": "Real departures and prices from verified operators",
-      "point2": "Your language, your calendar — Solar Hijri, Gregorian or lunar Hijri",
-      "point3": "Book securely with your Lsevin account and wallet",
-      "continuing": "Opening Tours…"
+      "title": "See Iran up close",
+      "subtitle": "From the columns of Persepolis to the stained-glass light of Nasir al-Mulk — day trips and multi-day tours with local guides.",
+      "cta": "Start exploring",
+      "point1": "Local guides who know their city like home",
+      "point2": "A clear plan: departure time, route and price up front",
+      "point3": "Easy cancellation under each tour's rules — no hidden fees",
+      "continuing": "Getting your trip ready…",
+      "photoPlace": "Nasir al-Mulk Mosque, Shiraz",
+      "photoAlt": "Coloured light from the stained glass of Nasir al-Mulk Mosque falling on the prayer-hall carpets"
     },
     "home": {
-      "heroTitle": "Discover tours worth travelling for",
-      "heroSubtitle": "Hand-picked departures with real availability",
+      "heroTitle": "Where to next?",
+      "heroSubtitle": "Day trips and multi-day tours in Iran's most beautiful cities",
       "searchLabel": "Search tours",
       "searchPlaceholder": "Where do you want to go?",
       "search": "Search",
@@ -93,8 +95,8 @@
         "cleared": "Your viewing history was cleared."
       },
       "discover": {
-        "title": "Start exploring",
-        "subtitle": "Top tours with upcoming departures"
+        "title": "Tours we recommend",
+        "subtitle": "Leaving soon"
       },
       "popular": {
         "title": "Popular destinations",
@@ -106,8 +108,8 @@
       },
       "categories": "Browse by type",
       "empty": {
-        "title": "No tours are published yet",
-        "body": "New tours appear here as soon as operators publish them. Please check back soon."
+        "title": "New tours are on their way",
+        "body": "We're preparing new tours. Please check back soon."
       },
       "sponsored": "Sponsored"
     },
@@ -503,7 +505,7 @@
         "total": "Total",
         "updating": "Updating price…",
         "seats": "{count, plural, one {# seat} other {# seats}}",
-        "liveNote": "Calculated by Lsevin from the operator's current prices."
+        "liveNote": "This is the final price — no hidden fees."
       },
       "continue": "Continue",
       "back": "Back",
@@ -553,9 +555,9 @@
         "buyer": "Contact",
         "travelers": "Travelers",
         "policy": "Cancellation rules",
-        "policyVersion": "Policy version {version}, shown in {language}",
+        "policyVersion": "Cancellation rules shown in {language}",
         "important": "Important information",
-        "accept": "I have read and accept the cancellation rules (version {version}) and the booking terms.",
+        "accept": "I have read and accept the cancellation rules and booking terms.",
         "acceptRequired": "Please accept the rules to continue.",
         "submit": "Confirm booking",
         "submitPay": "Confirm and pay",
@@ -565,7 +567,7 @@
       },
       "changed": {
         "price": "The price changed to {total} while you were booking. Nothing was charged. Review the new total and confirm again.",
-        "policy": "The cancellation rules were updated (version {version}). Please read and accept them again.",
+        "policy": "This tour's cancellation rules were updated. Please read and accept them again.",
         "hold": "Your seat reservation expired. Your details are kept — reserve the seats again to continue.",
         "capacity": "Not enough seats are left on this departure. Your details are kept — choose another date or fewer travelers.",
         "accept": "Use the new price"
@@ -645,7 +647,7 @@
       "cancel": {
         "button": "Cancel booking",
         "title": "Cancel this booking?",
-        "quote": "Based on the policy you accepted (version {version}), you will be refunded {amount} ({percent}%).",
+        "quote": "Under the cancellation rules you accepted, {amount} ({percent}%) will be refunded.",
         "noPayment": "No payment was taken, so nothing needs to be refunded.",
         "afterDeparture": "The departure time has passed; cancellation no longer gives a refund.",
         "reason": "Reason (optional)",

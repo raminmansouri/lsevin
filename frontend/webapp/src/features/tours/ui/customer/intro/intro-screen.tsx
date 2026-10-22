@@ -8,15 +8,22 @@ import { Link, useRouter } from "@/i18n/navigation";
 
 import { directionOf } from "../../../domain/content";
 import { completeIntroAction } from "../../../server/actions/customer";
-import { TourImage } from "../common";
 import { PARENT_APP_PATH } from "../shell/tours-shell";
 
+/** Licensed background photo; CC BY-SA requires the visible credit below (public/images/tours/CREDITS.json). */
+const BACKGROUND = {
+  src: "/images/tours/shiraz-nasir-al-mulk.webp",
+  srcSmall: "/images/tours/shiraz-nasir-al-mulk-sm.webp",
+  credit: "Ayyoubsabawiki · CC BY-SA 4.0",
+  source: "https://commons.wikimedia.org/wiki/File:Nasir-al_molk_-1.jpg",
+};
+
 /**
- * Full-screen welcome (C-003): localized hero, real destination imagery, a
+ * Full-screen welcome (C-003): localized hero over a real photograph, a
  * visible Explore CTA — a plain button, so no swipe gesture is required.
  * Completion is persisted server-side + by cookie before navigating (C-004).
  */
-export function IntroScreen({ imageUrl, imageAlt, next }: { imageUrl: string | null; imageAlt: string; next: string }) {
+export function IntroScreen({ next }: { next: string }) {
   const t = useTranslations("TourApp");
   const locale = useLocale();
   const router = useRouter();
@@ -37,8 +44,18 @@ export function IntroScreen({ imageUrl, imageAlt, next }: { imageUrl: string | n
 
   return (
     <section className="relative flex min-h-dvh flex-col overflow-hidden bg-emerald-950 text-white" aria-labelledby="intro-title" data-testid="tours-intro">
-      <TourImage src={imageUrl} alt={imageAlt} className="absolute inset-0 h-full w-full" eager />
-      <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/25 to-emerald-950/95" />
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={BACKGROUND.src}
+        srcSet={`${BACKGROUND.srcSmall} 720w, ${BACKGROUND.src} 1600w`}
+        sizes="100vw"
+        alt={t("intro.photoAlt")}
+        fetchPriority="high"
+        decoding="async"
+        className="absolute inset-0 h-full w-full object-cover"
+        data-testid="tours-intro-background"
+      />
+      <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/20 to-black/90" />
       <div className="relative mx-auto flex w-full max-w-xl flex-1 flex-col px-6 pt-6 pb-[calc(2rem+env(safe-area-inset-bottom))]">
         <Link
           href={PARENT_APP_PATH}
@@ -79,6 +96,12 @@ export function IntroScreen({ imageUrl, imageAlt, next }: { imageUrl: string | n
             {pending ? <CheckCircle2 className="size-5 animate-pulse" aria-hidden="true" /> : <Arrow className="size-5" aria-hidden="true" />}
           </button>
           {failed ? <span className="sr-only" role="status" /> : null}
+          <p className="mt-6 text-[11px] text-white/60" data-testid="tours-intro-credit">
+            {t("intro.photoPlace")} ·{" "}
+            <a href={BACKGROUND.source} target="_blank" rel="noopener noreferrer" className="underline-offset-2 hover:underline">
+              {BACKGROUND.credit}
+            </a>
+          </p>
         </div>
       </div>
     </section>
