@@ -3,17 +3,21 @@ import { z } from 'zod';
 import { ChildBookingError, deleteChildDraft, recalculateDraftTotals, saveChildDraft } from '@/features/booking-pro/server/repository';
 import { resolveCurrentUserId } from '@/features/booking-pro/utils/auth';
 
+// Ids are checked as GUIDs (8-4-4-4-12 hex), not RFC UUIDs: most catalog ids in production (provider
+// types, providers, service definitions, staff) were generated without RFC version/variant bits, and
+// z.string().uuid() rejects them -- every add-on save failed with VALIDATION_ERROR.
+const id = z.guid();
 const isoDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
 const clockTime = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d(:[0-5]\d)?$/);
 const count = z.number().int().min(0).max(50);
 
 const childSchema = z.object({
-  id: z.string().uuid().optional(),
-  providerTypeId: z.string().uuid(),
-  providerId: z.string().uuid(),
-  serviceId: z.string().uuid(),
-  serviceDefinitionId: z.string().uuid().optional(),
-  specialistId: z.string().uuid().nullish(),
+  id: id.optional(),
+  providerTypeId: id,
+  providerId: id,
+  serviceId: id,
+  serviceDefinitionId: id.optional(),
+  specialistId: id.nullish(),
   bookingUiMode: z.enum(['default_slot', 'date_range', 'custom_form']).optional(),
   requiresSpecialist: z.boolean().optional(),
   selectedDate: isoDate.nullish(),
@@ -26,7 +30,7 @@ const childSchema = z.object({
   children: count.nullish(),
   infants: count.nullish(),
   rooms: count.nullish(),
-  formSubmissionId: z.string().uuid().nullish(),
+  formSubmissionId: id.nullish(),
   metadata: z.record(z.string(), z.unknown()).nullish(),
 }).refine((child) => !child.selectedDateFrom || !child.selectedDateTo || child.selectedDateTo >= child.selectedDateFrom, {
   message: 'selectedDateTo must not be before selectedDateFrom',
@@ -36,8 +40,8 @@ const childSchema = z.object({
   path: ['selectedDateTo'],
 });
 
-const postSchema = z.object({ draftId: z.string().uuid(), child: childSchema });
-const deleteSchema = z.object({ draftId: z.string().uuid(), childId: z.string().uuid() });
+const postSchema = z.object({ draftId: id, child: childSchema });
+const deleteSchema = z.object({ draftId: id, childId: id });
 
 const CHILD_ERROR_STATUS: Record<ChildBookingError['code'], number> = {
   CHILD_NOT_FOUND: 404,

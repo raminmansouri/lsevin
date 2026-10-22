@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 import { ImageWithFallback } from '@/components/ui/image-with-fallback';
 import { resolveHomeMediaUrl } from '@/features/home/components/home-media';
+import { getRichTextPlainText } from '@/features/booking/components/rich-text-preview';
 import type { BookingDraftState, ChildBookingDraft, ProviderTypeAddonItem } from '../../types';
 import type { BookingCalendar } from '../../lib/calendar';
 import {
@@ -32,7 +33,8 @@ type Sheet =
 
 /** Children may still lack an id for a moment after an optimistic update; give each a stable key. */
 const childKey = (child: ChildBookingDraft, index: number) => child.id ?? `pending-${index}`;
-const plainText = (value?: string | null) => String(value ?? '').replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim();
+// Admin descriptions are rich text -- serialized Lexical JSON (or older HTML); show their words only.
+const plainText = (value?: string | null) => getRichTextPlainText(value).replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim();
 
 /**
  * Step 3 (add-ons) on phones: the main service and every add-on laid out day by day, with

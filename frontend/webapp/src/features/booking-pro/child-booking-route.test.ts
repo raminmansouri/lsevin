@@ -19,8 +19,11 @@ vi.mock('@/features/booking-pro/utils/auth', () => ({ resolveCurrentUserId }));
 import { DELETE, POST } from '@/app/api/booking-pro/child-booking/route';
 
 const DRAFT = '11111111-1111-4111-8111-111111111111';
-const TYPE = '22222222-2222-4222-8222-222222222222';
-const PROVIDER = '33333333-3333-4333-8333-333333333333';
+// Catalog ids shaped like production's: most lack RFC version/variant bits (TYPE is the real hotel
+// provider type id). Drafts and their children come from uuid_generate_v4 and are RFC-valid.
+const TYPE = '019eb710-abaa-bbe5-2703-75d6e772c57f';
+const PROVIDER = '019ec153-df7a-d42d-37cb-7e03495fa3a5';
+const SPECIALIST = '019eb728-bff1-caa4-2a6f-93c969d58846';
 const SERVICE = '44444444-4444-4444-8444-444444444444';
 const CHILD = '55555555-5555-4555-8555-555555555555';
 
@@ -45,6 +48,20 @@ describe('child-booking route', () => {
     expect(response.status).toBe(200);
     expect(await response.json()).toEqual({ item: { id: CHILD }, totals: { totalAmount: 10 } });
     expect(saveChildDraft).toHaveBeenCalledWith('customer-a', DRAFT, expect.objectContaining({ providerTypeId: TYPE, serviceId: SERVICE }));
+  });
+
+  it('accepts production catalog ids that are GUIDs but not RFC UUIDs (regression)', async () => {
+    saveChildDraft.mockResolvedValue({ id: CHILD });
+    const response = await POST(post({ draftId: DRAFT, child: child({ specialistId: SPECIALIST, serviceDefinitionId: TYPE }) }));
+    expect({ status: response.status, body: response.status === 200 ? null : await response.clone().json() }).toEqual({ status: 200, body: null });
+    expect(saveChildDraft).toHaveBeenCalledWith('customer-a', DRAFT, expect.objectContaining({ providerTypeId: TYPE, providerId: PROVIDER, specialistId: SPECIALIST }));
+  });
+
+  it('still rejects ids that are not GUIDs at all', async () => {
+    for (const bad of ['019eb710abaabbe5270375d6e772c57f', '019eb710-abaa-bbe5-2703-75d6e772c57', 'not-an-id', '']) {
+      expect((await POST(post({ draftId: DRAFT, child: child({ providerTypeId: bad }) }))).status).toBe(400);
+    }
+    expect(saveChildDraft).not.toHaveBeenCalled();
   });
 
   it('never forwards client-side prices or display fields to the repository', async () => {

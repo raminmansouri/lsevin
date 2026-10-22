@@ -26,12 +26,15 @@ const isLocal = (value: string) => {
 const RUNNABLE = Boolean(DB_URL && SECRET && isLocal(DB_URL) && isLocal(BASE));
 test.skip(!RUNNABLE, 'Set E2E_DATABASE_URL and E2E_AUTH_SECRET (localhost only) to seed fixtures and mint a session.');
 
+// Catalog ids are shaped like production's: valid GUIDs without RFC version/variant bits. Production
+// rejected every add-on save for such ids (zod .uuid()), and RFC-only fixtures hid that bug.
+const catalogId = () => { const p = randomUUID().split('-'); p[2] = `b${p[2].slice(1)}`; p[3] = `2${p[3].slice(1)}`; return p.join('-'); };
 const ids = {
   category: randomUUID(), user: randomUUID(), draft: randomUUID(),
-  typeClinic: randomUUID(), typeStay: randomUUID(), typeTransfer: randomUUID(), typeWellness: randomUUID(), typeTour: randomUUID(),
-  defClinic: randomUUID(), defStay: randomUUID(), defTransfer: randomUUID(), defWellness: randomUUID(), defTour: randomUUID(),
-  pClinic: randomUUID(), pHotel: randomUUID(), pTransfer: randomUUID(), pPool: randomUUID(), pTour: randomUUID(),
-  sClinic: randomUUID(), sRoom: randomUUID(), sAirportIn: randomUUID(), sAirportOut: randomUUID(), sPool: randomUUID(), sTour: randomUUID(),
+  typeClinic: catalogId(), typeStay: catalogId(), typeTransfer: catalogId(), typeWellness: catalogId(), typeTour: catalogId(),
+  defClinic: catalogId(), defStay: catalogId(), defTransfer: catalogId(), defWellness: catalogId(), defTour: catalogId(),
+  pClinic: catalogId(), pHotel: catalogId(), pTransfer: catalogId(), pPool: catalogId(), pTour: catalogId(),
+  sClinic: catalogId(), sRoom: catalogId(), sAirportIn: catalogId(), sAirportOut: catalogId(), sPool: catalogId(), sTour: catalogId(),
 };
 const MAIN_DAY = '2026-11-04';
 const sql = RUNNABLE ? postgres(DB_URL, { max: 2, prepare: false }) : null;
@@ -39,6 +42,8 @@ const sql = RUNNABLE ? postgres(DB_URL, { max: 2, prepare: false }) : null;
 async function seed() {
   const s = sql!;
   await s`insert into category.categories (id, name_translations, description_translations, is_active) values (${ids.category}, '{"en":"E2E"}', '{}', true)`;
+  // Admin descriptions are stored as serialized Lexical JSON, exactly like production.
+  const lexical = (text: string) => JSON.stringify({ root: { type: 'root', children: [{ type: 'paragraph', children: [{ type: 'text', text }] }] } });
   const types: Array<[string, Record<string, string>, string | null]> = [
     [ids.typeClinic, { fa: 'کلینیک', en: 'Clinic' }, null],
     [ids.typeStay, { fa: 'اقامتگاه ها', en: 'Stays' }, 'e2e/stay.png'],
@@ -47,7 +52,7 @@ async function seed() {
     [ids.typeTour, { fa: 'گردشگری', en: 'Tours' }, 'e2e/tour.png'],
   ];
   for (const [id, name, image] of types) {
-    await s`insert into category.provider_types (id, name_translations, description_translations, is_active, image_url) values (${id}, ${s.json(name)}, '{}', true, ${image})`;
+    await s`insert into category.provider_types (id, name_translations, description_translations, is_active, image_url) values (${id}, ${s.json(name)}, ${s.json(id === ids.typeTransfer ? { fa: lexical('فرودگاه، هتل و کلینیک') } : {})}, true, ${image})`;
   }
   const defs: Array<[string, string, number]> = [
     [ids.defClinic, 'default_slot', 240], [ids.defStay, 'date_range', 0], [ids.defTransfer, 'default_slot', 90],
@@ -166,6 +171,9 @@ test.describe('mobile itinerary', () => {
     // Types with an admin image get it as the tile background; types without one get the icon tile.
     await expect(tiles.getByRole('button', { name: /اقامتگاه ها/ }).locator('img')).toHaveAttribute('src', /stay\.png/);
     await expect(tiles.getByRole('button', { name: /ترانسفر/ }).locator('img')).toHaveCount(0);
+    // Rich-text descriptions show their words, never the serialized Lexical JSON (production bug).
+    await expect(tiles.getByRole('button', { name: /ترانسفر/ })).toContainText('فرودگاه، هتل و کلینیک');
+    await expect(tiles).not.toContainText('"root"');
     await page.keyboard.press('Escape');
     await expect(tiles).toBeHidden();
   });

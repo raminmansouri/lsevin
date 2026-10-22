@@ -24,11 +24,14 @@ const sql = LOCAL ? postgres(url as string, { max: 2, prepare: false }) : null;
 const d = LOCAL ? describe : describe.skip;
 
 const id = () => randomUUID();
+// Catalog rows get ids shaped like production's: valid GUIDs without RFC version/variant bits
+// (10 of 12 provider types and ~60% of service definitions in production look like this).
+const catalogId = () => { const p = randomUUID().split('-'); p[2] = `b${p[2].slice(1)}`; p[3] = `2${p[3].slice(1)}`; return p.join('-'); };
 const ids = {
-  category: id(), typeMain: id(), typeAddon: id(), typeUnlinked: id(),
-  defMain: id(), defAddon: id(), defOther: id(),
-  providerMain: id(), providerAddon: id(), providerAddon2: id(), providerOther: id(),
-  serviceMain: id(), serviceAddon: id(), serviceAddon2: id(), serviceOther: id(),
+  category: catalogId(), typeMain: catalogId(), typeAddon: catalogId(), typeUnlinked: catalogId(),
+  defMain: catalogId(), defAddon: catalogId(), defOther: catalogId(),
+  providerMain: catalogId(), providerAddon: catalogId(), providerAddon2: catalogId(), providerOther: catalogId(),
+  serviceMain: catalogId(), serviceAddon: catalogId(), serviceAddon2: catalogId(), serviceOther: catalogId(),
   user: id(), otherUser: id(), draft: id(), otherDraft: id(),
 };
 
