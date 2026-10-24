@@ -360,7 +360,7 @@ declare const messages: {
     "searchNow": "جستجو کنید"
   },
   "Explore": {
-    "lsevin": "لسوین",
+    "lsevin": "السوین",
     "viewAll": "مشاهده همه",
     "header": {
       "title": "کاوش",
@@ -485,7 +485,7 @@ declare const messages: {
     "selectProviderLinesToRefund": "ردیف‌های ارائه‌دهنده برای بازگشت وجه را انتخاب کنید",
     "reasonForRefundReview": "دلیل درخواست بررسی",
     "providerNoteForAdminReview": "یادداشت ارائه‌دهنده برای بررسی ادمین",
-    "lsevinQa": "تیم کیفیت لسوین",
+    "lsevinQa": "تیم کیفیت السوین",
     "deviceDetailsIncluded": "مشخصات دستگاه ثبت شد",
     "urlAndLocaleCaptured": "آدرس و زبان ثبت شد",
     "addStep": "افزودن مرحله",
@@ -2266,7 +2266,7 @@ declare const messages: {
     "tagline": "خدمات درمانی، زیبایی، اقامت و ورزشی برای مسافران ایران.",
     "cta": "مکان‌های نزدیک خود را پیدا کنید",
     "enamadAlt": "نماد اعتماد الکترونیکی اینماد",
-    "copyright": "© {year} لسوین. تمامی حقوق محفوظ است.",
+    "copyright": "© {year} السوین. تمامی حقوق محفوظ است.",
     "columns": {
       "explore": {
         "title": "کاوش",
@@ -4992,7 +4992,7 @@ declare const messages: {
     "bookings": "رزروها",
     "points": "امتیاز",
     "saved": "ذخیره‌شده",
-    "lsevin": "لسوین",
+    "lsevin": "السوین",
     "lSevin": "L SEVIN",
     "options": "گزینه‌ها",
     "displayName": "نام نمایشی",
@@ -7174,7 +7174,7 @@ declare const messages: {
         "description": "پرداخت فوری از موجودی کیف پول."
       }
     },
-    "lsevin": "لسوین",
+    "lsevin": "السوین",
     "upcoming": "پیش‌رو",
     "past": "گذشته",
     "aDedicatedCoordinatorWillBeAssignedAfterBookingConfirmation": "A dedicated coordinator will be assigned after رزرو confirmation.",
@@ -7909,7 +7909,7 @@ declare const messages: {
     "receiptAmount": "مبلغ",
     "receiptScanTitle": "برای مشاهده رزرو اسکن کنید",
     "receiptScanHint": "این کد را با دوربین گوشی اسکن کنید تا صفحه این رزرو باز شود.",
-    "receiptSupport": "سؤالی درباره این رزرو دارید؟ از بخش پشتیبانی اپلیکیشن لسوین با ما در تماس باشید.",
+    "receiptSupport": "سؤالی درباره این رزرو دارید؟ از بخش پشتیبانی اپلیکیشن السوین با ما در تماس باشید.",
     "receiptPayInPlaceFee": "افزایش طرح پرداخت در محل",
     "receiptPayInPlaceFeePercent": "افزایش طرح پرداخت در محل ({percent}٪)",
     "downloadInvoicePdf": "دانلود PDF",
@@ -14809,7 +14809,7 @@ declare const messages: {
     "open": "باز کردن",
     "bookingId": "شناسه رزرو",
     "compensationPolicies": "سیاست‌های تسویه",
-    "defineHowLsevinSplitsGrossBookingValueInto": "تعیین کنید لسوین ارزش ناخالص رزرو را چگونه تقسیم می‌کند.",
+    "defineHowLsevinSplitsGrossBookingValueInto": "تعیین کنید السوین ارزش ناخالص رزرو را چگونه تقسیم می‌کند.",
     "newPolicy": "سیاست جدید",
     "searchAndFilter": "جستجو و فیلتر",
     "allScopeTypes": "همه انواع دامنه",
@@ -15958,7 +15958,7 @@ declare const messages: {
       "galleryLabel": "تصاویر محصول (اولی = اصلی)",
       "saveGallery": "ذخیرهٔ گالری",
       "savingGallery": "در حال ذخیره…",
-      "servicesTitle": "خدمات مرتبط لسوین",
+      "servicesTitle": "خدمات مرتبط السوین",
       "noServiceLinks": "ارتباطی با خدمات وجود ندارد.",
       "brokenRef": "ارجاع نامعتبر",
       "relationType": "نوع ارتباط",
@@ -16025,7 +16025,7 @@ declare const messages: {
     },
     "categoryEdit": {
       "delete": "حذف دسته",
-      "servicesTitle": "خدمات مرتبط لسوین",
+      "servicesTitle": "خدمات مرتبط السوین",
       "noServiceLinks": "ارتباطی با خدمات وجود ندارد.",
       "brokenRef": "ارجاع نامعتبر",
       "addServiceLink": "افزودن ارتباط خدمت"
