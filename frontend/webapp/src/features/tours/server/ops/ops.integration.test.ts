@@ -743,9 +743,14 @@ suite("tours ops (real database)", () => {
                                     values (${D2}, ${owner.id}, now() - interval '40 days', 'manual', now() - interval '1 day') returning id::text`;
     await sql`insert into tour.tracking_points (session_id, seq, recorded_at, latitude, longitude) values (${old.id}, 1, now() - interval '41 days', 1, 1)`;
 
-    const results = await Promise.all([sweeper.runToursSweep(), sweeper.runToursSweep()]);
-    expect(results.filter((r) => r.ran)).toHaveLength(1);
-    const ran = results.find((r) => r.ran)!;
+    // One worker at a time: while another worker holds the sweep lock, a sweep must not run.
+    // (Two concurrent calls were racy: under load the first could finish before the second started.)
+    await sql.begin(async (holder) => {
+      await holder`select pg_advisory_xact_lock(${sweeper.SWEEP_LOCK_ID})`;
+      expect((await sweeper.runToursSweep()).ran).toBe(false);
+    });
+    const ran = await sweeper.runToursSweep();
+    expect(ran.ran).toBe(true);
     expect(ran.errors).toEqual([]);
     const [sess] = await sql<any[]>`select end_reason, retention_until is not null as kept from tour.tracking_sessions where id = ${s.id}`;
     expect(sess).toEqual({ end_reason: "expired", kept: true });

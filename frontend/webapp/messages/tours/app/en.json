@@ -49,7 +49,7 @@
       "noDepartures": "No upcoming departures",
       "unavailable": "Not bookable for the selected dates",
       "instant": "Instant confirmation",
-      "request": "Confirmed by the operator",
+      "request": "Operator confirms",
       "rating": "{rating} ({count, plural, one {# review} other {# reviews}})",
       "photos": "{count, plural, one {# photo} other {# photos}}",
       "badge": {
@@ -109,9 +109,10 @@
       "categories": "Browse by type",
       "empty": {
         "title": "New tours are on their way",
-        "body": "We're preparing new tours. Please check back soon."
+        "body": "New tours are on their way."
       },
-      "sponsored": "Sponsored"
+      "sponsored": "Sponsored",
+      "heroPhotoPlace": "Naqsh-e Jahan Square, Isfahan"
     },
     "explore": {
       "title": "Explore tours",
@@ -131,7 +132,7 @@
         "start_date": "Earliest departure",
         "duration": "Shortest first",
         "popularity": "Most popular",
-        "rating": "Top rated (verified reviews)"
+        "rating": "Top rated"
       },
       "results": "{count, plural, =0 {No tours} one {# tour} other {# tours}}",
       "noResults": "No tours match these filters",
@@ -140,14 +141,14 @@
       "apply": "Show results",
       "reset": "Reset",
       "showUnavailable": "Also show tours not bookable for these dates",
-      "availabilityNote": "Only tours with seats for your dates and party size are shown.",
+      "availabilityNote": "Showing only tours with room for your dates and group size.",
       "page": "Page {page} of {pages}",
       "prev": "Previous page",
       "next": "Next page",
       "pagination": "Results pages",
       "mapView": "Map",
       "listView": "List",
-      "mapUnavailable": "The map is not available right now — the list below shows the same results.",
+      "mapUnavailable": "The map won't load right now — all results are in the list below.",
       "nearby": "Near me",
       "nearbyExplain": "Allow location access once to sort the results on this page by distance. Your location is not stored.",
       "nearbyAllow": "Use my location",
@@ -227,7 +228,7 @@
       "shareFailed": "Could not share this link.",
       "provider": "Operated by",
       "verifiedProvider": "Verified operator",
-      "verifiedProviderHint": "Lsevin verified this operator's registration. This is not an endorsement of every tour.",
+      "verifiedProviderHint": "Lsevin has checked this operator's licence and documents. For each tour, see what travellers say.",
       "summary": "Summary",
       "highlights": "Highlights",
       "description": "About this tour",
@@ -255,7 +256,7 @@
         "cutoffMinutes": "{minutes} minutes before departure",
         "pickup": "Hotel pickup available",
         "private": "Private tour available",
-        "unverified": "Reported by the operator, not yet verified"
+        "unverified": "According to the operator"
       },
       "included": "Included",
       "excluded": "Not included",
@@ -293,7 +294,7 @@
         "routeNote": "Dashed lines show the order of stops, not the exact road route.",
         "mapUnavailable": "Map unavailable — the stops are listed in order below.",
         "timesLocal": "Times are local to the tour ({zone}).",
-        "empty": "The operator has not published an itinerary yet.",
+        "empty": "The day-by-day plan hasn't been added yet.",
         "summary": "{days, plural, one {# day} other {# days}} · {stops, plural, one {# stop} other {# stops}}"
       },
       "transport": {
@@ -308,10 +309,10 @@
       },
       "meeting": {
         "title": "Meeting point",
-        "approximate": "Approximate area shown. The exact meeting point is shared after your booking is confirmed.",
+        "approximate": "The map shows the general area. You'll get the exact meeting point once your booking is confirmed.",
         "exact": "Exact meeting point",
         "end": "End point",
-        "noLocation": "The operator has not published a meeting location yet.",
+        "noLocation": "The meeting point hasn't been set yet.",
         "instructions": "How to find us",
         "pickup": "Pickup",
         "coordinates": "Coordinates"
@@ -328,14 +329,14 @@
         "weatherPolicies": {
           "reschedule_or_refund": "If weather prevents the tour, you can move to another date or get a full refund.",
           "full_refund": "If the tour is cancelled because of weather you receive a full refund.",
-          "operator_decides": "The operator decides on the day and informs you; if the tour is cancelled you receive a full refund.",
-          "no_refund": "The tour runs in any weather; weather is not a reason for a refund unless the operator cancels."
+          "operator_decides": "If the weather turns, the operator decides on the day and lets you know. If the tour is cancelled, you get all your money back.",
+          "no_refund": "The tour runs in any weather, and bad weather isn't a reason for a refund — unless the operator cancels."
         },
         "minParticipants": "Runs with at least {count, plural, one {# traveler} other {# travelers}}; if not reached, you get a full refund.",
         "rules": "Tour rules",
         "safety": "Safety",
         "version": "Policy version {version}",
-        "none": "The operator has not published a cancellation policy."
+        "none": "Cancellation rules for this tour haven't been posted yet."
       },
       "faq": "Questions and answers",
       "guides": {
@@ -373,7 +374,7 @@
       "backToExplore": "Browse other tours",
       "inquiry": {
         "title": "Private or group request",
-        "body": "Ask the operator for a private tour or a group booking. They reply with a quote you can accept.",
+        "body": "Travelling with your own group, or want it private? Message the operator and they'll send you a price.",
         "kind": "Request type",
         "private_quote": "Private tour quote",
         "group": "Group reservation",
@@ -382,7 +383,7 @@
         "addDate": "Add date",
         "message": "Message to the operator",
         "send": "Send request",
-        "sent": "Your request was sent. The operator's reply will appear in your notifications.",
+        "sent": "Message sent. You'll see the operator's reply in your notifications.",
         "signIn": "Sign in to send a request"
       },
       "tourTypes": {
@@ -471,9 +472,9 @@
       "soldOutDay": "This date is sold out.",
       "waitlist": {
         "join": "Join the waitlist",
-        "joined": "You are on the waitlist. We will notify you if seats open up — the offer expires after a short time.",
+        "joined": "You're on the waitlist. If a seat opens we'll tell you — you'll then have a short time to book it.",
         "leave": "Leave waitlist",
-        "consent": "I agree to be notified if seats become available."
+        "consent": "Let me know if a seat opens up."
       },
       "option": "Tour option",
       "optionKinds": {
@@ -520,7 +521,7 @@
       },
       "details": {
         "buyerTitle": "Your contact details",
-        "buyerNote": "The operator uses these only for this booking.",
+        "buyerNote": "We only share this with the operator for this booking.",
         "firstName": "First name",
         "lastName": "Last name",
         "email": "Email (optional)",
@@ -539,7 +540,7 @@
         "sameAsBuyer": "Same as contact",
         "addressBook": "Address book",
         "addressBookTitle": "Travelers from your earlier bookings",
-        "addressBookConsent": "Only travelers you added to your own earlier bookings are shown. Pick one to fill this form; you can still edit it.",
+        "addressBookConsent": "Travellers from your earlier bookings. Pick one to fill in the form — you can still edit it.",
         "addressBookEmpty": "No saved travelers yet.",
         "use": "Use",
         "required": "Required",
@@ -550,7 +551,7 @@
         "title": "Review and confirm",
         "summary": "Booking summary",
         "departure": "Departure",
-        "calendarNote": "Dates in {calendar}; time is local to the tour ({zone}).",
+        "calendarNote": "Dates are in the {calendar} calendar; times are local time at the destination ({zone}).",
         "invoice": "Invoice",
         "buyer": "Contact",
         "travelers": "Travelers",
@@ -563,7 +564,7 @@
         "submitPay": "Confirm and pay",
         "submitRequest": "Send booking request",
         "submitting": "Confirming…",
-        "requestNote": "This operator confirms each booking. You will not be charged until they accept."
+        "requestNote": "The operator confirms this tour. You won't pay anything until they accept your request."
       },
       "changed": {
         "price": "The price changed to {total} while you were booking. Nothing was charged. Review the new total and confirm again.",
@@ -584,7 +585,7 @@
         "pay": "Pay {amount}",
         "paying": "Processing payment…",
         "redirecting": "Redirecting to the payment gateway…",
-        "insufficient": "Your wallet balance is not enough. Top up your wallet or choose another method.",
+        "insufficient": "Not enough in your wallet. Top it up or choose another way to pay.",
         "failed": "The payment could not be completed. You were not charged twice — try again or choose another method.",
         "pending": "Your payment is being reviewed. We will confirm the booking as soon as it is approved.",
         "later": "Pay later from My bookings"
@@ -592,7 +593,7 @@
       "result": {
         "confirmed": "Booking confirmed",
         "requested": "Booking request sent",
-        "requestedBody": "The operator answers by {time}. If they do not, the request expires and nothing is charged.",
+        "requestedBody": "The operator will reply by {time}. If they don't, the request is cancelled and you pay nothing.",
         "pendingPayment": "Awaiting payment",
         "viewVoucher": "View voucher",
         "myBookings": "My bookings"
@@ -624,7 +625,7 @@
       "voucherCode": "Voucher code",
       "qrLabel": "Check-in code for booking {code}",
       "qrHint": "Show this code at the meeting point.",
-      "qrPending": "The check-in code appears once the booking is confirmed.",
+      "qrPending": "Your check-in code appears here once the booking is confirmed.",
       "status": "Status",
       "departure": "Departure",
       "calendarName": "Calendar: {calendar}",
@@ -642,7 +643,7 @@
       "paid": "Paid",
       "payNow": "Pay now",
       "paymentDue": "Payment due by {time}",
-      "requestPending": "Waiting for the operator — answer due by {time}",
+      "requestPending": "Waiting for the operator to confirm — until {time}",
       "receipt": "Receipt",
       "cancel": {
         "button": "Cancel booking",
@@ -712,7 +713,7 @@
       "itinerary": "Itinerary",
       "weather": "Weather for your departure",
       "offline": {
-        "banner": "You are offline. Showing the voucher saved on this device on {time}.",
+        "banner": "You're offline. This is the copy of your voucher saved at {time}.",
         "savedNote": "Saved on this device for offline use.",
         "liveUnavailable": "Live information is unavailable offline."
       },
@@ -724,7 +725,7 @@
         "star": "{count, plural, one {# star} other {# stars}}",
         "text": "Your review",
         "submit": "Submit review",
-        "thanks": "Thank you! Your review will appear after moderation."
+        "thanks": "Thanks! Your review will go live once we've checked it."
       },
       "notFound": "This booking was not found."
     },
@@ -758,7 +759,7 @@
       "display": "Display",
       "notifications": {
         "title": "Notifications",
-        "body": "Booking confirmations, changes and cancellations are always sent in the app. Choose the other channels:",
+        "body": "We always tell you in the app when a booking is confirmed, changed or cancelled. How else should we reach you?",
         "in_app": "In-app (always on)",
         "email": "Email",
         "sms": "SMS",
@@ -787,7 +788,7 @@
     },
     "share": {
       "title": "Shared itinerary",
-      "note": "Shared by a traveler. Names and contact details are not shown.",
+      "note": "A traveller shared this plan with you. Names and contact details are hidden.",
       "expired": "This link has expired or was revoked.",
       "expires": "Link valid until {time}"
     },

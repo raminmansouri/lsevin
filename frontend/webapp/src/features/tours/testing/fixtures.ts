@@ -91,7 +91,7 @@ export async function seedDestination(sql: Sql, opts: { slug?: string; name?: Re
   const [d] = await sql<{ id: string }[]>`
     insert into tour.destinations (slug, name_translations, region_translations, country_code, latitude, longitude, timezone, cover_url, is_published, is_featured)
     values (${slug}, ${sql.json(opts.name ?? { "en-US": "Shiraz", "fa-IR": "شیراز", "ar-SA": "شيراز" })}, ${sql.json({ "en-US": "Fars, Iran", "fa-IR": "فارس، ایران" })},
-            'IR', ${opts.lat ?? 29.5918}, ${opts.lng ?? 52.5837}, 'Asia/Tehran', '/images/tours/shiraz.jpg', true, true)
+            'IR', ${opts.lat ?? 29.5918}, ${opts.lng ?? 52.5837}, 'Asia/Tehran', '/images/tours/shiraz-nasir-al-mulk-sm.webp', true, true)
     returning id::text`;
   return { id: d.id, slug };
 }
@@ -151,6 +151,9 @@ const SOURCE_TEXT: Record<string, Record<string, string>> = {
   },
 };
 
+/** Real files shipped in public/images/tours, so screenshots of fixture data show photos, not broken images. */
+const FIXTURE_IMAGES = ["shiraz-persepolis", "shiraz-naqsh-e-rustam", "shiraz-nasir-al-mulk", "isfahan-naqsh-e-jahan", "isfahan-si-o-se-pol", "yazd-windcatchers"];
+
 export async function seedTour(sql: Sql, o: SeedTourOptions): Promise<SeededTour> {
   const slug = o.slug ?? `persepolis-day-tour-${suffix()}`;
   const src = o.sourceLocale ?? "fa-IR";
@@ -181,7 +184,7 @@ export async function seedTour(sql: Sql, o: SeedTourOptions): Promise<SeededTour
   for (let i = 0; i < (o.images ?? 6); i += 1) {
     await sql`
       insert into tour.media (tour_id, kind, url, sort_order, is_cover, width, height, alt_translations, caption_translations, moderation_status)
-      values (${t.id}, 'image', ${`/images/tours/fixture-${(i % 6) + 1}.jpg`}, ${i}, ${i === 0}, 1600, 1067,
+      values (${t.id}, 'image', ${`/images/tours/${FIXTURE_IMAGES[i % FIXTURE_IMAGES.length]}.webp`}, ${i}, ${i === 0}, 1600, 1067,
               ${sql.json({ "en-US": `Persepolis view ${i + 1}`, "fa-IR": `نمای تخت جمشید ${i + 1}` })},
               ${sql.json({ "en-US": `Photo ${i + 1}`, "fa-IR": `عکس ${i + 1}` })}, ${o.status === "draft" ? "pending" : "approved"})`;
   }
