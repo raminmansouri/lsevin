@@ -13179,7 +13179,8 @@ declare const messages: {
         "failed": "Die Zahlung konnte nicht bestätigt werden. Falls Geld abgebucht wurde, kommt es meist innerhalb von 72 Stunden zurück.",
         "refund": "Die Zahlung ist eingegangen, aber dieser Termin war nicht mehr frei. Du erhältst eine Rückerstattung; bitte wende dich an den Support."
       },
-      "testPay": "Testzahlung (nur zum Testen)"
+      "testPay": "Testzahlung (nur zum Testen)",
+      "foreignVpnNote": "Wenn du außerhalb des Iran bist: Der Videoanruf läuft über einen Server im Iran. Zum Beitreten brauchst du ein VPN mit iranischer IP-Adresse."
     },
     "call": {
       "phase": {

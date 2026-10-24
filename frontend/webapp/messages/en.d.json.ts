@@ -14703,7 +14703,8 @@ declare const messages: {
         "failed": "The payment couldn't be confirmed. If money left your account, it usually comes back within 72 hours.",
         "refund": "The payment went through, but this time was no longer free. You'll be refunded; please contact support."
       },
-      "testPay": "Test payment (testing only)"
+      "testPay": "Test payment (testing only)",
+      "foreignVpnNote": "If you're outside Iran: the video call runs on a server inside Iran. To join the call you'll need a VPN with an Iranian IP address."
     },
     "call": {
       "phase": {

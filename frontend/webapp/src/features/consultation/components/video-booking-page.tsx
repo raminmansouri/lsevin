@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
-import { ChevronLeft, Clock, Loader2, User } from "lucide-react";
+import { ChevronLeft, Clock, Globe, Loader2, User } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { toast } from "sonner";
 
@@ -133,6 +133,13 @@ export function VideoBookingPage({ doctorId }: { doctorId: string }) {
       {options && (
         <div className="space-y-4 px-5 pt-4">
           <DoctorSummary options={options} />
+
+          {options.foreignVisitor && (
+            <div className="flex items-start gap-3 rounded-2xl bg-amber-50 p-4 text-amber-900">
+              <Globe className="mt-0.5 h-5 w-5 shrink-0" aria-hidden />
+              <p className="text-sm leading-6">{t("foreignVpnNote")}</p>
+            </div>
+          )}
 
           <section className="rounded-2xl bg-white p-4 shadow-sm">
             <h2 className="font-bold text-gray-900">{t("pickTime")}</h2>

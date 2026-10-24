@@ -13182,7 +13182,8 @@ declare const messages: {
         "failed": "No se pudo confirmar el pago. Si se descontó dinero de tu cuenta, suele devolverse en 72 horas.",
         "refund": "El pago se realizó, pero esta hora ya no estaba libre. Se te reembolsará; contacta con soporte."
       },
-      "testPay": "Pago de prueba (solo para pruebas)"
+      "testPay": "Pago de prueba (solo para pruebas)",
+      "foreignVpnNote": "Si estás fuera de Irán: la videollamada se realiza en un servidor dentro de Irán. Para unirte necesitarás una VPN con una dirección IP iraní."
     },
     "call": {
       "phase": {

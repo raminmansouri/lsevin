@@ -68,9 +68,10 @@ export async function getBookingOptionsAction(
     const doctor = (await listPublicVideoDoctors(locale)).find((d) => d.id === id.data);
     if (!doctor) return fail("notFound");
 
-    const [slots, patientName] = await Promise.all([
+    const [slots, patientName, isIranian] = await Promise.all([
       listFreeSlots(id.data, offer.durationMinutes, BOOKING_DAYS_AHEAD),
       getAccountName(userId),
+      resolveIsIranianVisitor(),
     ]);
     return {
       ok: true,
@@ -80,6 +81,7 @@ export async function getBookingOptionsAction(
         priceLabel: offer.priceLabel,
         slots,
         patientName,
+        foreignVisitor: !isIranian,
       },
     };
   } catch (error) {

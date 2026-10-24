@@ -13179,7 +13179,8 @@ declare const messages: {
         "failed": "Le paiement n'a pas pu être confirmé. Si de l'argent a été débité, il est généralement restitué sous 72 heures.",
         "refund": "Le paiement a abouti, mais ce créneau n'était plus libre. Vous serez remboursé ; veuillez contacter le support."
       },
-      "testPay": "Paiement de test (tests uniquement)"
+      "testPay": "Paiement de test (tests uniquement)",
+      "foreignVpnNote": "Si vous êtes hors d'Iran : l'appel vidéo passe par un serveur situé en Iran. Pour le rejoindre, vous aurez besoin d'un VPN avec une adresse IP iranienne."
     },
     "call": {
       "phase": {

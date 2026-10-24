@@ -13557,7 +13557,8 @@ declare const messages: {
         "failed": "Ödeme onaylanamadı. Hesabınızdan para çekildiyse genellikle 72 saat içinde iade edilir.",
         "refund": "Ödeme yapıldı ancak bu saat artık boş değildi. Ücret iade edilecek; lütfen destekle iletişime geçin."
       },
-      "testPay": "Test ödemesi (yalnızca test için)"
+      "testPay": "Test ödemesi (yalnızca test için)",
+      "foreignVpnNote": "İran dışındaysanız: görüntülü görüşme İran'daki bir sunucuda yapılır. Görüşmeye katılmak için İran IP adresli bir VPN kullanmanız gerekir."
     },
     "call": {
       "phase": {

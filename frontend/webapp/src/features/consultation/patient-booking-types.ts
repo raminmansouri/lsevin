@@ -16,6 +16,11 @@ export type BookingOptions = {
   slots: string[];
   /** The signed-in patient's name, to prefill the form. */
   patientName: string;
+  /**
+   * The visitor looks to be outside Iran. The call server is on the Iranian
+   * site, which can't be reached from abroad without an Iranian VPN.
+   */
+  foreignVisitor: boolean;
 };
 
 export type CreateVideoSessionInput = {
