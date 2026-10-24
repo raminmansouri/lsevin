@@ -1,29 +1,42 @@
 "use client";
 
-import { LogOut, Video } from "lucide-react";
+import { AlarmClock, LogOut, Video } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { cn } from "@/lib/utils";
 
+import type { CallCredentials } from "../call-types";
 import { sessionCallWindow } from "../doctor-panel-types";
 import { formatCountdown } from "./doctor-panel/panel-format";
 import { useNow } from "./doctor-panel/use-now";
+import { LiveCall } from "./live-call";
 
 /**
  * The call screen both sides share. The room is open from one consultation
  * length before the booked time to one length after it ends; leaving only
- * leaves. The video itself (LiveKit) mounts in the dark area in its own step.
+ * leaves. With call credentials the video (LiveKit) runs in the dark area;
+ * without them (LiveKit not configured) the room has the timer only.
  */
+/** How long before the room closes both sides are warned. */
+const CLOSING_WARNING_MS = 5 * 60_000;
+
 export function CallRoom({
+  sessionId,
   title,
   scheduledAt,
   durationMinutes,
+  call,
+  infoPanel,
   onLeave,
 }: {
+  sessionId: string;
   /** Who is on the other side. */
   title: string;
   scheduledAt: string;
   durationMinutes: number;
+  call: CallCredentials | null;
+  /** The GP's view of the patient, beside the call. */
+  infoPanel?: React.ReactNode;
   onLeave: () => void;
 }) {
   const t = useTranslations("Consultation.call");
@@ -37,6 +50,7 @@ export function CallRoom({
   const phase = now < slotStart ? "before" : now < slotEnd ? "during" : "after";
   const target = phase === "before" ? slotStart : phase === "during" ? slotEnd : closesAt;
   const closed = now > closesAt;
+  const closingSoon = !closed && closesAt - now <= CLOSING_WARNING_MS;
 
   return (
     <div className="flex min-h-screen flex-col bg-gray-950 text-white">
@@ -56,6 +70,23 @@ export function CallRoom({
         </div>
       </div>
 
+      {closingSoon && (
+        <div className="mx-5 mt-3 flex items-center gap-2 rounded-2xl bg-amber-500 px-3 py-2 text-xs font-medium text-black">
+          <AlarmClock className="h-4 w-4 shrink-0" aria-hidden />
+          {t("closingSoon", { minutes: Math.max(1, Math.ceil((closesAt - now) / 60_000)) })}
+        </div>
+      )}
+      {call ? (
+        <LiveCall
+          sessionId={sessionId}
+          call={call}
+          peerName={title}
+          closed={closed}
+          infoPanel={infoPanel}
+          onLeave={onLeave}
+        />
+      ) : (
+      <>
       <div className="mx-5 mt-5 flex flex-1 flex-col items-center justify-center rounded-3xl bg-white/5 text-center">
         <Video className="h-10 w-10 text-white/40" aria-hidden />
         <p className="mt-3 max-w-xs text-sm text-white/70">{t("videoPlaceholder")}</p>
@@ -72,6 +103,8 @@ export function CallRoom({
           {t("leave")}
         </button>
       </div>
+      </>
+      )}
     </div>
   );
 }

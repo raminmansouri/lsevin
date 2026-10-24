@@ -14658,7 +14658,7 @@
       "pickTimeFirst": "Pick a time first",
       "sessionTitle": "Video consultation",
       "requestSent": "Your request was sent",
-      "payNext": "This time is held for you for 15 minutes. Payment will be added to this page in the next step.",
+      "payNext": "This time is held for you for 15 minutes. Pay to confirm it.",
       "when": "When",
       "length": "Length",
       "price": "Price",
@@ -14676,7 +14676,10 @@
         "name": "Enter your full name.",
         "age": "The age isn't valid.",
         "note": "Please describe your problem in at least one sentence.",
-        "notJoinable": "It isn't time to join this call."
+        "notJoinable": "It isn't time to join this call.",
+        "alreadyPaid": "This consultation is already paid.",
+        "expired": "The hold on this time ran out. Please book again.",
+        "paymentUnavailable": "Online payment isn't available right now. Please try again shortly."
       },
       "joinCall": "Join call",
       "joinLater": "The join button opens when the call room opens.",
@@ -14688,7 +14691,16 @@
       "summaryAdvice": "Advice",
       "summaryNextSteps": "Next steps",
       "summarySuggestion": "Suggested treatment or centre",
-      "backToSession": "Back to consultation"
+      "backToSession": "Back to consultation",
+      "payNow": "Pay {price}",
+      "paying": "Going to the payment page…",
+      "paymentResult": {
+        "paid": "Payment received. Your consultation is confirmed.",
+        "cancelled": "The payment was cancelled. You can pay again while the time is held.",
+        "failed": "The payment couldn't be confirmed. If money left your account, it usually comes back within 72 hours.",
+        "refund": "The payment went through, but this time was no longer free. You'll be refunded; please contact support."
+      },
+      "testPay": "Test payment (testing only)"
     },
     "call": {
       "phase": {
@@ -14698,7 +14710,49 @@
       },
       "leave": "Leave call",
       "roomClosed": "The call room's time is over.",
-      "videoPlaceholder": "The video connects here in the LiveKit step. The timer and joining/leaving already work."
+      "videoPlaceholder": "Video calling isn't set up on this server yet. The timer and joining/leaving already work.",
+      "connecting": "Connecting…",
+      "reconnecting": "Connection lost, reconnecting…",
+      "waitingFor": "Waiting for {name}…",
+      "cameraOff": "{name}'s camera is off",
+      "muteMic": "Mute microphone",
+      "unmuteMic": "Unmute microphone",
+      "cameraOffButton": "Turn camera off",
+      "cameraOnButton": "Turn camera on",
+      "flipCamera": "Flip camera",
+      "notice": {
+        "permission": "Camera or microphone access was blocked. Allow it in your browser settings and reopen this page.",
+        "device": "No camera or microphone was found, or another app is using it.",
+        "duplicate": "This call was opened in another tab or device.",
+        "failed": "Couldn't connect to the call server. Check your internet and join again."
+      },
+      "prejoin": {
+        "hint": "Check your picture and sound before joining.",
+        "cameraOff": "Camera is off",
+        "micLevel": "Microphone level",
+        "camera": "Camera",
+        "microphone": "Microphone",
+        "cameraName": "Camera {n}",
+        "micName": "Microphone {n}",
+        "back": "Back",
+        "join": "Join call"
+      },
+      "audioOnly": "Audio only",
+      "videoBack": "Turn video back on",
+      "audioOnlyActive": "Audio only: no video is sent or received.",
+      "chat": "Chat",
+      "chatEmpty": "No messages. If the sound drops, write here.",
+      "chatPlaceholder": "Write a message…",
+      "send": "Send",
+      "you": "You",
+      "patientInfo": "Patient details",
+      "closePanel": "Close",
+      "closingSoon": "The call room closes in {minutes, number} min.",
+      "quality": {
+        "weakYou": "Your connection is weak",
+        "weakPeer": "{name}'s connection is weak",
+        "lostPeer": "{name}'s connection was lost"
+      }
     }
   },
   "GymMemberships": {

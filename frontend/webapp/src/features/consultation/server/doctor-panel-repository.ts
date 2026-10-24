@@ -142,6 +142,8 @@ export async function listUpcomingSessions(doctorId: string): Promise<VideoSessi
     left join identity.asp_net_users u on u.id = s.patient_user_id
     where s.doctor_id = ${doctorId}::uuid
       and s.status <> all(${FINISHED_SESSION_STATUSES}::text[])
+      -- An unpaid request whose hold ran out has given its time back.
+      and not (s.status = 'awaiting_payment' and s.hold_expires_at <= now())
       and s.scheduled_at >= (date_trunc('day', now() at time zone 'Asia/Tehran') at time zone 'Asia/Tehran')
     order by s.scheduled_at asc
     limit ${UPCOMING_LIMIT}

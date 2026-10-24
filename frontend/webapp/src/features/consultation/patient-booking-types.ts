@@ -40,6 +40,8 @@ export type PatientVideoSessionListItem = {
 
 export type PatientVideoSession = PatientVideoSessionListItem & {
   priceLabel: string;
+  /** Whether the test payment button is on (development and staging only). */
+  testPayment: boolean;
   patientNote: string | null;
   attachments: VideoSessionAttachment[];
   /** The GP's write-up, once they have written it. */
@@ -61,4 +63,7 @@ export type BookingError =
   | "slotTaken"
   | "invalid"
   | "notJoinable"
+  | "alreadyPaid"
+  | "expired"
+  | "paymentUnavailable"
   | "loadFailed";

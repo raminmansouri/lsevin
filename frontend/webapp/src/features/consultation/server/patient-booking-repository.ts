@@ -13,11 +13,10 @@ export const UNPAID_HOLD_MINUTES = 15;
  * Sessions that occupy their time: anything booked or done, plus requests
  * still inside their unpaid hold.
  */
-const occupying = () => db`
+export const occupying = () => db`
   (
     vs.status in ('scheduled', 'in_progress', 'completed')
-    or (vs.status = 'awaiting_payment'
-        and vs.created_at > now() - make_interval(mins => ${UNPAID_HOLD_MINUTES}))
+    or (vs.status = 'awaiting_payment' and vs.hold_expires_at > now())
   )
 `;
 
@@ -108,13 +107,14 @@ export async function createVideoSessionIfFree(args: CreateArgs): Promise<string
       insert into consultation.video_sessions (
         doctor_id, patient_user_id, status, scheduled_at, duration_minutes,
         price_amount, price_currency, patient_name, patient_age, patient_gender,
-        patient_note, attachment_media_ids
+        patient_note, attachment_media_ids, hold_expires_at
       )
       select ${args.doctorId}::uuid, ${args.patientUserId}::uuid, 'awaiting_payment',
              ${args.scheduledAt}::timestamptz, ${args.durationMinutes},
              ${args.priceAmount}, ${args.priceCurrency}, ${args.patientName},
              ${args.patientAge}, ${args.patientGender}, ${args.patientNote},
-             ${args.attachmentMediaIds}::text[]
+             ${args.attachmentMediaIds}::text[],
+             now() + make_interval(mins => ${UNPAID_HOLD_MINUTES})
       where not exists (
         select 1 from consultation.video_sessions vs
         where vs.doctor_id = ${args.doctorId}::uuid
@@ -135,6 +135,8 @@ type PatientSessionRow = {
   scheduled_at: Date;
   duration_minutes: number;
   expired: boolean;
+  price_amount: string;
+  price_currency: string;
   patient_note: string | null;
   attachment_media_ids: string[] | null;
   summary_advice: string | null;
@@ -148,8 +150,8 @@ type PatientSessionRow = {
 
 const patientSessionSelect = () => db`
   select s.id::text as id, s.status, s.scheduled_at, s.duration_minutes,
-         (s.status = 'awaiting_payment'
-          and s.created_at <= now() - make_interval(mins => ${UNPAID_HOLD_MINUTES})) as expired,
+         (s.status = 'awaiting_payment' and s.hold_expires_at <= now()) as expired,
+         s.price_amount::text as price_amount, s.price_currency,
          s.patient_note, s.attachment_media_ids,
          s.summary_advice, s.summary_next_steps, s.summary_suggestion, s.summary_written_at,
          vd.name_fa as doctor_name_fa, vd.name_en as doctor_name_en,

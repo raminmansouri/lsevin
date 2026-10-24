@@ -5,6 +5,7 @@ import { useLocale, useTranslations } from "next-intl";
 
 import { useRouter } from "@/i18n/navigation";
 
+import type { CallCredentials } from "../call-types";
 import type { PatientVideoSessionListItem } from "../patient-booking-types";
 import { joinMyVideoSessionAction } from "../server/patient-booking";
 import { CallRoom, CallRoomMessage } from "./call-room";
@@ -16,7 +17,7 @@ export function PatientCallPage({ sessionId }: { sessionId: string }) {
   const t = useTranslations("Consultation.booking");
   const locale = useLocale();
   const router = useRouter();
-  const [session, setSession] = useState<PatientVideoSessionListItem | null>(null);
+  const [session, setSession] = useState<(PatientVideoSessionListItem & { call: CallCredentials | null }) | null>(null);
   const [error, setError] = useState<string | null>(null);
   const backHref = `/${locale}${SESSIONS_PATH}/${sessionId}`;
 
@@ -39,9 +40,11 @@ export function PatientCallPage({ sessionId }: { sessionId: string }) {
 
   return (
     <CallRoom
+      sessionId={sessionId}
       title={session.doctor.name}
       scheduledAt={session.scheduledAt}
       durationMinutes={session.durationMinutes}
+      call={session.call}
       onLeave={() => router.push(`${SESSIONS_PATH}/${sessionId}`)}
     />
   );

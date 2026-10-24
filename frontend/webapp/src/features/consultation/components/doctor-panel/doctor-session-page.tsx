@@ -63,10 +63,6 @@ export function DoctorSessionPage({ sessionId }: { sessionId: string }) {
     session.status === "scheduled" ||
     session.status === "in_progress" ||
     (session.status === "completed" && now <= callWindow.closesAt);
-  const about = [
-    session.patientAge != null ? t("age", { age: session.patientAge }) : null,
-    session.patientGender ? t(`gender.${session.patientGender}`) : null,
-  ].filter(Boolean);
   const canSummarize = session.status === "in_progress" || session.status === "completed";
 
   return (
@@ -114,45 +110,7 @@ export function DoctorSessionPage({ sessionId }: { sessionId: string }) {
           )}
         </div>
 
-        <section className="rounded-2xl bg-white p-4 shadow-sm">
-          <h2 className="font-bold text-gray-900">{t("patientTitle")}</h2>
-          <p className="mt-1 text-sm text-gray-700">
-            {[session.patientName, ...about].join(" · ")}
-          </p>
-          <h3 className="mt-4 text-sm font-bold text-gray-900">{t("patientNote")}</h3>
-          <p className="mt-1 whitespace-pre-wrap text-sm leading-6 text-gray-700">
-            {session.patientNote || t("noNote")}
-          </p>
-
-          <h3 className="mt-4 text-sm font-bold text-gray-900">{t("attachments")}</h3>
-          {session.attachments.length === 0 ? (
-            <p className="mt-1 text-sm text-gray-500">{t("noAttachments")}</p>
-          ) : (
-            <div className="mt-2 grid grid-cols-3 gap-2">
-              {session.attachments.map((file) => (
-                <a
-                  key={file.id}
-                  href={file.url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="flex aspect-square flex-col items-center justify-center overflow-hidden rounded-xl border border-gray-100 bg-gray-50 text-center"
-                >
-                  {file.mimeType.startsWith("image/") ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={file.url} alt={file.name} className="h-full w-full object-cover" />
-                  ) : (
-                    <>
-                      <Paperclip className="h-5 w-5 text-gray-500" aria-hidden />
-                      <span className="mt-1 line-clamp-2 px-1 text-[10px] text-gray-600">
-                        {file.name}
-                      </span>
-                    </>
-                  )}
-                </a>
-              ))}
-            </div>
-          )}
-        </section>
+        <PatientRequestDetails session={session} />
 
         <SummaryForm
           key={session.summaryWrittenAt ?? "new"}
@@ -165,7 +123,59 @@ export function DoctorSessionPage({ sessionId }: { sessionId: string }) {
   );
 }
 
-function SummaryForm({
+/** Who the patient is, what they wrote and the files they sent. */
+export function PatientRequestDetails({ session }: { session: VideoSessionDetail }) {
+  const t = useTranslations("Consultation.doctorPanel");
+  const about = [
+    session.patientAge != null ? t("age", { age: session.patientAge }) : null,
+    session.patientGender ? t(`gender.${session.patientGender}`) : null,
+  ].filter(Boolean);
+
+  return (
+    <section className="rounded-2xl bg-white p-4 shadow-sm">
+      <h2 className="font-bold text-gray-900">{t("patientTitle")}</h2>
+      <p className="mt-1 text-sm text-gray-700">
+        {[session.patientName, ...about].join(" · ")}
+      </p>
+      <h3 className="mt-4 text-sm font-bold text-gray-900">{t("patientNote")}</h3>
+      <p className="mt-1 whitespace-pre-wrap text-sm leading-6 text-gray-700">
+        {session.patientNote || t("noNote")}
+      </p>
+
+      <h3 className="mt-4 text-sm font-bold text-gray-900">{t("attachments")}</h3>
+      {session.attachments.length === 0 ? (
+        <p className="mt-1 text-sm text-gray-500">{t("noAttachments")}</p>
+      ) : (
+        <div className="mt-2 grid grid-cols-3 gap-2">
+          {session.attachments.map((file) => (
+            <a
+              key={file.id}
+              href={file.url}
+              target="_blank"
+              rel="noreferrer"
+              className="flex aspect-square flex-col items-center justify-center overflow-hidden rounded-xl border border-gray-100 bg-gray-50 text-center"
+            >
+              {file.mimeType.startsWith("image/") ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={file.url} alt={file.name} className="h-full w-full object-cover" />
+              ) : (
+                <>
+                  <Paperclip className="h-5 w-5 text-gray-500" aria-hidden />
+                  <span className="mt-1 line-clamp-2 px-1 text-[10px] text-gray-600">
+                    {file.name}
+                  </span>
+                </>
+              )}
+            </a>
+          ))}
+        </div>
+      )}
+    </section>
+  );
+}
+
+/** The GP's after-call write-up; also shown beside the call. */
+export function SummaryForm({
   session,
   enabled,
   onSaved,

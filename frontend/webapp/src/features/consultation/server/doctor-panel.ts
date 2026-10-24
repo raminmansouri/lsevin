@@ -8,10 +8,13 @@ import {
   type DoctorHistoryPage,
   type DoctorHour,
   type DoctorPanelOverview,
+  sessionCallWindow,
   type VideoSessionDetail,
 } from "../doctor-panel-types";
+import type { CallCredentials } from "../call-types";
 import type { ConsultationActionResult } from "../types";
 import { getSignedInDoctor } from "./doctor-guard";
+import { issueCallToken } from "./livekit";
 import {
   getDoctorPanelProfile,
   getSessionDetail,
@@ -149,7 +152,7 @@ export async function getDoctorSessionAction(
 /** Opens the call room: only inside its window, and only for this GP's session. */
 export async function joinDoctorSessionAction(
   sessionId: string
-): Promise<ConsultationActionResult<VideoSessionDetail>> {
+): Promise<ConsultationActionResult<VideoSessionDetail & { call: CallCredentials | null }>> {
   const doctor = await getSignedInDoctor();
   if (!doctor) return fail("forbidden");
   const id = SessionIdSchema.safeParse(sessionId);
@@ -160,7 +163,15 @@ export async function joinDoctorSessionAction(
     if (!canJoinSession(session)) return fail("notJoinable");
     await markSessionStarted(doctor.doctorId, id.data);
     const started = await getSessionDetail(doctor.doctorId, id.data);
-    return started ? { ok: true, data: started } : fail("notFound");
+    if (!started) return fail("notFound");
+    // Only now, with the GP and the time checked, is a call token signed.
+    const call = await issueCallToken({
+      sessionId: id.data,
+      identity: `doctor-${doctor.doctorId}`,
+      role: "doctor",
+      closesAt: sessionCallWindow(started).closesAt,
+    });
+    return { ok: true, data: { ...started, call } };
   } catch (error) {
     return fail("loadFailed", error);
   }

@@ -2,9 +2,11 @@ import { PatientSessionPage } from "@/features/consultation/components/patient-s
 
 export default async function ConsultationSessionRoute({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ payment?: string }>;
 }) {
-  const { id } = await params;
-  return <PatientSessionPage sessionId={id} />;
+  const [{ id }, { payment }] = await Promise.all([params, searchParams]);
+  return <PatientSessionPage sessionId={id} payment={payment} />;
 }

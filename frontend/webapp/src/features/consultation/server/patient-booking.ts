@@ -3,6 +3,9 @@
 import { getLocale } from "next-intl/server";
 import { z } from "zod/v4";
 
+import { formatMoney } from "@/features/finance/lib/money";
+import { resolveIsIranianVisitor } from "@/features/finance/lib/server/iranian-visitor";
+import { resolveDisplayPrice } from "@/features/finance/lib/server/toman-price";
 import { getSession } from "@/lib/auth/session";
 
 import {
@@ -14,6 +17,7 @@ import {
   type PatientVideoSessionListItem,
   type PatientVideoSessionLists,
 } from "../patient-booking-types";
+import type { CallCredentials } from "../call-types";
 import { canJoinSession, sessionCallWindow } from "../doctor-panel-types";
 import type { ConsultationActionResult } from "../types";
 import {
@@ -27,7 +31,9 @@ import {
 } from "./patient-booking-repository";
 import { getVideoConsultationSettings } from "./repository";
 import { getVideoConsultationOfferAction } from "./video-offer";
+import { issueCallToken } from "./livekit";
 import { listPublicVideoDoctors } from "./video-doctors-repository";
+import { payVideoSessionForTest, startVideoSessionPayment, testPaymentEnabled } from "./video-payment";
 
 function fail<T>(code: BookingError, error?: unknown): ConsultationActionResult<T> {
   if (error) console.error(`[consultation] booking: ${code}`, error);
@@ -100,8 +106,8 @@ const CreateSchema = z.object({
 });
 
 /**
- * Sends the request: books the chosen time as an unpaid request at the price
- * and length the admin set. The time is re-checked under a lock, so a slot
+ * Sends the request: books the chosen time as an unpaid request at the length
+ * the admin set and the price this visitor was shown (Toman for Iran). The time is re-checked under a lock, so a slot
  * someone else just took comes back as "slotTaken".
  */
 export async function createVideoSessionAction(
@@ -131,13 +137,18 @@ export async function createVideoSessionAction(
     const wanted = new Date(values.scheduledAt).toISOString();
     if (!slots.includes(wanted)) return fail("slotTaken");
 
+    const price = resolveDisplayPrice(
+      { value: settings.priceAmount, currency: settings.priceCurrency },
+      settings.priceToman,
+      await resolveIsIranianVisitor()
+    );
     const id = await createVideoSessionIfFree({
       doctorId: values.doctorId,
       patientUserId: userId,
       scheduledAt: wanted,
       durationMinutes: settings.durationMinutes,
-      priceAmount: settings.priceAmount,
-      priceCurrency: settings.priceCurrency,
+      priceAmount: price.value,
+      priceCurrency: price.currency,
       patientName: values.patientName,
       patientAge: values.patientAge ?? null,
       patientGender: values.patientGender,
@@ -178,19 +189,22 @@ export async function getMyVideoSessionAction(
   try {
     const row = await getPatientSession(userId, id.data);
     if (!row) return fail("notFound");
-    const [locale, offer, files] = await Promise.all([
+    const [locale, files, testPayment] = await Promise.all([
       getLocale(),
-      getVideoConsultationOfferAction(),
       getMediaFiles(row.attachment_media_ids ?? []),
+      testPaymentEnabled(),
     ]);
     const persian = locale.toLowerCase().startsWith("fa");
     return {
       ok: true,
       data: {
         ...toPatientListItem(row, persian),
-        // Shown the way the home card shows it to this visitor (Toman for Iran);
-        // the amount actually charged is settled by the payment step.
-        priceLabel: offer.priceLabel,
+        // The price fixed at booking, which is what the payment charges.
+        priceLabel: formatMoney(
+          { amount: Number(row.price_amount), currencyCode: row.price_currency },
+          { locale }
+        ),
+        testPayment,
         patientNote: row.patient_note,
         attachments: files.map((file) => ({
           id: file.id,
@@ -246,10 +260,13 @@ export async function listMyVideoSessionsAction(): Promise<
   }
 }
 
-/** Lets the patient into the call room: their own session, paid, inside its window. */
+/**
+ * Lets the patient into the call room: their own session, paid, inside its
+ * window. Only then is a call token signed for them.
+ */
 export async function joinMyVideoSessionAction(
   sessionId: string
-): Promise<ConsultationActionResult<PatientVideoSessionListItem>> {
+): Promise<ConsultationActionResult<PatientVideoSessionListItem & { call: CallCredentials | null }>> {
   const userId = await signedInUserId();
   if (!userId) return fail("signIn");
   const id = DoctorIdSchema.safeParse(sessionId);
@@ -260,8 +277,53 @@ export async function joinMyVideoSessionAction(
     const locale = await getLocale();
     const item = toPatientListItem(row, locale.toLowerCase().startsWith("fa"));
     if (!canJoinSession(item)) return fail("notJoinable");
-    return { ok: true, data: item };
+    const call = await issueCallToken({
+      sessionId: item.id,
+      identity: `patient-${userId}`,
+      role: "patient",
+      closesAt: sessionCallWindow(item).closesAt,
+    });
+    return { ok: true, data: { ...item, call } };
   } catch (error) {
     return fail("loadFailed", error);
+  }
+}
+
+/**
+ * Starts paying for one of the patient's own unpaid requests and returns the
+ * gateway page to send them to.
+ */
+export async function payMyVideoSessionAction(
+  sessionId: string
+): Promise<ConsultationActionResult<{ redirectUrl: string }>> {
+  const userId = await signedInUserId();
+  if (!userId) return fail("signIn");
+  const id = DoctorIdSchema.safeParse(sessionId);
+  if (!id.success) return fail("notFound");
+  try {
+    const locale = (await getLocale()).split("-")[0] || "fa";
+    const result = await startVideoSessionPayment({ sessionId: id.data, userId, locale });
+    if ("error" in result) return fail(result.error);
+    return { ok: true, data: result };
+  } catch (error) {
+    return fail("paymentUnavailable", error);
+  }
+}
+
+/** The test payment (development and staging only): confirms without the gateway. */
+export async function testPayMyVideoSessionAction(
+  sessionId: string
+): Promise<ConsultationActionResult<{ outcome: string }>> {
+  const userId = await signedInUserId();
+  if (!userId) return fail("signIn");
+  const id = DoctorIdSchema.safeParse(sessionId);
+  if (!id.success) return fail("notFound");
+  try {
+    const locale = (await getLocale()).split("-")[0] || "fa";
+    const result = await payVideoSessionForTest({ sessionId: id.data, userId, locale });
+    if ("error" in result) return fail(result.error);
+    return { ok: true, data: result };
+  } catch (error) {
+    return fail("paymentUnavailable", error);
   }
 }
