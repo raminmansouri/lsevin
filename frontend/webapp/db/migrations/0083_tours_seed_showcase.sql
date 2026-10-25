@@ -58,8 +58,8 @@ begin
   insert into category.service_providers (id, name_translations, description_translations, is_active, provider_type_id, city, country,
                                           email, phone_number_country_code, phone_number, accredited, timezone_id)
   values (v_provider,
-          '{"fa-IR":"تورهای لوین","en-US":"Lsevin Tours","ar-SA":"جولات لسوين","tr-TR":"Lsevin Turları"}',
-          '{"fa-IR":"تورهای منتخب لوین با راهنمای محلی","en-US":"Lsevin''s own guided tours with local guides"}',
+          '{"fa-IR":"تورهای السوین","en-US":"Lsevin Tours","ar-SA":"جولات لسوين","tr-TR":"Lsevin Turları"}',
+          '{"fa-IR":"تورهای منتخب السوین با راهنمای محلی","en-US":"Lsevin''s own guided tours with local guides"}',
           true, v_type, 'SHIRAZ', 'IR', 'tours@lsevin.com', '+98', '0000000000', true, 'Asia/Tehran')
   on conflict (id) do nothing;
 
