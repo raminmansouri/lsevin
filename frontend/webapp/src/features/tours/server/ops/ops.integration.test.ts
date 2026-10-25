@@ -729,6 +729,12 @@ suite("tours ops (real database)", () => {
   // --------------------------------------------------------------------------
 
   it("sweeper completes ended departures and bookings, expires tracking, purges points past retention; one worker at a time", async () => {
+    // The shared test database accumulates ended fixture departures from earlier runs, and a sweep
+    // completes at most 200 per tick (oldest first). Drain that backlog before D ends, so the
+    // asserted sweep below is guaranteed to reach D.
+    for (let i = 0; i < 50; i += 1) {
+      if (((await sweeper.runToursSweep()).departuresCompleted ?? 0) < 200) break;
+    }
     const { owner, t } = await world();
     const c = await seedUser(sql);
     const b = await bookOnce(t, c.id);
