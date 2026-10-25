@@ -193,7 +193,8 @@ test("request-to-book shows the pending state with its expiry", async ({ page, c
   await page.goto(bookUrl("en", tour.slug, tour.departureIds[0]));
   await fillAndConfirm(page);
   await expect(page.getByTestId("booking-result")).toHaveAttribute("data-status", "requested");
-  await expect(page.getByTestId("request-pending")).toContainText("expires");
+  // The deadline and what happens when it passes (no reply → cancelled, nothing charged).
+  await expect(page.getByTestId("request-pending")).toContainText(/reply by .+ cancelled and you pay nothing/);
   await page.getByTestId("view-voucher").click();
   await expect(page.getByTestId("voucher")).toHaveAttribute("data-status", "requested");
   await expect(page.getByTestId("qr-pending")).toBeVisible();
