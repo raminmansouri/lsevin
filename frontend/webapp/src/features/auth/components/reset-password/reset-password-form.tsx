@@ -64,7 +64,11 @@ const ResetPasswordForm = ({ identifier }: { identifier: string }) => {
   return (
     <ZodErrorProvider componentNamespace={TRANSLATION_KEY}>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} autoComplete="off">
+        <form
+          method="post"
+          onSubmit={form.handleSubmit(onSubmit)}
+          autoComplete="off"
+        >
           <AuthFormContainer>
             <FormField
               control={form.control}
@@ -92,7 +96,11 @@ const ResetPasswordForm = ({ identifier }: { identifier: string }) => {
                 <FormItem className="flex flex-col items-start">
                   <FormLabel>{t("form.newPassword.label")}</FormLabel>
                   <FormControl className="w-full">
-                    <PasswordInput placeholder="*******" {...field} />
+                    <PasswordInput
+                      placeholder="*******"
+                      autoComplete="new-password"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -106,7 +114,11 @@ const ResetPasswordForm = ({ identifier }: { identifier: string }) => {
                 <FormItem className="flex flex-col items-start">
                   <FormLabel>{t("form.confirmPassword.label")}</FormLabel>
                   <FormControl className="w-full">
-                    <PasswordInput placeholder="*******" {...field} />
+                    <PasswordInput
+                      placeholder="*******"
+                      autoComplete="new-password"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

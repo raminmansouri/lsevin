@@ -209,9 +209,9 @@ export default function PrivacySecurityPageClient({ initialData }: Props) {
         <section className="rounded-xl border border-gray-200 bg-white p-4">
           <h3 className="mb-4 font-bold text-gray-900">{t("changePassword")}</h3>
           <div className="space-y-4">
-            <InputRow label={t("currentPassword")} type={showCurrentPassword ? "text" : "password"} value={currentPassword} onChange={setCurrentPassword} placeholder={t("enterCurrentPassword")} icon={<Lock size={18} />} toggle={<button type="button" onClick={() => setShowCurrentPassword((v) => !v)}>{showCurrentPassword ? <EyeOff size={18} /> : <Eye size={18} />}</button>} />
-            <InputRow label={t("newPassword")} type={showNewPassword ? "text" : "password"} value={newPassword} onChange={setNewPassword} placeholder={t("enterNewPassword")} icon={<Lock size={18} />} toggle={<button type="button" onClick={() => setShowNewPassword((v) => !v)}>{showNewPassword ? <EyeOff size={18} /> : <Eye size={18} />}</button>} />
-            <InputRow label={t("confirmNewPassword")} type={showConfirmPassword ? "text" : "password"} value={confirmPassword} onChange={setConfirmPassword} placeholder={t("reenterNewPassword")} icon={<Lock size={18} />} toggle={<button type="button" onClick={() => setShowConfirmPassword((v) => !v)}>{showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}</button>} />
+            <InputRow label={t("currentPassword")} type={showCurrentPassword ? "text" : "password"} value={currentPassword} onChange={setCurrentPassword} placeholder={t("enterCurrentPassword")} autoComplete="current-password" icon={<Lock size={18} />} toggle={<button type="button" onClick={() => setShowCurrentPassword((v) => !v)} aria-label={showCurrentPassword ? t("hidePassword") : t("showPassword")}>{showCurrentPassword ? <EyeOff size={18} aria-hidden="true" /> : <Eye size={18} aria-hidden="true" />}</button>} />
+            <InputRow label={t("newPassword")} type={showNewPassword ? "text" : "password"} value={newPassword} onChange={setNewPassword} placeholder={t("enterNewPassword")} autoComplete="new-password" icon={<Lock size={18} />} toggle={<button type="button" onClick={() => setShowNewPassword((v) => !v)} aria-label={showNewPassword ? t("hidePassword") : t("showPassword")}>{showNewPassword ? <EyeOff size={18} aria-hidden="true" /> : <Eye size={18} aria-hidden="true" />}</button>} />
+            <InputRow label={t("confirmNewPassword")} type={showConfirmPassword ? "text" : "password"} value={confirmPassword} onChange={setConfirmPassword} placeholder={t("reenterNewPassword")} autoComplete="new-password" icon={<Lock size={18} />} toggle={<button type="button" onClick={() => setShowConfirmPassword((v) => !v)} aria-label={showConfirmPassword ? t("hidePassword") : t("showPassword")}>{showConfirmPassword ? <EyeOff size={18} aria-hidden="true" /> : <Eye size={18} aria-hidden="true" />}</button>} />
             <button type="button" disabled={isPending} onClick={() => runAction(async () => {
               await changePassword({ currentPassword, newPassword, confirmPassword });
               setCurrentPassword("");
@@ -320,13 +320,13 @@ export default function PrivacySecurityPageClient({ initialData }: Props) {
   );
 }
 
-function InputRow({ label, type, value, onChange, placeholder, icon, toggle }: { label: string; type: string; value: string; onChange: (value: string) => void; placeholder: string; icon: React.ReactNode; toggle: React.ReactNode; }) {
+function InputRow({ label, type, value, onChange, placeholder, autoComplete, icon, toggle }: { label: string; type: string; value: string; onChange: (value: string) => void; placeholder: string; autoComplete?: string; icon: React.ReactNode; toggle: React.ReactNode; }) {
   return (
     <label className="block space-y-2">
       <span className="text-sm font-semibold text-gray-900">{label}</span>
       <div className="relative">
         <div className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">{icon}</div>
-        <input type={type} value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} className="h-12 w-full rounded-xl border-2 border-gray-300 pl-11 pr-12 focus:border-[#083f30] focus:outline-none" />
+        <input type={type} value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} autoComplete={autoComplete} className="h-12 w-full rounded-xl border-2 border-gray-300 pl-11 pr-12 focus:border-[#083f30] focus:outline-none" />
         <div className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500">{toggle}</div>
       </div>
     </label>

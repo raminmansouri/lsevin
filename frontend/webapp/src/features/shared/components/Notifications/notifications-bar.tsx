@@ -21,7 +21,7 @@ export default function NotificationsBar({ variant = "default" }: Props) {
 
   return (
     <Link href="/n/app/mobile/notifications" aria-label={t("notifications")}>
-      <IconButton icon={<Bell size={20} />} badge={badge} variant={variant} />
+      <IconButton as="span" icon={<Bell size={20} aria-hidden="true" />} badge={badge} variant={variant} />
     </Link>
   );
 }
