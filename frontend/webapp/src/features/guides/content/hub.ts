@@ -90,7 +90,7 @@ export const guide: Guide = {
           id: "travel-safety",
           heading: "وضعیت سفر و ایمنی (به‌روز شده در ۴ آبان ۱۴۰۵)",
           paragraphs: [
-            "منطقه در سال ۲۰۲۶ درگیر جنگ و تنش بوده است. تا ۲۶ اکتبر ۲۰۲۶، وزارت خارجهٔ بریتانیا سفر به ایران را توصیه نمی‌کند و دولت کانادا نیز توصیهٔ «پرهیز از هرگونه سفر» را منتشر کرده است. پزشکان بدون مرز در اردیبهشت ۱۴۰۵ گزارش داد که آتش‌بس تا حدی وضع را بهتر کرده اما دسترسی به برخی داروها هنوز شکننده است.",
+            "منطقه در سال ۲۰۲۶ درگیر جنگ و تنش بوده است. تا ۲۶ اکتبر ۲۰۲۶، وزارت خارجهٔ بریتانیا سفر به ایران را توصیه نمی‌کند و دولت کانادا نیز توصیهٔ «پرهیز از هرگونه سفر» را منتشر کرده است.",
             "پیش از رزرو، آخرین هشدارهای سفر کشور خودتان را بررسی کنید و از بیمه‌گر بپرسید سفرتان را پوشش می‌دهد یا نه. السوین دربارهٔ امن بودن سفر حکم نمی‌دهد و در صورت تغییر شرایط، زمان‌بندی را با شما بازنگری می‌کند.",
           ],
         },
@@ -233,7 +233,7 @@ export const guide: Guide = {
           id: "travel-safety",
           heading: "وضع السفر والسلامة (محدّث في 26 أكتوبر 2026)",
           paragraphs: [
-            "شهدت المنطقة حرباً وتوتراً في 2026. حتى 26 أكتوبر 2026 تنصح وزارة الخارجية البريطانية بعدم السفر إلى ايران، كما تنصح الحكومة الكندية بتجنب كل السفر إليها. وذكرت منظمة أطباء بلا حدود في أبريل 2026 أن وقف إطلاق النار خفف الوضع جزئياً، لكن الوصول إلى بعض الأدوية ما زال هشاً.",
+            "شهدت المنطقة حرباً وتوتراً في 2026. حتى 26 أكتوبر 2026 تنصح وزارة الخارجية البريطانية بعدم السفر إلى ايران، كما تنصح الحكومة الكندية بتجنب كل السفر إليها.",
             "قبل الحجز راجع أحدث تحذيرات السفر الصادرة عن حكومة بلدك، واسأل شركة التأمين إن كانت تغطي رحلتك. لا تصدر لسوين حكماً بأن السفر آمن، وتعيد معك جدولة الرحلة إذا تغيرت الظروف.",
           ],
         },
@@ -376,7 +376,7 @@ export const guide: Guide = {
           id: "travel-safety",
           heading: "Travel and safety status (checked 26 October 2026)",
           paragraphs: [
-            "The region saw war and tension in 2026. As of 26 October 2026, the UK Foreign Office advises against all travel to Iran and the Government of Canada says to avoid all travel. MSF reported in April 2026 that a ceasefire had brought some relief but that access to some medicines remained fragile.",
+            "The region saw war and tension in 2026. As of 26 October 2026, the UK Foreign Office advises against all travel to Iran and the Government of Canada says to avoid all travel.",
             "Before you book, read your own government's latest travel advisory and ask your insurer whether you are covered. LSevin does not declare travel safe, and will help you reschedule if conditions change.",
           ],
         },
