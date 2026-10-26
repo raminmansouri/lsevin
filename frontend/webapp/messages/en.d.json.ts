@@ -1905,7 +1905,7 @@ declare const messages: {
     "keepTheseAsValidJSONObjects": "Keep these as valid JSON objects.",
     "key": "Key",
     "l7": "L 7",
-    "lSevinAdmin": "L Sevin Admin",
+    "lSevinAdmin": "LSevin Admin",
     "label": "Label",
     "labels": "Labels",
     "language": "Language",
@@ -4477,7 +4477,7 @@ declare const messages: {
     }
   },
   "LocaleLayout": {
-    "title": "L Sevin",
+    "title": "LSevin",
     "description": "Automated healthcare platform that streamlines patient scheduling from hotel stays to medical appointments"
   },
   "SpecialistPage": {
@@ -5564,8 +5564,8 @@ declare const messages: {
     }
   },
   "HomePage": {
-    "title": "L Sevin - Automated Healthcare",
-    "description": "Streamlining patient scheduling from hotel stays to medical appointments",
+    "title": "LSevin | Book Doctors, Clinics & Medical Hotels in Iran",
+    "description": "Plan treatment in Iran in one place: book specialists and clinics, medical hotels near hospitals, in-hotel care and a free consultation with LSevin.",
     "keywords": "automation healthcare,healthcare automation,medical tourism,medical booking",
     "heroTitle": "Experience the Best Medical Services with Us",
     "heroDescription": "On the journey to wellness, we bring you the best medical services with a team of top specialists, advanced equipment, and a safe, relaxing environment committed to high-quality treatment and exceptional care.",

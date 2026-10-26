@@ -59,7 +59,7 @@ declare const messages: {
     "uploadedBadge": "Yüklendi"
   },
   "Manifest": {
-    "name": "L Sevin",
+    "name": "LSevin",
     "actions": {
       "addResource": "Kaynak ekle",
       "addRule": "Kural ekle",
@@ -339,7 +339,7 @@ declare const messages: {
     }
   },
   "LocaleLayout": {
-    "title": "L Sevin",
+    "title": "LSevin",
     "description": "Otel konaklamasından tıbbi randevulara kadar hasta planlamasını kolaylaştıran otomatikleştirilmiş sağlık platformu"
   },
   "Error": {
@@ -569,7 +569,7 @@ declare const messages: {
     "consultationRequests": "Danışmanlık talepleri"
   },
   "HomePage": {
-    "title": "L Sevin - Otomatikleştirilmiş Sağlık",
+    "title": "LSevin | İran'da Doktor, Klinik ve Sağlık Oteli Rezervasyonu",
     "description": "Otel konaklamasından tıbbi randevulara kadar hasta planlamasını kolaylaştırma",
     "keywords": "otomasyon sağlık,sağlık otomasyonu,medikal turizm,tıbbi rezervasyon",
     "heroTitle": "En İyi Tıbbi Hizmetleri Bizimle Deneyimleyin",

@@ -228,7 +228,7 @@
     "low": "Паст",
     "loyaltyMembers": "Аъзои барномаи вафодорӣ",
     "loyaltyTiers": "Сатҳҳои вафодорӣ",
-    "lSevinAdmin": "Админи L Sevin",
+    "lSevinAdmin": "Админи LSevin",
     "lucasGarcia": "Лукас Гарсия",
     "luxurySpaAndWellness": "Спа ва саломатии люксӣ",
     "mainButtonLabel": "Матни тугмаи асосӣ",
@@ -5083,7 +5083,7 @@
       "view": "Дидан",
       "viewAll": "Ҳамаро дидан"
     },
-    "title": "L Sevin - Тандурустии худкор"
+    "title": "LSevin | Табобат дар Эрон: духтурон, клиникаҳо ва меҳмонхонаҳо"
   },
   "LazySelect": {
     "emptyText": "Натиҷа ёфт нашуд.",
@@ -5096,7 +5096,7 @@
   },
   "LocaleLayout": {
     "description": "Платформаи худкори тандурустӣ, ки ҷадвали беморонро аз иқомат дар меҳмонхона то қабули духтур ба тартиб медарорад",
-    "title": "L Sevin"
+    "title": "LSevin"
   },
   "LocaleSwitcher": {
     "ar": "العربية",
