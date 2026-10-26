@@ -4,12 +4,18 @@ import Image from "next/image";
 import { ArrowLeft, ChevronLeft, Search, Sparkles } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
-import { categoryBrowserHref, categoryCardHref, categoryProvidersHref } from "@/features/categories/utils/category-href";
+import {
+  categoryBrowserHref,
+  categoryCardHref,
+  categoryProvidersHref,
+  isTourismCategory,
+  TOURS_HOME_PATH,
+} from "@/features/categories/utils/category-href";
 import type { CategoryBrowserCategory, CategoryBrowserGroup } from "@/features/service-providers/actions/categories/get-category-browser-groups";
 import { buildCategoryImageSrc, sortCategories } from "@/features/service-providers/components/categories/category-browser-client";
-import { Link } from "@/i18n/navigation";
+import { Link, useRouter } from "@/i18n/navigation";
 
 import { Reveal, Tilt } from "../components/motion";
 
@@ -40,7 +46,7 @@ function plainText(value?: string | null): string {
   }
 }
 
-function Room({ category, index, span }: { category: CategoryBrowserCategory; index: number; span: string }) {
+function Room({ category, index, span, href }: { category: CategoryBrowserCategory; index: number; span: string; href: string }) {
   const t = useTranslations("CategoryBrowser");
   const locale = useLocale();
   const image = buildCategoryImageSrc(category.image);
@@ -48,7 +54,7 @@ function Room({ category, index, span }: { category: CategoryBrowserCategory; in
 
   return (
     <Reveal delay={(index % 4) * 70} className={span}>
-      <Link href={categoryCardHref(category)} className="group block h-full">
+      <Link href={href} className="group block h-full">
         <Tilt max={5} className="h-full">
           <div className="relative h-full overflow-hidden rounded-[30px] bg-[#062a20]">
             {image ? (
@@ -84,11 +90,11 @@ function Room({ category, index, span }: { category: CategoryBrowserCategory; in
   );
 }
 
-function RoomWall({ categories }: { categories: CategoryBrowserCategory[] }) {
+function RoomWall({ categories, hrefFor }: { categories: CategoryBrowserCategory[]; hrefFor: (category: CategoryBrowserCategory) => string }) {
   return (
     <div className="grid grid-flow-dense auto-rows-[230px] grid-cols-12 gap-5">
       {categories.map((category, index) => (
-        <Room key={category.id} category={category} index={index} span={ROOM_SPANS[index % ROOM_SPANS.length]} />
+        <Room key={category.id} category={category} index={index} span={ROOM_SPANS[index % ROOM_SPANS.length]} href={hrefFor(category)} />
       ))}
     </div>
   );
@@ -99,10 +105,13 @@ export function DesktopCategoryBrowser({
   categoryGroups,
   totalCategories,
   totalProviders,
+  tourismCategoryId = null,
 }: {
   categoryGroups: CategoryBrowserGroup[];
   totalCategories: number;
   totalProviders: number;
+  /** Tourism root from tour settings: Tourism opens the Tours app instead of a category screen. */
+  tourismCategoryId?: string | null;
 }) {
   const t = useTranslations("CategoryBrowser");
   const locale = useLocale();
@@ -112,6 +121,16 @@ export function DesktopCategoryBrowser({
   const all = useMemo(() => categoryGroups.flatMap((group) => group.categories), [categoryGroups]);
   const byId = useMemo(() => new Map(all.map((category) => [category.id, category])), [all]);
   const current = parentId ? byId.get(parentId) ?? null : null;
+  const router = useRouter();
+  const parentOf = (id: string) => byId.get(id)?.parentId;
+  const hrefFor = (category: CategoryBrowserCategory) => categoryCardHref(category, { tourismCategoryId, parentOf });
+
+  // Tourism has no category screen of its own: the Tours app is its home.
+  useEffect(() => {
+    if (current && isTourismCategory(current.id, (id) => byId.get(id)?.parentId, tourismCategoryId)) {
+      router.replace(TOURS_HOME_PATH);
+    }
+  }, [byId, current, router, tourismCategoryId]);
 
   // Breadcrumb from the root down to the current category.
   const path = useMemo(() => {
@@ -217,13 +236,13 @@ export function DesktopCategoryBrowser({
       <section className="lsd-container mt-14 space-y-16">
         {normalized ? (
           results.length ? (
-            <RoomWall categories={results} />
+            <RoomWall categories={results} hrefFor={hrefFor} />
           ) : (
             <p className="py-16 text-center text-lg text-[#56675f]">{t("cantFindTitle")}</p>
           )
         ) : current ? (
           children.length ? (
-            <RoomWall categories={children} />
+            <RoomWall categories={children} hrefFor={hrefFor} />
           ) : (
             <div className="py-16 text-center">
               <Link href={categoryProvidersHref(current.id)} className="lsd-btn lsd-btn-green h-14 px-8">
@@ -239,7 +258,7 @@ export function DesktopCategoryBrowser({
                 <h2 className="lsd-heading text-4xl font-black text-[#0e1a16]">{group.title}</h2>
                 <span className="text-sm text-[#56675f]">{t("categoriesCount", { count: group.categories.length })}</span>
               </Reveal>
-              <RoomWall categories={group.categories} />
+              <RoomWall categories={group.categories} hrefFor={hrefFor} />
             </div>
           ))
         )}

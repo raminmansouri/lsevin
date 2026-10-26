@@ -50,6 +50,7 @@ export default async function CategoryBrowserPage({
           categoryGroups={data.groups}
           totalCategories={data.totalCategories}
           totalProviders={data.totalProviders}
+          tourismCategoryId={tourismCategoryId}
         />
         <SponsoredPlacementSlot locale={locale} placement="categories" />
       </div>
