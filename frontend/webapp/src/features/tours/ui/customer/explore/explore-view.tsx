@@ -279,7 +279,9 @@ export function ExploreView({
         <p className="text-sm font-medium text-slate-700" aria-live="polite" data-testid="results-count">
           {t("results", { count: results.total })}
         </p>
-        <div className="flex items-center gap-2">
+        {/* min-w-0 + a shrinkable select: the longest sort label used to force this row past
+            a 360px phone and widen the whole page (horizontal scroll). */}
+        <div className="flex min-w-0 max-w-full items-center gap-2">
           <label htmlFor={sortId} className="sr-only">
             {t("sort")}
           </label>
@@ -288,7 +290,7 @@ export function ExploreView({
             value={current.sort ?? "relevance"}
             data-testid="sort-select"
             onChange={(e) => go(withChange({ sort: e.target.value === "relevance" ? "" : e.target.value }))}
-            className="min-h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:outline-none"
+            className="min-h-11 min-w-0 max-w-[13rem] truncate rounded-xl border border-slate-200 bg-white px-3 text-sm focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:outline-none"
           >
             {SORTS.map((s) => (
               <option key={s} value={s}>
@@ -296,14 +298,14 @@ export function ExploreView({
               </option>
             ))}
           </select>
-          <div role="group" aria-label={`${t("listView")} / ${t("mapView")}`} className="flex rounded-xl border border-slate-200 bg-white p-0.5">
+          <div role="group" aria-label={`${t("listView")} / ${t("mapView")}`} className="flex shrink-0 rounded-xl border border-slate-200 bg-white p-0.5">
             <Link
               href={href(current, { keepView: false })}
               aria-current={view === "list" ? "true" : undefined}
               className={cn("flex min-h-10 items-center gap-1 rounded-lg px-2.5 text-sm", view === "list" ? "bg-emerald-50 font-semibold text-emerald-800" : "text-slate-600")}
             >
               <List className="size-4" aria-hidden="true" />
-              {t("listView")}
+              <span className="sr-only sm:not-sr-only">{t("listView")}</span>
             </Link>
             <Link
               href={`${href(current, { keepView: false })}${Object.keys(current).length ? "&" : "?"}view=map`}
@@ -312,7 +314,7 @@ export function ExploreView({
               className={cn("flex min-h-10 items-center gap-1 rounded-lg px-2.5 text-sm", view === "map" ? "bg-emerald-50 font-semibold text-emerald-800" : "text-slate-600")}
             >
               <MapIcon className="size-4" aria-hidden="true" />
-              {t("mapView")}
+              <span className="sr-only sm:not-sr-only">{t("mapView")}</span>
             </Link>
           </div>
         </div>

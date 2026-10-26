@@ -43,6 +43,13 @@ function Rail({ children, label }: { children: React.ReactNode; label: string })
   );
 }
 
+/** CC BY-SA requires the visible credit (public/images/tours/CREDITS.json). */
+const HOME_HERO = {
+  src: "/images/tours/isfahan-naqsh-e-jahan.webp",
+  credit: "Amir Pashaei · CC BY-SA 4.0",
+  source: "https://commons.wikimedia.org/wiki/File:Naqsh-e_Jahan_Square_from_the_gheisariye_Vault.jpg",
+};
+
 export function HeroSearch({ defaultValue = "", compact = false }: { defaultValue?: string; compact?: boolean }) {
   const t = useTranslations("TourApp.home");
   const router = useRouter();
@@ -110,7 +117,8 @@ export function ToursHome({
   const saved = new Set(savedIds);
   const hero = modules.find((m) => m.kind === "hero");
   const collections = modules.filter((m) => m.kind === "collection" || m.kind === "offers");
-  const heroImage = hero?.imageUrl ?? destinations.find((d) => d.coverUrl)?.coverUrl ?? null;
+  // Without a published editorial hero, use a fixed licensed photo rather than whatever destination comes first.
+  const heroImage = hero?.imageUrl ?? HOME_HERO.src;
   const nothing = recent.length === 0 && discovery.length === 0 && destinations.length === 0 && offers.length === 0 && collections.length === 0;
 
   function clearHistory() {
@@ -128,7 +136,7 @@ export function ToursHome({
 
   return (
     <div className="space-y-8 pb-6">
-      {/* Hero (C-010): admin hero module when published, otherwise a real destination image. */}
+      {/* Hero (C-010): admin hero module when published, otherwise a licensed photo of Naqsh-e Jahan Square. */}
       <section aria-labelledby="tours-hero-title" className="relative overflow-hidden md:mx-6 md:mt-4 md:rounded-3xl">
         <TourImage src={heroImage} alt="" className="absolute inset-0 h-full w-full" eager />
         <div className="absolute inset-0 bg-gradient-to-b from-emerald-950/70 via-emerald-900/40 to-slate-50 md:to-emerald-950/30" />
@@ -143,6 +151,14 @@ export function ToursHome({
           <div className="max-w-xl">
             <HeroSearch />
           </div>
+          {hero?.imageUrl ? null : (
+            <p className="mt-2 text-end text-[10px] text-slate-500" data-testid="tours-hero-credit">
+              {t("home.heroPhotoPlace")} ·{" "}
+              <a href={HOME_HERO.source} target="_blank" rel="noopener noreferrer" className="hover:underline">
+                {HOME_HERO.credit}
+              </a>
+            </p>
+          )}
         </div>
       </section>
 

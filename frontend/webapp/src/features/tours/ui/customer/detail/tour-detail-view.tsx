@@ -387,7 +387,6 @@ export function TourDetailView({
                   {policy.lateArrivalMinutes != null ? <li>{td("policies.lateArrival", { minutes: formatNumber(policy.lateArrivalMinutes, locale) })}</li> : null}
                   {f.minParticipants > 1 ? <li>{td("policies.minParticipants", { count: f.minParticipants })}</li> : null}
                 </ul>
-                <p className="mt-2 text-xs text-slate-500">{td("policies.version", { version: formatNumber(policy.version, locale) })}</p>
               </div>
             ) : (
               <p className="text-sm text-slate-600">{td("policies.none")}</p>

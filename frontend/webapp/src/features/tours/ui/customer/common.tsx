@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ImageOff } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 
@@ -134,6 +134,13 @@ export function TourImage({
 }) {
   const t = useTranslations("TourApp.card");
   const [failed, setFailed] = useState(false);
+  const imgRef = useRef<HTMLImageElement>(null);
+  // A server-rendered <img> can fail before hydration attaches onError; the browser then never
+  // re-fires the event and the broken-image icon stays. Re-check once mounted.
+  useEffect(() => {
+    const img = imgRef.current;
+    if (img && img.complete && img.naturalWidth === 0) setFailed(true);
+  }, [src]);
   if (!src || failed) {
     if (alt === "") return <div className={cn("bg-gradient-to-br from-emerald-800 via-emerald-700 to-sky-700", className)} aria-hidden="true" />;
     return (
@@ -146,6 +153,7 @@ export function TourImage({
     <div className={cn("overflow-hidden bg-slate-200", className)}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
+        ref={imgRef}
         src={src}
         alt={alt}
         loading={eager ? "eager" : "lazy"}

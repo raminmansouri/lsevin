@@ -1,10 +1,12 @@
 import { setRequestLocale } from "next-intl/server";
 
-import { contentLocaleFor } from "@/features/tours/domain/content";
-import { listDestinations } from "@/features/tours/server/platform/catalog";
 import { IntroScreen } from "@/features/tours/ui/customer/intro/intro-screen";
 
-/** First-visit introduction (C-002..C-005, 1-intro_page_before_landing_page.png). Also reopenable from Profile. */
+/**
+ * First-visit introduction (C-002..C-005, 1-intro_page_before_landing_page.png). Also reopenable from Profile.
+ * Uses a fixed, licensed background (public/images/tours/CREDITS.json) so the first screen never
+ * depends on catalog content and never falls back to a bare gradient.
+ */
 export default async function ToursIntroPage({
   params,
   searchParams,
@@ -15,8 +17,9 @@ export default async function ToursIntroPage({
   const { locale } = await params;
   setRequestLocale(locale);
   const { next } = await searchParams;
-  const destinations = await listDestinations(contentLocaleFor(locale), { featuredOnly: true, limit: 6 }).catch(() => []);
-  const image = destinations.find((d) => d.coverUrl) ?? null;
-  const safeNext = typeof next === "string" && /^\/tours(\/[A-Za-z0-9/_?=&%.-]*)?$/.test(next) ? next : "/tours";
-  return <IntroScreen imageUrl={image?.coverUrl ?? null} imageAlt={image?.coverAlt ?? image?.name?.value ?? ""} next={safeNext} />;
+  const safeNext =
+    typeof next === "string" && /^\/tours(\/[A-Za-z0-9/_?=&%.-]*)?$/.test(next)
+      ? next
+      : "/tours";
+  return <IntroScreen next={safeNext} />;
 }

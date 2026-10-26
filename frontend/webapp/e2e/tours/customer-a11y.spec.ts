@@ -5,7 +5,7 @@
  */
 import { expect, test, type Page } from "@playwright/test";
 
-import { bookUrl, seedCatalog, signedInCustomer, skipIntro } from "./customer-helpers";
+import { bookUrl, seedCatalog, signedInCustomer, skipIntro, streamSettled } from "./customer-helpers";
 import { closeDb } from "./support/db";
 
 test.afterAll(closeDb);
@@ -113,6 +113,7 @@ test("AT-25: denied location permission — discovery and booking still work", a
   await skipIntro(context);
   const page = await context.newPage();
   await page.goto(`/en/tours/explore?destination=${c.destination.slug}`);
+  await streamSettled(page);
   await page.getByTestId("nearby").click();
   await expect(page.getByTestId("nearby-status")).toBeVisible({ timeout: 15_000 });
   await expect(page.getByTestId("tour-card")).toHaveCount(1);

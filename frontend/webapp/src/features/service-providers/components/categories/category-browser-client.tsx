@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import {
@@ -320,6 +320,13 @@ export function CategoryBrowserClient({
     return target ? buildPathToCategory(target) : [];
   });
   const currentParent = path.length > 0 ? path[path.length - 1] : null;
+
+  // Tourism has no category screen of its own: the Tours app is its home.
+  useEffect(() => {
+    if (currentParent && isTourismCategory(currentParent.id, (id) => categoryById.get(id)?.parentId, tourismCategoryId)) {
+      router.replace(TOURS_HOME_PATH);
+    }
+  }, [categoryById, currentParent, router, tourismCategoryId]);
 
   const hasQuery = query.trim().length > 0;
   const normalizedQuery = query.trim().toLowerCase();

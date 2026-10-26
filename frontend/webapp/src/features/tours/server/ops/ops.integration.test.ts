@@ -729,6 +729,12 @@ suite("tours ops (real database)", () => {
   // --------------------------------------------------------------------------
 
   it("sweeper completes ended departures and bookings, expires tracking, purges points past retention; one worker at a time", async () => {
+    // The shared test database accumulates ended fixture departures from earlier runs, and a sweep
+    // completes at most 200 per tick (oldest first). Drain that backlog before D ends, so the
+    // asserted sweep below is guaranteed to reach D.
+    for (let i = 0; i < 50; i += 1) {
+      if (((await sweeper.runToursSweep()).departuresCompleted ?? 0) < 200) break;
+    }
     const { owner, t } = await world();
     const c = await seedUser(sql);
     const b = await bookOnce(t, c.id);
@@ -743,9 +749,14 @@ suite("tours ops (real database)", () => {
                                     values (${D2}, ${owner.id}, now() - interval '40 days', 'manual', now() - interval '1 day') returning id::text`;
     await sql`insert into tour.tracking_points (session_id, seq, recorded_at, latitude, longitude) values (${old.id}, 1, now() - interval '41 days', 1, 1)`;
 
-    const results = await Promise.all([sweeper.runToursSweep(), sweeper.runToursSweep()]);
-    expect(results.filter((r) => r.ran)).toHaveLength(1);
-    const ran = results.find((r) => r.ran)!;
+    // One worker at a time: while another worker holds the sweep lock, a sweep must not run.
+    // (Two concurrent calls were racy: under load the first could finish before the second started.)
+    await sql.begin(async (holder) => {
+      await holder`select pg_advisory_xact_lock(${sweeper.SWEEP_LOCK_ID})`;
+      expect((await sweeper.runToursSweep()).ran).toBe(false);
+    });
+    const ran = await sweeper.runToursSweep();
+    expect(ran.ran).toBe(true);
     expect(ran.errors).toEqual([]);
     const [sess] = await sql<any[]>`select end_reason, retention_until is not null as kept from tour.tracking_sessions where id = ${s.id}`;
     expect(sess).toEqual({ end_reason: "expired", kept: true });

@@ -3,7 +3,7 @@
  * Seeds real rows through the production schema (src/features/tours/testing/fixtures.ts);
  * every call creates uniquely named data, so specs can re-run on one database.
  */
-import type { BrowserContext, Locator, Page } from "@playwright/test";
+import { expect, type BrowserContext, type Locator, type Page } from "@playwright/test";
 
 import {
   seedDestination,
@@ -49,6 +49,15 @@ export async function signedInCustomer(context: BrowserContext, opts: { firstNam
   const user = await seedUser(db(), opts);
   await signIn(context, { ...user, roles: ["user"] });
   return user;
+}
+
+/**
+ * Waits until React has swapped every streamed Suspense segment into place. Until then the incoming
+ * copy of a view sits in a hidden <div id="S:n"> (invisible to users) and test ids match twice.
+ */
+export async function streamSettled(page: Page) {
+  await page.waitForLoadState("load");
+  await expect(page.locator('div[hidden][id^="S:"]')).toHaveCount(0);
 }
 
 /** Waits until client components are interactive (Next dev compiles routes lazily). */

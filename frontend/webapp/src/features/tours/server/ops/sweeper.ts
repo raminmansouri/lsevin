@@ -21,7 +21,9 @@ import { markWaitlistConversions, offerReleasedSeats } from "./waitlist";
  *   6. waitlist: conversions, then offers for departures with free seats
  */
 
-const LOCK_ID = 7_041_778_201;
+/** Exported for the exclusivity test; not part of the public API. */
+export const SWEEP_LOCK_ID = 7_041_778_201;
+const LOCK_ID = SWEEP_LOCK_ID;
 
 export type SweepResult = {
   ran: boolean;
