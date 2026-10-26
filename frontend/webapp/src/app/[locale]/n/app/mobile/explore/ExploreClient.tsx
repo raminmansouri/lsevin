@@ -283,6 +283,8 @@ export default function ExploreClient({
 }) {
   const router = useRouter();
   const t = useTranslations("Explore");
+  const tMap = useTranslations("MapDiscovery");
+  const tBooking = useTranslations("Booking");
   const [isPending, startTransition] = useTransition();
   const [showFilters, setShowFilters] = useState(false);
   const [showAllProviderTypes, setShowAllProviderTypes] = useState(false);
@@ -584,10 +586,12 @@ export default function ExploreClient({
           </div>
 
           <button
+            type="button"
             onClick={() => router.push(buildMapDiscoveryQuery(currentFilters))}
+            aria-label={tMap("title")}
             className="w-11 h-11 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200 transition-colors"
           >
-            <MapPin size={22} className="text-[#083f30]" />
+            <MapPin size={22} className="text-[#083f30]" aria-hidden="true" />
           </button>
         </div>
 
@@ -601,10 +605,12 @@ export default function ExploreClient({
           </button>
 
           <button
+            type="button"
             onClick={() => setShowFilters(true)}
+            aria-label={t("filtersPanel.title")}
             className="w-12 h-12 bg-[#083f30] rounded-xl flex items-center justify-center hover:bg-[#0a5a44] transition-colors relative"
           >
-            <SlidersHorizontal size={20} className="text-white" />
+            <SlidersHorizontal size={20} className="text-white" aria-hidden="true" />
             {hasActiveFilters && (
               <span className="absolute -top-1 -right-1 w-3 h-3 bg-[#eacb7f] rounded-full border-2 border-white" />
             )}
@@ -992,9 +998,10 @@ export default function ExploreClient({
                 <button
                   type="button"
                   onClick={() => setShowFilters(false)}
+                  aria-label={tBooking("close")}
                   className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors"
                 >
-                  <X size={20} className="text-gray-600" />
+                  <X size={20} className="text-gray-600" aria-hidden="true" />
                 </button>
               </div>
               <p className="text-sm text-gray-600">{t("filters.subtitle")}</p>

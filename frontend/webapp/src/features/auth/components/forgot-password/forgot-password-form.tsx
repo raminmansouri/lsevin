@@ -65,7 +65,7 @@ const ForgotPasswordForm = () => {
   return (
     <ZodErrorProvider componentNamespace={TRANSLATION_KEY}>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)}>
+        <form method="post" onSubmit={form.handleSubmit(onSubmit)}>
           <AuthFormContainer>
             <FormField
               control={form.control}

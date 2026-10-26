@@ -33,12 +33,12 @@ export default async function AuthLayout({ children, params }: LocalePageProps) 
           </SuspenseBoundary>
         </Suspense>
 
-        <div className="min-h-screen-header relative flex flex-col items-center justify-center px-3 py-6 sm:px-6 sm:py-16 md:container lg:px-8">
+        <main className="min-h-screen-header relative flex flex-col items-center justify-center px-3 py-6 sm:px-6 sm:py-16 md:container lg:px-8">
           <Suspense fallback={<AuthContentSkeleton />}>
             <SuspenseBoundary params={params}>{children}</SuspenseBoundary>
           </Suspense>
           <PrivacyPolicyLink params={params} />
-        </div>
+        </main>
       </div>
     </NextIntlClientProvider>
   );

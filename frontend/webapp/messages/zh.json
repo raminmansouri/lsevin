@@ -5263,6 +5263,7 @@
       "subcategoryCount": "{count} 个子分类"
     },
     "common": {
+      "trustSeal": "Enamad 电子信任标志",
       "loading": "加载中…",
       "noDescription": "暂无简介。",
       "seeAll": "查看全部",
@@ -6445,6 +6446,8 @@
       "contact": "LSevin · lsevin.turkiye@gmail.com"
     },
     "privacySecurity": {
+      "showPassword": "显示密码",
+      "hidePassword": "隐藏密码",
       "activeSessions": "活跃登录设备",
       "biometricDescription": "使用面容ID、指纹或设备生物识别，登录更快捷。",
       "biometricLogin": "生物识别登录",
