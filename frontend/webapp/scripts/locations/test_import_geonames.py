@@ -116,6 +116,28 @@ class ImportTests(unittest.TestCase):
             self.assertEqual(village['translations']['de-DE'], 'Dorf')
             self.assertEqual(village['population'], 0)
 
+    def test_persian_alternates_are_cleaned_and_never_latin_or_county_titles(self):
+        # Regression: the 2026-10-18 import stored 'Şeḩag', 'شهرستان ارومیه' and 'بوشِهر' as Persian names.
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            info = [''] * 19
+            info[0], info[16] = 'IR', '100'
+            (root / 'countryInfo.txt').write_text('\t'.join(info) + '\n', encoding='utf8')
+            (root / 'admin1CodesASCII.txt').write_text('IR.01\tProvince\tProvince\t101\n', encoding='utf8')
+            places = [[gid, name, name, '', '30', str(50 + i), 'P', 'PPL', 'IR', '', '01', '', '', '', '0', '', '', 'Asia/Tehran', '2026-10-18']
+                      for i, (gid, name) in enumerate([('200', 'Sehag'), ('201', 'Orumiyeh'), ('202', 'Bushehr')])]
+            with zipfile.ZipFile(root / 'IR.zip', 'w') as z:
+                z.writestr('IR.txt', ''.join('\t'.join(p) + '\n' for p in places))
+            (root / 'alternatenames').mkdir()
+            with zipfile.ZipFile(root / 'alternatenames/IR.zip', 'w') as z:
+                z.writestr('IR.txt', '1\t200\tfa\tŞeḩag\t1\t\t\t\n'
+                                     '2\t201\tfa\tشهرستان ارومیه\t1\t\t\t\n3\t201\tfa\tاروميه\t\t\t\t\n'
+                                     '4\t202\tfa\tبوشِهر\t1\t\t\t\n')
+            features = {f['geoname_id']: f for f in load_country(root, 'IR')}
+            self.assertNotIn('fa-IR', features['200']['translations'])
+            self.assertEqual(features['201']['translations']['fa-IR'], 'ارومیه')
+            self.assertEqual(features['202']['translations']['fa-IR'], 'بوشهر')
+
 
 if __name__ == '__main__':
     unittest.main()

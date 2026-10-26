@@ -21,6 +21,10 @@ import urllib.request
 import uuid
 import zipfile
 
+from fix_names_census import clean_fa, is_persian
+
+ADMIN_TITLE = re.compile(r'(شهرستان|بخش|دهستان|استان)\s')
+
 BASE = 'https://download.geonames.org/export/dump/'
 COUNTRIES = {
     'IR': ('Iran', 'ایران'), 'TR': ('Turkey', 'ترکیه'),
@@ -152,10 +156,17 @@ def load_country(data_dir, cc):
         lang = language.split('-')[0]
         if lang not in LANGUAGES:
             continue
+        value = name.strip()
+        if lang == 'fa':
+            # GeoNames 'fa' alternates include BGN romanizations, Arabic letters, vowel marks and
+            # Wikipedia titles of the county (شهرستان …); none of these is the place's Persian name.
+            value = clean_fa(value)
+            if not is_persian(value) or (f['kind'] == 2 and ADMIN_TITLE.match(value)):
+                continue
         rank = (preferred == '1', short == '1', -int(row[0]))
         if lang not in f['preferred'] or rank > f['preferred'][lang]:
             f['preferred'][lang] = rank
-            f['translations'][LANGUAGES[lang]] = name.strip()
+            f['translations'][LANGUAGES[lang]] = value
     # The user's requested country names are explicit, and are used only to fill gaps.
     features[info[16]]['translations'].update({'en-US': COUNTRIES[cc][0], 'fa-IR': COUNTRIES[cc][1]})
     # Store both locale spellings: legacy .NET uses regional tags; web selectors use base tags.

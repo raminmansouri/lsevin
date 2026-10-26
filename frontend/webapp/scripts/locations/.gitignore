@@ -2,3 +2,5 @@ __pycache__/
 !README.md
 !snapshot.sql
 !VERIFICATION_2026-10-18.md
+!fix_names_apply.sql
+!fix_names_rollback.sql

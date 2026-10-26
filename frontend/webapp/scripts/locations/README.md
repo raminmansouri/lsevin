@@ -111,3 +111,63 @@ Completing those names requires a separately reviewed translation dataset.
 
 No generated data SQL belongs in an already-released migration. Do not run the
 old `generate-locations-seed.mjs` to overwrite `0006_seed_world_locations.sql`.
+
+## Name correction against Iran's census (2026-10-26)
+
+GeoNames is an aggregator, not a naming authority. For Iran its base records come from
+the US NGA gazetteer (romanized from foreign maps), and its Persian alternate names are
+crowd-sourced: Wikipedia article titles (`شهرستان ارومیه` for the city of Urmia), historic
+names, Arabic `ك`/`ي`, vowel marks, BGN romanizations filed as Persian (`Şeḩag`) and
+Upper/Lower swaps (`Pashgeleh-ye Pa'in` stored as `پشکله بالا`). The 2026-10-18 import took
+the *preferred* GeoNames alternate as the Persian name, so these errors went straight in.
+
+The authority for Iranian settlement names is the Statistical Centre of Iran (مرکز آمار
+ایران), 1395 (2016) census settlement list, one workbook per province:
+`https://www.amar.org.ir/Portals/0/census/1395/results/abadi/CN95_HouseholdPopulationVillage_NN.xlsx`
+(`NN` = 00…30; copies exist on web.archive.org). The workbooks use a legacy encoding:
+Arabic `ك`/`ي`, final `ئ` for `ی` (`مركزئ`), no madda (`مسگراباد`) and glued words
+(`كشارسفلي`), so names are normalized before use; they are never copied raw.
+
+`fix_names_census.py` changes only `value_translations`, and only the `fa`/`fa-IR` and
+`en`/`en-US` keys. Ids, codes, parents, types and every other locale are untouched; no
+row is added, merged or deleted:
+
+- Persian orthography for every location with a Persian name (any country): Persian
+  kaf/yeh, no vowel marks, bidi controls or tatweel; `استان ` prefix dropped on provinces.
+- Iranian GeoNames settlements, per province: the Persian name is kept when the English
+  name is a possible romanization of it. Otherwise it is replaced (or filled when missing)
+  only when exactly one census name in that province romanizes to the English name. Each
+  Persian letter accepts only the romanizations it can produce, so vowel conflicts
+  (`قیل` ≠ Qoli) and qualifier conflicts (`علیا` ≠ Sofla) never match. Ambiguous or
+  unmatched rows keep their (cleaned) name.
+- A romanization stored as Persian with no census match is removed; readers fall back to
+  English through `common.get_translation_t`.
+- English BGN marks (`Orūmīyeh`, `` `Isa Dar``) are removed for IR, AF, IQ, SY, JO, SA,
+  OM, AE, QA, BH, KW and PK. Latin-script countries keep their diacritics.
+- Name text is still matched exactly by IP/profile/onboarding resolution, which prefers
+  the newest row. A change is therefore never applied when it would make a GeoNames row
+  newly share a name with a pre-GeoNames (seed) city, and rows carrying names stored as
+  profile text (`--protect`) are left alone.
+
+Workflow (from `frontend/webapp`; keep data outside Git):
+
+```sh
+python scripts/locations/fix_names_census.py census --data-dir /secure/census95 --out /secure/census95.csv
+psql -X -c "\copy (SELECT l.id, l.location_type_id, l.parent_id, r.geoname_id, r.source_metadata->>'country' AS country, l.value_translations::text AS value_translations FROM category.locations l LEFT JOIN category.location_geonames_refs r ON r.location_id = l.id WHERE l.location_type_id IN (1,3) OR l.value_translations ?| array['fa','fa-IR'] OR r.source_metadata->>'country' IN ('IR','AF','IQ','SY','JO','SA','OM','AE','QA','BH','KW','PK')) TO '/secure/locations.csv' WITH (FORMAT csv, HEADER)"
+psql -X -c "\copy (SELECT l.id, l.parent_id, coalesce(p.parent_id, l.parent_id) AS country_id, l.value_translations::text AS value_translations FROM category.locations l LEFT JOIN category.locations p ON p.id = l.parent_id WHERE l.location_type_id = 2 AND NOT EXISTS (SELECT 1 FROM category.location_geonames_refs r WHERE r.location_id = l.id)) TO '/secure/seed_cities.csv' WITH (FORMAT csv, HEADER)"
+psql -X -At -c "SELECT string_agg(DISTINCT v, ',') FROM (SELECT unnest(ARRAY[country, city]) v FROM customer.customers UNION SELECT unnest(ARRAY[country, city]) FROM identity.asp_net_users) t WHERE btrim(v) <> ''"
+python scripts/locations/fix_names_census.py plan --locations /secure/locations.csv \
+  --seed-cities /secure/seed_cities.csv --census /secure/census95.csv --out /secure/plan.csv --protect '<names from the query above>'
+psql -X -v ON_ERROR_STOP=1 -v plan=/secure/plan.csv -f scripts/locations/fix_names_apply.sql      # on B only
+psql -X -v ON_ERROR_STOP=1 -f scripts/locations/fix_names_rollback.sql                              # undo
+```
+
+Review `plan.csv` (before/after columns) first. Apply runs on server B only; updates
+replicate to A through SymmetricDS. A row changes only while it still holds the value
+the plan was computed from, so re-running is a no-op and later admin edits are never
+overwritten. `public.location_name_fix_20261026` keeps the old and new value of every
+row for audit and rollback. Next.js `"use cache"` location lists refresh on their
+normal cache lifetime; no other cache or search index holds location names.
+
+Not covered: the other 24 countries still carry GeoNames names (only orthography and
+English marks are corrected); each needs its own national source.
