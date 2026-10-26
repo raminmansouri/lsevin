@@ -9,7 +9,7 @@ import { useRouter } from "@/i18n/navigation";
 import { Pagination } from "@/types/filter";
 
 import { setCategoryHomepageDisplayAction } from "../../actions/set-homepage-display";
-import { CATEGORY_TRANSLATION_KEY } from "../../constants";
+import { CATEGORY_TRANSLATION_KEY, LANDING_CATEGORY_LIMIT } from "../../constants";
 import { useCategoryActions } from "../../hooks/use-category-list-actions";
 import { CategoryListItem } from "../../types/category";
 import { getCategoryListColumns } from "./category-list-columns";
@@ -96,6 +96,9 @@ const CategoryListTable = ({ items, pagination }: Props) => {
 
   return (
     <>
+      <p className="mb-3 text-sm text-muted-foreground" data-testid="category-landing-note">
+        {t("homepage.landingNote", { limit: LANDING_CATEGORY_LIMIT })}
+      </p>
       <DataTable
         columns={columns}
         data={data}
@@ -111,5 +114,5 @@ const CategoryListTable = ({ items, pagination }: Props) => {
 export default CategoryListTable;
 
 export function CategoryListTableSkeleton() {
-  return <DataTableSkeleton columnCount={6} rowCount={5} />;
+  return <DataTableSkeleton columnCount={7} rowCount={5} />;
 }

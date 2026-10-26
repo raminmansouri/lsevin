@@ -16,6 +16,7 @@ import { env } from "@/config/env/client";
 import { Link, useRouter } from "@/i18n/navigation";
 import { getCategoryOverlayClassName, getCategoryOverlayStyle } from "@/features/categories/utils/category-overlay";
 import { TOURS_HOME_PATH, categoryProvidersHref, isTourismCategory } from "@/features/categories/utils/category-href";
+import { compareByPriority } from "@/features/categories/utils/priority";
 import type {
   CategoryBrowserCategory,
   CategoryBrowserGroup,
@@ -80,11 +81,8 @@ function getGradientStyle(category: CategoryBrowserCategory) {
 }
 
 function sortCategories(categories: CategoryBrowserCategory[]) {
-  return [...categories].sort((a, b) => {
-    const orderDelta = a.displayOrder - b.displayOrder;
-    if (orderDelta !== 0) return orderDelta;
-    return a.name.localeCompare(b.name);
-  });
+  // Admin priority first (1, 2, …); categories without one (0) follow, by name.
+  return [...categories].sort(compareByPriority<CategoryBrowserCategory>((a, b) => a.name.localeCompare(b.name)));
 }
 
 function CategoryMedia({ category }: { category: CategoryBrowserCategory }) {

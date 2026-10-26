@@ -1,23 +1,27 @@
 #!/usr/bin/env node
 /**
- * One command for the booking-pro itinerary test environment: unit, integration (real Postgres)
- * and end-to-end (Playwright, real Next server + real API + real Postgres).
+ * Local test environment: unit, integration (real Postgres) and end-to-end (Playwright, real Next
+ * server + real API routes/server actions + real Postgres) for the suites below.
  *
- *   node scripts/test-env/booking-itinerary.mjs            # reuse the test database if it exists
- *   node scripts/test-env/booking-itinerary.mjs --reset    # rebuild it from the local dev database
- *   node scripts/test-env/booking-itinerary.mjs --unit     # unit tests only (no database, no server)
+ *   pnpm test:local-env                       # every suite; reuse the test database if it exists
+ *   pnpm test:local-env --reset               # rebuild the test database from the local dev database
+ *   pnpm test:local-env --suite categories    # one suite (itinerary | categories); repeatable
+ *   pnpm test:local-env --unit                # unit tests only (no database, no server)
+ *   pnpm test:local-env --e2e-only            # skip unit + integration (e.g. after they passed)
+ *   pnpm test:itinerary                       # = --suite itinerary
  *
  * What it does:
  *   1. Test database: clones the local dev database (docker container, default lsevin-dev-postgres-1)
  *      into lsevin_itinerary_test, applies scripts/test-env/prod-schema-alignment.sql and every repo
  *      migration (each in its own transaction; ones that need schemas the local base lacks are
  *      reported and skipped). It never touches the dev database itself or any remote database.
- *   2. Unit tests (booking-pro) and the opt-in integration test against the test database.
- *   3. A tiny file server for fixture images, a Next dev server on a free port against the test
- *      database, then the Playwright suite (playwright.booking-itinerary.config.ts), then shutdown.
+ *   2. Unit tests, then the opt-in integration tests against the test database.
+ *   3. A file server for fixture images, a stand-in for the .NET API (scripts/test-env/api-stub.mjs;
+ *      tests register the responses they need), a Next dev server on a free port against the test
+ *      database, then the suites' Playwright configs, then shutdown.
  *
  * Fixtures are created and removed by the tests themselves. Sessions are minted with the local
- * AUTH_SECRET; the e2e spec refuses to run against anything but localhost.
+ * AUTH_SECRET; the e2e specs refuse to run against anything but localhost.
  */
 import { execFileSync, spawn, spawnSync } from 'node:child_process';
 import fs from 'node:fs';
@@ -26,15 +30,41 @@ import net from 'node:net';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { startApiStub } from './api-stub.mjs';
+
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
-const args = new Set(process.argv.slice(2));
+const argv = process.argv.slice(2);
+const args = new Set(argv);
 const CONTAINER = process.env.TEST_PG_CONTAINER || 'lsevin-dev-postgres-1';
 const SOURCE_DB = process.env.TEST_PG_SOURCE_DB || 'lsevin';
 const TEST_DB = process.env.TEST_PG_DB || 'lsevin_itinerary_test';
 const PG_USER = process.env.TEST_PG_USER || 'lsevin';
+
+const SUITES = {
+  itinerary: {
+    unit: ['src/features/booking-pro'],
+    integration: ['src/features/booking-pro/server/child-booking.int.test.ts'],
+    e2e: 'playwright.booking-itinerary.config.ts',
+    // Pages that must render before the specs start (compiled on first request in dev).
+    warmup: [{ path: '/fa/n/app/mobile/booking', signedIn: true }],
+  },
+  categories: {
+    unit: ['src/features/categories'],
+    integration: ['src/features/categories/server/category-landing.int.test.ts'],
+    e2e: 'playwright.category-landing.config.ts',
+    warmup: [{ path: '/fa/n/app/mobile/home', signedIn: false }, { path: '/fa/n/app/mobile/categories', signedIn: false }],
+  },
+};
+const requested = argv.flatMap((arg, index) => (arg === '--suite' ? [argv[index + 1]] : arg.startsWith('--suite=') ? [arg.slice(8)] : []));
+const suites = requested.length ? requested : Object.keys(SUITES);
+const unknown = suites.filter((name) => !SUITES[name]);
+if (unknown.length) {
+  console.error(`[local-env] unknown suite(s): ${unknown.join(', ')} — expected ${Object.keys(SUITES).join(', ')}`);
+  process.exit(2);
+}
 const results = [];
 
-function log(message) { console.log(`[itinerary-env] ${message}`); }
+function log(message) { console.log(`[local-env] ${message}`); }
 function record(name, ok, detail = '') { results.push({ name, ok, detail }); log(`${ok ? 'PASS' : 'FAIL'} ${name}${detail ? ` — ${detail}` : ''}`); }
 
 function readEnvLocal(key) {
@@ -44,8 +74,8 @@ function readEnvLocal(key) {
   return match ? match[1].trim().replace(/^["']|["']$/g, '') : '';
 }
 
-function psql(sql, db = TEST_DB) {
-  return spawnSync('docker', ['exec', '-i', CONTAINER, 'psql', '-q', '-U', PG_USER, '-d', db, '-v', 'ON_ERROR_STOP=1', '-At'], { input: sql, encoding: 'utf8' });
+function psql(sqlText, db = TEST_DB) {
+  return spawnSync('docker', ['exec', '-i', CONTAINER, 'psql', '-q', '-U', PG_USER, '-d', db, '-v', 'ON_ERROR_STOP=1', '-At'], { input: sqlText, encoding: 'utf8' });
 }
 
 function testDatabaseUrl() {
@@ -72,7 +102,7 @@ function prepareDatabase() {
     const run = psql(`begin;\n${fs.readFileSync(path.join(dir, file), 'utf8')}\n;commit;`);
     if (run.status !== 0) skipped.push(`${file}: ${(run.stderr.match(/ERROR:.*$/m) || ['?'])[0]}`);
   }
-  log(`migrations applied; ${skipped.length} skipped on this local base:`);
+  log(`migrations applied; ${skipped.length} skipped on this local base`);
   skipped.forEach((line) => log(`  skipped ${line}`));
   const repeat = psql(`select count(*) from pg_indexes where indexname like 'ux_booking%child%one%'`).stdout.trim();
   if (repeat !== '0') throw new Error('migration 0078 is not in effect in the test database');
@@ -107,25 +137,31 @@ function run(name, command, commandArgs, env) {
 }
 
 /**
- * Ready means the booking page itself renders for a signed-in user. A signed-out request is answered
- * by the middleware before the page compiles, so waiting for that alone let the first tests hit a
- * half-compiled dev server (404 "This page could not be found").
+ * Ready means every page the selected suites start from renders (200, not the 404 page). A signed-out
+ * request to a protected page is answered by the middleware before the page compiles, so waiting for
+ * that alone let the first tests hit a half-compiled dev server ("This page could not be found").
  */
-async function waitFor(base, secret, timeoutMs) {
+async function waitFor(base, secret, pages, timeoutMs) {
   const { encode } = await import('next-auth/jwt');
   const now = Date.now();
   const user = '0e2e0000-0000-4000-8000-00000000beef';
   const session = await encode({ secret, salt: 'authjs.session-token', token: { sub: user, user: { id: user, accessToken: 'warmup', accessTokenExpires: now + 3_600_000, refreshTokenExpires: now + 7_200_000 } } });
   const deadline = Date.now() + timeoutMs;
-  while (Date.now() < deadline) {
-    try {
-      const response = await fetch(`${base}/fa/n/app/mobile/booking`, { redirect: 'manual', headers: { cookie: `authjs.session-token=${session}` }, signal: AbortSignal.timeout(900_000) });
-      const body = await response.text();
-      if (response.status === 200 && !body.includes('This page could not be found')) return true;
-    } catch { /* still compiling */ }
-    await new Promise((resolve) => setTimeout(resolve, 3000));
+  for (const page of pages) {
+    log(`warming ${page.path}`);
+    let ready = false;
+    while (!ready && Date.now() < deadline) {
+      try {
+        const headers = page.signedIn ? { cookie: `authjs.session-token=${session}` } : {};
+        const response = await fetch(`${base}${page.path}`, { redirect: 'manual', headers, signal: AbortSignal.timeout(900_000) });
+        const body = await response.text();
+        ready = response.status === 200 && !body.includes('This page could not be found');
+      } catch { /* still compiling */ }
+      if (!ready) await new Promise((resolve) => setTimeout(resolve, 3000));
+    }
+    if (!ready) return false;
   }
-  return false;
+  return true;
 }
 
 function stop(child) {
@@ -135,7 +171,9 @@ function stop(child) {
 }
 
 async function main() {
-  run('unit tests (booking-pro)', 'npx', ['vitest', 'run', 'src/features/booking-pro'], {});
+  log(`suites: ${suites.join(', ')}`);
+  const e2eOnly = args.has('--e2e-only');
+  if (!e2eOnly) run(`unit tests (${suites.join(', ')})`, 'npx', ['vitest', 'run', ...suites.flatMap((name) => SUITES[name].unit)], {});
   if (args.has('--unit')) return;
 
   prepareDatabase();
@@ -143,24 +181,51 @@ async function main() {
   const secret = process.env.AUTH_SECRET || readEnvLocal('AUTH_SECRET');
   if (!secret) throw new Error('AUTH_SECRET not found (environment or .env.local)');
 
-  run('integration tests (real database)', 'npx', ['vitest', 'run', 'src/features/booking-pro/server/child-booking.int.test.ts'], { ACCOUNTING_TEST_DATABASE_URL: databaseUrl });
+  if (!e2eOnly) run('integration tests (real database)', 'npx', ['vitest', 'run', ...suites.flatMap((name) => SUITES[name].integration)], { ACCOUNTING_TEST_DATABASE_URL: databaseUrl });
 
   const filesPort = await freePort(3901);
+  const stubPort = await freePort(3911);
   const appPort = await freePort(3140);
   const files = await startFileServer(filesPort);
+  const stub = await startApiStub(stubPort);
+  const stubUrl = `http://localhost:${stubPort}`;
   const base = `http://localhost:${appPort}`;
-  log(`starting Next dev server on ${base} (first compile can take several minutes)`);
+  fs.mkdirSync(path.join(APP, 'test-results'), { recursive: true });
+  const devLogPath = path.join(APP, 'test-results', 'local-env-dev.log');
+  const devLog = fs.openSync(devLogPath, 'w');
+  log(`dev server output: ${devLogPath}`);
+  log(`starting Next dev server on ${base} (API stub ${stubUrl}; first compile can take several minutes)`);
   const server = spawn(process.execPath, [path.join(APP, 'node_modules/next/dist/bin/next'), 'dev', '--turbopack', '-p', String(appPort)], {
     cwd: APP,
-    env: { ...process.env, DATABASE_URL: databaseUrl, DATABASE_URL_DIRECT: databaseUrl, NEXT_PUBLIC_FILES_URL: `http://localhost:${filesPort}/files`, AUTH_URL: base, NEXT_PUBLIC_APP_URL: base },
-    stdio: ['ignore', 'ignore', 'inherit'],
+    env: {
+      ...process.env,
+      DATABASE_URL: databaseUrl,
+      DATABASE_URL_DIRECT: databaseUrl,
+      INTERNAL_API_URL: `${stubUrl}/api/v1`,
+      NEXT_PUBLIC_FILES_URL: `http://localhost:${filesPort}/files`,
+      AUTH_URL: base,
+      NEXT_PUBLIC_APP_URL: base,
+    },
+    stdio: ['ignore', devLog, devLog],
   });
   try {
-    if (!(await waitFor(base, secret, 40 * 60_000))) { record('dev server start', false, 'did not answer within 40 minutes'); return; }
-    run('end-to-end (Playwright)', 'npx', ['playwright', 'test', '--config', 'playwright.booking-itinerary.config.ts'], { E2E_BASE_URL: base, E2E_DATABASE_URL: databaseUrl, E2E_AUTH_SECRET: secret });
+    const pages = suites.flatMap((name) => SUITES[name].warmup);
+    if (!(await waitFor(base, secret, pages, 40 * 60_000))) {
+      record('dev server start', false, 'pages did not render within 40 minutes');
+      const tail = fs.readFileSync(devLogPath, 'utf8').split(/\r?\n/).slice(-40).join('\n');
+      log(`last dev server output:\n${tail}`);
+      return;
+    }
+    for (const name of suites) {
+      run(`end-to-end: ${name} (Playwright)`, 'npx', ['playwright', 'test', '--config', SUITES[name].e2e], {
+        E2E_BASE_URL: base, E2E_DATABASE_URL: databaseUrl, E2E_AUTH_SECRET: secret, E2E_API_STUB_URL: stubUrl,
+      });
+    }
   } finally {
     stop(server);
     files.close();
+    stub.close();
+    fs.closeSync(devLog);
   }
 }
 

@@ -6922,6 +6922,20 @@
       "updating": "Updating...",
       "cancel": "Cancel"
     },
+    "homepage": {
+      "priority": "Landing priority",
+      "priorityHint": "1 shows first. Empty means no priority.",
+      "priorityLabel": "Priority of \"{name}\"",
+      "saving": "Saving…",
+      "saved": "Priority of \"{name}\" saved.",
+      "cleared": "Priority of \"{name}\" cleared.",
+      "invalid": "Enter a whole number from 0 to {max}.",
+      "failed": "Could not save the priority.",
+      "showOnHome": "Show on landing page",
+      "shown": "Shown",
+      "hidden": "Hidden",
+      "landingNote": "The landing page shows up to {limit} top-level categories, only ones that have providers. Prioritised ones come first, the rest by number of providers."
+    },
     "table": {
       "name": "Name",
       "description": "Description",
