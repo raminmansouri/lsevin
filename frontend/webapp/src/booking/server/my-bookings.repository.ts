@@ -41,6 +41,7 @@ type BookingListRow = {
   status: string;
   paymentStatus: string;
   price: number | string | null;
+  paidAmount?: number | string | null;
   currency: string | null;
   verified: boolean | null;
   selectedDate: string | null;
@@ -51,6 +52,8 @@ type BookingListRow = {
 type BookingDetailRow = BookingListRow & {
   mainSubtotal: number | string | null;
   discountAmount: number | string | null;
+  payInPlaceSurcharge: number | string | null;
+  payInPlaceSurchargePercent: number | string | null;
   providerImage: string | null;
   serviceImage: string | null;
   providerDescription: string | null;
@@ -155,6 +158,7 @@ function toBooking(row: BookingListRow, locale: string): Booking {
     status: row.status || "pending",
     paymentStatus: row.paymentStatus || "pending",
     price: toNumber(row.price),
+    paidAmount: row.paidAmount == null ? undefined : toNumber(row.paidAmount),
     currency: row.currency || "USD",
     verified: Boolean(row.verified),
   };
@@ -168,6 +172,8 @@ function toBookingRecord(row: BookingDetailRow, locale: string): BookingRecord {
     ...toBooking({ ...row, image: image ?? null }, locale),
     mainSubtotal: row.mainSubtotal == null ? null : toNumber(row.mainSubtotal),
     discountAmount: row.discountAmount == null ? null : toNumber(row.discountAmount),
+    payInPlaceSurcharge: row.payInPlaceSurcharge == null ? null : toNumber(row.payInPlaceSurcharge),
+    payInPlaceSurchargePercent: row.payInPlaceSurchargePercent == null ? null : toNumber(row.payInPlaceSurchargePercent),
     providerImage,
     providerDescription: row.providerDescription || undefined,
     serviceDescription: row.serviceDescription || undefined,
@@ -236,12 +242,19 @@ export async function getMyBookingsFromDb(input: GetMyBookingsInput): Promise<Bo
         coalesce(nullif(concat_ws(', ', nullif(sp.city, ''), nullif(sp.country, '')), ''), 'Location not specified') as location,
         lower(coalesce(nullif(b.booking_status, ''), 'pending')) as status,
         case
+          -- Only the online share (the deposit) was paid and the rest is paid at the place:
+          -- the booking is marked Paid once the online share is in, but it is not paid in full.
+          when lower(coalesce(nullif(b.payment_status, ''), nullif(lp.status, ''), '')) in ('paid', 'captured', 'succeeded', 'completed')
+            and coalesce(b.paid_amount, 0) > 0
+            and coalesce(b.paid_amount, 0) < coalesce(b.display_total_amount, b.total_amount, b.source_total_amount, 0) - 0.005 then 'deposit_paid'
+          when lower(coalesce(nullif(b.payment_status, ''), nullif(lp.status, ''), '')) in ('partiallypaid', 'partially_paid') then 'partiallypaid'
           when lower(coalesce(nullif(b.payment_status, ''), nullif(lp.status, ''), '')) in ('paid', 'captured', 'succeeded', 'completed') then 'paid'
           when lower(coalesce(nullif(b.payment_status, ''), nullif(lp.status, ''), '')) in ('refunded', 'partially_refunded') then 'refunded'
           when coalesce(b.paid_amount, 0) >= coalesce(b.display_total_amount, b.total_amount, b.source_total_amount, 0) and coalesce(b.display_total_amount, b.total_amount, b.source_total_amount, 0) > 0 then 'paid'
           else 'pending'
         end as "paymentStatus",
         coalesce(b.display_total_amount, b.total_amount, b.source_total_amount, ps.value, 0)::text as price,
+        coalesce(b.paid_amount, 0)::text as "paidAmount",
         upper(coalesce(nullif(b.display_currency_code, ''), nullif(b.currency_code, ''), nullif(b.payment_currency_code, ''), nullif(ps.currency, ''), 'USD')) as currency,
         coalesce(sp.accredited, false) as verified,
         b.selected_date::text as "selectedDate",
@@ -381,6 +394,12 @@ export async function getMyBookingByIdFromDb(input: GetMyBookingByIdInput): Prom
       ) as "fullAddress",
       lower(coalesce(nullif(base.booking_status, ''), 'pending')) as status,
       case
+        -- Only the online share (the deposit) was paid and the rest is paid at the place:
+        -- the booking is marked Paid once the online share is in, but it is not paid in full.
+        when lower(coalesce(nullif(base.payment_status, ''), nullif(base.latest_payment_status, ''), '')) in ('paid', 'captured', 'succeeded', 'completed')
+          and coalesce(base.paid_amount, 0) > 0
+          and coalesce(base.paid_amount, 0) < coalesce(base.display_total_amount, base.total_amount, base.source_total_amount, 0) - 0.005 then 'deposit_paid'
+        when lower(coalesce(nullif(base.payment_status, ''), nullif(base.latest_payment_status, ''), '')) in ('partiallypaid', 'partially_paid') then 'partiallypaid'
         when lower(coalesce(nullif(base.payment_status, ''), nullif(base.latest_payment_status, ''), '')) in ('paid', 'captured', 'succeeded', 'completed') then 'paid'
         when lower(coalesce(nullif(base.payment_status, ''), nullif(base.latest_payment_status, ''), '')) in ('refunded', 'partially_refunded') then 'refunded'
         when coalesce(base.paid_amount, 0) >= coalesce(base.display_total_amount, base.total_amount, base.source_total_amount, 0) and coalesce(base.display_total_amount, base.total_amount, base.source_total_amount, 0) > 0 then 'paid'
@@ -393,6 +412,12 @@ export async function getMyBookingByIdFromDb(input: GetMyBookingByIdInput): Prom
           then base.source_subtotal_amount end)::text as "mainSubtotal",
       case when upper(coalesce(base.currency_code, 'USD')) = upper(coalesce(base.display_currency_code, base.currency_code, 'USD'))
         then coalesce(base.applied_discount_amount, 0)::text end as "discountAmount",
+      -- Pay-in-place plans (pay 20/50/80% now) add a percentage to the bill. It is part of
+      -- the total but not of any line, so the invoice needs it to make the lines add up.
+      -- Billed in currency_code, so only exposed when that is also the display currency.
+      case when upper(coalesce(base.currency_code, 'USD')) = upper(coalesce(base.display_currency_code, base.currency_code, 'USD'))
+        then pip.plan ->> 'surchargeAmount' end as "payInPlaceSurcharge",
+      pip.plan ->> 'surchargePercent' as "payInPlaceSurchargePercent",
       greatest(coalesce(base.display_total_amount, base.total_amount, base.source_total_amount, base.provider_service_value, 0) - coalesce(base.paid_amount, 0), 0)::text as remaining,
       upper(coalesce(nullif(base.display_currency_code, ''), nullif(base.currency_code, ''), nullif(base.payment_currency_code, ''), nullif(base.provider_service_currency, ''), 'USD')) as currency,
       coalesce(base.provider_accredited, false) as verified,
@@ -473,6 +498,13 @@ export async function getMyBookingByIdFromDb(input: GetMyBookingByIdInput): Prom
         else 'upcoming'
       end as "groupName"
     from base
+    left join lateral (
+      select bpt.terms_snapshot -> 'payInPlace' as plan
+      from commercial.booking_payment_terms bpt
+      where bpt.booking_id = base.id
+      order by bpt.created_at desc
+      limit 1
+    ) pip on true
   `;
 
   if (!rows[0]) return null;

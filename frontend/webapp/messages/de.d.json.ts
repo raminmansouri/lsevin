@@ -2716,6 +2716,8 @@ declare const messages: {
         "label": "Beschreibung"
       },
       "isActive": "Aktiv",
+      "addonOnly": "Add-on only (translator, car, ...)",
+      "addonOnlyHelp": "When on, providers of this type appear only in the booking add-ons step, filtered by city, and are hidden from search, home and every other listing.",
       "attributes": "Attributdefinitionen",
       "attributesPlaceholder": "Attribute ({count} definiert)",
       "create": "Anbietertyp erstellen",
@@ -3292,6 +3294,9 @@ declare const messages: {
     "serviceImage": "Leistungsbild",
     "serviceManagement": "Leistungsverwaltung",
     "serviceProviderDeleted": "Dienstleister gelöscht",
+    "duplicateProvider": "Duplizieren",
+    "serviceProviderDuplicated": "Dienstleister dupliziert",
+    "duplicateServiceProviderConfirm": "Eine Kopie von {name} erstellen?",
     "serviceRoomTypeUUID": "UUID Leistung-Zimmertyp",
     "services": "Leistungen",
     "serviceType": "Leistungstyp",
@@ -4860,6 +4865,68 @@ declare const messages: {
     }
   },
   "Booking": {
+    "mealPlan": {
+      "label": "Verpflegung",
+      "chooseTitle": "Verpflegung wählen",
+      "room_only": {
+        "name": "Nur Übernachtung",
+        "description": "Keine Mahlzeiten inbegriffen"
+      },
+      "breakfast": {
+        "name": "Mit Frühstück",
+        "description": "Frühstück inbegriffen"
+      },
+      "full_board": {
+        "name": "Vollpension",
+        "description": "Frühstück, Mittag- und Abendessen inbegriffen"
+      }
+    },
+    "stay": {
+      "perNight": "pro Nacht",
+      "nightsLine": "Nächte: {nights} × {price} pro Nacht",
+      "checkoutAfterCheckin": "Das Abreisedatum muss nach dem Anreisedatum liegen.",
+      "adultsMin": "Mindestens {min} Erwachsener ist erforderlich.",
+      "decreaseAdults": "Erwachsene verringern",
+      "increaseAdults": "Erwachsene erhöhen"
+    },
+    "addonScope": {
+      "showAllInCountry": "Alle in {country} anzeigen",
+      "showOnlyCity": "Nur {city} anzeigen"
+    },
+    "payInPlace": {
+      "heading": "Zahlung vor Ort: Plan wählen",
+      "intro": "Sie zahlen einen Teil der Rechnung jetzt und den Rest vor Ort. Je weniger Sie jetzt zahlen, desto mehr wird auf die Rechnung aufgeschlagen.",
+      "payNow": "{percent} % jetzt zahlen",
+      "surcharge": "{percent} % werden auf die Rechnung aufgeschlagen",
+      "bill": "Rechnung",
+      "dueNow": "Jetzt fällig",
+      "dueLater": "Vor Ort fällig",
+      "methodHeading": "Wie möchten Sie den jetzt fälligen Teil bezahlen?",
+      "noMethods": "Für den jetzt fälligen Teil sind Wallet-Guthaben oder Online-Zahlung nötig – beides ist für Sie derzeit nicht verfügbar.",
+      "loading": "Zahlungsarten werden geladen ...",
+      "addition": "Aufschlag für Zahlung vor Ort ({percent} %)",
+      "errors": {
+        "choosePlan": "Wählen Sie einen Plan für die Zahlung vor Ort und die Zahlungsart für den jetzt fälligen Teil.",
+        "chooseDepositMethod": "Wählen Sie, wie der jetzt fällige Teil bezahlt werden soll.",
+        "depositMethodNotAllowed": "Der jetzt fällige Teil muss mit dem Wallet oder per Online-Zahlung bezahlt werden.",
+        "methodNotAvailable": "Diese Zahlungsart ist für Sie nicht verfügbar."
+      }
+    },
+    "builtinPaymentMethods": {
+      "pay_on_delivery": {
+        "name": "Zahlung vor Ort",
+        "description": "Zahlen Sie einen Teil des Betrags jetzt und den Rest bar bei Erbringung der Leistung."
+      },
+      "bank_receipt": {
+        "name": "Überweisungsbeleg",
+        "description": "Überweisen Sie den Betrag auf eines der unten genannten Konten und laden Sie den Beleg hoch."
+      },
+      "wallet": {
+        "name": "Wallet",
+        "description": "Sofort mit dem Wallet-Guthaben bezahlen."
+      }
+    },
+    "timezoneMismatchWarning": "Hinweis: Der Anbieter arbeitet in der Zeitzone {providerZone}, Ihre Zeitzone ist {viewerZone}. Die angezeigten Zeiten wurden in Ihre Zeitzone umgerechnet.",
     "upcoming": "Anstehend",
     "past": "Vergangen",
     "abuDhabi": "Abu Dhabi",
@@ -13123,6 +13190,22 @@ declare const messages: {
     }
   },
   "Shop": {
+    "checkoutHints": {
+      "completeToPay": "Zum Bezahlen bitte ergänzen:",
+      "required": "{field} eingeben.",
+      "minLength": "{field} benötigt mindestens {min} Zeichen.",
+      "maxLength": "{field} darf höchstens {max} Zeichen enthalten.",
+      "email": "Eine gültige E-Mail-Adresse eingeben.",
+      "delivery": "Eine Versandart auswählen.",
+      "noDelivery": "An diese Adresse ist kein Versand möglich. Ziel ändern.",
+      "payment": "Eine Zahlungsart auswählen.",
+      "noPayment": "Keine Zahlungsart verfügbar. Bitte später erneut versuchen.",
+      "coupon": "Dieser Gutschein ist nicht mehr gültig. Warenkorb prüfen.",
+      "unavailable": "Vor der Zahlung den Warenkorb prüfen.",
+      "quoteFailed": "Versand- oder Zahlungsoptionen konnten nicht aktualisiert werden. Zum Wiederholen antippen.",
+      "updating": "Versand- und Zahlungsoptionen werden aktualisiert…",
+      "retryNotice": "Die Bestellung ist gespeichert. Zahlung wiederholen, ohne erneut zu bestellen."
+    },
     "changeCurrency": "Anzeigewährung ändern",
     "currencyChangeFailed": "Die Währung konnte nicht geändert werden. Bitte versuche es erneut."
   },

@@ -1,0 +1,50 @@
+// vitest.config.ts
+import path from "node:path";
+import { defineConfig } from "file:///E:/jafariyan/workplace/lsevin/lsevin/frontend/webapp/node_modules/.pnpm/vitest@2.1.9_@types+node@24.8.1_lightningcss@1.30.1/node_modules/vitest/dist/config.js";
+var __vite_injected_original_dirname = "E:\\jafariyan\\workplace\\lsevin\\lsevin\\frontend\\webapp";
+var vitest_config_default = defineConfig({
+  resolve: {
+    alias: {
+      "@": path.resolve(__vite_injected_original_dirname, "./src"),
+      // `server-only` throws on import outside a React Server Component, which is the
+      // whole point of the package — but under Vitest there is no RSC runtime, so it
+      // would fail every server module before a single assertion ran. Stubbing it keeps
+      // the guard in the real build while letting the tests import these modules.
+      "server-only": path.resolve(__vite_injected_original_dirname, "./src/accounting/server/__testing__/server-only-stub.ts")
+    }
+  },
+  test: {
+    environment: "node",
+    setupFiles: ["./src/accounting/server/__testing__/setup-env.ts"],
+    // Scoped to the accounting module on purpose: src/app/.../nearby.geo.test.ts is a
+    // standalone script that runs itself under `node`, not a Vitest suite, and sweeping
+    // it in here only produces a spurious "no test suite found".
+    // The consultation suite is listed explicitly for the same reason: it is a real
+    // Vitest suite (pure, no database), while a blanket "src/**" would still sweep in
+    // that standalone script.
+    include: [
+      "src/accounting/**/*.test.ts",
+      "src/features/consultation/**/*.test.ts",
+      "src/features/finance/lib/*.test.ts",
+      "src/features/shop/**/*.test.ts",
+      "src/features/booking-pro/**/*.test.ts",
+      "src/features/booking/**/*.test.ts",
+      "src/features/gym-memberships/**/*.test.ts",
+      "src/features/patients/**/*.test.ts",
+      "src/features/provider-portal/**/*.test.ts",
+      "src/features/support/**/*.test.ts",
+      "src/payment/**/*.test.ts",
+      "src/lib/seo/**/*.test.ts",
+      "src/lib/build-mode.test.ts"
+    ],
+    // Postgres row locks are the point of several tests; running files in parallel
+    // against one database makes those tests flaky for reasons unrelated to the code.
+    fileParallelism: false,
+    testTimeout: 3e4,
+    hookTimeout: 3e4
+  }
+});
+export {
+  vitest_config_default as default
+};
+//# sourceMappingURL=data:application/json;base64,ewogICJ2ZXJzaW9uIjogMywKICAic291cmNlcyI6IFsidml0ZXN0LmNvbmZpZy50cyJdLAogICJzb3VyY2VzQ29udGVudCI6IFsiY29uc3QgX192aXRlX2luamVjdGVkX29yaWdpbmFsX2Rpcm5hbWUgPSBcIkU6XFxcXGphZmFyaXlhblxcXFx3b3JrcGxhY2VcXFxcbHNldmluXFxcXGxzZXZpblxcXFxmcm9udGVuZFxcXFx3ZWJhcHBcIjtjb25zdCBfX3ZpdGVfaW5qZWN0ZWRfb3JpZ2luYWxfZmlsZW5hbWUgPSBcIkU6XFxcXGphZmFyaXlhblxcXFx3b3JrcGxhY2VcXFxcbHNldmluXFxcXGxzZXZpblxcXFxmcm9udGVuZFxcXFx3ZWJhcHBcXFxcdml0ZXN0LmNvbmZpZy50c1wiO2NvbnN0IF9fdml0ZV9pbmplY3RlZF9vcmlnaW5hbF9pbXBvcnRfbWV0YV91cmwgPSBcImZpbGU6Ly8vRTovamFmYXJpeWFuL3dvcmtwbGFjZS9sc2V2aW4vbHNldmluL2Zyb250ZW5kL3dlYmFwcC92aXRlc3QuY29uZmlnLnRzXCI7aW1wb3J0IHBhdGggZnJvbSBcIm5vZGU6cGF0aFwiO1xyXG5pbXBvcnQgeyBkZWZpbmVDb25maWcgfSBmcm9tIFwidml0ZXN0L2NvbmZpZ1wiO1xyXG5cclxuLyoqXHJcbiAqIFRoZSBhY2NvdW50aW5nIHRlc3RzIHJ1biBhZ2FpbnN0IGEgUkVBTCBQb3N0Z3Jlcywgbm90IGEgbW9jay5cclxuICpcclxuICogRXZlcnl0aGluZyB0aGV5IGFzc2VydCBcdTIwMTQgZGVmZXJyZWQgYmFsYW5jZSBjb25zdHJhaW50cywgcm93IGxvY2tzLCBPTiBDT05GTElDVFxyXG4gKiBpZGVtcG90ZW5jeSwgbm9uLW5lZ2F0aXZlIENIRUNLcywgYXBwZW5kLW9ubHkgdHJpZ2dlcnMgXHUyMDE0IGxpdmVzIGluIHRoZSBkYXRhYmFzZS4gQVxyXG4gKiBtb2NrZWQgY2xpZW50IHdvdWxkIHRlc3Qgbm90aGluZyBleGNlcHQgdGhhdCB0aGUgbW9jayB3YXMgY2FsbGVkLCB3aGljaCBpcyBwcmVjaXNlbHlcclxuICogdGhlIGNsYXNzIG9mIGJ1ZyB0aGlzIG1vZHVsZSBleGlzdHMgdG8gcHJldmVudC5cclxuICpcclxuICogRWFjaCB0ZXN0IHdyYXBzIGl0cyB3b3JrIGluIGEgdHJhbnNhY3Rpb24gdGhhdCBpcyByb2xsZWQgYmFjaywgc28gdGhlIGRhdGFiYXNlIGlzXHJcbiAqIHVuY2hhbmdlZCBhZnRlcndhcmRzIGFuZCB0ZXN0cyBkbyBub3QgaW50ZXJmZXJlIHdpdGggZWFjaCBvdGhlci5cclxuICpcclxuICogUG9pbnQgQUNDT1VOVElOR19URVNUX0RBVEFCQVNFX1VSTCBhdCBhIGRhdGFiYXNlIHlvdSBhcmUgd2lsbGluZyB0byB3cml0ZSB0by4gSXRcclxuICogZmFsbHMgYmFjayB0byBEQVRBQkFTRV9VUkwgZnJvbSAuZW52LmxvY2FsIHdpdGggdGhlIHBvcnQgb3ZlcnJpZGRlbiB0byA1NDQyLCB3aGljaCBpc1xyXG4gKiB3aGVyZSB0aGUgbG9jYWwgbHNldmluLXBnIGNvbnRhaW5lciBsaXN0ZW5zLlxyXG4gKi9cclxuZXhwb3J0IGRlZmF1bHQgZGVmaW5lQ29uZmlnKHtcclxuICByZXNvbHZlOiB7XHJcbiAgICBhbGlhczoge1xyXG4gICAgICBcIkBcIjogcGF0aC5yZXNvbHZlKF9fZGlybmFtZSwgXCIuL3NyY1wiKSxcclxuICAgICAgLy8gYHNlcnZlci1vbmx5YCB0aHJvd3Mgb24gaW1wb3J0IG91dHNpZGUgYSBSZWFjdCBTZXJ2ZXIgQ29tcG9uZW50LCB3aGljaCBpcyB0aGVcclxuICAgICAgLy8gd2hvbGUgcG9pbnQgb2YgdGhlIHBhY2thZ2UgXHUyMDE0IGJ1dCB1bmRlciBWaXRlc3QgdGhlcmUgaXMgbm8gUlNDIHJ1bnRpbWUsIHNvIGl0XHJcbiAgICAgIC8vIHdvdWxkIGZhaWwgZXZlcnkgc2VydmVyIG1vZHVsZSBiZWZvcmUgYSBzaW5nbGUgYXNzZXJ0aW9uIHJhbi4gU3R1YmJpbmcgaXQga2VlcHNcclxuICAgICAgLy8gdGhlIGd1YXJkIGluIHRoZSByZWFsIGJ1aWxkIHdoaWxlIGxldHRpbmcgdGhlIHRlc3RzIGltcG9ydCB0aGVzZSBtb2R1bGVzLlxyXG4gICAgICBcInNlcnZlci1vbmx5XCI6IHBhdGgucmVzb2x2ZShfX2Rpcm5hbWUsIFwiLi9zcmMvYWNjb3VudGluZy9zZXJ2ZXIvX190ZXN0aW5nX18vc2VydmVyLW9ubHktc3R1Yi50c1wiKSxcclxuICAgIH0sXHJcbiAgfSxcclxuICB0ZXN0OiB7XHJcbiAgICBlbnZpcm9ubWVudDogXCJub2RlXCIsXHJcbiAgICBzZXR1cEZpbGVzOiBbXCIuL3NyYy9hY2NvdW50aW5nL3NlcnZlci9fX3Rlc3RpbmdfXy9zZXR1cC1lbnYudHNcIl0sXHJcbiAgICAvLyBTY29wZWQgdG8gdGhlIGFjY291bnRpbmcgbW9kdWxlIG9uIHB1cnBvc2U6IHNyYy9hcHAvLi4uL25lYXJieS5nZW8udGVzdC50cyBpcyBhXHJcbiAgICAvLyBzdGFuZGFsb25lIHNjcmlwdCB0aGF0IHJ1bnMgaXRzZWxmIHVuZGVyIGBub2RlYCwgbm90IGEgVml0ZXN0IHN1aXRlLCBhbmQgc3dlZXBpbmdcclxuICAgIC8vIGl0IGluIGhlcmUgb25seSBwcm9kdWNlcyBhIHNwdXJpb3VzIFwibm8gdGVzdCBzdWl0ZSBmb3VuZFwiLlxyXG4gICAgLy8gVGhlIGNvbnN1bHRhdGlvbiBzdWl0ZSBpcyBsaXN0ZWQgZXhwbGljaXRseSBmb3IgdGhlIHNhbWUgcmVhc29uOiBpdCBpcyBhIHJlYWxcclxuICAgIC8vIFZpdGVzdCBzdWl0ZSAocHVyZSwgbm8gZGF0YWJhc2UpLCB3aGlsZSBhIGJsYW5rZXQgXCJzcmMvKipcIiB3b3VsZCBzdGlsbCBzd2VlcCBpblxyXG4gICAgLy8gdGhhdCBzdGFuZGFsb25lIHNjcmlwdC5cclxuICAgIGluY2x1ZGU6IFtcclxuICAgICAgXCJzcmMvYWNjb3VudGluZy8qKi8qLnRlc3QudHNcIixcclxuICAgICAgXCJzcmMvZmVhdHVyZXMvY29uc3VsdGF0aW9uLyoqLyoudGVzdC50c1wiLFxyXG4gICAgICBcInNyYy9mZWF0dXJlcy9maW5hbmNlL2xpYi8qLnRlc3QudHNcIixcclxuICAgICAgXCJzcmMvZmVhdHVyZXMvc2hvcC8qKi8qLnRlc3QudHNcIixcclxuICAgICAgXCJzcmMvZmVhdHVyZXMvYm9va2luZy1wcm8vKiovKi50ZXN0LnRzXCIsXHJcbiAgICAgIFwic3JjL2ZlYXR1cmVzL2Jvb2tpbmcvKiovKi50ZXN0LnRzXCIsXHJcbiAgICAgIFwic3JjL2ZlYXR1cmVzL2d5bS1tZW1iZXJzaGlwcy8qKi8qLnRlc3QudHNcIixcclxuICAgICAgXCJzcmMvZmVhdHVyZXMvcGF0aWVudHMvKiovKi50ZXN0LnRzXCIsXHJcbiAgICAgIFwic3JjL2ZlYXR1cmVzL3Byb3ZpZGVyLXBvcnRhbC8qKi8qLnRlc3QudHNcIixcclxuICAgICAgXCJzcmMvZmVhdHVyZXMvc3VwcG9ydC8qKi8qLnRlc3QudHNcIixcclxuICAgICAgXCJzcmMvcGF5bWVudC8qKi8qLnRlc3QudHNcIixcclxuICAgICAgXCJzcmMvbGliL3Nlby8qKi8qLnRlc3QudHNcIixcclxuICAgICAgXCJzcmMvbGliL2J1aWxkLW1vZGUudGVzdC50c1wiLFxyXG4gICAgXSxcclxuICAgIC8vIFBvc3RncmVzIHJvdyBsb2NrcyBhcmUgdGhlIHBvaW50IG9mIHNldmVyYWwgdGVzdHM7IHJ1bm5pbmcgZmlsZXMgaW4gcGFyYWxsZWxcclxuICAgIC8vIGFnYWluc3Qgb25lIGRhdGFiYXNlIG1ha2VzIHRob3NlIHRlc3RzIGZsYWt5IGZvciByZWFzb25zIHVucmVsYXRlZCB0byB0aGUgY29kZS5cclxuICAgIGZpbGVQYXJhbGxlbGlzbTogZmFsc2UsXHJcbiAgICB0ZXN0VGltZW91dDogMzBfMDAwLFxyXG4gICAgaG9va1RpbWVvdXQ6IDMwXzAwMCxcclxuICB9LFxyXG59KTtcclxuIl0sCiAgIm1hcHBpbmdzIjogIjtBQUFnVyxPQUFPLFVBQVU7QUFDalgsU0FBUyxvQkFBb0I7QUFEN0IsSUFBTSxtQ0FBbUM7QUFrQnpDLElBQU8sd0JBQVEsYUFBYTtBQUFBLEVBQzFCLFNBQVM7QUFBQSxJQUNQLE9BQU87QUFBQSxNQUNMLEtBQUssS0FBSyxRQUFRLGtDQUFXLE9BQU87QUFBQTtBQUFBO0FBQUE7QUFBQTtBQUFBLE1BS3BDLGVBQWUsS0FBSyxRQUFRLGtDQUFXLHlEQUF5RDtBQUFBLElBQ2xHO0FBQUEsRUFDRjtBQUFBLEVBQ0EsTUFBTTtBQUFBLElBQ0osYUFBYTtBQUFBLElBQ2IsWUFBWSxDQUFDLGtEQUFrRDtBQUFBO0FBQUE7QUFBQTtBQUFBO0FBQUE7QUFBQTtBQUFBLElBTy9ELFNBQVM7QUFBQSxNQUNQO0FBQUEsTUFDQTtBQUFBLE1BQ0E7QUFBQSxNQUNBO0FBQUEsTUFDQTtBQUFBLE1BQ0E7QUFBQSxNQUNBO0FBQUEsTUFDQTtBQUFBLE1BQ0E7QUFBQSxNQUNBO0FBQUEsTUFDQTtBQUFBLE1BQ0E7QUFBQSxNQUNBO0FBQUEsSUFDRjtBQUFBO0FBQUE7QUFBQSxJQUdBLGlCQUFpQjtBQUFBLElBQ2pCLGFBQWE7QUFBQSxJQUNiLGFBQWE7QUFBQSxFQUNmO0FBQ0YsQ0FBQzsiLAogICJuYW1lcyI6IFtdCn0K

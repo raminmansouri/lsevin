@@ -1,0 +1,118 @@
+{
+  "TourShared": {
+    "calendar": {
+      "label": "تقویم",
+      "persian": "شمسی",
+      "gregory": "میلادی",
+      "islamic-umalqura": "هجری قمری (ام‌القری)",
+      "shownIn": "تاریخ‌ها به تقویم {calendar}"
+    },
+    "traveler": {
+      "adult": "بزرگسال",
+      "child": "کودک",
+      "infant": "نوزاد",
+      "student": "دانشجو",
+      "senior": "سالمند"
+    },
+    "bookingStatus": {
+      "pending_payment": "در انتظار پرداخت",
+      "requested": "در انتظار تأیید برگزارکننده",
+      "confirmed": "قطعی",
+      "declined": "رد شده",
+      "cancelled": "لغو شده",
+      "completed": "انجام شده",
+      "no_show": "عدم حضور",
+      "expired": "منقضی"
+    },
+    "departureStatus": {
+      "scheduled": "برنامه‌ریزی شده",
+      "delayed": "با تأخیر",
+      "in_progress": "در حال اجرا",
+      "completed": "پایان یافته",
+      "cancelled": "لغو شده"
+    },
+    "tourStatus": {
+      "draft": "پیش‌نویس",
+      "submitted": "در حال بررسی",
+      "approved": "تأیید شده",
+      "published": "منتشر شده",
+      "paused": "متوقف",
+      "retired": "بایگانی",
+      "rejected": "نیازمند اصلاح"
+    },
+    "contentStatus": {
+      "missing": "خالی",
+      "draft": "پیش‌نویس",
+      "submitted": "ارسال شده",
+      "approved": "تأیید شده",
+      "published": "منتشر شده",
+      "outdated": "نیازمند بازبینی"
+    },
+    "common": {
+      "loading": "در حال بارگذاری…",
+      "retry": "تلاش دوباره",
+      "save": "ذخیره",
+      "cancel": "انصراف",
+      "close": "بستن",
+      "back": "بازگشت",
+      "next": "بعدی",
+      "fromPrice": "از {price}",
+      "perPerson": "هر نفر",
+      "perGroup": "هر گروه",
+      "days": "{count, plural, other {# روز}}",
+      "nights": "{count, plural, other {# شب}}",
+      "hours": "{count, plural, other {# ساعت}}",
+      "minutes": "{count, plural, other {# دقیقه}}",
+      "seatsLeft": "{count, plural, other {# جای خالی}}",
+      "translatedFrom": "به زبان {language} نمایش داده شده — هنوز به زبان شما موجود نیست",
+      "offline": "آفلاین هستید. اطلاعات ذخیره‌شده نمایش داده می‌شود.",
+      "unavailable": "در دسترس نیست",
+      "notProvided": "برگزارکننده ارائه نکرده است",
+      "timezone": "به وقت محلی ({zone})"
+    },
+    "errors": {
+      "insufficient_capacity": "ظرفیت کافی برای این حرکت باقی نمانده است.",
+      "departure_unavailable": "این حرکت دیگر قابل رزرو نیست.",
+      "booking_cutoff_passed": "مهلت رزرو این حرکت تمام شده است.",
+      "hold_expired": "مهلت نگه‌داری جای شما تمام شد. لطفاً دوباره تاریخ را انتخاب کنید.",
+      "hold_not_found": "جای نگه‌داشته‌شده پیدا نشد. لطفاً از ابتدا شروع کنید.",
+      "price_changed": "قیمت در حین رزرو تغییر کرد. پیش از ادامه، مبلغ جدید را بررسی کنید.",
+      "policy_changed": "قوانین رزرو به‌روزرسانی شد. لطفاً دوباره مطالعه و تأیید کنید.",
+      "group_size": "تعداد مسافران خارج از ظرفیت مجاز گروه است.",
+      "no_travelers": "حداقل یک مسافر اضافه کنید.",
+      "unpriced_traveler_class": "این نوع مسافر برای این گزینه ارائه نمی‌شود.",
+      "invalid_guest_details": "لطفاً فیلدهای مشخص‌شده را اصلاح کنید.",
+      "sign_in_required": "برای ادامه وارد حساب خود شوید.",
+      "forbidden": "اجازه انجام این کار را ندارید.",
+      "provider_role_required": "نقش شما در این مجموعه اجازه این کار را نمی‌دهد.",
+      "admin_required": "دسترسی مدیر لازم است.",
+      "locale_not_assigned": "این زبان به شما واگذار نشده است.",
+      "not_found": "پیدا نشد.",
+      "tour_not_found": "این تور در دسترس نیست.",
+      "booking_not_found": "این رزرو پیدا نشد.",
+      "not_cancellable": "این رزرو دیگر قابل لغو نیست.",
+      "publish_requirements_unmet": "پیش از انتشار، برخی اطلاعات ضروری کامل نشده است.",
+      "invalid_status_transition": "این تغییر در وضعیت فعلی مجاز نیست.",
+      "duplicate": "این مورد قبلاً وجود دارد.",
+      "invalid_value": "یکی از مقادیر نامعتبر است.",
+      "service_unavailable": "سرویس موقتاً در دسترس نیست. کمی بعد دوباره تلاش کنید.",
+      "unexpected_error": "خطایی رخ داد. دوباره تلاش کنید.",
+      "overlapping_assignment": "این راهنما یا منبع در این زمان مأموریت دیگری دارد.",
+      "changes_need_review": "تغییرات شما پیش از انتشار دوباره باید بررسی شود.",
+      "last_published_image": "تور منتشرشده باید حداقل یک تصویر داشته باشد.",
+      "invalid_date": "تاریخ معتبری در تقویم انتخاب‌شده وارد کنید.",
+      "invalid_time": "زمان معتبر وارد کنید (ساعت:دقیقه).",
+      "invalid_calendar": "یک تقویم انتخاب کنید.",
+      "invalid_slug": "فقط حروف کوچک انگلیسی، عدد و خط تیره."
+    },
+    "errorKind": {
+      "validation": "لطفاً ورودی‌ها را بررسی کنید.",
+      "authentication": "برای ادامه وارد شوید.",
+      "authorization": "اجازه انجام این کار را ندارید.",
+      "not_found": "پیدا نشد.",
+      "conflict": "به دلیل تغییر اطلاعات، انجام نشد.",
+      "infrastructure": "سرویس موقتاً در دسترس نیست. کمی بعد تلاش کنید.",
+      "unexpected": "خطایی رخ داد. دوباره تلاش کنید."
+    }
+  }
+}

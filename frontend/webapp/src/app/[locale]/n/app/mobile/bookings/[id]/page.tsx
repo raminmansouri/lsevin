@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState, useTransition } from "react";
+import { formatCurrencyAmount } from "@/features/finance/lib/money";
 import {
   AlertCircle,
   BadgeCheck,
@@ -88,19 +89,7 @@ function formatMoney(
     .toUpperCase();
   const value = Number(amount || 0);
   const localeTag = resolveIntlLocale(locale);
-  if (code === "IRR") {
-    const formattedNumber = new Intl.NumberFormat(localeTag).format(value);
-    return `${formattedNumber} ${localeTag.startsWith("fa") ? "ریال" : "Rial"}`;
-  }
-  try {
-    return new Intl.NumberFormat(localeTag, {
-      style: "currency",
-      currency: code,
-      maximumFractionDigits: 2,
-    }).format(value);
-  } catch {
-    return `${value.toLocaleString(localeTag)} ${code}`;
-  }
+  return formatCurrencyAmount(value, code, localeTag, { maximumFractionDigits: 2 });
 }
 // createBookingPaymentIntent/booking.bookings.payment_method return raw codes
 // ('pay_on_delivery', 'bank_receipt', 'wallet', ...) meant for logic, not display --
@@ -116,6 +105,7 @@ const BOOKING_PAYMENT_STATUS_LABEL_KEYS: Record<string, string> = {
   pending: "pending",
   paid: "paid",
   partiallypaid: "partial",
+  deposit_paid: "depositPaid",
   refunded: "refunded",
   failed: "failed",
   notrequired: "notRequired",
@@ -421,13 +411,15 @@ function BookingDetailContent({
   const StatusIcon = statusBadge.icon;
   const normalizedBookingStatus = normalizeStatus(booking.status);
   const normalizedPaymentStatus = normalizeStatus(booking.paymentStatus);
+  // Deposit paid online, the rest is paid at the place: nothing left to pay online.
+  const isDepositPaid = normalizedPaymentStatus === "deposit_paid";
   const canCancel = !["cancelled", "canceled", "completed", "done"].includes(
     normalizedBookingStatus
   );
   const canPay =
     Boolean(paymentGateway) &&
     Number(booking.remaining || 0) > 0 &&
-    !["paid", "succeeded", "captured", "completed", "refunded"].includes(
+    !["paid", "succeeded", "captured", "completed", "refunded", "deposit_paid"].includes(
       normalizedPaymentStatus
     ) &&
     !["cancelled", "canceled", "completed", "done"].includes(
@@ -625,6 +617,18 @@ function BookingDetailContent({
         </div>
 
         <div className="mb-3 space-y-2">
+          {booking.payInPlaceSurcharge != null && booking.payInPlaceSurcharge > 0 && (
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-gray-600">
+                {booking.payInPlaceSurchargePercent != null
+                  ? tBooking("receiptPayInPlaceFeePercent", { percent: booking.payInPlaceSurchargePercent.toLocaleString(resolveIntlLocale(locale)) })
+                  : tBooking("receiptPayInPlaceFee")}
+              </span>
+              <span className="font-semibold text-gray-900">
+                {formatMoney(booking.payInPlaceSurcharge, booking.currency, locale)}
+              </span>
+            </div>
+          )}
           <div className="flex items-center justify-between text-sm">
             <span className="text-gray-600">{tBooking("totalAmount")}</span>
             <span className="font-semibold text-gray-900">
@@ -632,7 +636,7 @@ function BookingDetailContent({
             </span>
           </div>
           <div className="flex items-center justify-between text-sm">
-            <span className="text-gray-600">{tBooking("paidAmount")}</span>
+            <span className="text-gray-600">{tBooking(isDepositPaid ? "paidOnline" : "paidAmount")}</span>
             <span className="font-semibold text-green-600">
               -{formatMoney(booking.deposit || 0, booking.currency, locale)}
             </span>
@@ -640,7 +644,7 @@ function BookingDetailContent({
           <div className="my-2 h-px bg-gray-200" />
           <div className="flex items-center justify-between">
             <span className="font-semibold text-gray-900">
-              {tBooking("remaining")}
+              {tBooking(isDepositPaid ? "payAtPlace" : "remaining")}
             </span>
             <span className="text-xl font-bold text-[#083f30]">
               {formatMoney(booking.remaining || 0, booking.currency, locale)}
@@ -660,6 +664,14 @@ function BookingDetailContent({
               ? ` • ${translateWithFallback(tBooking, PAYMENT_METHOD_LABEL_KEYS, booking.paymentMethod)}`
               : ""}
           </p>
+          {isDepositPaid ? (
+            <p className="mt-1 text-xs text-green-700">
+              {tBooking("depositPaidHint", {
+                paid: formatMoney(booking.deposit || 0, booking.currency, locale),
+                due: formatMoney(booking.remaining || 0, booking.currency, locale),
+              })}
+            </p>
+          ) : null}
         </div>
       </div>
 
@@ -748,7 +760,7 @@ function BookingDetailContent({
 
         <button
           type="button"
-          onClick={() => window.print()}
+          onClick={() => navigate(`/n/app/mobile/bookings/${booking.id}/invoice?print=1`)}
           className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-gray-900 font-semibold text-white transition-colors hover:bg-black"
         >
           <Download size={20} />

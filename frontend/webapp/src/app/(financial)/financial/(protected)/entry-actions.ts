@@ -148,8 +148,8 @@ export async function deleteDraftAction(
  */
 function messageFor(error: unknown): string {
   if (error instanceof AccountingAccessError) {
-    return error.capability === "configure"
-      ? "این مرحله دسترسی «مدیر مالی» می‌خواهد و حساب شما «حسابدار» است."
+    return error.permission === "entry.approve" || error.permission === "entry.post"
+      ? "این مرحله دسترسی «مدیر حسابداری» یا «مدیر» می‌خواهد."
       : "حساب شما اجازهٔ این کار را ندارد.";
   }
 

@@ -54,7 +54,11 @@ export function BugReportAttachmentGrid({ attachments, imageClassName = "h-36" }
                 aria-label={isPreviewable ? `Preview ${attachment.fileName}` : `Open ${attachment.fileName}`}
               >
                 {attachment.mediaType === "image" ? (
+                  // unoptimized: the browser loads the stored file straight from the files
+                  // host, like the shop media fields do. Going through /_next/image made
+                  // every attachment show the broken-image fallback in production.
                   <ImageWithFallback
+                    unoptimized
                     src={url}
                     alt={attachment.fileName}
                     width={640}
@@ -127,6 +131,7 @@ export function BugReportAttachmentGrid({ attachments, imageClassName = "h-36" }
             <div className="flex min-h-0 flex-1 items-center justify-center overflow-auto bg-slate-950 p-3 md:p-6">
               {activeAttachment.mediaType === "image" ? (
                 <ImageWithFallback
+                  unoptimized
                   src={activeUrl}
                   alt={activeAttachment.fileName}
                   width={1600}

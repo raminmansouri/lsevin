@@ -1,6 +1,7 @@
 import { PANEL_LOCALE } from "@/accounting/lib/panel-locale";
 import { formatAmount } from "@/accounting/lib/format";
 import { listDimensions, listPostableAccounts } from "@/accounting/server/manual-entry.queries";
+import { canAccounting } from "@/accounting/server/access";
 import { listInvoices } from "@/accounting/server/invoices.service";
 import { getBaseCurrency } from "@/accounting/server/settings.repository";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -25,11 +26,12 @@ const ENTRY_STATUS_LABEL: Record<string, string> = {
 
 export default async function InvoicesPage() {
   const locale = PANEL_LOCALE;
-  const [accounts, dimensions, invoices, baseCurrency] = await Promise.all([
+  const [accounts, dimensions, invoices, baseCurrency, canIssue] = await Promise.all([
     listPostableAccounts(locale),
     listDimensions(locale),
     listInvoices({ limit: 200 }, locale),
     getBaseCurrency(),
+    canAccounting("invoice.issue"),
   ]);
 
   const today = new Date().toISOString().slice(0, 10);
@@ -150,7 +152,7 @@ export default async function InvoicesPage() {
                         )}
                       </td>
                       <td className="p-2">
-                        <InvoiceRowActions invoiceId={invoice.id} status={invoice.status} />
+                        <InvoiceRowActions invoiceId={invoice.id} status={invoice.status} canIssue={canIssue} />
                       </td>
                     </tr>
                   );

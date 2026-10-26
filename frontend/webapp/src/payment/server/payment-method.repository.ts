@@ -10,6 +10,7 @@ export type BankAccountDetails = {
   iban: string;
   cardNumber: string;
   note: string;
+  audience?: "iran" | "international";
 };
 
 export type PaymentMethodConfiguration = {
@@ -73,6 +74,7 @@ function normalizeConfiguration(value: unknown): PaymentMethodConfiguration {
           iban: String(account.iban || "").trim(),
           cardNumber: String(account.cardNumber || "").trim(),
           note: String(account.note || "").trim(),
+          audience: account.audience === "international" ? ("international" as const) : ("iran" as const),
         }))
     : [];
 

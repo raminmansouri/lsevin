@@ -2,6 +2,8 @@
 
 import { SessionProvider } from "next-auth/react";
 
+import { OfflineProfileGuard } from "@/components/pwa/offline-profile";
+
 /**
  * The session is a cookie-backed JWT that only changes on sign-in, sign-out or
  * an explicit `update()`. Re-fetching it on a timer or on every window focus
@@ -18,6 +20,7 @@ const AuthProvider = ({ children }: React.PropsWithChildren) => {
       refetchOnWindowFocus={false}
       refetchWhenOffline={false}
     >
+      <OfflineProfileGuard />
       {children}
     </SessionProvider>
   );

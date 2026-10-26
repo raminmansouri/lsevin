@@ -4,7 +4,7 @@ import type { TransactionSql } from "postgres";
 
 import db from "@/config/database/db";
 
-import { assertAccounting } from "./access";
+import { assertAccounting, type AccountingPermission } from "./access";
 import { getPanelUser } from "./panel-auth";
 import { getBaseCurrency } from "./settings.repository";
 
@@ -81,20 +81,20 @@ export class ManualEntryError extends Error {
 const EDITABLE: EntryStatus[] = ["draft", "temporary"];
 
 /**
- * Which transitions are legal, and which capability each one demands.
+ * Which transitions are legal, and which permission each one demands.
  *
  * Kept as data rather than a chain of ifs so the whole workflow — including who
- * is allowed to do what — is readable in one place. `operate` covers an
- * accountant; `configure` is the finance admin who may approve and finalise.
+ * is allowed to do what — is readable in one place. `entry.edit` covers an
+ * accountant; approving and posting belong to the accounting manager and manager.
  * Approving your own document is refused separately below.
  */
-const TRANSITIONS: Record<string, { to: EntryStatus; capability: "operate" | "configure" }> = {
-  "draft>temporary": { to: "temporary", capability: "operate" },
-  "temporary>draft": { to: "draft", capability: "operate" },
-  "temporary>approved": { to: "approved", capability: "configure" },
-  "temporary>rejected": { to: "rejected", capability: "configure" },
-  "approved>posted": { to: "posted", capability: "configure" },
-  "approved>temporary": { to: "temporary", capability: "configure" },
+const TRANSITIONS: Record<string, { to: EntryStatus; permission: AccountingPermission }> = {
+  "draft>temporary": { to: "temporary", permission: "entry.edit" },
+  "temporary>draft": { to: "draft", permission: "entry.edit" },
+  "temporary>approved": { to: "approved", permission: "entry.approve" },
+  "temporary>rejected": { to: "rejected", permission: "entry.approve" },
+  "approved>posted": { to: "posted", permission: "entry.post" },
+  "approved>temporary": { to: "temporary", permission: "entry.approve" },
 };
 
 function assertMoney(value: string, field: string) {
@@ -137,7 +137,7 @@ function assertLine(line: ManualLineInput, index: number) {
  * unbalanced, which is where the rule belongs.
  */
 export async function createManualEntry(input: ManualEntryInput): Promise<{ id: string; entryNumber: string }> {
-  await assertAccounting("operate");
+  await assertAccounting("entry.edit");
   const user = await getPanelUser();
   if (!user) throw new ManualEntryError("Not signed in");
 
@@ -185,7 +185,7 @@ export async function createManualEntry(input: ManualEntryInput): Promise<{ id: 
 
 /** Replaces every line of an editable document. */
 export async function replaceManualEntryLines(entryId: string, lines: ManualLineInput[]): Promise<void> {
-  await assertAccounting("operate");
+  await assertAccounting("entry.edit");
   lines.forEach(assertLine);
   const baseCurrency = await getBaseCurrency();
 
@@ -269,7 +269,7 @@ export async function transitionEntry(
     if (!rule) {
       throw new ManualEntryError(`A ${entry.status} document cannot become ${to}`);
     }
-    await assertAccounting(rule.capability);
+    await assertAccounting(rule.permission);
 
     // Four-eyes: whoever wrote the document is not the one who blesses it. This is
     // the control that makes the approval step mean anything at all.
@@ -310,7 +310,7 @@ export async function transitionEntry(
  * paper is entered once.
  */
 export async function copyEntry(entryId: string): Promise<{ id: string; entryNumber: string }> {
-  await assertAccounting("operate");
+  await assertAccounting("entry.edit");
   const user = await getPanelUser();
   if (!user) throw new ManualEntryError("Not signed in");
 
@@ -363,7 +363,7 @@ export async function copyEntry(entryId: string): Promise<{ id: string; entryNum
 
 /** Deletes a document that never entered the books. */
 export async function deleteDraft(entryId: string): Promise<void> {
-  await assertAccounting("operate");
+  await assertAccounting("entry.edit");
 
   await db.begin(async (tx) => {
     const [entry] = await tx<{ status: EntryStatus }[]>`

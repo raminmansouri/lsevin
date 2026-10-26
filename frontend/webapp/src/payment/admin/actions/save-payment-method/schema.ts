@@ -8,6 +8,7 @@ const BankAccountSchema = z.object({
   iban: z.string().trim().max(60).optional().default(""),
   cardNumber: z.string().trim().max(60).optional().default(""),
   note: z.string().trim().max(300).optional().default(""),
+  audience: z.enum(["iran", "international"]).optional().default("iran"),
 });
 
 export const SavePaymentMethodSchema = z.object({

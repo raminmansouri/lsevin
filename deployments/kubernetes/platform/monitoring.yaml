@@ -24,10 +24,14 @@ data:
       # production node a 15-second scrape kept those scans near-continuous and
       # competed with customer writes, so collect database statistics less often.
       - job_name: postgres-exporter
-        scrape_interval: 60s
+        scrape_interval: 180s   # the table collectors take about 1.5 s of database time per scrape (top item in pg_stat_statements)
         scrape_timeout: 30s
         static_configs:
           - targets: ["postgres-exporter:9187"]
+      # backup ages, sync state, certificate expiry (deployments/monitoring/lsevin-site-exporter, on the node's pod bridge)
+      - job_name: lsevin-site
+        static_configs:
+          - targets: ["10.42.0.1:9199"]
       - job_name: platform-exporters
         static_configs:
           - targets: ["redis-exporter:9121", "elasticsearch-exporter:9114", "otel-collector:8889", "node-exporter:9100", "kube-state-metrics:8080", "eventstore:2113"]
@@ -117,7 +121,7 @@ spec:
       containers:
         - name: prometheus
           image: prom/prometheus:v3.5.0
-          args: ["--config.file=/etc/prometheus/prometheus.yml", "--storage.tsdb.path=/prometheus", "--storage.tsdb.retention.time=30d"]
+          args: ["--config.file=/etc/prometheus/prometheus.yml", "--storage.tsdb.path=/prometheus", "--storage.tsdb.retention.time=30d", "--web.enable-remote-write-receiver"]
           ports: [{name: http, containerPort: 9090}]
           volumeMounts:
             - {name: config, mountPath: /etc/prometheus}

@@ -11,10 +11,12 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 
 import { reviewChildBookingAction } from "../actions/review-child-booking";
+import { formatDepositAmount, getDepositSplit } from "../lib/deposit-split";
 import type { BookingDetail } from "../types";
 
 export function BookingDetailCard({ booking }: { booking: BookingDetail }) {
   const tAdmin = useTranslations("AdminGenerated");
+  const depositSplit = getDepositSplit(booking);
   return (
     <div className="space-y-6">
       <Card>
@@ -26,9 +28,15 @@ export function BookingDetailCard({ booking }: { booking: BookingDetail }) {
           <Info label={tAdmin("customer")} value={booking.customerName} />
           <Info label={tAdmin("email")} value={booking.customerEmail} />
           <Info label={tAdmin("status")} value={booking.bookingStatus} />
-          <Info label={tAdmin("paymentStatus")} value={booking.paymentStatus} />
+          <Info label={tAdmin("paymentStatus")} value={depositSplit ? tAdmin("depositPaid") : booking.paymentStatus} />
           <Info label={tAdmin("paymentMethod")} value={booking.paymentMethod} />
           <Info label={tAdmin("amount")} value={`${booking.totalAmount ?? '-'} ${booking.currencyCode ?? ''}`} />
+          {depositSplit ? (
+            <>
+              <Info label={tAdmin("paidOnline")} value={formatDepositAmount(depositSplit.paid, booking.payableCurrency)} />
+              <Info label={tAdmin("dueAtPlace")} value={formatDepositAmount(depositSplit.dueAtPlace, booking.payableCurrency)} />
+            </>
+          ) : null}
         </CardContent>
       </Card>
 

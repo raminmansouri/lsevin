@@ -1,0 +1,85 @@
+#!/usr/bin/env bash
+# lsevin-dr-offsite - run ON EACH SERVER (A and B) from a systemd timer. Gives every site an ENCRYPTED copy of the OTHER
+# site's recovery material, so losing a whole server (or its disk) never loses the ability to rebuild it.
+#
+#   what is protected      database dumps (pg_dump, newest 7 days) + a configuration bundle (secrets, Caddy, certificates,
+#                          systemd units, Jenkins jobs/credentials, SymmetricDS node config, Kubernetes manifests/secrets)
+#   what is NOT copied     media files (the two-way file sync already keeps a full copy on both sites) and the pgBackRest
+#                          repository (point-in-time recovery stays on the same site; the other site holds a live replica of the
+#                          database through SymmetricDS and, for corruption that replicated, the daily dumps)
+#   where it goes          the shared SeaweedFS bucket, under  _backups/<SITE>/  (never served publicly, excluded from the media
+#                          sync), encrypted client-side with rclone crypt (file names and contents) - the store only sees blobs
+#   who can read it        anybody holding /etc/lsevin-dr/rclone.conf (the crypt passwords). KEEP A COPY OFFLINE (the local DR kit).
+#   other site's data      pulled as still-encrypted blobs into /var/backups/lsevin-offsite/<OTHER>/ (decrypt with the same config)
+#
+# A dials out to B through the existing file-sync SSH tunnel (127.0.0.1:18333); B writes to its own local store, so B never
+# connects to A. Config: /etc/lsevin-dr/site.env  (see site-A.env / site-B.env).
+set -uo pipefail
+ENV_FILE=${ENV_FILE:-/etc/lsevin-dr/site.env}
+# shellcheck disable=SC1090
+. "$ENV_FILE"
+export RCLONE_CONFIG=/etc/lsevin-dr/rclone.conf
+STATE=/var/lib/lsevin-dr; LOG=/var/log/lsevin-dr.log
+OTHER=$([ "$SITE" = A ] && echo B || echo A)
+KEEP_DAYS=${KEEP_DAYS:-7}
+mkdir -p "$STATE" "$CONFIG_OUT" "/var/backups/lsevin-offsite/$OTHER"; chmod 700 "$CONFIG_OUT"
+log() { printf '%s %s\n' "$(date -u +%FT%TZ)" "$*" | tee -a "$LOG"; }
+exec 9>/run/lock/lsevin-dr.lock; flock -n 9 || { log "another run is in progress"; exit 0; }
+rc=0
+
+# ---------- 1. configuration bundle (plain tar stays local, chmod 600; only the encrypted copy leaves the machine)
+TS=$(date -u +%Y%m%dT%H%M%SZ); B="$CONFIG_OUT/config-$SITE-$TS.tar.gz"; W=$(mktemp -d)
+mkdir -p "$W/k8s"
+if command -v kubectl >/dev/null 2>&1; then
+  for kind in secret configmap deployment statefulset service cronjob persistentvolumeclaim ingress; do
+    kubectl -n lsevin get "$kind" -o yaml > "$W/k8s/$kind.yaml" 2>/dev/null || true
+  done
+fi
+# manifest: everything the rebuild script needs to know about this server that is not a file (versions, enabled units, containers, images)
+mkdir -p "$W/manifest"
+{
+  echo "site=$SITE"; echo "created=$(date -u +%FT%TZ)"; echo "host=$(hostname)"
+  echo "os=$(. /etc/os-release && echo "$PRETTY_NAME")"; echo "kernel=$(uname -r)"
+  echo "cpus=$(nproc)"; echo "mem_mb=$(free -m | awk '/Mem:/{print $2}')"; echo "disk_gb=$(df -BG --output=size / | tail -1 | tr -dc 0-9)"
+  echo "k3s=$(k3s --version 2>/dev/null | head -1)"; echo "docker=$(docker --version 2>/dev/null)"; echo "rclone=$(rclone --version 2>/dev/null | head -1)"
+  echo "app_commit=$(git -C /opt/lsevin/app rev-parse HEAD 2>/dev/null)"; echo "app_remote=$(git -C /opt/lsevin/app remote get-url origin 2>/dev/null | sed -E 's#(https?://)[^@/]*@##')"
+} > "$W/manifest/info.env"
+systemctl list-unit-files --no-legend --state=enabled 2>/dev/null | awk '{print $1}' | grep -E '^(lsevin|symds|openvpn|docker|k3s|ssh)' > "$W/manifest/enabled-units.txt" || true
+docker ps --format '{{.Names}}|{{.Image}}|{{.Label "com.docker.compose.project"}}|{{.Label "com.docker.compose.project.working_dir"}}|{{.Label "com.docker.compose.project.config_files"}}' > "$W/manifest/containers.txt" 2>/dev/null || true
+docker ps -q 2>/dev/null | xargs -r docker inspect > "$W/manifest/containers-inspect.json" 2>/dev/null || true
+(k3s ctr -n k8s.io images ls -q 2>/dev/null || true) | grep -v '^sha256' | grep -v '@sha256' > "$W/manifest/k3s-images.txt" || true
+crontab -l > "$W/manifest/root-crontab.txt" 2>/dev/null || true
+dpkg-query -W -f='${Package} ${Version}
+' > "$W/manifest/packages.txt" 2>/dev/null || true
+existing=(); for p in $CONFIG_PATHS; do [ -e "$p" ] && existing+=("$p"); done
+tar --ignore-failed-read --warning=no-file-changed -czf "$B.part" -C / --exclude='*/workspace/*' --exclude='*/builds/*' --exclude='*.log' \
+    "${existing[@]/#\//}" -C "$W" k8s manifest 2>/dev/null
+mv "$B.part" "$B"; chmod 600 "$B"; rm -rf "$W"
+find "$CONFIG_OUT" -name 'config-*.tar.gz' -mtime +14 -delete
+log "config bundle $(basename "$B") $(du -h "$B" | cut -f1)"
+
+# ---------- 2. is the shared store reachable?  (A: through the tunnel to B)
+if ! rclone lsd "s3:$BUCKET" >/dev/null 2>&1; then
+  log "SKIP upload: shared store not reachable (VPN/tunnel down?) - will retry at the next timer run"; exit 1
+fi
+
+# ---------- 3. upload (encrypted): newest dumps and config bundles; trim what is older than KEEP_DAYS
+newest_dumps=$(mktemp); find "$DUMP_DIR" -maxdepth 1 -name 'lsevin-2*.dump' -mtime -2 -printf '%f\n' > "$newest_dumps" 2>/dev/null
+if [ -s "$newest_dumps" ]; then
+  rclone copy "$DUMP_DIR" crypt:db --files-from "$newest_dumps" --transfers 2 --bwlimit "${BWLIMIT:-6M}" --retries 3 --timeout 10m >>"$LOG" 2>&1 || { log "ERROR: dump upload failed"; rc=1; }
+else
+  log "WARNING: no database dump newer than 2 days in $DUMP_DIR"; rc=1
+fi
+rclone copy "$CONFIG_OUT" crypt:config --include 'config-*.tar.gz' --max-age 2d --bwlimit "${BWLIMIT:-6M}" >>"$LOG" 2>&1 || { log "ERROR: config upload failed"; rc=1; }
+rclone delete crypt:db --min-age "${KEEP_DAYS}d" >>"$LOG" 2>&1 || true
+rclone delete crypt:config --min-age "${KEEP_DAYS}d" >>"$LOG" 2>&1 || true
+rm -f "$newest_dumps"
+
+# ---------- 4. pull the OTHER site's encrypted blobs (dumps + config only; never its pgBackRest repository)
+rclone sync "s3:$BUCKET/_backups/$OTHER" "/var/backups/lsevin-offsite/$OTHER" --bwlimit "${BWLIMIT:-6M}" --retries 3 --timeout 10m >>"$LOG" 2>&1 \
+  || { log "WARNING: could not pull $OTHER's backups (it may not have uploaded yet)"; }
+
+# ---------- 5. proof: the uploaded copy can be listed and decrypted (names), and the size is sane
+n=$(rclone lsf crypt:db 2>/dev/null | wc -l); m=$(rclone lsf crypt:config 2>/dev/null | wc -l)
+log "offsite $SITE: $n dump(s), $m config bundle(s) stored encrypted; pulled $OTHER: $(find /var/backups/lsevin-offsite/$OTHER -type f 2>/dev/null | wc -l) file(s)"
+if [ $rc -eq 0 ] && [ "$n" -ge 1 ] && [ "$m" -ge 1 ]; then touch "$STATE/last-offsite-ok"; else exit 1; fi

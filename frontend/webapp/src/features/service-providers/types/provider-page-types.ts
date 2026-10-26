@@ -126,6 +126,8 @@ export interface Review {
   images?: string[];
   createdByAdmin?: boolean;
   replies?: ReviewReply[];
+  /** Only on the author's own just-submitted review while it waits for approval. */
+  pending?: boolean;
 }
 
 export interface ReviewsPage {

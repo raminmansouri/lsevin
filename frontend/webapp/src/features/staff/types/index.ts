@@ -188,6 +188,8 @@ export interface ServiceDefinitionOption {
   value: number;
   durationMinutes: number;
   isActive: boolean;
+  /** Providers that offer this service (from category.provider_services). */
+  providerIds: string[];
 }
 
 export interface ServiceProviderOption {

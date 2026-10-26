@@ -38,7 +38,7 @@ describe("public search domain and sitemap", () => {
       { path: "/n/app/mobile/service/s" },
     ]);
     const result = await sitemap();
-    expect(result).toHaveLength(7 * routing.locales.length);
+    expect(result).toHaveLength(8 * routing.locales.length);
     expect(new Set(result.map((x) => x.url)).size).toBe(result.length);
     for (const item of result) {
       expect(item.url.startsWith("https://lsevincare.com/")).toBe(true);
@@ -48,20 +48,21 @@ describe("public search domain and sitemap", () => {
     const sql = query.mock.calls[0][0].join("?");
     expect(sql).toContain("ps.is_active = true and sp.is_active = true");
     expect(sql).toContain("psf.is_active = true and sp.is_active = true");
+    expect(sql).toContain("category.provider_type_is_public(sp.provider_type_id)");
     expect(query).toHaveBeenCalledTimes(1);
   });
   it("recovers catalog discovery after a transient database failure", async () => {
     const log = vi.spyOn(console, "error").mockImplementation(() => {});
     try {
       query.mockRejectedValueOnce(new Error("private connection detail"));
-      expect(await sitemap()).toHaveLength(4 * routing.locales.length);
+      expect(await sitemap()).toHaveLength(5 * routing.locales.length);
       expect(log.mock.calls.flat().join(" ")).not.toContain(
         "private connection detail"
       );
       query.mockResolvedValueOnce([
         { path: "/n/app/mobile/service/recovered" },
       ]);
-      expect(await sitemap()).toHaveLength(5 * routing.locales.length);
+      expect(await sitemap()).toHaveLength(6 * routing.locales.length);
     } finally {
       log.mockRestore();
     }

@@ -2716,6 +2716,8 @@
         "label": "Descripción"
       },
       "isActive": "Activo",
+      "addonOnly": "Add-on only (translator, car, ...)",
+      "addonOnlyHelp": "When on, providers of this type appear only in the booking add-ons step, filtered by city, and are hidden from search, home and every other listing.",
       "attributes": "Definiciones de atributos",
       "attributesPlaceholder": "Atributos ({count} definidos)",
       "create": "Crear tipo de proveedor",
@@ -4210,6 +4212,9 @@
     "serviceImage": "Imagen del servicio",
     "serviceManagement": "Gestión de servicios",
     "serviceProviderDeleted": "Proveedor de servicios eliminado",
+    "duplicateProvider": "Duplicar",
+    "serviceProviderDuplicated": "Proveedor de servicios duplicado",
+    "duplicateServiceProviderConfirm": "¿Crear una copia de {name}?",
     "serviceRoomTypeUUID": "UUID del tipo de habitación del servicio",
     "services": "Servicios",
     "serviceType": "Tipo de servicio",
@@ -4860,6 +4865,68 @@
     }
   },
   "Booking": {
+    "mealPlan": {
+      "label": "Régimen de comidas",
+      "chooseTitle": "Elige el régimen de comidas",
+      "room_only": {
+        "name": "Solo alojamiento",
+        "description": "Sin comidas incluidas"
+      },
+      "breakfast": {
+        "name": "Con desayuno",
+        "description": "Desayuno incluido"
+      },
+      "full_board": {
+        "name": "Pensión completa",
+        "description": "Desayuno, almuerzo y cena incluidos"
+      }
+    },
+    "stay": {
+      "perNight": "por noche",
+      "nightsLine": "Noches: {nights} × {price} por noche",
+      "checkoutAfterCheckin": "La salida debe ser posterior a la entrada.",
+      "adultsMin": "Se requiere al menos {min} adulto.",
+      "decreaseAdults": "Reducir adultos",
+      "increaseAdults": "Aumentar adultos"
+    },
+    "addonScope": {
+      "showAllInCountry": "Mostrar todo en {country}",
+      "showOnlyCity": "Mostrar solo {city}"
+    },
+    "payInPlace": {
+      "heading": "Pago en el lugar: elige un plan",
+      "intro": "Pagas una parte de la factura ahora y el resto en el lugar. Cuanto menos pagues ahora, más se añade a la factura.",
+      "payNow": "Pagar {percent} % ahora",
+      "surcharge": "Se añade un {percent} % a la factura",
+      "bill": "Factura",
+      "dueNow": "A pagar ahora",
+      "dueLater": "A pagar en el lugar",
+      "methodHeading": "¿Cómo quieres pagar la parte que vence ahora?",
+      "noMethods": "Pagar la parte que vence ahora requiere monedero o pago en línea, y ninguno está disponible para ti por ahora.",
+      "loading": "Cargando métodos de pago...",
+      "addition": "Recargo por pago en el lugar ({percent} %)",
+      "errors": {
+        "choosePlan": "Elige un plan de pago en el lugar y cómo pagar la parte que vence ahora.",
+        "chooseDepositMethod": "Elige cómo pagar la parte que vence ahora.",
+        "depositMethodNotAllowed": "La parte que vence ahora debe pagarse con el monedero o con pago en línea.",
+        "methodNotAvailable": "Este método de pago no está disponible para ti."
+      }
+    },
+    "builtinPaymentMethods": {
+      "pay_on_delivery": {
+        "name": "Pago en el lugar",
+        "description": "Paga una parte del importe ahora y el resto en efectivo cuando se preste el servicio."
+      },
+      "bank_receipt": {
+        "name": "Comprobante de transferencia bancaria",
+        "description": "Transfiere el importe a una de las cuentas siguientes y sube la imagen del comprobante."
+      },
+      "wallet": {
+        "name": "Monedero",
+        "description": "Paga al instante con el saldo de tu monedero."
+      }
+    },
+    "timezoneMismatchWarning": "Nota: el proveedor trabaja en la zona horaria {providerZone} y la tuya es {viewerZone}. Las horas mostradas se han convertido a tu zona horaria.",
     "upcoming": "Próximas",
     "past": "Pasadas",
     "abuDhabi": "Abu Dabi",
@@ -13123,6 +13190,22 @@
     }
   },
   "Shop": {
+    "checkoutHints": {
+      "completeToPay": "Completa estos datos para pagar:",
+      "required": "Introduce {field}.",
+      "minLength": "{field} necesita al menos {min} caracteres.",
+      "maxLength": "{field} admite como máximo {max} caracteres.",
+      "email": "Introduce un correo electrónico válido.",
+      "delivery": "Elige un método de envío.",
+      "noDelivery": "No hay envío a esta dirección. Cambia el destino.",
+      "payment": "Elige un método de pago.",
+      "noPayment": "No hay métodos de pago disponibles. Inténtalo más tarde.",
+      "coupon": "Este cupón ya no es válido. Revisa tu carrito.",
+      "unavailable": "Revisa tu carrito antes de pagar.",
+      "quoteFailed": "No se pudieron actualizar las opciones de envío o pago. Pulsa para reintentar.",
+      "updating": "Actualizando opciones de envío y pago…",
+      "retryNotice": "Tu pedido está guardado. Reintenta el pago sin crear otro pedido."
+    },
     "changeCurrency": "Cambiar moneda de visualización",
     "currencyChangeFailed": "No se pudo cambiar la moneda. Inténtalo de nuevo."
   },

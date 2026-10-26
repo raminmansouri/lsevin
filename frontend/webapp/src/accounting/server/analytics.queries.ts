@@ -33,7 +33,7 @@ export type CostCenterRow = {
 };
 
 export async function getCostCenterReport(locale = "fa"): Promise<CostCenterRow[]> {
-  await assertAccounting("read");
+  await assertAccounting("books.view");
 
   const rows = await db<
     {
@@ -82,7 +82,7 @@ export type ProjectRow = {
 };
 
 export async function getProjectReport(locale = "fa"): Promise<ProjectRow[]> {
-  await assertAccounting("read");
+  await assertAccounting("books.view");
 
   const rows = await db<
     {
@@ -139,7 +139,7 @@ export async function getPartyBalances(
   locale = "fa",
   filters: { partyType?: string } = {}
 ): Promise<PartyBalanceRow[]> {
-  await assertAccounting("read");
+  await assertAccounting("books.view");
 
   const rows = await db<
     {
@@ -198,7 +198,7 @@ export type PendingDocumentRow = {
 };
 
 export async function getPendingDocuments(): Promise<PendingDocumentRow[]> {
-  await assertAccounting("read");
+  await assertAccounting("books.view");
 
   const rows = await db<
     {
@@ -252,7 +252,7 @@ export type MonthlyVolumeRow = { month: string; label: string; totalDebit: strin
  * it never happened.
  */
 export async function getMonthlyVolume(): Promise<MonthlyVolumeRow[]> {
-  await assertAccounting("read");
+  await assertAccounting("books.view");
 
   const rows = await db<{ month: string; total_debit: string }[]>`
     with months as (
@@ -294,7 +294,7 @@ export type CurrencyExposureRow = {
 };
 
 export async function getCurrencyExposure(): Promise<CurrencyExposureRow[]> {
-  await assertAccounting("read");
+  await assertAccounting("books.view");
 
   const rows = await db<
     {

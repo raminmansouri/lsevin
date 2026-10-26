@@ -25,14 +25,13 @@ export default async function CheckoutPage({ params }: { params: Promise<{ local
   const ctx = await getShopContext();
   const addresses = await listCustomerAddresses();
   const defaultAddr = addresses.find((a: any) => a.isDefault) ?? addresses[0];
-  const [quote, paymentMethods] = await Promise.all([
-    quoteCheckout({
+  const paymentMethods = await getPaymentMethods(normalizeLocale(ctx.locale), cart.currency);
+  const quote = await quoteCheckout({
       cartId: cart.id,
+      paymentCurrency: paymentMethods[0]?.currency,
       destinationCountry: (defaultAddr as any)?.country ?? null,
       destinationRegion: (defaultAddr as any)?.stateRegion ?? null,
-    }),
-    getPaymentMethods(normalizeLocale(ctx.locale)),
-  ]);
+    });
 
   await emitCommerceEvent("shop_checkout_started", {
     cartId: cart.id,
@@ -58,7 +57,7 @@ export default async function CheckoutPage({ params }: { params: Promise<{ local
           currency: i.currency,
         }))}
         initialQuote={quote}
-        paymentMethods={paymentMethods.map((m) => ({ id: m.id, code: m.code, name: m.name, description: m.description ?? "" }))}
+        paymentMethods={paymentMethods.map((m) => ({ id: m.id, code: m.code, name: m.name, description: m.description ?? "", currency: m.currency }))}
         savedAddresses={addresses}
         defaultEmail={ctx.email ?? undefined}
         isAuthenticated={Boolean(ctx.userId)}

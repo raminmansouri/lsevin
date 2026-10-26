@@ -1,6 +1,7 @@
 import React from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+
 import CategoriesPage, {
   dynamic as categoriesRendering,
   revalidate as categoriesTtl,
@@ -212,3 +213,7 @@ describe("entity page status contract", () => {
     });
   });
 });
+
+vi.mock("@/features/tours/server/platform/settings", () => ({ getTourSettings: async () => ({ tourismCategoryId: null }) }));
+
+vi.mock("@/features/shop/components/ProductSpecs", () => ({ ProductSpecs: () => null }));

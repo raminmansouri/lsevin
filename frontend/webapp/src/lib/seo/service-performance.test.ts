@@ -12,6 +12,7 @@ const mocks = vi.hoisted(() => ({
 vi.mock("@/config/database/db", () => ({ default: mocks.sql }));
 vi.mock("@/features/finance/lib/server/currency-queries", () => ({
   convertProviderPrice: mocks.convert,
+  resolveProviderMultiplier: async () => 1,
   resolvePreferredCurrencyCode: mocks.currency,
   getUserPhoneCountryCode: mocks.phone,
   getDefaultCurrencyForCountry: mocks.countryCurrency,

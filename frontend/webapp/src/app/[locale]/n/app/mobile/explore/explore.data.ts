@@ -392,7 +392,7 @@ function buildServiceSpecialistSearchSql(term: string, lang: string) {
 }
 
 function buildFeaturedProvidersWhere(filters: ExploreFiltersInput, lang: string) {
-  const conditions = [sql`sp.is_active = true`];
+  const conditions = [sql`sp.is_active = true and category.provider_type_is_public(sp.provider_type_id)`];
 
   if (filters.verifiedOnly) {
     conditions.push(sql`coalesce(sp.accredited, false) = true`);
@@ -480,7 +480,7 @@ function buildFeaturedProvidersWhere(filters: ExploreFiltersInput, lang: string)
 
 function buildTrendingServicesWhere(filters: ExploreFiltersInput, lang: string) {
   const conditions = [
-    sql`sp.is_active = true`,
+    sql`sp.is_active = true and category.provider_type_is_public(sp.provider_type_id)`,
     sql`ps.is_active = true`,
     // Same editorial rule as the home "خدمات ویژه" shelf (get-home-page.ts): a
     // service is on this shelf because an admin ticked "Featured", and for no
@@ -577,7 +577,7 @@ function buildSponsoredProvidersWhere(
   languageFilter: string[],
   currencyCode: string,
 ) {
-  const conditions = [sql`sp.is_active = true`, sql`sp.is_sponsored = true`];
+  const conditions = [sql`sp.is_active = true and category.provider_type_is_public(sp.provider_type_id)`, sql`sp.is_sponsored = true`];
 
   if (filters.providerTypeId) {
     conditions.push(sql`sp.provider_type_id = ${filters.providerTypeId}::uuid`);
@@ -729,7 +729,7 @@ async function getExploreCatalogCached(
       on icon_media.id::text = nullif(btrim(split_part(coalesce(pt.icon_url, ''), ',', 1)), '')
     left join category.service_providers sp
       on sp.provider_type_id = pt.id
-     and sp.is_active = true
+     and sp.is_active = true and category.provider_type_is_public(sp.provider_type_id)
     where pt.is_active = true
     group by
       pt.id,
@@ -989,12 +989,12 @@ async function getExploreCatalogCached(
       from (
         select sp.id as service_provider_id, unnest(coalesce(sp.languages, array[]::text[])) as language
         from category.service_providers sp
-        where sp.is_active = true
+        where sp.is_active = true and category.provider_type_is_public(sp.provider_type_id)
         union all
         select pl.service_provider_id, pl.language
         from category.provider_languages pl
         join category.service_providers sp on sp.id = pl.service_provider_id
-        where sp.is_active = true
+        where sp.is_active = true and category.provider_type_is_public(sp.provider_type_id)
       ) lang
       where nullif(btrim(language), '') is not null
       group by lower(replace(language, '_', '-'))
@@ -1006,7 +1006,7 @@ async function getExploreCatalogCached(
         from category.provider_services ps
         join category.service_providers sp on sp.id = ps.service_provider_id
         where ps.is_active = true
-          and sp.is_active = true
+          and sp.is_active = true and category.provider_type_is_public(sp.provider_type_id)
         group by upper(coalesce(nullif(btrim(ps.currency), ''), 'USD'))
       )
       select

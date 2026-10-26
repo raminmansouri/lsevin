@@ -285,7 +285,7 @@ export async function getTrendingSearches(
       WHERE ps.is_active = true
         AND sd.is_active = true
         AND c.is_active = true
-        AND sp.is_active = true
+        AND sp.is_active = true and category.provider_type_is_public(sp.provider_type_id)
     ),
     aggregated AS (
       SELECT
@@ -337,7 +337,7 @@ export async function getPopularSearchCategories(
      AND ps.is_active = true
     JOIN category.service_providers sp
       ON sp.id = ps.service_provider_id
-     AND sp.is_active = true
+     AND sp.is_active = true and category.provider_type_is_public(sp.provider_type_id)
     WHERE c.is_active = true
     GROUP BY c.id, c.name_translations, c.icon, c.icon_url, c.image_url, c.display_order
     ORDER BY COUNT(DISTINCT ps.id) DESC, c.display_order ASC, label ASC
@@ -442,7 +442,7 @@ export async function getSearchResultCategoriesCached(args: {
     FROM category.categories c
     JOIN category.service_definitions sd ON sd.category_id = c.id AND sd.is_active = true
     JOIN category.provider_services ps ON ps.service_definition_id = sd.id AND ps.is_active = true
-    JOIN category.service_providers sp ON sp.id = ps.service_provider_id AND sp.is_active = true
+    JOIN category.service_providers sp ON sp.id = ps.service_provider_id AND sp.is_active = true and category.provider_type_is_public(sp.provider_type_id)
     CROSS JOIN params
     WHERE c.is_active = true
       AND (params.provider_type_id IS NULL OR sp.provider_type_id = params.provider_type_id)
@@ -485,7 +485,7 @@ export async function getSearchResultFiltersCached(args: {
       common.get_translation_t(pt.name_translations, params.locale, 'en-US') AS label,
       COUNT(DISTINCT sp.id)::int AS count
     FROM category.provider_types pt
-    JOIN category.service_providers sp ON sp.provider_type_id = pt.id AND sp.is_active = true
+    JOIN category.service_providers sp ON sp.provider_type_id = pt.id AND sp.is_active = true and category.provider_type_is_public(sp.provider_type_id)
     JOIN category.provider_services ps ON ps.service_provider_id = sp.id AND ps.is_active = true
     JOIN category.service_definitions sd ON sd.id = ps.service_definition_id AND sd.is_active = true
     CROSS JOIN params
@@ -594,7 +594,7 @@ export async function getSearchResults(params?: {
         WHERE ps.is_active = true
           AND sd.is_active = true
           AND c.is_active = true
-          AND sp.is_active = true
+          AND sp.is_active = true and category.provider_type_is_public(sp.provider_type_id)
           AND (params.category_id IS NULL OR c.id = params.category_id)
           AND (params.provider_type_id IS NULL OR pt.id = params.provider_type_id)
           AND (params.country IS NULL OR lower(sp.country) = lower(params.country))
@@ -666,7 +666,7 @@ export async function getSearchResults(params?: {
           ORDER BY ps.value ASC NULLS LAST
           LIMIT 1
         ) min_service ON true
-        WHERE sp.is_active = true
+        WHERE sp.is_active = true and category.provider_type_is_public(sp.provider_type_id)
           AND (params.provider_type_id IS NULL OR pt.id = params.provider_type_id)
           AND (params.country IS NULL OR lower(sp.country) = lower(params.country))
           AND (params.city IS NULL OR lower(sp.city) = lower(params.city))
@@ -711,7 +711,7 @@ export async function getSearchResults(params?: {
           (COALESCE(staff.rating, 0)::float8 / 10) AS rank_score
         FROM category.staff staff
         JOIN category.provider_staffs psf ON psf.staff_id = staff.id AND psf.is_active = true
-        JOIN category.service_providers sp ON sp.id = psf.service_provider_id AND sp.is_active = true
+        JOIN category.service_providers sp ON sp.id = psf.service_provider_id AND sp.is_active = true and category.provider_type_is_public(sp.provider_type_id)
         JOIN category.provider_types pt ON pt.id = sp.provider_type_id
         CROSS JOIN params
         WHERE staff.is_active = true

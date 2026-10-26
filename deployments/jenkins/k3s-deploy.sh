@@ -2,7 +2,10 @@
 set -eu
 
 K3S_HELPER_IMAGE="${K3S_HELPER_IMAGE:-rancher/k3s:v1.36.4-k3s1}"
-RELEASE_DIR="${K3S_RELEASE_DIR:-/opt/lsevin/releases}"
+# This path is bind-mounted at the same location in the Jenkins controller.
+# Docker helper mounts resolve on the host, so an unmounted controller path
+# would save an archive that containerd cannot see.
+RELEASE_DIR="${K3S_RELEASE_DIR:-/var/lib/lsevin/releases}"
 
 kubectl_cmd() {
   docker run --rm -i --user 0:0 --network host --entrypoint kubectl \
@@ -89,12 +92,23 @@ case "${1:-}" in
       echo "less than 10 GiB is free; deployment was not started" >&2
       exit 1
     }
+   
+    # Never start a heavy build while the host is short of memory or busy: a build on top of the live site is what exhausted
+    # server A on 2026-10-18. Wait up to 15 minutes for the host to calm down, then give up (the build fails; the site is untouched).
+    min_mb="${LSEVIN_BUILD_MIN_AVAILABLE_MB:-2800}"; max_load="${LSEVIN_BUILD_MAX_LOAD:-6}"; waited=0
+    # deploying an image that is already built needs little memory: deploy-* set LSEVIN_SKIP_MEMORY_GATE=1
+    while [ "${LSEVIN_SKIP_MEMORY_GATE:-0}" != 1 ]; do
+      avail_mb="$(awk '/^MemAvailable:/ {print int($2 / 1024)}' /proc/meminfo)"; load1="$(cut -d ' ' -f 1 /proc/loadavg)"
+      if [ "$avail_mb" -ge "$min_mb" ] && [ "${load1%.*}" -lt "$max_load" ]; then break; fi
+      [ "$waited" -lt 900 ] || { echo "host is busy (available memory ${avail_mb} MB, need ${min_mb}; load ${load1}, limit ${max_load}); build not started to protect the live site" >&2; exit 1; }
+      echo "waiting for the host to calm down: available memory ${avail_mb} MB (need ${min_mb}), load ${load1} (limit ${max_load})"; sleep 30; waited=$((waited + 30))
+    done
     ;;
   deploy-core)
     shift
     namespace="${1:?namespace is required}"
     tag="${2:?image tag is required}"
-    "$0" preflight
+    LSEVIN_SKIP_MEMORY_GATE=1 "$0" preflight
     verify_images "lsevin-api:$tag" "lsevin-webapp:$tag" "lsevin-webapp-migrations:$tag"
     old_api="$(kubectl_cmd -n "$namespace" get deployment/lsevin-api -o jsonpath='{.spec.template.spec.containers[?(@.name=="api")].image}')"
     old_web="$(kubectl_cmd -n "$namespace" get deployment/lsevin-webapp -o jsonpath='{.spec.template.spec.containers[?(@.name=="web")].image}')"
@@ -140,7 +154,7 @@ case "${1:-}" in
     shift
     namespace="${1:?namespace is required}"
     tag="${2:?image tag is required}"
-    "$0" preflight
+    LSEVIN_SKIP_MEMORY_GATE=1 "$0" preflight
     verify_images "lsevin-api:$tag"
     old_api="$(kubectl_cmd -n "$namespace" get deployment/lsevin-api -o jsonpath='{.spec.template.spec.containers[?(@.name=="api")].image}')"
     rollback_api() {
@@ -166,7 +180,7 @@ case "${1:-}" in
     namespace="${1:?namespace is required}"
     web_tag="${2:?web image tag is required}"
     migration_tag="${3:-}"
-    "$0" preflight
+    LSEVIN_SKIP_MEMORY_GATE=1 "$0" preflight
     verify_images "lsevin-webapp:$web_tag"
     if [ -n "$migration_tag" ]; then
       verify_images "lsevin-webapp-migrations:$migration_tag"

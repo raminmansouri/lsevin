@@ -96,6 +96,7 @@ function tryComponentLabel(key: string): string | undefined {
   if (typeof t.has === "function" && !t.has(key)) {
     return undefined;
   }
+  
   try {
     return globalComponentT(key);
   } catch {

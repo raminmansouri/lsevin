@@ -93,14 +93,43 @@ export async function getDisplayCurrencyOptions(): Promise<DisplayCurrencyOption
 }
 
 /**
+ * Currency each site language shows prices in. Persian shows Rial, English
+ * dollars, and the rest their usual market currency. A language whose currency
+ * is not display-enabled in Finance falls through to the country/shop default.
+ */
+const LOCALE_DISPLAY_CURRENCY: Record<string, string> = {
+  fa: "IRR",
+  en: "USD",
+  ar: "AED",
+  tr: "TRY",
+  de: "EUR",
+  fr: "EUR",
+  es: "EUR",
+  ku: "USD",
+  ru: "USD",
+  tg: "USD",
+  zh: "USD",
+};
+
+export function currencyForLocale(locale?: string | null): string | null {
+  const lang = (locale || "").trim().toLowerCase().split(/[-_]/)[0];
+  return (lang && LOCALE_DISPLAY_CURRENCY[lang]) || null;
+}
+
+/**
  * The effective display currency for this request.
  *
- *  - `market_default`               : market/customer country default, NO customer override.
- *  - `market_default_with_selector` : same default, but an explicitly selected
- *                                     Finance display-enabled currency wins and
- *                                     is persisted via the session/cookie.
+ *  - `market_default`               : the site language's currency, else the
+ *                                     market/customer country default, NO customer override.
+ *  - `market_default_with_selector` : same default, but a Finance display-enabled
+ *                                     currency the customer picked *in this language*
+ *                                     wins (cookie). Switching language drops back
+ *                                     to that language's currency.
  */
-export async function resolveDisplayCurrency(ctx: Pick<ShopContext, "countryCode" | "selectedCurrencyCode">): Promise<{
+export async function resolveDisplayCurrency(
+  ctx: Pick<ShopContext, "countryCode" | "selectedCurrencyCode"> &
+    Partial<Pick<ShopContext, "locale" | "selectedCurrencyLocale">>
+): Promise<{
   currency: string;
   mode: ShopPricingMode;
   selectable: DisplayCurrencyOption[];
@@ -118,11 +147,26 @@ export async function resolveDisplayCurrency(ctx: Pick<ShopContext, "countryCode
 
   let currency = enabled.has(marketDefault) ? marketDefault : (enabled.has(fallback) ? fallback : HARD_FALLBACK_CURRENCY);
 
-  if (mode === "market_default_with_selector" && ctx.selectedCurrencyCode && enabled.has(ctx.selectedCurrencyCode)) {
+  const localeCurrency = currencyForLocale(ctx.locale);
+  if (localeCurrency && enabled.has(localeCurrency)) currency = localeCurrency;
+
+  // With a language in play, only a choice made in that same language counts.
+  const selectionApplies =
+    !ctx.locale || (ctx.selectedCurrencyLocale ?? null) === normalizeLang(ctx.locale);
+  if (
+    mode === "market_default_with_selector" &&
+    ctx.selectedCurrencyCode &&
+    enabled.has(ctx.selectedCurrencyCode) &&
+    selectionApplies
+  ) {
     currency = ctx.selectedCurrencyCode;
   }
 
   return { currency, mode, selectable: mode === "market_default_with_selector" ? options : [] };
+}
+
+function normalizeLang(locale: string): string {
+  return locale.trim().toLowerCase().split(/[-_]/)[0];
 }
 
 function sameCurrency(a: string, b: string) {

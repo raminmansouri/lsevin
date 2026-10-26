@@ -1,5 +1,6 @@
 import type { NextConfig } from "next";
 import createNextIntlPlugin from "next-intl/plugin";
+
 import { routing } from "./src/i18n/routing";
 import { facetHeaders } from "./src/lib/seo/facet-headers";
 
@@ -25,10 +26,42 @@ const withNextIntl = createNextIntlPlugin({
 
 const nextConfig: NextConfig = {
   async headers() {
-    return facetHeaders(routing.locales);
+    return [
+      ...facetHeaders(routing.locales),
+      {
+        source: "/sw.js",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "no-cache, no-store, must-revalidate",
+          },
+          {
+            key: "Content-Type",
+            value: "application/javascript; charset=utf-8",
+          },
+          { key: "Service-Worker-Allowed", value: "/" },
+          {
+            key: "Content-Security-Policy",
+            value: "default-src 'self'; script-src 'self'; connect-src 'self'",
+          },
+        ],
+      },
+      {
+        source: "/offline.html",
+        headers: [
+          { key: "Cache-Control", value: "no-cache" },
+          {
+            key: "Content-Security-Policy",
+            value:
+              "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'self'; form-action 'self'",
+          },
+          { key: "X-Robots-Tag", value: "noindex" },
+        ],
+      },
+    ];
   },
-  
-   typescript: {
+
+  typescript: {
     ignoreBuildErrors: true,
   },
   output: "standalone",
@@ -63,6 +96,18 @@ const nextConfig: NextConfig = {
     },
     serverActions: {
       bodySizeLimit: "5mb",
+      // The same app is served on several domains, some through a proxy that
+      // passes appmain.lsevin.com as the Host. Without this, Next rejects every
+      // server action sent from the other domains (e.g. lsevin.ir), so admin
+      // forms such as adding a product failed with "unexpected response".
+      allowedOrigins: [
+        "lsevin.ir",
+        "*.lsevin.ir",
+        "lsevin.com",
+        "*.lsevin.com",
+        "lsevincare.com",
+        "*.lsevincare.com",
+      ],
     },
   },
 
@@ -119,46 +164,46 @@ const nextConfig: NextConfig = {
   },
 
   async rewrites() {
-  const localePattern = "en|fa|tr|ar|es|ku|de|fr";
+    const localePattern = "en|fa|tr|ar|es|ku|de|fr";
 
-  // Only use Next rewrites locally (or whenever you explicitly set BOOKING_ORIGIN)
-  // In production behind Caddy, leave BOOKING_ORIGIN empty and rewrites will be disabled.
-  const bookingOrigin = process.env.BOOKING_ORIGIN;
+    // Only use Next rewrites locally (or whenever you explicitly set BOOKING_ORIGIN)
+    // In production behind Caddy, leave BOOKING_ORIGIN empty and rewrites will be disabled.
+    const bookingOrigin = process.env.BOOKING_ORIGIN;
 
-  if (!bookingOrigin) return [];
+    if (!bookingOrigin) return [];
 
-  return [
-    // locale assets
-    {
-      source: `/:locale(${localePattern})/booking/assets/:path*`,
-      destination: `${bookingOrigin}/booking/assets/:path*`,
-    },
-    // locale routes
-    {
-      source: `/:locale(${localePattern})/booking/:path*`,
-      destination: `${bookingOrigin}/booking/:path*`,
-    },
-    // non-locale assets
-    {
-      source: `/booking/assets/:path*`,
-      destination: `${bookingOrigin}/booking/assets/:path*`,
-    },
-    // non-locale routes
-    {
-      source: "/booking/:path*",
-      destination: `${bookingOrigin}/booking/:path*`,
-    },
-    // roots
-    {
-      source: "/booking",
-      destination: `${bookingOrigin}/booking/`,
-    },
-    {
-      source: `/:locale(${localePattern})/booking`,
-      destination: `${bookingOrigin}/booking/`,
-    },
-  ];
-},
+    return [
+      // locale assets
+      {
+        source: `/:locale(${localePattern})/booking/assets/:path*`,
+        destination: `${bookingOrigin}/booking/assets/:path*`,
+      },
+      // locale routes
+      {
+        source: `/:locale(${localePattern})/booking/:path*`,
+        destination: `${bookingOrigin}/booking/:path*`,
+      },
+      // non-locale assets
+      {
+        source: `/booking/assets/:path*`,
+        destination: `${bookingOrigin}/booking/assets/:path*`,
+      },
+      // non-locale routes
+      {
+        source: "/booking/:path*",
+        destination: `${bookingOrigin}/booking/:path*`,
+      },
+      // roots
+      {
+        source: "/booking",
+        destination: `${bookingOrigin}/booking/`,
+      },
+      {
+        source: `/:locale(${localePattern})/booking`,
+        destination: `${bookingOrigin}/booking/`,
+      },
+    ];
+  },
 };
 
 export default withNextIntl(nextConfig);

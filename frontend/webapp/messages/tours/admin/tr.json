@@ -1,0 +1,86 @@
+{
+  "TourAdmin": {
+    "nav": {
+      "label": "Tur platformu bölümleri",
+      "dashboard": "Genel bakış",
+      "tours": "Turlar ve inceleme",
+      "taxonomy": "Sınıflandırma",
+      "destinations": "Destinasyonlar",
+      "editorial": "Ana sayfa içeriği",
+      "translations": "Çeviriler",
+      "settings": "Ayarlar",
+      "departures": "Kalkışlar",
+      "bookings": "Rezervasyonlar",
+      "disputes": "Uyuşmazlıklar",
+      "commissions": "Komisyonlar",
+      "incidents": "Olaylar",
+      "reviews": "Yorumlar",
+      "compliance": "Uyum",
+      "reports": "Raporlar",
+      "notifications": "Bildirimler"
+    },
+    "common": {
+      "saved": "Kaydedildi",
+      "cancel": "İptal",
+      "reason": "Gerekçe (denetim kaydına yazılır)",
+      "reasonHint": "En az {min} karakter."
+    },
+    "calendarField": {
+      "placeholder": "YYYY-AA-GG",
+      "format": "Seçili takvimde yıl-ay-gün.",
+      "invalid": "Bu tarih {calendar} takviminde yok.",
+      "canonical": "Kaydedilen"
+    },
+    "dashboard": {
+      "title": "Tur platformu",
+      "description": "Tüm sağlayıcılar için katalog, inceleme kuyruğu, operasyon ve çeviri durumu.",
+      "reviewQueue": "İnceleme bekleyen",
+      "departuresNext7": "Önümüzdeki 7 gün kalkışlar",
+      "openIncidents": "Açık olaylar",
+      "critical": "kritik",
+      "openDisputes": "Açık uyuşmazlıklar",
+      "pendingMedia": "İncelenecek medya",
+      "pendingReviews": "İncelenecek yorumlar",
+      "expiringQualifications": "Süresi dolan rehber belgeleri",
+      "toursByStatus": "Duruma göre turlar",
+      "bookingsByStatus": "Duruma göre rezervasyonlar",
+      "coverage": "Çeviri kapsamı (zorunlu alanlar)",
+      "coverageReport": "Tam kapsam raporu",
+      "locale": "Dil",
+      "complete": "Tamamlanan turlar",
+      "outdated": "İnceleme gerekli"
+    },
+    "workflow": {
+      "title": "İnceleme ve yayın",
+      "description": "Hatalar yayını engeller; uyarılar incelemeciye gösterilir.",
+      "requirements": "Gereksinimler",
+      "approveNote": "Onay notu (isteğe bağlı)",
+      "approvePublish": "Onayla ve yayınla",
+      "published": "Yayınlandı",
+      "rejectNote": "Sağlayıcı için ret notu (zorunlu)",
+      "reject": "Reddet",
+      "rejected": "Reddedildi — sağlayıcı notunuzu görür",
+      "submit": "İncelemeye gönder",
+      "submitted": "İncelemeye gönderildi",
+      "pause": "Yayını askıya al",
+      "resume": "Yayını geri yükle",
+      "retire": "Arşivle",
+      "duplicateSlug": "Kopya için yeni kısa ad",
+      "duplicate": "Taslak olarak çoğalt"
+    },
+    "requirement": {
+      "allMet": "Tüm yayın gereksinimleri karşılandı.",
+      "missing_title": "Başlık eksik",
+      "missing_summary": "Özet eksik",
+      "missing_description": "Açıklama eksik",
+      "missing_meeting_instructions": "Buluşma talimatları eksik",
+      "missing_cancellation_policy": "İptal metni eksik",
+      "missing_safety_notes": "Güvenlik notları eksik",
+      "missing_media": "En az bir kullanılabilir görsel gerekli",
+      "missing_price": "Yetişkin fiyatı olan aktif bir seçenek gerekli",
+      "missing_policy": "Bir rezervasyon politikası sürümü gerekli",
+      "missing_meeting_point": "Buluşma noktası konumu eksik",
+      "outdated_translations": "Bazı çeviriler inceleme gerektiriyor"
+    }
+  }
+}

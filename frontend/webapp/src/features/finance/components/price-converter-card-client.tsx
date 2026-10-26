@@ -5,7 +5,7 @@ import { useMemo, useState } from 'react';
 
 import { cn } from '@/lib/utils';
 
-import { calculateDiscountPercent, formatMoney } from '../lib/money';
+import { calculateDiscountPercent, formatMoney, getRialTomanLabel } from '../lib/money';
 import type { ConvertedMoney } from '../types';
 
 export function PriceConverterCardClient({
@@ -111,7 +111,7 @@ export function PriceConverterCardClient({
                 : 'bg-white/10 text-white hover:bg-white/20'
             )}
           >
-            {currency}
+            {getRialTomanLabel(currency, locale) ?? currency}
           </button>
         ))}
       </div>

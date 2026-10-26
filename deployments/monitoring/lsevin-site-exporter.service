@@ -1,0 +1,19 @@
+[Unit]
+Description=LSevin site metrics for Prometheus (replication, Jenkins, providers, backups)
+After=network-online.target k3s.service
+
+[Service]
+EnvironmentFile=-/etc/lsevin-dr/exporter.env
+Environment=KUBECONFIG=/etc/rancher/k3s/k3s.yaml
+ExecStart=/usr/bin/python3 /usr/local/sbin/lsevin-site-exporter
+Restart=always
+RestartSec=5
+# observer: reads files and the Kubernetes API, writes nothing
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+NoNewPrivileges=true
+MemoryMax=160M
+
+[Install]
+WantedBy=multi-user.target

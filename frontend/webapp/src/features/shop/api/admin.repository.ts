@@ -1,6 +1,6 @@
 import "server-only";
 
-import { assertShopAdmin } from "../lib/context";
+import { assertShopAdmin, normalizeLocale } from "../lib/context";
 import { sql } from "../lib/db";
 
 /**
@@ -158,27 +158,40 @@ export async function listAdminCategories() {
   `;
 }
 
+// Feeds the searchable "related services" picker on the shop product/category edit
+// pages. Returns both the English and Persian names so the picker can show them side by
+// side and match a search in either language. The search runs in the browser, so the
+// list is not cut at 100 any more (services past the first 100 could not be linked).
 export async function listServiceDefinitionsForPicker(q?: string) {
   await assertShopAdmin();
   const like = q ? `%${q}%` : null;
-  return sql<any[]>`
-    select id::text as id, common.get_translation_t(name_translations, 'en', 'en') as name, is_active
-    from category.service_definitions
-    where (${like}::text is null or common.get_translation_t(name_translations, 'en', 'en') ilike ${like})
-    order by is_active desc, name asc
-    limit 100
+  return sql<{ id: string; name: string; name_en: string; name_fa: string; is_active: boolean }[]>`
+    select id, name_en as name, name_en, name_fa, is_active
+    from (
+      select id::text as id,
+        common.get_translation_t(name_translations, 'en', 'en') as name_en,
+        common.get_translation_t(name_translations, 'fa', 'fa-IR') as name_fa,
+        is_active
+      from category.service_definitions
+    ) s
+    where (${like}::text is null or name_en ilike ${like} or name_fa ilike ${like})
+    order by is_active desc, name_en asc
+    limit 5000
   `;
 }
 
-export async function getAdminProductForEdit(productId: string) {
+export async function getAdminProductForEdit(productId: string, locale?: string) {
   await assertShopAdmin();
+  const lang = normalizeLocale(locale);
   const [p] = await sql<any[]>`
     select
       id::text as id, status, slug, base_price::float as base_price, base_currency,
       name_translations, short_description_translations, description_translations,
       primary_category_id::text as primary_category_id,
       is_featured, is_best_seller, is_new_arrival,
-      is_preorder, preorder_release_at::text as preorder_release_at, preorder_limit,
+      is_preorder,
+      to_char(preorder_release_at at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"') as preorder_release_at,
+      preorder_limit,
       preorder_payment_policy::text as preorder_payment_policy,
       preorder_deposit_percent::float as preorder_deposit_percent
     from shop.products where id = ${productId}::uuid and deleted_at is null limit 1
@@ -189,6 +202,7 @@ export async function getAdminProductForEdit(productId: string) {
     sql<any[]>`
       select psl.id::text as id, psl.service_definition_id::text as service_definition_id, psl.relation_type, psl.display_order,
         coalesce(common.get_translation_t(sd.name_translations, 'en', 'en'), '(missing service)') as service_name,
+        common.get_translation_t(sd.name_translations, 'fa', 'fa-IR') as service_name_fa,
         (sd.id is null) as broken
       from shop.product_service_links psl
       left join category.service_definitions sd on sd.id = psl.service_definition_id
@@ -207,8 +221,9 @@ export async function getAdminProductForEdit(productId: string) {
     `,
     sql<any[]>`
       select a.id::text as attribute_id, a.slug, a.display_type, a.is_variant_defining,
-        common.get_translation_t(a.name_translations, 'en', 'en') as name,
-        pa.is_required, pa.display_order
+        common.get_translation_t(a.name_translations, ${lang}, 'en') as name,
+        pa.is_required, pa.display_order,
+        pa.value_ids::text[] as value_ids, pa.text_value, pa.text_value_translations
       from shop.product_attributes pa
       join shop.attributes a on a.id = pa.attribute_id
       where pa.product_id = ${productId}::uuid
@@ -268,6 +283,7 @@ export async function getCategoryForEdit(id: string) {
   const links = await sql<any[]>`
     select csl.id::text as id, csl.service_definition_id::text as service_definition_id, csl.relation_type,
       coalesce(common.get_translation_t(sd.name_translations, 'en', 'en'), '(missing service)') as service_name,
+      common.get_translation_t(sd.name_translations, 'fa', 'fa-IR') as service_name_fa,
       (sd.id is null) as broken
     from shop.category_service_links csl
     left join category.service_definitions sd on sd.id = csl.service_definition_id
@@ -409,17 +425,19 @@ export async function getHomeSectionWithItems(id: string) {
 // ======================================================================
 // Attributes (SHP-ADM-007)
 // ======================================================================
-export async function listAttributesAdmin() {
+export async function listAttributesAdmin(locale?: string) {
   await assertShopAdmin();
+  const lang = normalizeLocale(locale);
   return sql<any[]>`
     select a.id::text as id, a.slug, a.display_type, a.is_variant_defining,
       a.name_translations,
-      common.get_translation_t(a.name_translations, 'en', 'en') as name,
+      common.get_translation_t(a.name_translations, ${lang}, 'en') as name,
       coalesce((select count(*)::int from shop.product_attributes pa where pa.attribute_id = a.id), 0) as product_count,
       coalesce((
         select jsonb_agg(jsonb_build_object(
           'id', v.id, 'value', v.value, 'colorHex', v.color_hex, 'imageUrl', v.image_url,
-          'name', common.get_translation_t(v.display_name_translations, 'en', 'en')
+          'name', coalesce(nullif(common.get_translation_t(v.display_name_translations, ${lang}, 'en'), ''), v.value),
+          'translations', v.display_name_translations
         ) order by v.value)
         from shop.attribute_values v where v.attribute_id = a.id
       ), '[]'::jsonb) as values

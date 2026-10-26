@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 import type { PropsWithChildren } from "react";
 
 import type { PanelUser } from "@/accounting/server/panel-auth";
+import { hasPermission, type AccountingPermission } from "@/accounting/server/permissions";
 
 import { signOutAction } from "../auth-actions";
 import { NavLink } from "./nav-link";
@@ -17,7 +18,7 @@ import { NavLink } from "./nav-link";
  */
 const NAV_GROUPS: {
   section: string;
-  items: { href: string; key: string; requires?: "finance_admin" }[];
+  items: { href: string; key: string; requires?: AccountingPermission }[];
 }[] = [
   {
     section: "اصلی",
@@ -43,10 +44,12 @@ const NAV_GROUPS: {
   {
     section: "کنترل و حاکمیت",
     items: [
-      { href: "/financial/dimensions", key: "dimensionsTitle", requires: "finance_admin" },
+      { href: "/financial/dimensions", key: "dimensionsTitle" },
       { href: "/financial/templates", key: "templatesTitle" },
-      { href: "/financial/audit", key: "auditTitle" },
-      { href: "/financial/settings", key: "settingsTitle", requires: "finance_admin" },
+      { href: "/financial/audit", key: "auditTitle", requires: "audit.view" },
+      { href: "/financial/settings", key: "settingsTitle", requires: "settings.manage" },
+      { href: "/financial/users", key: "usersTitle", requires: "users.manage" },
+      { href: "/financial/account", key: "myAccountTitle" },
     ],
   },
 ];
@@ -56,7 +59,7 @@ export async function PanelShell({ user, children }: PropsWithChildren<{ user: P
 
   const groups = NAV_GROUPS.map((group) => ({
     ...group,
-    items: group.items.filter((item) => !item.requires || user.role === item.requires),
+    items: group.items.filter((item) => !item.requires || hasPermission(user.role, item.requires)),
   })).filter((group) => group.items.length > 0);
 
   return (
@@ -113,8 +116,8 @@ export async function PanelShell({ user, children }: PropsWithChildren<{ user: P
             {user.mustChangePassword && (
               <div className="mb-4 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900 print:hidden">
                 {t("mustChangePassword")}{" "}
-                <Link href="/financial/settings" className="underline">
-                  {t("settingsTitle")}
+                <Link href="/financial/account" className="underline">
+                  {t("myAccountTitle")}
                 </Link>
               </div>
             )}

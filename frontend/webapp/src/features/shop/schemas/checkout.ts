@@ -1,5 +1,6 @@
-import { shopId } from "./id";
 import { z } from "zod";
+
+import { shopId } from "./id";
 
 export const addressInputSchema = z.object({
   fullName: z.string().trim().min(2).max(120),
@@ -30,13 +31,18 @@ export const checkoutQuoteSchema = z.object({
   destinationRegion: z.string().trim().max(120).optional().nullable(),
 });
 
+export const checkoutEmailSchema = z.string().trim().email();
+
 export const placeOrderSchema = z.object({
   cartId: shopId,
   idempotencyKey: z.string().trim().min(8).max(80),
   // Optional at the edge — a signed-in checkout falls back to the account email
   // server-side (SHP-CHK). Guests still get an "email required" error from
   // placeOrder when neither is available.
-  email: z.string().email().optional().or(z.literal("")).transform((v) => v || undefined),
+  email: checkoutEmailSchema
+    .optional()
+    .or(z.literal(""))
+    .transform((v) => v || undefined),
   shippingAddress: addressInputSchema,
   billingAddress: addressInputSchema.optional(),
   sameBilling: z.boolean().optional().default(true),
@@ -54,6 +60,14 @@ export const startPaymentSchema = z.object({
   methodCode: z.string().trim().max(40).optional().nullable(),
 });
 
-export const couponCodeSchema = z.object({ cartId: shopId, code: z.string().trim().min(2).max(50) });
-export const cartLineQuantitySchema = z.object({ cartItemId: shopId, quantity: z.coerce.number().int().min(1).max(999) });
-export const currencySelectSchema = z.object({ currency: z.string().trim().min(3).max(10) });
+export const couponCodeSchema = z.object({
+  cartId: shopId,
+  code: z.string().trim().min(2).max(50),
+});
+export const cartLineQuantitySchema = z.object({
+  cartItemId: shopId,
+  quantity: z.coerce.number().int().min(1).max(999),
+});
+export const currencySelectSchema = z.object({
+  currency: z.string().trim().min(3).max(10),
+});

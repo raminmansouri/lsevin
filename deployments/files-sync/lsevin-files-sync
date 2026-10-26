@@ -1,0 +1,79 @@
+#!/usr/bin/env bash
+# lsevin-files-sync - two-way sync of the SeaweedFS media bucket between server A (local) and server B
+# (through the restricted SSH tunnel on 127.0.0.1:18333). Runs ON SERVER A from a systemd timer, so A always
+# dials out; B never connects to A.
+#
+#  - objects created, changed or deleted on either side are propagated (rclone bisync, size + checksum:
+#    the S3 listing carries each object's MD5, so same-size rewrites such as the health heartbeat are detected
+#    without one HEAD request per object over the VPN; size+modtime was tested and does NOT work: copies look changed)
+#  - safety: refuses to run if either side is unreachable, a canary object (RCLONE_TEST) must exist on both
+#    sides, and a run that would delete more than MAX_DELETE percent of a side is aborted
+#  - conflicts (same key changed on both sides): BOTH versions are kept, renamed ..path1 / ..path2 (nothing is lost)
+#  - per-run transfer cap protects the VPN data allowance (soft cutoff; the remainder goes in the next run)
+#
+#   lsevin-files-sync            normal run (also what the timer calls)
+#   lsevin-files-sync --resync   rebuild the baseline (union of both sides, nothing is deleted)
+#   lsevin-files-sync --status   one-screen summary
+set -uo pipefail
+export RCLONE_CONFIG=/etc/lsevin-files/rclone.conf
+BUCKET="${BUCKET:-lsevin-media}"
+STATE=/var/lib/lsevin-files
+WORKDIR=$STATE/bisync
+LOG=/var/log/lsevin-files-sync.log
+MAX_DELETE="${MAX_DELETE:-10}"
+MAX_TRANSFER="${MAX_TRANSFER:-3G}"
+mkdir -p "$WORKDIR"; touch "$LOG"
+
+log() { printf '%s %s\n' "$(date -u +%FT%TZ)" "$*" >> "$LOG"; }
+
+status() {
+  echo "last run : $(cat "$STATE/last-run" 2>/dev/null || echo never)"
+  echo "last ok  : $(cat "$STATE/last-ok" 2>/dev/null || echo never)"
+  echo "tunnel   : $(systemctl is-active lsevin-files-tunnel)   timer: $(systemctl is-active lsevin-files-sync.timer)"
+  echo "objects  : A=$(rclone size "a:$BUCKET" 2>/dev/null | awk '/objects/{print $3}')  B=$(rclone size "b:$BUCKET" 2>/dev/null | awk '/objects/{print $3}')"
+  echo "log tail :"; tail -n 6 "$LOG" | sed 's/^/  /'
+}
+[ "${1:-}" = "--status" ] && { status; exit 0; }
+
+exec 9>/run/lock/lsevin-files-sync.lock
+flock -n 9 || { log "previous run still in progress - skipping"; exit 0; }
+
+# both sides must answer before anything is compared
+if ! rclone lsd "a:$BUCKET" >/dev/null 2>&1; then log "ABORT: local store (A) not reachable"; echo "$(date -u +%FT%TZ) FAIL local-store" > $STATE/last-run; exit 1; fi
+if ! rclone lsd "b:$BUCKET" >/dev/null 2>&1; then log "SKIP: B not reachable (VPN/tunnel down) - will retry"; echo "$(date -u +%FT%TZ) FAIL b-unreachable" > $STATE/last-run; exit 1; fi
+
+# canary object that bisync's --check-access looks for on both sides (created if missing)
+for r in a b; do
+  if [ -z "$(rclone lsf "$r:$BUCKET" --files-only --max-depth 1 --include 'RCLONE_TEST' 2>/dev/null)" ]; then
+    echo "lsevin sync canary - do not delete" | rclone rcat "$r:$BUCKET/RCLONE_TEST" >/dev/null 2>&1 || { log "ABORT: cannot create canary on $r"; exit 1; }
+  fi
+done
+
+ARGS=(bisync "a:$BUCKET" "b:$BUCKET"
+  --workdir "$WORKDIR"
+  --compare size,checksum
+  --check-access
+  --resilient --recover
+  --max-delete "$MAX_DELETE"
+  --conflict-resolve none
+  --transfers 4 --checkers 8 --retries 2 --low-level-retries 5
+  --timeout 5m --contimeout 30s
+  --max-transfer "$MAX_TRANSFER" --cutoff-mode soft
+  --create-empty-src-dirs=false
+  --exclude "_scratch/**"       # reserved prefix for tests; never synced
+  --exclude "Categories/_health/**"   # heartbeat is written directly to both sides by lsevin-health
+  --exclude "_backups/**"             # encrypted recovery copies (lsevin-dr-offsite) are handled separately, never mirrored
+  --log-file "$LOG" --log-level NOTICE)
+
+if [ "${1:-}" = "--resync" ] || [ -z "$(ls -A "$WORKDIR" 2>/dev/null)" ]; then
+  log "RESYNC (building baseline; union of both sides, nothing deleted)"
+  ARGS+=(--resync --resync-mode newer)
+fi
+
+start=$(date +%s)
+rclone "${ARGS[@]}"; rc=$?
+dur=$(( $(date +%s) - start ))
+echo "$(date -u +%FT%TZ) rc=$rc ${dur}s" > $STATE/last-run
+if [ $rc -eq 0 ]; then echo "$(date -u +%FT%TZ)" > $STATE/last-ok; log "ok (${dur}s)"
+else log "FAILED rc=$rc after ${dur}s"; fi
+exit $rc

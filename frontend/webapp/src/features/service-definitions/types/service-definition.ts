@@ -43,6 +43,7 @@ export interface ServiceDefinitionDetails {
   isActive: boolean;
   requiresCustomerAddress: boolean;
   requiresSpecialist: boolean;
+  bookingUiMode?: 'default_slot' | 'date_range' | 'custom_form';
   attributeDefinitions: ServiceAttributeDefinition[];
   requirements: ServiceRequirement[];
   uploadRequirements: ServiceDefinitionUploadRequirement[];

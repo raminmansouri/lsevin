@@ -8,10 +8,16 @@ import { DynamicServiceForm } from '@/features/form-builder/components/DynamicSe
 import { ConsultationStep } from '@/features/consultation/components/consultation-step';
 import type { BookingDraftState, ChildBookingDraft, ProviderCardItem, ProviderTypeAddonItem, ServiceCardItem, SpecialistCardItem, UploadRequirementItem } from '../types';
 import { AddressPicker } from './AddressPicker';
+import { BookingProgress } from './BookingProgress';
 import { ChildAddonBookingCard } from './ChildAddonBookingCard';
+import { MobileItinerary } from './itinerary/MobileItinerary';
 import { TourDeparturePicker } from './TourDeparturePicker';
 import { BookingShopProductsStep, type BookingShopProductGroup } from './BookingShopProductsStep';
 import { PaymentMethodsPanel } from './PaymentMethodsPanel';
+import { PayInPlacePlanPicker } from './PayInPlacePlanPicker';
+import { MealPlanPicker } from './MealPlanPicker';
+import { AdultsStepper } from './AdultsStepper';
+import { isPayInPlacePlanId } from '../utils/pay-in-place-plans';
 import { SaveBookingCartButton } from './SaveBookingCartButton';
 import { DecisionStack } from './step-service/DecisionStack';
 import { autoSelectId, canContinueService, type SlotKey } from '../lib/decision-stack';
@@ -20,6 +26,7 @@ import { BookingDatePicker } from './BookingDatePicker';
 import { formatBookingDateTime, isBookingTimeZone, BOOKING_CALENDARS, bookingCalendarLabel, type BookingCalendar, formatBookingDate, isReasonableBookingIsoDate, normalizeBookingCalendar, toIsoDate } from '../lib/calendar';
 import { RichTextPreview } from '@/features/booking/components/rich-text-preview';
 import { ShareMedicalCaseStep } from './ShareMedicalCaseStep';
+import { formatCurrencyAmount } from '@/features/finance/lib/money';
 async function getJson<T>(url: string, init?: RequestInit): Promise<T> {
     const response = await fetch(url, {
         ...init,
@@ -42,6 +49,24 @@ async function getJson<T>(url: string, init?: RequestInit): Promise<T> {
         throw new Error(message);
     }
     return response.json();
+}
+/**
+ * Puts one add-on into the draft's list. A draft can hold several add-ons of the same provider
+ * type (migration 0078), so saved rows are matched by id; a row still being filled in on the
+ * desktop card (no id yet) is matched by its provider type.
+ */
+function upsertChildBooking(list: ChildBookingDraft[] | undefined, next: ChildBookingDraft): ChildBookingDraft[] {
+    const current = list ?? [];
+    const index = next.id
+        ? current.findIndex((item) => item.id === next.id)
+        : current.findIndex((item) => !item.id && item.providerTypeId === next.providerTypeId);
+    if (index < 0) {
+        // A first save returns the new id: replace the unsaved row it came from rather than adding a twin.
+        const unsaved = next.id ? current.findIndex((item) => !item.id && item.providerTypeId === next.providerTypeId) : -1;
+        if (unsaved >= 0) return current.map((item, position) => (position === unsaved ? next : item));
+        return [...current, next];
+    }
+    return current.map((item, position) => (position === index ? next : item));
 }
 const steps = [
     { key: 1, labelKey: 'stepService' },
@@ -173,16 +198,10 @@ function addMinutes(time: string, minutes: number) {
 function useMoneyFormatter(locale: string) {
     return useMemo(() => (value?: number | null, currency?: string | null) => {
         const amount = Number(value ?? 0);
-        const code = String(currency || '').trim().toUpperCase();
         if (!Number.isFinite(amount))
             return '';
-        try {
-            return new Intl.NumberFormat(locale, { style: 'currency', currency: code || 'USD', maximumFractionDigits: 0 }).format(amount);
-        }
-        catch {
-            // Unknown/invalid ISO code — still group the digits rather than dumping them raw.
-            return `${code} ${new Intl.NumberFormat(locale, { maximumFractionDigits: 0 }).format(amount)}`.trim();
-        }
+        // IRR/IRT print as "ریال"/"تومان" (Intl would show the raw "IRR" or throw).
+        return formatCurrencyAmount(amount, currency || 'USD', locale, { maximumFractionDigits: 0 });
     }, [locale]);
 }
 function useDebouncedValue<T>(value: T, delayMs = 350) {
@@ -244,6 +263,9 @@ const DRAFT_METADATA_KEYS = new Set([
     'children',
     'infants',
     'rooms',
+    'payInPlacePlan',
+    'depositMethod',
+    'mealPlan',
 ]);
 
 function compactDraftPatch(patch: Partial<BookingDraftState>): Partial<BookingDraftState> {
@@ -270,6 +292,11 @@ function compactDraftPatch(patch: Partial<BookingDraftState>): Partial<BookingDr
     }
 
     return compact;
+}
+function payInPlaceBaseTotal(draft: BookingDraftState | null | undefined): number {
+    const gross = Math.round(((draft?.subtotalAmount ?? 0) + (draft?.addonsAmount ?? 0)) * 100) / 100;
+    const discount = Number((draft?.metadata as any)?.appliedDiscountAmount ?? 0) || 0;
+    return Math.round(Math.max(0, gross - Math.min(gross, discount)) * 100) / 100;
 }
 
 function getPaymentActionUrl(result: any) {
@@ -351,6 +378,7 @@ export function BookingWizard() {
     const defaultCalendar = localeToCalendar(locale);
     const formatMoney = useMoneyFormatter(locale);
     const [draft, setDraft] = useState<BookingDraftState | null>(null);
+    const [paymentReady, setPaymentReady] = useState(false);
     const [resumeChoiceRequired, setResumeChoiceRequired] = useState(false);
     const [loadingDraft, setLoadingDraft] = useState(true);
     const [seedEntryResolved, setSeedEntryResolved] = useState(!hasSeedSelection);
@@ -381,6 +409,8 @@ export function BookingWizard() {
     // The chosen entity, kept independently of whichever page the list happens to show —
     // a seeded provider outside the first page would otherwise render as "not selected".
     const [resolvedProvider, setResolvedProvider] = useState<ProviderCardItem | null>(null);
+    // Meal plans of the chosen room (nightly prices, already converted for this visitor).
+    const [mealPlans, setMealPlans] = useState<Array<{ code: string; amount: number; currencyCode: string }>>([]);
     const [resolvedService, setResolvedService] = useState<ServiceCardItem | null>(null);
     const [resolvedSpecialist, setResolvedSpecialist] = useState<SpecialistCardItem | null>(null);
     // Once a user opens a picker, that slot is theirs: never auto-select into it.
@@ -400,21 +430,24 @@ export function BookingWizard() {
     const [viewerTimeZone, setViewerTimeZone] = useState('UTC');
     const [providerTimeZone, setProviderTimeZone] = useState('UTC');
     useEffect(() => {
-      try {
-        const savedCalendar = localStorage.getItem('booking.calendar');
-        if (savedCalendar && BOOKING_CALENDARS.includes(savedCalendar as BookingCalendar)) setCalendar(savedCalendar as BookingCalendar);
-        const zone = localStorage.getItem('booking.timezone') || Intl.DateTimeFormat().resolvedOptions().timeZone;
-        if (isBookingTimeZone(zone)) setViewerTimeZone(zone);
-      } catch { setViewerTimeZone(Intl.DateTimeFormat().resolvedOptions().timeZone); }
+        try {
+            const savedCalendar = localStorage.getItem('booking.calendar');
+            if (savedCalendar && BOOKING_CALENDARS.includes(savedCalendar as BookingCalendar)) setCalendar(savedCalendar as BookingCalendar);
+            const zone = localStorage.getItem('booking.timezone') || Intl.DateTimeFormat().resolvedOptions().timeZone;
+            if (isBookingTimeZone(zone)) setViewerTimeZone(zone);
+        } catch { setViewerTimeZone(Intl.DateTimeFormat().resolvedOptions().timeZone); }
     }, []);
-    const viewerTimeZones = useMemo(() => [...new Set(['UTC', viewerTimeZone, providerTimeZone, ...Intl.supportedValuesOf('timeZone')])], [viewerTimeZone, providerTimeZone]);
+    const viewerTimeZones = useMemo(() => {
+        const supported: string[] = (Intl as any).supportedValuesOf?.('timeZone') ?? [];
+        return [...new Set(['UTC', viewerTimeZone, providerTimeZone, ...supported])];
+    }, [viewerTimeZone, providerTimeZone]);
     function selectCalendar(value: BookingCalendar) {
-      setCalendar(value);
-      try { localStorage.setItem('booking.calendar', value); } catch { /* Optional browser preference. */ }
+        setCalendar(value);
+        try { localStorage.setItem('booking.calendar', value); } catch { /* Optional browser preference. */ }
     }
     function selectTimeZone(value: string) {
-      setViewerTimeZone(value);
-      try { localStorage.setItem('booking.timezone', value); } catch { /* Optional browser preference. */ }
+        setViewerTimeZone(value);
+        try { localStorage.setItem('booking.timezone', value); } catch { /* Optional browser preference. */ }
     }
 
     const [mainServiceForm, setMainServiceForm] = useState<any>(null);
@@ -425,6 +458,8 @@ export function BookingWizard() {
     const [couponCode, setCouponCode] = useState('');
     const [couponLoading, setCouponLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    // False while the adults field is empty or below 1, so the schedule step can't continue.
+    const [adultsValid, setAdultsValid] = useState(true);
     const providerRequestSeq = useRef(0);
     const serviceRequestSeq = useRef(0);
     const specialistRequestSeq = useRef(0);
@@ -492,74 +527,74 @@ export function BookingWizard() {
         setEntryFailed(false);
         getJson<BookingEntryResolution>(`/api/booking-pro/entry?locale=${locale}&providerId=${encodeURIComponent(seededProviderId ?? '')}&serviceId=${encodeURIComponent(seededServiceId ?? '')}&specialistId=${encodeURIComponent(seededSpecialistId ?? '')}`)
             .then((entry) => {
-            if (cancelled)
-                return;
-            const mappedProviders: ProviderCardItem[] = entry.providers.map((item) => ({
-                id: item.id,
-                name: item.name,
-                city: item.city,
-                country: item.country,
-                imageUrl: item.image,
-                rating: item.rating,
-                reviewCount: item.reviewCount,
-            }));
-            const mappedServices: ServiceCardItem[] = entry.services.map((item) => ({
-                id: item.id,
-                serviceDefinitionId: item.serviceDefinitionId,
-                name: item.name,
-                description: item.description ?? undefined,
-                imageUrl: item.image,
-                currency: item.currency,
-                value: item.price,
-                durationMinutes: item.durationMinutes,
-                slotIntervalMinutes: item.slotIntervalMinutes,
-            }));
-            const mappedSpecialists: SpecialistCardItem[] = entry.specialists.map((item) => ({
-                id: item.id,
-                name: item.name,
-                title: item.title ?? undefined,
-                imageUrl: item.image,
-                rating: item.rating,
-                reviewCount: item.reviewCount,
-            }));
-            setProviders(mappedProviders);
-            setServices(mappedServices);
-            setSpecialists(mappedSpecialists);
-            const selectedService = mappedServices.find((item) => item.id === entry.selectedServiceId);
-            const selectedProvider = mappedProviders.find((item) => item.id === entry.selectedProviderId);
-            // A seeded specialist is only trustworthy if entry — which filters staff by the
-            // resolved provider and service definition — actually returned them. Otherwise the
-            // link pairs a specialist with a service they do not perform, and confirming it
-            // would strand the user on a schedule step whose availability is always empty.
-            const seededSpecialistIsValid = Boolean(entry.selectedSpecialistId && mappedSpecialists.some((item) => item.id === entry.selectedSpecialistId));
-            const selectedSpecialist = seededSpecialistIsValid ? mappedSpecialists.find((item) => item.id === entry.selectedSpecialistId) : undefined;
-            setResolvedProvider(selectedProvider ?? null);
-            setResolvedService(selectedService ?? null);
-            setResolvedSpecialist(selectedSpecialist ?? null);
-            const patch: Partial<BookingDraftState> = {
-                providerId: entry.selectedProviderId ?? null as any,
-                serviceId: entry.selectedServiceId ?? null as any,
-                specialistId: selectedSpecialist?.id ?? null as any,
-                serviceDefinitionId: selectedService?.serviceDefinitionId ?? null as any,
-                currency: selectedService?.currency,
-                subtotalAmount: selectedService?.value,
-                currentStep: 1,
-            };
-            setDraft((prev) => ({ ...(prev as BookingDraftState), ...patch }));
-            patchDraft(patch).catch((e) => setError(e.message));
-        })
+                if (cancelled)
+                    return;
+                const mappedProviders: ProviderCardItem[] = entry.providers.map((item) => ({
+                    id: item.id,
+                    name: item.name,
+                    city: item.city,
+                    country: item.country,
+                    imageUrl: item.image,
+                    rating: item.rating,
+                    reviewCount: item.reviewCount,
+                }));
+                const mappedServices: ServiceCardItem[] = entry.services.map((item) => ({
+                    id: item.id,
+                    serviceDefinitionId: item.serviceDefinitionId,
+                    name: item.name,
+                    description: item.description ?? undefined,
+                    imageUrl: item.image,
+                    currency: item.currency,
+                    value: item.price,
+                    durationMinutes: item.durationMinutes,
+                    slotIntervalMinutes: item.slotIntervalMinutes,
+                }));
+                const mappedSpecialists: SpecialistCardItem[] = entry.specialists.map((item) => ({
+                    id: item.id,
+                    name: item.name,
+                    title: item.title ?? undefined,
+                    imageUrl: item.image,
+                    rating: item.rating,
+                    reviewCount: item.reviewCount,
+                }));
+                setProviders(mappedProviders);
+                setServices(mappedServices);
+                setSpecialists(mappedSpecialists);
+                const selectedService = mappedServices.find((item) => item.id === entry.selectedServiceId);
+                const selectedProvider = mappedProviders.find((item) => item.id === entry.selectedProviderId);
+                // A seeded specialist is only trustworthy if entry — which filters staff by the
+                // resolved provider and service definition — actually returned them. Otherwise the
+                // link pairs a specialist with a service they do not perform, and confirming it
+                // would strand the user on a schedule step whose availability is always empty.
+                const seededSpecialistIsValid = Boolean(entry.selectedSpecialistId && mappedSpecialists.some((item) => item.id === entry.selectedSpecialistId));
+                const selectedSpecialist = seededSpecialistIsValid ? mappedSpecialists.find((item) => item.id === entry.selectedSpecialistId) : undefined;
+                setResolvedProvider(selectedProvider ?? null);
+                setResolvedService(selectedService ?? null);
+                setResolvedSpecialist(selectedSpecialist ?? null);
+                const patch: Partial<BookingDraftState> = {
+                    providerId: entry.selectedProviderId ?? null as any,
+                    serviceId: entry.selectedServiceId ?? null as any,
+                    specialistId: selectedSpecialist?.id ?? null as any,
+                    serviceDefinitionId: selectedService?.serviceDefinitionId ?? null as any,
+                    currency: selectedService?.currency,
+                    subtotalAmount: selectedService?.value,
+                    currentStep: 1,
+                };
+                setDraft((prev) => ({ ...(prev as BookingDraftState), ...patch }));
+                patchDraft(patch).catch((e) => setError(e.message));
+            })
             .catch((e) => {
-            if (cancelled)
-                return;
-            // Do not silently drop the seed into a cold-start picker: the link's whole intent
-            // is the service it names. Surface the failure and offer a retry.
-            setEntryFailed(true);
-            setError(e.message);
-        })
+                if (cancelled)
+                    return;
+                // Do not silently drop the seed into a cold-start picker: the link's whole intent
+                // is the service it names. Surface the failure and offer a retry.
+                setEntryFailed(true);
+                setError(e.message);
+            })
             .finally(() => {
-            if (!cancelled)
-                setSeedEntryResolved(true);
-        });
+                if (!cancelled)
+                    setSeedEntryResolved(true);
+            });
         return () => { cancelled = true; };
     }, [draft?.id, hasSeedSelection, seededProviderId, seededServiceId, seededSpecialistId, locale, resumeChoiceRequired, entryAttempt]);
     useEffect(() => {
@@ -591,12 +626,12 @@ export function BookingWizard() {
             hasMore: boolean;
         }>(`/api/booking-pro/catalog/providers?${params.toString()}`)
             .then((data) => {
-            if (cancelled || providerRequestSeq.current !== requestId)
-                return;
-            setProviders((prev) => (providerOffset === 0 ? data.items : [...prev, ...data.items]));
-            setProviderHasMore(data.hasMore);
-            setProviderTotal(data.total);
-        })
+                if (cancelled || providerRequestSeq.current !== requestId)
+                    return;
+                setProviders((prev) => (providerOffset === 0 ? data.items : [...prev, ...data.items]));
+                setProviderHasMore(data.hasMore);
+                setProviderTotal(data.total);
+            })
             .catch((e) => { if (!cancelled && providerRequestSeq.current === requestId) setError(e.message); })
             .finally(() => { if (!cancelled && providerRequestSeq.current === requestId) setProvidersLoading(false); });
         return () => { cancelled = true; };
@@ -625,12 +660,12 @@ export function BookingWizard() {
             hasMore: boolean;
         }>(`/api/booking-pro/catalog/services?${params.toString()}`)
             .then((data) => {
-            if (cancelled || serviceRequestSeq.current !== requestId)
-                return;
-            setServices((prev) => (serviceOffset === 0 ? data.items : [...prev, ...data.items]));
-            setServiceHasMore(data.hasMore);
-            setServiceTotal(data.total);
-        })
+                if (cancelled || serviceRequestSeq.current !== requestId)
+                    return;
+                setServices((prev) => (serviceOffset === 0 ? data.items : [...prev, ...data.items]));
+                setServiceHasMore(data.hasMore);
+                setServiceTotal(data.total);
+            })
             .catch((e) => { if (!cancelled && serviceRequestSeq.current === requestId) setError(e.message); })
             .finally(() => { if (!cancelled && serviceRequestSeq.current === requestId) setServicesLoading(false); });
         return () => { cancelled = true; };
@@ -657,12 +692,12 @@ export function BookingWizard() {
             hasMore: boolean;
         }>(`/api/booking-pro/catalog/specialists?${params.toString()}`)
             .then((data) => {
-            if (cancelled || specialistRequestSeq.current !== requestId)
-                return;
-            setSpecialists((prev) => (specialistOffset === 0 ? data.items : [...prev, ...data.items]));
-            setSpecialistHasMore(data.hasMore);
-            setSpecialistTotal(data.total);
-        })
+                if (cancelled || specialistRequestSeq.current !== requestId)
+                    return;
+                setSpecialists((prev) => (specialistOffset === 0 ? data.items : [...prev, ...data.items]));
+                setSpecialistHasMore(data.hasMore);
+                setSpecialistTotal(data.total);
+            })
             .catch((e) => { if (!cancelled && specialistRequestSeq.current === requestId) setError(e.message); })
             .finally(() => { if (!cancelled && specialistRequestSeq.current === requestId) setSpecialistsLoading(false); });
         return () => { cancelled = true; };
@@ -684,29 +719,29 @@ export function BookingWizard() {
             };
         }>(`/api/booking-pro/service-mode?serviceId=${serviceId}`)
             .then(async ({ item }) => {
-            if (cancelled || serviceModeRequestSeq.current !== requestId)
-                return;
-            setProviderTimeZone(isBookingTimeZone(item.timezone_id) ? item.timezone_id : 'UTC');
-            setDraft((prev) => prev?.serviceId === serviceId ? ({
-                ...prev,
-                serviceDefinitionId: item.service_definition_id,
-                bookingUiMode: item.booking_ui_mode as any,
-                requiresSpecialist: item.requires_specialist,
-                specialistId: item.requires_specialist ? prev.specialistId : undefined,
-                currency: item.currency,
-                subtotalAmount: Number(item.value ?? 0),
-            }) : prev);
-            if (item.booking_ui_mode === 'custom_form') {
-                const formData = await getJson<{
-                    form: any | null;
-                }>(`/api/form-builder/service-form?serviceDefinitionId=${item.service_definition_id}&usageScope=main_booking&locale=${locale}`);
-                if (!cancelled && serviceModeRequestSeq.current === requestId)
-                    setMainServiceForm(formData.form);
-            }
-            else {
-                setMainServiceForm(null);
-            }
-        })
+                if (cancelled || serviceModeRequestSeq.current !== requestId)
+                    return;
+                setProviderTimeZone(isBookingTimeZone(item.timezone_id) ? item.timezone_id : 'UTC');
+                setDraft((prev) => prev?.serviceId === serviceId ? ({
+                    ...prev,
+                    serviceDefinitionId: item.service_definition_id,
+                    bookingUiMode: item.booking_ui_mode as any,
+                    requiresSpecialist: item.requires_specialist,
+                    specialistId: item.requires_specialist ? prev.specialistId : undefined,
+                    currency: item.currency,
+                    subtotalAmount: Number(item.value ?? 0),
+                }) : prev);
+                if (item.booking_ui_mode === 'custom_form') {
+                    const formData = await getJson<{
+                        form: any | null;
+                    }>(`/api/form-builder/service-form?serviceDefinitionId=${item.service_definition_id}&usageScope=main_booking&locale=${locale}`);
+                    if (!cancelled && serviceModeRequestSeq.current === requestId)
+                        setMainServiceForm(formData.form);
+                }
+                else {
+                    setMainServiceForm(null);
+                }
+            })
             .catch((e) => { if (!cancelled && serviceModeRequestSeq.current === requestId) setError(e.message); });
         getJson<{
             items: ProviderTypeAddonItem[];
@@ -758,27 +793,27 @@ export function BookingWizard() {
             dates: AvailableDateItem[];
         }>(`/api/booking-pro/availability/dates?${params.toString()}`)
             .then((data) => {
-            if (cancelled || availabilityDatesRequestSeq.current !== requestId)
-                return;
-            const dates = data.dates ?? [];
-            setAvailableDates(dates);
-            const selectedIsStillAvailable = Boolean(draft.selectedDate && dates.some((item) => item.date === draft.selectedDate && item.available));
-            if (!selectedIsStillAvailable) {
-                const today = new Date().toISOString().slice(0, 10);
-                const tomorrowDate = new Date();
-                tomorrowDate.setDate(tomorrowDate.getDate() + 1);
-                const tomorrow = tomorrowDate.toISOString().slice(0, 10);
-                const preferred = dates.find((item) => item.available && item.date === today)
-                    ?? dates.find((item) => item.available && item.date === tomorrow)
-                    ?? dates.find((item) => item.available);
-                if (preferred) {
-                    patchDraft({ selectedDate: preferred.date, selectedDateFrom: preferred.date as any, selectedDateTo: preferred.date as any }).catch((e) => setError(e.message));
+                if (cancelled || availabilityDatesRequestSeq.current !== requestId)
+                    return;
+                const dates = data.dates ?? [];
+                setAvailableDates(dates);
+                const selectedIsStillAvailable = Boolean(draft.selectedDate && dates.some((item) => item.date === draft.selectedDate && item.available));
+                if (!selectedIsStillAvailable) {
+                    const today = new Date().toISOString().slice(0, 10);
+                    const tomorrowDate = new Date();
+                    tomorrowDate.setDate(tomorrowDate.getDate() + 1);
+                    const tomorrow = tomorrowDate.toISOString().slice(0, 10);
+                    const preferred = dates.find((item) => item.available && item.date === today)
+                        ?? dates.find((item) => item.available && item.date === tomorrow)
+                        ?? dates.find((item) => item.available);
+                    if (preferred) {
+                        patchDraft({ selectedDate: preferred.date, selectedDateFrom: preferred.date as any, selectedDateTo: preferred.date as any }).catch((e) => setError(e.message));
+                    }
                 }
-            }
-        })
+            })
             .catch((e) => { if (!cancelled && availabilityDatesRequestSeq.current === requestId) setError(e.message); })
             .finally(() => { if (!cancelled && availabilityDatesRequestSeq.current === requestId)
-            setScheduleLoading(false); });
+                setScheduleLoading(false); });
         return () => { cancelled = true; };
     }, [draft?.providerId, draft?.serviceId, draft?.specialistId, draft?.bookingUiMode, locale, calendar, resumeChoiceRequired]);
     useEffect(() => {
@@ -800,32 +835,11 @@ export function BookingWizard() {
             timeSlots: TimeSlotItem[];
         }>(`/api/booking-pro/availability/timeslots?${params.toString()}`)
             .then((data) => { if (!cancelled && timeSlotsRequestSeq.current === requestId)
-            setTimeSlots(data.timeSlots ?? []); })
+                setTimeSlots(data.timeSlots ?? []); })
             .catch((e) => { if (!cancelled && timeSlotsRequestSeq.current === requestId) setError(e.message); });
         return () => { cancelled = true; };
     }, [draft?.providerId, draft?.serviceId, draft?.specialistId, draft?.selectedDate, draft?.bookingUiMode, locale, resumeChoiceRequired]);
-    useEffect(() => {
-        if (!draft?.providerId || !draft?.serviceId || draft.bookingUiMode !== 'date_range' || !draft.selectedDateFrom || !draft.selectedDateTo || !isReasonableBookingIsoDate(draft.selectedDateFrom) || !isReasonableBookingIsoDate(draft.selectedDateTo) || resumeChoiceRequired) {
-            setDateRangeAvailability(null);
-            return;
-        }
-        let cancelled = false;
-        setRangeAvailabilityLoading(true);
-        const params = new URLSearchParams({
-            providerId: draft.providerId,
-            serviceId: draft.serviceId,
-            startDate: draft.selectedDateFrom,
-            endDate: draft.selectedDateTo,
-            requestedUnits: String(Math.max(1, Number(draft.rooms || 1))),
-        });
-        getJson<DateRangeAvailability>(`/api/booking-pro/availability/range?${params.toString()}`)
-            .then((data) => { if (!cancelled)
-            setDateRangeAvailability(data); })
-            .catch((e) => setError(e.message))
-            .finally(() => { if (!cancelled)
-            setRangeAvailabilityLoading(false); });
-        return () => { cancelled = true; };
-    }, [draft?.providerId, draft?.serviceId, draft?.bookingUiMode, draft?.selectedDateFrom, draft?.selectedDateTo, draft?.rooms, resumeChoiceRequired]);
+    // Day-based stays are requests: no availability is checked.
     async function patchDraft(patch: Partial<BookingDraftState>) {
         if (!draft)
             return;
@@ -863,6 +877,30 @@ export function BookingWizard() {
         const found = specialists.find((p) => p.id === draft?.specialistId);
         if (found && found.id !== resolvedSpecialist?.id) setResolvedSpecialist(found);
     }, [specialists, draft?.specialistId, resolvedSpecialist?.id]);
+    // Past step 1 the provider/service lists are never loaded, so a refresh on a later step left
+    // the main selection unnamed (the mobile itinerary's trip card lost its city and photo).
+    // Resolve it read-only through the same entry endpoint; nothing is written to the draft.
+    useEffect(() => {
+        if (!draft?.providerId || currentStep === 1 || resumeChoiceRequired) return;
+        const needsProvider = resolvedProvider?.id !== draft.providerId;
+        const needsService = Boolean(draft.serviceId) && resolvedService?.id !== draft.serviceId;
+        const needsSpecialist = Boolean(draft.specialistId) && resolvedSpecialist?.id !== draft.specialistId;
+        if (!needsProvider && !needsService && !needsSpecialist) return;
+        let cancelled = false;
+        getJson<BookingEntryResolution>(`/api/booking-pro/entry?locale=${locale}&providerId=${encodeURIComponent(draft.providerId)}&serviceId=${encodeURIComponent(draft.serviceId ?? '')}&specialistId=${encodeURIComponent(draft.specialistId ?? '')}`)
+            .then((entry) => {
+                if (cancelled) return;
+                const provider = entry.providers.find((item) => item.id === draft.providerId);
+                const service = entry.services.find((item) => item.id === draft.serviceId);
+                const specialist = entry.specialists.find((item) => item.id === draft.specialistId);
+                if (provider) setResolvedProvider({ id: provider.id, name: provider.name, city: provider.city, country: provider.country, imageUrl: provider.image, rating: provider.rating, reviewCount: provider.reviewCount });
+                if (service) setResolvedService({ id: service.id, serviceDefinitionId: service.serviceDefinitionId, name: service.name, description: service.description ?? undefined, imageUrl: service.image, currency: service.currency, value: service.price, durationMinutes: service.durationMinutes, slotIntervalMinutes: service.slotIntervalMinutes });
+                if (specialist) setResolvedSpecialist({ id: specialist.id, name: specialist.name, title: specialist.title ?? undefined, imageUrl: specialist.image, rating: specialist.rating, reviewCount: specialist.reviewCount });
+            })
+            // Display-only: the step still works without the names, so a failure is logged, not shown.
+            .catch((error) => console.error('booking entry resolution for a resumed draft failed', error));
+        return () => { cancelled = true; };
+    }, [draft?.providerId, draft?.serviceId, draft?.specialistId, currentStep, resumeChoiceRequired, locale, resolvedProvider?.id, resolvedService?.id, resolvedSpecialist?.id]);
     const childMap = useMemo(() => Object.fromEntries((draft?.childBookings ?? []).map((child) => [child.providerTypeId, child])), [draft?.childBookings]);
     const allRequiredUploadsPresent = useMemo(() => {
         const requiredIds = uploadRequirements.filter((x) => x.isRequired).map((x) => x.id);
@@ -963,7 +1001,7 @@ export function BookingWizard() {
     const canContinueScheduleStep = Boolean(draft && (draft.bookingUiMode === 'custom_form'
         ? draft.formSubmissionId
         : draft.bookingUiMode === 'date_range'
-            ? draft.selectedDateFrom && draft.selectedDateTo && dateRangeAvailability?.available !== false
+            ? draft.selectedDateFrom && draft.selectedDateTo && draft.selectedDateTo > draft.selectedDateFrom && adultsValid
             : draft.selectedDate && draft.selectedTimeFrom && draft.selectedTimeTo));
     const canContinueAddonsStep = allChildBookingsCompleted;
     const canContinueFilesStep = allRequiredUploadsPresent;
@@ -1037,8 +1075,29 @@ export function BookingWizard() {
             setCouponLoading(false);
         }
     }
+    // Server messages that reach the customer. Matched by their exact text and shown in the app
+    // language; anything else is shown as received.
+    function checkoutErrorText(message: string | undefined, fallback: string) {
+        const translated: Record<string, string> = {
+            ZARINPAL_AMOUNT_LIMIT_EXCEEDED: tBooking('failedToStartPayment'),
+            'Choose how to pay the part due now.': tBooking('payInPlace.errors.chooseDepositMethod'),
+            'Choose how to pay the part due now: wallet or online payment.': tBooking('payInPlace.errors.chooseDepositMethod'),
+            'Pay the part due now with the wallet or online payment.': tBooking('payInPlace.errors.depositMethodNotAllowed'),
+            'This payment method is not available for you.': tBooking('payInPlace.errors.methodNotAvailable'),
+        };
+        return (message && translated[message]) || message || fallback;
+    }
     async function startPaymentForBooking(bookingId: string) {
-        const paymentMethodCode = draft?.paymentMethod || 'gateway_card';
+        // Pay in place with a plan: the part due now is paid with the wallet or online
+        // payment the customer chose. The rest is collected at the place.
+        const payingPlanDeposit =
+            draft?.paymentMethod === 'pay_on_delivery' && isPayInPlacePlanId((draft?.metadata as any)?.payInPlacePlan);
+        const paymentMethodCode = payingPlanDeposit
+            ? String((draft?.metadata as any)?.depositMethod || '')
+            : (draft?.paymentMethod || 'gateway_card');
+        if (payingPlanDeposit && !paymentMethodCode) {
+            throw new Error('Choose how to pay the part due now.');
+        }
         let receipt: any = null;
 
         // Bank receipt travels as multipart FormData -- it can't ride in the JSON
@@ -1078,13 +1137,20 @@ export function BookingWizard() {
         } else if (PAYMENT_DONE_STATUSES.has(String((result as any)?.status || '').toLowerCase())) {
             // No further redirect needed (wallet/pay_on_delivery/bank_receipt all
             // settle inline) -- the invoice is the natural "you're done" landing spot.
-            router.push(`/n/app/mobile/bookings/${bookingId}/invoice`);
+            router.push(`/${locale}/n/app/mobile/bookings/${bookingId}/invoice`);
         }
         return result;
     }
     async function handleCheckout() {
-        if (!draft?.id)
+        if (!draft?.id || submitting)
             return;
+        if (
+            draft.paymentMethod === 'pay_on_delivery' &&
+            !(isPayInPlacePlanId((draft.metadata as any)?.payInPlacePlan) && (draft.metadata as any)?.depositMethod)
+        ) {
+            setError(tBooking('payInPlace.errors.choosePlan'));
+            return;
+        }
         setSubmitting(true);
         setError(null);
         try {
@@ -1100,11 +1166,11 @@ export function BookingWizard() {
             } else if ((result as any)?.bookingId) {
                 // Nothing left to pay (a fully comped/free booking) -- checkout is
                 // already the finished state, so go straight to the invoice.
-                router.push(`/n/app/mobile/bookings/${(result as any).bookingId}/invoice`);
+                router.push(`/${locale}/n/app/mobile/bookings/${(result as any).bookingId}/invoice`);
             }
         }
         catch (e: any) {
-            setError(e.message === 'ZARINPAL_AMOUNT_LIMIT_EXCEEDED' ? tBooking('failedToStartPayment') : (e.message || tBooking('checkoutFailed')));
+            setError(checkoutErrorText(e.message, tBooking('checkoutFailed')));
         }
         finally {
             setSubmitting(false);
@@ -1119,12 +1185,31 @@ export function BookingWizard() {
             await startPaymentForBooking(checkoutResult.bookingId);
         }
         catch (e: any) {
-            setError(e.message === 'ZARINPAL_AMOUNT_LIMIT_EXCEEDED' ? tBooking('failedToStartPayment') : (e.message || tBooking('failedToStartPayment')));
+            setError(checkoutErrorText(e.message, tBooking('failedToStartPayment')));
         }
         finally {
             setSubmitting(false);
         }
     }
+    // Entering the review step always starts from the plain bill. A plan left on the draft by an
+    // earlier visit (pay in place, then back) would otherwise show the increased total before the
+    // customer has chosen anything this time; they pick pay in place again if they want it.
+    const reviewVisitHandledRef = useRef(false);
+    useEffect(() => {
+        if (currentStep !== CHECKOUT_STEP) {
+            reviewVisitHandledRef.current = false;
+            return;
+        }
+        if (reviewVisitHandledRef.current || !draft?.id) return;
+        reviewVisitHandledRef.current = true;
+        // Pay in place is the only method that raises the total: a draft left on it (with or without
+        // a plan) goes back to the default method, so the first thing shown is the plain bill.
+        if (draft.paymentMethod !== 'pay_on_delivery' && !(draft.metadata as any)?.payInPlacePlan) return;
+        patchDraft({ paymentMethod: null as any, metadata: { ...(draft.metadata ?? {}), payInPlacePlan: null, depositMethod: null } })
+            .then(() => refreshDraftAfterPriceChange())
+            .catch((er) => setError(er.message));
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [currentStep, draft?.id]);
     const paymentIsDone = Boolean(paymentIntentResult) && PAYMENT_DONE_STATUSES.has(String(paymentIntentResult?.status || '').toLowerCase());
     // Step 6 (consultation) is deliberately absent: it is optional and must always be
     // skippable, so it never gates the primary action.
@@ -1132,7 +1217,7 @@ export function BookingWizard() {
         (currentStep === 2 && !canContinueScheduleStep) ||
         (currentStep === 3 && !canContinueAddonsStep) ||
         (currentStep === 4 && !canContinueFilesStep) ||
-        (currentStep === CHECKOUT_STEP && (submitting || paymentIsDone));
+        (currentStep === CHECKOUT_STEP && (submitting || paymentIsDone || !paymentReady));
     function handlePrimaryAction() {
         if (currentStep === CHECKOUT_STEP) {
             if (paymentIsDone)
@@ -1151,389 +1236,416 @@ export function BookingWizard() {
     }
     if (resumeChoiceRequired) {
         return (<div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-6">
-        <div className="mx-auto max-w-2xl rounded-[28px] border border-slate-200 bg-white p-8 shadow-2xl">
-          <div className="mb-6 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-[#083f30] text-white"><RefreshCcw className="h-6 w-6"/></div>
-          <h1 className="text-2xl font-bold text-slate-900">{tBooking("continueYourPendingBooking")}</h1>
-          <p className="mt-2 text-sm text-slate-600">{tBooking("onlyOneActiveBookingDraftExistsPerUserYou")}</p>
-          <div className="mt-6 rounded-3xl border border-[#083f30]/10 bg-[#083f30]/5 p-5">
-            <div className="text-sm text-slate-700">{tBooking("currentDraftStep")}<span className="font-bold text-[#083f30]">{tBooking(visibleSteps.find((s) => s.key === currentStep)?.labelKey ?? steps.find((s) => s.key === currentStep)?.labelKey ?? 'stepService')}</span></div>
-            <div className="mt-2 text-sm text-slate-600">{tBooking("provider2")}{draft.providerId || tBooking('notSelected')}{tBooking("service3")}{draft.serviceId || tBooking('notSelected')}{tBooking("addOnSubBookings")}{draft.childBookings.length}</div>
-          </div>
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <button className="flex-1 rounded-2xl bg-[#083f30] px-5 py-3 font-bold text-white shadow-lg" onClick={() => setResumeChoiceRequired(false)}>{tBooking("continuePendingBooking")}</button>
-            <button className="flex-1 rounded-2xl border border-slate-200 bg-white px-5 py-3 font-bold text-slate-700" onClick={async () => { await getJson('/api/booking-pro/draft', { method: 'PATCH', body: JSON.stringify({ action: 'abandon' }) }); const created = await getJson<{
-            draft: BookingDraftState;
-        }>('/api/booking-pro/draft', { method: 'POST' }); setDraft(created.draft); setResumeChoiceRequired(false); }}>{tBooking("discardAndStartNew")}</button>
-          </div>
-        </div>
-      </div>);
+            <div className="mx-auto max-w-2xl rounded-[28px] border border-slate-200 bg-white p-8 shadow-2xl">
+                <div className="mb-6 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-[#083f30] text-white"><RefreshCcw className="h-6 w-6"/></div>
+                <h1 className="text-2xl font-bold text-slate-900">{tBooking("continueYourPendingBooking")}</h1>
+                <p className="mt-2 text-sm text-slate-600">{tBooking("onlyOneActiveBookingDraftExistsPerUserYou")}</p>
+                <div className="mt-6 rounded-3xl border border-[#083f30]/10 bg-[#083f30]/5 p-5">
+                    <div className="text-sm text-slate-700">{tBooking("currentDraftStep")}<span className="font-bold text-[#083f30]">{tBooking(visibleSteps.find((s) => s.key === currentStep)?.labelKey ?? steps.find((s) => s.key === currentStep)?.labelKey ?? 'stepService')}</span></div>
+                    <div className="mt-2 text-sm text-slate-600">{tBooking("provider2")}{draft.providerId || tBooking('notSelected')}{tBooking("service3")}{draft.serviceId || tBooking('notSelected')}{tBooking("addOnSubBookings")}{draft.childBookings.length}</div>
+                </div>
+                <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+                    <button className="flex-1 rounded-2xl bg-[#083f30] px-5 py-3 font-bold text-white shadow-lg" onClick={() => setResumeChoiceRequired(false)}>{tBooking("continuePendingBooking")}</button>
+                    <button className="flex-1 rounded-2xl border border-slate-200 bg-white px-5 py-3 font-bold text-slate-700" onClick={async () => { await getJson('/api/booking-pro/draft', { method: 'PATCH', body: JSON.stringify({ action: 'abandon' }) }); const created = await getJson<{
+                        draft: BookingDraftState;
+                    }>('/api/booking-pro/draft', { method: 'POST' }); setDraft(created.draft); setResumeChoiceRequired(false); }}>{tBooking("discardAndStartNew")}</button>
+                </div>
+            </div>
+        </div>);
     }
     // pb clears the sticky action bar *and* the global BottomTabBar stacked beneath it.
     return (<div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 pb-44 lg:pb-10">
-      {draft.id && !checkoutResult && <SaveBookingCartButton draftId={draft.id} disabled={!draft.providerId || !draft.serviceId} />}
-      <div className="sticky top-0 z-40 border-b border-slate-200 bg-white/90 backdrop-blur-xl">
-        <div className="mx-auto max-w-6xl px-5 py-4">
-          <div className="mb-4 flex items-center gap-3">
-            <button onClick={goBack} className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-slate-700"><ArrowLeft className="h-5 w-5"/></button>
-            <div>
-              <h1 className="text-xl font-bold text-slate-900">{tBooking("bookWithLSevin")}</h1>
-              <p className="text-sm text-slate-500">{tBooking("draftFirstBookingWithChildAddOnSubBookings")}</p>
+        {draft.id && !checkoutResult && <SaveBookingCartButton draftId={draft.id} disabled={!draft.providerId || !draft.serviceId} />}
+        <div className="sticky top-0 z-40 border-b border-slate-200 bg-white/90 backdrop-blur-xl">
+            <div className="mx-auto max-w-6xl px-5 py-4">
+                <div className="mb-4 flex items-center gap-3">
+                    <button onClick={goBack} className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-slate-700"><ArrowLeft className="h-5 w-5"/></button>
+                    <div>
+                        <h1 className="text-xl font-bold text-slate-900">{tBooking("bookWithLSevin")}</h1>
+                        <p className="text-sm text-slate-500">{tBooking("draftFirstBookingWithChildAddOnSubBookings")}</p>
+                    </div>
+                </div>
+                <BookingProgress steps={visibleSteps.map((step) => ({ key: step.key, label: tBooking(step.labelKey) }))} currentIndex={currentStepIndex} label={tBooking("bookWithLSevin")} />
             </div>
-          </div>
-          <div className="flex items-center gap-2 overflow-x-auto">
-            {/* Progress is measured by position in visibleSteps, not by key: the keys are
-                stored ids and no longer ascend in display order (6 sits between 2 and 3),
-                so the badge shows the position and `>=` compares indices. */}
-            {visibleSteps.map((step, index) => (<div key={step.key} className="flex items-center gap-2">
-                <div className={`flex h-9 min-w-9 items-center justify-center rounded-full text-sm font-bold ${currentStepIndex >= index ? 'bg-[#083f30] text-white' : 'bg-slate-200 text-slate-500'}`}>{currentStepIndex > index ? <CheckCircle2 className="h-4 w-4"/> : index + 1}</div>
-                <div className={`text-sm font-medium ${currentStepIndex >= index ? 'text-[#083f30]' : 'text-slate-500'}`}>{tBooking(step.labelKey)}</div>
-                {index < visibleSteps.length - 1 ? <div className={`mx-2 h-0.5 w-10 ${currentStepIndex > index ? 'bg-[#083f30]' : 'bg-slate-200'}`}/> : null}
-              </div>))}
-          </div>
         </div>
-      </div>
 
-      <div className="mx-auto grid max-w-6xl gap-6 px-5 py-6 lg:grid-cols-[1fr_360px]">
-        {/* min-w-0: grid items default to min-width:auto, so a single unshrinkable descendant
+        <div className="mx-auto grid max-w-6xl gap-6 px-5 py-6 lg:grid-cols-[1fr_360px]">
+            {/* min-w-0: grid items default to min-width:auto, so a single unshrinkable descendant
             widens the whole column and scrolls the page sideways. */}
-        <div className="min-w-0 space-y-6">
-          {error ? <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{error}</div> : null}
+            <div className="min-w-0 space-y-6">
+                {error ? <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{error}</div> : null}
 
-          {currentStep === 1 ? (<DecisionStack draft={draft} entryResolved={seedEntryResolved} entryFailed={entryFailed} onRetryEntry={() => { setEntryFailed(false); setEntryAttempt((x) => x + 1); }} seeded={{ providerId: seededProviderId, serviceId: seededServiceId, specialistId: seededSpecialistId }} onPick={handlePick} onSlotTouched={(slot) => setTouchedSlots((prev) => ({ ...prev, [slot]: true }))} formatMoney={formatMoney} formatDate={(iso) => formatBookingDate(iso, { locale, calendar })} provider={{
-                items: providers,
-                total: providerTotal,
-                hasMore: providerHasMore,
-                loading: providersLoading || !seedEntryResolved,
-                search: providerSearch,
-                onSearchChange: (v) => { setProviderOffset(0); setProviders([]); setProviderHasMore(false); setProviderSearch(v); },
-                onLoadMore: () => setProviderOffset((x) => x + 8),
-                resolved: chosenProvider ?? null,
-            }} service={{
-                items: services,
-                total: serviceTotal,
-                hasMore: serviceHasMore,
-                loading: servicesLoading || !seedEntryResolved,
-                search: serviceSearch,
-                onSearchChange: (v) => { setServiceOffset(0); setServices([]); setServiceHasMore(false); setServiceSearch(v); },
-                onLoadMore: () => setServiceOffset((x) => x + 8),
-                resolved: chosenService ?? null,
-            }} specialist={{
-                items: specialists,
-                total: specialistTotal,
-                hasMore: specialistHasMore,
-                loading: specialistsLoading || !seedEntryResolved,
-                search: specialistSearch,
-                onSearchChange: (v) => { setSpecialistOffset(0); setSpecialists([]); setSpecialistHasMore(false); setSpecialistSearch(v); },
-                onLoadMore: () => setSpecialistOffset((x) => x + 8),
-                resolved: chosenSpecialist ?? null,
-            }}/>) : null}
+                {currentStep === 1 ? (<DecisionStack draft={draft} entryResolved={seedEntryResolved} entryFailed={entryFailed} onRetryEntry={() => { setEntryFailed(false); setEntryAttempt((x) => x + 1); }} seeded={{ providerId: seededProviderId, serviceId: seededServiceId, specialistId: seededSpecialistId }} onPick={handlePick} onSlotTouched={(slot) => setTouchedSlots((prev) => ({ ...prev, [slot]: true }))} formatMoney={formatMoney} formatDate={(iso) => formatBookingDate(iso, { locale, calendar })} provider={{
+                    items: providers,
+                    total: providerTotal,
+                    hasMore: providerHasMore,
+                    loading: providersLoading || !seedEntryResolved,
+                    search: providerSearch,
+                    onSearchChange: (v) => { setProviderOffset(0); setProviders([]); setProviderHasMore(false); setProviderSearch(v); },
+                    onLoadMore: () => setProviderOffset((x) => x + 8),
+                    resolved: chosenProvider ?? null,
+                }} service={{
+                    items: services,
+                    total: serviceTotal,
+                    hasMore: serviceHasMore,
+                    loading: servicesLoading || !seedEntryResolved,
+                    search: serviceSearch,
+                    onSearchChange: (v) => { setServiceOffset(0); setServices([]); setServiceHasMore(false); setServiceSearch(v); },
+                    onLoadMore: () => setServiceOffset((x) => x + 8),
+                    resolved: chosenService ?? null,
+                }} specialist={{
+                    items: specialists,
+                    total: specialistTotal,
+                    hasMore: specialistHasMore,
+                    loading: specialistsLoading || !seedEntryResolved,
+                    search: specialistSearch,
+                    onSearchChange: (v) => { setSpecialistOffset(0); setSpecialists([]); setSpecialistHasMore(false); setSpecialistSearch(v); },
+                    onLoadMore: () => setSpecialistOffset((x) => x + 8),
+                    resolved: chosenSpecialist ?? null,
+                }}/>) : null}
 
-          {currentStep === 2 ? (<div className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-lg">
-              <h2 className="mb-4 text-xl font-bold text-slate-900">{tBooking("scheduleAndBookingDetails")}</h2>
-              <label className="mb-4 block text-sm font-semibold">{tBooking('calendar')}
-                <select value={calendar} onChange={event => selectCalendar(event.target.value as BookingCalendar)} className="ms-3 min-h-11 rounded-xl border border-slate-200 bg-white px-3">
-                  {BOOKING_CALENDARS.map(item => <option key={item} value={item}>{bookingCalendarLabel(item, locale)}</option>)}
-                </select>
-              </label>
-              {draft.bookingUiMode === 'default_slot' && <label className="mb-4 block text-sm font-semibold">{tCalendarAdmin('timezone')}
-                <select value={viewerTimeZone} onChange={event => selectTimeZone(event.target.value)} className="ms-3 min-h-11 max-w-full rounded-xl border border-slate-200 bg-white px-3">
-                  {viewerTimeZones.map(zone => <option key={zone} value={zone}>{zone}</option>)}
-                </select>
-              </label>}
-              {chosenService?.hasTourDepartures ? (<TourDeparturePicker serviceId={chosenService.id} selectedDepartureId={draft.tourDepartureId} onSelect={(departure) => {
-                    const next = { ...draft, selectedDate: departure.startsOn, selectedDateFrom: departure.startsOn, selectedDateTo: departure.endsOn, selectedTime: undefined, selectedTimeFrom: undefined, selectedTimeTo: undefined, tourDepartureId: departure.id };
-                    setDraft(next);
-                    patchDraft(next).catch((er) => setError(er.message));
-                }} />) : null}
-
-              {draft.bookingUiMode === 'default_slot' && !chosenService?.hasTourDepartures ? (<div className="space-y-6">
-                  <div className="flex flex-wrap items-center justify-between gap-3">
-                    <div className="min-w-[260px] text-sm font-semibold text-slate-700">
-                      <span>{tBooking('date2')}</span>
-                      <div className="mt-2">
-                        <BookingDatePicker calendar={calendar} label={tBooking('date2')} value={draft.selectedDate} onChange={(iso) => {
-                          const next = { ...draft, selectedDate: iso, selectedDateFrom: iso, selectedDateTo: iso, selectedTime: undefined, selectedTimeFrom: undefined, selectedTimeTo: undefined };
-                          setDraft(next); patchDraft(next).catch(er => setError(er.message));
-                        }} />
-                      </div>
-                      {!isReasonableBookingIsoDate(draft.selectedDate) && draft.selectedDate ? (<p className="mt-2 text-xs text-red-600">{tBooking("thisDraftContainsAnOldInvalidConvertedDatePlease")}</p>) : null}
+                {currentStep === 2 ? (<div className="rounded-[28px] border border-slate-200 bg-white p-4 shadow-lg sm:p-6">
+                    <h2 className="mb-4 text-xl font-bold text-slate-900">{tBooking("scheduleAndBookingDetails")}</h2>
+                    <div className="mb-5 grid gap-3 sm:grid-cols-2">
+                        <label className="block text-xs font-semibold text-slate-600">{tBooking('calendar')}
+                            <select value={calendar} onChange={event => selectCalendar(event.target.value as BookingCalendar)} className="mt-1.5 block min-h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm text-slate-900">
+                                {BOOKING_CALENDARS.map(item => <option key={item} value={item}>{bookingCalendarLabel(item, locale)}</option>)}
+                            </select>
+                        </label>
+                        {draft.bookingUiMode === 'default_slot' && <label className="block text-xs font-semibold text-slate-600">{tCalendarAdmin('timezone')}
+                            <select value={viewerTimeZone} onChange={event => selectTimeZone(event.target.value)} className="mt-1.5 block min-h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm text-slate-900">
+                                {viewerTimeZones.map(zone => <option key={zone} value={zone}>{zone}</option>)}
+                            </select>
+                        </label>}
                     </div>
-                  </div>
-
-                  <div>
-                    <div className="mb-3 flex items-center justify-between">
-                      <div className="text-sm font-bold text-slate-900">{tBooking("availableDates")}</div>
-                      {scheduleLoading ? <div className="text-xs text-slate-500">{tBooking("loadingAvailability")}</div> : null}
-                    </div>
-                    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                      {availableDates.filter((item) => item.available).slice(0, 18).map((item) => (<button key={item.date} type="button" onClick={() => {
-                        const next = { ...draft, selectedDate: item.date, selectedDateFrom: item.date, selectedDateTo: item.date, selectedTime: undefined, selectedTimeFrom: undefined, selectedTimeTo: undefined };
+                    {chosenService?.hasTourDepartures ? (<TourDeparturePicker serviceId={chosenService.id} selectedDepartureId={draft.tourDepartureId} onSelect={(departure) => {
+                        const next = { ...draft, selectedDate: departure.startsOn, selectedDateFrom: departure.startsOn, selectedDateTo: departure.endsOn, selectedTime: undefined, selectedTimeFrom: undefined, selectedTimeTo: undefined, tourDepartureId: departure.id };
                         setDraft(next);
                         patchDraft(next).catch((er) => setError(er.message));
-                    }} className={`rounded-2xl border p-4 text-left transition ${draft.selectedDate === item.date ? 'border-[#083f30] bg-[#083f30]/5' : 'border-slate-200 bg-white hover:border-[#155e75]'}`}>
-                          <div className="text-sm font-bold text-slate-900">{item.displayDate}</div>
-                          <div className="mt-1 text-xs text-slate-500">{item.day} · {item.date}</div>
-                        </button>))}
-                    </div>
-                    {!scheduleLoading && availableDates.filter((item) => item.available).length === 0 ? (<div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">{tBooking("noAvailableDatesFoundForThisProviderServiceSpecialist")}</div>) : null}
-                  </div>
+                    }} />) : null}
 
-                  {draft.selectedDate ? (<div>
-                      <div className="mb-3 text-sm font-bold text-slate-900">{tBooking("availableTimeSlotsFor")}{formatBookingDate(draft.selectedDate, { locale, calendar })} <span className="text-xs font-normal">({providerTimeZone})</span></div>
-                      {viewerTimeZone !== providerTimeZone && (
-                          <div className="mb-3 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
-                              {tBooking("timezoneMismatchWarning", { providerZone: providerTimeZone, viewerZone: viewerTimeZone })}
-                          </div>
-                      )}
-                      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                        {timeSlots.map((slot) => {
-                        const selected = draft.selectedTimeFrom === slot.time && draft.selectedTimeTo === slot.endTime;
-                        let localStart = slot.label;
-                        let localEnd = slot.endLabel;
-                        let validTime = true;
-                        try {
-                          const options = { locale, calendar, sourceTimeZone: providerTimeZone, timeZone: viewerTimeZone };
-                          localStart = formatBookingDateTime(draft.selectedDate, slot.time, options);
-                          localEnd = formatBookingDateTime(draft.selectedDate, slot.endTime, options);
-                        } catch { validTime = false; }
+                    {draft.bookingUiMode === 'default_slot' && !chosenService?.hasTourDepartures ? (<div className="space-y-6">
 
-                        return (<button key={`${slot.time}-${slot.endTime}`} type="button" disabled={!slot.available || !validTime} onClick={() => {
-                                const fallbackEnd = slot.endTime || addMinutes(slot.time, chosenService?.durationMinutes ?? 30);
-                                const next = { ...draft, selectedTime: slot.time, selectedTimeFrom: slot.time, selectedTimeTo: fallbackEnd };
-                                setDraft(next);
-                                patchDraft(next).catch((er) => setError(er.message));
-                            }} className={`rounded-2xl border p-4 text-left transition ${selected ? 'border-[#083f30] bg-[#083f30]/5' : 'border-slate-200 bg-white'} ${slot.available ? 'hover:border-[#155e75]' : 'cursor-not-allowed opacity-40'}`}>
-                              <div className="text-sm font-bold text-slate-900">{localStart}</div>
-                              <div className="mt-1 text-xs text-slate-500">{tBooking("toTime", { time: localEnd })}</div>
-                              {typeof slot.remainingCapacity === 'number' && !draft.specialistId ? (<div className="mt-2 text-[11px] font-semibold text-slate-500">{slot.remainingCapacity}{tBooking("capacityLeft")}</div>) : null}
-                            </button>);
-                    })}
-                      </div>
+                        <div>
+                            <div className="mb-3 flex items-center justify-between">
+                                <div className="text-sm font-bold text-slate-900">{tBooking("availableDates")}</div>
+                                {scheduleLoading ? <div className="text-xs text-slate-500">{tBooking("loadingAvailability")}</div> : null}
+                            </div>
+                            <div className="-mx-1 flex snap-x gap-2.5 overflow-x-auto px-1 pb-2 sm:mx-0 sm:grid sm:grid-cols-3 sm:overflow-visible sm:px-0 lg:grid-cols-4">
+                                {availableDates.filter((item) => item.available).slice(0, 18).map((item) => (<button key={item.date} type="button" onClick={() => {
+                                    const next = { ...draft, selectedDate: item.date, selectedDateFrom: item.date, selectedDateTo: item.date, selectedTime: undefined, selectedTimeFrom: undefined, selectedTimeTo: undefined };
+                                    setDraft(next);
+                                    patchDraft(next).catch((er) => setError(er.message));
+                                }} className={`w-[96px] shrink-0 snap-start rounded-2xl border px-2 py-3 text-center transition sm:w-auto ${draft.selectedDate === item.date ? 'border-[#083f30] bg-[#083f30] text-white shadow-md shadow-[#083f30]/20' : 'border-slate-200 bg-white text-slate-900 hover:border-[#083f30]/40'}`}>
+                                    <div className={`text-[11px] font-medium ${draft.selectedDate === item.date ? 'text-white/75' : 'text-slate-500'}`}>{item.day}</div>
+                                    <div className="mt-1 text-sm font-bold leading-tight">{item.displayDate}</div>
+                                    <span className={`mx-auto mt-2 block h-0.5 w-6 rounded-full ${draft.selectedDate === item.date ? 'bg-[#eacb7f]' : 'bg-transparent'}`} />
+                                </button>))}
+                            </div>
+                            {!scheduleLoading && availableDates.filter((item) => item.available).length === 0 ? (<div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">{tBooking("noAvailableDatesFoundForThisProviderServiceSpecialist")}</div>) : null}
+                        </div>
+
+                        {draft.selectedDate ? (<div>
+                            <div className="mb-3 text-sm font-bold text-slate-900">{tBooking("availableTimeSlotsFor")}{formatBookingDate(draft.selectedDate, { locale, calendar })} <span className="text-xs font-normal">({providerTimeZone})</span></div>
+                            {viewerTimeZone !== providerTimeZone && (
+                                <div className="mb-3 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
+                                    {tBooking("timezoneMismatchWarning", { providerZone: providerTimeZone, viewerZone: viewerTimeZone })}
+                                </div>
+                            )}
+                            {(() => {
+                                const renderSlot = (slot: (typeof timeSlots)[number]) => {
+                                    const selected = draft.selectedTimeFrom === slot.time && draft.selectedTimeTo === slot.endTime;
+                                    let localStart = slot.label;
+                                    let localEnd = slot.endLabel;
+                                    let validTime = true;
+                                    try {
+                                        const options = { locale, calendar, sourceTimeZone: providerTimeZone, timeZone: viewerTimeZone };
+                                        localStart = formatBookingDateTime(draft.selectedDate, slot.time, options);
+                                        localEnd = formatBookingDateTime(draft.selectedDate, slot.endTime, options);
+                                    } catch { validTime = false; }
+                                    const selectable = slot.available && validTime;
+
+                                    return (<button key={`${slot.time}-${slot.endTime}`} type="button" disabled={!selectable} aria-pressed={selected} onClick={() => {
+                                        const fallbackEnd = slot.endTime || addMinutes(slot.time, chosenService?.durationMinutes ?? 30);
+                                        const next = { ...draft, selectedTime: slot.time, selectedTimeFrom: slot.time, selectedTimeTo: fallbackEnd };
+                                        setDraft(next);
+                                        patchDraft(next).catch((er) => setError(er.message));
+                                    }} className={`w-full snap-start rounded-xl border px-2 py-2.5 text-center transition ${selected ? 'border-[#083f30] bg-[#083f30] text-white shadow-md shadow-[#083f30]/20' : 'border-slate-200 bg-white text-slate-900'} ${selectable ? (selected ? '' : 'hover:border-[#083f30]/40') : 'cursor-not-allowed opacity-35 line-through'}`}>
+                                        <div className="text-sm font-bold tabular-nums">{localStart}</div>
+                                        <div className={`mt-0.5 text-[10px] ${selected ? 'text-white/70' : 'text-slate-400'}`}>{tBooking("toTime", { time: localEnd })}</div>
+                                        {typeof slot.remainingCapacity === 'number' && !draft.specialistId ? (<div className={`mt-1 text-[10px] font-semibold ${selected ? 'text-[#eacb7f]' : 'text-slate-500'}`}>{slot.remainingCapacity}{tBooking("capacityLeft")}</div>) : null}
+                                    </button>);
+                                };
+
+                                // Mobile: 3 rows, filled column by column, 3 columns visible (a 3×3 page), swipe for more.
+                                // sm and up: the regular multi-column grid.
+                                const gridClass = (count: number) =>
+                                    `-mx-1 grid grid-flow-col ${count >= 3 ? "grid-rows-3" : count === 2 ? "grid-rows-2" : "grid-rows-1"} auto-cols-[calc((100%-1rem)/3)] snap-x gap-2 overflow-x-auto px-1 pb-2 sm:mx-0 sm:grid-flow-row sm:grid-rows-none sm:auto-cols-auto sm:grid-cols-4 sm:overflow-visible sm:px-0 sm:pb-0 lg:grid-cols-6`;
+
+                                // Day-part groups use the provider's clock, so only group when the viewer shares it.
+                                if (viewerTimeZone !== providerTimeZone) {
+                                    return <div className={gridClass(timeSlots.length)}>{timeSlots.map(renderSlot)}</div>;
+                                }
+
+                                const hourOf = (time: string) => Number(time.slice(0, 2));
+                                const dayPartLabels = {
+                                    morning: tBooking("dayParts.morning"),
+                                    afternoon: tBooking("dayParts.afternoon"),
+                                    evening: tBooking("dayParts.evening"),
+                                };
+                                const groups = [
+                                    { key: "morning" as const, slots: timeSlots.filter((s) => hourOf(s.time) < 12) },
+                                    { key: "afternoon" as const, slots: timeSlots.filter((s) => hourOf(s.time) >= 12 && hourOf(s.time) < 17) },
+                                    { key: "evening" as const, slots: timeSlots.filter((s) => hourOf(s.time) >= 17) },
+                                ].filter((group) => group.slots.length > 0);
+
+                                return (<div className="space-y-4">
+                                    {groups.map((group) => (<div key={group.key}>
+                                        <div className="mb-2 flex items-center gap-2 text-xs font-semibold text-slate-500">
+                                            <span>{dayPartLabels[group.key]}</span>
+                                            <span className="h-px flex-1 bg-slate-100" />
+                                        </div>
+                                        <div className={gridClass(group.slots.length)}>{group.slots.map(renderSlot)}</div>
+                                    </div>))}
+                                </div>);
+                            })()}
+                        </div>) : null}
                     </div>) : null}
-                </div>) : null}
 
-              {draft.bookingUiMode === 'date_range' ? (<div className="grid gap-4 md:grid-cols-4">
-                  <div className="text-sm font-semibold text-slate-700"><span>{tBooking("fromDate")}</span><div className="mt-2"><BookingDatePicker calendar={calendar} label={tBooking("fromDate")} value={draft.selectedDateFrom} onChange={(iso) => {
-                    const next = { ...draft, selectedDateFrom: iso }; setDraft(next); patchDraft(next).catch(er => setError(er.message));
-                  }} /></div></div>
-                  <div className="text-sm font-semibold text-slate-700"><span>{tBooking("toDate")}</span><div className="mt-2"><BookingDatePicker calendar={calendar} label={tBooking("toDate")} value={draft.selectedDateTo} onChange={(iso) => {
-                    const next = { ...draft, selectedDateTo: iso }; setDraft(next); patchDraft(next).catch(er => setError(er.message));
-                  }} /></div></div>
-                  <label className="text-sm font-semibold text-slate-700">{tBooking("adults")}<input type="number" min={1} value={draft.adults ?? 1} onChange={(e) => { const next = { ...draft, adults: Number(e.target.value || 1) }; setDraft(next); patchDraft(next).catch((er) => setError(er.message)); }} className="mt-2 h-12 w-full rounded-2xl border border-slate-200 px-4 outline-none focus:border-[#155e75]"/></label>
-                  <label className="text-sm font-semibold text-slate-700">{tBooking("rooms")}<input type="number" min={1} value={draft.rooms ?? 1} onChange={(e) => { const next = { ...draft, rooms: Number(e.target.value || 1) }; setDraft(next); patchDraft(next).catch((er) => setError(er.message)); }} className="mt-2 h-12 w-full rounded-2xl border border-slate-200 px-4 outline-none focus:border-[#155e75]"/></label>
-                  <div className="md:col-span-4">
-                    {rangeAvailabilityLoading ? (<div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">{tBooking("checkingServiceResourceAvailability")}</div>) : dateRangeAvailability ? (<div className={`rounded-2xl border p-4 text-sm ${dateRangeAvailability.available ? 'border-emerald-200 bg-emerald-50 text-emerald-800' : 'border-red-200 bg-red-50 text-red-700'}`}>
-                        {dateRangeAvailability.available
-                        ? tBooking('availableMinimumRemainingCapacity', { capacity: dateRangeAvailability.remainingCapacity })
-                        : dateRangeAvailability.message || tBooking('thisDateRangeIsNotAvailable')}
-                        {!dateRangeAvailability.available && dateRangeAvailability.unavailableDates?.length ? (<div className="mt-2 text-xs">{tBooking("unavailableDates")}{dateRangeAvailability.unavailableDates.join(', ')}</div>) : null}
-                      </div>) : (<div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">{tBooking("selectDatesAndUnitsToCheckServiceResourceAvailability")}</div>)}
-                  </div>
-                </div>) : null}
+                    {draft.bookingUiMode === 'date_range' ? (<div className="grid gap-4 md:grid-cols-3">
+                        <div className="text-sm font-semibold text-slate-700"><span>{tBooking("fromDate")}</span><div className="mt-2"><BookingDatePicker calendar={calendar} label={tBooking("fromDate")} value={draft.selectedDateFrom} onChange={(iso) => {
+                            const next = { ...draft, selectedDateFrom: iso, metadata: { ...(draft.metadata ?? {}), selectedDateFrom: iso } }; setDraft(next); patchDraft(next).catch(er => setError(er.message));
+                        }} /></div></div>
+                        <div className="text-sm font-semibold text-slate-700"><span>{tBooking("toDate")}</span><div className="mt-2"><BookingDatePicker calendar={calendar} label={tBooking("toDate")} value={draft.selectedDateTo} onChange={(iso) => {
+                            const next = { ...draft, selectedDateTo: iso, metadata: { ...(draft.metadata ?? {}), selectedDateTo: iso } }; setDraft(next); patchDraft(next).catch(er => setError(er.message));
+                        }} /></div></div>
+                        <AdultsStepper label={tBooking("adults")} value={draft.adults} onValidityChange={setAdultsValid} onChange={(adults) => { const next = { ...draft, adults }; setDraft(next); patchDraft(next).catch((er) => setError(er.message)); }}/>
+                        <div className="md:col-span-3">{(() => {
+                    const from = draft.selectedDateFrom;
+                    const to = draft.selectedDateTo;
+                    if (!from || !to) return null;
+                    if (to <= from) return <div className="text-xs text-red-600">{tBooking('stay.checkoutAfterCheckin')}</div>;
+                    const nights = Math.round((Date.parse(`${to}T00:00:00Z`) - Date.parse(`${from}T00:00:00Z`)) / 86400000);
+                    // Nightly price of the chosen meal plan (room only when none is chosen).
+                    const chosenPlanCode = (draft.metadata as any)?.mealPlan ?? 'room_only';
+                    const plan = mealPlans.find((p) => p.code === chosenPlanCode) ?? mealPlans.find((p) => p.code === 'room_only');
+                    const nightly = plan ? { amount: plan.amount, currency: plan.currencyCode } : chosenService ? { amount: Number(chosenService.value), currency: chosenService.currency } : null;
+                    return <div className="rounded-2xl bg-slate-50 p-3 text-sm text-slate-700">{tBooking('stay.nightsLine', { nights, price: nightly ? formatMoney(nightly.amount, nightly.currency) : '' })}{nightly ? <span className="font-semibold text-slate-900"> = {formatMoney(Math.round(nightly.amount * nights * 100) / 100, nightly.currency)}</span> : null}</div>;
+                  })()}</div>
+                  {draft.serviceId ? (<div className="md:col-span-3"><MealPlanPicker serviceId={draft.serviceId} value={(draft.metadata as any)?.mealPlan ?? null} disabled={submitting} onPlansLoaded={setMealPlans} onChange={(code) => { patchDraft({ metadata: { ...(draft.metadata ?? {}), mealPlan: code } }).then(() => refreshDraftAfterPriceChange()).catch((er) => setError(er.message)); }} /></div>) : null}
 
-              {chosenService?.requiresCustomerAddress ? (<AddressPicker selectedId={draft.customerAddressId} onSelect={(address) => {
-                    const next = { ...draft, customerAddressId: address.id, customerAddressSnapshot: JSON.stringify(address) };
-                    setDraft(next);
-                    patchDraft(next).catch((er) => setError(er.message));
-                }} />) : null}
+                    </div>) : null}
 
-              {draft.bookingUiMode === 'custom_form' && mainServiceForm ? (<DynamicServiceForm form={mainServiceForm} locales={[locale]} onSubmit={async (values) => {
-                    const res = await getJson<{
-                        submissionId: string;
-                    }>('/api/form-builder/submissions', {
-                        method: 'POST',
-                        body: JSON.stringify({
-                            formVersionId: mainServiceForm.formVersionId,
-                            serviceDefinitionId: draft.serviceDefinitionId,
-                            bookingDraftId: draft.id,
-                            status: 'submitted',
-                            payload: values,
-                        }),
-                    });
-                    const next = { ...draft, formSubmissionId: res.submissionId };
-                    setDraft(next);
-                    patchDraft({ formSubmissionId: res.submissionId }).catch((er) => setError(er.message));
-                }} submitLabel={tBooking("saveFormAndContinue")}/>) : null}
+                    {chosenService?.requiresCustomerAddress ? (<AddressPicker selectedId={draft.customerAddressId} onSelect={(address) => {
+                        const next = { ...draft, customerAddressId: address.id, customerAddressSnapshot: JSON.stringify(address) };
+                        setDraft(next);
+                        patchDraft(next).catch((er) => setError(er.message));
+                    }} />) : null}
 
-              <div className="mt-6 rounded-3xl border border-[#083f30]/15 bg-[#083f30]/5 p-5">
-                <label className="flex cursor-pointer items-start gap-3">
-                  <input type="checkbox" checked={Boolean(draft.useLsevin)} onChange={(event) => {
-                const useLsevin = event.target.checked;
-                const next = { ...draft, useLsevin, currentStep: 2 };
-                setDraft(next);
-                patchDraft({ useLsevin, currentStep: 2 }).catch((er) => setError(er.message));
-            }} className="mt-1 h-5 w-5 rounded border-slate-300 text-[#083f30] focus:ring-[#083f30]"/>
-                  <span>
+                    {draft.bookingUiMode === 'custom_form' && mainServiceForm ? (<DynamicServiceForm form={mainServiceForm} locales={[locale]} onSubmit={async (values) => {
+                        const res = await getJson<{
+                            submissionId: string;
+                        }>('/api/form-builder/submissions', {
+                            method: 'POST',
+                            body: JSON.stringify({
+                                formVersionId: mainServiceForm.formVersionId,
+                                serviceDefinitionId: draft.serviceDefinitionId,
+                                bookingDraftId: draft.id,
+                                status: 'submitted',
+                                payload: values,
+                            }),
+                        });
+                        const next = { ...draft, formSubmissionId: res.submissionId };
+                        setDraft(next);
+                        patchDraft({ formSubmissionId: res.submissionId }).catch((er) => setError(er.message));
+                    }} submitLabel={tBooking("saveFormAndContinue")}/>) : null}
+
+                    <div className="mt-6 rounded-3xl border border-[#083f30]/15 bg-[#083f30]/5 p-5">
+                        <label className="flex cursor-pointer items-start gap-3">
+                            <input type="checkbox" checked={Boolean(draft.useLsevin)} onChange={(event) => {
+                                const useLsevin = event.target.checked;
+                                const next = { ...draft, useLsevin, currentStep: 2 };
+                                setDraft(next);
+                                patchDraft({ useLsevin, currentStep: 2 }).catch((er) => setError(er.message));
+                            }} className="mt-1 h-5 w-5 rounded border-slate-300 text-[#083f30] focus:ring-[#083f30]"/>
+                            <span>
                     <span className="block text-sm font-bold text-slate-900">{tBooking("iWantLSevinToArrangeExtraSupportServicesFor")}</span>
                     <span className="mt-1 block text-xs leading-5 text-slate-600">{tBooking("chooseThisIfYouWantHelpWithRelatedServices")}</span>
                   </span>
-                </label>
-              </div>
-            </div>) : null}
+                        </label>
+                    </div>
+                </div>) : null}
 
-          {/* Shown between Schedule and the rest of the flow. Optional throughout: the
+                {/* Shown between Schedule and the rest of the flow. Optional throughout: the
               customer can submit nothing and press Continue. */}
-          {currentStep === 6 ? (<ConsultationStep bookingDraftId={draft.id} onContinue={goNext}/>) : null}
+                {currentStep === 6 ? (<ConsultationStep bookingDraftId={draft.id} onContinue={goNext}/>) : null}
 
-          {currentStep === 3 ? (<div className="space-y-4">
-              <div className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-lg">
-                <h2 className="text-xl font-bold text-slate-900">{tBooking("addOnSubBookings2")}</h2>
-                <p className="mt-2 text-sm text-slate-600">{tBooking("everySelectedProviderTypeAddOnStartsAnEmbedded")}</p>
-              </div>
-              {addonProviderTypes.length === 0 ? (<div className="rounded-[28px] border border-dashed border-slate-300 bg-slate-50 p-6 text-sm text-slate-600">{tBooking("noAddOnsConfigured")}</div>) : null}
-              {addonProviderTypes.map((addon) => (<ChildAddonBookingCard key={addon.providerTypeId} locale={locale} draftId={draft.id!} addon={addon} city={chosenProvider?.city} value={childMap[addon.providerTypeId]} onChange={(next) => setDraft((prev) => ({ ...(prev as BookingDraftState), childBookings: [...(prev?.childBookings ?? []).filter((x) => x.providerTypeId !== next.providerTypeId), next] }))} onSaved={(next, totals) => setDraft((prev) => ({ ...(prev as BookingDraftState), childBookings: [...(prev?.childBookings ?? []).filter((x) => x.providerTypeId !== next.providerTypeId), next], ...(totals ?? {}) }))}/>))}
-            </div>) : null}
+                {currentStep === 3 ? (<div className="lg:hidden">
+                    <MobileItinerary
+                        locale={locale}
+                        calendar={calendar}
+                        draft={draft}
+                        addonTypes={addonProviderTypes}
+                        main={{ title: chosenService?.name ?? tBooking('stepService'), providerName: [chosenProvider?.name, draft.requiresSpecialist ? chosenSpecialist?.name : null].filter(Boolean).join(' · '), city: chosenProvider?.city, country: chosenProvider?.country, imageUrl: chosenProvider?.imageUrl, durationMinutes: chosenService?.durationMinutes }}
+                        formatMoney={formatMoney}
+                        onChildSaved={(child, totals) => setDraft((prev) => ({ ...(prev as BookingDraftState), childBookings: upsertChildBooking(prev?.childBookings, child), ...(totals ?? {}) }))}
+                        onChildRemoved={(childId, totals) => setDraft((prev) => ({ ...(prev as BookingDraftState), childBookings: (prev?.childBookings ?? []).filter((item) => item.id !== childId), ...(totals ?? {}) }))}
+                    />
+                </div>) : null}
 
-          {currentStep === 4 ? (<div className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-lg">
-              <div className="mb-4 flex items-center gap-3">
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#083f30]/10 text-[#083f30]"><FileStack className="h-5 w-5"/></div>
-                <div>
-                  <h2 className="text-xl font-bold text-slate-900">{tBooking("requiredFiles")}</h2>
-                  <p className="text-sm text-slate-600">{tBooking("theseRequirementsComeFromTheSelectedServiceDefinitionUse")}</p>
-                </div>
-              </div>
-              <div className="space-y-4">
-                {uploadRequirements.map((item) => {
-                const existing = (draft.uploadFiles ?? []).find((x) => x.requirementId === item.id);
-                return (<div key={item.id} className="rounded-3xl border border-slate-200 bg-slate-50 p-4">
-                      <div className="mb-2 text-sm font-bold text-slate-900">{item.title} {item.isRequired ? <span className="text-red-500">*</span> : null}</div>
-                      {item.description ? <RichTextPreview content={item.description} className="mb-3 text-xs text-slate-500"/> : null}
-                      <input type="text" value={existing?.fileUrl ?? existing?.mediaIds ?? ''} onChange={(e) => {
-                        const nextFiles = [
-                            ...(draft.uploadFiles ?? []).filter((x) => x.requirementId !== item.id),
-                            { requirementId: item.id, title: item.title, fileUrl: e.target.value, mediaIds: e.target.value },
-                        ];
-                        const next = { ...draft, uploadFiles: nextFiles };
-                        setDraft(next);
-                    }} placeholder={tBooking("useRHFSingleMediaPickerFieldRHFMultiMediaPickerFieldHiddenValueHere")} className="h-12 w-full rounded-2xl border border-slate-200 bg-white px-4 outline-none focus:border-[#155e75]"/>
-                    </div>);
-            })}
-              </div>
-              <button type="button" onClick={() => getJson('/api/booking-pro/draft', { method: 'PATCH', body: JSON.stringify({ action: 'documents', draftId: draft.id, documents: draft.uploadFiles }) }).then(() => { }).catch((e) => setError(e.message))} className="mt-5 rounded-2xl bg-[#083f30] px-5 py-3 text-sm font-bold text-white shadow-lg">{tBooking("saveFileSelections")}</button>
-              <ShareMedicalCaseStep providerId={draft.providerId} draftId={draft.id} caseShare={draft.caseShare} onSaved={(next) => setDraft({ ...draft, caseShare: next })}/>
-            </div>) : null}
+                {currentStep === 3 ? (<div className="hidden space-y-4 lg:block">
+                    <div className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-lg">
+                        <h2 className="text-xl font-bold text-slate-900">{tBooking("addOnSubBookings2")}</h2>
+                        <p className="mt-2 text-sm text-slate-600">{tBooking("everySelectedProviderTypeAddOnStartsAnEmbedded")}</p>
+                    </div>
+                    {addonProviderTypes.length === 0 ? (<div className="rounded-[28px] border border-dashed border-slate-300 bg-slate-50 p-6 text-sm text-slate-600">{tBooking("noAddOnsConfigured")}</div>) : null}
+                    {addonProviderTypes.map((addon) => (<ChildAddonBookingCard key={addon.providerTypeId} locale={locale} draftId={draft.id!} addon={addon} city={chosenProvider?.city} country={chosenProvider?.country} value={childMap[addon.providerTypeId]} onChange={(next) => setDraft((prev) => ({ ...(prev as BookingDraftState), childBookings: upsertChildBooking(prev?.childBookings, next) }))} onSaved={(next, totals) => setDraft((prev) => ({ ...(prev as BookingDraftState), childBookings: upsertChildBooking(prev?.childBookings, next), ...(totals ?? {}) }))}/>))}
+                </div>) : null}
 
-          {/* Optional: shop products an admin linked to this service. Never gates
+                {currentStep === 4 ? (<div className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-lg">
+                    <div className="mb-4 flex items-center gap-3">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#083f30]/10 text-[#083f30]"><FileStack className="h-5 w-5"/></div>
+                        <div>
+                            <h2 className="text-xl font-bold text-slate-900">{tBooking("requiredFiles")}</h2>
+                            <p className="text-sm text-slate-600">{tBooking("theseRequirementsComeFromTheSelectedServiceDefinitionUse")}</p>
+                        </div>
+                    </div>
+                    <div className="space-y-4">
+                        {uploadRequirements.map((item) => {
+                            const existing = (draft.uploadFiles ?? []).find((x) => x.requirementId === item.id);
+                            return (<div key={item.id} className="rounded-3xl border border-slate-200 bg-slate-50 p-4">
+                                <div className="mb-2 text-sm font-bold text-slate-900">{item.title} {item.isRequired ? <span className="text-red-500">*</span> : null}</div>
+                                {item.description ? <RichTextPreview content={item.description} className="mb-3 text-xs text-slate-500"/> : null}
+                                <input type="text" value={existing?.fileUrl ?? existing?.mediaIds ?? ''} onChange={(e) => {
+                                    const nextFiles = [
+                                        ...(draft.uploadFiles ?? []).filter((x) => x.requirementId !== item.id),
+                                        { requirementId: item.id, title: item.title, fileUrl: e.target.value, mediaIds: e.target.value },
+                                    ];
+                                    const next = { ...draft, uploadFiles: nextFiles };
+                                    setDraft(next);
+                                }} placeholder={tBooking("useRHFSingleMediaPickerFieldRHFMultiMediaPickerFieldHiddenValueHere")} className="h-12 w-full rounded-2xl border border-slate-200 bg-white px-4 outline-none focus:border-[#155e75]"/>
+                            </div>);
+                        })}
+                    </div>
+                    <button type="button" onClick={() => getJson('/api/booking-pro/draft', { method: 'PATCH', body: JSON.stringify({ action: 'documents', draftId: draft.id, documents: draft.uploadFiles }) }).then(() => { }).catch((e) => setError(e.message))} className="mt-5 rounded-2xl bg-[#083f30] px-5 py-3 text-sm font-bold text-white shadow-lg">{tBooking("saveFileSelections")}</button>
+                    <ShareMedicalCaseStep providerId={draft.providerId} draftId={draft.id} caseShare={draft.caseShare} onSaved={(next) => setDraft({ ...draft, caseShare: next })}/>
+                </div>) : null}
+
+                {/* Optional: shop products an admin linked to this service. Never gates
               Continue — the bottom bar drives it like every other step. */}
-          {currentStep === SHOP_PRODUCTS_STEP ? (
-            <BookingShopProductsStep groups={shopProductGroups} locale={locale} />
-          ) : null}
+                {currentStep === SHOP_PRODUCTS_STEP ? (
+                    <BookingShopProductsStep groups={shopProductGroups} locale={locale} />
+                ) : null}
 
-          {currentStep === 5 ? (<div className="space-y-4">
-              <div className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-lg">
-                <h2 className="text-xl font-bold text-slate-900">{tBooking("reviewAndPay")}</h2>
-                <div className="mt-4 space-y-3 text-sm text-slate-700">
-                  <div className="flex justify-between"><span>{tBooking("mainBooking")}</span><span>{chosenProvider?.name} / {chosenService?.name}{chosenSpecialist ? ` / ${chosenSpecialist.name}` : ''}</span></div>
-                  <div className="flex justify-between"><span>{tBooking("mainSubtotal")}</span><span>{draft.currency} {draft.subtotalAmount ?? 0}</span></div>
-                  {draft.useLsevin ? <>
-                    <div className="flex justify-between"><span>{tBooking("addOnSubBookings2")}</span><span>{draft.childBookings.length}</span></div>
-                    <div className="flex justify-between"><span>{tBooking("addOnSubtotal")}</span><span>{draft.currency} {draft.addonsAmount ?? 0}</span></div>
-                  </> : <div className="rounded-2xl bg-slate-50 p-3 text-xs text-slate-600">{tBooking("extraLSevinSupportServicesWereNotRequestedForThis")}</div>}
-                  {Number(draft.metadata?.appliedDiscountAmount ?? 0) > 0 ? (<div className="flex justify-between text-green-700"><span>{tBooking("couponDiscount")}{String(draft.metadata?.appliedCouponCode ?? draft.metadata?.couponCode ?? '')})</span><span>-{draft.currency} {Number(draft.metadata?.appliedDiscountAmount ?? 0)}</span></div>) : null}
-                  <div className="flex justify-between border-t border-slate-200 pt-3 text-base font-bold text-slate-900"><span>{tBooking("totalAfterDiscounts")}</span><span>{draft.currency} {draft.totalAmount ?? 0}</span></div>
-                  <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                    <div className="text-sm font-semibold text-slate-700">{tBooking("coupon")}</div>
-                    <div className="mt-2 flex flex-col gap-2 sm:flex-row">
-                      <input value={couponCode} onChange={(event) => setCouponCode(event.target.value)} placeholder={tBooking("enterCouponCode")} className="h-11 flex-1 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none focus:border-[#155e75]"/>
-                      <button type="button" disabled={couponLoading || !couponCode.trim()} onClick={handleApplyCoupon} className="rounded-2xl bg-[#083f30] px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">{tBooking("apply")}</button>
-                      {draft.metadata?.appliedCouponCode || draft.metadata?.couponCode ? (<button type="button" disabled={couponLoading} onClick={handleRemoveCoupon} className="rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 disabled:opacity-50">{tBooking("remove")}</button>) : null}
+                {currentStep === 5 ? (<div className="space-y-4">
+                    <div className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-lg">
+                        <h2 className="text-xl font-bold text-slate-900">{tBooking("reviewAndPay")}</h2>
+                        <div className="mt-4 space-y-3 text-sm text-slate-700">
+                            <div className="flex justify-between"><span>{tBooking("mainBooking")}</span><span>{chosenProvider?.name} / {chosenService?.name}{chosenSpecialist ? ` / ${chosenSpecialist.name}` : ''}</span></div>
+                            {(draft.metadata as any)?.mealPlan && (draft.metadata as any).mealPlan !== 'room_only' ? (<div className="flex justify-between"><span>{tBooking('mealPlan.label')}</span><span>{tBooking(('mealPlan.' + (draft.metadata as any).mealPlan + '.name') as never)}</span></div>) : null}
+                  <div className="flex justify-between"><span>{tBooking("mainSubtotal")}</span><span>{formatMoney(draft.subtotalAmount ?? 0, draft.currency)}</span></div>
+                            {draft.useLsevin ? <>
+                                <div className="flex justify-between"><span>{tBooking("addOnSubBookings2")}</span><span>{draft.childBookings.length}</span></div>
+                                <div className="flex justify-between"><span>{tBooking("addOnSubtotal")}</span><span>{formatMoney(draft.addonsAmount ?? 0, draft.currency)}</span></div>
+                            </> : <div className="rounded-2xl bg-slate-50 p-3 text-xs text-slate-600">{tBooking("extraLSevinSupportServicesWereNotRequestedForThis")}</div>}
+                            {Number(draft.metadata?.appliedDiscountAmount ?? 0) > 0 ? (<div className="flex justify-between text-green-700"><span>{tBooking("couponDiscount")}{String(draft.metadata?.appliedCouponCode || draft.metadata?.couponCode || draft.metadata?.couponTitle || '')})</span><span>-{formatMoney(Number(draft.metadata?.appliedDiscountAmount ?? 0), draft.currency)}</span></div>) : null}
+                            <div className="flex justify-between border-t border-slate-200 pt-3 text-base font-bold text-slate-900"><span>{tBooking("totalAfterDiscounts")}</span><span>{formatMoney(draft.totalAmount ?? 0, draft.currency)}</span></div>
+                            <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                                <div className="text-sm font-semibold text-slate-700">{tBooking("coupon")}</div>
+                                <div className="mt-2 flex flex-col gap-2 sm:flex-row">
+                                    <input value={couponCode} onChange={(event) => setCouponCode(event.target.value)} placeholder={tBooking("enterCouponCode")} className="h-11 flex-1 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none focus:border-[#155e75]"/>
+                                    <button type="button" disabled={couponLoading || !couponCode.trim()} onClick={handleApplyCoupon} className="rounded-2xl bg-[#083f30] px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">{tBooking("apply")}</button>
+                                    {draft.metadata?.appliedCouponCode || draft.metadata?.couponCode ? (<button type="button" disabled={couponLoading} onClick={handleRemoveCoupon} className="rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 disabled:opacity-50">{tBooking("remove")}</button>) : null}
+                                </div>
+                                {draft.metadata?.couponTitle ? <div className="mt-2 text-xs text-green-700">{tBooking("applied")}{String(draft.metadata.couponTitle)}</div> : null}
+                            </div>
+                            <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                                <div>
+                                    <div className="text-sm font-semibold text-slate-700">{tBooking("paymentMethod2")}</div>
+                                    <div className="mt-2">
+                                        <PaymentMethodsPanel onReadyChange={setPaymentReady} selected={draft.paymentMethod ?? 'gateway_card'} onChange={(code) => {
+                                            const next = { ...draft, paymentMethod: code };
+                                            setDraft(next);
+                                            // Leaving pay in place drops its plan, so a stale choice can't linger on the draft.
+                                            const leavingPlan = code !== 'pay_on_delivery' && Boolean((draft.metadata as any)?.payInPlacePlan);
+                                            patchDraft(
+                                                leavingPlan
+                                                    ? { paymentMethod: code, metadata: { ...(draft.metadata ?? {}), payInPlacePlan: null, depositMethod: null } }
+                                                    : { paymentMethod: code },
+                                            ).catch((er) => setError(er.message));
+                                        }} billingCurrency={draft.currency} receiptFile={receiptFile} onReceiptFileChange={setReceiptFile}/>
+                                        {draft.paymentMethod === 'pay_on_delivery' ? (
+                                            <PayInPlacePlanPicker
+                                                currency={draft.currency ?? 'USD'}
+                                                baseTotal={payInPlaceBaseTotal(draft)}
+                                                plan={((draft.metadata as any)?.payInPlacePlan as string | null | undefined) ?? null}
+                                                depositMethod={((draft.metadata as any)?.depositMethod as string | null | undefined) ?? null}
+                                                disabled={submitting}
+                                                onChange={({ plan, depositMethod }) => {
+                                                    patchDraft({ metadata: { ...(draft.metadata ?? {}), payInPlacePlan: plan, depositMethod } }).catch((er) => setError(er.message));
+                                                }}
+                                            />
+                                        ) : null}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    {draft.metadata?.couponTitle ? <div className="mt-2 text-xs text-green-700">{tBooking("applied")}{String(draft.metadata.couponTitle)}</div> : null}
-                  </div>
-                  <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                    <div>
-                      <div className="text-sm font-semibold text-slate-700">{tBooking("paymentMethod2")}</div>
-                      <div className="mt-2">
-                        <PaymentMethodsPanel selected={draft.paymentMethod ?? 'gateway_card'} onChange={(code) => {
-                const next = { ...draft, paymentMethod: code };
-                setDraft(next);
-                patchDraft({ paymentMethod: code }).catch((er) => setError(er.message));
-            }} receiptFile={receiptFile} onReceiptFileChange={setReceiptFile}/>
-                      </div>
+                </div>) : null}
+
+            </div>
+
+            <aside className="min-w-0 space-y-4">
+                {/* On mobile the decision rows already state the selections and the sticky bar
+              carries the total, so this rail would only repeat them below the fold. */}
+                <div className="hidden rounded-[28px] border border-slate-200 bg-white p-5 shadow-lg lg:block">
+                    <div className="mb-4 flex items-center gap-3">
+                        <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#eacb7f] text-[#083f30]"><ShieldCheck className="h-5 w-5"/></div>
+                        <div>
+                            <div className="font-bold text-slate-900">{tBooking("currentDraft")}</div>
+                            <div className="text-xs text-slate-500">{tBooking("onlyOneActivePendingBookingIsKeptForThis")}</div>
+                        </div>
                     </div>
-                  </div>
+                    <div className="space-y-2 text-sm text-slate-600">
+                        <div>{tBooking("provider2")}<span className="font-semibold text-slate-900">{chosenProvider?.name ?? tBooking('notSelected')}</span></div>
+                        <div>{tBooking("service2")}<span className="font-semibold text-slate-900">{chosenService?.name ?? tBooking('notSelected')}</span></div>
+                        <div>{tBooking("specialist2")}<span className="font-semibold text-slate-900">{draft.requiresSpecialist ? (chosenSpecialist?.name ?? tBooking('notSelected')) : tBooking('notRequired')}</span></div>
+                        <div>{tBooking("mode")}<span className="font-semibold text-slate-900">{draft.bookingUiMode ?? 'default_slot'}</span></div>
+                    </div>
+                    <div className="mt-5 rounded-2xl bg-slate-50 p-4">
+                        <div className="flex justify-between text-sm"><span>{tBooking("mainSubtotal")}</span><span>{formatMoney(draft.subtotalAmount ?? 0, draft.currency)}</span></div>
+                        {draft.useLsevin ? <div className="mt-1 flex justify-between text-sm"><span>{tBooking("addOnsSubtotal")}</span><span>{formatMoney(draft.addonsAmount ?? 0, draft.currency)}</span></div> : null}
+                        <div className="mt-3 flex justify-between border-t border-slate-200 pt-3 text-base font-bold text-slate-900"><span>{tBooking("total")}</span><span>{formatMoney(draft.totalAmount ?? ((draft.subtotalAmount ?? 0) + (draft.addonsAmount ?? 0)), draft.currency)}</span></div>
+                    </div>
                 </div>
-              </div>
-              {checkoutResult ? (<div className="rounded-[28px] border border-green-200 bg-green-50 p-6 text-green-800 shadow-lg">
-                  <div className="text-lg font-bold">{tBooking("bookingSubmitted")}</div>
-                  <div className="mt-2 text-sm">{tBooking("bookingID2")}{checkoutResult.bookingId}</div>
-                  <div className="text-sm">{tBooking("paymentStatus")}{translateWithFallback(tBooking, BOOKING_PAYMENT_STATUS_LABEL_KEYS, checkoutResult.paymentStatus)}</div>
-                  {/* Once a payment intent already exists for this booking (including the
-                      pay-on-delivery/bank-receipt cases, which never redirect anywhere),
-                      there is nothing left to "continue" to -- this button re-triggering
-                      startPaymentForBooking is what read as the flow going nowhere. */}
-                  {!paymentIntentResult ? (
-                    <button type="button" onClick={handleCreatePaymentIntent} className="mt-4 rounded-2xl bg-[#083f30] px-4 py-3 text-sm font-semibold text-white">{tBooking("continueToPayment")}</button>
-                  ) : null}
-                </div>) : null}
 
-              {paymentIntentResult ? (<div className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-lg">
-                  <div className="text-lg font-bold text-slate-900">{tBooking("paymentAction")}</div>
-                  <div className="mt-2 text-sm text-slate-600">{tBooking("method")}{translateWithFallback(tBooking, PAYMENT_METHOD_LABEL_KEYS, paymentIntentResult.method)}</div>
-                  <div className="text-sm text-slate-600">{tBooking("status2")}{translateWithFallback(tBooking, PAYMENT_STATUS_LABEL_KEYS, paymentIntentResult.status)}</div>
-                  {paymentIntentResult.status === 'pending_review' ? (
-                    <div className="mt-3 rounded-2xl bg-amber-50 p-4 text-sm text-amber-800">{tBooking("pendingReviewMessage")}</div>
-                  ) : null}
-                  {paymentIntentResult.status === 'pending_collection' ? (
-                    <div className="mt-3 rounded-2xl bg-amber-50 p-4 text-sm text-amber-800">{tBooking("pendingCollectionMessage")}</div>
-                  ) : null}
-                  {paymentIntentResult.instructions ? <div className="mt-3 rounded-2xl bg-slate-50 p-4 text-sm text-slate-700">{paymentIntentResult.instructions}</div> : null}
-                  {paymentIntentResult.actionUrl ? <a href={paymentIntentResult.actionUrl} className="mt-4 inline-flex rounded-2xl bg-[#083f30] px-4 py-3 text-sm font-semibold text-white">{tBooking("openGatewayAction")}</a> : null}
-                </div>) : null}
-            </div>) : null}
+                {/* Desktop keeps the CTA in the rail; mobile gets the sticky bar below. */}
+                <div className="hidden rounded-[28px] border border-slate-200 bg-white p-5 shadow-lg lg:block">
+                    <div className="mb-4 text-sm font-bold uppercase tracking-wide text-slate-500">{tBooking("continue")}</div>
+                    <button type="button" disabled={continueDisabled} onClick={handlePrimaryAction} className={`flex w-full items-center justify-center gap-2 rounded-2xl px-5 py-4 text-sm font-bold shadow-lg ${continueDisabled ? 'bg-slate-200 text-slate-500' : 'bg-[#083f30] text-white'}`}>
+                        {currentStep === 5 ? <CreditCard className="h-4 w-4"/> : <ChevronRight className="h-4 w-4"/>}
+                        {currentStep === 5 ? (paymentIsDone ? tBooking('bookingConfirmed2') : tBooking('continueToPayment')) : tBooking('continue')}
+                    </button>
+                    {currentStep === 3 ? <div className="mt-3 text-xs text-slate-500">{tBooking("requiredAddOnProviderTypesMustBeCompletedBefore")}</div> : null}
+                </div>
+            </aside>
         </div>
 
-        <aside className="min-w-0 space-y-4">
-          {/* On mobile the decision rows already state the selections and the sticky bar
-              carries the total, so this rail would only repeat them below the fold. */}
-          <div className="hidden rounded-[28px] border border-slate-200 bg-white p-5 shadow-lg lg:block">
-            <div className="mb-4 flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#eacb7f] text-[#083f30]"><ShieldCheck className="h-5 w-5"/></div>
-              <div>
-                <div className="font-bold text-slate-900">{tBooking("currentDraft")}</div>
-                <div className="text-xs text-slate-500">{tBooking("onlyOneActivePendingBookingIsKeptForThis")}</div>
-              </div>
-            </div>
-            <div className="space-y-2 text-sm text-slate-600">
-              <div>{tBooking("provider2")}<span className="font-semibold text-slate-900">{chosenProvider?.name ?? tBooking('notSelected')}</span></div>
-              <div>{tBooking("service2")}<span className="font-semibold text-slate-900">{chosenService?.name ?? tBooking('notSelected')}</span></div>
-              <div>{tBooking("specialist2")}<span className="font-semibold text-slate-900">{draft.requiresSpecialist ? (chosenSpecialist?.name ?? tBooking('notSelected')) : tBooking('notRequired')}</span></div>
-              <div>{tBooking("mode")}<span className="font-semibold text-slate-900">{draft.bookingUiMode ?? 'default_slot'}</span></div>
-            </div>
-            <div className="mt-5 rounded-2xl bg-slate-50 p-4">
-              <div className="flex justify-between text-sm"><span>{tBooking("mainSubtotal")}</span><span>{draft.currency ?? 'USD'} {draft.subtotalAmount ?? 0}</span></div>
-              {draft.useLsevin ? <div className="mt-1 flex justify-between text-sm"><span>{tBooking("addOnsSubtotal")}</span><span>{draft.currency ?? 'USD'} {draft.addonsAmount ?? 0}</span></div> : null}
-              <div className="mt-3 flex justify-between border-t border-slate-200 pt-3 text-base font-bold text-slate-900"><span>{tBooking("total")}</span><span>{draft.currency ?? 'USD'} {draft.totalAmount ?? ((draft.subtotalAmount ?? 0) + (draft.addonsAmount ?? 0))}</span></div>
-            </div>
-          </div>
-
-          {/* Desktop keeps the CTA in the rail; mobile gets the sticky bar below. */}
-          <div className="hidden rounded-[28px] border border-slate-200 bg-white p-5 shadow-lg lg:block">
-            <div className="mb-4 text-sm font-bold uppercase tracking-wide text-slate-500">{tBooking("continue")}</div>
-            <button type="button" disabled={continueDisabled} onClick={handlePrimaryAction} className={`flex w-full items-center justify-center gap-2 rounded-2xl px-5 py-4 text-sm font-bold shadow-lg ${continueDisabled ? 'bg-slate-200 text-slate-500' : 'bg-[#083f30] text-white'}`}>
-              {currentStep === 5 ? <CreditCard className="h-4 w-4"/> : <ChevronRight className="h-4 w-4"/>}
-              {currentStep === 5 ? (paymentIsDone ? tBooking('bookingConfirmed2') : tBooking('submitCheckout')) : tBooking('continue')}
-            </button>
-            {currentStep === 3 ? <div className="mt-3 text-xs text-slate-500">{tBooking("requiredAddOnProviderTypesMustBeCompletedBefore")}</div> : null}
-          </div>
-        </aside>
-      </div>
-
-      {/* The primary action was stranded at the bottom of the page on the very viewport this
+        {/* The primary action was stranded at the bottom of the page on the very viewport this
           route is named for. Sits at bottom-20 to clear the global BottomTabBar
           (mobile-components.tsx:24 — fixed bottom-0, 77px tall, z-50), which would otherwise
           cover it exactly. */}
-      <div className="fixed inset-x-0 bottom-20 z-40 border-y border-slate-200 bg-white/95 px-5 py-3 backdrop-blur-xl lg:hidden">
-        <div className="mx-auto flex max-w-6xl items-center gap-3">
-          <div className="min-w-0 flex-1">
-            <div className="text-[11px] text-slate-500">{tBooking('total')}</div>
-            <div className="truncate text-sm font-bold text-slate-900">{formatMoney(draft.totalAmount ?? ((draft.subtotalAmount ?? 0) + (draft.addonsAmount ?? 0)), draft.currency)}</div>
-          </div>
-          <button type="button" disabled={continueDisabled} onClick={handlePrimaryAction} className={`flex shrink-0 items-center justify-center gap-2 rounded-2xl px-6 py-3.5 text-sm font-bold shadow-lg ${continueDisabled ? 'bg-slate-200 text-slate-500' : 'bg-[#083f30] text-white'}`}>
-            {currentStep === 5 ? <CreditCard className="h-4 w-4"/> : <ChevronRight className="h-4 w-4"/>}
-            {currentStep === 5 ? (paymentIsDone ? tBooking('bookingConfirmed2') : tBooking('submitCheckout')) : tBooking('continue')}
-          </button>
+        <div className="fixed inset-x-0 bottom-20 z-40 border-y border-slate-200 bg-white/95 px-5 py-3 backdrop-blur-xl lg:hidden">
+            <div className="mx-auto flex max-w-6xl items-center gap-3">
+                <div className="min-w-0 flex-1">
+                    <div className="text-[11px] text-slate-500">{tBooking('total')}</div>
+                    <div className="break-words text-sm font-bold text-slate-900 [overflow-wrap:anywhere]">{formatMoney(draft.totalAmount ?? ((draft.subtotalAmount ?? 0) + (draft.addonsAmount ?? 0)), draft.currency)}</div>
+                </div>
+                <button type="button" disabled={continueDisabled} onClick={handlePrimaryAction} className={`flex shrink-0 items-center justify-center gap-2 rounded-2xl px-6 py-3.5 text-sm font-bold shadow-lg ${continueDisabled ? 'bg-slate-200 text-slate-500' : 'bg-[#083f30] text-white'}`}>
+                    {currentStep === 5 ? <CreditCard className="h-4 w-4"/> : <ChevronRight className="h-4 w-4"/>}
+                    {currentStep === 5 ? (paymentIsDone ? tBooking('bookingConfirmed2') : tBooking('continueToPayment')) : tBooking('continue')}
+                </button>
+            </div>
         </div>
-      </div>
     </div>);
 }

@@ -2,6 +2,7 @@
 
 import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight, Search, Sparkles } from "lucide-react";
+
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 
@@ -11,16 +12,15 @@ import {
 } from "@/components/editor/lexical-renderer";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { env } from "@/config/env/client";
-import { categoryProvidersHref } from "@/features/categories/utils/category-href";
-import {
-  getCategoryOverlayClassName,
-  getCategoryOverlayStyle,
-} from "@/features/categories/utils/category-overlay";
+import { Link, useRouter } from "@/i18n/navigation";
+import { getCategoryOverlayClassName, getCategoryOverlayStyle } from "@/features/categories/utils/category-overlay";
+import { TOURS_HOME_PATH, categoryProvidersHref, isTourismCategory } from "@/features/categories/utils/category-href";
+
 import type {
   CategoryBrowserCategory,
   CategoryBrowserGroup,
 } from "@/features/service-providers/actions/categories/get-category-browser-groups";
-import { Link, useRouter } from "@/i18n/navigation";
+
 
 const ALLOWED_GRADIENTS = [
   "from-red-500/90 to-red-600/90",
@@ -208,14 +208,25 @@ function CategoryCard({
   hasChildren,
   index,
   onOpenCategory,
+  opensTours = false,
 }: {
   category: CategoryBrowserCategory;
   hasChildren: boolean;
   index: number;
   onOpenCategory: (category: CategoryBrowserCategory) => void;
+  opensTours?: boolean;
 }) {
   const className =
     "group relative block aspect-[4/3] w-full overflow-hidden rounded-2xl shadow-sm transition-all hover:shadow-xl active:scale-95";
+
+  // Tourism (and its subcategories) is its own sub-application (C-001).
+  if (opensTours) {
+    return (
+      <Link href={TOURS_HOME_PATH} className={className} aria-label={`Open ${category.name}`} data-opens-tours="true">
+        <CategoryCardContent category={category} hasChildren={hasChildren} index={index} />
+      </Link>
+    );
+  }
 
   if (hasChildren) {
     return (
@@ -271,10 +282,12 @@ export function CategoryBrowserClient({
   categoryGroups,
   totalCategories,
   totalProviders,
+  tourismCategoryId = null,
 }: {
   categoryGroups: CategoryBrowserGroup[];
   totalCategories: number;
   totalProviders: number;
+  tourismCategoryId?: string | null;
 }) {
   const t = useTranslations("CategoryBrowser");
   const router = useRouter();
@@ -349,6 +362,13 @@ export function CategoryBrowserClient({
     });
   }
   const currentParent = path.length > 0 ? path[path.length - 1] : null;
+
+  // Tourism has no category screen of its own: the Tours app is its home.
+  useEffect(() => {
+    if (currentParent && isTourismCategory(currentParent.id, (id) => categoryById.get(id)?.parentId, tourismCategoryId)) {
+      router.replace(TOURS_HOME_PATH);
+    }
+  }, [categoryById, currentParent, router, tourismCategoryId]);
 
   const hasQuery = query.trim().length > 0;
   const normalizedQuery = query.trim().toLowerCase();
@@ -494,7 +514,11 @@ export function CategoryBrowserClient({
         */}
         {currentParent && !hasQuery && currentParent.count > 0 ? (
           <Link
-            href={categoryProvidersHref(currentParent.id)}
+            href={
+              isTourismCategory(currentParent.id, (id) => categoryById.get(id)?.parentId, tourismCategoryId)
+                ? TOURS_HOME_PATH
+                : categoryProvidersHref(currentParent.id)
+            }
             className="mb-6 flex items-center justify-between gap-3 rounded-2xl border border-gray-100 bg-gray-50 px-4 py-3 transition-colors hover:bg-gray-100"
           >
             <span className="min-w-0 text-sm font-semibold text-[#083f30]">
@@ -545,6 +569,7 @@ export function CategoryBrowserClient({
                           hasChildren={hasChildren}
                           index={categoryIndex}
                           onOpenCategory={openCategory}
+                          opensTours={isTourismCategory(category.id, (id) => categoryById.get(id)?.parentId, tourismCategoryId)}
                         />
                       );
                     })}

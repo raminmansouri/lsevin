@@ -31,10 +31,12 @@ export function HomeServiceProvidersCategories({
   categories,
   locale = 'fa-IR',
   labels = defaultLabels,
+  tourismCategoryId = null,
 }: {
   categories: HomeCategory[];
   locale?: string;
   labels?: HomeCategoryLabels;
+  tourismCategoryId?: string | null;
 }) {
   if (!categories.length) {
     return (
@@ -51,18 +53,20 @@ export function HomeServiceProvidersCategories({
   return (
     <>
       {categories.map((category) => (
-        <ServiceProviderCategoryCard key={category.id} category={category} locale={locale} labels={labels} />
+        <ServiceProviderCategoryCard key={category.id} category={category} locale={locale} labels={labels} tourismCategoryId={tourismCategoryId} />
       ))}
     </>
   );
 }
 
 function ServiceProviderCategoryCard({
+  tourismCategoryId,
   category,
   locale,
   labels,
 }: {
   category: HomeCategory;
+  tourismCategoryId?: string | null;
   locale: string;
   labels: HomeCategoryLabels;
 }) {
@@ -81,7 +85,7 @@ function ServiceProviderCategoryCard({
 
   return (
     <Link
-      href={categoryCardHref(category)}
+      href={categoryCardHref(category, { tourismCategoryId })}
       className="group relative aspect-[4/3] overflow-hidden rounded-2xl bg-gray-100 shadow-sm transition-all hover:shadow-xl active:scale-95"
     >
       {mediaUrl ? (

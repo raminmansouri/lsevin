@@ -18,7 +18,7 @@ import {
  * check lives in the service.
  *
  * The courtesy used to stop at the ladder: approving and finalising also need the
- * `configure` capability and an approver who is not the author, and neither was
+ * `entry.approve` / `entry.post` permission and an approver who is not the author, and neither was
  * reflected here. A panel account created with the default `accountant` role — or
  * the only admin on the deployment, approving their own document — got an enabled
  * button, a refusal, and no way to tell which of the two had happened. Both are
@@ -66,13 +66,13 @@ const FOUR_EYES = new Set(["approved", "posted"]);
 type Props = {
   entryId: string;
   status: string;
-  /** Whether the viewer holds `configure`, which the approval half of the ladder needs. */
-  canConfigure: boolean;
+  /** Whether the viewer may approve and post, which the approval half of the ladder needs. */
+  canApprove: boolean;
   /** Whether the viewer wrote this document, which the four-eyes rule refuses. */
   isAuthor: boolean;
 };
 
-export function EntryWorkflowButtons({ entryId, status, canConfigure, isAuthor }: Props) {
+export function EntryWorkflowButtons({ entryId, status, canApprove, isAuthor }: Props) {
   const [transitionState, transition, transitioning] = useActionState<EntryFormState, FormData>(
     transitionEntryAction,
     {}
@@ -88,8 +88,8 @@ export function EntryWorkflowButtons({ entryId, status, canConfigure, isAuthor }
 
   /** Why this step is unavailable to this person, or null when it is available. */
   const blockedBecause = (step: (typeof steps)[number]): string | null => {
-    if (step.needsApprover && !canConfigure) {
-      return "این مرحله دسترسی «مدیر مالی» می‌خواهد و حساب شما «حسابدار» است.";
+    if (step.needsApprover && !canApprove) {
+      return "این مرحله دسترسی «مدیر حسابداری» یا «مدیر» می‌خواهد.";
     }
     if (FOUR_EYES.has(step.to) && isAuthor) {
       return "سند باید توسط شخصی غیر از ثبت‌کنندهٔ آن تأیید شود.";

@@ -109,7 +109,8 @@ function coalesceImage(...candidates: Array<string | null | undefined>) {
     const value = candidate?.trim();
     if (value) return value;
   }
-  return "/placeholder.svg";
+  // Empty lets the card draw its branded block; /placeholder.svg does not exist.
+  return "";
 }
 
 function joinSql(parts: any[], separator: any) {
@@ -124,7 +125,7 @@ function buildOffersWhere(filters: OffersFiltersInput, lang: string) {
     sql`coalesce(o.is_active, false) = true`,
     sql`o.valid_until >= now()`,
     sql`ps.is_active = true`,
-    sql`sp.is_active = true`,
+    sql`sp.is_active = true and category.provider_type_is_public(sp.provider_type_id)`,
   ];
 
   if (filters.categoryId) {
@@ -235,6 +236,8 @@ export async function getOffersPageData({
       coalesce(
         nullif(btrim(ps_media.file_url), ''),
         nullif(btrim(split_part(coalesce(ps.image_url, ''), ',', 1)), ''),
+        nullif(btrim(sd_media.file_url), ''),
+        nullif(btrim(split_part(coalesce(sd.image_url, ''), ',', 1)), ''),
         nullif(btrim(psgi_media.file_url), ''),
         nullif(btrim(split_part(coalesce(psgi.url, ''), ',', 1)), ''),
         nullif(btrim(sp_media.file_url), ''),
@@ -297,6 +300,8 @@ export async function getOffersPageData({
     ) pgi on true
     left join media.media_library ps_media
       on ps_media.id::text = nullif(btrim(split_part(coalesce(ps.image_url, ''), ',', 1)), '')
+    left join media.media_library sd_media
+      on sd_media.id::text = nullif(btrim(split_part(coalesce(sd.image_url, ''), ',', 1)), '')
     left join media.media_library psgi_media
       on psgi_media.id::text = nullif(btrim(split_part(coalesce(psgi.url, ''), ',', 1)), '')
     left join media.media_library sp_media
@@ -358,12 +363,12 @@ export async function getOffersPageData({
     from (
       select unnest(coalesce(sp.languages, array[]::text[])) as language
       from category.service_providers sp
-      where sp.is_active = true
+      where sp.is_active = true and category.provider_type_is_public(sp.provider_type_id)
       union
       select pl.language
       from category.provider_languages pl
       join category.service_providers sp on sp.id = pl.service_provider_id
-      where sp.is_active = true
+      where sp.is_active = true and category.provider_type_is_public(sp.provider_type_id)
     ) lang
     where nullif(btrim(language), '') is not null
     order by language asc

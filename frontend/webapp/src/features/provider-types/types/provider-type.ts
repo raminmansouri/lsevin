@@ -61,6 +61,7 @@ export interface ProviderTypeResponse {
   name: LocalizedContentResponse;
   description: LocalizedContentResponse;
   isActive: boolean;
+  isAddonOnly?: boolean;
   iconUrl?: string;
   imageUrl?: string;
   imagePreviewUrl?: string;
@@ -74,6 +75,7 @@ export interface ProviderType {
   name: LocalizedContentResponse;
   description: LocalizedContentResponse;
   isActive: boolean;
+  isAddonOnly?: boolean;
   iconUrl?: string;
   imageUrl?: string;
   imagePreviewUrl?: string;
@@ -87,6 +89,7 @@ export interface ProviderTypeFiltered {
   name: string;
   description: string;
   isActive: boolean;
+  isAddonOnly?: boolean;
   iconUrl?: string;
   imageUrl?: string;
   imagePreviewUrl?: string;

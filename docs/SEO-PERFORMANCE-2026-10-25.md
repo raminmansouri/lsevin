@@ -138,3 +138,15 @@ A local `.pnpm-store` cache was also being included in broad source scans. It is
 Additional performance finding: `resolveIsIranianVisitor` can wait up to 2,500 ms for a cold external IP lookup while Caddy already supplies `X-Country`. Changing that pricing/localization path needs a verified proxy trust boundary and phone-country precedence tests; no unverified trusted-header shortcut was enabled.
 
 Search Console: Windsor.ai was discovered and offered as an available connector. It is not installed/connected, and property data has not been accessed. The account owner must install/connect the Google account for lsevincare.com. No ownership, submission, ranking or indexing results are claimed.
+
+## Integration update ? 2026-10-26
+
+Merged origin/Lsevin-New at 01d25ebd into perf/seo-query-optimization-20261026, retaining Tours category navigation and provider-type public visibility filters. Renamed the unapplied translation migration to 0084 because upstream now owns 0083. Historical checks above describe their respective earlier candidates.
+
+Merged-candidate checks executed: SEO Vitest 99/99 PASS; isolated real-Postgres migration/query tests 17/17 PASS; benchmark tooling tests 3/3 PASS. Added test fixtures for the existing 0071 public-provider-type function. No production migrations executed.
+
+Server inspection: 202.133.90.50 runs the production Kubernetes webapp image lsevin-webapp:01d25ebdbbae-383, healthy 1/1 at inspection. SSH to 213.176.121.235 timed out; deployment role not established. No production changes made.
+
+Release blockers: previous production-mode builds exceeded the isolated 4 GiB test-container memory limit even with prerender concurrency 1. Previous full typecheck reported 620 diagnostics; merged-candidate full typecheck, lint, production build, persistent browser suite and authenticated booking journey still require execution. Earlier baseline browser results are not candidate verification. Visitor-visible 30 ms TTFB and Google rankings are not achieved or guaranteed. Search Console access remains unverified.
+
+Release status: **NOT READY FOR RELEASE**. Branch publication is for review and further verification; do not deploy this candidate until mandatory gates pass.

@@ -109,6 +109,7 @@ export function ServiceDefinitionForm({ serviceDefinition }: ServiceDefinitionFo
       isActive: serviceDefinition?.isActive ?? true,
       requiresCustomerAddress: serviceDefinition?.requiresCustomerAddress ?? false,
       requiresSpecialist: serviceDefinition?.requiresSpecialist ?? true,
+      bookingUiMode: (serviceDefinition?.bookingUiMode as 'default_slot' | 'date_range' | 'custom_form' | undefined) ?? 'default_slot',
     },
     resolver: zodResolver(ServiceDefinitionFormSchema),
   });
@@ -272,6 +273,29 @@ export function ServiceDefinitionForm({ serviceDefinition }: ServiceDefinitionFo
                     />
 
                       <FormField
+                          control={form.control}
+                          name="bookingUiMode"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>حالت رزرو / Booking mode</FormLabel>
+                              <select
+                                {...field}
+                                value={field.value ?? 'default_slot'}
+                                onChange={(event) => {
+                                  field.onChange(event);
+                                  // A day-based stay is a room for a night, not an appointment with a person.
+                                  if (event.target.value === 'date_range') form.setValue('requiresSpecialist', false);
+                                }}
+                                className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                              >
+                                <option value="default_slot">ساعتی (بازه زمانی) / Hourly time slots</option>
+                                <option value="date_range">روزانه (ورود و خروج) / Day-based: check-in and check-out, priced per night</option>
+                                <option value="custom_form">فرم سفارشی / Custom form</option>
+                              </select>
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
                           control={form.control}
                           name="requiresSpecialist"
                           render={({ field }) => (

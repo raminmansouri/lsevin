@@ -1,10 +1,13 @@
 'use client';
+import { formatCurrencyAmount } from '@/features/finance/lib/money';
 import { useEffect, useMemo, useState } from 'react';
 import { ChevronDown, ChevronUp, Hotel, Layers3, PlusCircle } from 'lucide-react';
 import { DynamicServiceForm } from '@/features/form-builder/components/DynamicServiceForm';
 import type { ChildBookingDraft, ProviderCardItem, ProviderTypeAddonItem, ServiceCardItem, SpecialistCardItem, UploadRequirementItem } from '../types';
 import { EntityCard, providerMeta, serviceMeta } from './EntityCard';
 import { SearchLoadMoreList } from './SearchLoadMoreList';
+import { MealPlanPicker } from './MealPlanPicker';
+import { AdultsStepper } from './AdultsStepper';
 import { RichTextPreview } from '@/features/booking/components/rich-text-preview';
 import { useTranslations } from "next-intl";
 interface Props {
@@ -12,6 +15,7 @@ interface Props {
     draftId: string;
     addon: ProviderTypeAddonItem;
     city?: string | null;
+    country?: string | null;
     value?: ChildBookingDraft;
     onChange: (next: ChildBookingDraft) => void;
     onSaved: (next: ChildBookingDraft, totals?: {
@@ -26,9 +30,14 @@ async function getJson<T>(url: string): Promise<T> {
         throw new Error(`Failed request: ${url}`);
     return res.json();
 }
-export function ChildAddonBookingCard({ locale, draftId, addon, city, value, onChange, onSaved }: Props) {
+export function ChildAddonBookingCard({ locale, draftId, addon, city, country, value, onChange, onSaved }: Props) {
     const tBooking = useTranslations("Booking");
     const [expanded, setExpanded] = useState(Boolean(addon.isRequired || value?.providerId));
+    // The customer picks the city the translator/car is needed in; it starts at the main
+    // provider's city when that city has providers of this type.
+    const [selectedCity, setSelectedCity] = useState(city ?? '');
+    const [cities, setCities] = useState<string[]>([]);
+    const [citiesLoaded, setCitiesLoaded] = useState(false);
     const [providerSearch, setProviderSearch] = useState('');
     const [serviceSearch, setServiceSearch] = useState('');
     const [specialistSearch, setSpecialistSearch] = useState('');
@@ -42,6 +51,9 @@ export function ChildAddonBookingCard({ locale, draftId, addon, city, value, onC
     const [hasMoreServices, setHasMoreServices] = useState(false);
     const [hasMoreSpecialists, setHasMoreSpecialists] = useState(false);
     const [serviceForm, setServiceForm] = useState<any>(null);
+    // 'city' = only providers in the booked place's city (default); 'country' = everyone in its country.
+    const [scope, setScope] = useState<'city' | 'country'>('city');
+    useEffect(() => { setScope('city'); }, [city, country]);
     const model = useMemo<ChildBookingDraft>(() => ({
         providerTypeId: addon.providerTypeId,
         bookingUiMode: value?.bookingUiMode ?? 'default_slot',
@@ -51,16 +63,36 @@ export function ChildAddonBookingCard({ locale, draftId, addon, city, value, onC
     useEffect(() => {
         if (!expanded)
             return;
+        let cancelled = false;
+        getJson<{
+            cities: string[];
+        }>(`/api/booking-pro/catalog/addon-cities?providerTypeId=${encodeURIComponent(addon.providerTypeId)}`)
+            .then((data) => {
+            if (cancelled)
+                return;
+            const list = data.cities ?? [];
+            setCities(list);
+            setSelectedCity((current) => list.find((item) => item.toLowerCase() === current.trim().toLowerCase()) ?? list[0] ?? '');
+            setCitiesLoaded(true);
+        })
+            .catch((error) => { console.error(error); if (!cancelled)
+            setCitiesLoaded(true); });
+        return () => { cancelled = true; };
+    }, [expanded, addon.providerTypeId]);
+    useEffect(() => {
+        // Wait for the city list: fetching first with a guessed city would flash the wrong providers.
+        if (!expanded || !citiesLoaded)
+            return;
         getJson<{
             items: ProviderCardItem[];
             hasMore: boolean;
-        }>(`/api/booking-pro/catalog/providers?locale=${encodeURIComponent(locale)}&providerTypeId=${encodeURIComponent(addon.providerTypeId)}&city=${encodeURIComponent(city ?? '')}&search=${encodeURIComponent(providerSearch)}&offset=${providerOffset}&take=3`)
+        }>(`/api/booking-pro/catalog/providers?locale=${encodeURIComponent(locale)}&providerTypeId=${encodeURIComponent(addon.providerTypeId)}&context=addon${scope === 'country' && country ? `&country=${encodeURIComponent(country)}` : `&city=${encodeURIComponent(selectedCity)}`}&search=${encodeURIComponent(providerSearch)}&offset=${providerOffset}&take=3`)
             .then((data) => {
             setProviders((prev) => (providerOffset === 0 ? data.items : [...prev, ...data.items]));
             setHasMoreProviders(data.hasMore);
         })
             .catch(console.error);
-    }, [expanded, locale, addon.providerTypeId, city, providerSearch, providerOffset]);
+    }, [expanded, citiesLoaded, locale, addon.providerTypeId, selectedCity, providerSearch, providerOffset, country, scope]);
     useEffect(() => {
         if (!expanded || !model.providerId)
             return;
@@ -119,7 +151,7 @@ export function ChildAddonBookingCard({ locale, draftId, addon, city, value, onC
         })
             .catch(console.error);
     }, [model.serviceId]);
-    const complete = Boolean(model.providerId && model.serviceId && (!model.requiresSpecialist || model.specialistId) && (model.bookingUiMode !== 'custom_form' || model.formSubmissionId));
+    const complete = Boolean(model.providerId && model.serviceId && (!model.requiresSpecialist || model.specialistId) && (model.bookingUiMode !== 'custom_form' || model.formSubmissionId) && (model.bookingUiMode !== 'date_range' || Boolean(model.selectedDateFrom && model.selectedDateTo && model.selectedDateTo > model.selectedDateFrom)));
     async function saveChild() {
         if (!complete)
             return;
@@ -131,7 +163,8 @@ export function ChildAddonBookingCard({ locale, draftId, addon, city, value, onC
         if (!res.ok)
             throw new Error(tBooking("failedToSaveChildBooking"));
         const data = await res.json();
-        onSaved({ ...model, status: 'Completed' }, data.totals);
+        // Keep the row id the server returned: later saves must update this row, not insert a twin.
+        onSaved({ ...model, id: data.item?.id ?? model.id, status: 'Completed' }, data.totals);
     }
     return (<div className={`rounded-3xl border ${complete ? 'border-[#083f30]/20 bg-white shadow-lg' : 'border-slate-200 bg-white'}`}>
       <button type="button" onClick={() => setExpanded((x) => !x)} className="flex w-full items-center justify-between gap-3 p-5">
@@ -148,6 +181,24 @@ export function ChildAddonBookingCard({ locale, draftId, addon, city, value, onC
       </button>
 
       {expanded ? (<div className="space-y-5 border-t border-slate-100 p-5">
+          {cities.length > 0 ? (<label className="block text-sm font-semibold text-slate-700">{tBooking("city")}
+              <select value={selectedCity} onChange={(e) => {
+                    setSelectedCity(e.target.value);
+                    setProviderOffset(0);
+                    setProviders([]);
+                    setServices([]);
+                    setSpecialists([]);
+                    // A provider from the previous city must not stay selected.
+                    onChange({ ...model, providerId: undefined, serviceId: undefined, specialistId: undefined, formSubmissionId: undefined });
+                }} className="ms-3 min-h-11 rounded-xl border border-slate-200 bg-white px-3">
+                {cities.map((item) => <option key={item} value={item}>{item}</option>)}
+              </select>
+            </label>) : null}
+          {city && country ? (<div className="flex justify-end">
+              <button type="button" onClick={() => { setProviderOffset(0); setProviders([]); setScope((x) => (x === 'city' ? 'country' : 'city')); }} className="rounded-2xl border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 hover:border-[#083f30]">
+                {scope === 'city' ? tBooking('addonScope.showAllInCountry', { country }) : tBooking('addonScope.showOnlyCity', { city })}
+              </button>
+            </div>) : null}
           <SearchLoadMoreList title={tBooking("addonProvidersTitle", { addon: addon.label })} search={providerSearch} onSearchChange={(v) => {
                 setProviderOffset(0);
                 setProviderSearch(v);
@@ -162,7 +213,7 @@ export function ChildAddonBookingCard({ locale, draftId, addon, city, value, onC
           {model.providerId ? (<SearchLoadMoreList title={tBooking("addonServicesTitle", { addon: addon.label })} search={serviceSearch} onSearchChange={(v) => {
                     setServiceOffset(0);
                     setServiceSearch(v);
-                }} items={services} hasMore={hasMoreServices} emptyText={tBooking("noServicesFound")} onLoadMore={() => setServiceOffset((x) => x + 3)} renderItem={(item) => (<EntityCard title={item.name} subtitle={`${item.currency} ${item.value}`} description={item.description} imageUrl={item.imageUrl} selected={model.serviceId === item.id} featured={Boolean(item.isPopular)} meta={serviceMeta(item, tBooking)} onClick={() => {
+                }} items={services} hasMore={hasMoreServices} emptyText={tBooking("noServicesFound")} onLoadMore={() => setServiceOffset((x) => x + 3)} renderItem={(item) => (<EntityCard title={item.name} subtitle={`${formatCurrencyAmount(item.value, item.currency, locale)}${item.bookingUiMode === 'date_range' ? ` · ${tBooking('stay.perNight')}` : ''}`} description={item.description} imageUrl={item.imageUrl} selected={model.serviceId === item.id} featured={Boolean(item.isPopular)} meta={serviceMeta(item, tBooking)} onClick={() => {
                         setSpecialistOffset(0);
                         setSpecialists([]);
                         onChange({ ...model, serviceId: item.id, serviceDefinitionId: item.serviceDefinitionId, specialistId: undefined, requiresSpecialist: Boolean(item.requiresSpecialist), bookingUiMode: (item.bookingUiMode ?? 'default_slot') as any, subtotalAmount: item.value, currency: item.currency, selectedDate: undefined, selectedDateFrom: undefined, selectedDateTo: undefined, selectedTime: undefined, selectedTimeFrom: undefined, selectedTimeTo: undefined, formSubmissionId: undefined });
@@ -183,12 +234,17 @@ export function ChildAddonBookingCard({ locale, draftId, addon, city, value, onC
                   </label>
                 </div>) : null}
 
-              {model.bookingUiMode === 'date_range' ? (<div className="grid grid-cols-1 gap-3 md:grid-cols-4">
+              {model.bookingUiMode === 'date_range' ? (<div className="grid grid-cols-1 gap-3 md:grid-cols-3">
                   <label className="text-sm font-medium text-slate-700">{tBooking("checkIn")}<input type="date" value={model.selectedDateFrom ?? ''} onChange={(e) => onChange({ ...model, selectedDateFrom: e.target.value })} className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 outline-none focus:border-[#155e75]"/></label>
                   <label className="text-sm font-medium text-slate-700">{tBooking("checkOut")}<input type="date" value={model.selectedDateTo ?? ''} onChange={(e) => onChange({ ...model, selectedDateTo: e.target.value })} className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 outline-none focus:border-[#155e75]"/></label>
-                  <label className="text-sm font-medium text-slate-700">{tBooking("adults")}<input type="number" min={1} value={model.adults ?? 1} onChange={(e) => onChange({ ...model, adults: Number(e.target.value || 1) })} className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 outline-none focus:border-[#155e75]"/></label>
-                  <label className="text-sm font-medium text-slate-700">{tBooking("rooms")}<input type="number" min={1} value={model.rooms ?? 1} onChange={(e) => onChange({ ...model, rooms: Number(e.target.value || 1) })} className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 outline-none focus:border-[#155e75]"/></label>
+                  <AdultsStepper label={tBooking("adults")} value={model.adults} size="md" labelClassName="text-sm font-medium text-slate-700" onChange={(adults) => onChange({ ...model, adults })}/>
                 </div>) : null}
+
+              {model.bookingUiMode === 'date_range' && model.selectedDateFrom && model.selectedDateTo ? (model.selectedDateTo <= model.selectedDateFrom
+                ? <div className="mt-3 text-xs text-red-600">{tBooking('stay.checkoutAfterCheckin')}</div>
+                : <div className="mt-3 text-sm text-slate-700">{tBooking('stay.nightsLine', { nights: Math.round((Date.parse(`${model.selectedDateTo}T00:00:00Z`) - Date.parse(`${model.selectedDateFrom}T00:00:00Z`)) / 86400000), price: `${model.currency ?? ''} ${model.subtotalAmount ?? ''}`.trim() })}</div>) : null}
+
+              {model.bookingUiMode === 'date_range' && model.serviceId ? (<div className="mt-3"><MealPlanPicker serviceId={model.serviceId} value={(model.metadata as any)?.mealPlan ?? null} onChange={(code) => onChange({ ...model, metadata: { ...(model.metadata ?? {}), mealPlan: code } })} /></div>) : null}
 
               {model.bookingUiMode === 'custom_form' && serviceForm ? (<DynamicServiceForm form={serviceForm} initialValues={{}} locales={[locale]} onSubmit={async (values) => {
                         const res = await fetch('/api/form-builder/submissions', {

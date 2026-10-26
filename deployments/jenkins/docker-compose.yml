@@ -13,6 +13,9 @@ services:
     cpus: "1.0"
     mem_limit: 1536m
     memswap_limit: 2560m
+    # If the host runs out of memory the kernel must sacrifice Jenkins (and its builds) before the application.
+    oom_score_adj: 500
+    pids_limit: 2048
 
     # Jenkins controls the host Docker daemon and writes deployment files.
     # docker.sock already grants host-level privileges, so run explicitly as root.
@@ -23,6 +26,9 @@ services:
         -Djenkins.install.runSetupWizard=false
         -Duser.timezone=Europe/London
       CASC_JENKINS_CONFIG: /usr/share/jenkins/ref/casc/jenkins.yaml
+      JENKINS_POLL_SCM: ${JENKINS_POLL_SCM:-}
+      JENKINS_POLL_SCM_JOBS: ${JENKINS_POLL_SCM_JOBS:-lsevin-main-production}
+      JENKINS_BUILD_LIMITS: ${JENKINS_BUILD_LIMITS:-}
 
       JENKINS_ADMIN_USER: ${JENKINS_ADMIN_USER:-admin}
       JENKINS_ADMIN_EMAIL: ${JENKINS_ADMIN_EMAIL:-admin@lsevin.com}

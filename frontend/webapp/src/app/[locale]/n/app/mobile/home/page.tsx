@@ -28,6 +28,7 @@ import {
 } from '@/features/home/api/server/get-home-sections';
 import { getHomeManagedSectionsCached } from '@/features/home/api/server/get-home-managed-sections-cached';
 import { HomeLexicalDescription } from '@/features/home/components/home-lexical-description';
+import { HomeHeroCard } from '@/features/home/components/home-hero-card';
 import { resolveHomeMediaUrl } from '@/features/home/components/home-media';
 import { SponsoredMediaCarouselSection } from '@/features/home/components/sponsored-media-carousel-section';
 import { countActiveSpecialPackages } from '@/features/special-packages/server/repository';
@@ -503,10 +504,10 @@ async function Home({ params }: PageProps) {
   alignItems:'center',
   marginBottom:'37px'}}>
     
-      <a referrerPolicy='origin' target='_blank' 
-      href='https://trustseal.enamad.ir/?id=760932&Code=Q4tmSTcTQFTGWWFLYCxWTvO5hIsgD7Hr'>
-        <img referrerPolicy='origin' src='https://trustseal.enamad.ir/logo.aspx?id=760932&Code=Q4tmSTcTQFTGWWFLYCxWTvO5hIsgD7Hr' 
-        alt='' style={{cursor:"pointer"}} />
+      <a referrerPolicy='origin' target='_blank'
+      href='https://trustseal.enamad.ir/?id=7764782&Code=XcQgNRMRzN92gDmZbf8t5GMh1mtctW9d'>
+        <img referrerPolicy='origin' src='https://trustseal.enamad.ir/logo.aspx?id=7764782&Code=XcQgNRMRzN92gDmZbf8t5GMh1mtctW9d'
+        alt='' style={{cursor:"pointer"}} {...{ code: 'XcQgNRMRzN92gDmZbf8t5GMh1mtctW9d' }} />
       </a>
    </div>
     </div>
@@ -528,51 +529,21 @@ function HomeHeroBanner({
   const href = section.buttonHref || (offer?.serviceId ? `/n/app/mobile/service/${offer.serviceId}` : '/n/app/mobile/offers');
 
   return (
-    <section className="px-5 py-6">
-      <div className="relative h-48 overflow-hidden rounded-3xl shadow-lg">
-        {mediaUrl ? (
-          <ImageWithFallback
-            fill
-            src={mediaUrl}
-            alt={section.title || offer?.title || labels.imageAlt}
-            sizes="100vw"
-            className="object-cover"
-          />
-        ) : (
-          <img
-            src="/unsplash_images/photo-1540555700478-4be289fbecef__w=1200&h=600&fit=crop.jpg"
-            alt={labels.fallbackImageAlt}
-            className="absolute inset-0 h-full w-full object-cover"
-          />
-        )}
-        <div className="absolute inset-0 bg-gradient-to-r from-[#083f30]/95 via-[#083f30]/85 to-transparent" />
-
-        <div className="relative z-10 flex h-full flex-col justify-center px-6">
-          <div className="mb-2 flex items-center gap-2">
-            <Sparkles size={18} className="text-[#eacb7f]" />
-            <span className="text-xs font-bold uppercase tracking-wide text-[#eacb7f]">
-              {section.badge || (offer?.discountPercent ? labels.limitedTime : labels.featured)}
-            </span>
-          </div>
-          <h2 className="mb-2 text-2xl font-bold leading-tight text-white">
-            {section.title || offer?.title || labels.title}
-          </h2>
-          <HomeLexicalDescription
-            content={section.description || offer?.subtitle}
-            className="mb-4 text-sm font-medium text-white/90 [&_p]:text-white/90"
-            fallback={labels.description || noDescription}
-          />
-          <div>
-            <Link
-              href={href}
-              className="inline-flex rounded-xl bg-[#eacb7f] px-6 py-3 text-sm font-bold text-[#083f30] shadow-lg transition-all hover:bg-[#e0b654] hover:shadow-xl active:scale-95"
-            >
-              {section.buttonLabel || labels.button}
-            </Link>
-          </div>
-        </div>
-      </div>
-    </section>
+    <HomeHeroCard
+      mediaUrl={mediaUrl}
+      imageAlt={mediaUrl ? section.title || offer?.title || labels.imageAlt : labels.fallbackImageAlt}
+      badge={section.badge || (offer?.discountPercent ? labels.limitedTime : labels.featured)}
+      title={section.title || offer?.title || labels.title}
+      href={href}
+      buttonLabel={section.buttonLabel || labels.button}
+      description={
+        <HomeLexicalDescription
+          content={section.description || offer?.subtitle}
+          className="mb-4 text-sm font-medium text-white/90 [&_p]:text-white/90"
+          fallback={labels.description || noDescription}
+        />
+      }
+    />
   );
 }
 

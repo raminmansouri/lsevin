@@ -312,6 +312,8 @@ export interface Booking {
     status: string;
     paymentStatus: string;
     price: number;
+    /** Paid online so far (the deposit when the rest is paid at the place). */
+    paidAmount?: number;
     currency?: string;
     verified: boolean;
 }
@@ -320,6 +322,9 @@ export interface Booking {
 export interface BookingRecord {
     mainSubtotal?: number | null;
     discountAmount?: number | null;
+    /** Pay-in-place plan addition, included in price but in no line item. */
+    payInPlaceSurcharge?: number | null;
+    payInPlaceSurchargePercent?: number | null;
     id: string;
     service: string;
     provider: string;
@@ -796,8 +801,11 @@ export interface SearchHistoryTrendingSearchVm {
   bookings: number;
 }
 export interface SearchHistoryPopularCategoryVm {
+  id?: string;
   label: string;
   icon: string;
+  image?: string | null;
+  count?: number;
 }
 
 export interface SearchHistoryResponse {

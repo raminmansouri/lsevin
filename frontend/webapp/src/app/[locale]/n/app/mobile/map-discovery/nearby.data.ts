@@ -473,7 +473,7 @@ function buildGeoConditions(filters: NearbyFiltersInput) {
 }
 
 function composeWhere(conditions: any[]) {
-  return sql`where ${joinSql([sql`sp.is_active = true`, ...conditions], sql` and `)}`;
+  return sql`where ${joinSql([sql`sp.is_active = true and category.provider_type_is_public(sp.provider_type_id)`, ...conditions], sql` and `)}`;
 }
 
 export async function getNearbyPageData({
@@ -751,12 +751,12 @@ export async function getNearbyPageData({
     from (
       select unnest(coalesce(sp.languages, array[]::text[])) as language
       from category.service_providers sp
-      where sp.is_active = true
+      where sp.is_active = true and category.provider_type_is_public(sp.provider_type_id)
       union
       select pl.language
       from category.provider_languages pl
       join category.service_providers sp on sp.id = pl.service_provider_id
-      where sp.is_active = true
+      where sp.is_active = true and category.provider_type_is_public(sp.provider_type_id)
     ) lang
     where nullif(btrim(language), '') is not null
     order by language asc
@@ -767,7 +767,7 @@ export async function getNearbyPageData({
     from (
       select unnest(coalesce(sp.specialties, array[]::text[])) as specialty
       from category.service_providers sp
-      where sp.is_active = true
+      where sp.is_active = true and category.provider_type_is_public(sp.provider_type_id)
     ) data
     where nullif(btrim(specialty), '') is not null
     order by specialty asc
@@ -789,7 +789,7 @@ export async function getNearbyPageData({
       from category.provider_services ps
       join category.service_providers sp on sp.id = ps.service_provider_id
       where ps.is_active = true
-        and sp.is_active = true
+        and sp.is_active = true and category.provider_type_is_public(sp.provider_type_id)
       group by upper(coalesce(nullif(btrim(ps.currency), ''), 'USD'))
     )
     select

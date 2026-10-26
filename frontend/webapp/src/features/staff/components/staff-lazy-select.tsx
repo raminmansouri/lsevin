@@ -166,12 +166,16 @@ function useLazyLookup({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const queryKey = JSON.stringify(queryParams || {});
+  // Compare by content: callers often pass a new array (or the [] default) on every
+  // render, which made this effect set state on every render and loop forever.
+  const initialKey = JSON.stringify(initialOptions || []);
 
   useEffect(() => {
     setItems(uniqueOptions(initialOptions));
     setPage(1);
     setHasMore(false);
-  }, [initialOptions, queryKey, resource]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialKey, queryKey, resource]);
 
   useEffect(() => {
     if (!open) return;
@@ -205,7 +209,7 @@ function useLazyLookup({
       window.clearTimeout(timeout);
       controller.abort();
     };
-  }, [initialOptions, locale, open, pageSize, queryKey, resource, search]);
+  }, [initialKey, locale, open, pageSize, queryKey, resource, search]);
 
   const loadMore = async () => {
     if (isLoading || !hasMore) return;

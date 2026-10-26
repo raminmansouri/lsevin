@@ -45,6 +45,9 @@ export const createBugReportSchema = z.object({
   environment: z.record(z.string(), z.unknown()).default({}),
 });
 
+/** Board view keeps finished reports visible for this long; older ones are behind "show older". */
+export const RESOLVED_BOARD_WINDOW_DAYS = 14;
+
 export const adminBugReportFiltersSchema = z.object({
   q: z.string().trim().default(""),
   status: z.enum(["all", ...BUG_REPORT_STATUSES]).default("all"),
@@ -55,6 +58,8 @@ export const adminBugReportFiltersSchema = z.object({
   pageSize: z.coerce.number().int().min(10).max(100).default(40),
   view: z.enum(["board", "list"]).default("board"),
   ownership: z.enum(["all", "assigned_to_me", "unassigned"]).default("all"),
+  // Board view hides reports finished more than RESOLVED_BOARD_WINDOW_DAYS ago unless this is set.
+  showOlderResolved: z.coerce.boolean().default(false),
 });
 
 export const updateBugReportStatusSchema = z.object({

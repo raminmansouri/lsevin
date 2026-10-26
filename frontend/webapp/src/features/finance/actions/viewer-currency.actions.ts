@@ -5,16 +5,24 @@ import {
   getDefaultCurrencyForCountry,
   getUserPhoneCountryCode,
 } from "@/features/finance/lib/server/currency-queries";
+import { resolveIsIranianVisitor } from "@/features/finance/lib/server/iranian-visitor";
 
-/** The logged-in viewer's main currency, from the country of their login phone number. */
-export async function getViewerMainCurrencyAction(): Promise<string | null> {
+export type ViewerPricing = { currencyCode: string | null; isIranian: boolean };
+
+/**
+ * The viewer's main currency (from their login phone's country) and whether they
+ * are Iranian (same rule as the booking flow: phone, then IP, then locale).
+ */
+export async function getViewerPricingAction(): Promise<ViewerPricing> {
+  // On failure assume Iranian, so prices are never wrongly inflated.
+  const isIranian = await resolveIsIranianVisitor().catch(() => true);
   try {
     const session = await getSession();
     const userId = session?.user?.id;
-    if (!userId) return null;
+    if (!userId) return { currencyCode: null, isIranian };
     const country = await getUserPhoneCountryCode(userId);
-    return await getDefaultCurrencyForCountry(country);
+    return { currencyCode: await getDefaultCurrencyForCountry(country), isIranian };
   } catch {
-    return null;
+    return { currencyCode: null, isIranian };
   }
 }

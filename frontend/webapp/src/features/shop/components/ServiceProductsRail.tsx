@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 
 import { Link } from "@/i18n/navigation";
+import { cn } from "@/lib/utils";
 import { logServiceRelationClickAction } from "../actions/service-relation.actions";
 import { ProductCard, shopCardLabels } from "./ProductCard";
 import type { ProductCard as ProductCardModel } from "../types/domain";
@@ -33,12 +34,17 @@ export function ServiceProductsRail({
   locale,
   serviceDefinitionId,
   title,
+  compact = false,
+  className,
 }: {
   src: string;
   locale: string;
   /** when known (service page), lets a click be attributed */
   serviceDefinitionId?: string;
   title?: string;
+  /** smaller (~70%) cards, for embedding in non-shop pages */
+  compact?: boolean;
+  className?: string;
 }) {
   const t = useTranslations("Shop");
   const labels = shopCardLabels(t as never);
@@ -46,7 +52,11 @@ export function ServiceProductsRail({
 
   useEffect(() => {
     let alive = true;
-    fetch(src, { headers: { accept: "application/json" } })
+    // The /api/shop/* routes live under the [locale] segment, so an unprefixed
+    // path 404s and the rail silently stays hidden. Prefixing also gives the
+    // route the page's locale for localized product/service names.
+    const url = src.startsWith("/api/") ? `/${locale}${src}` : src;
+    fetch(url, { headers: { accept: "application/json" } })
       .then((r) => (r.ok ? r.json() : null))
       .then((data) => {
         if (!alive) return;
@@ -56,12 +66,12 @@ export function ServiceProductsRail({
     return () => {
       alive = false;
     };
-  }, [src]);
+  }, [src, locale]);
 
   if (!groups || !groups.length) return null;
 
   return (
-    <section className="mt-4 rounded-2xl bg-white p-4 shadow-sm ring-1 ring-black/[0.04]">
+    <section className={cn("mt-4 rounded-2xl bg-white p-4 shadow-sm ring-1 ring-black/[0.04]", className)}>
       <h2 className="mb-1 text-sm font-bold text-neutral-900">{title ?? t("serviceProductsHeading")}</h2>
       {groups.map((g) => (
         <div key={g.relationType} className="mt-3">
@@ -78,9 +88,9 @@ export function ServiceProductsRail({
                     void logServiceRelationClickAction({ serviceDefinitionId, productId: p.id });
                   }
                 }}
-                className="w-[150px] shrink-0"
+                className={compact ? "w-[112px] shrink-0" : "w-[150px] shrink-0"}
               >
-                <ProductCard product={p} locale={locale} labels={labels} />
+                <ProductCard product={p} locale={locale} labels={labels} compact={compact} />
               </Link>
             ))}
           </div>

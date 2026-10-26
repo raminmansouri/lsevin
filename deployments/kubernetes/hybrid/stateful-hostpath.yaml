@@ -57,6 +57,8 @@ spec:
           image: lsevin-postgres:17.10-alpine
           imagePullPolicy: IfNotPresent
           args: [postgres, -c, config_file=/etc/postgresql/postgresql.conf, -c, hba_file=/etc/postgresql/pg_hba.conf]
+          # a memory REQUEST makes the pod Burstable instead of BestEffort: under memory pressure the kernel no longer picks the database first
+          resources: {requests: {memory: 1Gi, cpu: 250m}}
           ports: [{name: postgres, containerPort: 5432}]
           env:
             - {name: POSTGRES_DB, valueFrom: {secretKeyRef: {name: data-secrets, key: POSTGRES_DB}}}
@@ -100,6 +102,9 @@ spec:
         - name: pgbouncer
           image: lsevin-pgbouncer:1.25.2
           imagePullPolicy: IfNotPresent
+          resources: {requests: {memory: 64Mi, cpu: 50m}}
+          volumeMounts:
+            - {name: pgbouncer-template, mountPath: /etc/pgbouncer/pgbouncer.ini.template, subPath: pgbouncer.ini.template, readOnly: true}
           ports: [{name: pgbouncer, containerPort: 6432}]
           env:
             - {name: POSTGRES_DB, valueFrom: {secretKeyRef: {name: data-secrets, key: POSTGRES_DB}}}
@@ -110,6 +115,9 @@ spec:
           readinessProbe:
             exec: {command: [sh, -c, "PGPASSWORD=$PGBOUNCER_ADMIN_PASSWORD psql -h 127.0.0.1 -p 6432 -U $PGBOUNCER_ADMIN_USER -d pgbouncer -tAc 'SHOW LISTS' >/dev/null"]}
             periodSeconds: 10
+      volumes:
+        # created from docker/pgbouncer/pgbouncer.ini.template by kubernetes/hybrid/apply-pgbouncer-template.sh
+        - {name: pgbouncer-template, configMap: {name: pgbouncer-template}}
 ---
 apiVersion: apps/v1
 kind: Deployment

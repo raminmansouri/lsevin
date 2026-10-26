@@ -1,4 +1,4 @@
-﻿import type { MetadataRoute } from "next";
+import type { MetadataRoute } from "next";
 import { unstable_cache } from "next/cache";
 
 import sql from "@/config/database/db";
@@ -14,6 +14,7 @@ const STATIC_PATHS = [
   "/n/app/mobile/categories",
   "/n/app/mobile/explore",
   "/consulting",
+  "/privacy-policy",
 ];
 
 const catalogPaths = unstable_cache(
@@ -21,7 +22,7 @@ const catalogPaths = unstable_cache(
     // One round trip; EXISTS prevents duplicate staff URLs for multiple employers.
     const rows = await sql<{ path: string }[]>`
       select '/n/app/mobile/provider/' || sp.id::text as path
-      from category.service_providers sp where sp.is_active = true
+      from category.service_providers sp where sp.is_active = true and category.provider_type_is_public(sp.provider_type_id)
       union all
       select '/type/' || pt.id::text
       from category.provider_types pt where pt.is_active = true
@@ -39,6 +40,7 @@ const catalogPaths = unstable_cache(
         where psf.staff_id = s.id and psf.is_active = true and sp.is_active = true
       )
       order by path
+
     `;
     return rows.map((row) => row.path);
   },

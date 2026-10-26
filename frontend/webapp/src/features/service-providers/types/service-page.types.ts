@@ -137,6 +137,7 @@ export interface Service {
   currency: string;
   currencySymbol: string;
   displayCurrencyCode: string;
+  internationalPriceMultiplier?: number;
   displayPrice: OtherCurrency;
   displayOriginalPrice: OtherCurrency;
   priceOptions: ConvertedMoney[];

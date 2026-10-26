@@ -1,0 +1,13 @@
+[Unit]
+Description=lsevin OpenVPN link manager (A -> B, with reserve profile failover)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/sbin/lsevin-vpn run
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

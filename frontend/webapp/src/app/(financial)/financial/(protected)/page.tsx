@@ -12,6 +12,8 @@ import {
   listPendingWithdrawals,
 } from "@/accounting/server/admin-queries";
 import { getMonthlyVolume, getPendingDocuments } from "@/accounting/server/analytics.queries";
+import { listBookingPaymentsForReview } from "@/accounting/server/booking-payments.queries";
+import { listProviderPayoutsDue } from "@/accounting/server/provider-payouts.queries";
 import { listEntries } from "@/accounting/server/manual-entry.queries";
 import { PageHeader } from "@/components/page/page-header";
 
@@ -40,11 +42,13 @@ export default async function AccountingDashboardPage() {
     );
   }
 
-  const [balances, drift, deposits, withdrawals, monthly, pending, recent] = await Promise.all([
+  const [balances, drift, deposits, bookingPayments, withdrawals, providerPayouts, monthly, pending, recent] = await Promise.all([
     getSystemBalances(),
     listBalanceDrift(),
     listPendingDeposits(),
+    listBookingPaymentsForReview(),
     listPendingWithdrawals(),
+    listProviderPayoutsDue(),
     getMonthlyVolume(),
     getPendingDocuments(),
     listEntries({ limit: 20 }),
@@ -87,13 +91,13 @@ export default async function AccountingDashboardPage() {
         <QueueCard
           href="/financial/deposits"
           title={t("pendingDeposits")}
-          count={deposits.length}
+          count={deposits.length + bookingPayments.length}
           emptyLabel={t("queueEmpty")}
         />
         <QueueCard
           href="/financial/withdrawals"
           title={t("pendingWithdrawals")}
-          count={withdrawals.length}
+          count={withdrawals.length + providerPayouts.length}
           emptyLabel={t("queueEmpty")}
         />
       </div>

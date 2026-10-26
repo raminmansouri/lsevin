@@ -23,8 +23,40 @@ export function categoryProvidersHref(categoryId: string) {
   return `${PROVIDER_LIST_PATH}?categoryId=${encodeURIComponent(categoryId)}&view=list`;
 }
 
-export function categoryCardHref(category: { id: string; childCount: number }) {
+export function categoryCardHref(
+  category: { id: string; childCount: number },
+  /** Pass the Tourism root (from tour settings) so Tourism and its subtree open Tours directly. */
+  tourism?: { tourismCategoryId?: string | null; parentOf?: (id: string) => string | null | undefined },
+) {
+  if (
+    tourism?.tourismCategoryId &&
+    isTourismCategory(category.id, tourism.parentOf ?? (() => null), tourism.tourismCategoryId)
+  ) {
+    return TOURS_HOME_PATH;
+  }
   return category.childCount > 0
     ? categoryBrowserHref(category.id)
     : categoryProvidersHref(category.id);
+}
+
+/** The Tours sub-application (src/app/[locale]/tours). */
+export const TOURS_HOME_PATH = "/tours";
+
+/**
+ * Tourism and everything beneath it opens the Tours sub-application instead of
+ * the provider map (C-001). The Tourism root id comes from tour.settings
+ * (`tourism_category_id`), read on the server and passed down — never hardcoded.
+ */
+export function isTourismCategory(
+  categoryId: string,
+  parentOf: (id: string) => string | null | undefined,
+  tourismCategoryId: string | null | undefined,
+): boolean {
+  if (!tourismCategoryId) return false;
+  let current: string | null | undefined = categoryId;
+  for (let depth = 0; current && depth < 20; depth += 1) {
+    if (current === tourismCategoryId) return true;
+    current = parentOf(current);
+  }
+  return false;
 }

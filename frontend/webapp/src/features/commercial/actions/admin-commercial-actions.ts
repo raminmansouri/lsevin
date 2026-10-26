@@ -101,17 +101,7 @@ export async function executeRefundRequestAction(refundRequestId: string, adminU
   return result;
 }
 
-export async function updateProviderLedgerStatusAction(input: { ledgerId: string; status: 'pending' | 'approved' | 'paid' | 'cancelled'; notes?: string | null; }) {
-  await assertAdmin();
-
-  const rows = await sql<any[]>`
-    update commercial.provider_ledgers
-       set status = ${input.status},
-           notes = coalesce(${input.notes ?? null}, notes),
-           updated_at = now()
-     where id = ${input.ledgerId}
-     returning id, status
-  `;
-  revalidatePath('/admin/commercial/provider-ledgers');
-  return rows[0];
-}
+// Provider ledger rows are approved and paid only in the financial panel
+// (/financial/withdrawals), where the role, the approval limit and the approver-is-not-
+// the-payer rule apply. The status changer that used to live here let any admin mark a
+// payout paid with no reference and no second person, so it was removed.

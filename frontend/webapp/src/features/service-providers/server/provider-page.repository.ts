@@ -1,6 +1,10 @@
 import "server-only";
 
+import { revalidateTag } from "next/cache";
+
 import sql from "@/config/database/db";
+import { getProviderPageDataTag } from "@/features/service-providers/db/cache";
+import { refreshReviewStats } from "@/features/service-providers/server/review-stats";
 import {
   convertMoney,
   resolvePreferredCurrencyCode,
@@ -891,7 +895,27 @@ async function getProviderReviewsPage(input: {
   const providerServiceId = isUuid(input.providerServiceId) ? input.providerServiceId : null;
   const staffId = isUuid(input.staffId) ? input.staffId : null;
   const targetFilter = targetType === "service" && providerServiceId ? sql`and c.provider_service_id = ${providerServiceId}::uuid` : targetType === "specialist" && staffId ? sql`and c.staff_id = ${staffId}::uuid` : sql``;
-  const orderBy = sort === "helpful" ? sql`coalesce(c.helpful_count, 0) desc, c.create_date desc` : sort === "buyers" ? sql`coalesce(c.created_by_admin, false) asc, coalesce(c.is_verified, false) desc, c.create_date desc` : sql`c.create_date desc`;
+  // newest: every published review, newest first.
+  // buyers: only reviews from people who booked (is_verified), newest first.
+  // helpful: only reviews that got likes, most liked first; while nothing has a like
+  // yet, every published review is shown instead.
+  let sortFilter = sql``;
+  if (sort === "buyers") sortFilter = sql`and coalesce(c.is_verified, false) = true`;
+  if (sort === "helpful") {
+    const liked = await sql<{ exists: boolean }[]>`
+      select exists(
+        select 1
+        from category.service_provider_comments c
+        where c.service_provider_id = ${input.providerId}::uuid
+          and c.is_public = true
+          and coalesce(c.moderation_status, case when c.is_public then 'approved' else 'pending' end) = 'approved'
+          and coalesce(c.helpful_count, 0) > 0
+          ${targetFilter}
+      ) as exists
+    `;
+    if (liked[0]?.exists) sortFilter = sql`and coalesce(c.helpful_count, 0) > 0`;
+  }
+  const orderBy = sort === "helpful" ? sql`coalesce(c.helpful_count, 0) desc, c.create_date desc` : sql`c.create_date desc`;
 
   const [rows, countRows] = await Promise.all([
     sql<any[]>`
@@ -940,6 +964,7 @@ async function getProviderReviewsPage(input: {
         and c.is_public = true
         and coalesce(c.moderation_status, case when c.is_public then 'approved' else 'pending' end) = 'approved'
         ${targetFilter}
+        ${sortFilter}
       order by ${orderBy}
       limit ${limit} offset ${offset}
     `,
@@ -950,6 +975,7 @@ async function getProviderReviewsPage(input: {
         and c.is_public = true
         and coalesce(c.moderation_status, case when c.is_public then 'approved' else 'pending' end) = 'approved'
         ${targetFilter}
+        ${sortFilter}
     `,
   ]);
 
@@ -1308,7 +1334,7 @@ export async function getProviderReviewEligibilityInDb(input: {
   targetType?: ReviewTargetType | null;
   providerServiceId?: string | null;
   staffId?: string | null;
-}): Promise<ApiReturnType<{ canReview: boolean; reason: ReviewEligibilityReason }>> {
+}): Promise<ApiReturnType<{ canReview: boolean; reason: ReviewEligibilityReason; requiresApproval?: boolean }>> {
   const providerId = String(input.providerId || "").trim();
   if (!isUuid(providerId)) return ok({ canReview: false, reason: "invalid_target" });
 
@@ -1339,7 +1365,7 @@ export async function getProviderReviewEligibilityInDb(input: {
       providerServiceId: target.providerServiceId,
       staffId: target.staffId,
     });
-    if (!hasBooking) return ok({ canReview: false, reason: "not_booked" });
+    // People without a booking may still review; their review waits for admin approval.
 
     const alreadyReviewed = await customerAlreadyReviewedTarget({
       customerId: customer.id,
@@ -1349,7 +1375,7 @@ export async function getProviderReviewEligibilityInDb(input: {
     });
     if (alreadyReviewed) return ok({ canReview: false, reason: "already_reviewed" });
 
-    return ok({ canReview: true, reason: null });
+    return ok({ canReview: true, reason: null, requiresApproval: !hasBooking });
   } catch (error) {
     return fail(
       "Could not check review eligibility.",
@@ -1436,12 +1462,9 @@ export async function createProviderReviewInDb(
       staffId: target.staffId,
     });
 
-    if (!hasBooking) {
-      return fail(
-        "Only customers with a confirmed or completed booking can review this provider, service, or specialist.",
-        403,
-      );
-    }
+    // Reviews from people with a confirmed/completed booking go live at once (marked as
+    // buyer reviews). Anyone else's review waits for an admin to approve or reject it.
+    const requiresModeration = !hasBooking;
 
     const alreadyReviewed = await customerAlreadyReviewedTarget({
       customerId: customer.id,
@@ -1497,8 +1520,8 @@ export async function createProviderReviewInDb(
         ${customer.name},
         ${comment},
         ${rating},
-        false,
-        'pending',
+        ${!requiresModeration},
+        ${requiresModeration ? "pending" : "approved"},
         false,
         ${pros}::text[],
         ${cons}::text[],
@@ -1506,7 +1529,7 @@ export async function createProviderReviewInDb(
         now(),
         ${customer.country},
         ${treatment},
-        true,
+        ${hasBooking},
         0
       )
       returning id::text
@@ -1524,18 +1547,37 @@ export async function createProviderReviewInDb(
 
     if (!reviewId) return fail("Review could not be created.", 500);
 
+    if (!requiresModeration) {
+      try {
+        await refreshReviewStats({
+          providerId,
+          providerServiceId: target.providerServiceId,
+          staffId: target.staffId,
+        });
+      } catch (error) {
+        console.error("refreshReviewStats after review failed", error);
+      }
+      revalidateTag(getProviderPageDataTag(providerId));
+      revalidateTag("service-page");
+      revalidateTag("specialist-page");
+    }
+
+    const preview = buildPendingReviewPreview({
+      id: reviewId,
+      customer,
+      rating,
+      comment,
+      treatment,
+      imageUrls,
+      pros,
+      cons,
+    });
+
     return ok({
-      review: buildPendingReviewPreview({
-        id: reviewId,
-        customer,
-        rating,
-        comment,
-        treatment,
-        imageUrls,
-        pros,
-        cons,
-      }),
-      requiresModeration: true,
+      review: requiresModeration
+        ? { ...preview, verified: false }
+        : { ...preview, date: relativeDateLabel(new Date().toISOString()) },
+      requiresModeration,
     });
   } catch (error) {
     return fail(

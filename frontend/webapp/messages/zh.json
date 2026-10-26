@@ -1423,6 +1423,9 @@
     "serviceImage": "服务图片",
     "serviceManagement": "服务管理",
     "serviceProviderDeleted": "服务商已删除",
+    "duplicateProvider": "复制",
+    "serviceProviderDuplicated": "服务商已复制",
+    "duplicateServiceProviderConfirm": "要创建 {name} 的副本吗？",
     "serviceRoomTypeUUID": "服务房型UUID",
     "services": "服务",
     "serviceType": "服务类型",
@@ -2247,6 +2250,68 @@
     }
   },
   "Booking": {
+    "mealPlan": {
+      "label": "餐食方案",
+      "chooseTitle": "请选择餐食方案",
+      "room_only": {
+        "name": "仅住宿",
+        "description": "不含餐"
+      },
+      "breakfast": {
+        "name": "含早餐",
+        "description": "含早餐"
+      },
+      "full_board": {
+        "name": "全膳",
+        "description": "含早餐、午餐和晚餐"
+      }
+    },
+    "stay": {
+      "perNight": "每晚",
+      "nightsLine": "晚数：{nights} × 每晚 {price}",
+      "checkoutAfterCheckin": "退房日期必须晚于入住日期。",
+      "adultsMin": "至少需要 {min} 位成人。",
+      "decreaseAdults": "减少成人人数",
+      "increaseAdults": "增加成人人数"
+    },
+    "addonScope": {
+      "showAllInCountry": "显示{country}全部",
+      "showOnlyCity": "仅显示{city}"
+    },
+    "payInPlace": {
+      "heading": "现场付款：请选择方案",
+      "intro": "您现在支付账单的一部分，其余部分在现场支付。现在支付得越少，加收到账单上的比例越高。",
+      "payNow": "现在支付 {percent}%",
+      "surcharge": "账单加收 {percent}%",
+      "bill": "账单",
+      "dueNow": "现在应付",
+      "dueLater": "现场应付",
+      "methodHeading": "您想如何支付现在应付的部分？",
+      "noMethods": "支付现在应付的部分需要钱包或在线支付，目前这两种方式您都无法使用。",
+      "loading": "正在加载支付方式...",
+      "addition": "现场付款加收（{percent}%）",
+      "errors": {
+        "choosePlan": "请选择现场付款方案以及支付现在应付部分的方式。",
+        "chooseDepositMethod": "请选择如何支付现在应付的部分。",
+        "depositMethodNotAllowed": "现在应付的部分必须使用钱包或在线支付。",
+        "methodNotAvailable": "此支付方式对您不可用。"
+      }
+    },
+    "builtinPaymentMethods": {
+      "pay_on_delivery": {
+        "name": "现场付款",
+        "description": "现在支付部分金额，其余部分在提供服务时以现金支付。"
+      },
+      "bank_receipt": {
+        "name": "银行转账凭证",
+        "description": "请将款项转入下列账户之一，并上传凭证图片。"
+      },
+      "wallet": {
+        "name": "钱包",
+        "description": "使用钱包余额即时支付。"
+      }
+    },
+    "timezoneMismatchWarning": "提示：服务提供方使用 {providerZone} 时区，您的时区为 {viewerZone}。所示时间已转换为您的时区。",
     "upcoming": "即将到来",
     "past": "已过去",
     "abuDhabi": "阿布扎比",
@@ -8381,6 +8446,8 @@
         "placeholder": "选择图标"
       },
       "isActive": "启用",
+      "addonOnly": "Add-on only (translator, car, ...)",
+      "addonOnlyHelp": "When on, providers of this type appear only in the booking add-ons step, filtered by city, and are hidden from search, home and every other listing.",
       "name": {
         "label": "名称"
       },
@@ -13144,5 +13211,23 @@
     "previous": "上一页",
     "next": "下一页",
     "confirm": "使用所选文件"
+  },
+  "Shop": {
+    "checkoutHints": {
+      "completeToPay": "请补全以下信息后付款：",
+      "required": "请填写{field}。",
+      "minLength": "{field}至少需要{min}个字符。",
+      "maxLength": "{field}不能超过{max}个字符。",
+      "email": "请输入有效的电子邮箱。",
+      "delivery": "请选择配送方式。",
+      "noDelivery": "此地址暂不支持配送，请更改目的地。",
+      "payment": "请选择付款方式。",
+      "noPayment": "暂无可用的付款方式，请稍后重试。",
+      "coupon": "此优惠码已失效，请检查购物车。",
+      "unavailable": "请在付款前检查购物车。",
+      "quoteFailed": "无法更新配送或付款选项，点击重试。",
+      "updating": "正在更新配送和付款选项…",
+      "retryNotice": "订单已保存，请重试付款，无需重复下单。"
+    }
   }
 }

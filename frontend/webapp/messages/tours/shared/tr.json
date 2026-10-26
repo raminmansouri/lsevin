@@ -1,0 +1,67 @@
+{
+  "TourShared": {
+    "calendar": {
+      "label": "Takvim",
+      "persian": "Hicri Şemsi (Celali)",
+      "gregory": "Miladi",
+      "islamic-umalqura": "Hicri Kameri (Ümmül Kura)",
+      "shownIn": "Tarihler {calendar} takviminde"
+    },
+    "traveler": {
+      "adult": "Yetişkin",
+      "child": "Çocuk",
+      "infant": "Bebek",
+      "student": "Öğrenci",
+      "senior": "Yaşlı"
+    },
+    "bookingStatus": {
+      "pending_payment": "Ödeme bekleniyor",
+      "requested": "Operatör onayı bekleniyor",
+      "confirmed": "Onaylandı",
+      "declined": "Reddedildi",
+      "cancelled": "İptal edildi",
+      "completed": "Tamamlandı",
+      "no_show": "Gelmedi",
+      "expired": "Süresi doldu"
+    },
+    "common": {
+      "loading": "Yükleniyor…",
+      "retry": "Tekrar dene",
+      "save": "Kaydet",
+      "cancel": "Vazgeç",
+      "close": "Kapat",
+      "back": "Geri",
+      "next": "İleri",
+      "fromPrice": "{price} başlayan",
+      "perPerson": "kişi başı",
+      "perGroup": "grup başı",
+      "days": "{count, plural, other {# gün}}",
+      "nights": "{count, plural, other {# gece}}",
+      "seatsLeft": "{count, plural, other {# yer kaldı}}",
+      "translatedFrom": "{language} dilinde gösteriliyor — henüz sizin dilinizde yok",
+      "offline": "Çevrimdışısınız. Kayıtlı bilgiler gösteriliyor.",
+      "unavailable": "Mevcut değil",
+      "timezone": "Yerel saat ({zone})"
+    },
+    "errors": {
+      "insufficient_capacity": "Bu kalkışta yeterli yer kalmadı.",
+      "departure_unavailable": "Bu kalkış artık rezerve edilemez.",
+      "hold_expired": "Yer ayırma süreniz doldu. Lütfen tarihi yeniden seçin.",
+      "price_changed": "Rezervasyon sırasında fiyat değişti. Devam etmeden önce yeni tutarı inceleyin.",
+      "policy_changed": "Rezervasyon kuralları güncellendi. Lütfen yeniden inceleyip kabul edin.",
+      "invalid_guest_details": "Lütfen işaretli alanları düzeltin.",
+      "sign_in_required": "Devam etmek için giriş yapın.",
+      "service_unavailable": "Hizmet geçici olarak kullanılamıyor.",
+      "unexpected_error": "Bir hata oluştu. Tekrar deneyin."
+    },
+    "errorKind": {
+      "validation": "Lütfen girişlerinizi kontrol edin.",
+      "authentication": "Lütfen giriş yapın.",
+      "authorization": "Bu işlem için yetkiniz yok.",
+      "not_found": "Bulunamadı.",
+      "conflict": "Bir değişiklik nedeniyle tamamlanamadı.",
+      "infrastructure": "Hizmet geçici olarak kullanılamıyor.",
+      "unexpected": "Bir hata oluştu."
+    }
+  }
+}

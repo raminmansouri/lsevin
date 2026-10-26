@@ -18,6 +18,8 @@ import { getAdminContext } from "@/lib/auth/admin-guard";
 
 export const SHOP_GUEST_COOKIE = "lsevin_shop_gid";
 export const SHOP_CURRENCY_COOKIE = "lsevin_shop_ccy";
+/** Language the display currency was picked in; the pick only applies there. */
+export const SHOP_CURRENCY_LOCALE_COOKIE = "lsevin_shop_ccy_lang";
 const GUEST_COOKIE_MAX_AGE = 60 * 60 * 24 * 30; // 30 days
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -38,6 +40,8 @@ export type ShopContext = {
   countryCode: string | null;
   /** Explicitly selected display currency (cookie), if any. */
   selectedCurrencyCode: string | null;
+  /** Language the selected currency was picked in (cookie), if any. */
+  selectedCurrencyLocale: string | null;
   isAdmin: boolean;
 };
 
@@ -205,6 +209,9 @@ export const getShopContext = cache(async (): Promise<ShopContext> => {
 
   const guestToken = cookieStore.get(SHOP_GUEST_COOKIE)?.value?.trim() || "";
   const selectedCurrencyCode = cookieStore.get(SHOP_CURRENCY_COOKIE)?.value?.trim()?.toUpperCase() || null;
+  const selectedCurrencyLocale = cookieStore.get(SHOP_CURRENCY_LOCALE_COOKIE)?.value?.trim()
+    ? normalizeLocaleValue(cookieStore.get(SHOP_CURRENCY_LOCALE_COOKIE)?.value)
+    : null;
 
   return {
     userId,
@@ -214,6 +221,7 @@ export const getShopContext = cache(async (): Promise<ShopContext> => {
     locale,
     countryCode,
     selectedCurrencyCode,
+    selectedCurrencyLocale,
     isAdmin: Boolean(adminCtx.isAdmin),
   };
 });
@@ -238,15 +246,17 @@ export async function ensureGuestToken(): Promise<string> {
   return token;
 }
 
-export async function setSelectedCurrencyCookie(code: string): Promise<void> {
+export async function setSelectedCurrencyCookie(code: string, locale: string): Promise<void> {
   const store = await cookies();
-  store.set(SHOP_CURRENCY_COOKIE, code.trim().toUpperCase(), {
+  const options = {
     httpOnly: false,
-    sameSite: "lax",
+    sameSite: "lax" as const,
     secure: process.env.NODE_ENV === "production",
     path: "/",
     maxAge: GUEST_COOKIE_MAX_AGE,
-  });
+  };
+  store.set(SHOP_CURRENCY_COOKIE, code.trim().toUpperCase(), options);
+  store.set(SHOP_CURRENCY_LOCALE_COOKIE, normalizeLocaleValue(locale), options);
 }
 
 /** Authorization boundary for Shop admin server actions (SHP-ADM-017). */

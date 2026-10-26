@@ -82,9 +82,11 @@ export type AttributeFormInput = z.infer<typeof attributeFormSchema>;
 
 export const attributeValueFormSchema = z.object({
   attributeId: shopId,
-  value: str.min(1).max(80),
-  labelEn: str.default(""),
+  // English attribute names can be long ("Pain relief for the lower limbs…"); 200 leaves room for other languages too.
+  value: str.max(200).default(""),
+  labelEn: str.min(1).max(200),
   labelFa: str.default(""),
+  labelAr: str.default(""),
   colorHex: str.default(""),
   imageUrl: str.default(""),
 });
@@ -156,6 +158,9 @@ export const productCoreFormSchema = z
     descEn: str.default(""),
     descFa: str.default(""),
     descAr: str.default(""),
+    fullDescEn: str.default(""),
+    fullDescFa: str.default(""),
+    fullDescAr: str.default(""),
     slug: str.min(2).max(180).regex(kebabRe, "kebab-case only"),
     status: z.enum(["draft", "active", "archived"]),
     basePrice: num.min(0).default(0),

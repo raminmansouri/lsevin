@@ -49,6 +49,7 @@ before(async () => {
   await sql
     .unsafe(read("../db/migrations/0068_multilingual_catalog_search.sql"))
     .simple();
+  await sql.unsafe(read("../db/migrations/0071_provider_type_addon_only.sql")).simple();
   await sql.unsafe(previous).simple();
   await sql`create schema if not exists seo_verification`;
   await sql
@@ -70,6 +71,7 @@ before(async () => {
   const runnerRoot = fileURLToPath(new URL("../artifacts/migration-upgrade-fixture/", import.meta.url));
   fs.mkdirSync(path.join(runnerRoot, "scripts"), {recursive:true});
   fs.mkdirSync(path.join(runnerRoot, "db/migrations"), {recursive:true});
+  fs.rmSync(path.join(runnerRoot,"db/migrations/0083_translation_empty_fast_path.sql"), {force:true});
   fs.copyFileSync(new URL("../scripts/migrate.mjs",import.meta.url),path.join(runnerRoot,"scripts/migrate.mjs"));
   fs.writeFileSync(path.join(runnerRoot,"db/migrations/0084_translation_empty_fast_path.sql"),migration);
   const log=execFileSync(process.execPath,[path.join(runnerRoot,"scripts/migrate.mjs")],{env:{...process.env,DATABASE_URL:connection},encoding:"utf8",timeout:30_000});

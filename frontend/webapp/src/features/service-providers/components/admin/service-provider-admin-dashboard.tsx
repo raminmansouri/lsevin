@@ -2,6 +2,7 @@
 
 
 import { useTranslations } from "next-intl";
+import { formatCurrencyAmount } from "@/features/finance/lib/money";
 import { useEffect, useMemo, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import {
@@ -274,12 +275,9 @@ function formatMoney(
   currency?: string | null,
   locale = "fa-IR",
 ) {
-  const numericValue = Number(value || 0);
-  const formatter = new Intl.NumberFormat(locale || "en-US", {
-    minimumFractionDigits: numericValue % 1 === 0 ? 0 : 2,
-    maximumFractionDigits: 2,
-  });
-  return `${currency || ""} ${formatter.format(Number.isFinite(numericValue) ? numericValue : 0)}`.trim();
+  return currency
+    ? formatCurrencyAmount(value, currency, locale || "en-US", { maximumFractionDigits: 2 })
+    : new Intl.NumberFormat(locale || "en-US", { maximumFractionDigits: 2 }).format(Number(value) || 0);
 }
 
 function normalizeLocalizedDigits(value: string) {
@@ -1421,6 +1419,9 @@ type ServiceManagerFormValues = {
   isFeatured: boolean;
   slotIntervalMinutes: string;
   tagsText: string;
+  // Meal plans for rooms: the full nightly price with that plan. Empty = not offered.
+  breakfastPriceText: string;
+  fullBoardPriceText: string;
 };
 
 function emptyServiceFormValues(
@@ -1441,6 +1442,8 @@ function emptyServiceFormValues(
     isFeatured: false,
     slotIntervalMinutes: "15",
     tagsText: "",
+    breakfastPriceText: "",
+    fullBoardPriceText: "",
   };
 }
 
@@ -1506,6 +1509,8 @@ function ServicesManager({ provider, lookups, locale }: Props) {
       isFeatured: item.isFeatured,
       slotIntervalMinutes: String(item.slotIntervalMinutes || 15),
       tagsText: item.tags.join(", "),
+      breakfastPriceText: item.breakfastPrice != null ? formatNumberInput(item.breakfastPrice, locale) : "",
+      fullBoardPriceText: item.fullBoardPrice != null ? formatNumberInput(item.fullBoardPrice, locale) : "",
     });
     setShowForm(true);
   };
@@ -1542,12 +1547,12 @@ function ServicesManager({ provider, lookups, locale }: Props) {
       addonIds:
         provider.services.find((item) => item.id === editingServiceId)
           ?.addonIds || [],
+      mealPlans: {
+        breakfast: values.breakfastPriceText.trim() ? parseFormattedNumber(values.breakfastPriceText) : null,
+        fullBoard: values.fullBoardPriceText.trim() ? parseFormattedNumber(values.fullBoardPriceText) : null,
+      },
     });
   });
-
-  const excludedServiceDefinitionIds = provider.services
-    .filter((item) => item.id !== editingServiceId)
-    .map((item) => item.serviceDefinitionId);
 
   return (
     <RelationCard
@@ -1615,7 +1620,6 @@ function ServicesManager({ provider, lookups, locale }: Props) {
                             placeholder={tAdmin("searchAndSelectServiceDefinition")}
                             searchPlaceholder="Search service definitions..."
                             initialOptions={lookups.serviceDefinitions}
-                            excludeIds={excludedServiceDefinitionIds}
                             disabled={isPending}
                             contentClassName="w-[520px]"
                           />
@@ -1808,6 +1812,65 @@ function ServicesManager({ provider, lookups, locale }: Props) {
                   />
                 </div>
 
+                <div className="space-y-2 rounded-lg border bg-background p-4">
+                  <div className="text-sm font-medium">Meal plans (rooms)</div>
+                  <p className="text-xs text-muted-foreground">
+                    Full nightly price of the room with each plan, in the currency above. Room only is the price above. Leave empty if the room doesn&apos;t offer that plan.
+                  </p>
+                  <div className="grid gap-4 md:grid-cols-2">
+                  <FormField
+                    control={serviceForm.control}
+                    name="breakfastPriceText"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Breakfast (per night)</FormLabel>
+                        <FormControl>
+                          <Input
+                            dir="ltr"
+                            inputMode="decimal"
+                            value={field.value}
+                            onChange={(event) => field.onChange(event.target.value)}
+                            onBlur={() =>
+                              field.onChange(
+                                field.value.trim() ? formatNumberInput(field.value, locale) : "",
+                              )
+                            }
+                            placeholder="—"
+                            disabled={isPending}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={serviceForm.control}
+                    name="fullBoardPriceText"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Full board (per night)</FormLabel>
+                        <FormControl>
+                          <Input
+                            dir="ltr"
+                            inputMode="decimal"
+                            value={field.value}
+                            onChange={(event) => field.onChange(event.target.value)}
+                            onBlur={() =>
+                              field.onChange(
+                                field.value.trim() ? formatNumberInput(field.value, locale) : "",
+                              )
+                            }
+                            placeholder="—"
+                            disabled={isPending}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  </div>
+                </div>
+
                 <div className="grid gap-4 lg:grid-cols-[1fr_320px]">
                   <FormField
                     control={serviceForm.control}
@@ -1991,6 +2054,11 @@ function ServicesManager({ provider, lookups, locale }: Props) {
                       <DropdownMenuItem asChild>
                         <Link href={`/admin/provider-services/${item.id}/attribute-values`}>
                           <SlidersHorizontal className="me-2 h-4 w-4" /> Attributes (e.g. room features)
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link href={`/admin/provider-services/${item.id}/meal-plans`}>
+                          <SlidersHorizontal className="me-2 h-4 w-4" /> Meal plans (rooms)
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>

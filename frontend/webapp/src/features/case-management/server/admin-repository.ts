@@ -12,6 +12,7 @@ export type AdminCaseRow = {
   serviceName: string;
   staffName: string | null;
   currentStep: string | null;
+  currentStepAt: string | null;
   completedSteps: number;
   totalSteps: number;
   createdAt: string;
@@ -216,11 +217,8 @@ export async function listAdminCases(locale: string): Promise<{
           nullif(common.get_translation_t(sd.name_translations, ${locale}, 'fa-IR'), ''), '-'
         ) as "serviceName",
         nullif(common.get_translation_t(st.name_translations, ${locale}, 'fa-IR'), '') as "staffName",
-        coalesce(
-          nullif(common.get_translation_t(current_step.title_translations, ${locale}, 'fa-IR'), ''),
-          current_step.legacy_title,
-          current_step.step_key
-        ) as "currentStep",
+        current_step.title as "currentStep",
+        current_step.planned_start_at::text as "currentStepAt",
         count(case when steps.status in ('completed', 'skipped') then 1 end)::int as "completedSteps",
         count(steps.id)::int as "totalSteps",
         c.create_date::text as "createdAt"
@@ -230,9 +228,26 @@ export async function listAdminCases(locale: string): Promise<{
       left join category.provider_services ps on ps.id = c.provider_service_id
       left join category.service_definitions sd on sd.id = c.service_definition_id
       left join category.staff st on st.id = coalesce(c.assigned_staff_id, c.specialist_id)
-      left join case_management.case_steps current_step on current_step.id = c.current_step_id
+      left join lateral (
+        -- The step a case is "at" is derived from its schedule, not from
+        -- cases.current_step_id: that pointer is set to the first step when the case
+        -- is created and only moves on a manual admin update, so every case kept
+        -- showing its first step ("3 days before treatment") forever.
+        select
+          coalesce(nullif(common.get_translation_t(cs.title_translations, ${locale}, 'fa-IR'), ''), cs.legacy_title, cs.step_key) as title,
+          cs.planned_start_at
+        from case_management.case_steps cs
+        where cs.case_id = c.id
+          and cs.status not in ('completed', 'skipped', 'cancelled')
+        order by
+          (cs.status = 'in_progress') desc,
+          (cs.planned_start_at is not null and cs.planned_start_at <= now()) desc,
+          case when cs.planned_start_at <= now() then cs.planned_start_at end desc nulls last,
+          cs.display_order
+        limit 1
+      ) current_step on true
       left join case_management.case_steps steps on steps.case_id = c.id and steps.admin_visible
-      group by c.id, u.id, p.id, ps.id, sd.id, st.id, current_step.id
+      group by c.id, u.id, p.id, ps.id, sd.id, st.id, current_step.title, current_step.planned_start_at
       order by
         case c.status when 'active' then 0 when 'on_hold' then 1 when 'scheduled' then 2 else 3 end,
         c.last_modified_date desc

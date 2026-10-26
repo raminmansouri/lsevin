@@ -8,6 +8,8 @@ import { getCurrencySymbol, normalizeCurrencyCode } from '@/features/finance/lib
 import type { ConvertedMoney } from '@/features/finance/types';
 import { getIsFavorite, resolveFavoritesCustomerId } from '@/features/favorites/server/favorites.repository';
 
+import { resolveProviderMultiplier } from "@/features/finance/lib/server/currency-queries";
+
 import type {
   GetServicePageByIdResponse,
   OtherCurrency,
@@ -134,6 +136,7 @@ async function safeResolvePreferredCurrencyCode(input: {
   try {
     return await resolvePreferredCurrencyCode(input);
   } catch {
+    
     return normalizeCurrencyCode(input.explicitCurrencyCode || input.fallbackCurrencyCode);
   }
 }
@@ -927,8 +930,6 @@ async function getTopReviews(providerId: string, providerServiceId: string): Pro
     group by spc.id
     order by
       case when spc.provider_service_id = ${providerServiceId}::uuid then 0 else 1 end,
-      spc.rating desc nulls last,
-      spc.helpful_count desc,
       spc.create_date desc
     limit 3
   `;
@@ -1342,6 +1343,9 @@ export async function getServicePageByIdFromDb({
   // path on the page (main service, addons, specialists) so the markup is consistent;
   // null => the shared utility falls back to the global finance.settings default.
   const providerMultiplier = asNullableNumber(row.international_price_multiplier);
+  // Multiplier for international viewers (provider's own, else the global default).
+  // The page is static, so the client applies it to Rial/Toman for non-Iranian viewers.
+  const effectiveInternationalMultiplier = await resolveProviderMultiplier(providerMultiplier).catch(() => 1);
 
   const sourceCurrencyCode = normalizeCurrencyCode(row.currency);
   const [resolvedDisplayCurrencyCode, isIranianVisitor] = await Promise.all([
@@ -1481,6 +1485,7 @@ export async function getServicePageByIdFromDb({
     currency: sourceCurrencyCode,
     currencySymbol: getCurrencySymbol(sourceCurrencyCode),
     displayCurrencyCode: resolvedDisplayCurrencyCode,
+    internationalPriceMultiplier: effectiveInternationalMultiplier,
     displayPrice,
     displayOriginalPrice,
     priceOptions,

@@ -2720,6 +2720,8 @@ declare const messages: {
         "label": "Açıklama"
       },
       "isActive": "Aktif",
+      "addonOnly": "Add-on only (translator, car, ...)",
+      "addonOnlyHelp": "When on, providers of this type appear only in the booking add-ons step, filtered by city, and are hidden from search, home and every other listing.",
       "attributes": "Öznitelik Tanımları",
       "attributesPlaceholder": "Öznitelikler ({count} tanımlı)",
       "create": "Sağlayıcı Türü Oluştur",
@@ -3057,6 +3059,9 @@ declare const messages: {
     "clear": "Seçimi temizle"
   },
   "AdminGenerated": {
+    "updateBookingTitle": "Rezervasyonu düzenle: {service} – {customer}",
+    "stayCheckIn": "Giriş tarihi",
+    "stayCheckOut": "Çıkış tarihi",
     "deleteCurrency": "Delete currency",
     "deleteCurrencyConfirm": "Delete this currency? It is removed from the lists while past records stay untouched.",
     "currencyDeleted": "Currency deleted.",
@@ -4252,6 +4257,9 @@ declare const messages: {
     "serviceImage": "Hizmet Görseli",
     "serviceManagement": "Hizmet yönetimi",
     "serviceProviderDeleted": "Hizmet Sağlayıcı Silindi",
+    "duplicateProvider": "Kopyala",
+    "serviceProviderDuplicated": "Hizmet sağlayıcı kopyalandı",
+    "duplicateServiceProviderConfirm": "{name} için bir kopya oluşturulsun mu?",
     "serviceRoomTypeUUID": "Hizmet Oda Tipi UUID",
     "services": "Hizmetler",
     "serviceType": "Hizmet tipi",
@@ -4902,6 +4910,73 @@ declare const messages: {
     }
   },
   "Booking": {
+    "dayParts": {
+      "morning": "Sabah",
+      "afternoon": "Öğleden sonra",
+      "evening": "Akşam"
+    },
+    "mealPlan": {
+      "label": "Yemek planı",
+      "chooseTitle": "Yemek planı seçin",
+      "room_only": {
+        "name": "Sadece oda",
+        "description": "Yemek dahil değil"
+      },
+      "breakfast": {
+        "name": "Kahvaltı dahil",
+        "description": "Kahvaltı dahildir"
+      },
+      "full_board": {
+        "name": "Tam pansiyon",
+        "description": "Kahvaltı, öğle ve akşam yemeği dahildir"
+      }
+    },
+    "stay": {
+      "perNight": "gecelik",
+      "nightsLine": "Gece sayısı: {nights} × gecelik {price}",
+      "checkoutAfterCheckin": "Çıkış tarihi giriş tarihinden sonra olmalıdır.",
+      "adultsMin": "En az {min} yetişkin gereklidir.",
+      "decreaseAdults": "Yetişkin sayısını azalt",
+      "increaseAdults": "Yetişkin sayısını artır"
+    },
+    "addonScope": {
+      "showAllInCountry": "{country} genelindeki tümünü göster",
+      "showOnlyCity": "Yalnızca {city} göster"
+    },
+    "payInPlace": {
+      "heading": "Yerinde ödeme: bir plan seçin",
+      "intro": "Faturanın bir kısmını şimdi, kalanını yerinde ödersiniz. Şimdi ne kadar az öderseniz faturaya o kadar fazla eklenir.",
+      "payNow": "Şimdi %{percent} öde",
+      "surcharge": "Faturaya %{percent} eklenir",
+      "bill": "Fatura",
+      "dueNow": "Şimdi ödenecek",
+      "dueLater": "Yerinde ödenecek",
+      "methodHeading": "Şimdi ödenecek kısmı nasıl ödemek istersiniz?",
+      "noMethods": "Şimdi ödenecek kısım için cüzdan veya çevrimiçi ödeme gerekir; şu anda ikisi de sizin için kullanılamıyor.",
+      "loading": "Ödeme yöntemleri yükleniyor...",
+      "addition": "Yerinde ödeme farkı (%{percent})",
+      "errors": {
+        "choosePlan": "Bir yerinde ödeme planı ve şimdi ödenecek kısmın ödeme yöntemini seçin.",
+        "chooseDepositMethod": "Şimdi ödenecek kısmı nasıl ödeyeceğinizi seçin.",
+        "depositMethodNotAllowed": "Şimdi ödenecek kısım cüzdan veya çevrimiçi ödeme ile ödenmelidir.",
+        "methodNotAvailable": "Bu ödeme yöntemi sizin için kullanılamıyor."
+      }
+    },
+    "builtinPaymentMethods": {
+      "pay_on_delivery": {
+        "name": "Yerinde ödeme",
+        "description": "Tutarın bir kısmını şimdi, kalanını hizmet verilirken nakit ödeyin."
+      },
+      "bank_receipt": {
+        "name": "Banka havalesi dekontu",
+        "description": "Tutarı aşağıdaki hesaplardan birine havale edin ve dekont görselini yükleyin."
+      },
+      "wallet": {
+        "name": "Cüzdan",
+        "description": "Cüzdan bakiyenizle anında ödeyin."
+      }
+    },
+    "timezoneMismatchWarning": "Not: Hizmet sağlayıcı {providerZone} saat diliminde çalışıyor, sizin saat diliminiz {viewerZone}. Gösterilen saatler saat diliminize çevrilmiştir.",
     "upcoming": "Yaklaşan",
     "past": "Geçmiş",
     "abuDhabi": "Abu Dabi",
@@ -5463,7 +5538,6 @@ declare const messages: {
     "caseSharedSuccessfully": "Vaka sağlayıcıyla paylaşıldı",
     "caseShareFailed": "Vaka paylaşılamadı. Lütfen tekrar deneyin.",
     "caseShareSavedPending": "Rezervasyonunuz onaylandığında \"{title}\" bu sağlayıcıyla paylaşılacak şekilde seçim yaptınız.",
-    "changeSelection": "Değiştir",
     "removeSelection": "Kaldır",
     "reschedule": "Ertele",
     "reservationManagement": "Rezervasyon yönetimi",
@@ -5730,6 +5804,22 @@ declare const messages: {
     "searchNow": "Şimdi Ara"
   },
   "Shop": {
+    "checkoutHints": {
+      "completeToPay": "Ödeme için bunları tamamlayın:",
+      "required": "{field} girin.",
+      "minLength": "{field} en az {min} karakter olmalıdır.",
+      "maxLength": "{field} en fazla {max} karakter olmalıdır.",
+      "email": "Geçerli bir e-posta adresi girin.",
+      "delivery": "Bir teslimat yöntemi seçin.",
+      "noDelivery": "Bu adrese teslimat yapılamıyor. Hedefi değiştirin.",
+      "payment": "Bir ödeme yöntemi seçin.",
+      "noPayment": "Ödeme yöntemi mevcut değil. Daha sonra tekrar deneyin.",
+      "coupon": "Bu kupon artık geçerli değil. Sepetinizi kontrol edin.",
+      "unavailable": "Ödemeden önce sepetinizi kontrol edin.",
+      "quoteFailed": "Teslimat veya ödeme seçenekleri güncellenemedi. Tekrar denemek için dokunun.",
+      "updating": "Teslimat ve ödeme seçenekleri güncelleniyor…",
+      "retryNotice": "Siparişiniz kaydedildi. Yeni sipariş oluşturmadan ödemeyi tekrar deneyin."
+    },
     "title": "Mağaza",
     "tab": "Mağaza",
     "searchPlaceholder": "Ürün, marka ara…",
@@ -8672,7 +8762,10 @@ declare const messages: {
     }
   },
   "ProviderPage": {
-    "locationMap": { "title": "Haritada konum", "getDirections": "Yol tarifi al" },
+    "locationMap": {
+      "title": "Haritada konum",
+      "getDirections": "Yol tarifi al"
+    },
     "actions": {
       "addFavorite": "Sağlayıcıyı favorilere ekle",
       "back": "Geri dön",
@@ -10497,7 +10590,10 @@ declare const messages: {
     }
   },
   "ServicePage": {
-    "attributeValue": { "yes": "Evet", "no": "Hayır" },
+    "attributeValue": {
+      "yes": "Evet",
+      "no": "Hayır"
+    },
     "actions": {
       "back": "Geri dön",
       "bookNow": "Hemen Randevu Al",
@@ -13214,7 +13310,9 @@ declare const messages: {
     "customer": {
       "title": "Spor salonu üyeliklerim",
       "empty": "Henüz bir spor salonu üyeliğiniz yok.",
-      "plan": { "monthlyPriceLabel": "Aylık fiyat" },
+      "plan": {
+        "monthlyPriceLabel": "Aylık fiyat"
+      },
       "subscribe": {
         "title": "Abone ol",
         "selectMonths": "Ödemek istediğiniz ayları seçin",

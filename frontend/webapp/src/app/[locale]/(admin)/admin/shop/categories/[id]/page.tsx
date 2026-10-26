@@ -8,7 +8,9 @@ import {
   listServiceDefinitionsForPicker,
 } from "@/features/shop/api/admin.repository";
 import { CategoryForm } from "@/features/shop/components/admin/CategoryForm";
+import { PendingSubmitButton } from "@/features/shop/components/admin/PendingSubmitButton";
 import { ShopDeleteButton } from "@/features/shop/components/admin/ShopDeleteButton";
+import { ServiceDefinitionPicker } from "@/features/shop/components/admin/ServiceDefinitionPicker";
 import {
   deleteCategoryAction,
   linkCategoryServiceForm,
@@ -55,13 +57,15 @@ export default async function AdminCategoryEditPage({ params }: { params: Promis
             {category.serviceLinks.map((l: any) => (
               <li key={l.id} className="flex items-center justify-between rounded border border-gray-100 px-2 py-1 text-sm">
                 <span className={l.broken ? "text-red-600" : ""}>
-                  {l.service_name} <span className="text-gray-400">· {t.has(`relation.${l.relation_type}`) ? t(`relation.${l.relation_type}`) : l.relation_type}</span>
+                  {l.service_name}
+                  {l.service_name_fa && l.service_name_fa !== l.service_name ? <span className="ms-2 text-gray-500">{l.service_name_fa}</span> : null}{" "}
+                  <span className="text-gray-400">· {t.has(`relation.${l.relation_type}`) ? t(`relation.${l.relation_type}`) : l.relation_type}</span>
                   {l.broken ? ` · ${t("categoryEdit.brokenRef")}` : ""}
                 </span>
                 <form action={unlinkCategoryServiceForm}>
                   <input type="hidden" name="linkId" value={l.id} />
                   <input type="hidden" name="shopCategoryId" value={category.id} />
-                  <button className="text-xs text-red-600">{t("common.remove")}</button>
+                  <PendingSubmitButton className="text-xs text-red-600">{t("common.remove")}</PendingSubmitButton>
                 </form>
               </li>
             ))}
@@ -69,15 +73,17 @@ export default async function AdminCategoryEditPage({ params }: { params: Promis
           </ul>
           <form action={linkCategoryServiceForm} className="space-y-2">
             <input type="hidden" name="shopCategoryId" value={category.id} />
-            <select name="serviceDefinitionId" className={input}>
-              {services.map((s: any) => (
-                <option key={s.id} value={s.id}>{s.name}{s.is_active ? "" : ` (${t("common.inactiveShort")})`}</option>
-              ))}
-            </select>
+            <ServiceDefinitionPicker
+              name="serviceDefinitionId"
+              services={services}
+              inactiveLabel={t("common.inactiveShort")}
+              searchPlaceholder={t("common.search")}
+              emptyLabel={t("common.noResults")}
+            />
             <select name="relationType" className={input}>
               {RELATION.map((r) => <option key={r} value={r}>{t.has(`relation.${r}`) ? t(`relation.${r}`) : r}</option>)}
             </select>
-            <button className="w-full rounded bg-[#083f30] px-3 py-2 text-sm font-semibold text-white">{t("categoryEdit.addServiceLink")}</button>
+            <PendingSubmitButton className="w-full rounded bg-[#083f30] px-3 py-2 text-sm font-semibold text-white">{t("categoryEdit.addServiceLink")}</PendingSubmitButton>
           </form>
         </section>
       </div>

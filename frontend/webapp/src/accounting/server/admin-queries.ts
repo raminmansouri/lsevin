@@ -62,6 +62,8 @@ export type PendingWithdrawalRow = {
   destinationAddress: string | null;
   destinationNetwork: string | null;
   createdAt: string;
+  /** Panel user who approved it; they may not also record the payment. */
+  reviewedBy: string | null;
 };
 
 export async function listPendingWithdrawals(limit = 100): Promise<PendingWithdrawalRow[]> {
@@ -81,7 +83,8 @@ export async function listPendingWithdrawals(limit = 100): Promise<PendingWithdr
       w.destination_holder_name as "destinationHolderName",
       w.destination_address as "destinationAddress",
       w.destination_network as "destinationNetwork",
-      w.created_at::text as "createdAt"
+      w.created_at::text as "createdAt",
+      w.reviewed_by::text as "reviewedBy"
     from accounting.withdrawal_requests w
     left join identity.asp_net_users u on u.id = w.user_id
     where w.status in ('pending', 'approved', 'processing')

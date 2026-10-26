@@ -7,7 +7,7 @@ import { readAttachment } from "@/accounting/server/attachments.service";
  *
  * Sits outside the (protected) route group because a route handler has no
  * layout, so the layout's auth gate would never run for it. readAttachment()
- * calls assertAccounting("read") itself, which is what actually guards this — a
+ * calls assertAccounting("books.view") itself, which is what actually guards this — a
  * URL that streams invoices must not rely on where its file happens to live.
  */
 export async function GET(_request: Request, context: { params: Promise<{ id: string }> }) {

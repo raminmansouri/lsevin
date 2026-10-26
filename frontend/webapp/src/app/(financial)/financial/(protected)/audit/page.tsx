@@ -3,12 +3,14 @@ import { getTranslations } from "next-intl/server";
 import { PANEL_LOCALE } from "@/accounting/lib/panel-locale";
 
 import { formatDateTime } from "@/accounting/lib/format";
+import { requirePagePermission } from "@/accounting/server/access";
 import { listAuditLog } from "@/accounting/server/admin-queries";
 import { ExportButtons } from "@/accounting/components/export-buttons";
 import { PageHeader } from "@/components/page/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default async function AuditLogPage() {
+  await requirePagePermission("audit.view");
   const locale = PANEL_LOCALE;
   const t = await getTranslations("Admin.accounting");
   const rows = await listAuditLog();

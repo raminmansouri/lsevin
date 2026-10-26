@@ -2713,6 +2713,8 @@
         "label": "پەسناس"
       },
       "isActive": "چالاک",
+      "addonOnly": "Add-on only (translator, car, ...)",
+      "addonOnlyHelp": "When on, providers of this type appear only in the booking add-ons step, filtered by city, and are hidden from search, home and every other listing.",
       "attributes": "پەسناسی تایبەتمەندی",
       "attributesPlaceholder": "تایبەتمەندی ({count} دیاریکراوە)",
       "create": "دروستکردنی جۆری دابینکەر",
@@ -4207,6 +4209,9 @@
     "serviceImage": "وێنەی خزمەت",
     "serviceManagement": "بەڕێوەبردنی خزمەتەکان",
     "serviceProviderDeleted": "دابینکەری خزمەت سڕایەوە",
+    "duplicateProvider": "کۆپیکردن",
+    "serviceProviderDuplicated": "دابینکەری خزمەت کۆپی کرا",
+    "duplicateServiceProviderConfirm": "کۆپییەک لە {name} دروست بکرێت؟",
     "serviceRoomTypeUUID": "UUIDی جۆری ژووری خزمەت",
     "services": "خزمەتەکان",
     "serviceType": "جۆری خزمەت",
@@ -4857,6 +4862,68 @@
     }
   },
   "Booking": {
+    "mealPlan": {
+      "label": "پلانی نان",
+      "chooseTitle": "پلانی نان هەڵبژێرە",
+      "room_only": {
+        "name": "تەنها ژوور",
+        "description": "نان تێیدا نییە"
+      },
+      "breakfast": {
+        "name": "لەگەڵ بەیانی",
+        "description": "نانی بەیانی تێدایە"
+      },
+      "full_board": {
+        "name": "پانسیۆنی تەواو",
+        "description": "نانی بەیانی، نیوەڕۆ و ئێوارە تێدایە"
+      }
+    },
+    "stay": {
+      "perNight": "بۆ هەر شەوێک",
+      "nightsLine": "ژمارەی شەوەکان: {nights} × {price} بۆ هەر شەوێک",
+      "checkoutAfterCheckin": "بەرواری دەرچوون دەبێت دوای بەرواری چوونەژوورەوە بێت.",
+      "adultsMin": "لانیکەم {min} گەورەساڵ پێویستە.",
+      "decreaseAdults": "کەمکردنەوەی گەورەساڵان",
+      "increaseAdults": "زیادکردنی گەورەساڵان"
+    },
+    "addonScope": {
+      "showAllInCountry": "هەموو لە {country} پیشان بدە",
+      "showOnlyCity": "تەنها {city} پیشان بدە"
+    },
+    "payInPlace": {
+      "heading": "پارەدان لە شوێن: پلانێک هەڵبژێرە",
+      "intro": "بەشێک لە فاکتورەکە ئێستا و ماوەکەی لە شوێن دەدەیت. هەرچەند کەمتر ئێستا بدەیت، ڕێژەی زیادکراو بۆ فاکتورەکە زیاتر دەبێت.",
+      "payNow": "ئێستا {percent}٪ بدە",
+      "surcharge": "{percent}٪ بۆ فاکتورەکە زیاد دەکرێت",
+      "bill": "فاکتور",
+      "dueNow": "ئێستا دەبێت بدرێت",
+      "dueLater": "لە شوێن دەبێت بدرێت",
+      "methodHeading": "دەتەوێت بەشی ئێستا چۆن بدەیت؟",
+      "noMethods": "بۆ پارەدانی بەشی ئێستا جزدان یان پارەدانی ئۆنلاین پێویستە و ئێستا هیچیان بۆ تۆ بەردەست نین.",
+      "loading": "ڕێگاکانی پارەدان بار دەکرێن...",
+      "addition": "زیادەی پارەدان لە شوێن ({percent}٪)",
+      "errors": {
+        "choosePlan": "پلانێکی پارەدان لە شوێن و ڕێگای پارەدانی بەشی ئێستا هەڵبژێرە.",
+        "chooseDepositMethod": "هەڵبژێرە بەشی ئێستا چۆن دەدەیت.",
+        "depositMethodNotAllowed": "بەشی ئێستا دەبێت بە جزدان یان پارەدانی ئۆنلاین بدرێت.",
+        "methodNotAvailable": "ئەم ڕێگای پارەدانە بۆ تۆ بەردەست نییە."
+      }
+    },
+    "builtinPaymentMethods": {
+      "pay_on_delivery": {
+        "name": "پارەدان لە شوێن",
+        "description": "بەشێک لە بڕەکە ئێستا و ماوەکەی بە کاش کاتی پێشکەشکردنی خزمەتگوزارییەکە بدە."
+      },
+      "bank_receipt": {
+        "name": "پسوولەی گواستنەوەی بانکی",
+        "description": "بڕەکە بۆ یەکێک لە هەژمارەکانی خوارەوە بگوازەرەوە و وێنەی پسوولەکە باربکە."
+      },
+      "wallet": {
+        "name": "جزدان",
+        "description": "بە ماوەی جزدانەکەت یەکسەر پارە بدە."
+      }
+    },
+    "timezoneMismatchWarning": "تێبینی: دابینکەر لە ناوچەی کاتی {providerZone} کار دەکات و ناوچەی کاتی تۆ {viewerZone}یە. کاتە پیشاندراوەکان بۆ ناوچەی کاتی تۆ گۆڕدراون.",
     "upcoming": "داهاتوو",
     "past": "ڕابردوو",
     "abuDhabi": "ئەبووزەبی",
@@ -13120,6 +13187,22 @@
     }
   },
   "Shop": {
+    "checkoutHints": {
+      "completeToPay": "بۆ پارەدان ئەمانە تەواو بکە:",
+      "required": "{field} پڕ بکەرەوە.",
+      "minLength": "{field} دەبێت لانیکەم {min} پیت بێت.",
+      "maxLength": "{field} نابێت لە {max} پیت زیاتر بێت.",
+      "email": "ئیمەیڵێکی دروست بنووسە.",
+      "delivery": "شێوازی گەیاندن هەڵبژێرە.",
+      "noDelivery": "گەیاندن بۆ ئەم ناونیشانە بەردەست نییە. شوێنەکە بگۆڕە.",
+      "payment": "شێوازی پارەدان هەڵبژێرە.",
+      "noPayment": "هیچ شێوازێکی پارەدان بەردەست نییە. دواتر هەوڵ بدەرەوە.",
+      "coupon": "ئەم کۆدی داشکاندنە چیتر دروست نییە. سەبەتەکەت بپشکنە.",
+      "unavailable": "پێش پارەدان سەبەتەکەت بپشکنە.",
+      "quoteFailed": "نوێکردنەوەی شێوازەکان سەرکەوتوو نەبوو. بۆ هەوڵدانەوە دابگرە.",
+      "updating": "شێوازەکانی گەیاندن و پارەدان نوێ دەکرێنەوە…",
+      "retryNotice": "داواکارییەکەت تۆمار کرا. پارەدان دووبارە بکەرەوە بەبێ داواکاریی نوێ."
+    },
     "changeCurrency": "گۆڕینی دراوی پیشاندان",
     "currencyChangeFailed": "گۆڕینی دراو سەرکەوتوو نەبوو. تکایە دووبارە هەوڵ بدەوە."
   },

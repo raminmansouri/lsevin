@@ -23,7 +23,9 @@ import {
 } from "@/features/shop/actions/admin-catalog.actions";
 import { ProductCoreForm } from "@/features/shop/components/admin/ProductCoreForm";
 import { ProductGalleryEditor } from "@/features/shop/components/admin/ProductGalleryEditor";
+import { PendingSubmitButton } from "@/features/shop/components/admin/PendingSubmitButton";
 import { ShopDeleteButton } from "@/features/shop/components/admin/ShopDeleteButton";
+import { ServiceDefinitionPicker } from "@/features/shop/components/admin/ServiceDefinitionPicker";
 
 export const dynamic = "force-dynamic";
 
@@ -35,13 +37,14 @@ export default async function AdminProductEditPage({ params }: { params: Promise
   const locale = await getLocale();
   const { id } = await params;
   const [product, categories, services, allAttributes] = await Promise.all([
-    getAdminProductForEdit(id),
+    getAdminProductForEdit(id, locale),
     listAdminCategories(),
     listServiceDefinitionsForPicker(),
-    listAttributesAdmin(),
+    listAttributesAdmin(locale),
   ]);
   if (!product) notFound();
   const attachedIds = new Set((product.attributes ?? []).map((a: any) => a.attribute_id));
+  const attributeValuesById = new Map((allAttributes as any[]).map((a) => [a.id, a.values ?? []]));
 
   const nt = product.name_translations ?? {};
   const dt = product.short_description_translations ?? {};
@@ -82,6 +85,7 @@ export default async function AdminProductEditPage({ params }: { params: Promise
             preorder_deposit_percent: product.preorder_deposit_percent,
             name_translations: nt,
             short_description_translations: dt,
+            description_translations: product.description_translations ?? {},
           }}
           categories={categories.map((c: any) => ({ id: c.id, name: c.name }))}
         />
@@ -97,13 +101,15 @@ export default async function AdminProductEditPage({ params }: { params: Promise
               {product.serviceLinks.map((l: any) => (
                 <li key={l.id} className="flex items-center justify-between rounded border border-gray-100 px-2 py-1 text-sm">
                   <span className={l.broken ? "text-red-600" : ""}>
-                    {l.service_name} <span className="text-gray-400">· {t.has(`relation.${l.relation_type}`) ? t(`relation.${l.relation_type}`) : l.relation_type}</span>
+                    {l.service_name}
+                    {l.service_name_fa && l.service_name_fa !== l.service_name ? <span className="ms-2 text-gray-500">{l.service_name_fa}</span> : null}{" "}
+                    <span className="text-gray-400">· {t.has(`relation.${l.relation_type}`) ? t(`relation.${l.relation_type}`) : l.relation_type}</span>
                     {l.broken ? ` · ${e("brokenRef")}` : ""}
                   </span>
                   <form action={unlinkProductServiceForm}>
                     <input type="hidden" name="linkId" value={l.id} />
                     <input type="hidden" name="productId" value={product.id} />
-                    <button className="text-xs text-red-600">{t("common.remove")}</button>
+                    <PendingSubmitButton className="text-xs text-red-600">{t("common.remove")}</PendingSubmitButton>
                   </form>
                 </li>
               ))}
@@ -111,16 +117,18 @@ export default async function AdminProductEditPage({ params }: { params: Promise
             </ul>
             <form action={linkProductServiceForm} className="space-y-2">
               <input type="hidden" name="productId" value={product.id} />
-              <select name="serviceDefinitionId" className={input}>
-                {services.map((s: any) => (
-                  <option key={s.id} value={s.id}>{s.name}{s.is_active ? "" : ` (${t("common.inactiveShort")})`}</option>
-                ))}
-              </select>
+              <ServiceDefinitionPicker
+                name="serviceDefinitionId"
+                services={services}
+                inactiveLabel={t("common.inactiveShort")}
+                searchPlaceholder={t("common.search")}
+                emptyLabel={t("common.noResults")}
+              />
               <select name="relationType" className={input}>
                 {RELATION.map((r) => <option key={r} value={r}>{t.has(`relation.${r}`) ? t(`relation.${r}`) : r}</option>)}
               </select>
               <input name="displayOrder" type="number" defaultValue={0} className={input} />
-              <button className="w-full rounded bg-[#083f30] px-3 py-2 text-sm font-semibold text-white">{e("addServiceLink")}</button>
+              <PendingSubmitButton className="w-full rounded bg-[#083f30] px-3 py-2 text-sm font-semibold text-white">{e("addServiceLink")}</PendingSubmitButton>
             </form>
           </section>
 
@@ -181,7 +189,8 @@ export default async function AdminProductEditPage({ params }: { params: Promise
             </div>
             <ul className="mb-3 space-y-1">
               {(product.attributes ?? []).map((a: any) => (
-                <li key={a.attribute_id} className="flex items-center justify-between rounded border border-gray-100 px-2 py-1 text-sm">
+                <li key={a.attribute_id} className="space-y-2 rounded border border-gray-100 px-2 py-2 text-sm">
+                  <div className="flex items-center justify-between">
                   <span>
                     {a.name} <span className="font-mono text-xs text-gray-400">{a.slug}</span>
                     {a.is_required ? <span className="ms-1 text-xs text-amber-600">{e("attrRequired")}</span> : null}
@@ -192,6 +201,40 @@ export default async function AdminProductEditPage({ params }: { params: Promise
                     <input type="hidden" name="productId" value={product.id} />
                     <input type="hidden" name="attributeId" value={a.attribute_id} />
                     <button className="text-xs text-red-600">{t("common.remove")}</button>
+                  </form>
+                  </div>
+                  <form action={setProductAttributeForm} className="space-y-2">
+                    <input type="hidden" name="productId" value={product.id} />
+                    <input type="hidden" name="attributeId" value={a.attribute_id} />
+                    <input type="hidden" name="displayOrder" value={a.display_order} />
+                    <input type="hidden" name="setValues" value="1" />
+                    {a.is_required ? <input type="hidden" name="isRequired" value="on" /> : null}
+                    {a.display_type === "text" ? (
+                      <div className="grid gap-2 sm:grid-cols-3">
+                        {(["en", "fa", "ar"] as const).map((lang) => (
+                          <input
+                            key={lang}
+                            name={`textValue_${lang}`}
+                            dir={lang === "en" ? "ltr" : "rtl"}
+                            defaultValue={a.text_value_translations?.[lang] ?? (lang === "en" ? a.text_value ?? "" : "")}
+                            placeholder={`${e("attrTextValue")} (${lang.toUpperCase()})`}
+                            className={input}
+                          />
+                        ))}
+                      </div>
+                    ) : (attributeValuesById.get(a.attribute_id) ?? []).length ? (
+                      <div className="flex flex-wrap gap-2">
+                        {(attributeValuesById.get(a.attribute_id) ?? []).map((v: any) => (
+                          <label key={v.id} className="flex items-center gap-1 rounded-full border border-gray-200 px-2 py-1 text-xs">
+                            <input type="checkbox" name="valueIds" value={v.id} defaultChecked={(a.value_ids ?? []).includes(v.id)} />
+                            {v.name || v.value}
+                          </label>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-xs text-gray-400">{e("attrNoValues")}</p>
+                    )}
+                    <button className="rounded bg-[#083f30]/10 px-3 py-1 text-xs font-semibold text-[#083f30] transition duration-150 hover:bg-[#083f30]/20 active:scale-95 active:bg-[#083f30] active:text-white">{e("attrSaveValues")}</button>
                   </form>
                 </li>
               ))}

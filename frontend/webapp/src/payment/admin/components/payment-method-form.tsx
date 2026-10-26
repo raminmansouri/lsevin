@@ -43,7 +43,7 @@ export function PaymentMethodForm({ method }: { method: PaymentMethodConfig }) {
       bankAccounts: method.configuration.bankAccounts?.length
         ? method.configuration.bankAccounts
         : isBankReceipt
-          ? [{ id: newBankAccountId(), bankName: "", accountHolder: "", accountNumber: "", iban: "", cardNumber: "", note: "" }]
+          ? [{ id: newBankAccountId(), bankName: "", accountHolder: "", accountNumber: "", iban: "", cardNumber: "", note: "", audience: "iran" }]
           : [],
     },
   });
@@ -241,6 +241,26 @@ export function PaymentMethodForm({ method }: { method: PaymentMethodConfig }) {
                           </FormItem>
                         )}
                       />
+                        <FormField
+                            control={form.control}
+                            name={`bankAccounts.${index}.audience`}
+                            render={({ field: f }) => (
+                                <FormItem className="md:col-span-2">
+                                    <FormLabel>این حساب برای چه کاربرانی نمایش داده شود؟</FormLabel>
+                                    <FormControl>
+                                        <select
+                                            value={f.value || "iran"}
+                                            onChange={(event) => f.onChange(event.target.value)}
+                                            disabled={isPending}
+                                            className="h-10 w-full rounded-md border bg-background px-3 text-sm"
+                                        >
+                                            <option value="iran">کاربران ایرانی</option>
+                                            <option value="international">کاربران خارجی</option>
+                                        </select>
+                                    </FormControl>
+                                </FormItem>
+                            )}
+                        />
                       <FormField
                         control={form.control}
                         name={`bankAccounts.${index}.note`}
@@ -262,7 +282,7 @@ export function PaymentMethodForm({ method }: { method: PaymentMethodConfig }) {
                   variant="outline"
                   disabled={isPending}
                   onClick={() =>
-                    append({ id: newBankAccountId(), bankName: "", accountHolder: "", accountNumber: "", iban: "", cardNumber: "", note: "" })
+                    append({ id: newBankAccountId(), bankName: "", accountHolder: "", accountNumber: "", iban: "", cardNumber: "", note: "", audience: "iran" })
                   }
                 >
                   <Plus className="mr-2 h-4 w-4" />

@@ -55,6 +55,10 @@ export function ProductCreateForm({ categories }: { categories: Array<{ id: stri
           primaryCategoryId: values.primaryCategoryId || undefined,
           categoryIds: values.categoryIds,
         });
+        if ("error" in res) {
+          toast.error(res.error);
+          return;
+        }
         toast.success(t("common.saved"));
         router.push(`/admin/shop/products/${res.id}`);
       } catch (error) {

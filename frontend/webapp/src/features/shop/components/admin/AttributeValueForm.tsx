@@ -35,6 +35,7 @@ export function AttributeValueForm({ attributeId }: { attributeId: string }) {
       value: "",
       labelEn: "",
       labelFa: "",
+      labelAr: "",
       colorHex: "",
       imageUrl: "",
     },
@@ -45,11 +46,12 @@ export function AttributeValueForm({ attributeId }: { attributeId: string }) {
       try {
         await addAttributeValueAction({
           attributeId: values.attributeId,
-          value: values.value,
+          // The internal value is derived from the labels on the server.
+          value: "",
           displayNameTranslations: {
             en: values.labelEn,
             fa: values.labelFa,
-            ar: "",
+            ar: values.labelAr,
           },
           colorHex: values.colorHex || null,
           imageUrl: values.imageUrl || null,
@@ -60,6 +62,7 @@ export function AttributeValueForm({ attributeId }: { attributeId: string }) {
           value: "",
           labelEn: "",
           labelFa: "",
+          labelAr: "",
           colorHex: "",
           imageUrl: "",
         });
@@ -102,11 +105,9 @@ export function AttributeValueForm({ attributeId }: { attributeId: string }) {
   return (
     <Form {...form}>
       <form onSubmit={onSubmit} className="flex flex-wrap items-start gap-1.5">
-        {cell("value", t("valuePlaceholder"), "h-8 w-32 text-xs", {
-          dir: "ltr",
-        })}
         {cell("labelEn", t("labelEn"), "h-8 w-28 text-xs", { dir: "ltr" })}
         {cell("labelFa", t("labelFa"), "h-8 w-24 text-xs", { dir: "rtl" })}
+        {cell("labelAr", t("labelAr"), "h-8 w-24 text-xs", { dir: "rtl" })}
         {cell("colorHex", t("hexPlaceholder"), "h-8 w-20 text-xs", {
           dir: "ltr",
         })}

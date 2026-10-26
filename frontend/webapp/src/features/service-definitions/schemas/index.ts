@@ -33,6 +33,7 @@ export const ServiceDefinitionSchema = z.object({
     // most service types (clinics, hospitals) do need one. Provider types with
     // no specialists (hotels, etc.) should explicitly uncheck this.
     requiresSpecialist: z.boolean().default(false),
+    bookingUiMode: z.enum(['default_slot', 'date_range', 'custom_form']).default('default_slot'),
 });
 
 export const ServiceDefinitionFormSchema = ServiceDefinitionSchema;

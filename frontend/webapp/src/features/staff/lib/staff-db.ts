@@ -221,7 +221,15 @@ export async function getStaffFormOptions(localeOrRequest?: Partial<BaseRequest>
         sd.currency::text as currency,
         sd.value::float8 as value,
         sd.duration_minutes as "durationMinutes",
-        sd.is_active as "isActive"
+        sd.is_active as "isActive",
+        coalesce(
+          (
+            select array_agg(distinct ps.service_provider_id::text)
+            from category.provider_services ps
+            where ps.service_definition_id = sd.id
+          ),
+          '{}'::text[]
+        ) as "providerIds"
       from category.service_definitions sd
       join category.categories c on c.id = sd.category_id
       order by sd.is_active desc, name asc
@@ -282,6 +290,10 @@ type StaffLookupRequest = {
   q?: string;
   page?: number;
   pageSize?: number;
+  /** Comma-separated provider ids; when present, serviceDefinitions only returns services those providers offer. */
+  providerIds?: string | null;
+  /** Filter provider services by provider type English name, e.g. "tourism". */
+  providerTypeKey?: string | null;
 };
 
 function staticLookupResult(items: StaffLookupOption[], request: StaffLookupRequest): StaffLookupResult {
@@ -379,6 +391,10 @@ export async function searchStaffLookupOptions(request: StaffLookupRequest): Pro
   }
 
   if (resource === "serviceDefinitions") {
+    const providerFilterRequested = request.providerIds !== undefined && request.providerIds !== null;
+    const providerIds = uniqueText(splitCsv(request.providerIds ?? undefined));
+    if (providerFilterRequested && providerIds.length === 0) return { items: [], hasMore: false, page, pageSize };
+
     const rows = await sql<(StaffLookupOption & { totalCount: number })[]>`
       select
         sd.id::text as id,
@@ -389,12 +405,23 @@ export async function searchStaffLookupOptions(request: StaffLookupRequest): Pro
         count(*) over()::int as "totalCount"
       from category.service_definitions sd
       left join category.categories c on c.id = sd.category_id
-      where ${search === ""}
-        or sd.id::text = ${search}
-        or ${allTranslationValuesMatch("sd.name_translations", like)}
-        or ${allTranslationValuesMatch("sd.description_translations", like)}
-        or ${allTranslationValuesMatch("c.name_translations", like)}
-        or sd.pricing_model ilike ${like}
+      where (
+          ${search === ""}
+          or sd.id::text = ${search}
+          or ${allTranslationValuesMatch("sd.name_translations", like)}
+          or ${allTranslationValuesMatch("sd.description_translations", like)}
+          or ${allTranslationValuesMatch("c.name_translations", like)}
+          or sd.pricing_model ilike ${like}
+        )
+        and (
+          ${!providerFilterRequested}
+          or exists (
+            select 1
+            from category.provider_services ps
+            where ps.service_definition_id = sd.id
+              and ps.service_provider_id::text = any(${providerIds}::text[])
+          )
+        )
       order by sd.is_active desc, label asc, sd.create_date desc
       limit ${pageSize} offset ${offset}
     `;
@@ -403,20 +430,32 @@ export async function searchStaffLookupOptions(request: StaffLookupRequest): Pro
   }
 
   if (resource === "providerServices") {
+    // Optional provider-type filter by English name (e.g. "tourism"), stable across databases.
+    const typeKey = request.providerTypeKey?.trim().toLowerCase() || null;
     const rows = await sql<(StaffLookupOption & { totalCount: number })[]>`
       select
         ps.id::text as id,
-        ${tr("ps.display_name_translations", locale)} as label,
-        concat_ws(' • ', nullif(${tr("sp.name_translations", locale)}, ''), ps.currency::text, ps.value::text) as description,
+        -- Most rows have no per-provider display name; fall back to the service's own name.
+        coalesce(
+          nullif(${tr("ps.display_name_translations", locale)}, ''),
+          nullif(${tr("sd.name_translations", locale)}, '')
+        ) as label,
+        concat_ws(' • ', nullif(${tr("sp.name_translations", locale)}, ''), nullif(btrim(sp.city), '')) as description,
         null::text as code,
         ps.is_active as "isActive",
         count(*) over()::int as "totalCount"
       from category.provider_services ps
       join category.service_providers sp on sp.id = ps.service_provider_id
-      where ${search === ""}
-        or ps.id::text = ${search}
-        or ${allTranslationValuesMatch("ps.display_name_translations", like)}
-        or ${allTranslationValuesMatch("sp.name_translations", like)}
+      join category.service_definitions sd on sd.id = ps.service_definition_id
+      left join category.provider_types pt on pt.id = sp.provider_type_id
+      where (
+          ${search === ""}
+          or ps.id::text = ${search}
+          or ${allTranslationValuesMatch("ps.display_name_translations", like)}
+          or ${allTranslationValuesMatch("sd.name_translations", like)}
+          or ${allTranslationValuesMatch("sp.name_translations", like)}
+        )
+        and ${typeKey ? sql`lower(pt.name_translations->>'en-US') = ${typeKey}` : sql`true`}
       order by ps.is_active desc, label asc, ps.create_date desc
       limit ${pageSize} offset ${offset}
     `;
@@ -784,7 +823,38 @@ async function clearStaffChildren(db: QueryLike, staffId: string) {
   await db`delete from category.staff_before_after where staff_id = ${staffId}`;
 }
 
+// A staff member may only perform services offered by at least one of the providers they are assigned to.
+async function assertServicesOfferedByAssignedProviders(db: QueryLike, input: StaffMutationInput) {
+  const serviceDefinitionIds = uniqueText((input.services || []).map((service) => service.serviceDefinitionId));
+  if (serviceDefinitionIds.length === 0) return;
+
+  const providerIds = uniqueText((input.providerAssignments || []).map((provider) => provider.serviceProviderId));
+  if (providerIds.length === 0) {
+    throw new Error("Assign at least one provider before adding services. Services must be offered by the staff member's providers.");
+  }
+
+  const rows = await db<{ id: string }[]>`
+    select distinct ps.service_definition_id::text as id
+    from category.provider_services ps
+    where ps.service_provider_id::text = any(${providerIds}::text[])
+      and ps.service_definition_id::text = any(${serviceDefinitionIds}::text[])
+  `;
+  const offered = new Set(rows.map((row) => row.id));
+  const notOffered = serviceDefinitionIds.filter((id) => !offered.has(id));
+  if (notOffered.length > 0) {
+    const names = await db<{ name: string }[]>`
+      select coalesce(${tr("sd.name_translations", FALLBACK_LOCALE)}, sd.id::text) as name
+      from category.service_definitions sd
+      where sd.id::text = any(${notOffered}::text[])
+    `;
+    const label = names.map((row) => row.name).join(", ") || notOffered.join(", ");
+    throw new Error(`These services are not offered by any of the selected providers: ${label}`);
+  }
+}
+
 async function insertStaffChildren(db: QueryLike, staffId: string, input: StaffMutationInput) {
+  await assertServicesOfferedByAssignedProviders(db, input);
+
   for (const provider of input.providerAssignments || []) {
     if (!provider.serviceProviderId) continue;
     await db`

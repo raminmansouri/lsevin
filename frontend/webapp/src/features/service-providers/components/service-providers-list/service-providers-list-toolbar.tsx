@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useState, useTransition, useRef } from "react";
 import { Search, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -22,11 +22,21 @@ export const ServiceProvidersListToolbar = () => {
   const [, startTransition] = useTransition();
   const [search, setSearch] = useState(searchParams.get("filters") || "");
 
+  // Last search text we wrote to the URL ourselves. The URL lags behind typing, so
+  // refilling the box on every URL change deleted letters typed in the meantime.
+  const lastCommittedRef = useRef(searchParams.get("filters") || "");
+
   useEffect(() => {
-    setSearch(searchParams.get("filters") || "");
+    const fromUrl = searchParams.get("filters") || "";
+    // Only take the URL value when it changed from outside (back button, reset, link).
+    if (fromUrl !== lastCommittedRef.current) {
+      lastCommittedRef.current = fromUrl;
+      setSearch(fromUrl);
+    }
   }, [searchParams]);
 
   const commitSearch = useDebouncedCallback((value: string) => {
+    lastCommittedRef.current = value.trim();
     const params = new URLSearchParams(searchParams.toString());
     const normalized = value.trim();
 

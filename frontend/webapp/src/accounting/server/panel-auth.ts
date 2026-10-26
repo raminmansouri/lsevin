@@ -6,6 +6,10 @@ import { cookies, headers } from "next/headers";
 
 import db from "@/config/database/db";
 
+import type { PanelRole } from "./permissions";
+
+export type { PanelRole } from "./permissions";
+
 // promisify's overloads do not cover scrypt's 4-argument form with options.
 function scrypt(
   password: string,
@@ -41,11 +45,20 @@ const SCRYPT_r = 8;
 const SCRYPT_p = 1;
 const KEY_LEN = 64;
 
+/**
+ * `finance_admin` is the old name for `manager` (migration 0075 renames it). Read as
+ * manager here so a deploy that reaches the app before the migration does not lock the
+ * finance admins out of the panel.
+ */
+function normalizeRole(role: string): PanelRole {
+  return role === "finance_admin" ? "manager" : (role as PanelRole);
+}
+
 export type PanelUser = {
   id: string;
   username: string;
   displayName: string;
-  role: "accountant" | "finance_admin";
+  role: PanelRole;
   mustChangePassword: boolean;
 };
 
@@ -196,7 +209,7 @@ export async function signIn(input: { username: string; password: string }): Pro
       id: user.id,
       username: user.username,
       displayName: user.display_name,
-      role: user.role,
+      role: normalizeRole(user.role),
       mustChangePassword: user.must_change_password,
     },
   };
@@ -233,7 +246,7 @@ export async function getPanelUser(): Promise<PanelUser | null> {
     id: row.id,
     username: row.username,
     displayName: row.display_name,
-    role: row.role,
+    role: normalizeRole(row.role),
     mustChangePassword: row.must_change_password,
   };
 }

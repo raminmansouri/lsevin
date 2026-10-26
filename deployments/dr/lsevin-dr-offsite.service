@@ -1,0 +1,10 @@
+[Unit]
+Description=Encrypted off-site copy of recovery material (database dumps + configuration)
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/lsevin-dr-offsite
+Nice=10
+IOSchedulingClass=idle
+TimeoutStartSec=3h

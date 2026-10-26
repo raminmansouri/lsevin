@@ -19,7 +19,7 @@ import {
  *
  * Every export of a `"use server"` module is a public POST endpoint reachable by
  * action id, not by URL. The service each of these calls begins with
- * assertAccounting("operate") — that is the authorization boundary, not this file.
+ * assertAccounting(...) — that is the authorization boundary, not this file.
  */
 
 export type InvoiceFormState = { error?: string; ok?: string; invoiceNumber?: string };

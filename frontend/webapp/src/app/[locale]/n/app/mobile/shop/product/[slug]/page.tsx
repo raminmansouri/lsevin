@@ -9,12 +9,13 @@ import { ProductDetailClient } from "@/features/shop/components/ProductDetailCli
 import { ProductGrid } from "@/features/shop/components/home-sections";
 import { ShopPrice } from "@/features/shop/components/ShopPrice";
 import { WishlistHeart } from "@/features/shop/components/WishlistHeart";
-import { getProductsForService } from "@/features/shop/api/service-relations.repository";
 import { CompareButton } from "@/features/shop/components/CompareButton";
-import { ServiceRelatedRail } from "@/features/shop/components/ServiceRelatedRail";
 import { ProductPersonalSections } from "@/features/shop/components/ProductPersonalSections";
 import { shopImageSrc } from "@/features/shop/lib/image";
 import { ConsultationCtaButton } from "@/features/consultation/components/consultation-cta-button";
+
+
+import { ProductSpecs } from "@/features/shop/components/ProductSpecs";
 
 // Customer currency is resolved per request; product data remains cached.
 export const dynamic = "force-dynamic";
@@ -54,15 +55,8 @@ export default async function ProductDetailPage({
   const product = await getProductBySlugCached(slug, locale);
   if (!product) notFound();
 
-  const primaryServiceId = product.relatedServices[0]?.serviceDefinitionId ?? null;
-  const serviceRelated = primaryServiceId
-    ? await getProductsForService(primaryServiceId, { limit: 16, locale, displayCurrency: "USD", noFx: true }).catch(() => null)
-    : null;
-  const serviceRelatedCount =
-    serviceRelated?.byRelation.reduce((n, g) => n + g.products.length, 0) ?? 0;
-
   return (
-    <div className="min-h-screen bg-neutral-50 pb-40">
+    <div className="min-h-screen bg-neutral-50 pb-56">
       <ShopHeader currency={product.currency} back="/n/app/mobile/shop" />
 
       <div className="bg-white">
@@ -178,33 +172,13 @@ export default async function ProductDetailPage({
         </div>
       </div>
 
+      <ProductSpecs productId={product.id} locale={locale} />
+
       {product.description ? (
         <section className="mt-2 bg-white p-4">
           <h2 className="mb-2 text-sm font-bold text-neutral-900">{t("description")}</h2>
           <p className="whitespace-pre-wrap text-sm leading-relaxed text-neutral-600">{product.description}</p>
         </section>
-      ) : null}
-
-      {product.relatedServices.length ? (
-        <section className="mt-2 bg-white p-4">
-          <h2 className="mb-2 text-sm font-bold text-neutral-900">{t("relatedServices")}</h2>
-          <div className="flex flex-wrap gap-2">
-            {product.relatedServices.map((s) => (
-              <span key={s.serviceDefinitionId} className="rounded-full bg-[#083f30]/5 px-3 py-1 text-xs font-medium text-[#083f30]">
-                {s.name || s.relationType}
-              </span>
-            ))}
-          </div>
-        </section>
-      ) : null}
-
-      {serviceRelated && serviceRelated.byRelation.length ? (
-        <ServiceRelatedRail
-          serviceDefinitionId={serviceRelated.serviceDefinitionId}
-          serviceName={serviceRelated.serviceName}
-          groups={serviceRelated.byRelation}
-          locale={locale}
-        />
       ) : null}
 
       {product.relatedProducts.length ? (
@@ -222,8 +196,6 @@ export default async function ProductDetailPage({
         reviews={product.reviews}
         reviewCount={product.reviewCount}
         questions={product.questions}
-        relatedServiceKey={serviceRelated?.serviceDefinitionId ?? null}
-        relatedServiceCount={serviceRelatedCount}
       />
 
       <div className="p-4 text-center">

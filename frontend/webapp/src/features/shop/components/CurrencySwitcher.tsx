@@ -40,7 +40,10 @@ export function CurrencySwitcher({ className }: { className?: string }) {
           value={option.code}
           className="bg-white text-neutral-900"
         >
-          {currencyLabel(option.code, locale)} ({option.code})
+          {currencyLabel(option.code, locale)}
+          {!["IRR", "IRT"].includes(option.code.toUpperCase())
+            ? ` (${option.code})`
+            : ""}
         </option>
       ))}
     </select>

@@ -19,9 +19,12 @@ import {
 export function InvoiceRowActions({
   invoiceId,
   status,
+  canIssue,
 }: {
   invoiceId: string;
   status: "draft" | "issued" | "cancelled";
+  /** Issuing posts a document and cancelling reverses one: managers only. */
+  canIssue: boolean;
 }) {
   const [issueState, issue, issuing] = useActionState<InvoiceFormState, FormData>(
     issueInvoiceAction,
@@ -44,15 +47,17 @@ export function InvoiceRowActions({
       <div className="flex flex-wrap gap-1">
         {status === "draft" && (
           <>
-            <form action={issue}>
-              <input type="hidden" name="invoice-id" value={invoiceId} />
-              <button
-                disabled={issuing}
-                className="rounded border border-emerald-300 px-2 py-1 text-xs text-emerald-700 disabled:opacity-40"
-              >
-                صدور فاکتور و ثبت سند
-              </button>
-            </form>
+            {canIssue && (
+              <form action={issue}>
+                <input type="hidden" name="invoice-id" value={invoiceId} />
+                <button
+                  disabled={issuing}
+                  className="rounded border border-emerald-300 px-2 py-1 text-xs text-emerald-700 disabled:opacity-40"
+                >
+                  صدور فاکتور و ثبت سند
+                </button>
+              </form>
+            )}
             <form action={remove}>
               <input type="hidden" name="invoice-id" value={invoiceId} />
               <button
@@ -65,7 +70,7 @@ export function InvoiceRowActions({
           </>
         )}
 
-        {status === "issued" && (
+        {status === "issued" && canIssue && (
           <form
             action={cancel}
             className="flex items-center gap-1"

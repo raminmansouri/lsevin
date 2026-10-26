@@ -1,0 +1,226 @@
+# Server A (Iran-facing). Plain HTTP: A cannot reach an ACME CA, and lsevincare.com is
+# fronted by Cloudflare. Upstreams are the k3s NodePorts on this host (--network host).
+{
+	auto_https off
+	order geoip2_vars first
+	geoip2 {
+		databaseDirectory "/etc/caddy/geoip"
+		editionID "dbip-country-lite"
+		updateFrequency 0
+	}
+}
+
+(app_backend) {
+	@backend path /api/v1/* /hubs/* /hubs /hc /liveness /readiness
+	handle @backend {
+		reverse_proxy 127.0.0.1:30081 {
+			header_up X-Forwarded-For {remote_host}
+		}
+	}
+	handle_path /files/* {
+		header Cache-Control "public,max-age=31536000,immutable"
+		header -Server
+		rewrite * /files{uri}
+		reverse_proxy 127.0.0.1:30081 {
+			header_up X-Forwarded-For {remote_host}
+		}
+	}
+}
+
+http://lsevincare.com, http://appmain.lsevin.com {
+	log
+	encode zstd gzip
+	geoip2_vars strict
+	import app_backend
+	handle {
+		reverse_proxy 127.0.0.1:30080 {
+			header_up X-Country {geoip2.country_code}
+			health_uri /sw.js
+			health_interval 10s
+			health_timeout 10s
+			health_fails 3
+			health_passes 1
+			# one backend: wait for it (up to 10 s) instead of answering 503 instantly while it is busy or restarting
+			lb_try_duration 10s
+			lb_try_interval 250ms
+		}
+	}
+}
+
+http://api.lsevin.com {
+	log
+	encode zstd gzip
+	handle_path /files/* {
+		header Cache-Control "public,max-age=31536000,immutable"
+		rewrite * /files{uri}
+		reverse_proxy 127.0.0.1:30081 {
+			header_up X-Forwarded-For {remote_host}
+		}
+	}
+	handle {
+		reverse_proxy 127.0.0.1:30081 {
+			header_up X-Forwarded-For {remote_host}
+		}
+	}
+}
+
+http://crm.lsevin.com {
+	log
+	encode zstd gzip
+	reverse_proxy 127.0.0.1:30082
+}
+
+http://providers.lsevin.com {
+	log
+	encode zstd gzip
+	reverse_proxy 127.0.0.1:30083
+}
+
+# health status for monitors / the failover logic
+
+
+
+
+# ---- lsevin.ir = THE Iranian domain (DNS + CDN at ArvanCloud -> this server). Served directly: the ArvanCloud edge is
+# reachable from every Iranian operator, A's own address is not reachable from some mobile networks.
+# The certificate is issued/renewed on B (DNS-01 via CNAME) and fetched here; it covers lsevin.ir and *.lsevin.ir.
+http://lsevin.ir, http://www.lsevin.ir {
+	# direct visitors (no CDN in front) get HTTPS; requests that come through a CDN carry X-Forwarded-For and are left alone,
+	# otherwise a CDN that talks plain HTTP to this origin would loop forever
+	@direct not header X-Forwarded-For *
+	redir @direct https://{host}{uri} 308
+	log
+	encode zstd gzip
+	geoip2_vars strict
+	import app_backend
+	handle /app-health {
+		header Cache-Control no-store
+		reverse_proxy 127.0.0.1:30080 {
+			rewrite /api/health
+			@healthy status 200
+			handle_response @healthy {
+				respond 204
+			}
+		}
+	}
+	handle {
+		reverse_proxy 127.0.0.1:30080 {
+			header_up X-Country {geoip2.country_code}
+			health_uri /sw.js
+			health_interval 10s
+			health_timeout 10s
+			health_fails 3
+			health_passes 1
+			# one backend: wait for it (up to 10 s) instead of answering 503 instantly while it is busy or restarting
+			lb_try_duration 10s
+			lb_try_interval 250ms
+		}
+	}
+}
+
+https://lsevin.ir, https://www.lsevin.ir {
+	tls /certs/lsevin-ir.crt /certs/lsevin-ir.key
+	log
+	encode zstd gzip
+	geoip2_vars strict
+	import app_backend
+	handle /app-health {
+		header Cache-Control no-store
+		reverse_proxy 127.0.0.1:30080 {
+			rewrite /api/health
+			@healthy status 200
+			handle_response @healthy {
+				respond 204
+			}
+		}
+	}
+	handle {
+		reverse_proxy 127.0.0.1:30080 {
+			header_up X-Country {geoip2.country_code}
+			health_uri /sw.js
+			health_interval 10s
+			health_timeout 10s
+			health_fails 3
+			health_passes 1
+			# one backend: wait for it (up to 10 s) instead of answering 503 instantly while it is busy or restarting
+			lb_try_duration 10s
+			lb_try_interval 250ms
+		}
+	}
+}
+
+# ir.lsevincare.com (DNS only, direct to this server) now just forwards to the main Iranian domain
+http://ir.lsevincare.com {
+	redir https://lsevin.ir{uri} 302
+}
+
+https://ir.lsevincare.com {
+	tls /certs/ir.crt /certs/ir.key
+	redir https://lsevin.ir{uri} 302
+}
+
+:80 {
+	log
+	handle /__lsevin/health {
+		root * /health
+		rewrite * /status.json
+		header Cache-Control no-store
+		file_server
+	}
+	respond "not found" 404
+}
+
+# --- CRM, providers portal and financial panel on the Iranian domain (certificate: *.lsevin.ir) ---
+(ir_crm) {
+	log
+	encode zstd gzip
+	reverse_proxy 127.0.0.1:30082
+}
+(ir_providers) {
+	log
+	encode zstd gzip
+	reverse_proxy 127.0.0.1:30083
+}
+# The financial panel is served by the main webapp: it selects the panel from the host name (financial.*).
+(ir_financial) {
+	log
+	encode zstd gzip
+	reverse_proxy 127.0.0.1:30080 {
+		header_up X-Country {geoip2.country_code}
+	}
+}
+http://crm.lsevin.ir {
+	# direct visitors (no CDN in front) get HTTPS; requests that come through a CDN carry X-Forwarded-For and are left alone,
+	# otherwise a CDN that talks plain HTTP to this origin would loop forever
+	@direct not header X-Forwarded-For *
+	redir @direct https://{host}{uri} 308
+	import ir_crm
+}
+https://crm.lsevin.ir {
+	tls /certs/lsevin-ir.crt /certs/lsevin-ir.key
+	import ir_crm
+}
+http://providers.lsevin.ir {
+	# direct visitors (no CDN in front) get HTTPS; requests that come through a CDN carry X-Forwarded-For and are left alone,
+	# otherwise a CDN that talks plain HTTP to this origin would loop forever
+	@direct not header X-Forwarded-For *
+	redir @direct https://{host}{uri} 308
+	import ir_providers
+}
+https://providers.lsevin.ir {
+	tls /certs/lsevin-ir.crt /certs/lsevin-ir.key
+	import ir_providers
+}
+http://financial.lsevin.ir {
+	# direct visitors (no CDN in front) get HTTPS; requests that come through a CDN carry X-Forwarded-For and are left alone,
+	# otherwise a CDN that talks plain HTTP to this origin would loop forever
+	@direct not header X-Forwarded-For *
+	redir @direct https://{host}{uri} 308
+	geoip2_vars strict
+	import ir_financial
+}
+https://financial.lsevin.ir {
+	tls /certs/lsevin-ir.crt /certs/lsevin-ir.key
+	geoip2_vars strict
+	import ir_financial
+}

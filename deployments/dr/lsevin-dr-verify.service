@@ -1,0 +1,10 @@
+[Unit]
+Description=Restore test of the newest database dump into a scratch database
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/lsevin-dr-verify
+Nice=15
+IOSchedulingClass=idle
+TimeoutStartSec=2h

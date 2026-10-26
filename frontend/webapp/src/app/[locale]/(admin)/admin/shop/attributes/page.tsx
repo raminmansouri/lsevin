@@ -1,13 +1,21 @@
 import Link from "next/link";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 
 import { listAttributesAdmin } from "@/features/shop/api/admin.repository";
-import { deleteAttributeAction, deleteAttributeValueAction } from "@/features/shop/actions/admin-catalog.actions";
+import {
+  deleteAttributeAction,
+  deleteAttributeValueAction,
+  updateAttributeValueForm,
+  upsertAttributeForm,
+} from "@/features/shop/actions/admin-catalog.actions";
 import { AttributeForm } from "@/features/shop/components/admin/AttributeForm";
 import { AttributeValueForm } from "@/features/shop/components/admin/AttributeValueForm";
 import { ShopDeleteButton } from "@/features/shop/components/admin/ShopDeleteButton";
 
 export const dynamic = "force-dynamic";
+
+const LANGS = ["en", "fa", "ar"] as const;
+const cellInput = "h-8 w-full rounded border border-gray-200 px-2 text-xs";
 
 /**
  * SHP-ADM-007 — attributes and their values. `is_variant_defining` attributes
@@ -15,7 +23,7 @@ export const dynamic = "force-dynamic";
  */
 export default async function AdminAttributesPage() {
   const t = await getTranslations("ShopAdmin");
-  const attributes = await listAttributesAdmin();
+  const attributes = await listAttributesAdmin(await getLocale());
 
   return (
     <div className="min-h-screen bg-gray-50 px-6 py-6">
@@ -41,8 +49,9 @@ export default async function AdminAttributesPage() {
                 <ShopDeleteButton
                   action={deleteAttributeAction.bind(null, { id: a.id })}
                   title={`${t("attributes.delete")} — ${a.name}`}
-                  description={t("attributes.title")}
-                  disabled={a.product_count > 0}
+                  description={
+                    a.product_count > 0 ? t("attributes.deleteInUse", { n: a.product_count }) : t("attributes.title")
+                  }
                   variant="ghost"
                 />
               </div>
@@ -65,6 +74,47 @@ export default async function AdminAttributesPage() {
               </div>
 
               <AttributeValueForm attributeId={a.id} />
+
+              {/* Existing names/labels were often saved without Arabic (the value form had no AR field), so the
+                  storefront fell back to English. These forms fill in the missing languages in place. */}
+              <details className="mt-3 rounded-xl border border-gray-100 p-3">
+                <summary className="cursor-pointer text-xs font-semibold text-[#083f30]">{t("attributes.editTranslations")}</summary>
+                <form action={upsertAttributeForm} className="mt-3 grid gap-1.5 sm:grid-cols-[repeat(3,1fr),auto]">
+                  <input type="hidden" name="id" value={a.id} />
+                  <input type="hidden" name="slug" value={a.slug} />
+                  <input type="hidden" name="displayType" value={a.display_type} />
+                  {a.is_variant_defining ? <input type="hidden" name="isVariantDefining" value="on" /> : null}
+                  {LANGS.map((lang) => (
+                    <input
+                      key={lang}
+                      name={`name_${lang}`}
+                      dir={lang === "en" ? "ltr" : "rtl"}
+                      defaultValue={a.name_translations?.[lang] ?? ""}
+                      placeholder={t(`attributes.name${lang === "en" ? "En" : lang === "fa" ? "Fa" : "Ar"}` as never)}
+                      required={lang === "en"}
+                      className={cellInput}
+                    />
+                  ))}
+                  <button className="h-8 rounded bg-[#083f30] px-3 text-xs font-semibold text-white">{t("common.save")}</button>
+                </form>
+                {(a.values ?? []).map((v: any) => (
+                  <form key={v.id} action={updateAttributeValueForm} className="mt-1.5 grid items-center gap-1.5 sm:grid-cols-[8rem,repeat(3,1fr),auto]">
+                    <input type="hidden" name="id" value={v.id} />
+                    <span className="truncate font-mono text-xs text-gray-500" dir="ltr">{v.value}</span>
+                    {LANGS.map((lang) => (
+                      <input
+                        key={lang}
+                        name={`label_${lang}`}
+                        dir={lang === "en" ? "ltr" : "rtl"}
+                        defaultValue={v.translations?.[lang] ?? ""}
+                        placeholder={t(`attributes.label${lang === "en" ? "En" : lang === "fa" ? "Fa" : "Ar"}` as never)}
+                        className={cellInput}
+                      />
+                    ))}
+                    <button className="h-8 rounded bg-[#083f30]/10 px-3 text-xs font-semibold text-[#083f30]">{t("common.save")}</button>
+                  </form>
+                ))}
+              </details>
             </section>
           ))}
           {!attributes.length ? <p className="text-sm text-gray-400">{t("attributes.noAttributes")}</p> : null}

@@ -5,6 +5,8 @@ import { getCategoryBrowserGroups } from "@/features/service-providers/actions/c
 import { CategoryBrowserClient } from "@/features/service-providers/components/categories/category-browser-client";
 import { SponsoredPlacementSlot } from "@/features/sponsered-slider/components/sponsored-placement-slot";
 import { buildPublicMetadata } from "@/lib/seo/metadata";
+import { getTourSettings } from "@/features/tours/server/platform/settings";
+
 
 export async function generateMetadata({
   params,
@@ -40,12 +42,18 @@ export default async function CategoryBrowserPage({
   // publish an empty catalog as a successful render during a database outage.
   const data = await getCategoryBrowserGroups(locale);
 
+  // Tourism opens the Tours sub-application (C-001); its id is configuration, not code.
+  const tourismCategoryId = await getTourSettings()
+    .then((s) => s.tourismCategoryId)
+    .catch(() => null);
+
   return (
     <Suspense fallback={null}>
       <CategoryBrowserClient
         categoryGroups={data.groups}
         totalCategories={data.totalCategories}
         totalProviders={data.totalProviders}
+        tourismCategoryId={tourismCategoryId}
       />
       <SponsoredPlacementSlot locale={locale} placement="categories" />
     </Suspense>

@@ -95,13 +95,32 @@ export async function getCompareView(): Promise<{
     sql<{ product_id: string; name: string; value: string }[]>`
       select pa.product_id::text as product_id,
         common.get_translation_t(a.name_translations, ${lang}, 'en') as name,
-        string_agg(distinct av.value, ', ') as value
+        coalesce(
+          nullif(common.get_translation_t(pa.text_value_translations, ${lang}, 'en'), ''),
+          nullif(btrim(pa.text_value), ''),
+          (
+            select string_agg(
+              coalesce(nullif(common.get_translation_t(av.display_name_translations, ${lang}, 'en'), ''), av.value),
+              ', ' order by av.value
+            )
+            from shop.attribute_values av
+            where av.id = any(pa.value_ids)
+          ),
+          (
+            select string_agg(distinct
+              coalesce(nullif(common.get_translation_t(av.display_name_translations, ${lang}, 'en'), ''), av.value),
+              ', '
+            )
+            from shop.variant_attribute_values vav
+            join shop.product_variants v on v.id = vav.variant_id
+            join shop.attribute_values av on av.id = vav.attribute_value_id
+            where vav.attribute_id = a.id and v.product_id = pa.product_id
+          )
+        ) as value
       from shop.product_attributes pa
       join shop.attributes a on a.id = pa.attribute_id
-      left join shop.variant_attribute_values vav on vav.attribute_id = a.id
-      left join shop.attribute_values av on av.id = vav.attribute_value_id
       where pa.product_id = any(${rows.map((r) => r.product_id)}::uuid[])
-      group by pa.product_id, a.id, a.name_translations
+      order by pa.display_order asc, a.slug asc
     `,
   ]);
   const bySlug = new Map(items.map((p) => [p.slug, p]));

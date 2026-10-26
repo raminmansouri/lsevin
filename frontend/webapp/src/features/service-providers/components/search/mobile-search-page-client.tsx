@@ -567,18 +567,16 @@ function PopularCategoriesSection({
 
             <div className="grid grid-cols-2 gap-3">
                 {categories.map((category) => {
-                    // SearchHistoryPopularCategoryVm only carries `label` and `icon` —
-                    // no `id`, `image`, or `count` come back from the backend for this
-                    // list, so there's nothing to render for those (previously this
-                    // referenced fields that don't exist on the type and would have
-                    // failed to compile / always rendered as undefined).
-                    const canRenderIconAsImage = isLikelyImageUrl(category.icon);
-                    const iconImage = canRenderIconAsImage ? resolveMediaUrl(category.icon) : "";
+                    // The category's own picture (`image_url`) comes first; `icon` is
+                    // only used as a picture when it holds a file path or URL.
+                    const iconImage =
+                        resolveMediaUrl(category.image) ||
+                        (isLikelyImageUrl(category.icon) ? resolveMediaUrl(category.icon) : "");
 
                     return (
                         <button
                             type="button"
-                            key={category.label}
+                            key={category.id ?? category.label}
                             onClick={() => onSearch(category.label)}
                             className="group overflow-hidden rounded-2xl bg-gray-50 text-left transition-all hover:bg-gray-100 active:scale-[0.98] rtl:text-right"
                         >
