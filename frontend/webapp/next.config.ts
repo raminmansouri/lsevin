@@ -3,6 +3,7 @@ import createNextIntlPlugin from "next-intl/plugin";
 
 import { routing } from "./src/i18n/routing";
 import { facetHeaders } from "./src/lib/seo/facet-headers";
+import { contentLanguageFor } from "./src/lib/seo/language-tags";
 
 // pull from env
 const filesUrl = new URL(
@@ -28,6 +29,12 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       ...facetHeaders(routing.locales),
+      // <html lang> in the server HTML is always the default locale (see
+      // src/app/layout.tsx); this tells crawlers the page's real language.
+      ...routing.locales.map((locale) => ({
+        source: `/${locale}/:path*`,
+        headers: [{ key: "Content-Language", value: contentLanguageFor(locale) }],
+      })),
       {
         source: "/sw.js",
         headers: [

@@ -15,4 +15,9 @@ export const routing = defineRouting({
   // write NEXT_LOCALE ourselves from the locale switchers, so the cookie is an
   // exclusive record of an explicit user decision that the middleware honors.
   localeCookie: false,
+  // next-intl's own `Link` response header lists all 11 locales for every page,
+  // on the request host, with an unprefixed x-default. Page metadata publishes
+  // the real hreflang set (only indexable versions, canonical domain, ckb for
+  // Sorani); two disagreeing sets make search engines ignore both.
+  alternateLinks: false,
 });

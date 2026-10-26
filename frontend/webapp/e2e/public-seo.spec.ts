@@ -132,3 +132,93 @@ for (const [kind, id] of [
     expect(response.status()).toBe(404);
   });
 }
+
+// --- lsevincare.com SEO/GEO batch: guides, locale signals, llms.txt, schema ---
+
+const jsonLdTypes = async (page: import("@playwright/test").Page) =>
+  page.$$eval('script[type="application/ld+json"]', (nodes) =>
+    nodes.flatMap((node) => {
+      const data = JSON.parse(node.textContent || "{}");
+      return (data["@graph"] ?? [data]).map((item: { "@type": string }) => item["@type"]);
+    })
+  );
+
+for (const locale of ["fa", "ar", "en"]) {
+  test(`guide hub ${locale}: indexable, localized and structured`, async ({ page }, testInfo) => {
+    const path = `/${locale}/medical-tourism`;
+    const response = await page.goto(path);
+    expect(response?.status()).toBe(200);
+    expect(response?.headers()["content-language"]).toBe(locale);
+    await expect(page.locator("h1")).toHaveCount(1);
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", `${origin}${path}`);
+    const hreflangs = await page.$$eval('link[rel="alternate"][hreflang]', (links) =>
+      links.map((link) => link.getAttribute("hreflang")).sort()
+    );
+    expect(hreflangs).toEqual(["ar", "en", "fa", "x-default"]);
+    expect(await jsonLdTypes(page)).toEqual(expect.arrayContaining(["MedicalWebPage", "BreadcrumbList", "FAQPage"]));
+    expect(await page.evaluate(() => document.documentElement.dir)).toBe(locale === "en" ? "ltr" : "rtl");
+    expect(await page.evaluate(() => document.documentElement.lang)).toBe(locale);
+    await page.screenshot({ path: testInfo.outputPath(`guide-hub-${locale}.png`), fullPage: true });
+  });
+}
+
+test("guides: related link, back/forward and refresh", async ({ page }) => {
+  await page.goto("/en/medical-tourism");
+  const related = page.locator('nav[aria-label="Related guides"] a').first();
+  const href = await related.getAttribute("href");
+  await related.click();
+  await expect(page).toHaveURL(new RegExp(`${href}$`));
+  await expect(page.locator("h1")).toHaveCount(1);
+  await page.reload();
+  await expect(page.locator("h1")).toHaveCount(1);
+  await page.goBack();
+  await expect(page).toHaveURL(/\/en\/medical-tourism$/);
+  await page.goForward();
+  await expect(page).toHaveURL(new RegExp(`${href}$`));
+});
+
+test("visa guide publishes HowTo steps from the visible procedure", async ({ page }) => {
+  await page.goto("/en/medical-tourism/visa");
+  expect(await jsonLdTypes(page)).toContain("HowTo");
+  await expect(page.locator("ol").filter({ hasText: /./ }).first()).toBeVisible();
+});
+
+test("guides exist only in written languages", async ({ request }) => {
+  expect((await request.get("/tr/medical-tourism")).status()).toBe(404);
+  expect((await request.get("/fa/medical-tourism/not-a-guide")).status()).toBe(404);
+});
+
+test("locale roots redirect to the localized home instead of a soft refresh", async ({ request }) => {
+  const response = await request.get("/en", { maxRedirects: 0 });
+  expect([301, 302, 307, 308]).toContain(response.status());
+  expect(response.headers()["location"]).toMatch(/\/en\/n\/app\/mobile\/home$/);
+});
+
+test("Sorani pages declare ckb", async ({ request }) => {
+  const response = await request.get("/ku/n/app/mobile/home");
+  expect(response.headers()["content-language"]).toBe("ckb");
+});
+
+test("llms.txt maps the site on the public domain", async ({ request }) => {
+  const response = await request.get("/llms.txt");
+  expect(response.status()).toBe(200);
+  const text = await response.text();
+  expect(text).toContain(`${origin}/fa/medical-tourism`);
+  expect(text).not.toContain("appmain.lsevin.com");
+});
+
+test("home: one descriptive h1, organization schema and a crawlable guides entry", async ({ page }) => {
+  await page.goto("/fa/n/app/mobile/home");
+  await expect(page.locator("h1")).toHaveCount(1);
+  const org = await page.$$eval('script[type="application/ld+json"]', (nodes) =>
+    nodes
+      .map((node) => JSON.parse(node.textContent || "{}"))
+      .flatMap((data) => data["@graph"] ?? [data])
+      .find((item) => item["@type"] === "Organization")
+  );
+  expect(org.alternateName).toContain("السوین");
+  const guideLink = page.locator('a[href$="/fa/medical-tourism"]').first();
+  await expect(guideLink).toBeVisible();
+  await guideLink.click();
+  await expect(page).toHaveURL(/\/fa\/medical-tourism$/);
+});

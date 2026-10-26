@@ -14,7 +14,6 @@ import { routing } from "./src/i18n/routing";
 import { getSession } from "./src/lib/auth/session";
 import { UserRole } from "./src/types/common";
 import { publicAppOrigin, publicAppUrl } from "./src/lib/http/public-origin";
-import { contentLanguageFor } from "./src/lib/seo/language-tags";
 
 type Locale = (typeof routing.locales)[number];
 
@@ -137,11 +136,7 @@ export default async function middleware(request: NextRequest) {
   // Guests browse everything freely — only fetch the session when a decision
   // actually depends on it (auth pages, protected/admin areas).
   if (!isAuthRoute && !isProtectedRoute) {
-    const response = intlResponse || NextResponse.next();
-    // <html lang> is the default locale in the server HTML (see app/layout.tsx);
-    // the header tells crawlers (Bing uses it) which language the page is in.
-    if (isValidLocale) response.headers.set("Content-Language", contentLanguageFor(locale));
-    return response;
+    return intlResponse || NextResponse.next();
   }
 
   // The OTP screen is a challenge in flight, not a page. The number being verified

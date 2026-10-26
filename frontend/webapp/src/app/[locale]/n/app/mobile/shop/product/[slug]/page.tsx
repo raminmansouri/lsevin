@@ -78,7 +78,18 @@ export default async function ProductDetailPage({
             url: productUrl,
             sku: product.id,
             description: firstSeoPlainText([product.shortDescription, product.description], 500) || undefined,
-            image: [...new Set(productImages.map((url) => new URL(shopImageSrc(url), seoOrigin()).toString()))].slice(0, 5),
+            image: [
+              ...new Set(
+                productImages.flatMap((url) => {
+                  // A malformed stored URL must not take the product page down.
+                  try {
+                    return [new URL(shopImageSrc(url), seoOrigin()).toString()];
+                  } catch {
+                    return [];
+                  }
+                })
+              ),
+            ].slice(0, 5),
             ...(product.priceUnavailable || !(Number(product.price) > 0)
               ? {}
               : {
