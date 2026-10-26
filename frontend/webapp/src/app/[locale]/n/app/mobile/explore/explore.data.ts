@@ -1127,12 +1127,16 @@ export async function getExplorePageData({
   filters: ExploreFiltersInput;
 }): Promise<ExplorePageData> {
   const lang = normalizeLocale(locale);
-  const tBadges = await getTranslations({ locale, namespace: "Explore.badges" });
-  const customerId = await resolveCurrentCustomerId();
-  const isIranianVisitor = await resolveIsIranianVisitor();
-
-  const [catalog, favoriteProviderIds, favoriteServiceIds] = await Promise.all([
+  // Public catalog work does not depend on identity or geolocation. Start it
+  // immediately; only the private favorites queries need the customer id.
+  const [tBadges, customerId, isIranianVisitor, catalog] = await Promise.all([
+    getTranslations({ locale, namespace: "Explore.badges" }),
+    resolveCurrentCustomerId(),
+    resolveIsIranianVisitor(),
     getExploreCatalogCached(lang, filters),
+  ]);
+
+  const [favoriteProviderIds, favoriteServiceIds] = await Promise.all([
     customerId
       ? sql<{ entity_id: string }[]>`
           select entity_id::text as entity_id

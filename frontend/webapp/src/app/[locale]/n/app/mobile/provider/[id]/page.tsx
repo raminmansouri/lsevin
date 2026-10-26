@@ -47,7 +47,7 @@ export async function generateMetadata({ params }: PageProps) {
   return buildPublicMetadata({
     locale,
     path: `/n/app/mobile/provider/${encodeURIComponent(id)}`,
-    title: provider.city ? `${provider.name} ? ${provider.city}` : provider.name,
+    title: provider.city ? `${provider.name} | ${provider.city}` : provider.name,
     descriptions: [provider.about, provider.tagline, provider.description],
     image: undefined,
     type: "website",

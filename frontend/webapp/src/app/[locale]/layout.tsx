@@ -3,7 +3,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 
 import { Providers } from "@/components/providers";
-import { env } from "@/config/env/client";
+import { seoOrigin } from "@/lib/seo/origin";
 import { getClientMessages } from "@/i18n/client-messages";
 import { routing } from "@/i18n/routing";
 import { LocalePageProps } from "@/types/next";
@@ -28,7 +28,7 @@ export async function generateMetadata(
   const t = await getTranslations({ locale, namespace: "LocaleLayout" });
 
   return {
-    metadataBase: new URL(env.NEXT_PUBLIC_URL),
+    metadataBase: new URL(seoOrigin()),
 
     title: {
       // Domain verification belongs in root metadata.other; crawler-facing

@@ -14,11 +14,17 @@ type SearchPageProps = {
 // Static / ISR: the shell shows the global "trending" + "popular categories"
 // (both `"use cache"`d). The visitor's own recent searches are pulled on the
 // client by `MobileSearchPageClient`.
-export const dynamic = "force-dynamic";
+export const dynamic = "force-static";
+export const revalidate = 300;
 
-export async function generateMetadata({ params }: SearchPageProps): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: SearchPageProps): Promise<Metadata> {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: "MobileSearch.metadata" });
+  const t = await getTranslations({
+    locale,
+    namespace: "MobileSearch.metadata",
+  });
 
   return {
     title: t("title"),
@@ -31,8 +37,8 @@ export default async function SearchPage({ params }: SearchPageProps) {
   setRequestLocale(locale);
 
   const [popularCategories, trendingSearches] = await Promise.all([
-    getPopularSearchCategoriesCached(locale, 8).catch(() => []),
-    getTrendingSearchesCached(locale, 6).catch(() => []),
+    getPopularSearchCategoriesCached(locale, 8),
+    getTrendingSearchesCached(locale, 6),
   ]);
 
   return (

@@ -47,6 +47,10 @@ const nextConfig: NextConfig = {
     // Limit Next's worker pool so compilation cannot starve Kubernetes health
     // probes or force the database and web pods into swap.
     cpus: 1,
+    // cpus limits worker count, not pages in flight within a worker. The
+    // default eight simultaneous prerenders exceeded the verification memory
+    // budget on this catalog. Preserve every route while bounding peak work.
+    staticGenerationMaxConcurrency: 1,
     // NOTE: switched from `cacheComponents` to `useCache` for the production build.
     // cacheComponents (PPR) makes static prerender strict — any request-data access
     // without a Suspense boundary is a fatal build error (e.g. next-intl getLocale in

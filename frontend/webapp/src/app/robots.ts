@@ -1,6 +1,6 @@
 import { MetadataRoute } from "next";
 
-import { env } from "@/config/env/client";
+import { seoOrigin } from "@/lib/seo/origin";
 
 /**
  * Every private area of the app lives behind a locale prefix (/fa/admin, /en/admin,
@@ -40,6 +40,6 @@ export default function robots(): MetadataRoute.Robots {
         disallow,
       },
     ],
-    sitemap: `${env.NEXT_PUBLIC_URL.replace(/\/$/, "")}/sitemap.xml`,
+    sitemap: `${seoOrigin()}/sitemap.xml`,
   };
 }

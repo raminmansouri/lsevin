@@ -108,8 +108,8 @@ function normalizeLocale(locale: string | undefined | null) {
   return value && value.length > 0 ? value : "en-US";
 }
 
-export async function getCategoryBrowserGroups(): Promise<CategoryBrowserData> {
-  const locale = normalizeLocale(await getLocale());
+export async function getCategoryBrowserGroups(explicitLocale?: string): Promise<CategoryBrowserData> {
+  const locale = normalizeLocale(explicitLocale ?? await getLocale());
   const rows = await getCategoryBrowserRows(locale);
   const groups = new Map<string, CategoryBrowserGroup>();
 

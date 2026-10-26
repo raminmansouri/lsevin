@@ -1,4 +1,5 @@
 import { buildPublicMetadata } from "@/lib/seo/metadata";
+import { PublicSiteSchema } from "@/lib/seo/site-schema";
 import { Award, ChevronRight, Gift, Map, Search, Sparkles, Star, TrendingUp } from 'lucide-react';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 
@@ -64,7 +65,8 @@ export const revalidate = 120;
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
-  return buildPublicMetadata({ locale, path: "/n/app/mobile/home" });
+  const t = await getTranslations({ locale, namespace: "HomePage" });
+  return buildPublicMetadata({ locale, path: "/n/app/mobile/home", title: t("title"), descriptions: [t("description")] });
 }
 
 async function getLocaleFromParams(params: PageProps['params']) {
@@ -330,6 +332,7 @@ async function Home({ params }: PageProps) {
 
   return (
     <div className="min-h-screen bg-white">
+      <PublicSiteSchema locale={locale} />
       {/* The canopy: greeting, destination and search live on one continuous pine
           surface that runs up into the app bar, so the top of the app reads as a
           single control area instead of two stacked website bars. The search field

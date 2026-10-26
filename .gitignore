@@ -88,3 +88,6 @@ deployments/docker/backups/
 !frontend/webapp/db/migrations/
 !frontend/webapp/db/migrations/*.sql
 !frontend/webapp/db/migrations/*.md
+!docs/SEO-PERFORMANCE-2026-10-25.md
+!frontend/webapp/tests/fixtures/*.sql
+**/.pnpm-store/
