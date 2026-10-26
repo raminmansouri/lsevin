@@ -15,16 +15,24 @@ export function DesktopProductCard({
   locale,
   labels,
   priority = false,
+  tone = "light",
 }: {
   product: ProductCardModel;
   locale: string;
   labels: Labels;
   priority?: boolean;
+  /** "dark" on noir pages: light text, gold price, glassy image box. */
+  tone?: "light" | "dark";
 }) {
+  const dark = tone === "dark";
   return (
     <div className="group relative">
       <Link href={`/n/app/mobile/shop/product/${product.slug}`} className="block">
-        <div className="relative aspect-square overflow-hidden rounded-[20px] bg-[#f4efe4] ring-1 ring-transparent transition duration-500 group-hover:ring-[#c9a55a]">
+        <div
+          className={`relative aspect-square overflow-hidden rounded-[20px] ring-1 transition duration-500 group-hover:shadow-[0_22px_40px_-24px_rgba(0,0,0,0.7)] group-hover:ring-[#c9a55a] ${
+            dark ? "bg-white/[0.04] ring-white/10" : "bg-gradient-to-b from-white to-[#efe6d2] ring-[#e7dcc4]"
+          }`}
+        >
           {product.imageUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
@@ -52,14 +60,14 @@ export function DesktopProductCard({
           {product.brandName ? (
             <p className="truncate text-[10px] font-bold uppercase tracking-[0.22em] text-[#c9a55a]">{product.brandName}</p>
           ) : null}
-          <h3 className="line-clamp-2 min-h-[2.5rem] text-[13px] leading-5 text-[#0e1a16]">{product.name}</h3>
+          <h3 className={`line-clamp-2 min-h-[2.5rem] text-[13px] leading-5 ${dark ? "text-white/90" : "text-[#0e1a16]"}`}>{product.name}</h3>
           <div className="flex flex-wrap items-baseline gap-x-2">
             {product.priceUnavailable ? (
               <span className="text-xs text-[#56675f]">{labels.priceUnavailable}</span>
             ) : (
               <>
-                {product.priceMax > product.price + 0.001 ? <span className="text-[11px] text-[#56675f]">{labels.from}</span> : null}
-                <ShopPrice amount={product.price} currency={product.currency} locale={locale} className="text-[15px] font-black text-[#083f30]" />
+                {product.priceMax > product.price + 0.001 ? <span className={`text-[11px] ${dark ? "text-white/50" : "text-[#56675f]"}`}>{labels.from}</span> : null}
+                <ShopPrice amount={product.price} currency={product.currency} locale={locale} className={`text-[15px] font-black ${dark ? "text-[#eacb7f]" : "text-[#083f30]"}`} />
                 {product.compareAtPrice ? (
                   <ShopPrice amount={product.compareAtPrice} currency={product.currency} locale={locale} className="text-[11px] text-[#8fa79d] line-through" />
                 ) : null}
@@ -67,7 +75,7 @@ export function DesktopProductCard({
             )}
           </div>
           {product.rating > 0 ? (
-            <p className="flex items-center gap-1 text-[11px] text-[#56675f]">
+            <p className={`flex items-center gap-1 text-[11px] ${dark ? "text-white/55" : "text-[#56675f]"}`}>
               <Star size={11} className="fill-[#c9a55a] text-[#c9a55a]" />
               {new Intl.NumberFormat(locale, { maximumFractionDigits: 1 }).format(product.rating)}
               {product.soldCount > 0 ? <span className="ms-1">· {labels.sold(product.soldCount)}</span> : null}

@@ -8,6 +8,9 @@ import { useFetchBookings } from "@/features/service-providers/api/client/fetch-
 import type { Booking } from "@/features/service-providers/types";
 import { useNavigate } from "@/hooks/use-navigate";
 import { useLocale, useTranslations } from "next-intl";
+import { DesktopBookingsView } from "@/features/web-desktop/bookings/DesktopBookingsView";
+
+
 const BRAND_GREEN = "#083f30";
 type BookingTab = "upcoming" | "past" | "cancelled";
 const TABS: Array<{
@@ -126,11 +129,11 @@ function BookingCard({ booking, onOpen }: {
       </div>
     </button>);
 }
-export default function Bookings() {
+function MobileBookings() {
     const tBooking = useTranslations("Booking");
     const navigate = useNavigate();
-    const [activeTab, setActiveTab] = useState<BookingTab>("upcoming");
-    const { data, error, isFetching, refetch } = useFetchBookings({});
+    const [activeTab, setActiveTab] = useState<BookingTab>("upcoming");  
+    const { data, error, isFetching, refetch } = useFetchBookings({} as Parameters<typeof useFetchBookings>[0]);
     const counts = useMemo(() => ({
         upcoming: data?.upcomingBookings.length ?? 0,
         past: data?.pastBookings.length ?? 0,
@@ -191,4 +194,17 @@ export default function Bookings() {
           {activeTab === "upcoming" && (<button type="button" onClick={() => navigate("/n/app/mobile/explore")} className="rounded-xl bg-[#083f30] px-6 py-3 font-semibold text-white transition-colors hover:bg-[#0a5a44]" style={{ backgroundColor: BRAND_GREEN }}>{tBooking("exploreServices")}</button>)}
         </div>)}
     </div>);
+}
+
+
+/** Mobile/tablet below 1280px, the desktop journal above it. Both share the same cached query. */
+export default function Bookings() {
+  return (
+    <>
+      <div className="xl:hidden">
+        <MobileBookings />
+      </div>
+      <DesktopBookingsView />
+    </>
+  );
 }

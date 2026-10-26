@@ -6,6 +6,10 @@ import { getCategoryBrowserGroups } from "@/features/service-providers/actions/c
 import { CategoryBrowserClient } from "@/features/service-providers/components/categories/category-browser-client";
 import { SponsoredPlacementSlot } from "@/features/sponsered-slider/components/sponsored-placement-slot";
 
+import { DesktopCategoryBrowser } from "@/features/web-desktop/categories/DesktopCategoryBrowser";
+import { DesktopSponsoredSection } from "@/features/web-desktop/home/DesktopSponsoredSection";
+
+
 export const metadata: Metadata = {
   title: "Categories",
   description: "Browse all active LSevin service categories.",
@@ -35,12 +39,22 @@ export default async function CategoryBrowserPage({
 
   return (
     <Suspense fallback={null}>
-      <CategoryBrowserClient
+      <div className="xl:hidden">
+        <CategoryBrowserClient
+          categoryGroups={data.groups}
+          totalCategories={data.totalCategories}
+          totalProviders={data.totalProviders}
+        />
+        <SponsoredPlacementSlot locale={locale} placement="categories" />
+      </div>
+      <DesktopCategoryBrowser
         categoryGroups={data.groups}
         totalCategories={data.totalCategories}
         totalProviders={data.totalProviders}
       />
-      <SponsoredPlacementSlot locale={locale} placement="categories" />
+      <div className="lsd hidden pb-14 xl:block">
+        <DesktopSponsoredSection locale={locale} placement="categories" />
+      </div>
     </Suspense>
   );
 }

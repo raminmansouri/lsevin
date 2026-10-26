@@ -52,7 +52,7 @@ function parentKey(parentId?: string | null) {
   return parentId || ROOT_PARENT_KEY;
 }
 
-function buildCategoryImageSrc(value?: string | null) {
+export function buildCategoryImageSrc(value?: string | null) {
   const media = value?.trim();
   if (!media) return null;
 
@@ -79,7 +79,7 @@ function getGradientStyle(category: CategoryBrowserCategory) {
   return getCategoryOverlayStyle(category.gradient);
 }
 
-function sortCategories(categories: CategoryBrowserCategory[]) {
+export function sortCategories(categories: CategoryBrowserCategory[]) {
   return [...categories].sort((a, b) => {
     const orderDelta = a.displayOrder - b.displayOrder;
     if (orderDelta !== 0) return orderDelta;

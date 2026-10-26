@@ -14,6 +14,9 @@ import {
   type SpecialPackagePublicItem,
 } from '@/features/special-packages/server/repository';
 
+import { DesktopPackagesList } from '@/features/web-desktop/packages/DesktopPackages';
+import { DesktopSponsoredSection } from '@/features/web-desktop/home/DesktopSponsoredSection';
+
 // Static / ISR — the package list is the same for every visitor of a locale.
 export const dynamic = 'force-dynamic';
 
@@ -29,7 +32,8 @@ export default async function SpecialPackagesPage({ params }: PageProps) {
   const packages = await getActiveSpecialPackages(locale).catch(() => []);
 
   return (
-    <div className="min-h-screen bg-white pb-24">
+    <>
+    <div className="min-h-screen bg-white pb-24 xl:hidden">
       <div className="sticky top-0 z-40 border-b border-gray-100 bg-white px-5 pb-4 pt-3">
         <div className="flex items-center gap-3">
           <Link
@@ -73,6 +77,10 @@ export default async function SpecialPackagesPage({ params }: PageProps) {
 
       <SponsoredPlacementSlot locale={locale} placement="packages" />
     </div>
+    <DesktopPackagesList packages={packages} locale={locale}>
+      <DesktopSponsoredSection locale={locale} placement="packages" />
+    </DesktopPackagesList>
+    </>
   );
 }
 
@@ -90,10 +98,8 @@ function SpecialPackageCard({
   const mediaUrl = resolveHomeMediaUrl(pkg.imageUrl);
 
   return (
-    <Link
-      href={`/n/app/mobile/packages/${pkg.id}`}
-      className="group flex flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all hover:shadow-md active:scale-[0.99]"
-    >
+    <div className="group relative flex flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all hover:shadow-md active:scale-[0.99]">
+      <Link href={`/n/app/mobile/packages/${pkg.id}`} aria-label={pkg.title} className="absolute inset-0 z-[1]" />
       <div className="relative h-40 w-full overflow-hidden bg-gray-100">
         {mediaUrl ? (
           <ImageWithFallback
@@ -144,6 +150,6 @@ function SpecialPackageCard({
           className="mt-3 flex h-10 w-full items-center justify-center rounded-xl bg-[#083f30] text-sm font-bold text-white transition-colors hover:bg-[#0a5a44]"
         />
       </div>
-    </Link>
+    </div>
   );
 }

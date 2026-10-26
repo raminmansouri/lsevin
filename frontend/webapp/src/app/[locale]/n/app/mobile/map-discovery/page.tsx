@@ -43,6 +43,7 @@ export default async function MapDiscoveryPage({
     />
     </div>
     <DesktopNearbyView
+      initialView={initialView}
       locale={locale}
       categories={data.categories}
       providers={data.providers}

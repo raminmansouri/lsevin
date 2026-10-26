@@ -88,6 +88,21 @@
 }
 
 
+@keyframes lsd-xfade {
+  0% { opacity: 0; transform: scale(1.06); }
+  6% { opacity: 1; }
+  33% { opacity: 1; }
+  39% { opacity: 0; transform: scale(1); }
+  100% { opacity: 0; }
+}
+
+
+@keyframes lsd-club-sweep {
+  0%, 55% { transform: translateX(-120%); }
+  100% { transform: translateX(120%); }
+}
+
+
 @media (min-width: 1280px) {
   .lsd {
     --lsd-night: #062a20;
@@ -708,6 +723,219 @@
   }
   .lsd-snap > * { scroll-snap-align: start; }
   
+
+  /* Boutique: warm ivory paper with gold light and a fine grain */
+  .lsd.lsd-shop-bg {
+    background:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.05'/%3E%3C/svg%3E"),
+      radial-gradient(1000px 640px at 0% 0%, rgba(234, 203, 127, 0.32), transparent 60%),
+      radial-gradient(900px 640px at 100% 45%, rgba(15, 90, 69, 0.1), transparent 60%),
+      radial-gradient(800px 560px at 15% 100%, rgba(234, 203, 127, 0.2), transparent 60%),
+      linear-gradient(180deg, #fbf7ee, #f3ede0);
+  }
+  /* Persian eight-point star lattice */
+  .lsd-girih {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Cg fill='none' stroke='%23eacb7f' stroke-opacity='.16'%3E%3Crect x='22' y='22' width='36' height='36'/%3E%3Crect x='22' y='22' width='36' height='36' transform='rotate(45 40 40)'/%3E%3Ccircle cx='40' cy='40' r='6'/%3E%3C/g%3E%3C/svg%3E");
+    background-size: 80px 80px;
+    mask-image: radial-gradient(ellipse at 70% 50%, #000 30%, transparent 75%);
+  }
+  .lsd-salon {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(201, 165, 90, 0.35);
+    box-shadow: 0 40px 80px -50px rgba(6, 42, 32, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  }
+  .lsd-plaque {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(160deg, #0d4a39, #062a20 70%);
+    border: 1px solid rgba(234, 203, 127, 0.35);
+    transition: transform 0.5s var(--lsd-ease), box-shadow 0.5s ease, border-color 0.5s ease;
+  }
+  .lsd-plaque::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(115deg, transparent 35%, rgba(255, 240, 200, 0.28) 50%, transparent 65%);
+    transform: translateX(-130%);
+    transition: transform 1s var(--lsd-ease);
+    pointer-events: none;
+  }
+  .group:hover .lsd-plaque {
+    transform: translateY(-5px);
+    border-color: var(--lsd-gold);
+    box-shadow: 0 26px 44px -24px rgba(6, 42, 32, 0.75);
+  }
+  .group:hover .lsd-plaque::after { transform: translateX(130%); }
+
+
+  /* Boutique window: three pictures crossfade slowly (6s each) */
+  .lsd-xfade > * {
+    opacity: 0;
+    animation: lsd-xfade 18s ease-in-out infinite;
+  }
+  .lsd-xfade > *:nth-child(2) { animation-delay: 6s; }
+  .lsd-xfade > *:nth-child(3) { animation-delay: 12s; }
+  .lsd-xfade > *:only-child { opacity: 1; animation: none; }
+  .lsd-plaque-line {
+    width: 18px;
+    transition: width 0.6s var(--lsd-ease);
+  }
+  .group:hover .lsd-plaque-line { width: 56px; }
+
+
+  /* Bookings: tickets with a perforated stub and two half-circle notches */
+  .lsd-ticket {
+    --notch: 74%;
+    -webkit-mask:
+      radial-gradient(circle 14px at var(--notch) 0, transparent 98%, #000 100%) top / 100% 51% no-repeat,
+      radial-gradient(circle 14px at var(--notch) 100%, transparent 98%, #000 100%) bottom / 100% 51% no-repeat;
+    mask:
+      radial-gradient(circle 14px at var(--notch) 0, transparent 98%, #000 100%) top / 100% 51% no-repeat,
+      radial-gradient(circle 14px at var(--notch) 100%, transparent 98%, #000 100%) bottom / 100% 51% no-repeat;
+  }
+  [dir="rtl"] .lsd-ticket { --notch: 26%; }
+  .lsd-ticket-shadow { filter: drop-shadow(0 22px 34px rgba(6, 42, 32, 0.16)); transition: transform 0.5s var(--lsd-ease), filter 0.5s ease; }
+  .lsd-ticket-shadow:hover { transform: translateY(-4px); filter: drop-shadow(0 30px 44px rgba(6, 42, 32, 0.26)); }
+
+
+  /* Private sale */
+  .lsd-wax {
+    background: radial-gradient(circle at 35% 30%, #1d7358, #083f30 55%, #04201a);
+    box-shadow:
+      inset 0 0 0 5px rgba(234, 203, 127, 0.3),
+      inset 0 10px 18px rgba(255, 255, 255, 0.12),
+      0 20px 34px -14px rgba(6, 42, 32, 0.65);
+    transition: transform 0.9s var(--lsd-ease);
+  }
+  .group:hover .lsd-wax { transform: rotate(-12deg) scale(1.04); }
+  .lsd-line-input {
+    border-bottom: 1px solid rgba(201, 165, 90, 0.5);
+    transition: border-color 0.4s ease;
+  }
+  .lsd-line-input:focus-within { border-color: var(--lsd-gold-deep); }
+  .lsd-outline-num {
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(201, 165, 90, 0.85);
+    background: linear-gradient(90deg, #c9a55a, #f6e2a8 50%, #c9a55a) no-repeat;
+    background-size: 0% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    transition: background-size 1.6s var(--lsd-ease);
+  }
+  .group:hover .lsd-outline-num { background-size: 100% 100%; }
+
+
+  /* Category rooms: a gold arch draws itself inside the card on hover */
+  .lsd-room-arch {
+    position: absolute;
+    inset: 18px;
+    border: 1px solid rgba(234, 203, 127, 0.75);
+    border-radius: 999px 999px 18px 18px;
+    opacity: 0;
+    transform: scale(0.94);
+    transition: opacity 0.6s ease, transform 0.9s var(--lsd-ease);
+    pointer-events: none;
+  }
+  .group:hover .lsd-room-arch { opacity: 1; transform: scale(1); }
+  .lsd-room-reveal {
+    transform: translateY(14px);
+    opacity: 0;
+    transition: transform 0.7s var(--lsd-ease), opacity 0.5s ease;
+  }
+  .group:hover .lsd-room-reveal { transform: none; opacity: 1; }
+
+
+  /* Editorial drop cap */
+  .lsd-dropcap::first-letter {
+    float: inline-start;
+    font-size: 4.2em;
+    line-height: 0.9;
+    font-weight: 900;
+    margin-inline-end: 0.12em;
+    color: var(--lsd-gold-deep);
+  }
+
+
+  /* Noir: deep green-black with grain, a gold glow and an emerald glow */
+  .lsd.lsd-noir {
+    color: #fff;
+    background:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.06'/%3E%3C/svg%3E"),
+      radial-gradient(900px 500px at 85% 0%, rgba(234, 203, 127, 0.13), transparent 60%),
+      radial-gradient(900px 640px at 0% 100%, rgba(15, 90, 69, 0.4), transparent 60%),
+      linear-gradient(180deg, #04130e, #0a2a20 55%, #04130e);
+  }
+  .lsd-noir-card { position: relative; overflow: hidden; isolation: isolate; border-radius: 24px; }
+  .lsd-noir-card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    border: 1px solid rgba(234, 203, 127, 0);
+    transition: border-color 0.6s ease;
+    pointer-events: none;
+    z-index: 3;
+  }
+  .group:hover .lsd-noir-card::after { border-color: rgba(234, 203, 127, 0.6); }
+  .lsd-glass-dark {
+    background: rgba(6, 30, 23, 0.55);
+    backdrop-filter: blur(16px) saturate(140%);
+    -webkit-backdrop-filter: blur(16px) saturate(140%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  .lsd-expand {
+    display: grid;
+    grid-template-rows: 0fr;
+    opacity: 0;
+    transition: grid-template-rows 0.6s var(--lsd-ease), opacity 0.4s ease;
+  }
+  .lsd-expand > * { overflow: hidden; }
+  .group:hover .lsd-expand { grid-template-rows: 1fr; opacity: 1; }
+  .lsd-hairline { height: 1px; background: linear-gradient(90deg, transparent, rgba(234, 203, 127, 0.5), transparent); }
+
+  /* Pages with a noir section get a dark page behind the floating header and around ads */
+  body:has(.lsd-noir) { background: #04130e; }
+  .lsd.lsd-noir { margin-top: -120px; padding-top: 120px; }
+
+
+  /* A smaller sponsored frame that blends into dark sections */
+  .lsd-ad-compact { max-width: 1040px; margin-inline: auto; }
+  .lsd-ad-compact .lsd-container { max-width: 100%; padding-inline: 0; }
+  .lsd-ad-compact .min-h-\[390px\] { min-height: 280px; }
+  .lsd-ad-compact h2 { font-size: 26px; }
+  .lsd-noir .lsd-ad-compact .bg-white {
+    background: rgba(255, 255, 255, 0.04);
+    box-shadow: none;
+    --tw-ring-color: rgba(234, 203, 127, 0.18);
+  }
+  .lsd-noir .lsd-ad-compact .text-\[\#0e1a16\] { color: #fff; }
+  .lsd-noir .lsd-ad-compact .text-\[\#56675f\] { color: rgba(255, 255, 255, 0.6); }
+  
+  
+
+  /* Private club membership card: black-gold with a metallic sweep */
+  .lsd-club-card {
+    position: relative;
+    overflow: hidden;
+    background:
+      radial-gradient(120% 140% at 100% 0%, rgba(234, 203, 127, 0.22), transparent 55%),
+      repeating-radial-gradient(circle at 0% 100%, rgba(234, 203, 127, 0.07) 0 1px, transparent 1px 7px),
+      linear-gradient(150deg, #0e1f19, #050c09 70%);
+    border: 1px solid rgba(234, 203, 127, 0.35);
+    box-shadow: 0 40px 80px -40px rgba(0, 0, 0, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  }
+  .lsd-club-card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(115deg, transparent 35%, rgba(255, 236, 190, 0.18) 50%, transparent 65%);
+    transform: translateX(-120%);
+    animation: lsd-club-sweep 6s var(--lsd-ease) infinite;
+    pointer-events: none;
+  }
+  .lsd-medal-glow { box-shadow: 0 0 0 6px rgba(234, 203, 127, 0.12), 0 0 40px rgba(234, 203, 127, 0.35); }
+
 
 
   /* Respect users who turn motion off in their OS */

@@ -35,10 +35,12 @@ type Props = {
   filters: NearbyFiltersInput;
   mapCenter: { lat: number; lng: number; zoom: number };
   expandedBeyondFilters: boolean;
+  /** "list" when the page was opened as a provider list (e.g. from a category). */
+  initialView: "map" | "list";
 };
 
 /** Desktop map discovery: a full-height map beside the list, kept in sync both ways. */
-export function DesktopNearbyView({ locale, categories, providers, filters, mapCenter, expandedBeyondFilters }: Props) {
+export function DesktopNearbyView({ locale, categories, providers, filters, mapCenter, expandedBeyondFilters, initialView }: Props) {
   const t = useTranslations(NAMESPACE);
   const tExplore = useTranslations("Explore");
   const router = useRouter();
@@ -50,6 +52,7 @@ export function DesktopNearbyView({ locale, categories, providers, filters, mapC
   );
   const [isLocating, setIsLocating] = useState(false);
   const [query, setQuery] = useState(filters.q);
+  const [view, setView] = useState<"map" | "list">(initialView);
   const cardRefs = useRef(new Map<string, HTMLElement>());
 
   useEffect(() => setCenter(mapCenter), [mapCenter]);
@@ -59,7 +62,7 @@ export function DesktopNearbyView({ locale, categories, providers, filters, mapC
   const km = (value: number) => new Intl.NumberFormat(locale, { style: "unit", unit: "kilometer", maximumFractionDigits: 1 }).format(value);
 
   const apply = (changes: Partial<NearbyFiltersInput>) =>
-    navigateSmooth(startTransition, router, buildNearbyQuery({ ...filters, ...changes }, "map"));
+    navigateSmooth(startTransition, router, buildNearbyQuery({ ...filters, ...changes }, view));
 
   // A pin picked on the map: bring its card into view.
   const selectFromMap = (id: string | null) => {
@@ -92,13 +95,23 @@ export function DesktopNearbyView({ locale, categories, providers, filters, mapC
     <div className="lsd hidden xl:block">
       {isPending ? <PendingOverlay /> : null}
 
-      <div className="mx-auto grid max-w-[1600px] grid-cols-[480px_1fr] gap-6 px-6 pb-6 pt-4">
+      <div className={`mx-auto grid max-w-[1600px] gap-6 px-6 pb-6 pt-4 ${view === "map" ? "grid-cols-[480px_1fr]" : "grid-cols-1"}`}>
         {/* List column */}
-        <div className="flex h-[calc(100vh-136px)] min-h-[560px] flex-col">
+        <div className={view === "map" ? "flex h-[calc(100vh-136px)] min-h-[560px] flex-col" : "flex flex-col"}>
           <div className="space-y-4 pb-4">
             <div className="flex items-end justify-between gap-4">
               <h1 className="lsd-heading text-3xl font-black text-[#0e1a16]">{t("title")}</h1>
-              <span className="rounded-full bg-[#083f30] px-3 py-1 text-sm font-bold text-[#eacb7f]">{number(providers.length)}</span>
+              <span className="flex items-center gap-3">
+                <span className="rounded-full bg-[#083f30] px-3 py-1 text-sm font-bold text-[#eacb7f]">{number(providers.length)}</span>
+                <button
+                  type="button"
+                  onClick={() => setView(view === "map" ? "list" : "map")}
+                  className="flex items-center gap-1.5 rounded-full bg-white px-4 py-1.5 text-sm font-bold text-[#083f30] ring-1 ring-[#dce4e0] transition hover:ring-[#c9a55a]"
+                >
+                  <MapPin size={15} className="text-[#c9a55a]" />
+                  {view === "map" ? t("showList") : t("showMap")}
+                </button>
+              </span>
             </div>
 
             <form
@@ -203,7 +216,7 @@ export function DesktopNearbyView({ locale, categories, providers, filters, mapC
           </div>
 
           {/* Results */}
-          <div className="hide-scrollbar -mx-1 flex-1 space-y-3 overflow-y-auto px-1 pb-2">
+          <div className={view === "map" ? "hide-scrollbar -mx-1 flex-1 space-y-3 overflow-y-auto px-1 pb-2" : "grid grid-cols-3 gap-4 pb-2"}>
             {providers.length ? (
               providers.map((provider, index) => {
                 const selected = provider.id === selectedId;
@@ -275,6 +288,7 @@ export function DesktopNearbyView({ locale, categories, providers, filters, mapC
         </div>
 
         {/* Map column */}
+        {view === "map" ? (
         <div className="sticky top-28 h-[calc(100vh-136px)] min-h-[560px] overflow-hidden rounded-[36px] ring-1 ring-[#dce4e0] [&>*]:!h-full">
           <NearbyMap
             providers={providers}
@@ -285,6 +299,7 @@ export function DesktopNearbyView({ locale, categories, providers, filters, mapC
             countryCode={filters.countryCode}
           />
         </div>
+        ) : null}
       </div>
     </div>
   );
