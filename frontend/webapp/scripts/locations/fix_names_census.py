@@ -101,10 +101,11 @@ def en_skeleton(value):
 
 
 # Romanizations each Persian letter can produce in GeoNames' BGN-style names.
+# ک also accepts g: older maps, written before گ was distinguished, give گ as ک.
 _ROMAN = {
     'ب': 'b', 'پ': 'p', 'ت': 't', 'ط': 't', 'ث': 's', 'س': 's', 'ص': 's', 'ج': 'j', 'چ': 'ch',
     'ح': 'h', 'خ': 'kh', 'د': 'd', 'ذ': 'z', 'ز': 'z', 'ض': 'z', 'ظ': 'z', 'ر': 'r', 'ژ': 'zh',
-    'ش': 'sh', 'غ': '(?:gh|q)', 'ق': '(?:q|gh)', 'ف': 'f', 'ک': 'k', 'گ': 'g', 'ل': 'l', 'م': 'm',
+    'ش': 'sh', 'غ': '(?:gh|q)', 'ق': '(?:q|gh)', 'ف': 'f', 'ک': '(?:k|g)', 'گ': 'g', 'ل': 'l', 'م': 'm',
     'ن': 'n', 'آ': 'a', 'ع': '', 'ء': '', 'ئ': "(?:y|')?", 'أ': 'a', 'ؤ': '(?:ow|o|u)',
 }
 _WORDS = {'سفلی': 'sofla', 'علیا': 'olya', 'وسطی': 'vosta', 'بالا': 'bala', 'پایین': 'pa(?:y)?in',
@@ -124,7 +125,7 @@ def _word_regex(word):
         elif ch == 'و':
             p = '(?:u|o|v|ow|ou|w)'
         elif ch == 'ی':
-            p = '(?:i|y|ey|ei|ay|e)'
+            p = '(?:iy|i|y|ey|ei|ay|e)'
         elif ch == 'ه':
             p = '(?:eh|ah|e|a|h)' if i == len(word) - 1 else '(?:h|e)'
         elif ch in 'ۀة':
@@ -248,8 +249,11 @@ class Census:
                 candidates.setdefault(fa_key(n), n)
         if agrees and in_census:
             return 'confirmed', None
-        if agrees:
+        if agrees and fa_key(current_fa) in candidates:
+            return 'confirmed', None
+        if agrees and len(candidates) != 1:
             return 'consistent_not_in_census', None
+        # one census spelling fits the English: the census wins (تاکی -> تاگی for Tagi)
         if len(candidates) == 1:
             return ('replaced' if persian else 'filled'), next(iter(candidates.values()))
         if in_census:

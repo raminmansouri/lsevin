@@ -36,13 +36,14 @@ class OrthographyTests(unittest.TestCase):
 class ConsistencyTests(unittest.TestCase):
     def test_accepts_real_romanizations(self):
         for fa, en in [('قلی', 'Qoli'), ('نصیر آباد', 'Nasirabad'), ('لردگان', 'Lordegan'),
-                       ('خلیلان سفلی', 'Khalilan-e Sofla'), ('چاه دراز', 'Chah Deraz'), ('مؤمن زمین', 'Mowmen Zamin')]:
+                       ('خلیلان سفلی', 'Khalilan-e Sofla'), ('چاه دراز', 'Chah Deraz'), ('مؤمن زمین', 'Mowmen Zamin'),
+                       ('ارومیه', 'Orumiyeh'), ('پشکله پایین', "Pashgeleh-ye Pa'in")]:
             self.assertTrue(consistent(fa, en), (fa, en))
 
     def test_rejects_vowel_or_qualifier_conflicts(self):
         # each pair was a wrong match produced by consonant-only matching
         for fa, en in [('قیل', 'Qoli'), ('ناصر آباد', 'Nasirabad'), ('هویج', 'Haju'), ('کنگور', 'Kangar'),
-                       ('خلیلان علیا', 'Khalilan-e Sofla'), ('پشکله بالا', "Pashgeleh-ye Pa'in")]:
+                       ('خلیلان علیا', 'Khalilan-e Sofla'), ('پشکله بالا', "Pashgeleh-ye Pa'in"), ('گرگان', 'Korkan')]:
             self.assertFalse(consistent(fa, en), (fa, en))
 
 
@@ -73,6 +74,17 @@ class PlanTests(unittest.TestCase):
         city = loc('c1', 2, 'teh', '1', 'IR', en_US='Kazemabad', fa_IR='كاظم آباد')
         new = self.run_plan([city], ['كاظماباد'])['c1'][1]
         self.assertEqual(new['fa-IR'], 'کاظم آباد')
+
+    def test_county_title_is_replaced_by_city_name(self):
+        # Regression: Urmia was stored as 'شهرستان ارومیه' (the county's Wikipedia title)
+        city = loc('c1', 2, 'teh', '121801', 'IR', en_US='Orūmīyeh', fa_IR='شهرستان ارومیه')
+        new = self.run_plan([city], ['اروميه'])['c1'][1]
+        self.assertEqual(new['fa-IR'], 'ارومیه')
+        self.assertEqual(new['en-US'], 'Orumiyeh')
+
+    def test_census_spelling_wins_when_both_fit_the_english(self):
+        city = loc('c1', 2, 'teh', '1', 'IR', en_US='Cheshmeh Tagi', fa_IR='چِشمِه تاكی')
+        self.assertEqual(self.run_plan([city], ['چشمه تاگی'])['c1'][1]['fa-IR'], 'چشمه تاگی')
 
     def test_ambiguous_census_leaves_name_alone(self):
         city = loc('c1', 2, 'teh', '1', 'IR', en_US='Darin', fa_IR='دورن')

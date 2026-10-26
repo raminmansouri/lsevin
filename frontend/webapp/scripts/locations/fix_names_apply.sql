@@ -29,10 +29,12 @@ DO $$
 DECLARE last_id uuid := '00000000-0000-0000-0000-000000000000'; batch_max uuid; n integer; total integer := 0;
 BEGIN
     LOOP
-        SELECT max(id) INTO batch_max FROM (
+        -- uuid has no max() aggregate
+        SELECT b.id INTO batch_max FROM (
             SELECT id FROM public.location_name_fix_20261026
             WHERE id > last_id AND applied_at IS NULL AND rolled_back_at IS NULL
-            ORDER BY id LIMIT 5000) b;
+            ORDER BY id LIMIT 5000) b
+        ORDER BY b.id DESC LIMIT 1;
         EXIT WHEN batch_max IS NULL;
         WITH upd AS (
             UPDATE category.locations l SET value_translations = f.new, last_modified_date = now()
