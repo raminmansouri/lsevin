@@ -85,6 +85,10 @@ http://providers.lsevin.com {
 # reachable from every Iranian operator, A's own address is not reachable from some mobile networks.
 # The certificate is issued/renewed on B (DNS-01 via CNAME) and fetched here; it covers lsevin.ir and *.lsevin.ir.
 http://lsevin.ir, http://www.lsevin.ir {
+	# direct visitors (no CDN in front) get HTTPS; requests that come through a CDN carry X-Forwarded-For and are left alone,
+	# otherwise a CDN that talks plain HTTP to this origin would loop forever
+	@direct not header X-Forwarded-For *
+	redir @direct https://{host}{uri} 308
 	log
 	encode zstd gzip
 	geoip2_vars strict
@@ -186,6 +190,10 @@ https://ir.lsevincare.com {
 	}
 }
 http://crm.lsevin.ir {
+	# direct visitors (no CDN in front) get HTTPS; requests that come through a CDN carry X-Forwarded-For and are left alone,
+	# otherwise a CDN that talks plain HTTP to this origin would loop forever
+	@direct not header X-Forwarded-For *
+	redir @direct https://{host}{uri} 308
 	import ir_crm
 }
 https://crm.lsevin.ir {
@@ -193,6 +201,10 @@ https://crm.lsevin.ir {
 	import ir_crm
 }
 http://providers.lsevin.ir {
+	# direct visitors (no CDN in front) get HTTPS; requests that come through a CDN carry X-Forwarded-For and are left alone,
+	# otherwise a CDN that talks plain HTTP to this origin would loop forever
+	@direct not header X-Forwarded-For *
+	redir @direct https://{host}{uri} 308
 	import ir_providers
 }
 https://providers.lsevin.ir {
@@ -200,6 +212,10 @@ https://providers.lsevin.ir {
 	import ir_providers
 }
 http://financial.lsevin.ir {
+	# direct visitors (no CDN in front) get HTTPS; requests that come through a CDN carry X-Forwarded-For and are left alone,
+	# otherwise a CDN that talks plain HTTP to this origin would loop forever
+	@direct not header X-Forwarded-For *
+	redir @direct https://{host}{uri} 308
 	geoip2_vars strict
 	import ir_financial
 }

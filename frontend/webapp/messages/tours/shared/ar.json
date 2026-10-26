@@ -1,0 +1,76 @@
+{
+  "TourShared": {
+    "calendar": {
+      "label": "التقويم",
+      "persian": "الهجري الشمسي",
+      "gregory": "الميلادي",
+      "islamic-umalqura": "الهجري القمري (أم القرى)",
+      "shownIn": "التواريخ بالتقويم {calendar}"
+    },
+    "traveler": {
+      "adult": "بالغ",
+      "child": "طفل",
+      "infant": "رضيع",
+      "student": "طالب",
+      "senior": "كبير السن"
+    },
+    "bookingStatus": {
+      "pending_payment": "بانتظار الدفع",
+      "requested": "بانتظار المنظم",
+      "confirmed": "مؤكد",
+      "declined": "مرفوض",
+      "cancelled": "ملغى",
+      "completed": "مكتمل",
+      "no_show": "عدم حضور",
+      "expired": "منتهي"
+    },
+    "departureStatus": {
+      "scheduled": "مجدول",
+      "delayed": "متأخر",
+      "in_progress": "جارٍ",
+      "completed": "مكتمل",
+      "cancelled": "ملغى"
+    },
+    "common": {
+      "loading": "جارٍ التحميل…",
+      "retry": "أعد المحاولة",
+      "save": "حفظ",
+      "cancel": "إلغاء",
+      "close": "إغلاق",
+      "back": "رجوع",
+      "next": "التالي",
+      "fromPrice": "ابتداءً من {price}",
+      "perPerson": "للشخص",
+      "perGroup": "للمجموعة",
+      "days": "{count, plural, one {يوم واحد} two {يومان} few {# أيام} other {# يوماً}}",
+      "nights": "{count, plural, one {ليلة} two {ليلتان} few {# ليالٍ} other {# ليلة}}",
+      "seatsLeft": "{count, plural, one {مقعد واحد متبقٍ} other {# مقاعد متبقية}}",
+      "translatedFrom": "معروض باللغة {language} — غير متوفر بلغتك بعد",
+      "offline": "أنت غير متصل. تُعرض المعلومات المحفوظة.",
+      "unavailable": "غير متاح",
+      "timezone": "بالتوقيت المحلي ({zone})"
+    },
+    "errors": {
+      "insufficient_capacity": "لا توجد مقاعد كافية في هذه الرحلة.",
+      "departure_unavailable": "لم يعد بالإمكان حجز هذه الرحلة.",
+      "booking_cutoff_passed": "انتهى الحجز لهذه الرحلة.",
+      "hold_expired": "انتهت مدة حجز مقعدك. اختر الموعد مرة أخرى.",
+      "price_changed": "تغير السعر أثناء الحجز. راجع المبلغ الجديد قبل المتابعة.",
+      "policy_changed": "تم تحديث شروط الحجز. يرجى مراجعتها وقبولها مجدداً.",
+      "invalid_guest_details": "يرجى تصحيح الحقول المحددة.",
+      "sign_in_required": "يرجى تسجيل الدخول للمتابعة.",
+      "service_unavailable": "الخدمة غير متاحة مؤقتاً. حاول بعد قليل.",
+      "unexpected_error": "حدث خطأ. حاول مرة أخرى.",
+      "invalid_date": "أدخل تاريخاً صالحاً في التقويم المحدد."
+    },
+    "errorKind": {
+      "validation": "يرجى التحقق من المدخلات.",
+      "authentication": "يرجى تسجيل الدخول.",
+      "authorization": "ليست لديك صلاحية.",
+      "not_found": "غير موجود.",
+      "conflict": "تعذر الإتمام بسبب تغيير.",
+      "infrastructure": "الخدمة غير متاحة مؤقتاً.",
+      "unexpected": "حدث خطأ. حاول مرة أخرى."
+    }
+  }
+}

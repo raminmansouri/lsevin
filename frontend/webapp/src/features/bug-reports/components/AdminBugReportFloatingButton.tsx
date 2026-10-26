@@ -246,14 +246,19 @@ export function AdminBugReportFloatingButton() {
 
   return (
     <>
+      {/* Sits in the admin header next to the notifications bell. It used to
+          be a large fixed bottom-corner pill, which covered the last rows and
+          pagination of data tables. */}
       <Button
         type="button"
+        variant="ghost"
+        size="icon"
         onClick={() => void openReporter()}
-        className="fixed end-5 bottom-5 z-40 h-12 rounded-full bg-red-600 px-4 text-white shadow-xl hover:bg-red-700"
+        className="size-8 text-red-600 hover:bg-red-50 hover:text-red-700 dark:hover:bg-red-950"
         aria-label={copy.button}
+        title={copy.button}
       >
-        <Bug className="size-5" />
-        <span className="hidden sm:inline">{copy.button}</span>
+        <Bug className="size-4" />
       </Button>
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-xl">

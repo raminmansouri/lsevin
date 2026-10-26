@@ -1,0 +1,86 @@
+{
+  "TourAdmin": {
+    "nav": {
+      "label": "أقسام منصة الجولات",
+      "dashboard": "نظرة عامة",
+      "tours": "الجولات والمراجعة",
+      "taxonomy": "التصنيفات",
+      "destinations": "الوجهات",
+      "editorial": "محتوى الصفحة الرئيسية",
+      "translations": "الترجمات",
+      "settings": "الإعدادات",
+      "departures": "الرحلات",
+      "bookings": "الحجوزات",
+      "disputes": "النزاعات",
+      "commissions": "العمولات",
+      "incidents": "الحوادث",
+      "reviews": "التقييمات",
+      "compliance": "الامتثال",
+      "reports": "التقارير",
+      "notifications": "الإشعارات"
+    },
+    "common": {
+      "saved": "تم الحفظ",
+      "cancel": "إلغاء",
+      "reason": "السبب (يُسجَّل في سجل التدقيق)",
+      "reasonHint": "{min} أحرف على الأقل."
+    },
+    "calendarField": {
+      "placeholder": "YYYY-MM-DD",
+      "format": "سنة-شهر-يوم في التقويم المحدد (تُقبل الأرقام العربية والفارسية).",
+      "invalid": "هذا التاريخ غير موجود في التقويم {calendar}.",
+      "canonical": "يُحفظ كـ"
+    },
+    "dashboard": {
+      "title": "منصة الجولات",
+      "description": "الكتالوج وقائمة المراجعة والعمليات وحالة الترجمة لجميع المزودين.",
+      "reviewQueue": "بانتظار المراجعة",
+      "departuresNext7": "رحلات الأيام السبعة القادمة",
+      "openIncidents": "حوادث مفتوحة",
+      "critical": "حرجة",
+      "openDisputes": "نزاعات مفتوحة",
+      "pendingMedia": "وسائط بانتظار المراجعة",
+      "pendingReviews": "تقييمات بانتظار المراجعة",
+      "expiringQualifications": "وثائق مرشدين قاربت على الانتهاء",
+      "toursByStatus": "الجولات حسب الحالة",
+      "bookingsByStatus": "الحجوزات حسب الحالة",
+      "coverage": "تغطية الترجمة (الحقول الإلزامية)",
+      "coverageReport": "تقرير التغطية الكامل",
+      "locale": "اللغة",
+      "complete": "جولات مكتملة",
+      "outdated": "تحتاج مراجعة"
+    },
+    "workflow": {
+      "title": "المراجعة والنشر",
+      "description": "الأخطاء تمنع النشر؛ التحذيرات تظهر للمراجع.",
+      "requirements": "المتطلبات",
+      "approveNote": "ملاحظة الموافقة (اختيارية)",
+      "approvePublish": "موافقة ونشر",
+      "published": "تم النشر",
+      "rejectNote": "ملاحظة الرفض للمزوّد (إلزامية)",
+      "reject": "رفض",
+      "rejected": "تم الرفض — يرى المزوّد ملاحظتك",
+      "submit": "إرسال للمراجعة",
+      "submitted": "أُرسلت للمراجعة",
+      "pause": "إيقاف النشر",
+      "resume": "استعادة النشر",
+      "retire": "أرشفة",
+      "duplicateSlug": "معرّف جديد للنسخة",
+      "duplicate": "نسخ كمسودة"
+    },
+    "requirement": {
+      "allMet": "تم استيفاء جميع متطلبات النشر.",
+      "missing_title": "العنوان مفقود",
+      "missing_summary": "الملخص مفقود",
+      "missing_description": "الوصف مفقود",
+      "missing_meeting_instructions": "تعليمات نقطة اللقاء مفقودة",
+      "missing_cancellation_policy": "نص سياسة الإلغاء مفقود",
+      "missing_safety_notes": "ملاحظات السلامة مفقودة",
+      "missing_media": "يلزم صورة واحدة صالحة على الأقل",
+      "missing_price": "يلزم خيار نشط بسعر للبالغين",
+      "missing_policy": "يلزم إصدار من سياسة الحجز",
+      "missing_meeting_point": "موقع نقطة اللقاء مفقود",
+      "outdated_translations": "بعض الترجمات تحتاج مراجعة"
+    }
+  }
+}

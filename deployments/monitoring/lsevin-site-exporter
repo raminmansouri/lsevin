@@ -132,6 +132,8 @@ def collect_jenkins():
                 res = (root.findtext("result") or "").strip()
                 if not res:
                     continue                                    # still running
+                if res in ("NOT_BUILT", "ABORTED"):
+                    continue                                    # superseded by a newer commit (abortPrevious) or cancelled: neither a success nor a failure
                 start = int(root.findtext("startTime") or 0) / 1000.0
                 dur = int(root.findtext("duration") or 0) / 1000.0
                 results.append((res, start + dur))
@@ -140,7 +142,7 @@ def collect_jenkins():
         if not results:
             continue
         last, ended = results[0]
-        samples_res.append(({"job": job}, 1 if last == "SUCCESS" else (-1 if last == "ABORTED" else 0)))
+        samples_res.append(({"job": job}, 1 if last == "SUCCESS" else 0))
         samples_age.append(({"job": job}, int(time.time() - ended)))
         fails = 0
         for res, _ in results:
@@ -149,7 +151,7 @@ def collect_jenkins():
             elif res == "SUCCESS":
                 break
         samples_fail.append(({"job": job}, fails))
-    return (gauge("lsevin_jenkins_last_build_result", "Result of the last finished build: 1 success, 0 failed, -1 aborted", samples_res)
+    return (gauge("lsevin_jenkins_last_build_result", "Result of the last finished build that ran to a verdict: 1 success, 0 failed (superseded/aborted builds are ignored)", samples_res)
             + gauge("lsevin_jenkins_last_build_age_seconds", "Seconds since the last build finished", samples_age)
             + gauge("lsevin_jenkins_consecutive_failures", "Failed builds in a row (most recent first)", samples_fail))
 
@@ -290,8 +292,28 @@ def collect_vpn():
     return lines
 
 
+def collect_release():
+    """Release channel (server A only): is A running the release that B publishes? State files are written by lsevin-release-sync."""
+    d = os.environ.get("RELEASE_STATE", "/var/lib/lsevin-release")
+    if not os.path.isdir(d):
+        return []
+    def age(name):
+        try:
+            return round(time.time() - os.path.getmtime(os.path.join(d, name)), 1)
+        except OSError:
+            return 1e9
+    try:
+        behind = int(open(os.path.join(d, "behind")).read().strip() or 0)
+    except (OSError, ValueError):
+        behind = 0
+    lines = gauge("lsevin_release_behind", "1 when server B runs a newer release than server A", [({}, behind)])
+    lines += gauge("lsevin_release_check_age_seconds", "Seconds since A last read B's release manifest successfully (1e9 = never)", [({}, age("last-check"))])
+    lines += gauge("lsevin_release_ok_age_seconds", "Seconds since A was last confirmed up to date with B or applied a release (1e9 = never)", [({}, age("last-ok"))])
+    return lines
+
+
 def background():
-    schedule = [("sync", collect_sync, 60), ("jenkins", collect_jenkins, 60), ("providers", collect_providers, 300), ("k8s", collect_k8s, 30), ("vpn", collect_vpn, 60)]
+    schedule = [("sync", collect_sync, 60), ("jenkins", collect_jenkins, 60), ("providers", collect_providers, 300), ("k8s", collect_k8s, 30), ("vpn", collect_vpn, 60), ("release", collect_release, 60)]
     last = {n: 0 for n, _, _ in schedule}
     while True:
         for name, fn, every in schedule:

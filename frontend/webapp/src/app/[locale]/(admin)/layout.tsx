@@ -64,6 +64,7 @@ export default async function AdminLayout({ children, params }: LocalePageProps)
             <AdminBreadcrumbs />
             <div className="ms-auto flex items-center gap-2">
               <AdminCommandPalette tableGroups={tableGroups} />
+              <AdminBugReportFloatingButton />
               <AdminNotificationsBell />
               <ThemeToggle />
               <LocaleSwitcher />
@@ -81,7 +82,6 @@ export default async function AdminLayout({ children, params }: LocalePageProps)
               here. `gap-6` also matches the `space-y-6` the pages themselves
               use, instead of stacking 40px gaps on top of 24px ones. */}
           <Shell className="gap-6 px-4 py-6 md:px-6">{children}</Shell>
-          <AdminBugReportFloatingButton />
         </SidebarInset>
       </SidebarProvider>
     </NextIntlClientProvider>

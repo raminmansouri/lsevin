@@ -127,7 +127,26 @@ export const ADMIN_NAV: AdminNavEntry[] = [
       { titleKey: "availability", href: "/admin/availability", icon: Clock },
       { titleKey: "gymMemberships", href: "/admin/gym-memberships", icon: Dumbbell },
       { titleKey: "transferRoutes", href: "/admin/transfer-routes", icon: Car },
-      { titleKey: "tours", href: "/admin/tours", icon: Compass },
+    ],
+  },
+
+  // Tours platform (docs/designs/tours/Tours.md §11–12). The two older tour
+  // screens moved here from "bookings" so every leaf still appears once.
+  {
+    titleKey: "toursPlatform",
+    icon: Compass,
+    items: [
+      { titleKey: "toursPlatformDashboard", href: "/admin/tours-platform", icon: LayoutDashboard },
+      { titleKey: "toursPlatformTours", href: "/admin/tours-platform/tours", icon: Compass },
+      { titleKey: "toursPlatformDestinations", href: "/admin/tours-platform/destinations", icon: MapPin },
+      { titleKey: "toursPlatformEditorial", href: "/admin/tours-platform/editorial", icon: LayoutTemplate },
+      { titleKey: "toursPlatformDepartures", href: "/admin/tours-platform/departures", icon: CalendarDays },
+      { titleKey: "toursPlatformBookings", href: "/admin/tours-platform/bookings", icon: Ticket },
+      { titleKey: "toursPlatformDisputes", href: "/admin/tours-platform/disputes", icon: Scale },
+      { titleKey: "toursPlatformTranslations", href: "/admin/tours-platform/translations", icon: MessagesSquare },
+      { titleKey: "toursPlatformReports", href: "/admin/tours-platform/reports", icon: TrendingUp },
+      { titleKey: "toursPlatformSettings", href: "/admin/tours-platform/settings", icon: Settings2 },
+      { titleKey: "tours", href: "/admin/tours", icon: CalendarCheck },
       { titleKey: "tourGatherings", href: "/admin/tour-gatherings", icon: Users },
     ],
   },

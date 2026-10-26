@@ -58,6 +58,7 @@ scp <the fresh lsevin-2*.dump>                          root@${ip}:/root/recover
 scp tools\*                                             root@${ip}:/root/recovery/tools/
 scp repo.bundle                                         root@${ip}:/root/recovery/
 scp -r <repo>\deployments\dr\rebuild                    root@${ip}:/root/rebuild
+ssh root@$ip "sed -i 's/\r$//' /root/rebuild/lsevin-rebuild /root/rebuild/k8s-clean.py"   # a Windows checkout can add CRLF line endings; Linux then fails with 'bash\r: No such file'
 ```
 (Use the newest config bundle only; older ones are fallbacks.)
 
@@ -84,6 +85,7 @@ What each does, in plain words:
 
 ## 5. After the script
 
+0. **Server A: take B's current release** (instead of building on A): `lsevin-release-sync --force` (needs `/etc/lsevin/release.pw`, which is in the config bundle, and the VPN). It downloads the webapp/API/migrations images B runs, rewrites the host for lsevin.ir, imports and deploys them. Re-enable the 5-minute timer with `deployments/release-sync/a-units.sh` (seed `/var/lib/lsevin-release/applied.json` first, see its README). Server B: the release export (`deployments/release-sync/b-units.sh`) is derived data and is rebuilt automatically after B's first Jenkins deploy.
 1. **Images that are not in the archive** (crm, providers, portal): their pods show `ImagePullBackOff` until Jenkins builds them. Open Jenkins (A: `http://<ip>:8080` through the VPN/SSH tunnel; B: `devops.lsevin.com`) and run `lsevin-crm-production`, `lsevin-providers-production` (and `lsevin-main-production` if the webapp is missing). Builds take 20–40 min; do them one at a time.
 2. **Media** (images/files):
    * X = A: done by the `sync` phase (`lsevin-files-sync --resync` pulls the bucket from B).

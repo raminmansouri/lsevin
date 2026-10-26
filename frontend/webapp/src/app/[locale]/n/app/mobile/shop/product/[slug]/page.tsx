@@ -184,23 +184,6 @@ export default async function ProductDetailPage({
         </section>
       ) : null}
 
-      {product.relatedServices.length ? (
-        <section className="mt-2 bg-white p-4">
-          <h2 className="mb-2 text-sm font-bold text-neutral-900">{t("relatedServices")}</h2>
-          <div className="flex flex-wrap gap-2">
-            {product.relatedServices.map((s) => (
-              <Link
-                key={s.serviceDefinitionId}
-                href={`/n/app/mobile/service/${s.serviceDefinitionId}`}
-                className="rounded-full bg-[#083f30]/5 px-3 py-1 text-xs font-medium text-[#083f30] transition-colors hover:bg-[#083f30]/10"
-              >
-                {s.name || s.relationType}
-              </Link>
-            ))}
-          </div>
-        </section>
-      ) : null}
-
       {product.relatedProducts.length ? (
         <section className="mt-2 bg-white p-4">
           <h2 className="mb-3 text-sm font-bold text-neutral-900">{t("relatedProducts")}</h2>

@@ -43,6 +43,26 @@ function mergeMessages(base: Messages, override: Messages): Messages {
   return merged;
 }
 
+/**
+ * The Tours sub-application keeps its strings in their own files
+ * (messages/tours/<area>/<locale>.json — namespaces TourApp, TourAdmin,
+ * TourShared) so they can evolve without churning the shared catalogs. They are
+ * merged per key exactly like the main bundle, English filling any gap.
+ */
+const TOUR_MESSAGE_AREAS = ["app", "admin", "shared"] as const;
+async function loadTourMessages(locale: string): Promise<Messages> {
+  let merged: Messages = {};
+  for (const area of TOUR_MESSAGE_AREAS) {
+    try {
+      const mod = (await import(`../../messages/tours/${area}/${locale}.json`)).default as Messages;
+      merged = mergeMessages(merged, mod);
+    } catch {
+      // A locale without its own tours file falls back to English via the merge above.
+    }
+  }
+  return merged;
+}
+
 export default getRequestConfig(async ({ requestLocale }) => {
   // Typically corresponds to the `[locale]` segment. Can be undefined for
   // requests outside the [locale] tree (root layout, not-found, some server
@@ -53,13 +73,19 @@ export default getRequestConfig(async ({ requestLocale }) => {
     ? requested
     : routing.defaultLocale;
 
-  const en = (await import(`../../messages/en.json`)).default as Messages;
+  const en = mergeMessages(
+    (await import(`../../messages/en.json`)).default as Messages,
+    await loadTourMessages("en"),
+  );
 
   if (locale === "en") {
     return { locale, messages: en };
   }
 
-  const current = (await import(`../../messages/${locale}.json`)).default as Messages;
+  const current = mergeMessages(
+    (await import(`../../messages/${locale}.json`)).default as Messages,
+    await loadTourMessages(locale),
+  );
 
   return {
     locale,

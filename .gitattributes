@@ -8,3 +8,5 @@ deployments/monitoring/*.json text eol=lf
 deployments/dr/*.env text eol=lf
 deployments/symmetricds/tests/* text eol=lf
 deployments/symmetricds/scripts/* text eol=lf
+deployments/release-sync/* text eol=lf
+deployments/jenkins/*.sh text eol=lf

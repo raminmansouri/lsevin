@@ -1,0 +1,148 @@
+#!/usr/bin/env bash
+# lsevin-release-sync - runs ON SERVER A (timer, every 5 minutes). Applies the release that server B is running.
+#
+# Why: A has 7.9 GB RAM. A Next.js build needs ~3 GB, so builds on A starved the live site (2026-10-18) and, behind the
+# build gate, were refused outright (2026-10-21: three publishes never reached A). B builds with Jenkins as before; B
+# publishes the exact images it runs (lsevin-release-export, served at https://api.lsevin.com/_releases/ with a password);
+# A downloads them over its VPN, rewrites the public host for the Iranian domain (build-site-variant.sh) and deploys with the
+# same k3s-deploy.sh helpers as Jenkins (readiness wait + automatic rollback to the previous images).
+#
+#   lsevin-release-sync            check B and apply a newer release
+#   lsevin-release-sync --check    only report whether A is behind (exit 0 = current, 10 = behind, 2 = cannot reach B)
+#   lsevin-release-sync --force    apply even if A believes it is current (re-deploys B's current release)
+#
+# Image downloads are limited to 600 KB/s (RELEASE_RATE): the VPN carries ~1 MB/s in total and also carries database replication.
+# State: /var/lib/lsevin-release/{applied.json,last-check,last-ok,behind,last-error}   Log: /var/log/lsevin-release-sync.log
+set -uo pipefail
+B_IP=${B_IP:-202.133.90.50}; HOST=${RELEASE_HOST:-api.lsevin.com}; USER_NAME=${RELEASE_USER:-site-a}
+PWFILE=${RELEASE_PWFILE:-/etc/lsevin/release.pw}
+SITE_FROM=${SITE_REWRITE_FROM:-appmain.lsevin.com}; SITE_TO=${SITE_REWRITE_TO:-lsevin.ir}
+D=${JENKINS_DEPLOY_DIR:-/opt/lsevin/app/deployments/jenkins}; DEPLOY="$D/k3s-deploy.sh"; VARIANT="$D/site-variant/build-site-variant.sh"
+NS=lsevin; STATE=/var/lib/lsevin-release; WORK=/var/lib/lsevin-release/work; LOG=/var/log/lsevin-release-sync.log
+MODE=${1:-apply}
+mkdir -p "$STATE" "$WORK"; touch "$LOG"
+log() { printf '%s %s\n' "$(date -u +%FT%TZ)" "$*" | tee -a "$LOG" >&2; }
+fail() { log "ERROR: $*"; printf '%s %s\n' "$(date -u +%FT%TZ)" "$*" > "$STATE/last-error"; exit "${2:-1}"; }
+exec 9>/run/lock/lsevin-release-sync.lock; flock -n 9 || { echo "another run is in progress" >&2; exit 0; }
+
+# Every release leaves ~1.2 GB of images behind on A (Docker staging copy, Kubernetes copy, persisted archive). Keep what is
+# running plus the previous release (rollback); remove the rest. Kubelet's own image GC only starts at 85% disk, which is where
+# the site health check turns red (2026-10-22).
+tidy_images() {
+  local keep; keep=$(mktemp)
+  { kubectl -n "$NS" get pods,deploy,sts,cronjob -o jsonpath='{..image}' 2>/dev/null | tr ' ' '
+'
+    py "import json; d=json.load(open('$STATE/applied.json')); print('
+'.join(d.get(k,'') for k in ('webapp','migrations','api')))" 2>/dev/null
+    [ -s "$STATE/applied.prev.json" ] && py "import json; d=json.load(open('$STATE/applied.prev.json')); print('
+'.join(d.get(k,'') for k in ('webapp','migrations','api')))" 2>/dev/null
+  } | sed 's#^docker.io/library/##' | grep -E '^lsevin-' | sort -u > "$keep"
+  local ref removed=0
+  for ref in $(k3s ctr -n k8s.io images ls -q 2>/dev/null | sed 's#^docker.io/library/##' | grep -E '^lsevin-(webapp|webapp-migrations|api):'); do
+    grep -qxF "$ref" "$keep" && continue
+    k3s ctr -n k8s.io images rm --sync "docker.io/library/$ref" >/dev/null 2>&1 && removed=$((removed + 1))
+  done
+  # the Docker copies were only staging for the import
+  docker images --format '{{.Repository}}:{{.Tag}}' | grep -E '^lsevin-(webapp|webapp-migrations|api):' | xargs -r docker rmi -f >/dev/null 2>&1
+  docker builder prune -f --reserved-space 2GB >/dev/null 2>&1 || true
+  log "tidy: removed $removed old Kubernetes images; kept $(wc -l < "$keep") (running + previous release); disk now $(df -h --output=pcent / | tail -1 | tr -d ' ')"
+  rm -f "$keep"
+}
+
+
+[ -r "$PWFILE" ] || fail "password file $PWFILE missing" 2
+py() { python3 -c "$@"; }
+[ "$MODE" = "--tidy" ] && { tidy_images; exit 0; }
+fetch() {   # fetch <path> <output-file|->   (TLS verified; connects straight to B through the VPN route)
+  printf 'user = "%s:%s"\n' "$USER_NAME" "$(cat "$PWFILE")" | curl -sS -f -m "${CURL_MAX:-900}" -K - --connect-timeout 15 --retry 2 --limit-rate "${RATE:-0}" \
+    --resolve "$HOST:443:$B_IP" -o "$2" "https://$HOST/_releases/$1"
+}
+
+# ---------------------------------------------------------------- 1. what does B run?
+cur="$WORK/current.json"
+fetch current.json "$cur" 2>>"$LOG" || { echo "$(date +%s)" > "$STATE/last-check-failed"; fail "cannot fetch B's release manifest (VPN down or B unreachable)" 2; }
+rm -f "$STATE/last-check-failed"; date +%s > "$STATE/last-check"
+py() { python3 -c "$@"; }
+key_of() { printf '%s' "$1" | sed -E 's/^[^:]*:([^-]*)-.*/\1/'; }          # image ref -> commit part of its tag
+ref() { py "import json,sys; d=json.load(open('$cur')); v=d.get('$1'); print(v['ref'] if v else '')"; }
+web=$(ref webapp); mig=$(ref migrations); api=$(ref api)
+[ -n "$web" ] && [ -n "$api" ] || fail "manifest from B is incomplete"
+applied="$STATE/applied.json"; [ -s "$applied" ] || echo '{}' > "$applied"
+aref() { py "import json; print(json.load(open('$applied')).get('$1',''))"; }
+a_web=$(aref webapp); a_mig=$(aref migrations); a_api=$(aref api)
+
+need_api=0; need_web=0
+[ "$(key_of "$api")" != "$(key_of "${a_api:-x:x-x}")" ] && need_api=1
+{ [ "$(key_of "$web")" != "$(key_of "${a_web:-x:x-x}")" ] || { [ -n "$mig" ] && [ "$(key_of "$mig")" != "$(key_of "${a_mig:-x:x-x}")" ]; }; } && need_web=1
+need_mig=0; [ -n "$mig" ] && [ "$(key_of "$mig")" != "$(key_of "${a_mig:-x:x-x}")" ] && need_mig=1
+[ "$MODE" = "--force" ] && { need_api=1; need_web=1; need_mig=1; }
+
+if [ $need_api = 0 ] && [ $need_web = 0 ]; then
+  [ "$(df --output=pcent / | tail -1 | tr -dc 0-9)" -ge 80 ] && [ "$MODE" != "--check" ] && tidy_images
+  echo 0 > "$STATE/behind"; log "up to date with B (webapp $web, api $api)"; [ "$MODE" = "--check" ] && exit 0; touch "$STATE/last-ok"; exit 0
+fi
+echo 1 > "$STATE/behind"; log "behind B: api=$need_api web=$need_web  (B: webapp $web, migrations ${mig:-none}, api $api)"
+[ "$MODE" = "--check" ] && exit 10
+
+# ---------------------------------------------------------------- 2. is it safe to deploy right now?
+ps -eo args | grep -qE "[d]ocker build|[k]3s-deploy.sh (import|deploy)|[b]uild-site-variant" && { log "a build/deploy is running; will retry"; exit 0; }
+free_gb=$(df -BG --output=avail / | tail -1 | tr -dc 0-9)
+[ "${free_gb:-0}" -ge 6 ] || fail "only ${free_gb} GB free on /; need 6 GB to load the release"
+retry_file="$STATE/failed-at"; sig="$web|$mig|$api"
+if [ -s "$retry_file" ] && [ "$MODE" != "--force" ] && [ "$(cut -d' ' -f2- "$retry_file")" = "$sig" ] && [ $(( $(date +%s) - $(cut -d' ' -f1 "$retry_file") )) -lt 1800 ]; then
+  log "the same release failed less than 30 minutes ago; waiting before another attempt"; exit 0
+fi
+
+# ---------------------------------------------------------------- 3. download + verify
+get_image() {   # get_image <manifest key>  -> loads the image into Docker
+  local k=$1 file sha
+  file=$(py "import json; print(json.load(open('$cur'))['$k']['file'])"); sha=$(py "import json; print(json.load(open('$cur'))['$k']['sha256'])")
+  log "downloading $file"
+  RATE="${RELEASE_RATE:-600k}" fetch "$file" "$WORK/$file" 2>>"$LOG" || { rm -f "$WORK/$file"; return 1; }
+  [ "$(sha256sum "$WORK/$file" | cut -d' ' -f1)" = "$sha" ] || { log "checksum mismatch for $file"; rm -f "$WORK/$file"; return 1; }
+  gunzip -c "$WORK/$file" | docker load >/dev/null 2>>"$LOG" || { rm -f "$WORK/$file"; return 1; }
+  rm -f "$WORK/$file"
+}
+cleanup_work() { rm -f "$WORK"/*.tar.gz "$WORK"/*.part 2>/dev/null; }
+trap cleanup_work EXIT
+mark_failed() { echo "$(date +%s) $sig" > "$retry_file"; echo 1 > "$STATE/behind"; fail "$1"; }
+
+tag_of() { printf '%s' "${1#*:}"; }
+if [ $need_api = 1 ]; then
+  get_image api || mark_failed "could not download/load the API image"
+  sh "$DEPLOY" import "api-$(tag_of "$api").tar" "$api" >>"$LOG" 2>&1 || mark_failed "could not import $api into Kubernetes"
+fi
+if [ $need_web = 1 ]; then
+  get_image webapp || mark_failed "could not download/load the webapp image"
+  # the Iranian site is the same build with its public host rewritten (replaces the image under the same tag)
+  SKIP_CONTAINERD=1 bash "$VARIANT" "$web" "$SITE_FROM" "$SITE_TO" "$web" >>"$LOG" 2>&1 || mark_failed "host rewrite of $web failed"
+  sh "$DEPLOY" import "web-$(tag_of "$web").tar" "$web" >>"$LOG" 2>&1 || mark_failed "could not import $web into Kubernetes"
+  if [ $need_mig = 1 ]; then
+    get_image migrations || mark_failed "could not download/load the migrations image"
+    sh "$DEPLOY" import "migrations-$(tag_of "$mig").tar" "$mig" >>"$LOG" 2>&1 || mark_failed "could not import $mig into Kubernetes"
+  fi
+fi
+
+# ---------------------------------------------------------------- 4. deploy (readiness wait + automatic rollback live in k3s-deploy.sh)
+if [ $need_api = 1 ]; then
+  log "deploying API $api"
+  sh "$DEPLOY" deploy-api "$NS" "$(tag_of "$api")" >>"$LOG" 2>&1 || mark_failed "API deployment failed (rolled back)"
+fi
+if [ $need_web = 1 ]; then
+  log "deploying webapp $web$([ $need_mig = 1 ] && echo " with migrations $mig")"
+  if [ $need_mig = 1 ]; then
+    sh "$DEPLOY" deploy-web "$NS" "$(tag_of "$web")" "$(tag_of "$mig")" >>"$LOG" 2>&1 || mark_failed "webapp deployment failed (rolled back)"
+  else
+    sh "$DEPLOY" deploy-web "$NS" "$(tag_of "$web")" >>"$LOG" 2>&1 || mark_failed "webapp deployment failed (rolled back)"
+  fi
+fi
+
+# ---------------------------------------------------------------- 5. verify and record
+sleep 5
+code=$(curl -s -m 20 -o /dev/null -w '%{http_code}' --resolve "$SITE_TO:443:127.0.0.1" -k "https://$SITE_TO/app-health" || true)
+[ "$code" = 204 ] || log "WARNING: https://$SITE_TO/app-health answered $code after the deployment (check the site)"
+[ -s "$applied" ] && cp -f "$applied" "$STATE/applied.prev.json"
+py "import json; json.dump({'webapp':'$web','migrations':'$mig','api':'$api','applied_at':'$(date -u +%FT%TZ)'}, open('$applied','w'))"
+echo 0 > "$STATE/behind"; rm -f "$retry_file" "$STATE/last-error"; touch "$STATE/last-ok"
+log "applied B's release: webapp $web, api $api${mig:+, migrations $mig} (site check $code)"
+tidy_images

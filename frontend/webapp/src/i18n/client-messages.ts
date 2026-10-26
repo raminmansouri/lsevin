@@ -62,6 +62,8 @@ export const SEGMENT_NAMESPACES = {
   mobileApp: [
     "AsyncSelect",
     "Booking",
+    // booking-pro step 3 on phones (components/itinerary/*).
+    "BookingItinerary",
     "BottomTabBar",
     // n/app/mobile/categories/page.tsx renders category-browser-client.tsx,
     // a "use client" component calling useTranslations("CategoryBrowser").
@@ -150,6 +152,9 @@ export const SEGMENT_NAMESPACES = {
     "GymMemberships",
     "Transfers",
     "Tours",
+    // The new tours platform admin screens (src/app/[locale]/(admin)/admin/tours-*).
+    "TourAdmin",
+    "TourShared",
   ],
   // Every screen in the (auth) group — sign-in, sign-up, OTP, forgot-password,
   // reset-password — is a client component calling `useTranslations("Auth.*")`,
@@ -183,6 +188,8 @@ export const SEGMENT_NAMESPACES = {
     "ServiceProviderPage",
     "Tours",
   ],
+  /** The Tours sub-application (src/app/[locale]/tours/**). */
+  tours: ["TourApp", "TourShared", "BottomTabBar"],
   providerPanel: ["AdminGenerated"],
   providerPortal: ["ProviderPortal"],
 } as const satisfies Record<string, readonly string[]>;

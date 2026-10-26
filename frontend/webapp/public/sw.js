@@ -173,7 +173,7 @@
 })();
 
 /* PROFILE_VIEW_STORE_END */
-const VERSION = "v1-6aefbd16afefc190";
+const VERSION = "v1-1c957f5f5357764a";
 const SHELL_CACHE = `lsevin-pwa-shell-${VERSION}`;
 const ASSET_CACHE = "lsevin-pwa-assets-v2";
 const APPLICATION_CACHE = "lsevin-pwa-application-v2";
@@ -209,7 +209,17 @@ let directoryWrites = Promise.resolve();
 async function installShell() {
   for (let attempt = 0; attempt < 3; attempt += 1) {
     try {
-      await (await caches.open(SHELL_CACHE)).addAll(SHELL);
+      const cache = await caches.open(SHELL_CACHE);
+      // Fetch each release through a unique CDN key. Keep addAll atomic, then
+      // normalize keys so offline requests never depend on network or queries.
+      const versioned = SHELL.map((path) => `${path}?pwa=${VERSION}`);
+      await cache.addAll(versioned);
+      for (let i = 0; i < SHELL.length; i += 1) {
+        const response = await cache.match(versioned[i]);
+        if (!response) throw new Error("Incomplete offline shell");
+        await cache.put(SHELL[i], response);
+        await cache.delete(versioned[i]);
+      }
       return;
     } catch (error) {
       if (attempt === 2) throw error;
@@ -529,7 +539,11 @@ async function saveDirectory(url, response) {
 self.addEventListener("fetch", (event) => {
   const request = event.request;
   const url = new URL(request.url);
-  if (request.method === "GET" && request.destination === "image") {
+  if (
+    request.method === "GET" &&
+    request.destination === "image" &&
+    !(url.origin === self.location.origin && SHELL.includes(url.pathname))
+  ) {
     event.respondWith(
       (async () => {
         const cached = await (
@@ -580,8 +594,8 @@ self.addEventListener("fetch", (event) => {
     return;
   }
   if (
-    !url.search &&
-    (SHELL.includes(url.pathname) || url.pathname.startsWith("/_next/static/"))
+    SHELL.includes(url.pathname) ||
+    (!url.search && url.pathname.startsWith("/_next/static/"))
   ) {
     const asset = cachedAsset(request);
     event.respondWith(asset.then((result) => result.response));

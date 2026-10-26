@@ -13967,6 +13967,8 @@ declare const messages: {
     "relGeneral": "ذات صلة",
     "serviceProductsHeading": "منتجات موصى بها",
     "serviceRelatedProductsTitle": "منتجات ذات صلة",
+    "bookingRelatedProductsTitle": "منتجات مرتبطة بـ {service}",
+    "bookingRelatedProductsSubtitle": "منتجات موصى بها لهذه الخدمة",
     "cancelOrder": "إلغاء الطلب",
     "cancelReason": "السبب (اختياري)",
     "confirmCancel": "نعم، ألغِ هذا الطلب",

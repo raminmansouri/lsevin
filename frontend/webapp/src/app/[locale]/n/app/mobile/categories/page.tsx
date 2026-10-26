@@ -5,6 +5,7 @@ import { setRequestLocale } from "next-intl/server";
 import { getCategoryBrowserGroups } from "@/features/service-providers/actions/categories/get-category-browser-groups";
 import { CategoryBrowserClient } from "@/features/service-providers/components/categories/category-browser-client";
 import { SponsoredPlacementSlot } from "@/features/sponsered-slider/components/sponsored-placement-slot";
+import { getTourSettings } from "@/features/tours/server/platform/settings";
 
 import { DesktopCategoryBrowser } from "@/features/web-desktop/categories/DesktopCategoryBrowser";
 import { DesktopSponsoredSection } from "@/features/web-desktop/home/DesktopSponsoredSection";
@@ -37,6 +38,11 @@ export default async function CategoryBrowserPage({
     totalProviders: 0,
   }));
 
+  // Tourism opens the Tours sub-application (C-001); its id is configuration, not code.
+  const tourismCategoryId = await getTourSettings()
+    .then((s) => s.tourismCategoryId)
+    .catch(() => null);
+
   return (
     <Suspense fallback={null}>
       <div className="xl:hidden">
@@ -51,6 +57,7 @@ export default async function CategoryBrowserPage({
         categoryGroups={data.groups}
         totalCategories={data.totalCategories}
         totalProviders={data.totalProviders}
+        tourismCategoryId={tourismCategoryId}
       />
       <div className="lsd hidden pb-14 xl:block">
         <DesktopSponsoredSection locale={locale} placement="categories" />

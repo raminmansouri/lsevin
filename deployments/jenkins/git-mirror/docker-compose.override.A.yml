@@ -21,7 +21,8 @@ services:
       # Only the main job polls. The CRM / providers / shop pipelines build with plain `docker compose build`, which has
       # no CPU or memory limit; started together with other work they exhausted this 7.9 GB host (load average > 150).
       # They are started by hand (one at a time) when needed.
-      JENKINS_POLL_SCM_JOBS: lsevin-main-production
+      # A no longer builds the webapp/API: B builds and A applies B's release (deployments/release-sync). "none" matches no job (an empty value would fall back to the default).
+      JENKINS_POLL_SCM_JOBS: none
       # One CPU and 2 GB per image build; the host also has 6 GB of swap (/swap.img + /swap2.img).
       JENKINS_BUILD_LIMITS: --resource cpu-quota=100000 --resource memory=2304m --resource memory-swap=2304m
       # server A idles at ~2.4 GB available; a build is capped at 2304 MB without swap, so it cannot push the host into thrash

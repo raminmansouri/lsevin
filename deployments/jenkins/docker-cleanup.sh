@@ -12,7 +12,7 @@ if pgrep -f '[d]ocker build' >/dev/null 2>&1 \
   exit 0
 fi
 
-image_age="${LSEVIN_DOCKER_IMAGE_MAX_AGE:-12h}"
+image_age="${LSEVIN_DOCKER_IMAGE_MAX_AGE:-3h}"
 cache_reserve="${LSEVIN_DOCKER_CACHE_RESERVE:-3GB}"
 
 echo "Pruning unused Docker images older than ${image_age}."
