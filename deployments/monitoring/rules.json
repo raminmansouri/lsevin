@@ -424,6 +424,13 @@
       "for": 0,
       "expr": "lsevin_release_check_age_seconds > 1800",
       "summary": "server A cannot read B's release manifest for {value}s: new publishes will not reach A (VPN down? B's /_releases route or password?)"
+    },
+    {
+      "name": "tables_not_replicated",
+      "severity": "warning",
+      "for": 3600,
+      "expr": "lsevin_sync_unreplicated_tables > 0",
+      "summary": "{value} table(s) hold data but have no replication trigger, so that data never reaches the other site (new feature schema? see deployments/symmetricds/sql/register-schema-tables.sql)"
     }
   ]
 }
