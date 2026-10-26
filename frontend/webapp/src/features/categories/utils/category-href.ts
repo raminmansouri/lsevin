@@ -23,7 +23,17 @@ export function categoryProvidersHref(categoryId: string) {
   return `${PROVIDER_LIST_PATH}?categoryId=${encodeURIComponent(categoryId)}&view=list`;
 }
 
-export function categoryCardHref(category: { id: string; childCount: number }) {
+export function categoryCardHref(
+  category: { id: string; childCount: number },
+  /** Pass the Tourism root (from tour settings) so Tourism and its subtree open Tours directly. */
+  tourism?: { tourismCategoryId?: string | null; parentOf?: (id: string) => string | null | undefined },
+) {
+  if (
+    tourism?.tourismCategoryId &&
+    isTourismCategory(category.id, tourism.parentOf ?? (() => null), tourism.tourismCategoryId)
+  ) {
+    return TOURS_HOME_PATH;
+  }
   return category.childCount > 0
     ? categoryBrowserHref(category.id)
     : categoryProvidersHref(category.id);
