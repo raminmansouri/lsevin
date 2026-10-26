@@ -36,11 +36,17 @@ export async function buildPublicMetadata(
       `${title} — ${firstSeoPlainText([t("description"), title])}`,
     ]);
   const images = facts.image ? [{ url: facts.image }] : [];
+  // A locale left out of the eligible set is a fallback rendering of another
+  // language's content: keep it crawlable for its links, but out of the index.
+  const indexable =
+    !facts.eligibleLocales ||
+    (facts.eligibleLocales as readonly string[]).includes(facts.locale);
   return {
     // Prevent the ancestor title template from drifting away from social titles.
     title: { absolute: title },
     description,
     alternates,
+    ...(indexable ? {} : { robots: { index: false, follow: true } }),
     openGraph: {
       title,
       description,

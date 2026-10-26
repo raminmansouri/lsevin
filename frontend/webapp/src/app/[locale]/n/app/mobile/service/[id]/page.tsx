@@ -1,10 +1,20 @@
-import { setRequestLocale } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 
 import { listActiveServicePageIds } from "@/features/service-providers/server/service-page.repository";
 import { getServicePageByIdCached } from "@/features/service-providers/server/service-page.repository.cached";
 import { SponsoredPlacementSlot } from "@/features/sponsered-slider/components/sponsored-placement-slot";
 import { isFastBuild } from "@/lib/build-mode";
+import { absoluteUrl } from "@/lib/seo/alternates";
+import {
+  breadcrumbList,
+  graph,
+  providerUrl,
+  serviceSchema,
+  serviceUrl,
+} from "@/lib/seo/entity-schema";
+import { JsonLd } from "@/lib/seo/json-ld";
+import { getIndexableLocales } from "@/lib/seo/locale-eligibility";
 import { buildPublicMetadata } from "@/lib/seo/metadata";
 
 import ServicePage from "./service-page";
@@ -58,6 +68,7 @@ export async function generateMetadata({
     ],
     image: service.images?.[0],
     type: "website",
+    eligibleLocales: await getIndexableLocales("service", id),
   });
 }
 
@@ -73,8 +84,36 @@ export default async function TreatmentDetailPage({
     notFound();
   }
 
+  const { service } = data;
+  const brand = (await getTranslations({ locale, namespace: "LocaleLayout" }))("title");
+
   return (
     <>
+      {service ? (
+        <JsonLd
+          data={graph(
+            serviceSchema({
+              locale,
+              id,
+              name: service.name,
+              description: service.subtitle || service.definitionDescription,
+              category: service.categoryName,
+              image: service.images?.[0],
+              providerId: service.clinicId,
+              providerName: service.clinic,
+              city: service.city,
+              country: service.country,
+            }),
+            breadcrumbList([
+              { name: brand, url: absoluteUrl(locale, "/n/app/mobile/home") },
+              ...(service.clinicId && service.clinic
+                ? [{ name: service.clinic, url: providerUrl(locale, service.clinicId) }]
+                : []),
+              { name: service.name, url: serviceUrl(locale, id) },
+            ])
+          )}
+        />
+      ) : null}
       <ServicePage data={data} serviceId={id} locale={locale} />
       <div className="pb-36">
         <SponsoredPlacementSlot locale={locale} placement="service_detail" />

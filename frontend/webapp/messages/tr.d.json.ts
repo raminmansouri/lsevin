@@ -570,6 +570,7 @@ declare const messages: {
   },
   "HomePage": {
     "title": "LSevin | İran'da Doktor, Klinik ve Sağlık Oteli Rezervasyonu",
+    "h1": "İran'da doktor, klinik, sağlık oteli ve sağlık turu rezervasyonu",
     "description": "Otel konaklamasından tıbbi randevulara kadar hasta planlamasını kolaylaştırma",
     "keywords": "otomasyon sağlık,sağlık otomasyonu,medikal turizm,tıbbi rezervasyon",
     "heroTitle": "En İyi Tıbbi Hizmetleri Bizimle Deneyimleyin",

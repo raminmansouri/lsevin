@@ -69,9 +69,6 @@ export default function UserInfoSubBar({ profile }: Props) {
   if (status === "loading" && !offlineIdentity) {
     return (
       <div className="flex items-center justify-between gap-3">
-        {/* The home shell is static, so this skeleton is what crawlers and the
-            first accessibility tree see: keep the page's h1 in it. */}
-        <h1 className="sr-only">{homeT("guestTitle")}</h1>
         <div className="flex-1 space-y-2">
           <Skeleton className="h-3 w-16 bg-white/15" />
           <Skeleton className="h-5 w-36 bg-white/15" />
@@ -91,9 +88,9 @@ export default function UserInfoSubBar({ profile }: Props) {
           <p className="text-xs font-medium text-white/60">
             {homeT("guestEyebrow")}
           </p>
-          <h1 className="truncate text-xl font-bold text-white">
+          <p className="truncate text-xl font-bold text-white">
             {homeT("guestTitle")}
-          </h1>
+          </p>
         </div>
 
         <Link
@@ -116,7 +113,7 @@ export default function UserInfoSubBar({ profile }: Props) {
         <p className="text-xs font-medium text-white/60">
           {homeT("goodMorning")}
         </p>
-        <h1 className="truncate text-xl font-bold text-white">{fullName}</h1>
+        <p className="truncate text-xl font-bold text-white">{fullName}</p>
       </div>
 
       <Link

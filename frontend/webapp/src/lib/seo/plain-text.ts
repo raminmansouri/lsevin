@@ -54,6 +54,8 @@ export function toSeoPlainText(value: unknown, maxLength = 300): string {
 
   const normalized = text.replace(/\s+/gu, " ").trim();
   if (!normalized || normalized === "[object Object]") return "";
+  // Placeholder input such as "." or "-" says nothing; let the caller fall back.
+  if (!/[\p{L}\p{N}\p{Extended_Pictographic}]/u.test(normalized)) return "";
   return truncateAtWordBoundary(normalized, maxLength);
 }
 
