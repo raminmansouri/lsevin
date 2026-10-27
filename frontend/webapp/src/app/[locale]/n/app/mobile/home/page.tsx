@@ -528,9 +528,11 @@ async function Home({ params }: PageProps) {
 function HomeGuidesSection({ locale }: { locale: string }) {
   const hub = findGuide(locale, '');
   if (!hub) return null;
+  // The hub lists every guide; the home block shows the first few, in hub order.
   const guides = hub.guide.related
     .map((slug) => findGuide(locale, slug))
-    .filter((item): item is NonNullable<typeof item> => Boolean(item));
+    .filter((item): item is NonNullable<typeof item> => Boolean(item))
+    .slice(0, 8);
   return (
     <section className="px-5 pb-8">
       <div className="rounded-2xl bg-[#083f30]/[0.05] p-5 ring-1 ring-[#083f30]/10">
