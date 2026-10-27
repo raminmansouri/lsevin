@@ -3,7 +3,7 @@ import type { Guide } from "../types";
 export const guide: Guide = {
   slug: "",
   reviewedAt: "2026-10-26",
-  related: ["visa", "medical-hotels", "mashhad", "rhinoplasty"],
+  related: ["visa", "medical-hotels", "mashhad", "tehran", "from-iraq", "rhinoplasty", "hair-transplant", "dental", "ivf"],
   copy: {
     fa: {
       title: "گردشگری سلامت ایران؛ راهنمای کامل سفر درمانی | السوین",

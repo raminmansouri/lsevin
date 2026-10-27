@@ -1,7 +1,12 @@
+import { guide as dental } from "./content/dental";
+import { guide as fromIraq } from "./content/from-iraq";
+import { guide as hairTransplant } from "./content/hair-transplant";
 import { guide as hub } from "./content/hub";
+import { guide as ivf } from "./content/ivf";
 import { guide as mashhad } from "./content/mashhad";
 import { guide as medicalHotels } from "./content/medical-hotels";
 import { guide as rhinoplasty } from "./content/rhinoplasty";
+import { guide as tehran } from "./content/tehran";
 import { guide as visa } from "./content/visa";
 import { GUIDE_LOCALES, type Guide, type GuideCopy, type GuideLocale, type GuideSlug } from "./types";
 
@@ -14,6 +19,11 @@ const GUIDES: Partial<Record<GuideSlug, Guide>> = {
   "medical-hotels": medicalHotels,
   mashhad,
   rhinoplasty,
+  "hair-transplant": hairTransplant,
+  ivf,
+  dental,
+  tehran,
+  "from-iraq": fromIraq,
 };
 
 export const allGuides = () => Object.values(GUIDES).filter((guide): guide is Guide => Boolean(guide));
