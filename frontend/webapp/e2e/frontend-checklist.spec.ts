@@ -39,22 +39,24 @@ test.describe("locale root redirect (redirect-chains)", () => {
 });
 
 test.describe("auth forms (password-field-security, form-validation, landmark-one-main)", () => {
+  // Scoped to <main>: while React streams the page, the incoming copy of the
+  // form waits in a hidden <div id="S:…"> outside it, so page-wide locators
+  // briefly match two forms.
   test("sign-in: current-password, POST form, main landmark", async ({ page }) => {
     await page.goto("/en/sign-in");
-    const password = page.locator('input[name="password"]');
+    const main = page.getByRole("main");
+    const password = main.locator('input[name="password"]');
     await expect(password).toHaveAttribute("autocomplete", "current-password");
     // A submit before hydration must not put the password in the URL.
-    await expect(page.locator("form").filter({ has: password })).toHaveAttribute(
-      "method",
-      "post"
-    );
+    const form = main.locator("form").filter({ has: page.locator('input[name="password"]') });
+    await expect(form).toHaveAttribute("method", "post");
     await expect(page.getByRole("main")).toHaveCount(1);
     await expect(page.getByRole("switch", { name: /remember/i })).toBeVisible();
   });
 
   test("sign-up: new-password", async ({ page }) => {
     await page.goto("/en/sign-up");
-    await expect(page.locator('input[name="password"]')).toHaveAttribute(
+    await expect(page.getByRole("main").locator('input[name="password"]')).toHaveAttribute(
       "autocomplete",
       "new-password"
     );
@@ -63,7 +65,7 @@ test.describe("auth forms (password-field-security, form-validation, landmark-on
 
   test("password visibility toggle is keyboard operable", async ({ page }) => {
     await page.goto("/en/sign-in");
-    const password = page.locator('input[name="password"]');
+    const password = page.getByRole("main").locator('input[name="password"]');
     await password.fill("secret-value");
     await page.getByRole("button", { name: "Show password" }).press("Enter");
     await expect(password).toHaveAttribute("type", "text");
