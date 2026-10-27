@@ -222,3 +222,13 @@ test("home: one descriptive h1, organization schema and a crawlable guides entry
   await guideLink.click();
   await expect(page).toHaveURL(/\/fa\/medical-tourism$/);
 });
+
+test("legacy provider and type URLs move permanently to the current pages", async ({ request }) => {
+  const id = process.env.SEO_E2E_PROVIDER_ID || "30000000-0000-4000-8000-000000000001";
+  const provider = await request.get(`/fa/service-providers/${id}`, { maxRedirects: 0 });
+  expect([301, 308]).toContain(provider.status());
+  expect(provider.headers()["location"]).toMatch(new RegExp(`/fa/n/app/mobile/provider/${id}$`));
+  const type = await request.get("/en/type/20000000-0000-4000-8000-000000000001", { maxRedirects: 0 });
+  expect([301, 308]).toContain(type.status());
+  expect(type.headers()["location"]).toMatch(/\/en\/n\/app\/mobile\/categories$/);
+});

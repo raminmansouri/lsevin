@@ -40,7 +40,13 @@ export default async function CategoryBrowserPage({
 
   // Reject transient failures so ISR retains the last successful tree. Never
   // publish an empty catalog as a successful render during a database outage.
-  const data = await getCategoryBrowserGroups(locale);
+  // The exception is `next build`: the image build has no database, so failing
+  // here fails the whole deploy. Bake the empty tree; the first request after
+  // the revalidate window regenerates it (same rule as the home page rails).
+  const data = await getCategoryBrowserGroups(locale).catch((error) => {
+    if (process.env.NEXT_PHASE !== "phase-production-build") throw error;
+    return { groups: [], totalCategories: 0, totalProviders: 0 };
+  });
 
   // Tourism opens the Tours sub-application (C-001); its id is configuration, not code.
   const tourismCategoryId = await getTourSettings()

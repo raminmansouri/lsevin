@@ -36,9 +36,15 @@ export default async function SearchPage({ params }: SearchPageProps) {
   const { locale } = await params;
   setRequestLocale(locale);
 
+  // Outages reject so ISR keeps the last good page, except during `next build`
+  // (no database in the image build): bake empty rails, ISR refills them.
+  const duringBuild = <T,>(fallback: T) => (error: unknown): T => {
+    if (process.env.NEXT_PHASE !== "phase-production-build") throw error;
+    return fallback;
+  };
   const [popularCategories, trendingSearches] = await Promise.all([
-    getPopularSearchCategoriesCached(locale, 8),
-    getTrendingSearchesCached(locale, 6),
+    getPopularSearchCategoriesCached(locale, 8).catch(duringBuild([])),
+    getTrendingSearchesCached(locale, 6).catch(duringBuild([])),
   ]);
 
   return (

@@ -172,6 +172,20 @@ const nextConfig: NextConfig = {
         destination: "/:locale/n/app/mobile/home",
         permanent: false,
       },
+      // Legacy marketing templates. The provider page is the same entity (same
+      // id) on the mobile template; there is no per-type listing any more, so a
+      // type page goes to the category browser. Permanent, so search engines
+      // move the signals the old URLs collected to the current pages.
+      {
+        source: `/:locale(${routing.locales.join("|")})/service-providers/:id`,
+        destination: "/:locale/n/app/mobile/provider/:id",
+        permanent: true,
+      },
+      {
+        source: `/:locale(${routing.locales.join("|")})/type/:id`,
+        destination: "/:locale/n/app/mobile/categories",
+        permanent: true,
+      },
       {
         source: "/admin/sponsered-slider/:path*",
         destination: "/admin/sponsored-slider/:path*",
