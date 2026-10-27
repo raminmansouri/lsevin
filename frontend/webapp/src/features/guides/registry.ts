@@ -7,7 +7,8 @@ import { GUIDE_LOCALES, type Guide, type GuideCopy, type GuideLocale, type Guide
 
 export const GUIDE_BASE_PATH = "/medical-tourism";
 
-const GUIDES: Record<GuideSlug, Guide> = {
+// A slug is published only once its content file is registered here.
+const GUIDES: Partial<Record<GuideSlug, Guide>> = {
   "": hub,
   visa,
   "medical-hotels": medicalHotels,
@@ -15,7 +16,7 @@ const GUIDES: Record<GuideSlug, Guide> = {
   rhinoplasty,
 };
 
-export const allGuides = () => Object.values(GUIDES);
+export const allGuides = () => Object.values(GUIDES).filter((guide): guide is Guide => Boolean(guide));
 
 export const isGuideLocale = (locale: string): locale is GuideLocale =>
   (GUIDE_LOCALES as readonly string[]).includes(locale);
@@ -30,8 +31,8 @@ export function findGuide(
   locale: string,
   slug: string
 ): { guide: Guide; copy: GuideCopy; locale: GuideLocale } | null {
-  if (!isGuideLocale(locale) || !(slug in GUIDES)) return null;
+  if (!isGuideLocale(locale)) return null;
   const guide = GUIDES[slug as GuideSlug];
-  const copy = guide.copy[locale];
-  return copy ? { guide, copy, locale } : null;
+  const copy = guide?.copy[locale];
+  return guide && copy ? { guide, copy, locale } : null;
 }

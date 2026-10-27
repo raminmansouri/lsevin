@@ -15,10 +15,12 @@ export async function generateMetadata({
 }) {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "CategoryBrowser" });
+  // Localized brand (السوین on Persian pages), not a hard-coded Latin name.
+  const brand = (await getTranslations({ locale, namespace: "LocaleLayout" }))("title");
   return buildPublicMetadata({
     locale,
     path: "/n/app/mobile/categories",
-    title: `${t("allCategories")} | LSevin`,
+    title: `${t("allCategories")} | ${brand}`,
     descriptions: [t("cantFindDescription")],
   });
 }

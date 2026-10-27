@@ -62,11 +62,12 @@ for (const route of ["home", "categories", "explore"]) {
       "content",
       /\S+/
     );
-    const robots = await page
-      .locator('meta[name="robots"]')
-      .getAttribute("content")
-      .catch(() => null);
-    expect(robots || "").not.toContain("noindex");
+    // An indexable page usually has no robots meta at all; a locator would
+    // auto-wait for it until the test times out, so read the DOM directly.
+    const robots = await page.evaluate(
+      () => document.querySelector('meta[name="robots"]')?.getAttribute("content") ?? ""
+    );
+    expect(robots).not.toContain("noindex");
   });
 }
 
@@ -217,6 +218,18 @@ test("home: one descriptive h1, organization schema and a crawlable guides entry
       .find((item) => item["@type"] === "Organization")
   );
   expect(org.alternateName).toContain("السوین");
+  // A first visit opens the location picker sheet over the page; close it the
+  // way a visitor would (tap the dimmed backdrop) before using the page.
+  // It opens shortly after hydration, so wait for it rather than checking once.
+  const pickerBackdrop = page.locator(".sheet-scrim").first();
+  const opened = await pickerBackdrop
+    .waitFor({ state: "visible", timeout: 5_000 })
+    .then(() => true)
+    .catch(() => false);
+  if (opened) {
+    await pickerBackdrop.click({ position: { x: 10, y: 10 } });
+    await expect(pickerBackdrop).toBeHidden();
+  }
   const guideLink = page.locator('a[href$="/fa/medical-tourism"]').first();
   await expect(guideLink).toBeVisible();
   await guideLink.click();

@@ -41,14 +41,23 @@ const BUSINESS_TYPES: [RegExp, string][] = [
   [/dent|دندان|أسنان|diş|стомат|牙/i, "Dentist"],
   [/pharm|داروخانه|صيدلي|eczane|аптек|药/i, "Pharmacy"],
   [/gym|fitness|باشگاه|ورزش|نادي|spor|фитнес|健身/i, "ExerciseGym"],
-  [/spa|اسپا|سبا|ماساژ|wellness/i, "DaySpa"],
+  [/wellness|تندرستی|عافية|sağlıklı yaşam|оздоров/i, "HealthAndBeautyBusiness"],
+  [/spa|اسپا|سبا|ماساژ/i, "DaySpa"],
   [/lab|آزمایشگاه|مختبر|laborat|лаборат/i, "DiagnosticLab"],
   [/clinic|کلینیک|مطب|عيادة|klinik|клиник|درمانگاه|诊所|کلینیک/i, "MedicalClinic"],
 ];
 
+/**
+ * The first label that maps to a type wins: pass the provider-type label before
+ * the name, so every language version of one provider gets the same type.
+ */
 export function businessTypeFor(...labels: (string | null | undefined)[]) {
-  const haystack = labels.filter(Boolean).join(" ");
-  return BUSINESS_TYPES.find(([pattern]) => pattern.test(haystack))?.[1] ?? "LocalBusiness";
+  for (const label of labels) {
+    if (!label) continue;
+    const match = BUSINESS_TYPES.find(([pattern]) => pattern.test(label));
+    if (match) return match[1];
+  }
+  return "LocalBusiness";
 }
 
 export const providerUrl = (locale: string, id: string) => absoluteUrl(locale, `/n/app/mobile/provider/${id}`);

@@ -84,6 +84,10 @@ describe("entity schema", () => {
     expect(businessTypeFor("دندانپزشکی")).toBe("Dentist");
     expect(businessTypeFor(null, "Gym Nation")).toBe("ExerciseGym");
     expect(businessTypeFor("Concierge")).toBe("LocalBusiness");
+    // Type label beats the name, so all language versions of a provider agree.
+    expect(businessTypeFor("Wellness center", "Fixture Clinic 1")).toBe("HealthAndBeautyBusiness");
+    expect(businessTypeFor("مرکز تندرستی", "کلینیک آزمایشی ۱")).toBe("HealthAndBeautyBusiness");
+    expect(businessTypeFor("نوع ناشناخته", "کلینیک آزمایشی ۱")).toBe("MedicalClinic");
   });
 
   it("states only page facts: no ratings, no empty fields, absolute URLs", () => {

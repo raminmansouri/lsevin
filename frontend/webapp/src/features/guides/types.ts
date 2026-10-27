@@ -16,6 +16,11 @@ export const GUIDE_SLUGS = [
   "medical-hotels",
   "mashhad",
   "rhinoplasty",
+  "hair-transplant",
+  "ivf",
+  "dental",
+  "tehran",
+  "from-iraq",
 ] as const;
 export type GuideSlug = (typeof GUIDE_SLUGS)[number];
 
