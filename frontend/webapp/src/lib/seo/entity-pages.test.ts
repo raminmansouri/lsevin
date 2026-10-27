@@ -4,7 +4,6 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import CategoriesPage, {
   dynamic as categoriesRendering,
-  revalidate as categoriesTtl,
 } from "@/app/[locale]/n/app/mobile/categories/page";
 import ProviderPage, {
   generateMetadata as providerMetadata,
@@ -145,23 +144,15 @@ describe("entity page status contract", () => {
       await expect(metadata(providerParams)).rejects.toBe(outage);
     }
   );
-  it("categories supports ISR and never publishes an outage as an empty successful page", async () => {
-    expect(categoriesRendering).toBe("force-static");
-    expect(categoriesTtl).toBe(300);
-    const outage = new Error("database unavailable");
-    mocks.categories.mockRejectedValue(outage);
-    await expect(
-      CategoriesPage({ params: Promise.resolve({ locale: "tr" }) })
-    ).rejects.toBe(outage);
-    expect(mocks.categories).toHaveBeenCalledWith("tr");
-    mocks.categories.mockResolvedValue({
-      groups: [],
-      totalCategories: 0,
-      totalProviders: 0,
-    });
+  it("categories renders per request and an outage empties only that request", async () => {
+    // Not ISR: the image build has no database, so a prerendered copy would be
+    // an empty tree served as fresh for the revalidate window after each deploy.
+    expect(categoriesRendering).toBe("force-dynamic");
+    mocks.categories.mockRejectedValue(new Error("database unavailable"));
     expect(
       await CategoriesPage({ params: Promise.resolve({ locale: "tr" }) })
     ).toBeTruthy();
+    expect(mocks.categories).toHaveBeenCalledWith("tr");
   });
   it("absent product is not-found in page and metadata", async () => {
     mocks.product.mockResolvedValue(null);

@@ -25,12 +25,11 @@ export async function generateMetadata({
   });
 }
 
-// Truly static: the category tree is the same for every visitor of a locale
-// (the `?parent=` deep-link is read on the client). Rebuilt at most hourly, and
-// on demand via the `cp-category-groups` cache tag the underlying
-// `unstable_cache` is already tagged with.
-export const dynamic = "force-static";
-export const revalidate = 300;
+// Rendered per request; the tree itself comes from the `cp-category-groups`
+// data cache (300 s), so this stays cheap. Not ISR: the image build has no
+// database, so a prerendered copy is an empty tree that would be served as
+// fresh for the whole revalidate window after every deploy.
+export const dynamic = "force-dynamic";
 
 export default async function CategoryBrowserPage({
   params,
@@ -40,15 +39,13 @@ export default async function CategoryBrowserPage({
   const { locale } = await params;
   setRequestLocale(locale);
 
-  // Reject transient failures so ISR retains the last successful tree. Never
-  // publish an empty catalog as a successful render during a database outage.
-  // The exception is `next build`: the image build has no database, so failing
-  // here fails the whole deploy. Bake the empty tree; the first request after
-  // the revalidate window regenerates it (same rule as the home page rails).
-  const data = await getCategoryBrowserGroups(locale).catch((error) => {
-    if (process.env.NEXT_PHASE !== "phase-production-build") throw error;
-    return { groups: [], totalCategories: 0, totalProviders: 0 };
-  });
+  // A database hiccup shows an empty tree for that one request only: the page
+  // is dynamic, so nothing empty is cached, and the data cache rejects failures.
+  const data = await getCategoryBrowserGroups(locale).catch(() => ({
+    groups: [],
+    totalCategories: 0,
+    totalProviders: 0,
+  }));
 
   // Tourism opens the Tours sub-application (C-001); its id is configuration, not code.
   const tourismCategoryId = await getTourSettings()
