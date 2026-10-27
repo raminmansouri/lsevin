@@ -2290,6 +2290,7 @@ declare const messages: {
   },
   "Home": {
     "common": {
+      "trustSeal": "نماد اعتماد الکترونیکی (اینماد)",
       "noDescription": "توضیحی ثبت نشده است.",
       "viewAll": "مشاهده همه",
       "seeAll": "دیدن همه",
@@ -8784,6 +8785,8 @@ declare const messages: {
       "contact": "السوین · lsevin.turkiye@gmail.com"
     },
     "privacySecurity": {
+      "showPassword": "نمایش رمز عبور",
+      "hidePassword": "پنهان کردن رمز عبور",
       "title": "حریم خصوصی و امنیت",
       "unknownDevice": "دستگاه نامشخص",
       "unknownLocation": "موقعیت نامشخص",

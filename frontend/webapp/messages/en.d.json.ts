@@ -3185,6 +3185,7 @@ declare const messages: {
   },
   "Home": {
     "common": {
+      "trustSeal": "Enamad e-trust seal",
       "noDescription": "No description available.",
       "viewAll": "View All",
       "seeAll": "See All",
@@ -8779,6 +8780,8 @@ declare const messages: {
       "contact": "Lsevin · lsevin.turkiye@gmail.com"
     },
     "privacySecurity": {
+      "showPassword": "Show password",
+      "hidePassword": "Hide password",
       "title": "Privacy & Security",
       "unknownDevice": "Unknown device",
       "unknownLocation": "Unknown location",

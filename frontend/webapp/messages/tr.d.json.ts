@@ -2953,6 +2953,7 @@ declare const messages: {
       "subcategoryCount": "{count} alt kategori"
     },
     "common": {
+      "trustSeal": "Enamad e-güven mührü",
       "loading": "Yükleniyor...",
       "noDescription": "Açıklama bulunmuyor.",
       "seeAll": "Tümünü gör",
@@ -7996,6 +7997,8 @@ declare const messages: {
       "contact": "LSevin · lsevin.turkiye@gmail.com"
     },
     "privacySecurity": {
+      "showPassword": "Şifreyi göster",
+      "hidePassword": "Şifreyi gizle",
       "unknownDevice": "Bilinmeyen cihaz",
       "unknownLocation": "Bilinmeyen konum",
       "relativeTime": {

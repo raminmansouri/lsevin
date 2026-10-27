@@ -25,6 +25,7 @@ export interface BookingDetail extends BookingListItem {
   serviceId: string | null;
   specialistId: string | null;
   userId: string | null;
+  customerPhone: string | null;
   selectedTimeFrom: string | null;
   selectedTimeTo: string | null;
   selectedDateFrom: string | null;

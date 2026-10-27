@@ -2645,6 +2645,7 @@ declare const messages: {
   },
   "Home": {
     "common": {
+      "trustSeal": "رمز الثقة الإلكترونية (إي‌نماد)",
       "noDescription": "لا يوجد وصف متاح.",
       "viewAll": "عرض الكل",
       "seeAll": "عرض الكل",
@@ -7813,6 +7814,8 @@ declare const messages: {
       "contact": "LSevin · lsevin.turkiye@gmail.com"
     },
     "privacySecurity": {
+      "showPassword": "إظهار كلمة المرور",
+      "hidePassword": "إخفاء كلمة المرور",
       "title": "الخصوصية والأمان",
       "unknownDevice": "جهاز غير معروف",
       "unknownLocation": "موقع غير معروف",

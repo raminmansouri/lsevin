@@ -2912,6 +2912,7 @@ declare const messages: {
       "subcategoryCount": "{count} ژێرپۆل"
     },
     "common": {
+      "trustSeal": "نیشانەی متمانەی ئەلیکترۆنی (ئینماد)",
       "loading": "بارکردن...",
       "noDescription": "هیچ پەسناسێک بەردەست نییە.",
       "seeAll": "هەمووی ببینە",
@@ -7696,6 +7697,8 @@ declare const messages: {
       "contact": "LSevin · lsevin.turkiye@gmail.com"
     },
     "privacySecurity": {
+      "showPassword": "پیشاندانی تێپەڕەوشە",
+      "hidePassword": "شاردنەوەی تێپەڕەوشە",
       "activeSessions": "دانیشتنە چالاکەکان",
       "biometricDescription": "Face ID، Touch ID یان بایۆمەتریکی ئامێرەکە بەکاربهێنە بۆ چوونەژوورەوەی خێراتر.",
       "biometricLogin": "چوونەژوورەوەی بایۆمەتری",
