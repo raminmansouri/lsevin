@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useTransition } from "react";
 import { Loader2 } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 import { Input } from "@/components/ui/input";
@@ -18,6 +18,7 @@ import { parsePriorityInput } from "../../utils/priority";
  */
 export function CategoryPriorityInput({ category }: { category: CategoryListItem }) {
   const t = useTranslations(CATEGORY_TRANSLATION_KEY);
+  const max = new Intl.NumberFormat(useLocale()).format(MAX_CATEGORY_PRIORITY);
   const saved = category.displayOrder && category.displayOrder > 0 ? String(category.displayOrder) : "";
   const [committed, setCommitted] = useState(saved);
   const [value, setValue] = useState(saved);
@@ -38,7 +39,7 @@ export function CategoryPriorityInput({ category }: { category: CategoryListItem
     const parsed = parsePriorityInput(value, MAX_CATEGORY_PRIORITY);
     if (!parsed.ok) {
       setInvalid(true);
-      toast.error(t("homepage.invalid", { max: MAX_CATEGORY_PRIORITY }));
+      toast.error(t("homepage.invalid", { max }));
       return;
     }
     setInvalid(false);
@@ -53,7 +54,7 @@ export function CategoryPriorityInput({ category }: { category: CategoryListItem
         toast.success(t(next ? "homepage.saved" : "homepage.cleared", { name: category.name }));
       } else {
         setValue(committed);
-        toast.error(result.code === "INVALID" ? t("homepage.invalid", { max: MAX_CATEGORY_PRIORITY }) : t("homepage.failed"));
+        toast.error(result.code === "INVALID" ? t("homepage.invalid", { max }) : t("homepage.failed"));
       }
     });
   };
@@ -68,6 +69,7 @@ export function CategoryPriorityInput({ category }: { category: CategoryListItem
         placeholder="—"
         disabled={pending}
         aria-label={t("homepage.priorityLabel", { name: category.name })}
+        title={t("homepage.priorityHint")}
         aria-invalid={invalid || undefined}
         data-testid={`category-priority-${category.categoryId}`}
         className={`h-9 w-20 text-center ${invalid ? "border-destructive" : ""}`}

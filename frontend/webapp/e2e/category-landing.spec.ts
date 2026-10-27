@@ -26,7 +26,9 @@ test.skip(!RUNNABLE, 'Run through `pnpm test:local-env` (needs a local database,
 
 // Production-shaped catalogue ids (GUIDs without RFC version/variant bits).
 const catalogId = () => { const p = randomUUID().split('-'); p[2] = `b${p[2].slice(1)}`; p[3] = `2${p[3].slice(1)}`; return p.join('-'); };
-const tag = `e2e${Date.now().toString(36)}`;
+// Letters only: the Persian UI renders Latin digits as Persian ones, so names with digits would not
+// match the text the test looks for.
+const tag = `qa${Date.now().toString(36).replace(/[0-9]/g, (digit) => 'abcdefghij'[Number(digit)])}`;
 const cat = {
   alpha: { id: catalogId(), fa: `آلفا ${tag}`, en: `Alpha ${tag}` },
   beta: { id: catalogId(), fa: `بتا ${tag}`, en: `Beta ${tag}` },
@@ -80,10 +82,23 @@ async function signIn(context: BrowserContext, roles: string[], userId = ids.adm
 
 const priorityOf = async (id: string) => (await sql!`select coalesce(display_order, 0)::int as p, coalesce(display_in_home_page, true) as shown from category.categories where id = ${id}`)[0];
 
+/** The admin data table renders each row twice (desktop table + phone cards, one hidden); use the visible one. */
+const visible = (page: Page, testId: string) => page.getByTestId(testId).filter({ visible: true });
+
 async function goto(page: Page, path: string) {
   for (let attempt = 1; ; attempt += 1) {
     try { await page.goto(path, { waitUntil: 'commit' }); return; } catch (error) { if (attempt >= 3) throw error; }
   }
+}
+
+/**
+ * Waits until an admin page has settled. Every admin data table currently hydrates with a mismatch
+ * (its pagination renders "صفحه ۱ از ۱" on the server and "صفحه 1 از 1" in the browser -- not from
+ * this feature), and React then rebuilds the table, replacing any input typed in the meantime.
+ */
+async function settle(page: Page) {
+  await page.waitForLoadState('networkidle').catch(() => undefined);
+  await page.waitForTimeout(1500);
 }
 
 /** Positions of our fixture names in a region's text, in reading order; -1 when absent. */
@@ -98,26 +113,36 @@ test.afterAll(async () => { await cleanup(); await fetch(`${STUB}/__stub/routes`
 
 test('admin sets priorities and hides a category; the landing page follows', async ({ page, context }) => {
   await signIn(context, ['superadmin', 'admin']);
+  // Regression: the landing note's number rendered "۶" on the server and "6" in the browser; the
+  // hydration mismatch rebuilt the table and swallowed the first edit.
+  const pageErrors: string[] = [];
+  page.on('pageerror', (error) => pageErrors.push(error.message));
   await goto(page, '/fa/admin/categories');
   await expect(page.getByTestId('category-landing-note')).toContainText('۶');
+  await settle(page);
 
   // Gamma first, Beta second (typed with Persian digits, saved on Enter and on blur).
-  const gamma = page.getByTestId(`category-priority-${cat.gamma.id}`);
+  const gamma = visible(page, `category-priority-${cat.gamma.id}`);
   await gamma.fill('۱');
+  // The confirmation toast lives ~4 s, and the first server-action call compiles on demand in dev,
+  // so watch for the toast from before the save and check the write alongside it.
+  const gammaSaved = page.getByText(`اولویت «${cat.gamma.fa}» ذخیره شد.`).waitFor({ timeout: 120_000 });
   await gamma.press('Enter');
-  await expect(page.getByText(`اولویت «${cat.gamma.fa}» ذخیره شد.`)).toBeVisible();
-  const beta = page.getByTestId(`category-priority-${cat.beta.id}`);
+  await gammaSaved;
+  await expect.poll(async () => (await priorityOf(cat.gamma.id)).p, { timeout: 30_000 }).toBe(1);
+  const beta = visible(page, `category-priority-${cat.beta.id}`);
   await beta.fill('2');
+  const betaSaved = page.getByText(`اولویت «${cat.beta.fa}» ذخیره شد.`).waitFor({ timeout: 60_000 });
   await beta.blur();
-  await expect(page.getByText(`اولویت «${cat.beta.fa}» ذخیره شد.`)).toBeVisible();
+  await betaSaved;
   await expect.poll(async () => (await priorityOf(cat.beta.id)).p).toBe(2);
   expect((await priorityOf(cat.gamma.id)).p).toBe(1);
 
   // Persisted: a reload shows the saved values.
   await page.reload({ waitUntil: 'commit' });
-  await expect(page.getByTestId(`category-priority-${cat.gamma.id}`)).toHaveValue('1');
-  await expect(page.getByTestId(`category-priority-${cat.beta.id}`)).toHaveValue('2');
-  await expect(page.getByTestId(`category-priority-${cat.alpha.id}`)).toHaveValue('');
+  await expect(visible(page, `category-priority-${cat.gamma.id}`)).toHaveValue('1');
+  await expect(visible(page, `category-priority-${cat.beta.id}`)).toHaveValue('2');
+  await expect(visible(page, `category-priority-${cat.alpha.id}`)).toHaveValue('');
 
   // Landing: Gamma then Beta lead the shelf, ahead of Alpha (which has more providers).
   await goto(page, '/fa/n/app/mobile/home');
@@ -129,13 +154,21 @@ test('admin sets priorities and hides a category; the landing page follows', asy
 
   // Hide Gamma from the landing page; it disappears there but keeps its priority.
   await goto(page, '/fa/admin/categories');
-  await page.getByTestId(`category-homepage-${cat.gamma.id}`).click();
+  await expect(page.getByTestId('category-landing-note')).toBeVisible();
+  await settle(page);
+  await visible(page, `category-homepage-${cat.gamma.id}`).click();
   await expect.poll(async () => (await priorityOf(cat.gamma.id)).shown).toBe(false);
   await goto(page, '/fa/n/app/mobile/home');
   await expect(page.getByTestId('home-categories')).toContainText(cat.beta.fa);
   at = await positions(page, 'home-categories');
   expect(at.gamma).toBe(-1);
   expect((await priorityOf(cat.gamma.id)).p).toBe(1);
+
+  // Regression: this feature's own markup hydrates cleanly. The landing note's number ("۶" vs "6")
+  // and the priority column's phone-card header (a render function printed as source code) both
+  // used to differ between server and client. The table pagination's mismatch is older (see settle).
+  const ours = pageErrors.filter((message) => message.includes('Hydration') && (message.includes('category-landing-note') || message.includes('__TURBOPACK__')));
+  expect(ours).toEqual([]);
 });
 
 test('the categories page uses the same priority order', async ({ page }) => {
@@ -150,7 +183,9 @@ test('the categories page uses the same priority order', async ({ page }) => {
 test('invalid input is refused and Escape restores; clearing removes the priority', async ({ page, context }) => {
   await signIn(context, ['superadmin', 'admin']);
   await goto(page, '/fa/admin/categories');
-  const beta = page.getByTestId(`category-priority-${cat.beta.id}`);
+  await expect(page.getByTestId('category-landing-note')).toBeVisible();
+  await settle(page);
+  const beta = visible(page, `category-priority-${cat.beta.id}`);
   await expect(beta).toHaveValue('2');
   await beta.fill('abc');
   await beta.press('Enter');
@@ -161,8 +196,9 @@ test('invalid input is refused and Escape restores; clearing removes the priorit
   expect((await priorityOf(cat.beta.id)).p).toBe(2);
 
   await beta.fill('');
+  const cleared = page.getByText(`اولویت «${cat.beta.fa}» برداشته شد.`).waitFor({ timeout: 60_000 });
   await beta.press('Enter');
-  await expect(page.getByText(`اولویت «${cat.beta.fa}» برداشته شد.`)).toBeVisible();
+  await cleared;
   await expect.poll(async () => (await priorityOf(cat.beta.id)).p).toBe(0);
 });
 

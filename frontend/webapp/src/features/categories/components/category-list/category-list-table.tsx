@@ -1,7 +1,7 @@
 "use client";
 
 import { useOptimistic, useState, useTransition } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 import { DataTable, DataTableSkeleton } from "@/components/data-table";
@@ -23,6 +23,7 @@ type Props = {
 const CategoryListTable = ({ items, pagination }: Props) => {
   const [, startTransition] = useTransition();
   const t = useTranslations(CATEGORY_TRANSLATION_KEY);
+  const locale = useLocale();
   const router = useRouter();
 
   const [optimisticItems, deleteOptimisticItems] = useOptimistic(
@@ -97,7 +98,9 @@ const CategoryListTable = ({ items, pagination }: Props) => {
   return (
     <>
       <p className="mb-3 text-sm text-muted-foreground" data-testid="category-landing-note">
-        {t("homepage.landingNote", { limit: LANDING_CATEGORY_LIMIT })}
+        {/* Pre-formatted text: an ICU number arg came out as "۶" on the server and "6" in the
+            browser, a hydration mismatch that rebuilt the whole table (and dropped a pending edit). */}
+        {t("homepage.landingNote", { limit: new Intl.NumberFormat(locale).format(LANDING_CATEGORY_LIMIT) })}
       </p>
       <DataTable
         columns={columns}

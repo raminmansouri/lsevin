@@ -27,6 +27,7 @@ import { execFileSync, spawn, spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import http from 'node:http';
 import net from 'node:net';
+import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -137,6 +138,24 @@ function run(name, command, commandArgs, env) {
 }
 
 /**
+ * Like run(), but without blocking this process: the API stub and the fixture file server live
+ * here, and spawnSync froze them, so every request the tests made to the stub timed out.
+ */
+function runAsync(name, command, commandArgs, env) {
+  return new Promise((resolve) => {
+    const child = spawn(command, commandArgs, { cwd: APP, env: { ...process.env, ...env }, stdio: 'inherit', shell: process.platform === 'win32' });
+    child.on('exit', (code) => {
+      record(name, code === 0, code === 0 ? '' : `exit ${code}`);
+      resolve(code === 0);
+    });
+    child.on('error', (error) => {
+      record(name, false, error.message);
+      resolve(false);
+    });
+  });
+}
+
+/**
  * Ready means every page the selected suites start from renders (200, not the 404 page). A signed-out
  * request to a protected page is answered by the middleware before the page compiles, so waiting for
  * that alone let the first tests hit a half-compiled dev server ("This page could not be found").
@@ -190,8 +209,8 @@ async function main() {
   const stub = await startApiStub(stubPort);
   const stubUrl = `http://localhost:${stubPort}`;
   const base = `http://localhost:${appPort}`;
-  fs.mkdirSync(path.join(APP, 'test-results'), { recursive: true });
-  const devLogPath = path.join(APP, 'test-results', 'local-env-dev.log');
+  // Not under test-results/: Playwright empties that folder when it starts.
+  const devLogPath = path.join(os.tmpdir(), 'lsevin-local-env-dev.log');
   const devLog = fs.openSync(devLogPath, 'w');
   log(`dev server output: ${devLogPath}`);
   log(`starting Next dev server on ${base} (API stub ${stubUrl}; first compile can take several minutes)`);
@@ -217,7 +236,7 @@ async function main() {
       return;
     }
     for (const name of suites) {
-      run(`end-to-end: ${name} (Playwright)`, 'npx', ['playwright', 'test', '--config', SUITES[name].e2e], {
+      await runAsync(`end-to-end: ${name} (Playwright)`, 'npx', ['playwright', 'test', '--config', SUITES[name].e2e], {
         E2E_BASE_URL: base, E2E_DATABASE_URL: databaseUrl, E2E_AUTH_SECRET: secret, E2E_API_STUB_URL: stubUrl,
       });
     }

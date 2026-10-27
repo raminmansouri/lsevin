@@ -113,9 +113,9 @@ export const getCategoryListColumns = (
   },
   {
     id: "displayOrder",
-    header: () => (
-      <span title={t("homepage.priorityHint")}>{t("homepage.priority")}</span>
-    ),
+    // A plain string: the data table's phone-card view prints `header` as text, so a render
+    // function showed up as its own source code (and broke hydration).
+    header: t("homepage.priority"),
     cell: ({ row }) => <CategoryPriorityInput category={row.original} />,
     enableSorting: false,
   },
