@@ -50,7 +50,8 @@ test("setup menu runs in data-entry order, numbered @regression", async ({ page,
 test("a category is created in Persian and English and shows in Persian on Persian screens @regression @critical", async ({ page, context }, testInfo) => {
   const sql = db();
   const code = `e2e_${randomUUID().slice(0, 8)}`;
-  const fa = `دسته آزمایشی ${code.slice(-4)}`;
+  // Letters only: admin screens render digits in Persian, so a Latin digit would not match.
+  const fa = `دسته آزمایشی ${["الف", "ب", "پ", "ت", "ث", "ج"][Math.floor(Math.random() * 6)]}${["ح", "خ", "د", "ذ", "ر", "ز"][Math.floor(Math.random() * 6)]}`;
   await signInAdmin(context);
 
   // Create (English admin UI), both languages in the one multi-language control.
@@ -101,8 +102,8 @@ test("prices are thousands-separated in ریال and dates are Jalali @regressio
 
   await page.goto(`/fa/admin/tours-platform/tours/${t.id}?tab=pricing`);
   await expect(page.locator("#op-0-adult")).toHaveValue("12,000,000");
-  await expect(page.getByRole("main")).toContainText("ریال");
-  await expect(page.getByRole("main")).not.toContainText("IRR");
+  await expect(page.locator("body")).toContainText("ریال");
+  await expect(page.locator("body")).not.toContainText("IRR");
   await evidence(page, testInfo, "money", "01-pricing-tab");
 
   // Published/updated dates in the tours list are Jalali (year 14xx in Persian digits).

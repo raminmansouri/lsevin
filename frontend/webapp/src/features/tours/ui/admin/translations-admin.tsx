@@ -110,6 +110,7 @@ function TranslatorAssignments({ assignments, locales, providers }: { assignment
           onClick={() => run(() => grantTranslatorAction({ userId, locale, serviceProviderId: providerId || null }), { success: t("granted") })}>{t("grant")}</Button>
       </div>
       {assignments.length === 0 ? <EmptyState>{t("noAssignments")}</EmptyState> : (
+        <div className="overflow-x-auto">
         <table className="w-full text-sm" data-testid="assignments">
           <thead><tr className="text-muted-foreground"><th className="p-1.5 text-start">{t("user")}</th><th className="p-1.5 text-start">{t("locale")}</th><th className="p-1.5 text-start">{t("providerScope")}</th><th className="p-1.5 text-start">{t("assignedAt")}</th><th /></tr></thead>
           <tbody>
@@ -124,6 +125,7 @@ function TranslatorAssignments({ assignments, locales, providers }: { assignment
             ))}
           </tbody>
         </table>
+        </div>
       )}
     </Section>
   );

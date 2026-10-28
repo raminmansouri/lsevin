@@ -54,12 +54,13 @@ test("AT-16 missing policy/media/price blocks publication; repaired in admin it 
   // Repair 1: media, picked from the media library (admin-added media is approved immediately).
   // The library item is seeded; its file is a real shipped photo. 10-character name: the picker truncates longer ones.
   const fileName = `r${randomUUID().slice(0, 5)}.jpg`;
-  await sql`
+  await db()`
     insert into media.media_library (original_name, stored_name, file_url, mime_type, extension, media_type, file_size, width, height)
     values (${fileName}, ${fileName}, '/images/tours/kish-beach.webp', 'image/webp', 'webp', 'image', 101000, 1600, 1200)`;
   await editorTab(page, "Media");
   await page.getByRole("button", { name: "Choose from the media library" }).click();
-  await page.getByRole("button", { name: fileName }).click();
+  // The item button is named "<file> Image • <size>"; its delete button starts with "Delete".
+  await page.getByRole("button", { name: new RegExp(`^${fileName}`) }).click();
   await page.getByRole("button", { name: "Add", exact: true }).click();
   await expectToast(page);
   await expect(page.locator("[data-media-id]")).toHaveCount(1);

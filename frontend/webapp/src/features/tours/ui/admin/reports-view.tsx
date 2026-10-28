@@ -96,6 +96,7 @@ export function ReportsView({ filters, data, error, providers }: {
             ))}
           </div>
           <Section id="revenue" title={t("revenue")} description={t("revenueHint")}>
+            <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead><tr className="text-muted-foreground"><th className="p-1.5 text-start">{t("currency")}</th><th className="p-1.5 text-start">{t("booked")}</th><th className="p-1.5 text-start">{t("paid")}</th><th className="p-1.5 text-start">{t("refundQuoted")}</th></tr></thead>
               <tbody>
@@ -104,6 +105,7 @@ export function ReportsView({ filters, data, error, providers }: {
                 ))}
               </tbody>
             </table>
+            </div>
           </Section>
           <Section id="by-status" title={t("byStatus")}>
             <ul className="flex flex-wrap gap-3 text-sm">{Object.entries(data.byStatus).map(([k, v]) => <li key={k}>{ts.has(k) ? ts(k) : k}: {v}</li>)}</ul>

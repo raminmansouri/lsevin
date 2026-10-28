@@ -173,6 +173,7 @@ function PreviewTable({ value, calendars, uiLocale }: { value: string; calendars
   const parsed = isIsoDate(v) ? v : null;
   if (!parsed) return <p className="text-destructive mt-2 text-sm">{t("previewInvalid")}</p>;
   return (
+    <div className="overflow-x-auto">
     <table className="mt-2 w-full text-sm">
       <thead><tr className="text-muted-foreground"><th className="p-1 text-start">{t("language")}</th><th className="p-1 text-start">{t("defaultCalendar")}</th><th className="p-1 text-start">{t("shownAs")}</th></tr></thead>
       <tbody>
@@ -191,5 +192,6 @@ function PreviewTable({ value, calendars, uiLocale }: { value: string; calendars
         })}
       </tbody>
     </table>
+    </div>
   );
 }

@@ -145,6 +145,7 @@ export function CommissionsPanel({ agreements, providers, platformDefault }: { a
       <p className="text-sm">{t("settingDefault", { percent: platformDefault })}</p>
       <Section id="agreements" title={t("list")} description={t("immutableHint")}>
         {agreements.length === 0 ? <EmptyState>{t("empty")}</EmptyState> : (
+          <div className="overflow-x-auto">
           <table className="w-full text-sm" data-testid="agreements">
             <thead><tr className="text-muted-foreground"><th className="p-1.5 text-start">{t("scope")}</th><th className="p-1.5 text-start">{t("percent")}</th><th className="p-1.5 text-start">{t("from")}</th><th className="p-1.5 text-start">{t("to")}</th><th className="p-1.5 text-start">{t("bookings")}</th></tr></thead>
             <tbody>
@@ -159,6 +160,7 @@ export function CommissionsPanel({ agreements, providers, platformDefault }: { a
               ))}
             </tbody>
           </table>
+          </div>
         )}
       </Section>
       <Section id="new-agreement" title={t("newTitle")} description={t("newHint")}>

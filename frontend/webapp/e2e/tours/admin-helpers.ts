@@ -73,7 +73,8 @@ const LANGUAGE_TAB: Record<string, string> = { "fa-IR": "فارسی", "en-US": "
  */
 export async function fillLocalized(scope: Page | Locator, label: string, locale: string, text: string) {
   const language = LANGUAGE_TAB[locale] ?? locale;
-  const control = scope.locator("div.space-y-2").filter({ has: scope.locator("label", { hasText: new RegExp(`^${label}$`) }) }).first();
+  // The control's own tabs root (Radix Tabs, data-orientation) is the nearest such ancestor of its label.
+  const control = scope.locator(`xpath=.//label[normalize-space()="${label}"]/ancestor::*[@data-orientation][1]`).first();
   await control.getByRole("tab", { name: new RegExp(`^${language}`) }).click();
   await control.getByLabel(`${label} (${language})`, { exact: true }).fill(text);
 }
