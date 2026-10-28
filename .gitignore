@@ -71,6 +71,8 @@ frontend/webapp/.pwa-auth*.json
 !deployments/docker/SEAWEEDFS_MIGRATION.md
 !deployments/kubernetes/**/README.md
 **/*.txt
+# A Next.js route folder (serves /llms.txt), not a text file.
+!frontend/webapp/src/app/llms.txt/
 
 # Secrets — never publish real env files (keep .env.example templates)
 # **/.env
