@@ -13180,7 +13180,7 @@ declare const messages: {
         "refund": "Die Zahlung ist eingegangen, aber dieser Termin war nicht mehr frei. Du erhältst eine Rückerstattung; bitte wende dich an den Support."
       },
       "testPay": "Testzahlung (nur zum Testen)",
-      "foreignVpnNote": "Wenn du außerhalb des Iran bist: Der Videoanruf läuft über einen Server im Iran. Zum Beitreten brauchst du ein VPN mit iranischer IP-Adresse."
+      "foreignVpnNote": "Dieser Dienst ist derzeit nur im Iran verfügbar."
     },
     "call": {
       "phase": {
@@ -13191,6 +13191,7 @@ declare const messages: {
       "leave": "Gespräch verlassen",
       "roomClosed": "Die Zeit des Gesprächsraums ist abgelaufen.",
       "videoPlaceholder": "Videoanrufe sind auf diesem Server noch nicht eingerichtet. Timer sowie Beitreten und Verlassen funktionieren bereits.",
+      "unavailable": "Videoanrufe sind gerade nicht verfügbar. Bitte versuchen Sie es gleich noch einmal und wenden Sie sich an den Support, falls es so bleibt.",
       "connecting": "Verbinde…",
       "reconnecting": "Verbindung verloren, verbinde neu…",
       "waitingFor": "Warte auf {name}…",
@@ -13204,7 +13205,8 @@ declare const messages: {
         "permission": "Der Zugriff auf Kamera oder Mikrofon wurde blockiert. Erlaube ihn in den Browsereinstellungen und öffne die Seite neu.",
         "device": "Keine Kamera oder kein Mikrofon gefunden, oder eine andere App nutzt es.",
         "duplicate": "Dieser Anruf wurde in einem anderen Tab oder Gerät geöffnet.",
-        "failed": "Keine Verbindung zum Anrufserver. Prüfe dein Internet und tritt erneut bei."
+        "failed": "Keine Verbindung zum Anrufserver. Prüfe dein Internet und tritt erneut bei.",
+        "unreachable": "Der Anrufserver ist nicht erreichbar. Wenn Sie mobile Daten nutzen, versuchen Sie es über WLAN oder mit der SIM-Karte eines anderen Anbieters."
       },
       "prejoin": {
         "hint": "Prüfe vor dem Beitreten Bild und Ton.",

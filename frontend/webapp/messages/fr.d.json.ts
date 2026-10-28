@@ -13180,7 +13180,7 @@ declare const messages: {
         "refund": "Le paiement a abouti, mais ce créneau n'était plus libre. Vous serez remboursé ; veuillez contacter le support."
       },
       "testPay": "Paiement de test (tests uniquement)",
-      "foreignVpnNote": "Si vous êtes hors d'Iran : l'appel vidéo passe par un serveur situé en Iran. Pour le rejoindre, vous aurez besoin d'un VPN avec une adresse IP iranienne."
+      "foreignVpnNote": "Ce service n'est pour l'instant disponible qu'en Iran."
     },
     "call": {
       "phase": {
@@ -13191,6 +13191,7 @@ declare const messages: {
       "leave": "Quitter l'appel",
       "roomClosed": "Le temps de la salle d'appel est écoulé.",
       "videoPlaceholder": "Les appels vidéo ne sont pas encore configurés sur ce serveur. Le minuteur et l'entrée/sortie fonctionnent déjà.",
+      "unavailable": "L'appel vidéo n'est pas disponible pour le moment. Réessayez dans un instant et contactez le support si le problème persiste.",
       "connecting": "Connexion…",
       "reconnecting": "Connexion perdue, reconnexion…",
       "waitingFor": "En attente de {name}…",
@@ -13204,7 +13205,8 @@ declare const messages: {
         "permission": "L'accès à la caméra ou au micro a été bloqué. Autorisez-le dans les réglages du navigateur et rouvrez la page.",
         "device": "Aucune caméra ou aucun micro trouvé, ou une autre application l'utilise.",
         "duplicate": "Cet appel a été ouvert dans un autre onglet ou appareil.",
-        "failed": "Impossible de se connecter au serveur d'appel. Vérifiez votre connexion et rejoignez à nouveau."
+        "failed": "Impossible de se connecter au serveur d'appel. Vérifiez votre connexion et rejoignez à nouveau.",
+        "unreachable": "Impossible de joindre le serveur d'appel. Si vous êtes en données mobiles, essayez le Wi‑Fi ou la carte SIM d'un autre opérateur."
       },
       "prejoin": {
         "hint": "Vérifiez votre image et votre son avant d'entrer.",

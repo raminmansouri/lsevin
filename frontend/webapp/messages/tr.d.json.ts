@@ -13558,7 +13558,7 @@ declare const messages: {
         "refund": "Ödeme yapıldı ancak bu saat artık boş değildi. Ücret iade edilecek; lütfen destekle iletişime geçin."
       },
       "testPay": "Test ödemesi (yalnızca test için)",
-      "foreignVpnNote": "İran dışındaysanız: görüntülü görüşme İran'daki bir sunucuda yapılır. Görüşmeye katılmak için İran IP adresli bir VPN kullanmanız gerekir."
+      "foreignVpnNote": "Bu hizmet şu anda yalnızca İran içinde kullanılabilir."
     },
     "call": {
       "phase": {
@@ -13569,6 +13569,7 @@ declare const messages: {
       "leave": "Görüşmeden ayrıl",
       "roomClosed": "Görüşme odasının süresi doldu.",
       "videoPlaceholder": "Görüntülü görüşme bu sunucuda henüz kurulmadı. Sayaç ve katılma/ayrılma zaten çalışıyor.",
+      "unavailable": "Görüntülü görüşme şu anda kullanılamıyor. Biraz sonra tekrar deneyin, sorun sürerse destekle iletişime geçin.",
       "connecting": "Bağlanıyor…",
       "reconnecting": "Bağlantı koptu, yeniden bağlanıyor…",
       "waitingFor": "{name} bekleniyor…",
@@ -13582,7 +13583,8 @@ declare const messages: {
         "permission": "Kamera veya mikrofon erişimi engellendi. Tarayıcı ayarlarından izin verip sayfayı yeniden açın.",
         "device": "Kamera veya mikrofon bulunamadı ya da başka bir uygulama kullanıyor.",
         "duplicate": "Bu görüşme başka bir sekmede veya cihazda açıldı.",
-        "failed": "Görüşme sunucusuna bağlanılamadı. İnternetinizi kontrol edip yeniden katılın."
+        "failed": "Görüşme sunucusuna bağlanılamadı. İnternetinizi kontrol edip yeniden katılın.",
+        "unreachable": "Görüşme sunucusuna ulaşılamıyor. Mobil veri kullanıyorsanız Wi‑Fi veya başka bir operatörün SIM kartıyla deneyin."
       },
       "prejoin": {
         "hint": "Katılmadan önce görüntünü ve sesini kontrol et.",

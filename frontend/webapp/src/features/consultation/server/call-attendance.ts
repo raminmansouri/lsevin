@@ -1,5 +1,6 @@
 "use server";
 
+import { headers } from "next/headers";
 import { z } from "zod/v4";
 
 import db from "@/config/database/db";
@@ -76,6 +77,55 @@ export async function recordCallPresenceAction(
     return rows[0] ? { ok: true, data: { id: rows[0].id } } : { ok: false, error: "notFound" };
   } catch (error) {
     console.error("[consultation] call presence failed", error);
+    return { ok: false, error: "loadFailed" };
+  }
+}
+
+const CallProblemSchema = z.object({
+  problem: z.enum(["unreachable", "error"]),
+  /** What the browser knows about its own network; free text, kept short. */
+  network: z.string().max(40).optional(),
+  message: z.string().max(300).optional(),
+});
+
+/**
+ * Logs a call that couldn't reach the call server, with what we know about
+ * the visitor's network, so failures can be traced to operators from real
+ * traffic. One JSON line per report, prefixed for grepping the server logs.
+ */
+export async function reportCallProblemAction(
+  sessionId: string,
+  report: { problem: "unreachable" | "error"; network?: string; message?: string }
+): Promise<ConsultationActionResult<null>> {
+  const session = await getSession({ redirectToLogin: false, adminRequired: false });
+  const userId = session?.user?.id;
+  if (!userId) return { ok: false, error: "forbidden" };
+  const id = SessionIdSchema.safeParse(sessionId);
+  const parsed = CallProblemSchema.safeParse(report);
+  if (!id.success || !parsed.success) return { ok: false, error: "notFound" };
+
+  try {
+    const call = await callRole(userId, id.data);
+    if (!call) return { ok: false, error: "forbidden" };
+    const h = await headers();
+    console.error(
+      "[consultation][call-problem]",
+      JSON.stringify({
+        at: new Date().toISOString(),
+        sessionId: id.data,
+        userId,
+        role: call.role,
+        problem: parsed.data.problem,
+        network: parsed.data.network ?? null,
+        message: parsed.data.message ?? null,
+        ip: h.get("x-real-ip") ?? h.get("x-forwarded-for")?.split(",")[0]?.trim() ?? null,
+        country: h.get("x-country") ?? null,
+        userAgent: h.get("user-agent") ?? null,
+      })
+    );
+    return { ok: true, data: null };
+  } catch (error) {
+    console.error("[consultation] call problem report failed", error);
     return { ok: false, error: "loadFailed" };
   }
 }

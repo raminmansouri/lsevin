@@ -1,6 +1,6 @@
 "use client";
 
-import { AlarmClock, LogOut, Video } from "lucide-react";
+import { AlarmClock, AlertTriangle, LogOut, Video } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { cn } from "@/lib/utils";
@@ -15,7 +15,8 @@ import { LiveCall } from "./live-call";
  * The call screen both sides share. The room is open from one consultation
  * length before the booked time to one length after it ends; leaving only
  * leaves. With call credentials the video (LiveKit) runs in the dark area;
- * without them (LiveKit not configured) the room has the timer only.
+ * without them (LiveKit not configured) the room has the timer only and, in
+ * production, says the call is unavailable.
  */
 /** How long before the room closes both sides are warned. */
 const CLOSING_WARNING_MS = 5 * 60_000;
@@ -53,7 +54,7 @@ export function CallRoom({
   const closingSoon = !closed && closesAt - now <= CLOSING_WARNING_MS;
 
   return (
-    <div className="flex min-h-screen flex-col bg-gray-950 text-white">
+    <div className="flex h-dvh flex-col overflow-hidden bg-gray-950 text-white">
       <div className="flex items-center justify-between px-5 pt-5">
         <div className="min-w-0">
           <p className="truncate font-bold">{title}</p>
@@ -88,8 +89,17 @@ export function CallRoom({
       ) : (
       <>
       <div className="mx-5 mt-5 flex flex-1 flex-col items-center justify-center rounded-3xl bg-white/5 text-center">
-        <Video className="h-10 w-10 text-white/40" aria-hidden />
-        <p className="mt-3 max-w-xs text-sm text-white/70">{t("videoPlaceholder")}</p>
+        {process.env.NODE_ENV === "production" ? (
+          <>
+            <AlertTriangle className="h-10 w-10 text-amber-400" aria-hidden />
+            <p className="mt-3 max-w-xs text-sm text-white/80">{t("unavailable")}</p>
+          </>
+        ) : (
+          <>
+            <Video className="h-10 w-10 text-white/40" aria-hidden />
+            <p className="mt-3 max-w-xs text-sm text-white/70">{t("videoPlaceholder")}</p>
+          </>
+        )}
         {closed && <p className="mt-4 text-sm text-red-300">{t("roomClosed")}</p>}
       </div>
 

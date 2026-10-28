@@ -13183,7 +13183,7 @@ declare const messages: {
         "refund": "El pago se realizó, pero esta hora ya no estaba libre. Se te reembolsará; contacta con soporte."
       },
       "testPay": "Pago de prueba (solo para pruebas)",
-      "foreignVpnNote": "Si estás fuera de Irán: la videollamada se realiza en un servidor dentro de Irán. Para unirte necesitarás una VPN con una dirección IP iraní."
+      "foreignVpnNote": "Este servicio por ahora solo está disponible dentro de Irán."
     },
     "call": {
       "phase": {
@@ -13194,6 +13194,7 @@ declare const messages: {
       "leave": "Salir de la llamada",
       "roomClosed": "El tiempo de la sala de llamada ha terminado.",
       "videoPlaceholder": "Las videollamadas aún no están configuradas en este servidor. El temporizador y entrar/salir ya funcionan.",
+      "unavailable": "La videollamada no está disponible en este momento. Inténtalo de nuevo en un rato y, si sigue igual, contacta con soporte.",
       "connecting": "Conectando…",
       "reconnecting": "Conexión perdida, reconectando…",
       "waitingFor": "Esperando a {name}…",
@@ -13207,7 +13208,8 @@ declare const messages: {
         "permission": "Se bloqueó el acceso a la cámara o al micrófono. Permítelo en los ajustes del navegador y vuelve a abrir la página.",
         "device": "No se encontró cámara o micrófono, o otra aplicación lo está usando.",
         "duplicate": "Esta llamada se abrió en otra pestaña o dispositivo.",
-        "failed": "No se pudo conectar con el servidor de la llamada. Revisa tu internet y vuelve a entrar."
+        "failed": "No se pudo conectar con el servidor de la llamada. Revisa tu internet y vuelve a entrar.",
+        "unreachable": "No se puede conectar con el servidor de la llamada. Si usas datos móviles, prueba con Wi‑Fi o con una SIM de otro operador."
       },
       "prejoin": {
         "hint": "Comprueba tu imagen y sonido antes de entrar.",

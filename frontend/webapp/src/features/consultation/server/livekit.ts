@@ -23,8 +23,8 @@ export function consultationRoomName(sessionId: string): string {
 
 /**
  * A token for one person to join one session's room, valid until the room
- * closes. Null when LiveKit isn't configured: the call screen then shows no
- * video, as before.
+ * closes. Null when LiveKit isn't configured: the call screen then says the
+ * call is unavailable (production) or shows the setup placeholder (development).
  */
 export async function issueCallToken(args: {
   sessionId: string;
@@ -33,7 +33,15 @@ export async function issueCallToken(args: {
   closesAt: number;
 }): Promise<CallCredentials | null> {
   const config = liveKitConfig();
-  if (!config) return null;
+  if (!config) {
+    if (process.env.NODE_ENV === "production") {
+      console.error(
+        "[consultation] LIVEKIT_URL, LIVEKIT_API_KEY or LIVEKIT_API_SECRET is missing; video calls are unavailable",
+        { sessionId: args.sessionId }
+      );
+    }
+    return null;
+  }
 
   const ttlSeconds = Math.max(60, Math.ceil((args.closesAt - Date.now()) / 1000));
   const token = new AccessToken(config.apiKey, config.apiSecret, {

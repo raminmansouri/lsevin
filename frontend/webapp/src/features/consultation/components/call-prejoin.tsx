@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useMediaDevices, usePreviewTracks } from "@livekit/components-react";
 import {
   createAudioAnalyser,
@@ -48,9 +48,12 @@ export function CallPreJoin({
     }),
     [audioEnabled, videoEnabled, audioDeviceId, videoDeviceId]
   );
-  const tracks = usePreviewTracks(trackOptions, (error) => {
+  // Same for the error callback: LiveKit restarts the preview whenever it changes,
+  // and the call screen re-renders every second for its clock.
+  const onPreviewError = useCallback((error: Error) => {
     setProblem(MediaDeviceFailure.getFailure(error) === MediaDeviceFailure.PermissionDenied ? "permission" : "device");
-  });
+  }, []);
+  const tracks = usePreviewTracks(trackOptions, onPreviewError);
   const videoTrack = tracks?.find((track): track is LocalVideoTrack => track instanceof LocalVideoTrack);
   const audioTrack = tracks?.find((track): track is LocalAudioTrack => track instanceof LocalAudioTrack);
 
@@ -75,7 +78,7 @@ export function CallPreJoin({
   }, [tracks]);
 
   return (
-    <div className="flex flex-1 flex-col px-5 pt-5">
+    <div className="flex min-h-0 flex-1 flex-col overflow-y-auto px-5 pt-5">
       <div className="relative mx-auto aspect-[3/4] w-full max-w-sm overflow-hidden rounded-3xl bg-white/5 sm:aspect-video sm:max-w-xl">
         {videoEnabled && videoTrack ? (
           <video ref={videoRef} muted playsInline className="h-full w-full -scale-x-100 object-cover" />

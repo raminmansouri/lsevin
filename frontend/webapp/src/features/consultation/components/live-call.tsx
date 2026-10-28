@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   isTrackReference,
   LiveKitRoom,
@@ -46,11 +46,17 @@ import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 
 import type { CallCredentials } from "../call-types";
-import { recordCallPresenceAction } from "../server/call-attendance";
+import { recordCallPresenceAction, reportCallProblemAction } from "../server/call-attendance";
 import { CallChat } from "./call-chat";
 import { type CallChoices, CallPreJoin } from "./call-prejoin";
 
-type Notice = "permission" | "device" | "duplicate" | "failed";
+type Notice = "permission" | "device" | "duplicate" | "failed" | "unreachable";
+
+/** Room options; one object for the page's life so the room is never rebuilt. */
+const ROOM_OPTIONS = { adaptiveStream: true, dynacast: true };
+
+/** How long the first connection may take before we suggest another network. */
+const CONNECT_TIMEOUT_MS = 20_000;
 type Panel = "chat" | "info";
 
 /**
@@ -79,6 +85,18 @@ export function LiveCall({
   const [choices, setChoices] = useState<CallChoices | null>(null);
   const [notice, setNotice] = useState<Notice | null>(null);
 
+  // The room screen re-renders every second (its clock). New audio/video
+  // objects on each render make LiveKit re-apply them, restarting the camera
+  // and microphone every second: the picture flashes. Keep them stable.
+  const audio = useMemo(
+    () => (choices?.audioEnabled ? { deviceId: choices.audioDeviceId || undefined } : false),
+    [choices]
+  );
+  const video = useMemo(
+    () => (choices?.videoEnabled ? { deviceId: choices.videoDeviceId || undefined } : false),
+    [choices]
+  );
+
   if (!choices) return <CallPreJoin onJoin={setChoices} onBack={onLeave} />;
 
   return (
@@ -86,9 +104,9 @@ export function LiveCall({
       serverUrl={call.serverUrl}
       token={call.token}
       connect={!closed}
-      audio={choices.audioEnabled ? { deviceId: choices.audioDeviceId || undefined } : false}
-      video={choices.videoEnabled ? { deviceId: choices.videoDeviceId || undefined } : false}
-      options={{ adaptiveStream: true, dynacast: true }}
+      audio={audio}
+      video={video}
+      options={ROOM_OPTIONS}
       onConnected={() => setNotice(null)}
       onDisconnected={(reason) => {
         if (reason === DisconnectReason.DUPLICATE_IDENTITY) setNotice("duplicate");
@@ -96,11 +114,16 @@ export function LiveCall({
       onError={(error) => {
         console.error("[consultation] call error", error);
         setNotice("failed");
+        void reportCallProblemAction(sessionId, {
+          problem: "error",
+          network: networkHint(),
+          message: String(error?.message ?? error).slice(0, 300),
+        }).catch(() => undefined);
       }}
       onMediaDeviceFailure={(failure) =>
         setNotice(failure === MediaDeviceFailure.PermissionDenied ? "permission" : "device")
       }
-      className="relative flex flex-1 flex-col"
+      className="relative flex min-h-0 flex-1 flex-col"
     >
       <InCall
         sessionId={sessionId}
@@ -138,6 +161,11 @@ function InCall({
   const connection = useConnectionState();
 
   useCallPresence(sessionId);
+  const unreachable = useUnreachable(sessionId, closed);
+  // Permission, device and duplicate notices say exactly what to do; a plain
+  // failure or a connection that never comes up suggests another network.
+  const shownNotice: Notice | null =
+    notice && notice !== "failed" ? notice : unreachable ? "unreachable" : notice;
   useScreenWakeLock(connection === ConnectionState.Connected);
   useAudioOnlySubscriptions(audioOnly);
 
@@ -149,7 +177,7 @@ function InCall({
 
   return (
     <>
-      <Stage peerName={peerName} closed={closed} notice={notice} audioOnly={audioOnly} />
+      <Stage peerName={peerName} closed={closed} notice={shownNotice} audioOnly={audioOnly} />
       <Controls
         audioOnly={audioOnly}
         onAudioOnly={setAudioOnly}
@@ -214,9 +242,9 @@ function Stage({
         : null;
 
   return (
-    <div className="relative mx-5 mt-5 flex flex-1 overflow-hidden rounded-3xl bg-white/5">
+    <div className="relative mx-5 mt-5 flex min-h-0 flex-1 overflow-hidden rounded-3xl bg-white/5">
       {remoteVideo ? (
-        <VideoTrack trackRef={remoteVideo} className="h-full w-full object-cover" />
+        <VideoTrack trackRef={remoteVideo} className="absolute inset-0 h-full w-full object-cover sm:object-contain" />
       ) : (
         <div className="flex flex-1 flex-col items-center justify-center px-6 text-center">
           <div className="flex size-20 items-center justify-center rounded-full bg-white/10">
@@ -460,6 +488,46 @@ function useCallPresence(sessionId: string) {
       }
     };
   }, [sessionId]);
+}
+
+/**
+ * True once the first connection has taken too long: some operators can't
+ * reach the call server directly. Reported once per visit so failing networks
+ * show up in the server logs.
+ */
+function useUnreachable(sessionId: string, closed: boolean) {
+  const state = useConnectionState();
+  const [unreachable, setUnreachable] = useState(false);
+  const everConnected = useRef(false);
+  const reported = useRef(false);
+
+  useEffect(() => {
+    if (state === ConnectionState.Connected) {
+      everConnected.current = true;
+      setUnreachable(false);
+      return;
+    }
+    if (closed || everConnected.current) return;
+    const timer = window.setTimeout(() => {
+      setUnreachable(true);
+      if (reported.current) return;
+      reported.current = true;
+      void reportCallProblemAction(sessionId, { problem: "unreachable", network: networkHint() }).catch(
+        () => undefined
+      );
+    }, CONNECT_TIMEOUT_MS);
+    return () => window.clearTimeout(timer);
+  }, [state, closed, sessionId]);
+
+  return unreachable;
+}
+
+/** The browser's own idea of its network (wifi, cellular, 4g…), where it shares one. */
+function networkHint(): string | undefined {
+  const connection = (navigator as Navigator & { connection?: { type?: string; effectiveType?: string } })
+    .connection;
+  const hint = [connection?.type, connection?.effectiveType].filter(Boolean).join("/");
+  return hint ? hint.slice(0, 40) : undefined;
 }
 
 /** Keeps the phone's screen on while connected; asked again after the tab comes back. */

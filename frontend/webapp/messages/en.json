@@ -14701,7 +14701,7 @@
         "refund": "The payment went through, but this time was no longer free. You'll be refunded; please contact support."
       },
       "testPay": "Test payment (testing only)",
-      "foreignVpnNote": "If you're outside Iran: the video call runs on a server inside Iran. To join the call you'll need a VPN with an Iranian IP address."
+      "foreignVpnNote": "This service is currently available only inside Iran."
     },
     "call": {
       "phase": {
@@ -14712,6 +14712,7 @@
       "leave": "Leave call",
       "roomClosed": "The call room's time is over.",
       "videoPlaceholder": "Video calling isn't set up on this server yet. The timer and joining/leaving already work.",
+      "unavailable": "Video calling isn't available right now. Please try again shortly, and contact support if it continues.",
       "connecting": "Connecting…",
       "reconnecting": "Connection lost, reconnecting…",
       "waitingFor": "Waiting for {name}…",
@@ -14725,7 +14726,8 @@
         "permission": "Camera or microphone access was blocked. Allow it in your browser settings and reopen this page.",
         "device": "No camera or microphone was found, or another app is using it.",
         "duplicate": "This call was opened in another tab or device.",
-        "failed": "Couldn't connect to the call server. Check your internet and join again."
+        "failed": "Couldn't connect to the call server. Check your internet and join again.",
+        "unreachable": "Can't reach the call server. If you're on mobile data, try Wi‑Fi or a SIM from another operator."
       },
       "prejoin": {
         "hint": "Check your picture and sound before joining.",

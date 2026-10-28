@@ -27,6 +27,13 @@ internal sealed class OtpSenderService(
         // Format phone number to E.164 format (e.g., +989123456789 or +12345678901)
         var formattedPhoneNumber = phoneNumber.ToE164Format();
 
+// if (string.Equals(
+//         Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT"),
+//         "Development",
+//         StringComparison.OrdinalIgnoreCase))
+// {
+//     logger.LogWarning("[OtpSender][DEV] OTP for {Phone} is {Code}", formattedPhoneNumber, otpCode);
+// }
         // Dev-only shortcut: skip WhatsApp for international numbers and print the code instead.
         if (!phoneNumber.CountryCode.Equals("IR", StringComparison.OrdinalIgnoreCase)
             && string.Equals(
