@@ -69,6 +69,7 @@ export async function getBookingById(bookingId: string, locale = "fa-IR"): Promi
       common.get_translation_t(st.name_translations, ${locale}, 'fa-IR') as "specialistName",
       trim(concat(coalesce(u.first_name, ''), ' ', coalesce(u.last_name, ''))) as "customerName",
       u.email as "customerEmail",
+      nullif(concat_ws(' ', nullif(trim(u.phone_number_country_code), ''), nullif(trim(u.phone_number), '')), '') as "customerPhone",
       b.create_date as "createDate",
       coalesce((
         select jsonb_agg(jsonb_build_object(

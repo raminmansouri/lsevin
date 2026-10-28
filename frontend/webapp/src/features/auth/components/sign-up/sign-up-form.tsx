@@ -82,7 +82,7 @@ export default function SignUpForm() {
   return (
     <ZodErrorProvider componentNamespace={TRANSLATION_KEY}>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} autoComplete="off">
+        <form method="post" onSubmit={form.handleSubmit(onSubmit)} autoComplete="off">
           <AuthFormContainer>
             <FormField
               control={form.control}
@@ -157,7 +157,7 @@ export default function SignUpForm() {
                 <FormItem>
                   <FormLabel>{t("form.password.label")}</FormLabel>
                   <FormControl>
-                    <PasswordInput placeholder="*******" {...field} />
+                    <PasswordInput placeholder="*******" autoComplete="new-password" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

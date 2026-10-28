@@ -31,6 +31,9 @@ export function HomeHeroCard({
             alt={imageAlt}
             sizes="100vw"
             className="object-cover"
+            // Above the fold on the landing page and its LCP element: lazy
+            // loading delayed it until after hydration.
+            priority
           />
         ) : (
           <img

@@ -27,6 +27,7 @@ export function BookingDetailCard({ booking }: { booking: BookingDetail }) {
           <Info label={tAdmin("specialist")} value={booking.specialistName} />
           <Info label={tAdmin("customer")} value={booking.customerName} />
           <Info label={tAdmin("email")} value={booking.customerEmail} />
+          <Info label={tAdmin("phone")} value={booking.customerPhone} dir="ltr" />
           <Info label={tAdmin("status")} value={booking.bookingStatus} />
           <Info label={tAdmin("paymentStatus")} value={depositSplit ? tAdmin("depositPaid") : booking.paymentStatus} />
           <Info label={tAdmin("paymentMethod")} value={booking.paymentMethod} />
@@ -89,8 +90,8 @@ export function BookingDetailCard({ booking }: { booking: BookingDetail }) {
   );
 }
 
-function Info({ label, value }: { label: string; value?: string | null }) {
-  return <div className="rounded-md border p-3"><div className="text-xs text-muted-foreground">{label}</div><div className="font-medium">{value || '-'}</div></div>;
+function Info({ label, value, dir }: { label: string; value?: string | null; dir?: "ltr" | "rtl" }) {
+  return <div className="rounded-md border p-3"><div className="text-xs text-muted-foreground">{label}</div><div className="font-medium">{value ? <span dir={dir}>{value}</span> : '-'}</div></div>;
 }
 
 function ChildBookingCard({ item, parentBookingId }: { item: any; parentBookingId: string }) {

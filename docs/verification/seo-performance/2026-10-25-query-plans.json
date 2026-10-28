@@ -1,0 +1,18 @@
+{
+  "timestamp": "2026-10-25",
+  "source": "Read-only PostgreSQL 17.10 EXPLAIN ANALYZE on production catalog, no mutations",
+  "case": "Unfiltered fa-IR combined search, limit 30",
+  "original": {
+    "planningMs": 117.995,
+    "executionMs": 702.959
+  },
+  "deferredDisplayTranslations": {
+    "planningMs": 31.654,
+    "executionMs": 394.716
+  },
+  "deferredWithEmptyTranslationGuardExperiment": {
+    "planningMs": 32.814,
+    "executionMs": 184.055
+  },
+  "caveat": "Single execution samples with cache/load variation; not visitor TTFB or a p95. Migration 0083 is not applied to production."
+}

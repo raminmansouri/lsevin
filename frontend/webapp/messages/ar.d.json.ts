@@ -2645,6 +2645,7 @@ declare const messages: {
   },
   "Home": {
     "common": {
+      "trustSeal": "رمز الثقة الإلكترونية (إي‌نماد)",
       "noDescription": "لا يوجد وصف متاح.",
       "viewAll": "عرض الكل",
       "seeAll": "عرض الكل",
@@ -3652,7 +3653,7 @@ declare const messages: {
     "documents": "المستندات"
   },
   "Manifest": {
-    "name": "L Sevin",
+    "name": "LSevin",
     "Bookings": "الحجوزات",
     "Consultings": "الاستشارات",
     "Customers": "العملاء",
@@ -3932,7 +3933,7 @@ declare const messages: {
     }
   },
   "LocaleLayout": {
-    "title": "L Sevin",
+    "title": "LSevin",
     "description": "منصة رعاية صحية آلية تبسط جدولة المرضى من الإقامة الفندقية إلى المواعيد الطبية"
   },
   "SpecialistPage": {
@@ -4782,8 +4783,9 @@ declare const messages: {
     "consultationRequests": "طلبات الاستشارة"
   },
   "HomePage": {
-    "title": "L Sevin - رعاية صحية آلية",
-    "description": "تبسيط جدولة المرضى من الإقامات الفندقية إلى المواعيد الطبية",
+    "title": "LSevin | العلاج في إيران: أطباء وعيادات وفنادق علاجية",
+    "h1": "احجز الأطباء والعيادات والفنادق العلاجية والجولات الصحية في إيران",
+    "description": "خطّط لعلاجك في إيران من مكان واحد: احجز الأطباء والعيادات والفنادق القريبة من المستشفيات والرعاية داخل الفندق مع استشارة مجانية من LSevin.",
     "keywords": "أتمتة الرعاية الصحية، أتمتة طبية، سياحة علاجية، حجز طبي",
     "heroTitle": "اختبر أفضل الخدمات الطبية معنا",
     "heroDescription": "في رحلة العافية، نقدم لك أفضل الخدمات الطبية مع فريق من نخبة المختصين ومعدات متقدمة وبيئة آمنة ومريحة ملتزمة بعلاج عالي الجودة ورعاية استثنائية.",
@@ -7813,6 +7815,8 @@ declare const messages: {
       "contact": "LSevin · lsevin.turkiye@gmail.com"
     },
     "privacySecurity": {
+      "showPassword": "إظهار كلمة المرور",
+      "hidePassword": "إخفاء كلمة المرور",
       "title": "الخصوصية والأمان",
       "unknownDevice": "جهاز غير معروف",
       "unknownLocation": "موقع غير معروف",

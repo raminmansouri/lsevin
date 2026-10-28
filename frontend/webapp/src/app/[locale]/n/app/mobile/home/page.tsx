@@ -1,4 +1,5 @@
 import { buildPublicMetadata } from "@/lib/seo/metadata";
+import { PublicSiteSchema } from "@/lib/seo/site-schema";
 import { Award, ChevronRight, Gift, Map, Search, Sparkles, Star, TrendingUp } from 'lucide-react';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 
@@ -31,6 +32,8 @@ import { HomeHeroCard } from '@/features/home/components/home-hero-card';
 import { resolveHomeMediaUrl } from '@/features/home/components/home-media';
 import { SponsoredMediaCarouselSection } from '@/features/home/components/sponsored-media-carousel-section';
 import { countActiveSpecialPackages } from '@/features/special-packages/server/repository';
+import { findGuide, guidePath } from '@/features/guides/registry';
+import { LANDING_CATEGORY_LIMIT } from "@/features/categories/constants";
 
 // Static / ISR — the landing page shell no longer reads the visitor's location
 // or profile on the server; see `Home` below.
@@ -65,7 +68,8 @@ export const revalidate = 120;
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
-  return buildPublicMetadata({ locale, path: "/n/app/mobile/home" });
+  const t = await getTranslations({ locale, namespace: "HomePage" });
+  return buildPublicMetadata({ locale, path: "/n/app/mobile/home", title: t("title"), descriptions: [t("description")] });
 }
 
 async function getLocaleFromParams(params: PageProps['params']) {
@@ -111,6 +115,7 @@ type HomePageLabels = {
     noDescription: string;
     viewAll: string;
     seeAll: string;
+    trustSeal: string;
   };
   search: {
     placeholder: string;
@@ -220,11 +225,13 @@ async function Home({ params }: PageProps) {
   const locale = await getLocaleFromParams(params);
   setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: 'Home' });
+  const pageT = await getTranslations({ locale, namespace: 'HomePage' });
   const labels: HomePageLabels = {
     common: {
       noDescription: t('common.noDescription'),
       viewAll: t('common.viewAll'),
       seeAll: t('common.seeAll'),
+      trustSeal: t('common.trustSeal'),
     },
     search: {
       placeholder: t('search.placeholder'),
@@ -319,7 +326,7 @@ async function Home({ params }: PageProps) {
     // (ISR fills it on the next request) instead of aborting export — but a
     // transient blip is retried first so it doesn't get baked into this hour's
     // static page. See withRailRetry above.
-    withRailRetry(() => getHomeCategoriesCached(queryInput, 6), []),
+    withRailRetry(() => getHomeCategoriesCached(queryInput, LANDING_CATEGORY_LIMIT), []),
     withRailRetry(() => getFeaturedHomeServicesCached(queryInput, 8), []),
     withRailRetry(() => getTrendingHomeServicesCached(queryInput, 8), []),
     withRailRetry(() => getTrustedHomeProvidersCached(queryInput, 8), []),
@@ -331,6 +338,10 @@ async function Home({ params }: PageProps) {
 
   return (
     <div className="min-h-screen bg-white">
+      <PublicSiteSchema locale={locale} />
+      {/* One stable, descriptive h1 in the static shell. The greeting row below is
+          per visitor (guest title or the signed-in name), so it is not a heading. */}
+      <h1 className="sr-only">{pageT('h1')}</h1>
       {/* The canopy: greeting, destination and search live on one continuous pine
           surface that runs up into the app bar, so the top of the app reads as a
           single control area instead of two stacked website bars. The search field
@@ -372,7 +383,7 @@ async function Home({ params }: PageProps) {
           </Link>
         </div>
 
-        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-4">
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-4" data-testid="home-categories">
           <ServiceProvidersCategoriesSuspenseBoundary
             categories={categories}
             locale={locale}
@@ -385,6 +396,8 @@ async function Home({ params }: PageProps) {
           />
         </div>
       </section>
+
+      <HomeGuidesSection locale={locale} />
 
       <section className="pb-8">
         <div className="mb-5 flex items-center justify-between px-5">
@@ -501,13 +514,49 @@ async function Home({ params }: PageProps) {
   alignItems:'center',
   marginBottom:'37px'}}>
     
-      <a referrerPolicy='origin' target='_blank'
+      {/* Enamad verifies the seal through the Referer, so no rel="noreferrer". */}
+      <a referrerPolicy='origin' target='_blank' rel='noopener'
       href='https://trustseal.enamad.ir/?id=7764782&Code=XcQgNRMRzN92gDmZbf8t5GMh1mtctW9d'>
         <img referrerPolicy='origin' src='https://trustseal.enamad.ir/logo.aspx?id=7764782&Code=XcQgNRMRzN92gDmZbf8t5GMh1mtctW9d'
-        alt='' style={{cursor:"pointer"}} {...{ code: 'XcQgNRMRzN92gDmZbf8t5GMh1mtctW9d' }} />
+        alt={labels.common.trustSeal} style={{cursor:"pointer"}} {...{ code: 'XcQgNRMRzN92gDmZbf8t5GMh1mtctW9d' }} />
       </a>
    </div>
     </div>
+  );
+}
+
+// Crawlable entry to the editorial guides, in the languages they are written in.
+function HomeGuidesSection({ locale }: { locale: string }) {
+  const hub = findGuide(locale, '');
+  if (!hub) return null;
+  // The hub lists every guide; the home block shows the first few, in hub order.
+  const guides = hub.guide.related
+    .map((slug) => findGuide(locale, slug))
+    .filter((item): item is NonNullable<typeof item> => Boolean(item))
+    .slice(0, 8);
+  return (
+    <section className="px-5 pb-8">
+      <div className="rounded-2xl bg-[#083f30]/[0.05] p-5 ring-1 ring-[#083f30]/10">
+        <h2 className="mb-1 text-lg font-bold text-gray-900">
+          <Link href={guidePath('')} className="hover:underline">
+            {hub.copy.h1}
+          </Link>
+        </h2>
+        <p className="mb-3 line-clamp-2 text-sm text-gray-600">{hub.copy.description}</p>
+        <ul className="flex flex-wrap gap-2">
+          {guides.map((item) => (
+            <li key={item.guide.slug}>
+              <Link
+                href={guidePath(item.guide.slug)}
+                className="inline-flex rounded-full bg-white px-3 py-1.5 text-sm font-semibold text-[#083f30] ring-1 ring-[#083f30]/15 hover:bg-[#083f30]/5"
+              >
+                {item.copy.navLabel}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
   );
 }
 

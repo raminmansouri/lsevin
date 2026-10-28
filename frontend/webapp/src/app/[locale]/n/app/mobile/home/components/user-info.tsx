@@ -88,9 +88,9 @@ export default function UserInfoSubBar({ profile }: Props) {
           <p className="text-xs font-medium text-white/60">
             {homeT("guestEyebrow")}
           </p>
-          <h1 className="truncate text-xl font-bold text-white">
+          <p className="truncate text-xl font-bold text-white">
             {homeT("guestTitle")}
-          </h1>
+          </p>
         </div>
 
         <Link
@@ -113,7 +113,7 @@ export default function UserInfoSubBar({ profile }: Props) {
         <p className="text-xs font-medium text-white/60">
           {homeT("goodMorning")}
         </p>
-        <h1 className="truncate text-xl font-bold text-white">{fullName}</h1>
+        <p className="truncate text-xl font-bold text-white">{fullName}</p>
       </div>
 
       <Link

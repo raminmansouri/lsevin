@@ -59,7 +59,7 @@ declare const messages: {
     "uploadedBadge": "Subido"
   },
   "Manifest": {
-    "name": "L Sevin",
+    "name": "LSevin",
     "actions": {
       "addResource": "Añadir recurso",
       "addRule": "Añadir regla",
@@ -339,7 +339,7 @@ declare const messages: {
     }
   },
   "LocaleLayout": {
-    "title": "L Sevin",
+    "title": "LSevin",
     "description": "Plataforma de salud automatizada que optimiza la programación de pacientes, desde estancias en hoteles hasta citas médicas"
   },
   "Error": {
@@ -569,7 +569,8 @@ declare const messages: {
     "consultationRequests": "Solicitudes de consulta"
   },
   "HomePage": {
-    "title": "L Sevin - Salud Automatizada",
+    "title": "LSevin | Médicos, clínicas y hoteles médicos en Irán",
+    "h1": "Reserva médicos, clínicas, hoteles médicos y viajes de salud en Irán",
     "description": "Optimizando la programación de pacientes desde estancias en hoteles hasta citas médicas",
     "keywords": "automatización sanitaria,automatización de salud,turismo médico,reserva médica",
     "heroTitle": "Vive los mejores servicios médicos con nosotros",
@@ -2915,6 +2916,7 @@ declare const messages: {
       "subcategoryCount": "{count} subcategorías"
     },
     "common": {
+      "trustSeal": "Sello de confianza electrónica Enamad",
       "loading": "Cargando...",
       "noDescription": "No hay descripción disponible.",
       "seeAll": "Ver todo",
@@ -3647,7 +3649,7 @@ declare const messages: {
     "low": "Baja",
     "loyaltyMembers": "Miembros del programa de fidelización",
     "loyaltyTiers": "Niveles de fidelización",
-    "lSevinAdmin": "Administración de L Sevin",
+    "lSevinAdmin": "Administración de LSevin",
     "lucasGarcia": "Lucas Garcia",
     "luxurySpaAndWellness": "Spa y bienestar de lujo",
     "mainButtonLabel": "Texto del botón principal",
@@ -7699,6 +7701,8 @@ declare const messages: {
       "contact": "LSevin · lsevin.turkiye@gmail.com"
     },
     "privacySecurity": {
+      "showPassword": "Mostrar contraseña",
+      "hidePassword": "Ocultar contraseña",
       "activeSessions": "Sesiones activas",
       "biometricDescription": "Usa Face ID, Touch ID o la biometría de tu dispositivo para iniciar sesión más rápido.",
       "biometricLogin": "Inicio de sesión biométrico",

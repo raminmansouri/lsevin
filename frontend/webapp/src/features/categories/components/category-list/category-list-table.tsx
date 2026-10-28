@@ -1,7 +1,7 @@
 "use client";
 
 import { useOptimistic, useState, useTransition } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 import { DataTable, DataTableSkeleton } from "@/components/data-table";
@@ -9,7 +9,7 @@ import { useRouter } from "@/i18n/navigation";
 import { Pagination } from "@/types/filter";
 
 import { setCategoryHomepageDisplayAction } from "../../actions/set-homepage-display";
-import { CATEGORY_TRANSLATION_KEY } from "../../constants";
+import { CATEGORY_TRANSLATION_KEY, LANDING_CATEGORY_LIMIT } from "../../constants";
 import { useCategoryActions } from "../../hooks/use-category-list-actions";
 import { CategoryListItem } from "../../types/category";
 import { getCategoryListColumns } from "./category-list-columns";
@@ -23,6 +23,7 @@ type Props = {
 const CategoryListTable = ({ items, pagination }: Props) => {
   const [, startTransition] = useTransition();
   const t = useTranslations(CATEGORY_TRANSLATION_KEY);
+  const locale = useLocale();
   const router = useRouter();
 
   const [optimisticItems, deleteOptimisticItems] = useOptimistic(
@@ -96,6 +97,11 @@ const CategoryListTable = ({ items, pagination }: Props) => {
 
   return (
     <>
+      <p className="mb-3 text-sm text-muted-foreground" data-testid="category-landing-note">
+        {/* Pre-formatted text: an ICU number arg came out as "۶" on the server and "6" in the
+            browser, a hydration mismatch that rebuilt the whole table (and dropped a pending edit). */}
+        {t("homepage.landingNote", { limit: new Intl.NumberFormat(locale).format(LANDING_CATEGORY_LIMIT) })}
+      </p>
       <DataTable
         columns={columns}
         data={data}
@@ -111,5 +117,5 @@ const CategoryListTable = ({ items, pagination }: Props) => {
 export default CategoryListTable;
 
 export function CategoryListTableSkeleton() {
-  return <DataTableSkeleton columnCount={6} rowCount={5} />;
+  return <DataTableSkeleton columnCount={7} rowCount={5} />;
 }

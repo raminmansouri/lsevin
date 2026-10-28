@@ -59,7 +59,7 @@ declare const messages: {
     "uploadedBadge": "بارکراو"
   },
   "Manifest": {
-    "name": "L Sevin",
+    "name": "LSevin",
     "actions": {
       "addResource": "زیادکردنی سەرچاوە",
       "addRule": "زیادکردنی ڕێسا",
@@ -339,7 +339,7 @@ declare const messages: {
     }
   },
   "LocaleLayout": {
-    "title": "L Sevin",
+    "title": "LSevin",
     "description": "پلاتفۆرمی خۆکارەکان بۆ چاودێری تەندرووستی کە خولەکخستنەکانی نەخۆشەکان لە مانەوەگایەکانەوە تا چاوپێکەوتنە پزیشکییەکان ڕێکدەخات"
   },
   "Error": {
@@ -569,7 +569,8 @@ declare const messages: {
     "consultationRequests": "داواکارییەکانی ڕاوێژکاری"
   },
   "HomePage": {
-    "title": "L Sevin - تەندرووستی خۆکار",
+    "title": "LSevin | گەشتی چارەسەری بۆ ئێران: دکتۆر، کلینیک و هۆتێل",
+    "h1": "نۆرەی دکتۆر، کلینیک، هۆتێلی چارەسەری و گەشتی تەندروستی لە ئێران",
     "description": "ڕێکخستنی خولەکخستنەکانی نەخۆش لە مانەوەگایەکانەوە تا چاوپێکەوتنە پزیشکییەکان",
     "keywords": "خۆکارکردنی تەندرووستی, تەندرووستی خۆکار, گەشتیاری پزیشکی, حجزکردنی پزیشکی",
     "heroTitle": "باشترین خزمەتگوزاریی پزیشکی لەگەڵ مەوە تاقی بکەوە",
@@ -2912,6 +2913,7 @@ declare const messages: {
       "subcategoryCount": "{count} ژێرپۆل"
     },
     "common": {
+      "trustSeal": "نیشانەی متمانەی ئەلیکترۆنی (ئینماد)",
       "loading": "بارکردن...",
       "noDescription": "هیچ پەسناسێک بەردەست نییە.",
       "seeAll": "هەمووی ببینە",
@@ -3644,7 +3646,7 @@ declare const messages: {
     "low": "نزم",
     "loyaltyMembers": "ئەندامانی دڵسۆزی",
     "loyaltyTiers": "پلەکانی دڵسۆزی",
-    "lSevinAdmin": "بەڕێوەبردنی L Sevin",
+    "lSevinAdmin": "بەڕێوەبردنی LSevin",
     "lucasGarcia": "لوکاس گارسیا",
     "luxurySpaAndWellness": "سپا و تەندروستیی لوکس",
     "mainButtonLabel": "ناونیشانی دوگمەی سەرەکی",
@@ -7696,6 +7698,8 @@ declare const messages: {
       "contact": "LSevin · lsevin.turkiye@gmail.com"
     },
     "privacySecurity": {
+      "showPassword": "پیشاندانی تێپەڕەوشە",
+      "hidePassword": "شاردنەوەی تێپەڕەوشە",
       "activeSessions": "دانیشتنە چالاکەکان",
       "biometricDescription": "Face ID، Touch ID یان بایۆمەتریکی ئامێرەکە بەکاربهێنە بۆ چوونەژوورەوەی خێراتر.",
       "biometricLogin": "چوونەژوورەوەی بایۆمەتری",

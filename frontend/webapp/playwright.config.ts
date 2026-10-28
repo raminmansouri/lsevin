@@ -2,7 +2,7 @@ import { defineConfig } from "@playwright/test";
 
 export default defineConfig({
   testDir: "./e2e",
-  testMatch: ["privacy-policy.spec.ts", "admin-bug-reporter.spec.ts", "enamad-trust-seal.spec.ts", "smoke-release.spec.ts"],
+  testMatch: ["privacy-policy.spec.ts", "admin-bug-reporter.spec.ts", "enamad-trust-seal.spec.ts", "smoke-release.spec.ts", "frontend-checklist.spec.ts"],
   workers: 1,
   timeout: 90_000,
   expect: { timeout: 20_000 },

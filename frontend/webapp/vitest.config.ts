@@ -42,6 +42,7 @@ export default defineConfig({
       "src/features/finance/lib/*.test.ts",
       "src/features/shop/**/*.test.ts",
       "src/features/booking-pro/**/*.test.ts",
+      "src/features/categories/**/*.test.ts",
       "src/features/booking/**/*.test.ts",
       "src/features/gym-memberships/**/*.test.ts",
       "src/features/patients/**/*.test.ts",
@@ -52,6 +53,7 @@ export default defineConfig({
       "src/lib/seo/**/*.test.ts",
       "src/lib/http/**/*.test.ts",
       "src/lib/build-mode.test.ts",
+      "src/components/editor/*.test.ts",
       "src/app/app-health/route.test.ts",
     ],
     // Postgres row locks are the point of several tests; running files in parallel

@@ -114,7 +114,7 @@ const OtpForm = ({ phoneNumber, redirectTo }: Props) => {
   return (
     <ZodErrorProvider componentNamespace={TRANSLATION_KEY}>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)}>
+        <form method="post" onSubmit={form.handleSubmit(onSubmit)}>
           <AuthFormContainer className="gap-8">
             <FormField
               control={form.control}

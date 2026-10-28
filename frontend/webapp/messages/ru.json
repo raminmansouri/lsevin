@@ -857,7 +857,7 @@
     "low": "Низкий",
     "loyaltyMembers": "Участники программы лояльности",
     "loyaltyTiers": "Уровни лояльности",
-    "lSevinAdmin": "Администратор L Sevin",
+    "lSevinAdmin": "Администратор LSevin",
     "lucasGarcia": "Лукас Гарсия",
     "luxurySpaAndWellness": "Люкс-спа и оздоровление",
     "mainButtonLabel": "Подпись главной кнопки",
@@ -5303,6 +5303,7 @@
       "subcategoryCount": "{count} подкатегорий"
     },
     "common": {
+      "trustSeal": "Знак электронного доверия Enamad",
       "loading": "Загрузка...",
       "noDescription": "Описание отсутствует.",
       "seeAll": "Показать все",
@@ -5522,7 +5523,8 @@
       "view": "Смотреть",
       "viewAll": "Смотреть все"
     },
-    "title": "L Sevin — автоматизация в здравоохранении"
+    "title": "LSevin — лечение в Иране: врачи, клиники и медотели",
+    "h1": "Запись к врачам, клиники, медотели и оздоровительные туры в Иране"
   },
   "LazySelect": {
     "emptyText": "Ничего не найдено.",
@@ -5535,7 +5537,7 @@
   },
   "LocaleLayout": {
     "description": "Платформа автоматизации в здравоохранении: организуем весь путь пациента — от проживания в отеле до записи на приём",
-    "title": "L Sevin"
+    "title": "LSevin"
   },
   "LocaleSwitcher": {
     "ar": "العربية",
@@ -6486,6 +6488,8 @@
       "contact": "LSevin · lsevin.turkiye@gmail.com"
     },
     "privacySecurity": {
+      "showPassword": "Показать пароль",
+      "hidePassword": "Скрыть пароль",
       "activeSessions": "Активные сеансы",
       "biometricDescription": "Используйте Face ID, Touch ID или биометрию устройства, чтобы входить быстрее.",
       "biometricLogin": "Вход по биометрии",
