@@ -2913,6 +2913,7 @@ declare const messages: {
       "subcategoryCount": "{count} sous-catégories"
     },
     "common": {
+      "trustSeal": "Sceau de confiance électronique Enamad",
       "loading": "Chargement…",
       "noDescription": "Aucune description disponible.",
       "seeAll": "Tout voir",
@@ -7697,6 +7698,8 @@ declare const messages: {
       "contact": "LSevin · lsevin.turkiye@gmail.com"
     },
     "privacySecurity": {
+      "showPassword": "Afficher le mot de passe",
+      "hidePassword": "Masquer le mot de passe",
       "activeSessions": "Sessions actives",
       "biometricDescription": "Utilisez Face ID, Touch ID ou la biométrie de votre appareil pour vous connecter plus vite.",
       "biometricLogin": "Connexion biométrique",
