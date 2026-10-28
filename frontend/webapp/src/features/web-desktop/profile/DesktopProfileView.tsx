@@ -56,7 +56,23 @@ const ICONS: Record<string, LucideIcon> = {
 };
 const iconFor = (name: string) => ICONS[name] ?? Circle;
 
-/** Desktop profile (>= 1280px): same data, menu and sign-out as mobile, as a personal salon. */
+type MenuItem = ProfileOverviewData["menu"][number];
+
+// Grouped by where an item leads; anything new and unlisted lands in "health & care", never lost.
+const MEMBERSHIP = ["/profile/wallet", "/profile/rewards"];
+const ACCOUNT = ["/profile/share", "/profile/favorites", "/notifications", "/profile/privacy-security", "/profile/privacy-policy"];
+const inGroup = (item: MenuItem, paths: string[]) => paths.some((path) => item.href.endsWith(path));
+
+function GroupTitle({ children }: { children: string }) {
+  return (
+    <div className="mb-5 flex items-center gap-5">
+      <span className="shrink-0 text-[10px] font-bold tracking-[0.5em] text-[#eacb7f]">{children}</span>
+      <div className="lsd-hairline flex-1" />
+    </div>
+  );
+}
+
+/** Desktop profile (>= 1280px): same data, menu and sign-out as mobile, grouped as a personal salon. */
 export function DesktopProfileView({
   data,
   image,
@@ -69,8 +85,10 @@ export function DesktopProfileView({
 }) {
   const [imageFailed, setImageFailed] = useState(false);
   const fullName = `${data.firstName} ${data.lastName}`.trim();
-  // The first item (wallet) is the hero tile, the second (rewards) a wide one, the rest squares.
-  const [featured, wide, ...rest] = data.menu;
+
+  const membership = data.menu.filter((item) => inGroup(item, MEMBERSHIP));
+  const account = data.menu.filter((item) => inGroup(item, ACCOUNT));
+  const care = data.menu.filter((item) => !inGroup(item, MEMBERSHIP) && !inGroup(item, ACCOUNT));
 
   return (
     <div className="lsd lsd-noir hidden pb-20 xl:block">
@@ -95,8 +113,7 @@ export function DesktopProfileView({
             {data.email ? <p className="truncate text-base text-white/55">{data.email}</p> : null}
             <Link
               href="/n/app/mobile/profile/EditProfile"
-              className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-bold text-[#eacb7f] ring-1 ring-[#eacb7f]/40 transition hover:bg-[#eacb7f]/10"
-            >
+              className="lsd-champagne-bg inline-flex items-center gap-2 rounded-full border border-[#eacb7f] px-5 py-2.5 text-sm font-bold text-[#0e1a16] shadow-[0_14px_34px_-16px_rgba(234,203,127,0.6)] transition hover:-translate-y-0.5"            >
               <PencilLine size={15} />
               {data.editLabel}
             </Link>
@@ -126,85 +143,107 @@ export function DesktopProfileView({
         </Reveal>
       </section>
 
-      <div className="lsd-container mt-14">
-        <div className="lsd-hairline" />
-      </div>
+      {/* 1. Membership: the wallet card and the one bright tile on the page */}
+      {membership.length ? (
+        <section className="lsd-container mt-16">
+          <GroupTitle>MEMBERSHIP</GroupTitle>
+          <div className="grid grid-cols-2 gap-5">
+            {membership.map((item, index) => {
+              const Icon = iconFor(item.icon);
+              const bright = item.href.endsWith("/profile/rewards");
+              return (
+                <Reveal key={item.href} delay={index * 90}>
+                  <Link href={item.href} className="group block">
+                    <span
+                      className={`lsd-tile flex h-[190px] flex-col justify-between rounded-[28px] p-8 ${
+                        bright ? "lsd-champagne-bg border border-[#eacb7f] shadow-[0_30px_70px_-30px_rgba(234,203,127,0.55)]" : "lsd-club-card"
+                      }`}
+                    >
+                      <span className="flex items-start justify-between">
+                        <span
+                          className={`grid h-14 w-14 place-items-center rounded-full ${
+                            bright ? "bg-[#062a20] text-[#eacb7f]" : "bg-[#eacb7f]/15 text-[#eacb7f] ring-1 ring-[#eacb7f]/40"
+                          }`}
+                        >
+                          <Icon size={24} />
+                        </span>
+                        {bright ? null : <Image src="/brand/lsevin-mark-reversed.png" alt="" aria-hidden="true" width={34} height={48} className="opacity-80" />}
+                      </span>
+                      <span className="flex items-end justify-between gap-6">
+                        <span className={`text-[28px] font-black ${bright ? "text-[#0e1a16]" : "text-white"}`}>{item.label}</span>
+                        <span
+                          className={`grid h-12 w-12 place-items-center rounded-full transition group-hover:-translate-x-1 ${
+                            bright ? "bg-[#062a20] text-[#eacb7f]" : "bg-[#eacb7f] text-[#062a20]"
+                          }`}
+                        >
+                          <ArrowLeft size={19} className="ltr:rotate-180" />
+                        </span>
+                      </span>
+                    </span>
+                  </Link>
+                </Reveal>
+              );
+            })}
+          </div>
+        </section>
+      ) : null}
 
-      {/* Bento menu */}
-      <section className="lsd-container mt-12 grid auto-rows-[150px] grid-cols-4 gap-5">
-        {featured ? (
-          <Reveal className="col-span-2 row-span-2">
-            <Link href={featured.href} className="group block h-full">
-              <span className="lsd-tile lsd-club-card flex h-full flex-col justify-between rounded-[28px] p-8">
-                <span className="flex items-start justify-between">
-                  <span className="grid h-14 w-14 place-items-center rounded-full bg-[#eacb7f]/15 text-[#eacb7f] ring-1 ring-[#eacb7f]/40">
-                    {(() => {
-                      const Icon = iconFor(featured.icon);
-                      return <Icon size={24} />;
-                    })()}
-                  </span>
-                  <Image src="/brand/lsevin-mark-reversed.png" alt="" aria-hidden="true" width={38} height={54} className="opacity-80" />
-                </span>
-                <span className="flex items-end justify-between gap-6">
-                  <span className="text-[30px] font-black text-white">{featured.label}</span>
-                  <span className="grid h-12 w-12 place-items-center rounded-full bg-[#eacb7f] text-[#062a20] transition group-hover:-translate-x-1">
-                    <ArrowLeft size={19} className="ltr:rotate-180" />
-                  </span>
-                </span>
-              </span>
-            </Link>
-          </Reveal>
-        ) : null}
+      {/* 2. Health & care: glass tiles */}
+      {care.length ? (
+        <section className="lsd-container mt-14">
+          <GroupTitle>HEALTH &amp; CARE</GroupTitle>
+          <div className="grid grid-cols-3 gap-5">
+            {care.map((item, index) => {
+              const Icon = iconFor(item.icon);
+              return (
+                <Reveal key={item.href} delay={(index % 3) * 70}>
+                  <Link href={item.href} className="group block">
+                    <span className="lsd-tile lsd-glass-dark flex h-[118px] items-center gap-5 rounded-[22px] px-6">
+                      <span className="grid h-12 w-12 shrink-0 place-items-center rounded-full text-[#eacb7f] ring-1 ring-[#eacb7f]/35">
+                        <Icon size={21} />
+                      </span>
+                      <span className="min-w-0 flex-1 text-base font-bold leading-snug text-white">{item.label}</span>
+                      <ArrowLeft size={16} className="shrink-0 text-[#eacb7f] opacity-0 transition duration-500 group-hover:-translate-x-1 group-hover:opacity-100 ltr:rotate-180" />
+                    </span>
+                  </Link>
+                </Reveal>
+              );
+            })}
+          </div>
+        </section>
+      ) : null}
 
-        {wide ? (
-          <Reveal delay={80} className="col-span-2">
-            <Link href={wide.href} className="group block h-full">
-              <span className="lsd-tile lsd-glass-dark flex h-full items-center justify-between gap-6 rounded-[24px] px-8">
-                <span className="flex items-center gap-5">
-                  <span className="grid h-14 w-14 place-items-center rounded-full text-[#eacb7f] ring-1 ring-[#eacb7f]/40">
-                    {(() => {
-                      const Icon = iconFor(wide.icon);
-                      return <Icon size={24} />;
-                    })()}
-                  </span>
-                  <span className="text-xl font-black text-white">{wide.label}</span>
-                </span>
-                <ArrowLeft size={19} className="text-[#eacb7f] transition group-hover:-translate-x-1 ltr:rotate-180" />
-              </span>
-            </Link>
-          </Reveal>
-        ) : null}
-
-        {rest.map((item, index) => {
-          const Icon = iconFor(item.icon);
-          return (
-            <Reveal key={item.href} delay={(index % 4) * 60}>
-              <Link href={item.href} className="group block h-full">
-                <span className="lsd-tile lsd-glass-dark flex h-full flex-col justify-between rounded-[24px] p-6">
-                  <span className="grid h-11 w-11 place-items-center rounded-full text-[#eacb7f] ring-1 ring-[#eacb7f]/35">
-                    <Icon size={19} />
-                  </span>
-                  <span className="flex items-end justify-between gap-3">
-                    <span className="text-[15px] font-bold leading-snug text-white">{item.label}</span>
-                    <ArrowLeft size={16} className="shrink-0 text-[#eacb7f] opacity-0 transition duration-500 group-hover:-translate-x-1 group-hover:opacity-100 ltr:rotate-180" />
-                  </span>
-                </span>
-              </Link>
-            </Reveal>
-          );
-        })}
-      </section>
-
-      {/* Sign out */}
-      <section className="lsd-container mt-14 flex justify-center">
-        <button
-          type="button"
-          onClick={signOut}
-          className="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-bold text-white/50 ring-1 ring-white/10 transition hover:text-[#f0a3a3] hover:ring-[#a33a3a]/50"
-        >
-          <LogOut size={16} />
-          {data.signOutLabel}
-        </button>
+      {/* 3. Account & settings: a quiet two-column list, with sign-out at its foot */}
+      <section className="lsd-container mt-14">
+        <GroupTitle>ACCOUNT</GroupTitle>
+        <Reveal>
+          <div className="rounded-[24px] border border-white/[0.07] bg-white/[0.02] px-8 py-3">
+            <div className="grid grid-cols-2 gap-x-12">
+              {account.map((item) => {
+                const Icon = iconFor(item.icon);
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className="group flex items-center gap-4 border-b border-white/[0.06] py-4 text-sm text-white/70 transition hover:text-white"
+                  >
+                    <Icon size={17} className="shrink-0 text-white/40 transition group-hover:text-[#eacb7f]" />
+                    <span className="flex-1">{item.label}</span>
+                    <ArrowLeft size={14} className="shrink-0 text-white/25 transition group-hover:-translate-x-1 group-hover:text-[#eacb7f] ltr:rotate-180" />
+                  </Link>
+                );
+              })}
+            </div>
+            <button
+              type="button"
+              onClick={signOut}
+              className="mt-2 flex w-full items-center gap-4 py-4 text-sm font-bold text-white/45 transition hover:text-[#f0a3a3]"
+            >
+              <LogOut size={17} className="shrink-0" />
+              {data.signOutLabel}
+            </button>
+          </div>
+        </Reveal>
       </section>
     </div>
   );

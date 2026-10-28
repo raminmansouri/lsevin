@@ -965,6 +965,19 @@
   .group:hover .lsd-tile::after { transform: translateX(130%); }
 
 
+  /* Light champagne panels inside noir pages: their own forms keep their light styling */
+  .lsd-noir .lsd-paper {
+    background: linear-gradient(160deg, #fbf6ea, #f1e6cc);
+    color: #0e1a16;
+    border: 1px solid rgba(234, 203, 127, 0.8);
+    box-shadow: 0 30px 70px -40px rgba(234, 203, 127, 0.45);
+  }
+
+  /* Pages with a cream section get a cream page behind the floating header */
+  body:has(.lsd-shop-bg) { background: #fbf7ee; }
+  .lsd.lsd-shop-bg { margin-top: -120px; padding-top: 120px; }
+
+  
 
   /* Respect users who turn motion off in their OS */
   @media (prefers-reduced-motion: reduce) {

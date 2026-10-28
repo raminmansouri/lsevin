@@ -26,6 +26,20 @@ import type { TranslationType } from "@/types/next";
 import { requireAuthenticatedUserId } from "./auth";
 import { RequirementUploadList } from "./requirement-upload-list";
 import { ShareCaseSection } from "./share-case-section";
+import { DesktopMyCases } from "@/features/web-desktop/cases/DesktopMyCases";
+
+/** Everything one case shows, read once and shared by the mobile and desktop views. */
+async function loadCaseBundle(medicalCase: MedicalCaseRow, locale: string) {
+  const [requirements, proposals, secondOpinions, followUps, grants] = await Promise.all([
+    listRequirementsForCase(medicalCase.id),
+    listProposalsForCase(medicalCase.id),
+    listSecondOpinionsForCase(medicalCase.id),
+    listFollowUpsForCase(medicalCase.id),
+    listGrantsForCaseWithProviderNames(medicalCase.id, locale),
+  ]);
+  return { medicalCase, requirements, proposals, secondOpinions, followUps, grants, readiness: computeCaseReadiness(requirements) };
+}
+export type CaseBundle = Awaited<ReturnType<typeof loadCaseBundle>>;
 
 export const dynamic = "force-dynamic";
 
@@ -69,14 +83,15 @@ export default async function MyCasesPage() {
       .map(async (link) => ({
         patient: link.patient,
         relationshipType: link.relationshipType,
-        cases: await listCasesForPatient(link.patient.id),
+        cases: await Promise.all((await listCasesForPatient(link.patient.id)).map((medicalCase) => loadCaseBundle(medicalCase, locale))),
       }))
   );
 
   const hasAnyCase = patientsWithCases.some((entry) => entry.cases.length > 0);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <>
+    <div className="min-h-screen bg-gray-50 xl:hidden">
       <div className="border-b border-gray-200 bg-white px-6 py-8">
         <h1 className="text-xl font-bold text-gray-900">{t("title")}</h1>
         <p className="mt-1 text-sm text-gray-500">{t("subtitle")}</p>
@@ -99,10 +114,10 @@ export default async function MyCasesPage() {
                   {patient.firstName} {patient.lastName} — {t(`relationshipTypes.${relationshipType}`)}
                 </p>
               )}
-              {cases.map((medicalCase) => (
+              {cases.map((bundle) => (
                 <CaseCard
-                  key={medicalCase.id}
-                  medicalCase={medicalCase}
+                  key={bundle.medicalCase.id}
+                  bundle={bundle}
                   patientId={patient.id}
                   locale={locale}
                   bookedProviders={bookedProviders}
@@ -115,6 +130,8 @@ export default async function MyCasesPage() {
         )}
       </div>
     </div>
+    <DesktopMyCases patientsWithCases={patientsWithCases} journeys={journeys} bookedProviders={bookedProviders} locale={locale} />
+    </>
   );
 }
 
@@ -131,29 +148,21 @@ function JourneyCard({ journey, locale, t }: { journey: CustomerJourney; locale:
   </Link>;
 }
 
-async function CaseCard({
-  medicalCase,
+function CaseCard({
+  bundle,
   patientId,
-  locale,
   bookedProviders,
   t,
   tCases,
 }: {
-  medicalCase: MedicalCaseRow;
+  bundle: CaseBundle;
   patientId: string;
   locale: string;
   bookedProviders: BookedProviderOption[];
   t: TranslationType;
   tCases: TranslationType;
 }) {
-  const [requirements, proposals, secondOpinions, followUps, grants] = await Promise.all([
-    listRequirementsForCase(medicalCase.id),
-    listProposalsForCase(medicalCase.id),
-    listSecondOpinionsForCase(medicalCase.id),
-    listFollowUpsForCase(medicalCase.id),
-    listGrantsForCaseWithProviderNames(medicalCase.id, locale),
-  ]);
-  const readiness = computeCaseReadiness(requirements);
+  const { medicalCase, requirements, proposals, secondOpinions, followUps, grants, readiness } = bundle;
 
   return (
     <div className="rounded-2xl bg-white p-4">
