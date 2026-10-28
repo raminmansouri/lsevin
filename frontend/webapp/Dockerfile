@@ -71,6 +71,7 @@ RUN if [ -d ./app ]; then \
 # NEXT_PUBLIC_* values are compiled into browser JavaScript by Next.js, so they
 # must be available during the image build.
 ARG NEXT_PUBLIC_URL
+ARG NEXT_PUBLIC_SEO_URL
 ARG NEXT_PUBLIC_API_URL
 ARG NEXT_PUBLIC_FILES_URL
 ARG NEXT_PUBLIC_SOCKET_URL
@@ -84,6 +85,7 @@ ENV NODE_ENV=production \
     SKIP_ENV_VALIDATION=true \
     BUILD_MODE=${BUILD_MODE} \
     NEXT_PUBLIC_URL=${NEXT_PUBLIC_URL} \
+    NEXT_PUBLIC_SEO_URL=${NEXT_PUBLIC_SEO_URL} \
     NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL} \
     NEXT_PUBLIC_FILES_URL=${NEXT_PUBLIC_FILES_URL} \
     NEXT_PUBLIC_SOCKET_URL=${NEXT_PUBLIC_SOCKET_URL} \
@@ -91,6 +93,9 @@ ENV NODE_ENV=production \
     NEXT_PUBLIC_NESHAN_MAP_KEY=${NEXT_PUBLIC_NESHAN_MAP_KEY} \
     NEXT_PUBLIC_CRM_ANALYTICS_URL=${NEXT_PUBLIC_CRM_ANALYTICS_URL} \
     NEXT_PUBLIC_CRM_ANALYTICS_SITE_KEY=${NEXT_PUBLIC_CRM_ANALYTICS_SITE_KEY}
+
+# Unit gates use mocked repositories and must never point at the production DB.
+RUN DATABASE_URL=postgres://unused:unused@127.0.0.1:1/unused pnpm test:seo && pnpm test:performance
 
 # Preserve Next.js' incremental compilation cache across Docker builds.
 # The three secrets are mounted only for this RUN instruction. They are not

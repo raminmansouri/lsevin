@@ -1625,7 +1625,7 @@ declare const messages: {
     "defaultCurrency": "ارز پیش‌فرض",
     "defaultLanguage": "زبان پیش‌فرض",
     "defineFreeBookingDepositAndFullPrepayReservationRulesByProviderTypeProviderServi": "define Free رزرو Deposit And Full Prepay Reservation قوانین By ارائه‌دهنده نوع ارائه‌دهنده Servi",
-    "defineHowLSevinSplitsGrossBookingValueIntoPlatformFeeAndProviderPayableByScopeAn": "define How L Sevin Splits Gross رزرو Value Into پلتفرم Fee And ارائه‌دهنده Payable By محدوده An",
+    "defineHowLSevinSplitsGrossBookingValueIntoPlatformFeeAndProviderPayableByScopeAn": "define How LSevin Splits Gross رزرو Value Into پلتفرم Fee And ارائه‌دهنده Payable By محدوده An",
     "demographicBreakdown": "تفکیک جمعیت‌شناختی",
     "dentalTourismCyprusSpecial": "dental گردشگری قبرس Special",
     "details": "جزئیات",
@@ -3583,7 +3583,7 @@ declare const messages: {
     }
   },
   "LocaleLayout": {
-    "title": "ال سوین",
+    "title": "السوین",
     "description": "پلتفرم خودکار سلامت که برنامه‌ریزی بیماران را از اقامت هتل تا قرارهای پزشکی تسهیل می‌کند"
   },
   "SpecialistPage": {
@@ -4670,8 +4670,9 @@ declare const messages: {
     }
   },
   "HomePage": {
-    "title": "ال سوین - سلامت هوشمند",
-    "description": "تسهیل برنامه‌ریزی بیماران از اقامت هتل تا قرارهای پزشکی",
+    "title": "السوین | رزرو آنلاین پزشک، کلینیک و هتل درمانی در ایران",
+    "h1": "رزرو آنلاین پزشک، کلینیک، هتل درمانی و تور سلامت در ایران",
+    "description": "درمان در ایران را یکجا برنامه‌ریزی کنید: نوبت پزشک و کلینیک، رزرو هتل درمانی نزدیک بیمارستان، مراقبت در هتل و مشاوره رایگان با السوین.",
     "keywords": "سلامت هوشمند,اتوماسیون سلامت,گردشگری پزشکی,رزرو پزشکی",
     "heroTitle": "برترین‌های پزشکی را با ما تجربه کنید ...",
     "heroDescription": "در سفر به سوی سلامتی ما بهترین خدمات پزشکی رابرای شما به ارمغان می آوریم با تیمی از متخصصین برتر،تجهیزات پیشرفته و محیطی امن و آرامش بخش ما متعهد به ارائه درمانی باکیفیت و مراقبتی بی نظیر هستیم.",

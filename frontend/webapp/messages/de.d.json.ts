@@ -59,7 +59,7 @@ declare const messages: {
     "uploadedBadge": "Hochgeladen"
   },
   "Manifest": {
-    "name": "L Sevin",
+    "name": "LSevin",
     "actions": {
       "addResource": "Ressource hinzufügen",
       "addRule": "Regel hinzufügen",
@@ -339,7 +339,7 @@ declare const messages: {
     }
   },
   "LocaleLayout": {
-    "title": "L Sevin",
+    "title": "LSevin",
     "description": "Automatisierte Gesundheitsplattform, die die Terminplanung von Hotelaufenthalten bis zu medizinischen Terminen optimiert"
   },
   "Error": {
@@ -569,7 +569,8 @@ declare const messages: {
     "consultationRequests": "Beratungsanfragen"
   },
   "HomePage": {
-    "title": "L Sevin - Automatisiertes Gesundheitswesen",
+    "title": "LSevin | Ärzte, Kliniken & Medizinhotels im Iran buchen",
+    "h1": "Ärzte, Kliniken, Medizinhotels und Gesundheitsreisen im Iran buchen",
     "description": "Optimiert die Terminplanung von Hotelaufenthalten bis zu medizinischen Terminen",
     "keywords": "Automatisierung Gesundheitswesen,Gesundheitsautomatisierung,Medizintourismus,medizinische Buchung",
     "heroTitle": "Erleben Sie mit uns die besten medizinischen Leistungen",
@@ -4233,7 +4234,7 @@ declare const messages: {
     "low": "Niedrig",
     "loyaltyMembers": "Treueprogramm-Mitglieder",
     "loyaltyTiers": "Treuestufen",
-    "lSevinAdmin": "L Sevin Admin",
+    "lSevinAdmin": "LSevin Admin",
     "lucasGarcia": "Lucas Garcia",
     "luxurySpaAndWellness": "Luxus-Spa & Wellness",
     "mainButtonLabel": "Beschriftung der Hauptschaltfläche",
