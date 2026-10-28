@@ -977,8 +977,23 @@
   body:has(.lsd-shop-bg) { background: #fbf7ee; }
   .lsd.lsd-shop-bg { margin-top: -120px; padding-top: 120px; }
 
-  
 
+  /* Health passport booklet: the cover swings open from the spine on hover */
+  .lsd-passport { perspective: 1400px; }
+  .lsd-passport-cover {
+    transform-origin: right center;
+    transition: transform 0.9s var(--lsd-ease), box-shadow 0.9s ease;
+    backface-visibility: hidden;
+  }
+  [dir="ltr"] .lsd-passport-cover { transform-origin: left center; }
+  .group:hover .lsd-passport-cover {
+    transform: rotateY(-28deg);
+    box-shadow: 30px 30px 50px -30px rgba(6, 42, 32, 0.6);
+  }
+  [dir="ltr"] .group:hover .lsd-passport-cover { transform: rotateY(28deg); }
+
+
+  
   /* Respect users who turn motion off in their OS */
   @media (prefers-reduced-motion: reduce) {
     .lsd *,
