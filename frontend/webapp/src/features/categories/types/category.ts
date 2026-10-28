@@ -14,6 +14,8 @@ export interface CategoryListItem {
   gradient?: string;
   /** Whether this category is shown on the homepage (category.display_in_home_page). */
   displayInHomePage?: boolean;
+  /** Landing/category-page priority (category.display_order): 1 first; 0 = none. */
+  displayOrder?: number;
 }
 
 // Detail Response Type (all translations)

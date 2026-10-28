@@ -33,6 +33,7 @@ import { resolveHomeMediaUrl } from '@/features/home/components/home-media';
 import { SponsoredMediaCarouselSection } from '@/features/home/components/sponsored-media-carousel-section';
 import { countActiveSpecialPackages } from '@/features/special-packages/server/repository';
 import { findGuide, guidePath } from '@/features/guides/registry';
+import { LANDING_CATEGORY_LIMIT } from "@/features/categories/constants";
 
 // Static / ISR — the landing page shell no longer reads the visitor's location
 // or profile on the server; see `Home` below.
@@ -325,7 +326,7 @@ async function Home({ params }: PageProps) {
     // (ISR fills it on the next request) instead of aborting export — but a
     // transient blip is retried first so it doesn't get baked into this hour's
     // static page. See withRailRetry above.
-    withRailRetry(() => getHomeCategoriesCached(queryInput, 6), []),
+    withRailRetry(() => getHomeCategoriesCached(queryInput, LANDING_CATEGORY_LIMIT), []),
     withRailRetry(() => getFeaturedHomeServicesCached(queryInput, 8), []),
     withRailRetry(() => getTrendingHomeServicesCached(queryInput, 8), []),
     withRailRetry(() => getTrustedHomeProvidersCached(queryInput, 8), []),
@@ -382,7 +383,7 @@ async function Home({ params }: PageProps) {
           </Link>
         </div>
 
-        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-4">
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-4" data-testid="home-categories">
           <ServiceProvidersCategoriesSuspenseBoundary
             categories={categories}
             locale={locale}

@@ -92,6 +92,8 @@ const getCategoryBrowserRows = unstable_cache(
       where c.is_active = true
       order by
         coalesce(c.group_id, 2147483647) asc,
+        -- Admin priority (1 first); 0 means none and sorts after the prioritised ones.
+        case when coalesce(c.display_order, 0) > 0 then 0 else 1 end,
         coalesce(c.display_order, 0) asc,
         name asc;
     `;

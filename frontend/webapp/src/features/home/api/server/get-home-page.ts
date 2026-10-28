@@ -214,7 +214,12 @@ export async function getHomeCategories(input: HomeQueryInput, limit = 6): Promi
       -- A root with nothing under it is a card that opens an empty page, which is
       -- what made Beauty and Tourism dead ends before.
       and coalesce(pc.provider_count, 0) > 0
-    order by coalesce(pc.provider_count, 0) desc, label asc
+    -- Admin priority first (category.categories.display_order: 1 shows first, 0 = no priority),
+    -- then the categories with the most providers, as before priorities existed.
+    order by case when coalesce(c.display_order, 0) > 0 then 0 else 1 end,
+             coalesce(c.display_order, 0) asc,
+             coalesce(pc.provider_count, 0) desc,
+             label asc
     limit ${limit}
   `;
 

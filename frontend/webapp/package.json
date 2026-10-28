@@ -30,7 +30,8 @@
     "benchmark:queries": "node scripts/query-performance.mjs",
     "test:pwa": "node scripts/prepare-pwa.mjs && playwright test --config playwright.pwa.config.ts",
     "test:pwa:app": "playwright test --config playwright.pwa-app.config.ts",
-    "test:itinerary": "node scripts/test-env/booking-itinerary.mjs",
+    "test:local-env": "node scripts/test-env/local-env.mjs",
+    "test:itinerary": "node scripts/test-env/local-env.mjs --suite itinerary",
     "test:pwa:safety": "node --test tests/pwa.test.mjs",
 
     "financial:user": "node scripts/financial-user.mjs"
