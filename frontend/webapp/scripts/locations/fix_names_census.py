@@ -28,6 +28,7 @@ CENSUS_PROVINCES = 31
 # Latin-script countries (TR, AZ, UZ, ...) keep their diacritics.
 BGN_COUNTRIES = {'IR', 'AF', 'IQ', 'SY', 'JO', 'SA', 'OM', 'AE', 'QA', 'BH', 'KW', 'PK'}
 FA_KEYS, EN_KEYS = ('fa', 'fa-IR'), ('en', 'en-US')
+LEGACY_FA_KEY = 'fa-ir'
 CITY, PROVINCE = '2', '3'
 
 BIDI = dict.fromkeys(map(ord, '‎‏‪‫‬‭‮⁦⁧⁨⁩﻿'), None)
@@ -110,18 +111,27 @@ _ROMAN = {
 }
 _WORDS = {'سفلی': 'sofla', 'علیا': 'olya', 'وسطی': 'vosta', 'بالا': 'bala', 'پایین': 'pa(?:y)?in',
           'آباد': 'abad', 'قلعه': "qal(?:'?e)?h?", 'امامزاده': '[ei]mamzadeh', 'امام': '[ei]mam',
-          'شیخ': 'she(?:y|i)kh', 'حسین': 'hos(?:s)?e(?:y|i)n', 'ده': 'deh', 'اله': '(?:oll|all|el|l)ah'}
-_SV = '[aeo]?'            # unwritten short vowel
+          'شیخ': 'she(?:y|i)kh', 'خواجه': 'kh(?:v|w)?ajeh', 'خواست': 'kh(?:v|w)?ast', 'حسین': 'hos(?:s)?e(?:y|i)n', 'ده': 'deh', 'اله': '(?:oll|all|el|l)ah'}
+# unwritten short vowel; English may split one Persian word (گچگران = Gach Garan) or
+# write an ezafe the census glues away (گنبدکاووس = Gonbad-e Kavus)
+_SV = '(?:[aeo]|-e)?[ -]?'
 _SEP = '(?:-?y?e)?[ -]?'  # ezafe or word break
 
 
 def _word_regex(word):
     if word in _WORDS:
         return _WORDS[word]
+    if word.endswith('الله') and len(word) > 4:  # عبدالله = Abdollah, اسدالله = Asadollah
+        head = _word_regex(word[:-4])
+        return None if head is None else head + _SV + '(?:[oaue]l)?lah'
+    if word.startswith('ال') and len(word) > 3:  # Arabic article: الخواجه = ol-Khvajeh / al Khvajeh
+        rest = _word_regex(word[2:])
+        return None if rest is None else f'(?:[oae]l[ -]?)?{rest}'
     parts = []
     for i, ch in enumerate(word):
         if ch == 'ا':
-            p = '[aeo]' if i == 0 else 'a'
+            # initial ا before ی/و is the vowel's seat: ایزد = Izad, اوز = Uz
+            p = ('[aeo]?' if word[1:2] in ('ی', 'و') else '[aeo]') if i == 0 else 'a'
         elif ch == 'و':
             p = '(?:u|o|v|ow|ou|w)'
         elif ch == 'ی':
@@ -146,6 +156,54 @@ def _name_regex(fa):
         words = [_word_regex(w) for w in re.split(r'[\s‌]+', clean_census(fa)) if w]
         _regex_cache[fa] = re.compile('^' + _SEP.join(words) + '$') if words and None not in words else None
     return _regex_cache[fa]
+
+
+def _en_words(en):
+    en = re.sub(r'-y?e(?=[ -]|$)', ' ', clean_en(en).lower())  # drop ezafe: Deh-e Shur -> deh shur
+    return [w for w in re.split(r'[ -]+', en) if w]
+
+
+def respace(fa, en):
+    """Re-insert the word breaks the census glued away, guided by the English words:
+    قلعه نوشاملو + 'Qaleh-ye Now Shamlu' -> قلعه نو شاملو. Unchanged when no split fits."""
+    words = _en_words(en)
+    tokens = fa.split(' ')
+    if len(tokens) >= len(words) or len(words) > 5:
+        return fa
+    glued = fa.replace(' ', '')
+    fixed = set()  # existing spaces stay word breaks
+    pos = 0
+    for t in tokens[:-1]:
+        pos += len(t)
+        fixed.add(pos)
+
+    def split(start, k):
+        if k == 1:
+            piece = glued[start:]
+            return [[piece]] if piece and consistent(piece, words[-1]) else []
+        out = []
+        for end in range(start + 1, len(glued)):
+            if any(start < f < end for f in fixed):
+                break
+            piece = glued[start:end]
+            if consistent(piece, words[len(words) - k]):
+                out += [[piece] + rest for rest in split(end, k - 1)]
+        return out
+
+    found = {tuple(x) for x in split(0, len(words))}
+    if len(found) != 1:
+        return fa
+    return clean_census(' '.join(next(iter(found))))
+
+
+def en_name(vt):
+    return clean_en(vt.get('en-US') or vt.get('en') or '')
+
+
+def partly_consistent(fa, en):
+    """The Persian name romanizes to a run of the English words: آران ~ 'Aran Bidgol'."""
+    words = re.split(r'[ -]+', en)
+    return any(consistent(fa, ' '.join(words[i:j])) for i in range(len(words)) for j in range(i + 1, len(words) + 1))
 
 
 def consistent(fa, en):
@@ -201,7 +259,9 @@ def load_locations(path):
 
 
 def assign_countries(rows):
-    """Provinces carry no GeoNames country; take it from the Iran country row or their cities."""
+    """Only GeoNames rows carry a country. Provinces take it from their country row (or their
+    GeoNames cities); pre-GeoNames seed cities take it from their province."""
+    by_id = {r['id']: r for r in rows}
     iran = {r['id'] for r in rows if r['location_type_id'] == '1' and r['vt'].get('en-US') == 'Iran'}
     child = defaultdict(Counter)
     for r in rows:
@@ -209,14 +269,27 @@ def assign_countries(rows):
             child[r['parent_id']][r['country']] += 1
     for r in rows:
         if r['location_type_id'] == PROVINCE and not r['country']:
+            parent = by_id.get(r['parent_id'])
             if r['parent_id'] in iran:
                 r['country'] = 'IR'
+            elif parent and parent['location_type_id'] == '1' and parent['country']:
+                r['country'] = parent['country']
             elif child[r['id']]:
                 r['country'] = child[r['id']].most_common(1)[0][0]
+    for r in rows:
+        if r['location_type_id'] == CITY and not r['country']:
+            parent = by_id.get(r['parent_id'])
+            if parent and parent['location_type_id'] in (PROVINCE, '1') and parent['country']:
+                r['country'] = parent['country']
+            elif r['parent_id'] in iran:  # legacy cities hang directly off Iran
+                r['country'] = 'IR'
 
 
 class Census:
-    def __init__(self, records, provinces):
+    iran_ids = frozenset()  # Iran country row id(s): cities directly under it use the national city list
+
+    def __init__(self, records, provinces, iran_ids=()):
+        self.iran_ids = frozenset(iran_ids)
         names = {c['ostan_code']: c['ostan'] for c in records if c['kind'] == '1'}
         self.province_code = {}
         for p in provinces:
@@ -231,12 +304,14 @@ class Census:
             if c['kind'] in {'6', '8'} or (c['kind'] == '5' and not re.search(r'\d', c['name'])):
                 if c['name'].strip():
                     name = clean_census(c['name'])
-                    self.by_key[c['ostan_code'], fa_key(name)].add(name)
-                    self.by_skeleton[c['ostan_code'], fa_skeleton(name)].add(name)
+                    # official cities are also indexed nationally ('*') for rows with no province
+                    for code in (c['ostan_code'], '*') if c['kind'] == '5' else (c['ostan_code'],):
+                        self.by_key[code, fa_key(name)].add(name)
+                        self.by_skeleton[code, fa_skeleton(name)].add(name)
 
     def verdict(self, province_id, en, current_fa):
         """Return (verdict, replacement or None). Replacement only for one unambiguous census name."""
-        code = self.province_code.get(province_id)
+        code = self.province_code.get(province_id, '*' if province_id in self.iran_ids else None)
         if not code:
             return 'no_province', None
         persian = is_persian(current_fa)
@@ -255,7 +330,7 @@ class Census:
             return 'consistent_not_in_census', None
         # one census spelling fits the English: the census wins (تاکی -> تاگی for Tagi)
         if len(candidates) == 1:
-            return ('replaced' if persian else 'filled'), next(iter(candidates.values()))
+            return ('replaced' if persian else 'filled'), respace(next(iter(candidates.values())), en)
         if in_census:
             return 'census_name_en_mismatch', None
         return ('ambiguous' if candidates else 'unmatched'), None
@@ -285,14 +360,49 @@ def plan(rows, census, seed_rows, protected=()):
                 if c != v:
                     new[k] = c
                     reasons.add('fa_orthography')
-        if cc == 'IR' and kind == CITY and r['geoname_id']:
+            v = new.get(k)
+            # Wikipedia disambiguation titles: 'لیتل راک، آرکانزاس' is Little Rock (Arkansas)
+            if kind == CITY and isinstance(v, str) and '،' in v and ',' not in (vt.get('en-US') or vt.get('en') or ''):
+                head = v.split('،', 1)[0].strip()
+                if is_persian(head):
+                    new[k] = head
+                    reasons.add('fa_region_qualifier')
+        # A legacy Iranian city list stored its (correct) Persian names under a lowercase 'fa-ir'
+        # key, which no reader prefers over 'fa-IR' and the .NET API never reads at all.
+        legacy_fallback = None
+        legacy = vt.get(LEGACY_FA_KEY)
+        if isinstance(legacy, str) and is_persian(legacy):
+            legacy = clean_fa(legacy)
+            if legacy != vt[LEGACY_FA_KEY]:
+                new[LEGACY_FA_KEY] = legacy
+                reasons.add('fa_orthography')
+            en = clean_en(vt.get('en-US') or vt.get('en') or '')
+            current = new.get('fa-IR') or new.get('fa') or ''
+            if not is_persian(current) and consistent(legacy, en):
+                new['fa-IR'] = new['fa'] = legacy
+                reasons.add('legacy_fa_ir_promoted')
+            elif not is_persian(current):
+                legacy_fallback = legacy  # شاهی for Qaem Shahr: let the census try first
+            elif current != legacy and not consistent(current, en) and consistent(legacy, en):
+                # Gorgan: fa-IR said استرآباد (historic), fa-ir said گرگان
+                new['fa-IR'] = new['fa'] = legacy
+                reasons.add('legacy_fa_ir_preferred')
+        # seed (pre-GeoNames) cities too: Gorgan's seed row said استرآباد, its historic name
+        if cc == 'IR' and kind == CITY:
             en = clean_en(vt.get('en-US') or vt.get('en') or '')
             verdict, replacement = census.verdict(r['parent_id'], en, new.get('fa-IR') or new.get('fa') or '')
+            if replacement and ' va ' in en.lower() and ' ' not in replacement:
+                verdict, replacement = 'census_glued_conjunction', None  # کلیشادوسودرجان: unreadable
             stats['ir_' + verdict] += 1
             if replacement:
-                for k in FA_KEYS:
+                for k in FA_KEYS + ((LEGACY_FA_KEY,) if LEGACY_FA_KEY in vt else ()):
                     new[k] = replacement
                 reasons.add('census_' + verdict)
+        if legacy_fallback and not is_persian(new.get('fa-IR') or '') and partly_consistent(legacy_fallback, en_name(vt)):
+            # no census answer: an unverified Persian name still beats showing English on the Persian site
+            new['fa-IR'] = new['fa'] = legacy_fallback
+            reasons.add('legacy_fa_ir_unverified')
+        if cc == 'IR' and kind == CITY:
             for k in FA_KEYS:
                 v = new.get(k)
                 if isinstance(v, str) and v and LATIN.search(v) and not ARABIC_SCRIPT.search(v):
@@ -362,7 +472,8 @@ def main(argv=None):
     with args.census.open(encoding='utf8', newline='') as fh:
         records = list(csv.DictReader(fh))
     assign_countries(rows)
-    census = Census(records, [r for r in rows if r['location_type_id'] == PROVINCE and r['country'] == 'IR'])
+    iran = [r['id'] for r in rows if r['location_type_id'] == '1' and r['vt'].get('en-US') == 'Iran']
+    census = Census(records, [r for r in rows if r['location_type_id'] == PROVINCE and r['country'] == 'IR'], iran)
     changes = list(plan(rows, census, seeds, [x for x in args.protect.split(',') if x]))
     args.out.parent.mkdir(parents=True, exist_ok=True)
     with args.out.open('w', encoding='utf8', newline='') as fh:

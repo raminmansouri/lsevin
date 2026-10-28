@@ -169,5 +169,16 @@ overwritten. `public.location_name_fix_20261026` keeps the old and new value of 
 row for audit and rollback. Next.js `"use cache"` location lists refresh on their
 normal cache lifetime; no other cache or search index holds location names.
 
-Not covered: the other 24 countries still carry GeoNames names (only orthography and
-English marks are corrected); each needs its own national source.
+Follow-up (2026-10-28, after Gorgan showed استرآباد): the first pass only checked GeoNames rows.
+It now also covers the pre-GeoNames seed cities and a legacy Iranian city list whose correct
+names sit under a lowercase `fa-ir` key (never preferred over `fa-IR`, never read by the .NET
+API, so e.g. Chabahar and Tonekabon showed English on the Persian site). A `fa-ir` name is
+promoted only when it fits the English name; otherwise the census decides, which also replaces
+historic names in that list (شاهی → قائم شهر, شاه آباد غرب → اسلام آباد غرب). Cities that hang
+directly off Iran are checked against the national list of official census cities, glued census
+names are re-spaced from the English words (قلعه نوشاملو → قلعه نو شاملو), and Wikipedia region
+qualifiers are dropped (لیتل راک، آرکانزاس → لیتل راک). Each apply gets its own backup table
+(`public.location_name_fix_YYYYMMDD`); point `fix_names_apply.sql`/`fix_names_rollback.sql` at it.
+
+Not covered: the other 24 countries still carry GeoNames names (only orthography, English
+marks and region qualifiers are corrected); each needs its own national source.
