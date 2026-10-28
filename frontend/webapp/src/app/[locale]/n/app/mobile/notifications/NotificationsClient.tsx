@@ -23,6 +23,7 @@ import type {
   NotificationItem,
   NotificationsPageData,
 } from "./notifications.data";
+import { DesktopNotifications } from "@/features/web-desktop/notifications/DesktopNotifications";
 
 function buildQuery(next: NotificationsFiltersInput) {
   const params = new URLSearchParams();
@@ -172,7 +173,8 @@ export default function NotificationsClient({
   };
 
   return (
-    <div className="relative min-h-screen bg-gray-50">
+    <>
+    <div className="relative min-h-screen bg-gray-50 xl:hidden">
       {isPending && <PendingOverlay />}
 
       <div className="bg-white border-b border-gray-200 sticky top-0 z-10">
@@ -272,5 +274,17 @@ export default function NotificationsClient({
         )}
       </div>
     </div>
+
+    <DesktopNotifications
+      tabs={tabs}
+      activeTab={activeTab}
+      onTab={applyTab}
+      items={visibleItems}
+      unread={optimisticUnread}
+      onMarkAll={markAllRead}
+      onOpen={openNotification}
+      pending={isPending}
+    />
+    </>
   );
 }

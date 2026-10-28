@@ -993,6 +993,43 @@
   [dir="ltr"] .group:hover .lsd-passport-cover { transform: rotateY(28deg); }
 
 
+  /* Booking wizard on desktop: the same step cards, recoloured to cream, green and gold */
+  body:has(.lsd-booking) { background: #fbf7ee; }
+  .lsd-booking .border-slate-200 { border-color: #e7dcc4; }
+  .lsd-booking .bg-slate-50 { background-color: #fbf8f1; }
+  .lsd-booking .shadow-lg { box-shadow: none; }
+  .lsd-booking .rounded-\[28px\] { border-radius: 26px; }
+  .lsd-booking .text-slate-900 { color: #0e1a16; }
+  .lsd-booking .text-slate-600,
+  .lsd-booking .text-slate-500 { color: #6b6150; }
+  .lsd-booking input:focus,
+  .lsd-booking select:focus { border-color: #c9a55a; }
+  
+
+  /* Tours: categories as perforated postage stamps */
+  .lsd-stamp {
+    padding: 9px;
+    background: #fff;
+    -webkit-mask: linear-gradient(#000 0 0) content-box, radial-gradient(circle, #0000 3.5px, #000 4px) -5px -5px / 10px 10px round;
+    mask: linear-gradient(#000 0 0) content-box, radial-gradient(circle, #0000 3.5px, #000 4px) -5px -5px / 10px 10px round;
+    filter: drop-shadow(0 12px 18px rgba(6, 42, 32, 0.14));
+    transition: transform 0.5s var(--lsd-ease);
+  }
+  .group:hover .lsd-stamp { transform: translateY(-4px) rotate(-3deg); }
+
+  /* Tours: destinations as slightly scattered postcards */
+  .lsd-postcard {
+    transform: rotate(var(--tilt, 0deg));
+    transition: transform 0.6s var(--lsd-ease), box-shadow 0.6s ease;
+    box-shadow: 0 18px 34px -22px rgba(6, 42, 32, 0.45);
+  }
+  .group:hover .lsd-postcard {
+    transform: rotate(0deg) translateY(-8px) scale(1.03);
+    box-shadow: 0 30px 50px -26px rgba(6, 42, 32, 0.55);
+  }
+
+
+
   
   /* Respect users who turn motion off in their OS */
   @media (prefers-reduced-motion: reduce) {

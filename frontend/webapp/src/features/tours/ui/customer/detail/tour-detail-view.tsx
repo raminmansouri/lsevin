@@ -39,6 +39,7 @@ import { Gallery } from "./gallery";
 import { InquiryDialog } from "./inquiry-dialog";
 import { Itinerary, directionsHref } from "./itinerary";
 import { Reviews } from "./reviews";
+import { DesktopTourDetail } from "@/features/web-desktop/tours/DesktopTourDetail";
 
 const SECTIONS = ["overview", "itinerary", "features", "rules", "location", "reviews", "booking"] as const;
 
@@ -157,7 +158,8 @@ export function TourDetailView({
   const firstHighlight = tx.highlights ? lines(tx.highlights.value)[0] : null;
 
   return (
-    <article className="pb-36 md:pb-24" data-testid="tour-detail" data-tour-id={detail.id}>
+    <>
+    <article className="pb-36 md:pb-24 xl:hidden" data-testid="tour-detail" data-tour-id={detail.id}>
       <div className="flex items-center gap-2 px-3 pt-2 sm:px-6">
         <button type="button" onClick={() => (window.history.length > 1 ? router.back() : router.push("/tours/explore"))} aria-label={t("nav.back")} className="flex size-11 items-center justify-center rounded-full bg-white shadow-sm ring-1 ring-slate-200 hover:bg-slate-50 focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:outline-none">
           <Back className="size-5" aria-hidden="true" />
@@ -521,7 +523,7 @@ export function TourDetailView({
       </div>
 
       {/* Sticky booking bar (tour_info_1.png): "from … per person" + CTA (C-042). */}
-      <div className="fixed inset-x-0 bottom-[calc(3.5rem+env(safe-area-inset-bottom))] z-30 border-t border-slate-200 bg-white/95 px-4 py-2.5 backdrop-blur md:bottom-0" data-testid="sticky-book-bar">
+      <div className="fixed inset-x-0 bottom-[calc(3.5rem+env(safe-area-inset-bottom))] z-30 border-t border-slate-200 bg-white/95 px-4 py-2.5 backdrop-blur md:bottom-0  data-testid=sticky-book-bar " >
         <div className="mx-auto flex max-w-4xl items-center justify-between gap-3">
           <FromPrice amount={detail.fromPrice} currency={f.currency} basis={detail.fromPriceBasis} />
           {bookable.length > 0 ? (
@@ -538,6 +540,17 @@ export function TourDetailView({
         </div>
       </div>
     </article>
+
+    <DesktopTourDetail
+      detail={detail}
+      departures={departures}
+      weather={weather}
+      weatherDate={weatherDate}
+      related={related}
+      saved={saved}
+      savedIds={savedIds}
+    />
+    </>
   );
 }
 
