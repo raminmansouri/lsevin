@@ -30,7 +30,11 @@ test("AT-27 destination + translated title: draft only in preview, public after 
 
   // 1. Feature the destination (cover alt text is required with a cover image).
   await page.goto("/en/admin/tours-platform/destinations");
-  await page.locator(`tr[data-slug="${dest.slug}"]`).getByRole("button", { name: "Edit" }).click();
+  // A click before hydration does nothing; retry until the form shows this destination.
+  await expect(async () => {
+    await page.locator(`tr[data-slug="${dest.slug}"]`).getByRole("button", { name: "Edit" }).click();
+    await expect(page.locator("#dst-slug")).toHaveValue(dest.slug, { timeout: 3_000 });
+  }).toPass({ timeout: 60_000 });
   await fillLocalized(page.getByTestId("dst-cover-alt"), "Cover alternative text", "en-US", `Kish coast ${s}`);
   await page.getByLabel("Featured", { exact: true }).check();
   await page.getByRole("button", { name: "Save", exact: true }).click();
