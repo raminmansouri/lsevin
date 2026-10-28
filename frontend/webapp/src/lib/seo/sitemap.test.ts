@@ -36,9 +36,17 @@ describe("public search domain and sitemap", () => {
     expect(seoOrigin()).toBe("https://lsevincare.com");
     expect(robots().sitemap).toBe("https://lsevincare.com/sitemap.xml");
   });
-  it("preserves existing deployments without an SEO override", () => {
+  it("maps the production app host to lsevincare.com when the build has no SEO override", () => {
+    // Regression: release 99a03678 shipped without NEXT_PUBLIC_SEO_URL and kept
+    // every canonical on appmain.lsevin.com.
     vi.stubEnv("NEXT_PUBLIC_SEO_URL", "");
-    expect(seoOrigin()).toBe("https://appmain.lsevin.com");
+    expect(seoOrigin()).toBe("https://lsevincare.com");
+    expect(robots().sitemap).toBe("https://lsevincare.com/sitemap.xml");
+  });
+  it("keeps other deployments (staging, local) on their own origin", () => {
+    vi.stubEnv("NEXT_PUBLIC_SEO_URL", "");
+    vi.stubEnv("NEXT_PUBLIC_URL", "https://staging.example.com");
+    expect(seoOrigin()).toBe("https://staging.example.com");
   });
   it("rejects an unsafe SEO domain rather than emitting poisoned canonicals", () => {
     vi.stubEnv("NEXT_PUBLIC_SEO_URL", "https://example.com/path");
