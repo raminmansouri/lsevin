@@ -71,6 +71,8 @@ frontend/webapp/.pwa-auth*.json
 !deployments/docker/SEAWEEDFS_MIGRATION.md
 !deployments/kubernetes/**/README.md
 **/*.txt
+!frontend/webapp/src/app/llms.txt/
+!frontend/webapp/src/app/llms.txt/route.ts
 
 # Secrets — never publish real env files (keep .env.example templates)
 # **/.env
