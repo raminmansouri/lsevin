@@ -4865,6 +4865,7 @@
       "subcategoryCount": "{count} зерфасл"
     },
     "common": {
+      "trustSeal": "Нишони эътимоди электронии Enamad",
       "loading": "Бор шуда истодааст...",
       "noDescription": "Тавсиф мавҷуд нест.",
       "seeAll": "Ҳамаро дидан",
@@ -6047,6 +6048,8 @@
       "contact": "LSevin · lsevin.turkiye@gmail.com"
     },
     "privacySecurity": {
+      "showPassword": "Нишон додани рамз",
+      "hidePassword": "Пинҳон кардани рамз",
       "activeSessions": "Сессияҳои фаъол",
       "biometricDescription": "Барои зудтар ворид шудан Face ID, Touch ID ё биометрияи дастгоҳро истифода баред.",
       "biometricLogin": "Вуруди биометрӣ",

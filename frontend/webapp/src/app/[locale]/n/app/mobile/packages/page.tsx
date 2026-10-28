@@ -117,7 +117,7 @@ function SpecialPackageCard({
       </div>
 
       <div className="flex flex-1 flex-col gap-1 p-4">
-        <h3 className="line-clamp-1 text-base font-bold text-gray-900">{pkg.title}</h3>
+        <h2 className="line-clamp-1 text-base font-bold text-gray-900">{pkg.title}</h2>
         {pkg.subtitle ? (
           <p className="line-clamp-2 text-sm text-gray-600">{pkg.subtitle}</p>
         ) : null}

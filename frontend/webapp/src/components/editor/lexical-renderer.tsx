@@ -149,6 +149,9 @@ function renderNode(node: SerializedLexicalNode, key: number): React.ReactNode {
 
   // Heading node
   if (node.type === "heading") {
+    // An empty heading in authored content would render as a bare <h3></h3>,
+    // which screen readers announce as an unnamed heading.
+    if (!hasTextContent(node)) return null;
     const headingNode = node as unknown as HeadingNode;
     const children = headingNode.children?.map((child, idx) =>
       renderNode(child, idx)

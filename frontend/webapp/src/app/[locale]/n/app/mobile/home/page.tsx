@@ -113,6 +113,7 @@ type HomePageLabels = {
     noDescription: string;
     viewAll: string;
     seeAll: string;
+    trustSeal: string;
   };
   search: {
     placeholder: string;
@@ -227,6 +228,7 @@ async function Home({ params }: PageProps) {
       noDescription: t('common.noDescription'),
       viewAll: t('common.viewAll'),
       seeAll: t('common.seeAll'),
+      trustSeal: t('common.trustSeal'),
     },
     search: {
       placeholder: t('search.placeholder'),
@@ -504,10 +506,11 @@ async function Home({ params }: PageProps) {
   alignItems:'center',
   marginBottom:'37px'}}>
     
-      <a referrerPolicy='origin' target='_blank'
+      {/* Enamad verifies the seal through the Referer, so no rel="noreferrer". */}
+      <a referrerPolicy='origin' target='_blank' rel='noopener'
       href='https://trustseal.enamad.ir/?id=7764782&Code=XcQgNRMRzN92gDmZbf8t5GMh1mtctW9d'>
         <img referrerPolicy='origin' src='https://trustseal.enamad.ir/logo.aspx?id=7764782&Code=XcQgNRMRzN92gDmZbf8t5GMh1mtctW9d'
-        alt='' style={{cursor:"pointer"}} {...{ code: 'XcQgNRMRzN92gDmZbf8t5GMh1mtctW9d' }} />
+        alt={labels.common.trustSeal} style={{cursor:"pointer"}} {...{ code: 'XcQgNRMRzN92gDmZbf8t5GMh1mtctW9d' }} />
       </a>
    </div>
     </div>

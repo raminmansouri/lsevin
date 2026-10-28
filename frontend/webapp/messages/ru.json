@@ -5332,6 +5332,7 @@
       "subcategoryCount": "{count} подкатегорий"
     },
     "common": {
+      "trustSeal": "Знак электронного доверия Enamad",
       "loading": "Загрузка...",
       "noDescription": "Описание отсутствует.",
       "seeAll": "Показать все",
@@ -6515,6 +6516,8 @@
       "contact": "LSevin · lsevin.turkiye@gmail.com"
     },
     "privacySecurity": {
+      "showPassword": "Показать пароль",
+      "hidePassword": "Скрыть пароль",
       "activeSessions": "Активные сеансы",
       "biometricDescription": "Используйте Face ID, Touch ID или биометрию устройства, чтобы входить быстрее.",
       "biometricLogin": "Вход по биометрии",

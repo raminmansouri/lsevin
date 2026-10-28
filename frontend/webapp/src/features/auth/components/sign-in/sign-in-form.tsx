@@ -89,7 +89,7 @@ const SignInForm = () => {
   return (
     <ZodErrorProvider componentNamespace={TRANSLATION_KEY}>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)}>
+        <form method="post" onSubmit={form.handleSubmit(onSubmit)}>
           <AuthFormContainer>
             <FormField
               control={form.control}
@@ -117,7 +117,11 @@ const SignInForm = () => {
                 <FormItem>
                   <FormLabel>{t("form.password.label")}</FormLabel>
                   <FormControl>
-                    <PasswordInput placeholder="*******" {...field} />
+                    <PasswordInput
+                      placeholder="*******"
+                      autoComplete="current-password"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

@@ -146,6 +146,21 @@ const nextConfig: NextConfig = {
   // intl middleware only adds the prefix on a plain page request.
   async redirects() {
     return [
+      // The locale root is not a real page: it forwards to the mobile home. Doing
+      // that here gives a real 307 that keeps the locale. The page-level redirect()
+      // ran after the layout had started streaming, so it became a 200 with a
+      // 1-second meta refresh to the unprefixed /n/app/mobile/home, and the
+      // middleware then sent every visitor to /fa — /en visitors included.
+      {
+        source: "/",
+        destination: `/${routing.defaultLocale}/n/app/mobile/home`,
+        permanent: false,
+      },
+      {
+        source: `/:locale(${routing.locales.join("|")})`,
+        destination: "/:locale/n/app/mobile/home",
+        permanent: false,
+      },
       {
         source: "/admin/sponsered-slider/:path*",
         destination: "/admin/sponsored-slider/:path*",

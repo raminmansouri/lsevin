@@ -99,7 +99,12 @@ def collect_sync():
            "union all select 'age_in', coalesce(round(extract(epoch from now() - max(last_update_time))), 1000000000) from sym_incoming_batch where status = 'OK' "
            "union all select 'age_out', coalesce(round(extract(epoch from now() - max(last_update_time))), 1000000000) from sym_outgoing_batch where status = 'OK' "
            "union all select 'pending_out', count(*) from sym_outgoing_batch where status not in ('OK', 'IG') and error_flag = 0 "
-           "union all select 'oldest_pending_out', coalesce(round(extract(epoch from now() - min(create_time))), 0) from sym_outgoing_batch where status not in ('OK', 'IG')")
+           "union all select 'oldest_pending_out', coalesce(round(extract(epoch from now() - min(create_time))), 0) from sym_outgoing_batch where status not in ('OK', 'IG') "
+           # tables in feature schemas (tour, booking, ...) that hold data but have no replication trigger: such data never reaches the other site
+           "union all select 'unreplicated', count(*) from pg_stat_user_tables s where s.schemaname not in ('public', 'information_schema') and s.schemaname !~ '^pg_' and s.relname !~ '^sym_' and s.n_live_tup > 0 "
+           "and exists (select 1 from pg_constraint c where c.conrelid = s.relid and c.contype = 'p') "
+           "and not exists (select 1 from sym_trigger t where t.source_schema_name = s.schemaname and t.source_table_name = s.relname) "
+           "and s.relname !~ '^(recent_searches|recent_views|weather_cache|panel_login_attempts|panel_sessions|rate_limit_hits|phone_login_codes|refresh_tokens|location_geonames_refs|sessions)$'")
     out = run([KUBECTL, "-n", NS, "exec", pod, "--", "psql", "-U", "lsevin", "-d", "lsevin", "-At", "-F", "|", "-c", sql], 40)
     v = {}
     for l in out.splitlines():
@@ -115,6 +120,7 @@ def collect_sync():
     lines += gauge("lsevin_sync_batches_error", "SymmetricDS batches stuck in error", [({"direction": "incoming"}, int(v["err_in"])), ({"direction": "outgoing"}, int(v["err_out"]))])
     lines += gauge("lsevin_sync_last_ok_age_seconds", "Seconds since the last batch was moved successfully in each direction", [({"direction": "incoming"}, int(v["age_in"])), ({"direction": "outgoing"}, int(v["age_out"]))])
     lines += gauge("lsevin_sync_outgoing_pending_batches", "Outgoing batches waiting to be sent", [({}, int(v["pending_out"]))])
+    lines += gauge("lsevin_sync_unreplicated_tables", "Tables in feature schemas that hold data but have no replication trigger (their data never reaches the other site)", [({}, int(v.get("unreplicated", 0)))])
     lines += gauge("lsevin_sync_outgoing_oldest_pending_seconds", "Age of the oldest outgoing batch that is not yet delivered", [({}, int(v["oldest_pending_out"]))])
     return lines
 

@@ -66,7 +66,10 @@ export async function generateMetadata({
 }
 
 const HomePage = async ({ params, searchParams }: PageProps) => {
-  redirect('/n/app/mobile/home')
+  // next.config.ts redirects the locale root before this renders; this is only a
+  // fallback, and it keeps the locale.
+  const { locale } = await params;
+  redirect(`/${locale}/n/app/mobile/home`);
   return (
     <div className="container flex flex-col gap-8">
       <HeroSection />
