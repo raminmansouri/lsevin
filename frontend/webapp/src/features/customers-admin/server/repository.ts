@@ -1,11 +1,14 @@
 import "server-only";
 import { db } from "@/features/booking-admin-shared/server/db";
 
-export async function getCustomers() {
+export async function getCustomers(q?: string) {
+  const term = q?.trim();
+  const pattern = term ? `%${term.replace(/[\\%_]/g, "\\$&")}%` : null;
   return db<any[]>`
     select c.*, u.user_name as "userName", u.id as "identityUserId"
     from customer.customers c
     left join identity.asp_net_users u on lower(u.email) = lower(c.email)
+    ${pattern ? db`where concat_ws(' ', c.first_name, c.last_name) ilike ${pattern}` : db``}
     order by c.create_date desc
     limit 300
   `;
