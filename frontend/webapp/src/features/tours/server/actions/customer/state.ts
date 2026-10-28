@@ -5,6 +5,7 @@ import { randomBytes } from "node:crypto";
 import { cookies } from "next/headers";
 
 import db from "@/config/database/db";
+import { resolveIsIranianVisitor } from "@/features/finance/lib/server/iranian-visitor";
 
 import { defaultCalendarForLocale, isCalendarId, type CalendarId } from "../../../domain/calendar";
 import { contentLocaleFor, pickTranslation } from "../../../domain/content";
@@ -130,6 +131,13 @@ export async function resolvePrefs(actor: Actor, uiLocale: string): Promise<Cust
     const state = await getCustomerState(actor.userId).catch(() => null);
     if (state?.displayCalendar) calendar = state.displayCalendar;
     if (state?.currencyCode) currency = state.currencyCode;
+  }
+  if (!calendar) {
+    // No choice saved yet: an Iranian visitor (phone country, else IP, else locale) reads
+    // Jalali dates whatever the UI language; others get their language's default.
+    // The visitor can still switch calendars in the preferences sheet.
+    const iranian = await resolveIsIranianVisitor().catch(() => false);
+    if (iranian) return { calendar: "persian", currency, calendarIsDefault: true };
   }
   return { calendar: calendar ?? fallback, currency, calendarIsDefault: !calendar };
 }

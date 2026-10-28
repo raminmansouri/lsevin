@@ -4,7 +4,7 @@
       "label": "Tours platform sections",
       "dashboard": "Overview",
       "tours": "Tours & review",
-      "taxonomy": "Taxonomy",
+      "taxonomy": "Categories & tags",
       "destinations": "Destinations",
       "editorial": "Landing content",
       "translations": "Translations",
@@ -17,13 +17,21 @@
       "reviews": "Reviews",
       "compliance": "Compliance",
       "reports": "Reports",
-      "notifications": "Notifications"
+      "notifications": "Notifications",
+      "groups": {
+        "setup": "Setup — fill in this order",
+        "operations": "Daily operations"
+      }
     },
     "common": {
       "saved": "Saved",
       "cancel": "Cancel",
       "reason": "Reason (recorded in the audit log)",
-      "reasonHint": "At least {min} characters."
+      "reasonHint": "At least {min} characters.",
+      "search": "Search…",
+      "noMatches": "Nothing found",
+      "choose": "Choose…",
+      "sourceLanguage": "Tour's own language (source)"
     },
     "calendarField": {
       "placeholder": "YYYY-MM-DD",
@@ -161,7 +169,9 @@
       "titleSource": "Title (source language)",
       "sourceLocale": "Source language",
       "currency": "Currency",
-      "create": "Create draft"
+      "create": "Create draft",
+      "countryLabel": "Country",
+      "publishedRange": "Published between {from} and {to}."
     },
     "editor": {
       "title": "Tour editor",
@@ -226,9 +236,20 @@
       "save": "Save facts",
       "destination": "Destination",
       "tourType": "Tour type",
-      "type": { "single_day": "Single day", "multi_day": "Multi-day", "self_guided": "Self-guided", "private_charter": "Private charter", "activity": "Activity" },
+      "type": {
+        "single_day": "Single day",
+        "multi_day": "Multi-day",
+        "self_guided": "Self-guided",
+        "private_charter": "Private charter",
+        "activity": "Activity"
+      },
       "difficulty": "Difficulty",
-      "level": { "easy": "Easy", "moderate": "Moderate", "challenging": "Challenging", "strenuous": "Strenuous" },
+      "level": {
+        "easy": "Easy",
+        "moderate": "Moderate",
+        "challenging": "Challenging",
+        "strenuous": "Strenuous"
+      },
       "categories": "Categories",
       "durationMinutes": "Duration (minutes)",
       "durationDays": "Days",
@@ -242,7 +263,7 @@
       "confirmation": "Confirmation",
       "instant": "Instant",
       "request": "On request",
-      "timezone": "Timezone (IANA)",
+      "timezone": "Timezone",
       "meetingLat": "Meeting latitude",
       "meetingLng": "Meeting longitude",
       "locationPrivacy": "Location shown to customers",
@@ -256,7 +277,9 @@
       "attributesVerified": "Accessibility claims verified ({at}).",
       "attributesUnverified": "Accessibility/recovery claims are not verified; customers' filters ignore them.",
       "verifyAttributes": "Mark claims verified",
-      "revokeVerification": "Revoke verification"
+      "revokeVerification": "Revoke verification",
+      "manageCategories": "Manage categories",
+      "guideLanguagesLabel": "Guide languages"
     },
     "placement": {
       "title": "Featured / sponsored placement",
@@ -292,19 +315,39 @@
       "lastEdit": "Edited {at} by {by}",
       "discardConfirm": "Discard unsaved changes in this language?",
       "field": {
-        "title": "Title", "summary": "Summary", "description": "Description", "highlights": "Highlights", "inclusions": "Included",
-        "exclusions": "Not included", "what_to_bring": "What to bring", "accessibility_notes": "Accessibility notes",
-        "meeting_instructions": "Meeting instructions", "pickup_instructions": "Pickup instructions", "cancellation_policy": "Cancellation policy",
-        "safety_notes": "Safety notes", "booking_instructions": "Booking instructions", "faq": "FAQ", "rules": "Rules",
-        "documents_notes": "Documents", "age_conditions": "Age conditions"
+        "title": "Title",
+        "summary": "Summary",
+        "description": "Description",
+        "highlights": "Highlights",
+        "inclusions": "Included",
+        "exclusions": "Not included",
+        "what_to_bring": "What to bring",
+        "accessibility_notes": "Accessibility notes",
+        "meeting_instructions": "Meeting instructions",
+        "pickup_instructions": "Pickup instructions",
+        "cancellation_policy": "Cancellation policy",
+        "safety_notes": "Safety notes",
+        "booking_instructions": "Booking instructions",
+        "faq": "FAQ",
+        "rules": "Rules",
+        "documents_notes": "Documents",
+        "age_conditions": "Age conditions"
       }
     },
     "media": {
       "title": "Media moderation",
       "description": "Pending media is visible only in preview. Rejected media is never shown.",
       "empty": "No media yet.",
-      "status": { "pending": "Pending", "approved": "Approved", "rejected": "Rejected" },
-      "kind": { "image": "Image", "video": "Video", "panorama": "Panorama" },
+      "status": {
+        "pending": "Pending",
+        "approved": "Approved",
+        "rejected": "Rejected"
+      },
+      "kind": {
+        "image": "Image",
+        "video": "Video",
+        "panorama": "Panorama"
+      },
       "kindLabel": "Type",
       "cover": "Cover",
       "note": "Note",
@@ -321,7 +364,9 @@
       "url": "URL",
       "alt": "Alternative text",
       "makeCover": "Use as cover",
-      "add": "Add"
+      "add": "Add",
+      "file": "File",
+      "pick": "Choose from the media library"
     },
     "itinerary": {
       "title": "Itinerary",
@@ -334,7 +379,15 @@
       "day": "Day",
       "position": "Order",
       "type": "Type",
-      "stopType": { "meeting": "Meeting point", "activity": "Activity", "transfer": "Transfer", "accommodation": "Accommodation", "meal": "Meal", "recommendation": "Recommendation", "finish": "Finish" },
+      "stopType": {
+        "meeting": "Meeting point",
+        "activity": "Activity",
+        "transfer": "Transfer",
+        "accommodation": "Accommodation",
+        "meal": "Meal",
+        "recommendation": "Recommendation",
+        "finish": "Finish"
+      },
       "lat": "Latitude",
       "lng": "Longitude",
       "startTime": "Start time",
@@ -386,7 +439,12 @@
       "noShow": "No-show refund %",
       "late": "Late arrival tolerance (minutes)",
       "weather": "Weather policy",
-      "weatherPolicy": { "reschedule_or_refund": "Reschedule or refund", "full_refund": "Full refund", "operator_decides": "Operator decides", "no_refund": "No refund" },
+      "weatherPolicy": {
+        "reschedule_or_refund": "Reschedule or refund",
+        "full_refund": "Full refund",
+        "operator_decides": "Operator decides",
+        "no_refund": "No refund"
+      },
       "source": "source",
       "edited": "edited",
       "cancellationText": "Cancellation text",
@@ -415,7 +473,11 @@
       "allOptions": "All options",
       "addRule": "Add schedule",
       "ruleAdded": "Schedule added",
-      "kindLabel": { "once": "Once", "weekly": "Weekly", "monthly_day": "Monthly" },
+      "kindLabel": {
+        "once": "Once",
+        "weekly": "Weekly",
+        "monthly_day": "Monthly"
+      },
       "from": "From",
       "to": "To",
       "inactive": "inactive",
@@ -443,7 +505,10 @@
       "booked": "Booked",
       "held": "Held",
       "status": "Status",
-      "blocked": "blocked"
+      "blocked": "blocked",
+      "direction": "Direction",
+      "increase": "Increase",
+      "decrease": "Decrease"
     },
     "history": {
       "revisions": "Revisions",
@@ -488,7 +553,17 @@
       "title": "Taxonomy",
       "description": "Categories, tags, transport modes, difficulty, amenities, inclusions, badges, suitability and age rules.",
       "kinds": "Term kinds",
-      "kind": { "category": "Categories", "tag": "Tags", "transport_mode": "Transport modes", "difficulty": "Difficulty", "amenity": "Amenities", "inclusion": "Inclusions", "badge": "Badges", "suitability": "Suitability", "age_rule": "Age rules" },
+      "kind": {
+        "category": "Categories",
+        "tag": "Tags",
+        "transport_mode": "Transport modes",
+        "difficulty": "Difficulty",
+        "amenity": "Amenities",
+        "inclusion": "Inclusions",
+        "badge": "Badges",
+        "suitability": "Suitability",
+        "age_rule": "Age rules"
+      },
       "kindLabel": "Kind",
       "code": "Code",
       "codeHint": "Stable identifier; cannot be renamed while tours use it.",
@@ -506,7 +581,22 @@
       "newTitle": "New term",
       "editTitle": "Edit {code}",
       "save": "Save",
-      "cancel": "Cancel"
+      "cancel": "Cancel",
+      "intro": "These lists describe tours. Providers pick from them when creating a tour and customers filter by them. The code is a fixed identifier; the label is what people see, in each language. Deactivate items instead of deleting them when tours already use them.",
+      "kindHelp": {
+        "category": "Main tour type (e.g. nature, cultural, pilgrimage); shown as filters and on landing collections.",
+        "tag": "Extra keywords for search and filters.",
+        "transport_mode": "How travellers move during the tour (bus, train, flight, …).",
+        "difficulty": "Physical difficulty level shown on the tour page.",
+        "amenity": "Facilities available on the tour (Wi-Fi, air conditioning, …).",
+        "inclusion": "What the price includes or excludes (meals, tickets, accommodation, …).",
+        "badge": "Highlight labels on tour cards (e.g. best seller).",
+        "suitability": "Who the tour suits (families, wheelchair users, …).",
+        "age_rule": "Age limits and conditions for travellers."
+      },
+      "deactivate": "Deactivate",
+      "activate": "Activate",
+      "empty": "Nothing in this list yet."
     },
     "destinations": {
       "title": "Destinations",
@@ -537,7 +627,8 @@
       "publishFrom": "Publish from",
       "publishUntil": "Publish until",
       "save": "Save",
-      "cancel": "Cancel"
+      "cancel": "Cancel",
+      "descriptionTooLong": "The description is too long (formatting included). Please shorten it."
     },
     "editorial": {
       "title": "Landing content",
@@ -545,9 +636,18 @@
       "list": "Modules",
       "code": "Code",
       "kind": "Kind",
-      "kinds": { "hero": "Hero", "onboarding": "Onboarding", "collection": "Collection", "offers": "Offers", "popular_destinations": "Popular destinations" },
+      "kinds": {
+        "hero": "Hero",
+        "onboarding": "Onboarding",
+        "collection": "Collection",
+        "offers": "Offers",
+        "popular_destinations": "Popular destinations"
+      },
       "status": "Status",
-      "state": { "draft": "Draft", "published": "Published" },
+      "state": {
+        "draft": "Draft",
+        "published": "Published"
+      },
       "window": "Window",
       "order": "Order",
       "sponsored": "Sponsored (labelled)",
@@ -566,7 +666,12 @@
       "rulesHint": "Used only when no tours are picked explicitly. Unpublished tours are never shown.",
       "category": "Category",
       "sort": "Sort",
-      "sorts": { "popularity": "Popularity", "rating": "Rating", "price_asc": "Price", "start_date": "Next departure" },
+      "sorts": {
+        "popularity": "Popularity",
+        "rating": "Rating",
+        "price_asc": "Price",
+        "start_date": "Next departure"
+      },
       "maxItems": "Max. items",
       "family": "Family friendly only",
       "accessible": "Accessible only",
@@ -642,7 +747,8 @@
         "calendarDefault": "A default calendar for other languages (*) is required.",
         "paymentWindow": "The payment window cannot be shorter than the seat hold."
       },
-      "save": "Save settings"
+      "save": "Save settings",
+      "fallbackOrderHint": "Order matters: languages are tried in the order picked; remove and add again to reorder."
     },
     "translations": {
       "title": "Translations",
@@ -674,7 +780,8 @@
       "note": "Note",
       "saveTerm": "Save term",
       "noGlossary": "No terms yet.",
-      "deleteTerm": "Delete term"
+      "deleteTerm": "Delete term",
+      "assignedAt": "Assigned"
     },
     "departures": {
       "title": "Departures",
@@ -709,7 +816,14 @@
       "cancelled": "Departure cancelled; travelers notified",
       "cancelWarning": "All {booked} booked seats are cancelled with a full refund request and {held} held seats are released.",
       "reasonCode": "Reason",
-      "reasons": { "weather": "Weather", "insufficient_participants": "Not enough participants", "safety": "Safety", "operator_unavailable": "Operator unavailable", "force_majeure": "Force majeure", "admin_decision": "Platform decision" },
+      "reasons": {
+        "weather": "Weather",
+        "insufficient_participants": "Not enough participants",
+        "safety": "Safety",
+        "operator_unavailable": "Operator unavailable",
+        "force_majeure": "Force majeure",
+        "admin_decision": "Platform decision"
+      },
       "notice": "Message to travelers",
       "noticeSource": "Source language",
       "noticeTitle": "Title ({locale})",
@@ -742,7 +856,16 @@
       "payoutState": "Payout",
       "amount": "Amount",
       "paid": "Paid",
-      "openDisputes": "{n} open case(s)"
+      "openDisputes": "{n} open case(s)",
+      "paymentStatuses": {
+        "Pending": "Pending",
+        "Paid": "Paid",
+        "PartiallyPaid": "Partially paid",
+        "NotRequired": "Not required",
+        "Refunded": "Refunded",
+        "Cancelled": "Cancelled",
+        "Failed": "Failed"
+      }
     },
     "booking": {
       "title": "Booking support",
@@ -785,12 +908,30 @@
       "rebooked": "Booking moved",
       "disputes": "Cases (cancellation, refund exception, chargeback, complaint)",
       "disputesHint": "Approval goes agent → manager → finance depending on kind and amount.",
-      "disputeKind": { "cancellation": "Cancellation", "refund_exception": "Refund exception", "chargeback": "Chargeback", "complaint": "Complaint" },
-      "disputeStatus": { "open": "Open", "pending_approval": "Waiting for approval", "approved": "Approved", "rejected": "Rejected", "closed": "Closed" },
+      "disputeKind": {
+        "cancellation": "Cancellation",
+        "refund_exception": "Refund exception",
+        "chargeback": "Chargeback",
+        "complaint": "Complaint"
+      },
+      "disputeStatus": {
+        "open": "Open",
+        "pending_approval": "Waiting for approval",
+        "approved": "Approved",
+        "rejected": "Rejected",
+        "closed": "Closed"
+      },
       "reasonCodes": {
-        "operator_cancelled": "Operator cancelled", "weather": "Weather", "no_show_dispute": "No-show dispute", "service_not_as_described": "Not as described",
-        "safety_incident": "Safety incident", "duplicate_charge": "Duplicate charge", "medical_emergency": "Medical emergency", "goodwill": "Goodwill",
-        "fraud_suspected": "Fraud suspected", "other": "Other"
+        "operator_cancelled": "Operator cancelled",
+        "weather": "Weather",
+        "no_show_dispute": "No-show dispute",
+        "service_not_as_described": "Not as described",
+        "safety_incident": "Safety incident",
+        "duplicate_charge": "Duplicate charge",
+        "medical_emergency": "Medical emergency",
+        "goodwill": "Goodwill",
+        "fraud_suspected": "Fraud suspected",
+        "other": "Other"
       },
       "level": "Level",
       "kind": "Kind",
@@ -807,11 +948,23 @@
       "title": "Disputes and refund exceptions",
       "description": "Cases waiting for a decision, with their approval level and full history.",
       "myLevel": "Your approval level: {level}",
-      "levels": { "agent": "Agent", "manager": "Manager", "finance": "Finance" },
-      "filter": { "active": "Open", "approved": "Approved", "rejected": "Rejected" },
+      "levels": {
+        "agent": "Agent",
+        "manager": "Manager",
+        "finance": "Finance"
+      },
+      "filter": {
+        "active": "Open",
+        "approved": "Approved",
+        "rejected": "Rejected"
+      },
       "empty": "No cases.",
       "awaiting": "waiting at {level} (needs {required})",
-      "decision": { "approve": "approved", "reject": "rejected", "escalate": "escalated" },
+      "decision": {
+        "approve": "approved",
+        "reject": "rejected",
+        "escalate": "escalated"
+      },
       "note": "Decision note",
       "approve": "Approve",
       "reject": "Reject",
@@ -847,9 +1000,20 @@
       "title": "Incidents",
       "description": "Safety and operational incidents with escalation and resolution.",
       "empty": "No incidents.",
-      "filter": { "all": "All" },
-      "severity": { "low": "Low", "medium": "Medium", "high": "High", "critical": "Critical" },
-      "status": { "open": "Open", "escalated": "Escalated", "resolved": "Resolved" },
+      "filter": {
+        "all": "All"
+      },
+      "severity": {
+        "low": "Low",
+        "medium": "Medium",
+        "high": "High",
+        "critical": "Critical"
+      },
+      "status": {
+        "open": "Open",
+        "escalated": "Escalated",
+        "resolved": "Resolved"
+      },
       "affected": "Affected bookings",
       "resolution": "Resolution",
       "escalate": "Escalate",
@@ -859,8 +1023,20 @@
     "reviews": {
       "title": "Reviews",
       "description": "Review text in its original language with any translation clearly labelled.",
-      "filter": { "pending": "Pending", "reported": "Reported", "reply_pending": "Replies to check", "published": "Published", "hidden": "Hidden", "rejected": "Rejected" },
-      "status": { "pending": "Pending", "published": "Published", "rejected": "Rejected", "hidden": "Hidden" },
+      "filter": {
+        "pending": "Pending",
+        "reported": "Reported",
+        "reply_pending": "Replies to check",
+        "published": "Published",
+        "hidden": "Hidden",
+        "rejected": "Rejected"
+      },
+      "status": {
+        "pending": "Pending",
+        "published": "Published",
+        "rejected": "Rejected",
+        "hidden": "Hidden"
+      },
       "empty": "No reviews here.",
       "original": "Original ({locale})",
       "translation": "Translation ({locale})",
@@ -884,7 +1060,13 @@
       "toursCount": "{published} live / {total} tours",
       "attributes": "Unverified accessibility / recovery claims",
       "flags": "Provider flags",
-      "flag": { "trusted": "Trusted", "watch": "Watch", "quality_review": "Quality review", "documents_missing": "Documents missing", "listing_suspended": "Listing suspended" },
+      "flag": {
+        "trusted": "Trusted",
+        "watch": "Watch",
+        "quality_review": "Quality review",
+        "documents_missing": "Documents missing",
+        "listing_suspended": "Listing suspended"
+      },
       "clear": "Clear",
       "provider": "Provider",
       "flagLabel": "Flag",
@@ -928,7 +1110,16 @@
       "templates": "Platform notification templates",
       "sample": "Sample departure {at} ({tz}), voucher TR-SAMPLE42.",
       "fallback": "fallback to {locale}",
-      "kind": { "created": "Booking received", "requested": "Request sent", "accepted": "Request accepted", "declined": "Request declined", "confirmed": "Confirmed", "cancelled": "Cancelled", "request_expired": "Request expired", "reminder": "Reminder" }
+      "kind": {
+        "created": "Booking received",
+        "requested": "Request sent",
+        "accepted": "Request accepted",
+        "declined": "Request declined",
+        "confirmed": "Confirmed",
+        "cancelled": "Cancelled",
+        "request_expired": "Request expired",
+        "reminder": "Reminder"
+      }
     }
   }
 }

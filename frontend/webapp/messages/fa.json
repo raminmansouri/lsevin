@@ -4654,15 +4654,16 @@
       "databaseTables": "جدول‌های پایگاه داده",
       "toursPlatform": "پلتفرم تورها",
       "toursPlatformDashboard": "نمای کلی تورها",
-      "toursPlatformTours": "تورها و صف بررسی",
-      "toursPlatformDestinations": "مقصدهای تور",
-      "toursPlatformEditorial": "محتوای صفحه اصلی تورها",
+      "toursPlatformTours": "۴. تورها و صف بررسی",
+      "toursPlatformDestinations": "۳. مقصدها",
+      "toursPlatformEditorial": "۶. محتوای صفحه اصلی تورها",
       "toursPlatformDepartures": "حرکت‌های تور",
       "toursPlatformBookings": "رزروهای تور",
       "toursPlatformDisputes": "اختلاف‌ها و بازپرداخت‌های تور",
-      "toursPlatformTranslations": "ترجمه‌های تور",
+      "toursPlatformTranslations": "۵. ترجمه‌های تور",
       "toursPlatformReports": "گزارش‌های تور",
-      "toursPlatformSettings": "تنظیمات تورها"
+      "toursPlatformSettings": "۱. تنظیمات تورها",
+      "toursPlatformTaxonomy": "۲. دسته‌ها و برچسب‌ها"
     }
   },
   "HomePage": {
@@ -15754,7 +15755,6 @@
   },
   "ShopAdmin": {
     "acmeHealth": "acme-health",
-    
     "nav": {
       "dashboard": "داشبورد",
       "orders": "سفارش‌ها",

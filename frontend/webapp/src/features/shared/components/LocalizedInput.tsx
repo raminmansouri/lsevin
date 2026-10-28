@@ -214,6 +214,8 @@ export function LocalizedInput({
               />
             ) : multiline ? (
               <Textarea
+                aria-label={`${label} (${getLocaleDisplayName(locale)})`}
+                lang={locale}
                 value={translations[locale] || ""}
                 onChange={(e) => handleChange(locale, e.target.value)}
                 maxLength={maxLength}
@@ -225,6 +227,8 @@ export function LocalizedInput({
               />
             ) : (
               <Input
+                aria-label={`${label} (${getLocaleDisplayName(locale)})`}
+                lang={locale}
                 value={translations[locale] || ""}
                 onChange={(e) => handleChange(locale, e.target.value)}
                 maxLength={maxLength}

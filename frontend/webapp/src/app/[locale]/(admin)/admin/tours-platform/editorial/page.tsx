@@ -22,9 +22,9 @@ export default async function EditorialPage() {
       <PageHeader title={t("title")} description={t("description")} />
       <EditorialManager
         modules={modules}
-        tours={tours.map((x) => ({ id: x.id, label: x.title ?? x.slug, status: x.status }))}
-        destinations={destinations.map((d) => ({ id: d.id, label: d.name_translations["en-US"] ?? d.slug }))}
-        categories={terms.filter((x) => x.kind === "category").map((x) => x.code)}
+        tours={tours.map((x) => ({ id: x.id, labels: x.title_translations ?? {}, fallback: x.title ?? x.slug, status: x.status }))}
+        destinations={destinations.map((d) => ({ id: d.id, labels: d.name_translations ?? {}, fallback: d.slug }))}
+        categories={terms.filter((x) => x.kind === "category" && x.is_active).map((x) => ({ id: x.id, labels: x.label_translations ?? {}, fallback: x.code }))}
         locales={settings.enabledLocales}
       />
     </div>

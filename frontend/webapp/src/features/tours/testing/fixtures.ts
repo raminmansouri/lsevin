@@ -7,7 +7,7 @@
  * Takes a raw postgres.js client so it can run outside Next.js. Never point it
  * at a non-local database: callers assert that (see assertLocalDatabase).
  */
-import { randomUUID } from "node:crypto";
+import { randomInt, randomUUID } from "node:crypto";
 
 import type postgres from "postgres";
 
@@ -29,15 +29,25 @@ export type SeededUser = { id: string; phone: string; email: string; firstName: 
 export async function seedUser(sql: Sql, opts: { firstName?: string; lastName?: string; walletIrr?: number; countryCode?: string } = {}): Promise<SeededUser> {
   const id = uid();
   const s = suffix();
-  const phone = `912${Math.floor(1_000_000 + Math.random() * 8_999_999)}`;
   const email = `tours-${s}@example.test`;
   const firstName = opts.firstName ?? "Sara";
   const lastName = opts.lastName ?? `Tester${s}`;
-  await sql`
-    insert into identity.asp_net_users (id, first_name, last_name, phone_number_country_code, user_name, normalized_user_name, email, normalized_email,
-      email_confirmed, phone_number, phone_number_confirmed, two_factor_enabled, lockout_enabled, access_failed_count)
-    values (${id}, ${firstName}, ${lastName}, ${opts.countryCode ?? "+98"}, ${`u${s}`}, ${`U${s}`.toUpperCase()}, ${email}, ${email.toUpperCase()},
-      true, ${phone}, true, false, false, 0)`;
+  // Phone numbers are unique per country. Shared test databases hold thousands of users,
+  // so draw from a billion numbers and retry the rare collision.
+  let phone = "";
+  for (let attempt = 0; ; attempt += 1) {
+    phone = `9${String(randomInt(0, 1_000_000_000)).padStart(9, "0")}`;
+    try {
+      await sql`
+        insert into identity.asp_net_users (id, first_name, last_name, phone_number_country_code, user_name, normalized_user_name, email, normalized_email,
+          email_confirmed, phone_number, phone_number_confirmed, two_factor_enabled, lockout_enabled, access_failed_count)
+        values (${id}, ${firstName}, ${lastName}, ${opts.countryCode ?? "+98"}, ${`u${s}`}, ${`U${s}`.toUpperCase()}, ${email}, ${email.toUpperCase()},
+          true, ${phone}, true, false, false, 0)`;
+      break;
+    } catch (e) {
+      if (attempt >= 4 || !String((e as Error).message).includes("phone_number")) throw e;
+    }
+  }
   // Production creates the customer profile with the account (same id); the
   // booking/payment notifiers rely on it.
   await sql`

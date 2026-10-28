@@ -1,24 +1,35 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Link, useRouter } from "@/i18n/navigation";
 
-import { CALENDAR_IDS, formatInstant, type CalendarId } from "../../domain/calendar";
+import { isIsoDate } from "../../domain/calendar";
 import { createTourAction } from "../../server/admin/actions";
 import type { TourListRow } from "../../server/admin/queries";
 
+import { currencyLabel, OptionSelect, pickLabel, TimezoneSelect, useAdminDates, useLocaleOptions, type Option } from "./inputs";
 import { CalendarDateField, EmptyState, Field, NativeSelect, StatusBadge, useAdminAction, useErrorText } from "./primitives";
 import { TOURS_PLATFORM_BASE } from "./paths";
 
 type Lookups = {
-  providers: { id: string; name: string }[];
-  destinations: { id: string; slug: string; name: string; country_code: string | null }[];
+  providers: { id: string; name: string; names?: Record<string, string> | null }[];
+  destinations: { id: string; slug: string; name: string; country_code: string | null; names?: Record<string, string> | null }[];
   categories: { code: string; label: string; label_translations: Record<string, string> }[];
+  currencies?: string[];
+  enabledLocales?: string[];
 };
+
+function regionName(code: string, locale: string) {
+  try {
+    return new Intl.DisplayNames([locale], { type: "region" }).of(code.toUpperCase()) ?? code;
+  } catch {
+    return code;
+  }
+}
 
 export function ToursCatalog({ filters, result, error, lookups }: {
   filters: Record<string, string>;
@@ -28,13 +39,30 @@ export function ToursCatalog({ filters, result, error, lookups }: {
 }) {
   const t = useTranslations("TourAdmin.tours");
   const ts = useTranslations("TourShared");
-  const tc = useTranslations("TourShared.calendar");
   const locale = useLocale();
+  const dates = useAdminDates();
   const errorText = useErrorText();
-  const [calendar, setCalendar] = useState<CalendarId>((CALENDAR_IDS as readonly string[]).includes(filters.calendar) ? (filters.calendar as CalendarId) : locale === "fa" ? "persian" : "gregory");
-  const [from, setFrom] = useState(filters.from ?? "");
-  const [to, setTo] = useState(filters.to ?? "");
-  const label = (code: string) => lookups.categories.find((c) => c.code === code)?.label ?? code;
+  // Dates are picked on a Jalali calendar but travel as ISO (Gregorian) dates. Links made
+  // before that carried calendar=persian with Jalali digits; those are not reused as ISO.
+  const legacyCalendar = Boolean(filters.calendar) && filters.calendar !== "gregory";
+  const [from, setFrom] = useState(!legacyCalendar && isIsoDate(filters.from ?? "") ? filters.from : "");
+  const [to, setTo] = useState(!legacyCalendar && isIsoDate(filters.to ?? "") ? filters.to : "");
+  const [provider, setProvider] = useState(filters.provider ?? "");
+  const [destination, setDestination] = useState(filters.destination ?? "");
+  const [category, setCategory] = useState(filters.category ?? "");
+  const [country, setCountry] = useState((filters.country ?? "").toUpperCase());
+  const providerOptions = useMemo<Option[]>(() => lookups.providers.map((p) => ({ value: p.id, label: pickLabel(p.names, locale, p.name) })), [lookups.providers, locale]);
+  const destinationOptions = useMemo<Option[]>(() => lookups.destinations.map((d) => ({ value: d.id, label: pickLabel(d.names, locale, d.name), hint: d.country_code ? regionName(d.country_code, locale) : undefined })), [lookups.destinations, locale]);
+  const categoryOptions = useMemo<Option[]>(() => lookups.categories.map((c) => ({ value: c.code, label: pickLabel(c.label_translations, locale, c.label), hint: c.code })), [lookups.categories, locale]);
+  const countryOptions = useMemo<Option[]>(() => {
+    const codes = new Set(lookups.destinations.map((d) => (d.country_code ?? "").toUpperCase()).filter((c) => /^[A-Z]{2}$/.test(c)));
+    if (/^[A-Z]{2}$/.test(country)) codes.add(country);
+    return Array.from(codes).sort().map((c) => ({ value: c, label: regionName(c, locale), hint: c }));
+  }, [lookups.destinations, locale, country]);
+  const label = (code: string) => {
+    const cat = lookups.categories.find((c) => c.code === code);
+    return cat ? pickLabel(cat.label_translations, locale, cat.label) : code;
+  };
   const qs = (patch: Record<string, string>) => {
     const p = new URLSearchParams(Object.entries({ ...filters, ...patch }).filter(([, v]) => v));
     return `${TOURS_PLATFORM_BASE}/tours?${p.toString()}`;
@@ -46,23 +74,20 @@ export function ToursCatalog({ filters, result, error, lookups }: {
         {filters.queue ? <input type="hidden" name="queue" value="1" /> : null}
         <Field label={t("search")} htmlFor="f-q"><Input id="f-q" name="q" defaultValue={filters.q ?? ""} /></Field>
         <Field label={t("provider")} htmlFor="f-provider">
-          <NativeSelect id="f-provider" name="provider" defaultValue={filters.provider ?? ""}>
-            <option value="">{t("all")}</option>
-            {lookups.providers.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
-          </NativeSelect>
+          <OptionSelect id="f-provider" value={provider} onChange={setProvider} options={providerOptions} placeholder={t("all")} testId="f-provider" />
+          <input type="hidden" name="provider" value={provider} />
         </Field>
-        <Field label={t("country")} htmlFor="f-country"><Input id="f-country" name="country" maxLength={2} defaultValue={filters.country ?? ""} dir="ltr" /></Field>
+        <Field label={t("countryLabel")} htmlFor="f-country">
+          <OptionSelect id="f-country" value={country} onChange={setCountry} options={countryOptions} placeholder={t("all")} testId="f-country" />
+          <input type="hidden" name="country" value={country} />
+        </Field>
         <Field label={t("destination")} htmlFor="f-destination">
-          <NativeSelect id="f-destination" name="destination" defaultValue={filters.destination ?? ""}>
-            <option value="">{t("all")}</option>
-            {lookups.destinations.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
-          </NativeSelect>
+          <OptionSelect id="f-destination" value={destination} onChange={setDestination} options={destinationOptions} placeholder={t("all")} testId="f-destination" />
+          <input type="hidden" name="destination" value={destination} />
         </Field>
         <Field label={t("category")} htmlFor="f-category">
-          <NativeSelect id="f-category" name="category" defaultValue={filters.category ?? ""}>
-            <option value="">{t("all")}</option>
-            {lookups.categories.map((c) => <option key={c.code} value={c.code}>{c.label_translations?.[locale] ?? c.label}</option>)}
-          </NativeSelect>
+          <OptionSelect id="f-category" value={category} onChange={setCategory} options={categoryOptions} placeholder={t("all")} testId="f-category" />
+          <input type="hidden" name="category" value={category} />
         </Field>
         <Field label={t("status")} htmlFor="f-status">
           <NativeSelect id="f-status" name="status" defaultValue={filters.status ?? ""}>
@@ -78,14 +103,11 @@ export function ToursCatalog({ filters, result, error, lookups }: {
             <option value="attributes_unverified">{t("attributesUnverified")}</option>
           </NativeSelect>
         </Field>
-        <Field label={tc("label")} htmlFor="f-calendar">
-          <NativeSelect id="f-calendar" name="calendar" value={calendar} onChange={(e) => setCalendar(e.target.value as CalendarId)}>
-            {CALENDAR_IDS.map((c) => <option key={c} value={c}>{tc(c)}</option>)}
-          </NativeSelect>
-        </Field>
-        <CalendarDateField id="f-from" label={t("publishedFrom")} value={from} onChange={setFrom} calendar={calendar} />
+        {/* The pickers are Jalali; the values they produce are ISO (Gregorian) dates. */}
+        <input type="hidden" name="calendar" value="gregory" />
+        <CalendarDateField id="f-from" label={t("publishedFrom")} value={from} onChange={setFrom} />
         <input type="hidden" name="from" value={from} />
-        <CalendarDateField id="f-to" label={t("publishedTo")} value={to} onChange={setTo} calendar={calendar} />
+        <CalendarDateField id="f-to" label={t("publishedTo")} value={to} onChange={setTo} />
         <input type="hidden" name="to" value={to} />
         <div className="flex items-end gap-2">
           <Button type="submit">{t("apply")}</Button>
@@ -99,7 +121,7 @@ export function ToursCatalog({ filters, result, error, lookups }: {
       </div>
 
       {error ? <p role="alert" className="text-destructive text-sm">{errorText(error)}</p> : null}
-      {result && result.range.from ? <p className="text-muted-foreground text-xs">{t("canonicalRange", { from: result.range.from, to: result.range.to ?? "…" })}</p> : null}
+      {result && (result.range.from || result.range.to) ? <p className="text-muted-foreground text-xs">{t("publishedRange", { from: result.range.from ? dates.date(result.range.from) : "…", to: result.range.to ? dates.date(result.range.to) : "…" })}</p> : null}
 
       {result && result.rows.length === 0 ? <EmptyState>{t("empty")}</EmptyState> : null}
       {result && result.rows.length > 0 ? (
@@ -128,15 +150,15 @@ export function ToursCatalog({ filters, result, error, lookups }: {
                       {r.isSponsored ? <StatusBadge status="pending" label={t("sponsored")} /> : null}
                     </div>
                   </td>
-                  <td className="p-2">{r.providerName}{r.providerVerified ? "" : <span className="text-amber-700"> · {t("unverified")}</span>}</td>
-                  <td className="p-2">{r.destination ?? "—"}{r.country ? ` (${r.country})` : ""}</td>
+                  <td className="p-2">{pickLabel(r.providerNames, locale, r.providerName ?? "—")}{r.providerVerified ? "" : <span className="text-amber-700"> · {t("unverified")}</span>}</td>
+                  <td className="p-2">{pickLabel(r.destinationNames, locale, r.destination ?? "—")}{r.country ? ` (${regionName(r.country, locale)})` : ""}</td>
                   <td className="p-2">
                     <StatusBadge status={r.status} label={ts(`tourStatus.${r.status}`)} />
                     {r.pendingChanges ? <div className="mt-1 text-xs text-sky-700">{t("pendingChanges")}</div> : null}
                   </td>
                   <td className="p-2 tabular-nums">{r.requirementErrors === 0 ? t("ready") : t("errors", { count: r.requirementErrors })}</td>
-                  <td className="p-2 text-xs">{r.submittedAt ? formatInstant(r.submittedAt, { locale, calendar, timeZone: "Asia/Tehran" }) : "—"}</td>
-                  <td className="p-2 text-xs">{r.publishedAt ? formatInstant(r.publishedAt, { locale, calendar, timeZone: "Asia/Tehran" }) : "—"}</td>
+                  <td className="p-2 text-xs">{dates.instant(r.submittedAt)}</td>
+                  <td className="p-2 text-xs">{dates.instant(r.publishedAt)}</td>
                 </tr>
               ))}
             </tbody>
@@ -151,16 +173,26 @@ export function ToursCatalog({ filters, result, error, lookups }: {
         </div>
       ) : null}
 
-      <CreateTourForm providers={lookups.providers} destinations={lookups.destinations} />
+      <CreateTourForm providerOptions={providerOptions} destinationOptions={destinationOptions} currencies={lookups.currencies} enabledLocales={lookups.enabledLocales} />
     </div>
   );
 }
 
-function CreateTourForm({ providers, destinations }: { providers: Lookups["providers"]; destinations: Lookups["destinations"] }) {
+const DEFAULT_LOCALES = ["fa-IR", "en-US"];
+
+function CreateTourForm({ providerOptions, destinationOptions, currencies, enabledLocales }: {
+  providerOptions: Option[]; destinationOptions: Option[]; currencies?: string[]; enabledLocales?: string[];
+}) {
   const t = useTranslations("TourAdmin.tours");
+  const tCore = useTranslations("TourAdmin.core");
+  const locale = useLocale();
   const router = useRouter();
   const { run, pending } = useAdminAction();
   const [v, setV] = useState({ serviceProviderId: "", slug: "", sourceLocale: "fa-IR", currency: "IRR", title: "", destinationId: "", timezone: "Asia/Tehran" });
+  const localeOptions = useLocaleOptions(enabledLocales?.length ? enabledLocales : DEFAULT_LOCALES);
+  // Active currencies from finance.currencies; rial/toman when the list is unavailable.
+  const currencyOptions = useMemo<Option[]>(() => Array.from(new Set(currencies?.length ? currencies : ["IRR", "IRT"]))
+    .map((code) => ({ value: code, label: currencyLabel(code, locale), hint: code })), [currencies, locale]);
   return (
     <details className="rounded-lg border p-4">
       <summary className="cursor-pointer font-medium">{t("createTitle")}</summary>
@@ -168,27 +200,29 @@ function CreateTourForm({ providers, destinations }: { providers: Lookups["provi
         className="mt-3 grid gap-3 md:grid-cols-3"
         onSubmit={async (e) => {
           e.preventDefault();
+          if (!v.serviceProviderId) return;
           const created = await run(() => createTourAction({ ...v, destinationId: v.destinationId || null }), { refresh: false });
           if (created) router.push(`${TOURS_PLATFORM_BASE}/tours/${created.id}`);
         }}
       >
-        <Field label={t("provider")} htmlFor="c-provider">
-          <NativeSelect id="c-provider" required value={v.serviceProviderId} onChange={(e) => setV({ ...v, serviceProviderId: e.target.value })}>
-            <option value="" />
-            {providers.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
-          </NativeSelect>
+        <Field label={`${t("provider")} *`} htmlFor="c-provider">
+          <OptionSelect id="c-provider" value={v.serviceProviderId} onChange={(serviceProviderId) => setV({ ...v, serviceProviderId })} options={providerOptions} allowEmpty={false} testId="c-provider" />
         </Field>
         <Field label={t("slug")} htmlFor="c-slug"><Input id="c-slug" required dir="ltr" value={v.slug} onChange={(e) => setV({ ...v, slug: e.target.value })} /></Field>
         <Field label={t("titleSource")} htmlFor="c-title"><Input id="c-title" required value={v.title} onChange={(e) => setV({ ...v, title: e.target.value })} /></Field>
-        <Field label={t("sourceLocale")} htmlFor="c-locale"><Input id="c-locale" required dir="ltr" value={v.sourceLocale} onChange={(e) => setV({ ...v, sourceLocale: e.target.value })} /></Field>
-        <Field label={t("currency")} htmlFor="c-currency"><Input id="c-currency" required dir="ltr" value={v.currency} onChange={(e) => setV({ ...v, currency: e.target.value.toUpperCase() })} /></Field>
-        <Field label={t("destination")} htmlFor="c-destination">
-          <NativeSelect id="c-destination" value={v.destinationId} onChange={(e) => setV({ ...v, destinationId: e.target.value })}>
-            <option value="" />
-            {destinations.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
-          </NativeSelect>
+        <Field label={t("sourceLocale")} htmlFor="c-locale">
+          <OptionSelect id="c-locale" value={v.sourceLocale} onChange={(sourceLocale) => setV({ ...v, sourceLocale })} options={localeOptions} allowEmpty={false} testId="c-locale" />
         </Field>
-        <div><Button type="submit" disabled={pending}>{t("create")}</Button></div>
+        <Field label={t("currency")} htmlFor="c-currency">
+          <OptionSelect id="c-currency" value={v.currency} onChange={(currency) => setV({ ...v, currency })} options={currencyOptions} allowEmpty={false} testId="c-currency" />
+        </Field>
+        <Field label={t("destination")} htmlFor="c-destination">
+          <OptionSelect id="c-destination" value={v.destinationId} onChange={(destinationId) => setV({ ...v, destinationId })} options={destinationOptions} testId="c-destination" />
+        </Field>
+        <Field label={tCore("timezone")} htmlFor="c-timezone">
+          <TimezoneSelect id="c-timezone" value={v.timezone} onChange={(timezone) => setV({ ...v, timezone })} testId="c-timezone" />
+        </Field>
+        <div><Button type="submit" disabled={pending || !v.serviceProviderId}>{t("create")}</Button></div>
       </form>
     </details>
   );

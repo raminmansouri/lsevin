@@ -1,18 +1,18 @@
 "use client";
 
-import { useLocale, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 
-import { formatInstant } from "../../domain/calendar";
 import type { TourBundle } from "../../server/admin/queries";
 
+import { useAdminDates } from "./inputs";
 import { EmptyState, Section } from "./primitives";
 
 /** Revisions and the audit trail of one tour (M-005). */
 export function HistoryTab({ bundle }: { bundle: TourBundle }) {
   const t = useTranslations("TourAdmin.history");
-  const locale = useLocale();
-  const cal = locale === "fa" ? "persian" : locale === "ar" ? "islamic-umalqura" : "gregory";
-  const when = (iso: string | null) => (iso ? formatInstant(iso, { locale, calendar: cal, timeZone: bundle.core.timezone }) : "—");
+  const dates = useAdminDates();
+  // Jalali, in the tour's own timezone.
+  const when = (iso: string | null) => dates.instant(iso, bundle.core.timezone || "Asia/Tehran");
   return (
     <div className="space-y-4">
       <Section id="revisions" title={t("revisions")}>

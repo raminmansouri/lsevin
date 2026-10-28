@@ -8,7 +8,7 @@ import { expect, test } from "@playwright/test";
 
 import { seedDestination, seedProvider, seedTour, seedUser, suffix } from "../../src/features/tours/testing/fixtures";
 
-import { expectToast, signInAdmin, skipIntro } from "./admin-helpers";
+import { expectToast, fillLocalized, signInAdmin, skipIntro } from "./admin-helpers";
 import { closeDb, db } from "./support/db";
 
 test.afterAll(closeDb);
@@ -31,7 +31,7 @@ test("AT-27 destination + translated title: draft only in preview, public after 
   // 1. Feature the destination (cover alt text is required with a cover image).
   await page.goto("/en/admin/tours-platform/destinations");
   await page.locator(`tr[data-slug="${dest.slug}"]`).getByRole("button", { name: "Edit" }).click();
-  await page.locator("#dst-alt-en-US").fill(`Kish coast ${s}`);
+  await fillLocalized(page.getByTestId("dst-cover-alt"), "Cover alternative text", "en-US", `Kish coast ${s}`);
   await page.getByLabel("Featured", { exact: true }).check();
   await page.getByRole("button", { name: "Save", exact: true }).click();
   await expectToast(page);

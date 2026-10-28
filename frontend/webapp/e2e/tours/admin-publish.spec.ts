@@ -4,11 +4,13 @@
  * a rejected submission stays unpublished and carries the note for the provider.
  *   TOURS_E2E_BASE_URL=http://localhost:3031 npx playwright test --config playwright.tours.config.ts admin-publish.spec.ts --project desktop
  */
+import { randomUUID } from "node:crypto";
+
 import { expect, test } from "@playwright/test";
 
 import { seedProvider, seedTour, seedUser } from "../../src/features/tours/testing/fixtures";
 
-import { editorTab, expectToast, signInAdmin, skipIntro } from "./admin-helpers";
+import { editorTab, expectToast, fillLocalized, signInAdmin, skipIntro } from "./admin-helpers";
 import { closeDb, db } from "./support/db";
 
 test.afterAll(closeDb);
@@ -49,9 +51,15 @@ test("AT-16 missing policy/media/price blocks publication; repaired in admin it 
   }
   await expect(page.getByTestId("approve-publish")).toBeDisabled();
 
-  // Repair 1: media (admin-added media is approved immediately).
+  // Repair 1: media, picked from the media library (admin-added media is approved immediately).
+  // The library item is seeded; its file is a real shipped photo. 10-character name: the picker truncates longer ones.
+  const fileName = `r${randomUUID().slice(0, 5)}.jpg`;
+  await sql`
+    insert into media.media_library (original_name, stored_name, file_url, mime_type, extension, media_type, file_size, width, height)
+    values (${fileName}, ${fileName}, '/images/tours/kish-beach.webp', 'image/webp', 'webp', 'image', 101000, 1600, 1200)`;
   await editorTab(page, "Media");
-  await page.getByLabel("URL").fill("https://cdn.example.test/admin-repair.jpg");
+  await page.getByRole("button", { name: "Choose from the media library" }).click();
+  await page.getByRole("button", { name: fileName }).click();
   await page.getByRole("button", { name: "Add", exact: true }).click();
   await expectToast(page);
   await expect(page.locator("[data-media-id]")).toHaveCount(1);
@@ -62,7 +70,8 @@ test("AT-16 missing policy/media/price blocks publication; repaired in admin it 
   // settles is reset. Re-type until the value sticks and Save becomes enabled.
   await expect(async () => {
     await page.locator("#op-0-adult").fill("15000000");
-    await expect(page.locator("#op-0-adult")).toHaveValue("15000000", { timeout: 2_000 });
+    // The amount input shows thousands separators.
+    await expect(page.locator("#op-0-adult")).toHaveValue("15,000,000", { timeout: 2_000 });
     await expect(page.getByTestId("save-options")).toBeEnabled({ timeout: 2_000 });
   }).toPass({ timeout: 60_000 });
   await page.getByTestId("save-options").click();
@@ -70,7 +79,8 @@ test("AT-16 missing policy/media/price blocks publication; repaired in admin it 
 
   // Repair 3: a policy version (source text required).
   await editorTab(page, "Policy");
-  await page.locator("#pol-c-fa-IR").fill("تا ۴۸ ساعت قبل بازپرداخت کامل.");
+  // Cancellation text is one multi-language control: open its Persian tab, then type.
+  await fillLocalized(page, "Cancellation text", "fa-IR", "تا ۴۸ ساعت قبل بازپرداخت کامل.");
   await page.getByTestId("create-policy").click();
   await expectToast(page, "Policy version created");
 

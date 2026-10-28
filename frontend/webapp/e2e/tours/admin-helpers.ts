@@ -3,7 +3,7 @@
  * Seeds through the e2e database the same rows the app writes; signs in with
  * a real signed NextAuth cookie (support/session.ts).
  */
-import type { BrowserContext, Page } from "@playwright/test";
+import type { BrowserContext, Locator, Page } from "@playwright/test";
 import { expect } from "@playwright/test";
 
 import { idemKey, seedUser, type SeededTour } from "../../src/features/tours/testing/fixtures";
@@ -63,4 +63,17 @@ export async function editorTab(page: Page, name: string) {
   await link.click();
   await page.waitForURL((url) => href != null && url.href.endsWith(href.split("/").pop()!), { timeout: 180_000 });
   await expect(link).toHaveAttribute("aria-current", "page", { timeout: 60_000 });
+}
+
+const LANGUAGE_TAB: Record<string, string> = { "fa-IR": "فارسی", "en-US": "English", "ar-SA": "العربية", "tr-TR": "Türkçe" };
+
+/**
+ * Types into one language of the platform's multi-language input (LocalizedInput):
+ * opens that language's tab inside the control labelled `label`, then fills its box.
+ */
+export async function fillLocalized(scope: Page | Locator, label: string, locale: string, text: string) {
+  const language = LANGUAGE_TAB[locale] ?? locale;
+  const control = scope.locator("div.space-y-2").filter({ has: scope.locator("label", { hasText: new RegExp(`^${label}$`) }) }).first();
+  await control.getByRole("tab", { name: new RegExp(`^${language}`) }).click();
+  await control.getByLabel(`${label} (${language})`, { exact: true }).fill(text);
 }

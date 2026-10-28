@@ -5549,15 +5549,16 @@
       "databaseTables": "Database tables",
       "toursPlatform": "Tours platform",
       "toursPlatformDashboard": "Tours overview",
-      "toursPlatformTours": "Tours & review queue",
-      "toursPlatformDestinations": "Tour destinations",
-      "toursPlatformEditorial": "Tours landing content",
+      "toursPlatformTours": "4. Tours & review queue",
+      "toursPlatformDestinations": "3. Destinations",
+      "toursPlatformEditorial": "6. Tours landing content",
       "toursPlatformDepartures": "Tour departures",
       "toursPlatformBookings": "Tour bookings",
       "toursPlatformDisputes": "Tour disputes",
-      "toursPlatformTranslations": "Tour translations",
+      "toursPlatformTranslations": "5. Tour translations",
       "toursPlatformReports": "Tour reports",
-      "toursPlatformSettings": "Tours settings"
+      "toursPlatformSettings": "1. Tours settings",
+      "toursPlatformTaxonomy": "2. Categories & tags"
     }
   },
   "HomePage": {
