@@ -84,7 +84,7 @@ export async function DesktopShopHome({
       <section className="lsd-container pt-6">
         <PointerParallax depth={16}>
           <div className="lsd-hero-bg relative grid h-[420px] grid-cols-[1fr_1fr] items-center gap-6 overflow-hidden rounded-[36px] px-12 text-white ring-1 ring-[#eacb7f]/25">
-            <div className="lsd-girih absolute inset-0" aria-hidden="true" />
+            <div className="absolute inset-0" aria-hidden="true" />
             <Image src="/brand/lsevin-mark-reversed.png" alt="" aria-hidden="true" width={220} height={311} className="lsd-mark-bg -start-10 -top-8" />
 
             <Reveal className="relative z-10 space-y-5">
@@ -177,7 +177,7 @@ export async function DesktopShopHome({
                         // eslint-disable-next-line @next/next/no-img-element
                         <img src={shopImageSrc(promo.imageUrl)} alt={promo.label} className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1.6s] group-hover:scale-105" />
                       ) : (
-                        <div className="lsd-girih absolute inset-0" />
+                        <div className="absolute inset-0" />
                       )}
                       <div className="absolute inset-0 bg-gradient-to-t from-[#062a20]/85 to-transparent" />
                       <span className="pointer-events-none absolute inset-2.5 rounded-[20px] border border-[#eacb7f]/0 transition duration-500 group-hover:border-[#eacb7f]/70" />

@@ -60,7 +60,7 @@ function PackageCard({ pkg, index, locale }: { pkg: SpecialPackagePublicItem; in
           // eslint-disable-next-line @next/next/no-img-element
           <img src={image} alt="" className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1.6s] group-hover:scale-105" />
         ) : (
-          <div className="lsd-girih absolute inset-0" aria-hidden="true" />
+          <div className="absolute inset-0" aria-hidden="true" />
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-[#04130e] via-[#04130e]/25 to-transparent" />
         <Link href={detailHref(pkg)} aria-label={pkg.title} className="absolute inset-0 z-[1]" />
@@ -172,7 +172,7 @@ export async function DesktopPackageDetail({ pkg, locale }: { pkg: SpecialPackag
               // eslint-disable-next-line @next/next/no-img-element
               <img src={image} alt={pkg.title} className="lsd-kenburns absolute inset-0 h-full w-full object-cover" />
             ) : (
-              <div className="lsd-girih absolute inset-0" aria-hidden="true" />
+              <div className="absolute inset-0" aria-hidden="true" />
             )}
             <div className="absolute inset-0 bg-gradient-to-t from-[#04130e]/70 to-transparent" />
             <div className="absolute start-5 top-5 z-[2]">

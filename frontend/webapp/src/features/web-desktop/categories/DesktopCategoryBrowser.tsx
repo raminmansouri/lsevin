@@ -61,7 +61,7 @@ function Room({ category, index, span, href }: { category: CategoryBrowserCatego
               // eslint-disable-next-line @next/next/no-img-element
               <img src={image} alt="" className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1.6s] group-hover:scale-110" />
             ) : (
-              <div className="lsd-girih absolute inset-0" aria-hidden="true" />
+              <div className="absolute inset-0" aria-hidden="true" />
             )}
             <div className="absolute inset-0 bg-gradient-to-t from-[#062a20] via-[#062a20]/35 to-transparent" />
             <span className="lsd-room-arch" aria-hidden="true" />
@@ -178,7 +178,7 @@ export function DesktopCategoryBrowser({
               <div className="absolute inset-0 bg-gradient-to-t from-[#062a20] via-[#062a20]/55 to-[#062a20]/10" />
             </div>
           ) : (
-            <div className="lsd-girih absolute inset-0" aria-hidden="true" />
+            <div className="absolute inset-0" aria-hidden="true" />
           )}
           <Image src="/brand/lsevin-mark-reversed.png" alt="" aria-hidden="true" width={240} height={339} className="lsd-mark-bg -end-8 -top-10" />
 

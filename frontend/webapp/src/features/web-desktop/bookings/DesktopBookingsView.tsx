@@ -145,7 +145,7 @@ export function DesktopBookingsView() {
       {/* Header */}
       <section className="lsd-container pt-6">
         <div className="lsd-hero-bg relative overflow-hidden rounded-[40px] px-14 py-12 text-white">
-          <div className="lsd-girih absolute inset-0" aria-hidden="true" />
+          <div className="absolute inset-0" aria-hidden="true" />
           <div className="relative flex items-end justify-between gap-10">
             <Reveal className="space-y-3">
               <span className="text-[11px] font-bold tracking-[0.35em] text-[#eacb7f]">L SEVIN JOURNEYS</span>
