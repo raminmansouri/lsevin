@@ -22,13 +22,14 @@ Scope: `lsevincare.com`; Persian search is the first priority. A first-page Goog
 ## Search Console and measurement
 
 - [ ] Connect and verify the `lsevincare.com` Search Console property. Submit the published sitemap and inspect indexing exclusions, Google-selected canonicals, clicks, impressions, queries, countries, and devices. No connected property or export has been verified in this workspace.
-- [ ] Measure visitor-visible cold and warm TTFB by geography, route, and cache status. The earlier public baseline was approximately 0.61–1.03 seconds, above the requested 30 ms. Record p50/p95 and error rates after any change. The 30 ms target is **not met or verified**.
+- [ ] Meet and verify visitor-visible 30 ms TTFB by geography, route, and cache status. A five-sample-per-route public GET benchmark on 29 October found home p50/p95 681/841 ms, categories 769/17,100 ms, explore 693/727 ms, search 808/2,005 ms, sitemap 1,236/1,344 ms (one failed request), and robots 451/679 ms. New-connection TLS alone had a roughly 268–332 ms median by route. See [the raw measurements](verification/seo-performance/2026-10-29-public.json). This small sample establishes a failure, not a population percentile.
+- [ ] Re-measure categories after this branch is deployed. Its translation lookup, category query, and tour settings lookup now start concurrently, removing avoidable serialized server work. This does not address the measured TLS/network latency or prove a 30 ms response.
 - [ ] Keep authenticated booking, availability, payments, and user data out of shared public HTML caches; test refresh, direct navigation, history, invalidation, and locale isolation.
 - [ ] For further database work, inspect representative query plans and test a migration upgrade from the actual previous production migration state. Do not edit released migrations.
 
 ## Release gates for this branch
 
-- [ ] Dependency-complete production build, lint, typecheck, SEO tests, and relevant integration tests.
+- [ ] Dependency-complete production build, lint, typecheck, SEO tests, and relevant integration tests. The merged branch passed `pnpm test:seo` (118/118) with public environment values set on 29 October. Build, full lint, typecheck, and integration tests remain open; the current worktree borrows an incomplete dependency tree.
 - [ ] Persistent Playwright tests for category navigation/localization and robots/sitemap policy, including browser interaction and a real runtime.
 - [ ] Stage the exact candidate, check startup, logs, migrations if any, health, key routes, and browser workflows.
 - [ ] Verify the same checks on the visitor-serving production deployment after publication.

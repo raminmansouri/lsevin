@@ -46,20 +46,20 @@ export default async function CategoryBrowserPage({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const t = await getTranslations({ locale, namespace: "CategoryBrowser" });
-
   // A database hiccup shows an empty tree for that one request only: the page
   // is dynamic, so nothing empty is cached, and the data cache rejects failures.
-  const data = await getCategoryBrowserGroups(locale).catch(() => ({
-    groups: [],
-    totalCategories: 0,
-    totalProviders: 0,
-  }));
-
   // Tourism opens the Tours sub-application (C-001); its id is configuration, not code.
-  const tourismCategoryId = await getTourSettings()
-    .then((s) => s.tourismCategoryId)
-    .catch(() => null);
+  const [t, data, tourismCategoryId] = await Promise.all([
+    getTranslations({ locale, namespace: "CategoryBrowser" }),
+    getCategoryBrowserGroups(locale).catch(() => ({
+      groups: [],
+      totalCategories: 0,
+      totalProviders: 0,
+    })),
+    getTourSettings()
+      .then((s) => s.tourismCategoryId)
+      .catch(() => null),
+  ]);
 
   return (
     <>
