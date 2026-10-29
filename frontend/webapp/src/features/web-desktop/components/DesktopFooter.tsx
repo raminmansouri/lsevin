@@ -5,8 +5,7 @@ import { Link } from "@/i18n/navigation";
 
 import { BackToTop, Reveal } from "./motion";
 
-const ENAMAD_HREF = "https://trustseal.enamad.ir/?id=760932&Code=Q4tmSTcTQFTGWWFLYCxWTvO5hIsgD7Hr";
-const ENAMAD_IMG = "https://trustseal.enamad.ir/logo.aspx?id=760932&Code=Q4tmSTcTQFTGWWFLYCxWTvO5hIsgD7Hr";
+
 
 /** Desktop-only footer (>= 1280px). */
 export function DesktopFooter() {
@@ -64,18 +63,7 @@ export function DesktopFooter() {
           </Reveal>
         ))}
 
-        <Reveal delay={300}>
-          <a
-            href={ENAMAD_HREF}
-            target="_blank"
-            referrerPolicy="origin"
-            rel="noopener"
-            className="block w-fit rounded-2xl bg-white p-2 transition hover:-translate-y-0.5"
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={ENAMAD_IMG} referrerPolicy="origin" alt={t("enamadAlt")} className="h-[96px] w-auto" />
-          </a>
-        </Reveal>
+
       </div>
 
       <div className="relative border-t border-[#eacb7f]/15">

@@ -3206,7 +3206,7 @@ declare const messages: {
     "renderedOn": "Rendered on"
   },
   "HomeHero": {
-    "title": "Your medical journey to Iran, arranged in one place",
+    "title": "Health and beauty without borders, all in one place",
     "subtitle": "Compare clinics, book your stay, and find gyms and care centers nearby.",
     "searchPlaceholder": "Search clinics, hotels, gyms",
     "services": {
@@ -14863,6 +14863,17 @@ declare const messages: {
         "weakYou": "Your connection is weak",
         "weakPeer": "{name}'s connection is weak",
         "lostPeer": "{name}'s connection was lost"
+      }
+    },
+    "homeTeaser": {
+      "live": "Live video call",
+      "title": "Video consultation with a doctor",
+      "subtitle": "Talk face to face with a specialist, from anywhere",
+      "cta": "Request a consultation",
+      "perks": {
+        "secure": "Secure and private",
+        "noInstall": "No app to install",
+        "verified": "Verified doctors"
       }
     }
   },

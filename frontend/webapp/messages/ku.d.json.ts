@@ -13239,6 +13239,17 @@ declare const messages: {
         "weakPeer": "ئینتەرنێتی {name} لاوازە",
         "lostPeer": "پەیوەندی {name} پچڕا"
       }
+    },
+    "homeTeaser": {
+      "live": "Live video call",
+      "title": "Video consultation with a doctor",
+      "subtitle": "Talk face to face with a specialist, from anywhere",
+      "cta": "Request a consultation",
+      "perks": {
+        "secure": "Secure and private",
+        "noInstall": "No app to install",
+        "verified": "Verified doctors"
+      }
     }
   },
   "GymMemberships": {

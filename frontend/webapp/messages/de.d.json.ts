@@ -13239,6 +13239,17 @@ declare const messages: {
         "weakPeer": "Die Verbindung von {name} ist schwach",
         "lostPeer": "Die Verbindung von {name} ist abgebrochen"
       }
+    },
+    "homeTeaser": {
+      "live": "Live video call",
+      "title": "Video consultation with a doctor",
+      "subtitle": "Talk face to face with a specialist, from anywhere",
+      "cta": "Request a consultation",
+      "perks": {
+        "secure": "Secure and private",
+        "noInstall": "No app to install",
+        "verified": "Verified doctors"
+      }
     }
   },
   "GymMemberships": {

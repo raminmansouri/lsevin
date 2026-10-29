@@ -12,6 +12,7 @@ import { ServiceProvidersCategoriesSuspenseBoundary } from './components/service
 import HomeFeaturedServicesSuspenseBoundary from './components/service-providers';
 import HomeTrendingServicesSuspenseBoundary from './components/trending-services';
 import HomeTrustedProvidersSuspenseBoundary from './components/trusted-providers';
+import { HomeAssistantTeaser, HomeConsultationTeaser } from './components/home-teasers';
 import UserInfoSubBar from './components/user-info';
 import { VideoConsultationHomeCard } from '@/features/consultation/components/video-consultation-home-card';
 import { type HomeHeroOffer } from '@/features/home/api/server/get-home-page';
@@ -370,11 +371,13 @@ async function Home({ params }: PageProps) {
           </Link>
         </div>
 
-        {/* Client-rendered: the price depends on who is visiting, and this page is static. */}
         <VideoConsultationHomeCard />
       </div>
 
       <SponsoredMediaCarouselSection locale={locale} placement="home_top" />
+
+      <HomeAssistantTeaser />
+      <HomeConsultationTeaser />
 
       <HomeHeroBanner offer={heroOffer} section={homeSections.hero_featured} labels={labels.hero} noDescription={labels.common.noDescription} />
 

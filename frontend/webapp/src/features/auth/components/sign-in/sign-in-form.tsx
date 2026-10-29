@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useLocale, useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
+import type { Country } from "react-phone-number-input";
 import { toast } from "sonner";
 
 import { PasswordInput } from "@/components/form/password-input";
@@ -28,9 +29,13 @@ import { ensureLocalePrefix } from "@/lib/utils";
 import { authenticate } from "../../actions/sign-in";
 import { SignInSchema } from "../../actions/sign-in/schema";
 import { InputType, TRANSLATION_KEY } from "../../actions/sign-in/types";
+import {
+  FALLBACK_PHONE_COUNTRY,
+  rememberPhoneCountry,
+} from "../../lib/phone-country.constants";
 import AuthFormContainer from "../shared/auth-form-container";
 
-const SignInForm = () => {
+const SignInForm = ({ defaultCountry = FALLBACK_PHONE_COUNTRY }: { defaultCountry?: Country }) => {
   const [isPending, startTransition] = useTransition();
   const [redirectHref, setRedirectHref] = useState<string | null>(null);
   const searchParams = useSearchParams();
@@ -101,7 +106,8 @@ const SignInForm = () => {
                     <PhoneInput
                       placeholder="9121111111"
                       {...field}
-                      defaultCountry="IR"
+                      defaultCountry={defaultCountry}
+                      onCountryChange={rememberPhoneCountry}
                       value={field.value || ""}
                     />
                   </FormControl>

@@ -26,6 +26,10 @@ const mocks = vi.hoisted(() => ({
   categories: vi.fn(),
 }));
 vi.mock("server-only", () => ({}));
+vi.mock("@/features/web-desktop/provider/DesktopProviderView", () => ({ DesktopProviderView: () => null }));
+vi.mock("@/features/web-desktop/service/DesktopServiceView", () => ({ DesktopServiceView: () => null }));
+vi.mock("@/features/web-desktop/shop/DesktopProductPage", () => ({ DesktopProductPage: () => null }));
+vi.mock("@/features/web-desktop/home/DesktopSponsoredSection", () => ({ DesktopSponsoredSection: () => null }));
 vi.mock("next/navigation", () => ({
   notFound: () => {
     throw new Error("NEXT_HTTP_ERROR_FALLBACK;404");
