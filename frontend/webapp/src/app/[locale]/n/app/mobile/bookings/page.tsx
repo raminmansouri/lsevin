@@ -8,6 +8,9 @@ import { useFetchBookings } from "@/features/service-providers/api/client/fetch-
 import type { Booking } from "@/features/service-providers/types";
 import { useNavigate } from "@/hooks/use-navigate";
 import { useLocale, useTranslations } from "next-intl";
+import { DesktopBookingsView } from "@/features/web-desktop/bookings/DesktopBookingsView";
+
+
 import { useMyVideoSessions, VideoSessionBookingCard } from "@/features/consultation/components/my-video-sessions";
 const BRAND_GREEN = "#083f30";
 type BookingTab = "upcoming" | "past" | "cancelled";
@@ -127,11 +130,11 @@ function BookingCard({ booking, onOpen }: {
       </div>
     </button>);
 }
-export default function Bookings() {
+function MobileBookings() {
     const tBooking = useTranslations("Booking");
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState<BookingTab>("upcoming");
-    const { data, error, isFetching, refetch: refetchBookings } = useFetchBookings({});
+    const { data, error, isFetching, refetch: refetchBookings } = useFetchBookings({} as Parameters<typeof useFetchBookings>[0])
     // Video consultations live in their own table and sit in the same tabs.
     const { lists: consultations, refetch: refetchConsultations } = useMyVideoSessions();
     const refetch = () => {
@@ -200,4 +203,17 @@ export default function Bookings() {
           {activeTab === "upcoming" && (<button type="button" onClick={() => navigate("/n/app/mobile/explore")} className="rounded-xl bg-[#083f30] px-6 py-3 font-semibold text-white transition-colors hover:bg-[#0a5a44]" style={{ backgroundColor: BRAND_GREEN }}>{tBooking("exploreServices")}</button>)}
         </div>)}
     </div>);
+}
+
+
+/** Mobile/tablet below 1280px, the desktop journal above it. Both share the same cached query. */
+export default function Bookings() {
+  return (
+    <>
+      <div className="xl:hidden">
+        <MobileBookings />
+      </div>
+      <DesktopBookingsView />
+    </>
+  );
 }

@@ -88,7 +88,10 @@ export const SEGMENT_NAMESPACES = {
     "ProviderDoctorProfile",
     "ProviderOnboarding",
     "ProviderPage",
+    "Assistant",
     "MapShared",
+    "Footer",
+    "AdminGenerated",
     // AdminGenerated: only the keys in MOBILE_ADMIN_GENERATED_KEYS, see below.
     "BookingCart",
     "RecommendationSection",
@@ -179,6 +182,7 @@ export const SEGMENT_NAMESPACES = {
     "List",
     "LocalizedInput",
     "MapShared",
+    "Footer",
     "AdminGenerated",
     "BookingCart",
     // The public provider-details route builds these namespace names through

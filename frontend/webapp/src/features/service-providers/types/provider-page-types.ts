@@ -30,6 +30,8 @@ export interface ProviderBeforeAfter {
   procedure?: string | null;
   months?: number | null;
   serviceName?: string | null;
+  /** The provider service these photos belong to. */
+  providerServiceId?: string | null;
 }
 
 

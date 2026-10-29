@@ -4,6 +4,14 @@ import MobileAppBar from "@/components/mobile-app-bar";
 import Shell from "@/components/shell";
 import { AppChrome } from "./app-chrome";
 import { getClientMessages } from "@/i18n/client-messages";
+import { DesktopFooter } from "@/features/web-desktop/components/DesktopFooter";
+import { DesktopHeader } from "@/features/web-desktop/components/DesktopHeader";
+
+import LocaleSwitcher from "@/components/locale/locale-switcher";
+import NotificationsBar from "@/features/shared/components/Notifications/notifications-bar";
+
+import { AssistantLauncher } from "@/features/assistant/components/assistant-launcher";
+
 
 type LocalePageProps = {
   children: React.ReactNode;
@@ -33,9 +41,25 @@ export default async function MainLayout({
       <Shell className="gap-0 py-0">
         {/* No gap: the app bar and each page's own header must meet without a seam. */}
         <div className="flex flex-col">
-          <AppChrome appBar={<MobileAppBar />}>{children}</AppChrome>
+          <AppChrome
+            appBar={<MobileAppBar />}
+            desktopHeader={
+              <DesktopHeader
+                actions={
+                  <>
+                    <NotificationsBar variant="glass" />
+                    <LocaleSwitcher variant="glass" />
+                  </>
+                }
+              />
+            }
+            desktopFooter={<DesktopFooter />}
+          >
+            {children}
+          </AppChrome>
         </div>
       </Shell>
+      <AssistantLauncher />
     </NextIntlClientProvider>
   );
 }

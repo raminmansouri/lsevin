@@ -34,6 +34,10 @@ import type {
   WalletTransactionRow,
 } from "./types";
 
+
+import { DesktopWalletLayout } from "@/features/web-desktop/wallet/DesktopWalletLayout";
+
+
 interface WalletPageClientProps {
   initialData: WalletPageData;
 }
@@ -326,7 +330,8 @@ export default function WalletPageClient({
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-24">
+    <div className="min-h-screen bg-gray-50 pb-24 xl:bg-transparent xl:pb-0">
+      <div className="xl:hidden">
       <div className="bg-white border-b border-gray-200 sticky top-0 z-40">
         <div className="px-5 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -577,8 +582,34 @@ export default function WalletPageClient({
         )}
       </div>
 
+      </div>
+
+      <DesktopWalletLayout
+        balanceText={`${currencySymbol(selectedCurrency)}${(balances[selectedCurrency] ?? 0).toLocaleString(locale, {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        })}`}
+        showBalance={showBalance}
+        onToggleBalance={() => setShowBalance((value) => !value)}
+        currencies={initialData.supportedCurrencies.map((currency) => ({ code: currency, label: currencyName(currency) ?? currency }))}
+        selectedCurrency={selectedCurrency}
+        onSelectCurrency={setSelectedCurrency}
+        onTopUp={() => setShowTopUpModal(true)}
+        onApplyCoupon={() => navigate("/app/coupon")}
+        onViewAll={() => navigate("/n/app/mobile/profile/my-wallet/history")}
+        topUpResult={topUpResult}
+        onDismissResult={() => setTopUpResult(null)}
+        transactions={transactions}
+        filterMode={filterMode}
+        onFilter={setFilterMode}
+        onOpenTransaction={(id) => navigate(`/n/app/mobile/profile/my-wallet/transaction/${id}`)}
+        formatMoney={(amount, currency) => `${currencySymbol(currency)}${formatAmount(amount, locale)}`}
+        formatWhen={(date) => formatDate(date, locale, t)}
+        renderStatus={(status) => <TransactionStatus status={status as WalletTransactionRow["status"]} t={t} />}
+      />
+
       {showTopUpModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-end justify-center p-0">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-end justify-center p-0 xl:items-center xl:p-8">
           <div className="bg-white rounded-t-3xl w-full max-w-lg animate-slide-up">
             <div className="p-6 border-b border-gray-200">
               <div className="flex items-center justify-between">

@@ -13,6 +13,7 @@ import {
   ProfileOverviewView,
   type ProfileOverviewData,
 } from "./profile-overview-view";
+import { DesktopProfileView } from "@/features/web-desktop/profile/DesktopProfileView";
 
 export function ProfileOverview({ data }: { data: ProfileOverviewData }) {
   const navigate = useNavigate();
@@ -30,16 +31,16 @@ export function ProfileOverview({ data }: { data: ProfileOverviewData }) {
         : "",
     };
   }, [data]);
+  const handleSignOut = () => {
+    clearOfflineProfile();
+    void signOut();
+  };
   return (
     <>
-      <ProfileOverviewView
-        data={resolved}
-        navigate={navigate}
-        signOut={() => {
-          clearOfflineProfile();
-          void signOut();
-        }}
-      />
+      <div className="xl:hidden">
+        <ProfileOverviewView data={resolved} navigate={navigate} signOut={handleSignOut} />
+      </div>
+      <DesktopProfileView data={resolved} image={resolveHomeMediaUrl(data.image) || ""} signOut={handleSignOut} />
       <ProfileViewCache data={resolved} />
     </>
   );

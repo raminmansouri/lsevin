@@ -1,6 +1,8 @@
 import NearbyClient from "./NearbyClient";
 import { getNearbyPageData, parseNearbyFilters } from "./nearby.data";
 
+import { DesktopNearbyView } from "@/features/web-desktop/nearby/DesktopNearbyView";
+
 export const dynamic = "force-dynamic";
 
 export default async function MapDiscoveryPage({
@@ -23,6 +25,8 @@ export default async function MapDiscoveryPage({
   const initialView = (Array.isArray(requestedView) ? requestedView[0] : requestedView) === "list" ? "list" : "map";
 
   return (
+    <>
+    <div className="xl:hidden">
     <NearbyClient
       initialView={initialView}
       locale={locale}
@@ -37,5 +41,16 @@ export default async function MapDiscoveryPage({
       mapCenter={data.mapCenter}
       expandedBeyondFilters={data.expandedBeyondFilters}
     />
+    </div>
+    <DesktopNearbyView
+      initialView={initialView}
+      locale={locale}
+      categories={data.categories}
+      providers={data.providers}
+      filters={filters}
+      mapCenter={data.mapCenter}
+      expandedBeyondFilters={data.expandedBeyondFilters}
+    />
+    </>
   );
 }

@@ -27,6 +27,10 @@ import { formatBookingDateTime, isBookingTimeZone, BOOKING_CALENDARS, bookingCal
 import { RichTextPreview } from '@/features/booking/components/rich-text-preview';
 import { ShareMedicalCaseStep } from './ShareMedicalCaseStep';
 import { formatCurrencyAmount } from '@/features/finance/lib/money';
+
+import { DesktopBookingHeader, DesktopBookingSummary } from "@/features/web-desktop/bookings/DesktopBookingChrome";
+
+
 async function getJson<T>(url: string, init?: RequestInit): Promise<T> {
     const response = await fetch(url, {
         ...init,
@@ -1256,7 +1260,7 @@ export function BookingWizard() {
     // pb clears the sticky action bar *and* the global BottomTabBar stacked beneath it.
     return (<div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 pb-44 lg:pb-10">
         {draft.id && !checkoutResult && <SaveBookingCartButton draftId={draft.id} disabled={!draft.providerId || !draft.serviceId} />}
-        <div className="sticky top-0 z-40 border-b border-slate-200 bg-white/90 backdrop-blur-xl">
+        <div className="sticky top-0 z-40 border-b border-slate-200 bg-white/90 backdrop-blur-xl xl:hidden">
             <div className="mx-auto max-w-6xl px-5 py-4">
                 <div className="mb-4 flex items-center gap-3">
                     <button onClick={goBack} className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-slate-700"><ArrowLeft className="h-5 w-5"/></button>
@@ -1269,7 +1273,15 @@ export function BookingWizard() {
             </div>
         </div>
 
-        <div className="mx-auto grid max-w-6xl gap-6 px-5 py-6 lg:grid-cols-[1fr_360px]">
+        <DesktopBookingHeader
+            title={tBooking("bookWithLSevin")}
+            subtitle={tBooking("draftFirstBookingWithChildAddOnSubBookings")}
+            steps={visibleSteps.map((step) => ({ key: step.key, label: tBooking(step.labelKey) }))}
+            currentIndex={currentStepIndex}
+            onBack={goBack}
+        />
+
+        <div className="lsd-booking mx-auto grid max-w-6xl gap-6 px-5 py-6 lg:grid-cols-[1fr_360px] xl:max-w-[1280px] xl:grid-cols-[1fr_400px] xl:gap-10 xl:pt-8">
             {/* min-w-0: grid items default to min-width:auto, so a single unshrinkable descendant
             widens the whole column and scrolls the page sideways. */}
             <div className="min-w-0 space-y-6">
@@ -1598,7 +1610,37 @@ export function BookingWizard() {
             <aside className="min-w-0 space-y-4">
                 {/* On mobile the decision rows already state the selections and the sticky bar
               carries the total, so this rail would only repeat them below the fold. */}
-                <div className="hidden rounded-[28px] border border-slate-200 bg-white p-5 shadow-lg lg:block">
+                <DesktopBookingSummary
+                    imageUrl={chosenProvider?.imageUrl}
+                    serviceName={chosenService?.name}
+                    providerName={chosenProvider?.name}
+                    specialistName={draft.requiresSpecialist ? chosenSpecialist?.name : null}
+                    whenLabel={
+                        draft.bookingUiMode === 'date_range'
+                            ? (draft.selectedDateFrom && draft.selectedDateTo
+                                ? `${formatBookingDate(draft.selectedDateFrom, { locale, calendar })} – ${formatBookingDate(draft.selectedDateTo, { locale, calendar })}`
+                                : null)
+                            : draft.selectedDate
+                                ? `${formatBookingDate(draft.selectedDate, { locale, calendar })}${draft.selectedTimeFrom ? ` · ${draft.selectedTimeFrom}` : ''}`
+                                : null
+                    }
+                    lines={[
+                        { label: tBooking("mainSubtotal"), value: formatMoney(draft.subtotalAmount ?? 0, draft.currency) },
+                        ...(draft.useLsevin ? [{ label: tBooking("addOnsSubtotal"), value: formatMoney(draft.addonsAmount ?? 0, draft.currency) }] : []),
+                        ...(Number(draft.metadata?.appliedDiscountAmount ?? 0) > 0
+                            ? [{ label: tBooking("coupon"), value: `-${formatMoney(Number(draft.metadata?.appliedDiscountAmount ?? 0), draft.currency)}`, tone: "discount" as const }]
+                            : []),
+                    ]}
+                    totalLabel={tBooking("total")}
+                    totalText={formatMoney(draft.totalAmount ?? ((draft.subtotalAmount ?? 0) + (draft.addonsAmount ?? 0)), draft.currency)}
+                    ctaLabel={currentStep === 5 ? (paymentIsDone ? tBooking('bookingConfirmed2') : tBooking('continueToPayment')) : tBooking('continue')}
+                    ctaDisabled={continueDisabled}
+                    isPayStep={currentStep === 5}
+                    onPrimary={handlePrimaryAction}
+                    note={currentStep === 3 ? tBooking("requiredAddOnProviderTypesMustBeCompletedBefore") : null}
+                />
+
+                <div className="hidden rounded-[28px] border border-slate-200 bg-white p-5 shadow-lg lg:block xl:hidden">
                     <div className="mb-4 flex items-center gap-3">
                         <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#eacb7f] text-[#083f30]"><ShieldCheck className="h-5 w-5"/></div>
                         <div>
@@ -1619,8 +1661,8 @@ export function BookingWizard() {
                     </div>
                 </div>
 
-                {/* Desktop keeps the CTA in the rail; mobile gets the sticky bar below. */}
-                <div className="hidden rounded-[28px] border border-slate-200 bg-white p-5 shadow-lg lg:block">
+
+                <div className="hidden rounded-[28px] border border-slate-200 bg-white p-5 shadow-lg lg:block xl:hidden">
                     <div className="mb-4 text-sm font-bold uppercase tracking-wide text-slate-500">{tBooking("continue")}</div>
                     <button type="button" disabled={continueDisabled} onClick={handlePrimaryAction} className={`flex w-full items-center justify-center gap-2 rounded-2xl px-5 py-4 text-sm font-bold shadow-lg ${continueDisabled ? 'bg-slate-200 text-slate-500' : 'bg-[#083f30] text-white'}`}>
                         {currentStep === 5 ? <CreditCard className="h-4 w-4"/> : <ChevronRight className="h-4 w-4"/>}

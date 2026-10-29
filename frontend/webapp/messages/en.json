@@ -1,4 +1,63 @@
 {
+  "Assistant": {
+    "journey": {
+      "title": "Your journey plan",
+      "kinds": {
+        "arrival": "Arrival",
+        "treatment": "Treatment day",
+        "recovery": "Recovery",
+        "departure": "Departure"
+      },
+      "day": "Day {day, number}",
+      "days": "Days {from, number}–{to, number}",
+      "nights": "{count, number} nights",
+      "checkout": "Hotel check-out",
+      "book": "Book",
+      "total": "Estimated total",
+      "note": "Prices are estimates and are confirmed when you book.",
+      "partial": "Some prices are set after consultation and are not included in the total.",
+      "priceOnRequest": "After consultation"
+    },
+    "launcher": {
+      "open": "Open assistant",
+      "close": "Close",
+      "expand": "Full screen",
+      "collapse": "Exit full screen"
+    },
+    "entry": {
+      "title": "LSevin smart assistant",
+      "subtitle": "Tell us what you need and we'll find the best options for you."
+    },
+    "chat": {
+      "title": "LSevin Assistant",
+      "welcome": "Tell me what service you're looking for and I'll find the best options for you.",
+      "placeholder": "e.g. hair transplant in Tehran",
+      "history": "Previous chats",
+      "closeHistory": "Close previous chats",
+      "untitled": "Chat",
+      "newChat": "New chat",
+      "send": "Send",
+      "thinking": "Searching…",
+      "error": "Something went wrong. Please try again.",
+      "disclaimer": "The assistant is not a doctor; consult a specialist for treatment decisions.",
+      "suggestions": {
+        "hair": "Hair transplant",
+        "dental": "Dentistry",
+        "nose": "Nose surgery"
+      }
+    },
+    "card": {
+      "priceOnRequest": "Price after consultation",
+      "perNight": "/ night",
+      "viewService": "View",
+      "types": {
+        "provider": "Clinic",
+        "specialist": "Doctor",
+        "hotel": "Hotel",
+        "transfer": "Transfer"
+      }
+    }
+  },
   "ShopMedia": {
     "hint": "The first image is the main image. Save to apply changes.",
     "empty": "No product images yet.",
@@ -9165,7 +9224,18 @@
         "overview": "Overview",
         "referrals": "Referrals"
       },
-      "title": "Rewards & Loyalty"
+      "title": "Rewards & Loyalty",
+      "tierNames": {
+        "Silver": "Silver",
+        "Gold": "Gold",
+        "Platinum": "Platinum",
+        "Diamond": "Diamond"
+      },
+      "benefits": {},
+      "activity": {
+        "completedBookings": "{count, plural, one {# completed booking} other {# completed bookings}}",
+        "offerAvailable": "Offer available: {code}"
+      }
     }
   },
   "LazySelect": {

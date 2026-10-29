@@ -1,4 +1,5 @@
 import { ChevronLeft, MessageCircle } from "lucide-react";
+import { DesktopConsultations } from "@/features/web-desktop/profile/DesktopConsultations";
 import { getLocale, getTranslations } from "next-intl/server";
 
 import { listConsultationRequestsForUser } from "@/features/consultation/server/repository";
@@ -6,6 +7,9 @@ import { Link } from "@/i18n/navigation";
 import { getSession } from "@/lib/auth/session";
 
 export const dynamic = "force-dynamic";
+
+
+
 
 export default async function MyConsultationsPage() {
   const [locale, t, session] = await Promise.all([
@@ -21,7 +25,8 @@ export default async function MyConsultationsPage() {
   });
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-24">
+    <>
+    <div className="min-h-screen bg-slate-50 pb-24 xl:hidden">
       <header className="sticky top-0 z-40 flex items-center gap-3 border-b border-slate-100 bg-white px-5 py-4">
         <Link
           href="/n/app/mobile/profile"
@@ -63,5 +68,8 @@ export default async function MyConsultationsPage() {
         )}
       </main>
     </div>
+
+    <DesktopConsultations requests={requests} locale={locale} />
+    </>
   );
 }

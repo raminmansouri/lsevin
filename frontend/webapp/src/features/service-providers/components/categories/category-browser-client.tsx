@@ -63,7 +63,7 @@ function parentKey(parentId?: string | null) {
   return parentId || ROOT_PARENT_KEY;
 }
 
-function buildCategoryImageSrc(value?: string | null) {
+export function buildCategoryImageSrc(value?: string | null) {
   const media = value?.trim();
   if (!media) return null;
 
@@ -90,7 +90,7 @@ function getGradientStyle(category: CategoryBrowserCategory) {
   return getCategoryOverlayStyle(category.gradient);
 }
 
-function sortCategories(categories: CategoryBrowserCategory[]) {
+export function sortCategories(categories: CategoryBrowserCategory[]) {
   // Admin priority first (1, 2, …); categories without one (0) follow, by name.
   return [...categories].sort(compareByPriority<CategoryBrowserCategory>((a, b) => a.name.localeCompare(b.name)));
 }

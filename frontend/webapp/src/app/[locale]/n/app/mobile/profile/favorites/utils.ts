@@ -25,12 +25,12 @@ export function buildFavoriteTabs(favorites: FavoriteCard[]): FavoritesPageData[
 export function resolveFavoriteHref(favoriteType: FavoriteEntityType, entityId: string) {
   switch (favoriteType) {
     case "service":
-      return `/app/treatment/${entityId}`;
+      return `/n/app/mobile/service/${entityId}`;
     case "specialist":
-      return `/app/doctor/${entityId}`;
+      return `/n/app/mobile/specialist/${entityId}`;
     case "provider":
     default:
-      return `/app/clinic/${entityId}`;
+      return `/n/app/mobile/provider/${entityId}`;
   }
 }
 

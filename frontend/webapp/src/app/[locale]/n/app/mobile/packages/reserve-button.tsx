@@ -7,15 +7,17 @@ export function ReserveButton({
   label,
   className,
 }: {
-  href: string;
+  href?: string;
   label: string;
   className?: string;
 }) {
+  // A package not linked to a service has nothing to reserve yet.
+  if (!href) return null;
   return (
     <Link
       href={href}
       onClick={(event) => event.stopPropagation()}
-      className={className}
+      className={`relative z-10 ${className ?? ""}`}
     >
       {label}
     </Link>
