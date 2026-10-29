@@ -371,7 +371,6 @@ async function Home({ params }: PageProps) {
           </Link>
         </div>
 
-        {/* Client-rendered: the price depends on who is visiting, and this page is static. */}
         <VideoConsultationHomeCard />
       </div>
 
