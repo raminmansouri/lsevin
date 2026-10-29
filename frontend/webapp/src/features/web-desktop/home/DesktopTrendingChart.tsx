@@ -34,7 +34,7 @@ export function DesktopTrendingChart({
 }) {
   const locale = useLocale();
   const [top, ...rest] = items;
-  const max = Math.max(...items.map((item) => item.bookingCount), 1);
+//   const max = Math.max(...items.map((item) => item.bookingCount), 1);
   const rank = (value: number) => new Intl.NumberFormat(locale, { minimumIntegerDigits: 2 }).format(value);
 
   if (!top) return null;
@@ -78,10 +78,10 @@ export function DesktopTrendingChart({
                     {top.growth ?? "#1"}
                   </span>
                   <h3 className="text-[38px] font-black leading-tight">{top.title}</h3>
-                  <p className="flex items-center gap-2 text-[15px] text-white/80">
+                  {/* <p className="flex items-center gap-2 text-[15px] text-white/80">
                     <Users size={16} className="text-[#eacb7f]" />
                     {top.bookingsText}
-                  </p>
+                  </p> */}
                 </div>
               </div>
             </Link>
@@ -104,7 +104,7 @@ export function DesktopTrendingChart({
                   </span>
                   <span className="min-w-0">
                     <span className="block truncate text-lg font-bold text-[#0e1a16]">{item.title}</span>
-                    <span className="mt-2 flex items-center gap-3">
+                    {/* <span className="mt-2 flex items-center gap-3">
                       <span className="h-1.5 w-full max-w-[260px] overflow-hidden rounded-full bg-[#eef2f0]">
                         <span
                           className="lsd-bar block h-full rounded-full bg-gradient-to-l from-[#eacb7f] to-[#c9a55a]"
@@ -115,7 +115,7 @@ export function DesktopTrendingChart({
                         />
                       </span>
                       <span className="shrink-0 text-xs text-[#56675f]">{item.bookingsText}</span>
-                    </span>
+                    </span> */}
                   </span>
                   <span className="flex items-center gap-3">
                     {item.growth ? (
