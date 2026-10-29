@@ -2899,7 +2899,7 @@ declare const messages: {
     "loadMore": "Daha Fazla Yükle"
   },
   "HomeHero": {
-    "title": "İran'a tıbbi yolculuğunuz, tek bir yerde",
+    "title": "Sınır tanımayan sağlık ve güzellik, hepsi tek bir yerde",
     "subtitle": "Klinikleri karşılaştırın, konaklamanızı ayırtın, yakındaki spor salonlarını ve bakım merkezlerini bulun.",
     "searchPlaceholder": "Klinik, otel, spor salonu ara",
     "services": {

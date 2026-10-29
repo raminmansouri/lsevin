@@ -2311,7 +2311,7 @@ declare const messages: {
     "duplicateServiceProviderConfirm": "از «{name}» یک نسخه مشابه ساخته شود؟"
   },
   "HomeHero": {
-    "title": "سفر درمانی شما به ایران، همه‌چیز در یک جا",
+    "title": "سلامت و زیبایی بی‌مرز، همه‌چیز در یک جا",
     "subtitle": "کلینیک‌ها را مقایسه کنید، اقامت رزرو کنید و باشگاه و مراکز درمانی اطراف را پیدا کنید.",
     "searchPlaceholder": "جستجوی کلینیک، هتل، باشگاه",
     "services": {

@@ -3206,7 +3206,7 @@ declare const messages: {
     "renderedOn": "Rendered on"
   },
   "HomeHero": {
-    "title": "Your medical journey to Iran, arranged in one place",
+    "title": "Health and beauty without borders, all in one place",
     "subtitle": "Compare clinics, book your stay, and find gyms and care centers nearby.",
     "searchPlaceholder": "Search clinics, hotels, gyms",
     "services": {
