@@ -5,7 +5,12 @@ import sql from "@/config/database/db";
 import { allGuides, guideLocales, guidePath } from "@/features/guides/registry";
 import { routing } from "@/i18n/routing";
 import { absoluteUrl, languageAlternates, type SeoLocale } from "@/lib/seo/alternates";
-import { indexableLocalesFromKeys, translatedKeys } from "@/lib/seo/locale-eligibility";
+import {
+  INDEXABLE_CATEGORY_LOCALES,
+  INDEXABLE_SHOP_LOCALES,
+  indexableLocalesFromKeys,
+  translatedKeys,
+} from "@/lib/seo/locale-eligibility";
 
 // Request-time metadata avoids requiring database access during image builds.
 // Cache the successful public catalog, rather than re-querying it per crawler.
@@ -15,17 +20,17 @@ const ALL_LOCALES: readonly SeoLocale[] = routing.locales;
 const PERSIAN_ONLY: readonly SeoLocale[] = [routing.defaultLocale];
 
 // Fully translated UI pages: every locale is a genuine version.
-const STATIC_PATHS = [
-  "/n/app/mobile/home",
-  "/n/app/mobile/categories",
-  "/n/app/mobile/explore",
-  "/n/app/mobile/shop",
-  "/consulting",
-  "/privacy-policy",
-];
-
 type CatalogEntry = { path: string; locales: readonly SeoLocale[] };
 type CatalogRow = { path: string; keys: string[] | null; persian_only: boolean };
+
+const STATIC_PATHS: CatalogEntry[] = [
+  { path: "/n/app/mobile/home", locales: ALL_LOCALES },
+  { path: "/n/app/mobile/categories", locales: INDEXABLE_CATEGORY_LOCALES },
+  { path: "/n/app/mobile/explore", locales: ALL_LOCALES },
+  { path: "/n/app/mobile/shop", locales: INDEXABLE_SHOP_LOCALES },
+  { path: "/consulting", locales: ALL_LOCALES },
+  { path: "/privacy-policy", locales: ALL_LOCALES },
+];
 
 const catalogEntries = unstable_cache(
   async (): Promise<CatalogEntry[]> => {
@@ -91,7 +96,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }
 
   const entries: (CatalogEntry & { lastModified?: string })[] = [
-    ...STATIC_PATHS.map((path) => ({ path, locales: ALL_LOCALES })),
+    ...STATIC_PATHS,
     ...guideEntries(),
     ...catalog,
   ];

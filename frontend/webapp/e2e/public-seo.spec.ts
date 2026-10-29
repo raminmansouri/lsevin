@@ -31,12 +31,17 @@ test("categories: keyboard filtering, hierarchy and persisted URL", async ({
   // Text typed before hydration is reset by React; retry until it sticks.
   await expect(async () => {
     await input.fill("no-category-matches-qa-94731");
-    await expect(input).toHaveValue("no-category-matches-qa-94731", { timeout: 1_000 });
-    await expect(page.locator('button[aria-label^="Open "]')).toHaveCount(0, { timeout: 1_000 });
+    await expect(input).toHaveValue("no-category-matches-qa-94731", {
+      timeout: 1_000,
+    });
+    await expect(page.locator('button[aria-label^="باز کردن "]')).toHaveCount(
+      0,
+      { timeout: 1_000 }
+    );
   }).toPass({ timeout: 15_000 });
   await input.press("ControlOrMeta+A");
   await input.press("Backspace");
-  const parent = page.locator('button[aria-label^="Open "]').first();
+  const parent = page.locator('button[aria-label^="باز کردن "]').first();
   await expect(parent).toBeVisible();
   await parent.focus();
   await page.keyboard.press("Enter");
@@ -69,7 +74,10 @@ for (const route of ["home", "categories", "explore"]) {
     // An indexable page usually has no robots meta at all; a locator would
     // auto-wait for it until the test times out, so read the DOM directly.
     const robots = await page.evaluate(
-      () => document.querySelector('meta[name="robots"]')?.getAttribute("content") ?? ""
+      () =>
+        document
+          .querySelector('meta[name="robots"]')
+          ?.getAttribute("content") ?? ""
     );
     expect(robots).not.toContain("noindex");
   });
@@ -87,6 +95,31 @@ test("SEO sitemap and robots advertise the public domain", async ({
   expect(xml).toContain(`${origin}/fa/n/app/mobile/categories`);
   expect(xml).toContain(`${origin}/fa/n/app/mobile/service/`);
   expect(xml).not.toContain("https://appmain.lsevin.com/");
+  expect(xml).toContain(`${origin}/en/n/app/mobile/categories`);
+  expect(xml).not.toContain(`${origin}/es/n/app/mobile/categories`);
+  expect(xml).not.toContain(`${origin}/en/n/app/mobile/shop</loc>`);
+});
+
+test("category and shop fallback locales are excluded from search", async ({
+  page,
+}) => {
+  await page.goto("/fa/n/app/mobile/categories");
+  const schema = await page
+    .locator('script[type="application/ld+json"]')
+    .allTextContents();
+  expect(schema.map((text) => JSON.parse(text)["@type"])).toContain(
+    "CollectionPage"
+  );
+  await expect(page.getByText("سایر خدمات")).toBeVisible();
+  await expect(page.getByText(/زیردسته/).first()).toBeVisible();
+
+  for (const path of ["/es/n/app/mobile/categories", "/en/n/app/mobile/shop"]) {
+    await page.goto(path);
+    await expect(page.locator('meta[name="robots"]')).toHaveAttribute(
+      "content",
+      /noindex/
+    );
+  }
 });
 
 test("search keeps recent searches client-side and remains noindex", async ({
@@ -144,26 +177,43 @@ const jsonLdTypes = async (page: import("@playwright/test").Page) =>
   page.$$eval('script[type="application/ld+json"]', (nodes) =>
     nodes.flatMap((node) => {
       const data = JSON.parse(node.textContent || "{}");
-      return (data["@graph"] ?? [data]).map((item: { "@type": string }) => item["@type"]);
+      return (data["@graph"] ?? [data]).map(
+        (item: { "@type": string }) => item["@type"]
+      );
     })
   );
 
 for (const locale of ["fa", "ar", "en"]) {
-  test(`guide hub ${locale}: indexable, localized and structured`, async ({ page }, testInfo) => {
+  test(`guide hub ${locale}: indexable, localized and structured`, async ({
+    page,
+  }, testInfo) => {
     const path = `/${locale}/medical-tourism`;
     const response = await page.goto(path);
     expect(response?.status()).toBe(200);
     expect(response?.headers()["content-language"]).toBe(locale);
     await expect(page.locator("h1")).toHaveCount(1);
-    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", `${origin}${path}`);
-    const hreflangs = await page.$$eval('link[rel="alternate"][hreflang]', (links) =>
-      links.map((link) => link.getAttribute("hreflang")).sort()
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+      "href",
+      `${origin}${path}`
+    );
+    const hreflangs = await page.$$eval(
+      'link[rel="alternate"][hreflang]',
+      (links) => links.map((link) => link.getAttribute("hreflang")).sort()
     );
     expect(hreflangs).toEqual(["ar", "en", "fa", "x-default"]);
-    expect(await jsonLdTypes(page)).toEqual(expect.arrayContaining(["MedicalWebPage", "BreadcrumbList", "FAQPage"]));
-    expect(await page.evaluate(() => document.documentElement.dir)).toBe(locale === "en" ? "ltr" : "rtl");
-    expect(await page.evaluate(() => document.documentElement.lang)).toBe(locale);
-    await page.screenshot({ path: testInfo.outputPath(`guide-hub-${locale}.png`), fullPage: true });
+    expect(await jsonLdTypes(page)).toEqual(
+      expect.arrayContaining(["MedicalWebPage", "BreadcrumbList", "FAQPage"])
+    );
+    expect(await page.evaluate(() => document.documentElement.dir)).toBe(
+      locale === "en" ? "ltr" : "rtl"
+    );
+    expect(await page.evaluate(() => document.documentElement.lang)).toBe(
+      locale
+    );
+    await page.screenshot({
+      path: testInfo.outputPath(`guide-hub-${locale}.png`),
+      fullPage: true,
+    });
   });
 }
 
@@ -182,18 +232,26 @@ test("guides: related link, back/forward and refresh", async ({ page }) => {
   await expect(page).toHaveURL(new RegExp(`${href}$`));
 });
 
-test("visa guide publishes HowTo steps from the visible procedure", async ({ page }) => {
+test("visa guide publishes HowTo steps from the visible procedure", async ({
+  page,
+}) => {
   await page.goto("/en/medical-tourism/visa");
   expect(await jsonLdTypes(page)).toContain("HowTo");
-  await expect(page.locator("ol").filter({ hasText: /./ }).first()).toBeVisible();
+  await expect(
+    page.locator("ol").filter({ hasText: /./ }).first()
+  ).toBeVisible();
 });
 
 test("guides exist only in written languages", async ({ request }) => {
   expect((await request.get("/tr/medical-tourism")).status()).toBe(404);
-  expect((await request.get("/fa/medical-tourism/not-a-guide")).status()).toBe(404);
+  expect((await request.get("/fa/medical-tourism/not-a-guide")).status()).toBe(
+    404
+  );
 });
 
-test("locale roots redirect to the localized home instead of a soft refresh", async ({ request }) => {
+test("locale roots redirect to the localized home instead of a soft refresh", async ({
+  request,
+}) => {
   const response = await request.get("/en", { maxRedirects: 0 });
   expect([301, 302, 307, 308]).toContain(response.status());
   expect(response.headers()["location"]).toMatch(/\/en\/n\/app\/mobile\/home$/);
@@ -212,7 +270,9 @@ test("llms.txt maps the site on the public domain", async ({ request }) => {
   expect(text).not.toContain("appmain.lsevin.com");
 });
 
-test("home: one descriptive h1, organization schema and a crawlable guides entry", async ({ page }) => {
+test("home: one descriptive h1, organization schema and a crawlable guides entry", async ({
+  page,
+}) => {
   await page.goto("/fa/n/app/mobile/home");
   await expect(page.locator("h1")).toHaveCount(1);
   const org = await page.$$eval('script[type="application/ld+json"]', (nodes) =>
@@ -240,12 +300,24 @@ test("home: one descriptive h1, organization schema and a crawlable guides entry
   await expect(page).toHaveURL(/\/fa\/medical-tourism$/);
 });
 
-test("legacy provider and type URLs move permanently to the current pages", async ({ request }) => {
-  const id = process.env.SEO_E2E_PROVIDER_ID || "30000000-0000-4000-8000-000000000001";
-  const provider = await request.get(`/fa/service-providers/${id}`, { maxRedirects: 0 });
+test("legacy provider and type URLs move permanently to the current pages", async ({
+  request,
+}) => {
+  const id =
+    process.env.SEO_E2E_PROVIDER_ID || "30000000-0000-4000-8000-000000000001";
+  const provider = await request.get(`/fa/service-providers/${id}`, {
+    maxRedirects: 0,
+  });
   expect([301, 308]).toContain(provider.status());
-  expect(provider.headers()["location"]).toMatch(new RegExp(`/fa/n/app/mobile/provider/${id}$`));
-  const type = await request.get("/en/type/20000000-0000-4000-8000-000000000001", { maxRedirects: 0 });
+  expect(provider.headers()["location"]).toMatch(
+    new RegExp(`/fa/n/app/mobile/provider/${id}$`)
+  );
+  const type = await request.get(
+    "/en/type/20000000-0000-4000-8000-000000000001",
+    { maxRedirects: 0 }
+  );
   expect([301, 308]).toContain(type.status());
-  expect(type.headers()["location"]).toMatch(/\/en\/n\/app\/mobile\/categories$/);
+  expect(type.headers()["location"]).toMatch(
+    /\/en\/n\/app\/mobile\/categories$/
+  );
 });

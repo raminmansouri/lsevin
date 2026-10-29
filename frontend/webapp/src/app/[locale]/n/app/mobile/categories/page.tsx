@@ -4,12 +4,14 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { getCategoryBrowserGroups } from "@/features/service-providers/actions/categories/get-category-browser-groups";
 import { CategoryBrowserClient } from "@/features/service-providers/components/categories/category-browser-client";
 import { SponsoredPlacementSlot } from "@/features/sponsered-slider/components/sponsored-placement-slot";
-import { buildPublicMetadata } from "@/lib/seo/metadata";
 import { getTourSettings } from "@/features/tours/server/platform/settings";
-
 import { DesktopCategoryBrowser } from "@/features/web-desktop/categories/DesktopCategoryBrowser";
 import { DesktopSponsoredSection } from "@/features/web-desktop/home/DesktopSponsoredSection";
-
+import { absoluteUrl } from "@/lib/seo/alternates";
+import { JsonLd } from "@/lib/seo/json-ld";
+import { INDEXABLE_CATEGORY_LOCALES } from "@/lib/seo/locale-eligibility";
+import { buildPublicMetadata } from "@/lib/seo/metadata";
+import { seoOrigin } from "@/lib/seo/origin";
 
 export async function generateMetadata({
   params,
@@ -19,12 +21,15 @@ export async function generateMetadata({
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "CategoryBrowser" });
   // Localized brand (السوین on Persian pages), not a hard-coded Latin name.
-  const brand = (await getTranslations({ locale, namespace: "LocaleLayout" }))("title");
+  const brand = (await getTranslations({ locale, namespace: "LocaleLayout" }))(
+    "title"
+  );
   return buildPublicMetadata({
     locale,
     path: "/n/app/mobile/categories",
     title: `${t("allCategories")} | ${brand}`,
     descriptions: [t("cantFindDescription")],
+    eligibleLocales: INDEXABLE_CATEGORY_LOCALES,
   });
 }
 
@@ -41,6 +46,7 @@ export default async function CategoryBrowserPage({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
+  const t = await getTranslations({ locale, namespace: "CategoryBrowser" });
 
   // A database hiccup shows an empty tree for that one request only: the page
   // is dynamic, so nothing empty is cached, and the data cache rejects failures.
@@ -56,25 +62,41 @@ export default async function CategoryBrowserPage({
     .catch(() => null);
 
   return (
-    <Suspense fallback={null}>
-      <div className="xl:hidden">
-        <CategoryBrowserClient
+    <>
+      {INDEXABLE_CATEGORY_LOCALES.includes(locale as "fa" | "en") ? (
+        <JsonLd
+          data={{
+            "@context": "https://schema.org",
+            "@type": "CollectionPage",
+            "@id": `${absoluteUrl(locale, "/n/app/mobile/categories")}#collection`,
+            url: absoluteUrl(locale, "/n/app/mobile/categories"),
+            name: t("allCategories"),
+            description: t("cantFindDescription"),
+            inLanguage: locale,
+            isPartOf: { "@id": `${seoOrigin()}/#website` },
+          }}
+        />
+      ) : null}
+      <Suspense fallback={null}>
+        <div className="xl:hidden">
+          <CategoryBrowserClient
+            categoryGroups={data.groups}
+            totalCategories={data.totalCategories}
+            totalProviders={data.totalProviders}
+            tourismCategoryId={tourismCategoryId}
+          />
+          <SponsoredPlacementSlot locale={locale} placement="categories" />
+        </div>
+        <DesktopCategoryBrowser
           categoryGroups={data.groups}
           totalCategories={data.totalCategories}
           totalProviders={data.totalProviders}
           tourismCategoryId={tourismCategoryId}
         />
-        <SponsoredPlacementSlot locale={locale} placement="categories" />
-      </div>
-      <DesktopCategoryBrowser
-        categoryGroups={data.groups}
-        totalCategories={data.totalCategories}
-        totalProviders={data.totalProviders}
-        tourismCategoryId={tourismCategoryId}
-      />
-      <div className="lsd hidden pb-14 xl:block">
-        <DesktopSponsoredSection locale={locale} placement="categories" />
-      </div>
-    </Suspense>
+        <div className="lsd hidden pb-14 xl:block">
+          <DesktopSponsoredSection locale={locale} placement="categories" />
+        </div>
+      </Suspense>
+    </>
   );
 }

@@ -19,7 +19,7 @@ const isCatalogQuery = (first: unknown) =>
 const catalogSql = () =>
   (query.mock.calls.find(([first]) => isCatalogQuery(first))![0] as string[]).join("?");
 
-const STATIC_COUNT = 6 * routing.locales.length;
+const STATIC_COUNT = 4 * routing.locales.length + 2 + 1;
 const GUIDE_COUNT = allGuides().reduce((sum, guide) => sum + guideLocales(guide).length, 0);
 
 beforeEach(() => {
@@ -68,6 +68,17 @@ describe("public search domain and sitemap", () => {
     expect(new Set(urls).size).toBe(urls.length);
     expect(urls.every((url) => url.startsWith("https://lsevincare.com/"))).toBe(true);
     expect(urls.some((url) => url.includes("/service-providers/") || url.includes("/type/"))).toBe(false);
+
+    const categories = result.filter((x) => x.url.endsWith("/n/app/mobile/categories"));
+    expect(categories.map((x) => x.url.split("/")[3]).sort()).toEqual(["en", "fa"]);
+    for (const item of categories) {
+      expect(item.alternates?.languages).toEqual({
+        fa: "https://lsevincare.com/fa/n/app/mobile/categories",
+        en: "https://lsevincare.com/en/n/app/mobile/categories",
+        "x-default": "https://lsevincare.com/fa/n/app/mobile/categories",
+      });
+    }
+    expect(result.filter((x) => x.url.endsWith("/n/app/mobile/shop")).map((x) => x.url.split("/")[3])).toEqual(["fa"]);
 
     const provider = result.filter((x) => x.url.endsWith("/n/app/mobile/provider/p"));
     expect(provider.map((x) => x.url.split("/")[3]).sort()).toEqual(["ar", "en", "fa"]);

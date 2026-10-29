@@ -2,7 +2,6 @@
 
 import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight, Search, Sparkles } from "lucide-react";
-
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 
@@ -12,15 +11,21 @@ import {
 } from "@/components/editor/lexical-renderer";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { env } from "@/config/env/client";
-import { Link, useRouter } from "@/i18n/navigation";
-import { getCategoryOverlayClassName, getCategoryOverlayStyle } from "@/features/categories/utils/category-overlay";
-import { TOURS_HOME_PATH, categoryProvidersHref, isTourismCategory } from "@/features/categories/utils/category-href";
+import {
+  categoryProvidersHref,
+  isTourismCategory,
+  TOURS_HOME_PATH,
+} from "@/features/categories/utils/category-href";
+import {
+  getCategoryOverlayClassName,
+  getCategoryOverlayStyle,
+} from "@/features/categories/utils/category-overlay";
 import { compareByPriority } from "@/features/categories/utils/priority";
 import type {
   CategoryBrowserCategory,
   CategoryBrowserGroup,
 } from "@/features/service-providers/actions/categories/get-category-browser-groups";
-
+import { Link, useRouter } from "@/i18n/navigation";
 
 const ALLOWED_GRADIENTS = [
   "from-red-500/90 to-red-600/90",
@@ -92,7 +97,11 @@ function getGradientStyle(category: CategoryBrowserCategory) {
 
 export function sortCategories(categories: CategoryBrowserCategory[]) {
   // Admin priority first (1, 2, …); categories without one (0) follow, by name.
-  return [...categories].sort(compareByPriority<CategoryBrowserCategory>((a, b) => a.name.localeCompare(b.name)));
+  return [...categories].sort(
+    compareByPriority<CategoryBrowserCategory>((a, b) =>
+      a.name.localeCompare(b.name)
+    )
+  );
 }
 
 function CategoryMedia({ category }: { category: CategoryBrowserCategory }) {
@@ -157,6 +166,7 @@ function CategoryCardContent({
   hasChildren: boolean;
   index: number;
 }) {
+  const t = useTranslations("CategoryBrowser");
   const gradientClass = getGradientClass(category, index);
   const gradientStyle = getGradientStyle(category);
   const childCount = Math.max(category.childCount, 0);
@@ -164,8 +174,8 @@ function CategoryCardContent({
   // whenever the provider count was zero, so one shelf mixed "70 providers" with
   // "121 services" and neither number could be read against the other.
   const metaLabel = hasChildren
-    ? `${childCount.toLocaleString()} subcategories`
-    : `${Math.max(category.count, 0).toLocaleString()} providers`;
+    ? t("subcategoriesCount", { count: childCount })
+    : t("providersCount", { count: Math.max(category.count, 0) });
 
   return (
     <>
@@ -213,14 +223,24 @@ function CategoryCard({
   onOpenCategory: (category: CategoryBrowserCategory) => void;
   opensTours?: boolean;
 }) {
+  const t = useTranslations("CategoryBrowser");
   const className =
     "group relative block aspect-[4/3] w-full overflow-hidden rounded-2xl shadow-sm transition-all hover:shadow-xl active:scale-95";
 
   // Tourism (and its subcategories) is its own sub-application (C-001).
   if (opensTours) {
     return (
-      <Link href={TOURS_HOME_PATH} className={className} aria-label={`Open ${category.name}`} data-opens-tours="true">
-        <CategoryCardContent category={category} hasChildren={hasChildren} index={index} />
+      <Link
+        href={TOURS_HOME_PATH}
+        className={className}
+        aria-label={t("openCategory", { name: category.name })}
+        data-opens-tours="true"
+      >
+        <CategoryCardContent
+          category={category}
+          hasChildren={hasChildren}
+          index={index}
+        />
       </Link>
     );
   }
@@ -231,7 +251,7 @@ function CategoryCard({
         type="button"
         onClick={() => onOpenCategory(category)}
         className={className}
-        aria-label={`Open ${category.name} subcategories`}
+        aria-label={t("openSubcategories", { name: category.name })}
       >
         <CategoryCardContent
           category={category}
@@ -246,7 +266,7 @@ function CategoryCard({
     <Link
       href={getCategoryHref(category)}
       className={className}
-      aria-label={`Open ${category.name}`}
+      aria-label={t("openCategory", { name: category.name })}
     >
       <CategoryCardContent
         category={category}
@@ -258,18 +278,17 @@ function CategoryCard({
 }
 
 function EmptyState({ hasQuery }: { hasQuery: boolean }) {
+  const t = useTranslations("CategoryBrowser");
   return (
     <div className="rounded-3xl border border-dashed border-gray-200 bg-gray-50 px-5 py-12 text-center">
       <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-white shadow-sm">
         <Search className="h-6 w-6 text-[#083f30]" />
       </div>
       <h2 className="mb-2 text-lg font-bold text-gray-900">
-        {hasQuery ? "No matching categories" : "No categories available"}
+        {hasQuery ? t("noMatchingCategories") : t("noCategoriesAvailable")}
       </h2>
       <p className="mx-auto max-w-xs text-sm leading-6 text-gray-600">
-        {hasQuery
-          ? "Try a different keyword or browse all available categories."
-          : "Active categories will appear here once they are configured in the admin panel."}
+        {hasQuery ? t("tryDifferentKeyword") : t("categoriesAppear")}
       </p>
     </div>
   );
@@ -362,7 +381,14 @@ export function CategoryBrowserClient({
 
   // Tourism has no category screen of its own: the Tours app is its home.
   useEffect(() => {
-    if (currentParent && isTourismCategory(currentParent.id, (id) => categoryById.get(id)?.parentId, tourismCategoryId)) {
+    if (
+      currentParent &&
+      isTourismCategory(
+        currentParent.id,
+        (id) => categoryById.get(id)?.parentId,
+        tourismCategoryId
+      )
+    ) {
       router.replace(TOURS_HOME_PATH);
     }
   }, [categoryById, currentParent, router, tourismCategoryId]);
@@ -387,7 +413,7 @@ export function CategoryBrowserClient({
         ? [
             {
               id: "search",
-              title: "Search results",
+              title: t("searchResults"),
               categories: searchedCategories,
             },
           ]
@@ -418,6 +444,7 @@ export function CategoryBrowserClient({
     currentParent,
     hasQuery,
     searchedCategories,
+    t,
   ]);
 
   function openCategory(category: CategoryBrowserCategory) {
@@ -450,7 +477,7 @@ export function CategoryBrowserClient({
             type="button"
             onClick={handleBack}
             className="flex h-10 w-10 items-center justify-center rounded-full transition-colors hover:bg-gray-100"
-            aria-label="Go back"
+            aria-label={t("goBack")}
           >
             <ChevronLeft size={24} className="text-gray-700" />
           </button>
@@ -512,15 +539,21 @@ export function CategoryBrowserClient({
         {currentParent && !hasQuery && currentParent.count > 0 ? (
           <Link
             href={
-              isTourismCategory(currentParent.id, (id) => categoryById.get(id)?.parentId, tourismCategoryId)
+              isTourismCategory(
+                currentParent.id,
+                (id) => categoryById.get(id)?.parentId,
+                tourismCategoryId
+              )
                 ? TOURS_HOME_PATH
                 : categoryProvidersHref(currentParent.id)
             }
             className="mb-6 flex items-center justify-between gap-3 rounded-2xl border border-gray-100 bg-gray-50 px-4 py-3 transition-colors hover:bg-gray-100"
           >
             <span className="min-w-0 text-sm font-semibold text-[#083f30]">
-              View all {currentParent.count.toLocaleString()} providers in{" "}
-              {currentParent.name}
+              {t("viewAllProviders", {
+                count: currentParent.count,
+                name: currentParent.name,
+              })}
             </span>
             <ChevronRight size={18} className="shrink-0 text-[#083f30]" />
           </Link>
@@ -541,7 +574,9 @@ export function CategoryBrowserClient({
                   <div className="mb-4 flex items-center justify-between gap-4">
                     <div className="min-w-0">
                       <h2 className="truncate text-xl font-bold text-gray-900">
-                        {group.title}
+                        {group.title === "Other Services"
+                          ? t("otherServices")
+                          : group.title}
                       </h2>
                       <p className="text-xs font-medium text-gray-500">
                         {t("categoriesCount", {
@@ -566,7 +601,11 @@ export function CategoryBrowserClient({
                           hasChildren={hasChildren}
                           index={categoryIndex}
                           onOpenCategory={openCategory}
-                          opensTours={isTourismCategory(category.id, (id) => categoryById.get(id)?.parentId, tourismCategoryId)}
+                          opensTours={isTourismCategory(
+                            category.id,
+                            (id) => categoryById.get(id)?.parentId,
+                            tourismCategoryId
+                          )}
                         />
                       );
                     })}
