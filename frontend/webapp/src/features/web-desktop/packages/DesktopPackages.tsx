@@ -118,7 +118,7 @@ export async function DesktopPackagesList({
       <section className="lsd-container flex items-end justify-between gap-10 pt-14">
         <Reveal className="space-y-3">
           <span className="text-[10px] font-bold tracking-[0.5em] text-[#eacb7f]">THE COLLECTION</span>
-          <h1 className="text-[40px] font-black leading-tight text-white">{t("packagesPage.title")}</h1>
+          <div role="heading" aria-level={1} className="text-[40px] font-black leading-tight text-white">{t("packagesPage.title")}</div>
           <p className="max-w-md text-base leading-7 text-white/60">{t("packagesPage.subtitle")}</p>
         </Reveal>
         {packages.length ? (
@@ -187,7 +187,7 @@ export async function DesktopPackageDetail({ pkg, locale }: { pkg: SpecialPackag
             <ChevronLeft size={14} className="ltr:rotate-180" />
           </Link>
           <span className="text-[10px] font-bold tracking-[0.5em] text-[#eacb7f]">L SEVIN PACKAGE</span>
-          <h1 className="text-[40px] font-black leading-[1.2] text-white">{pkg.title}</h1>
+          <div role="heading" aria-level={1} className="text-[40px] font-black leading-[1.2] text-white">{pkg.title}</div>
           {pkg.subtitle ? <p className="text-base leading-8 text-white/65">{pkg.subtitle}</p> : null}
           <div className="lsd-hairline" />
           <Prices pkg={pkg} locale={locale} large />

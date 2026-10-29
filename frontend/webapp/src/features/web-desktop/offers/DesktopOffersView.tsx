@@ -102,7 +102,7 @@ export function DesktopOffersView({ tabs, offers, featuredOffer, filters }: Prop
       <section className="lsd-container pt-16">
         <Reveal className="space-y-6">
           <span className="text-[11px] font-bold tracking-[0.45em] text-[#c9a55a]">PRIVATE SALE</span>
-          <h1 className="text-[56px] font-black leading-[1.1] text-[#0e1a16]">{t("title")}</h1>
+          <div role="heading" aria-level={1} className="text-[56px] font-black leading-[1.1] text-[#0e1a16]">{t("title")}</div>
           <p className="max-w-lg text-lg leading-8 text-[#6b6150]">{t("subtitle")}</p>
           <form
             onSubmit={(event) => {

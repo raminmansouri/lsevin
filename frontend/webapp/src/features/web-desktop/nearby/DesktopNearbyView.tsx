@@ -100,7 +100,7 @@ export function DesktopNearbyView({ locale, categories, providers, filters, mapC
         <div className={view === "map" ? "flex h-[calc(100vh-136px)] min-h-[560px] flex-col" : "flex flex-col"}>
           <div className="space-y-4 pb-4">
             <div className="flex items-end justify-between gap-4">
-              <h1 className="lsd-heading text-3xl font-black text-[#0e1a16]">{t("title")}</h1>
+              <div role="heading" aria-level={1} className="lsd-heading text-3xl font-black text-[#0e1a16]">{t("title")}</div>
               <span className="flex items-center gap-3">
                 <span className="rounded-full bg-[#083f30] px-3 py-1 text-sm font-bold text-[#eacb7f]">{number(providers.length)}</span>
                 <button

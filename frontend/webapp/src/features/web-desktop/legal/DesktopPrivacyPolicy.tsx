@@ -54,7 +54,7 @@ export async function DesktopPrivacyPolicy({ backHref }: { backHref: string }) {
               {t("title")}
             </a>
             <span className="block text-[10px] font-bold tracking-[0.5em] text-[#eacb7f]">PRIVACY</span>
-            <h1 className="lsd-gold-text text-[40px] font-black leading-tight">{t("title")}</h1>
+            <div role="heading" aria-level={1} className="lsd-gold-text text-[40px] font-black leading-tight">{t("title")}</div>
             <p className="text-base leading-8 text-white/75">{t("intro")}</p>
           </Reveal>
         </div>

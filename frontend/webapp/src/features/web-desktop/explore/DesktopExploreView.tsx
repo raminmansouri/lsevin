@@ -117,9 +117,9 @@ export function DesktopExploreView({
             className="lsd-mark-bg -end-10 -top-16"
           />
           <div className="relative max-w-3xl space-y-6">
-            <h1 className="text-[56px] font-black leading-[1.2]">
+            <div role="heading" aria-level={1} className="text-[56px] font-black leading-[1.2]">
               <AnimatedWords text={t("header.title")} />
-            </h1>
+            </div>
             <Reveal delay={300}>
               <p className="text-lg leading-8 text-white/75">{t("header.subtitle")}</p>
             </Reveal>

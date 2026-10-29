@@ -67,13 +67,13 @@ export async function DesktopHero({
               </span>
             </Reveal>
 
-            <h1 className="text-[64px] font-black leading-[1.25] tracking-tight">
+            <div role="heading" aria-level={1} className="text-[64px] font-black leading-[1.25] tracking-tight">
               <AnimatedWords text={firstLine} />
               <br />
               <span className="lsd-gold-text">
                 <AnimatedWords text={secondLine} startIndex={half} />
               </span>
-            </h1>
+            </div>
 
             <Reveal delay={500}>
               <p className="max-w-xl text-[19px] leading-9 text-[#c9d6d0]">{t("subtitle")}</p>

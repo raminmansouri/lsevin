@@ -4,7 +4,11 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { getCategoryBrowserGroups } from "@/features/service-providers/actions/categories/get-category-browser-groups";
 import { CategoryBrowserClient } from "@/features/service-providers/components/categories/category-browser-client";
 import { SponsoredPlacementSlot } from "@/features/sponsered-slider/components/sponsored-placement-slot";
+import { absoluteUrl } from "@/lib/seo/alternates";
+import { breadcrumbList, graph } from "@/lib/seo/entity-schema";
+import { JsonLd } from "@/lib/seo/json-ld";
 import { buildPublicMetadata } from "@/lib/seo/metadata";
+import { seoOrigin } from "@/lib/seo/origin";
 import { getTourSettings } from "@/features/tours/server/platform/settings";
 
 import { DesktopCategoryBrowser } from "@/features/web-desktop/categories/DesktopCategoryBrowser";
@@ -55,8 +59,46 @@ export default async function CategoryBrowserPage({
     .then((s) => s.tourismCategoryId)
     .catch(() => null);
 
+  const pageT = await getTranslations({ locale, namespace: "CategoryBrowser" });
+  const brand = (await getTranslations({ locale, namespace: "LocaleLayout" }))("title");
+  const pageUrl = absoluteUrl(locale, "/n/app/mobile/categories");
+  // Top-level names only: the facts this page shows, no counts or claims.
+  const topCategories = data.groups
+    .flatMap((group) => group.categories)
+    .filter((category) => !category.parentId && category.name)
+    .slice(0, 50);
+
   return (
     <Suspense fallback={null}>
+      <JsonLd
+        data={graph(
+          {
+            "@type": "CollectionPage",
+            "@id": `${pageUrl}#webpage`,
+            url: pageUrl,
+            name: pageT("allCategories"),
+            inLanguage: locale,
+            isPartOf: { "@id": `${seoOrigin()}/#website` },
+            ...(topCategories.length
+              ? {
+                  mainEntity: {
+                    "@type": "ItemList",
+                    numberOfItems: topCategories.length,
+                    itemListElement: topCategories.map((category, index) => ({
+                      "@type": "ListItem",
+                      position: index + 1,
+                      name: category.name,
+                    })),
+                  },
+                }
+              : {}),
+          },
+          breadcrumbList([
+            { name: brand, url: absoluteUrl(locale, "/n/app/mobile/home") },
+            { name: pageT("allCategories"), url: pageUrl },
+          ])
+        )}
+      />
       <div className="xl:hidden">
         <CategoryBrowserClient
           categoryGroups={data.groups}

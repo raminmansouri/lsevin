@@ -51,7 +51,7 @@ export async function DesktopProductPage({ product, locale }: { product: Product
 
         <div className="sticky top-28 space-y-5">
           {brandName ? <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-[#c9a55a]">{brandName}</p> : null}
-          <h1 className="text-[30px] font-black leading-snug text-[#0e1a16]">{product.name}</h1>
+          <div role="heading" aria-level={1} className="text-[30px] font-black leading-snug text-[#0e1a16]">{product.name}</div>
 
           <div className="flex flex-wrap items-center gap-4 text-sm text-[#56675f]">
             {product.rating > 0 ? (
