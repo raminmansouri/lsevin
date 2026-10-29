@@ -4,6 +4,7 @@ import { useTransition } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
+import type { Country } from "react-phone-number-input";
 import { toast } from "sonner";
 
 import { PhoneInput } from "@/components/form/phone-input";
@@ -27,9 +28,13 @@ import {
   InputType,
   TRANSLATION_KEY,
 } from "../../actions/forgot-password/types";
+import {
+  FALLBACK_PHONE_COUNTRY,
+  rememberPhoneCountry,
+} from "../../lib/phone-country.constants";
 import AuthFormContainer from "../shared/auth-form-container";
 
-const ForgotPasswordForm = () => {
+const ForgotPasswordForm = ({ defaultCountry = FALLBACK_PHONE_COUNTRY }: { defaultCountry?: Country }) => {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
@@ -77,7 +82,8 @@ const ForgotPasswordForm = () => {
                     <PhoneInput
                       placeholder="9121111111"
                       {...field}
-                      defaultCountry="IR"
+                      defaultCountry={defaultCountry}
+                      onCountryChange={rememberPhoneCountry}
                       value={field.value || ""}
                     />
                   </FormControl>

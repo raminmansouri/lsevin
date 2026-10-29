@@ -6,6 +6,7 @@ import { TRANSLATION_KEY } from "@/features/auth/actions/sign-up/types";
 import { getAuthPageContent } from "@/features/auth/db/auth-content.queries";
 import AuthLinksContainer from "@/features/auth/components/shared/auth-links-container";
 import AuthPageHeader from "@/features/auth/components/shared/auth-page-header";
+import { getPhoneDefaultCountry } from "@/features/auth/lib/phone-country";
 import SignUpForm, {
   SignUpFormSkeleton,
 } from "@/features/auth/components/sign-up/sign-up-form";
@@ -34,6 +35,7 @@ const SignUpPage = ({ params, searchParams }: { params: Promise<LocaleParams>; s
       <LocaleBoundary params={params} tanslationNameSpace={TRANSLATION_KEY}>
         {async (t) => {
           const { locale } = await params;
+          const phoneCountry = await getPhoneDefaultCountry();
           const content = await getAuthPageContent(locale, "sign-up", {
             title: t("page.title"),
             description: t("page.description"),
@@ -50,7 +52,7 @@ const SignUpPage = ({ params, searchParams }: { params: Promise<LocaleParams>; s
                 imageAlt={content.alt}
               />
               <Suspense fallback={<SignUpFormSkeleton />}>
-                <SignUpForm />
+                <SignUpForm defaultCountry={phoneCountry} />
               </Suspense>
               <AuthLinksContainer className="justify-center">
                 <span className="text-xs">
