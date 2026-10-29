@@ -28,12 +28,13 @@
 		# auto HTTP->HTTPS redirect and never imports this snippet).
 		Strict-Transport-Security "max-age=31536000"
 
-		# camera/microphone: no code in any of the three apps calls getUserMedia.
+		# camera/microphone=(self): the webapp's video consultation call (LiveKit)
+		# calls getUserMedia on our own origin; third parties and frames stay blocked.
 		# geolocation=(self): the webapp's "current location" picker, map-discovery
 		# NearbyClient and privacy-security page all call navigator.geolocation, so
 		# it must stay allowed for our own origin — just not for third parties or
 		# embedded frames.
-		Permissions-Policy "camera=(), microphone=(), geolocation=(self)"
+		Permissions-Policy "camera=(self), microphone=(self), geolocation=(self)"
 
 		# First-pass enforcing policy. Intentionally broad (`https:` wildcards,
 		# 'unsafe-inline', 'unsafe-eval') so it cannot break the running apps;
