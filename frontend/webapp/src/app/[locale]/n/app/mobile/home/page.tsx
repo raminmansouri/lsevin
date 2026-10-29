@@ -36,6 +36,8 @@ import { countActiveSpecialPackages } from '@/features/special-packages/server/r
 import { findGuide, guidePath } from '@/features/guides/registry';
 import { LANDING_CATEGORY_LIMIT } from "@/features/categories/constants";
 
+import { DesktopHome } from "@/features/web-desktop/home/DesktopHome";
+
 // Static / ISR — the landing page shell no longer reads the visitor's location
 // or profile on the server; see `Home` below.
 //
@@ -338,7 +340,8 @@ async function Home({ params }: PageProps) {
   ]);
 
   return (
-    <div className="min-h-screen bg-white">
+    <>
+    <div className="min-h-screen bg-white xl:hidden">
       <PublicSiteSchema locale={locale} />
       {/* One stable, descriptive h1 in the static shell. The greeting row below is
           per visitor (guest title or the signed-in name), so it is not a heading. */}
@@ -526,6 +529,82 @@ async function Home({ params }: PageProps) {
       </a>
    </div>
     </div>
+    <DesktopHome
+      locale={locale}
+      categories={categories}
+      specialPackagesCount={specialPackagesCount}
+      heroOffer={heroOffer}
+      heroSection={homeSections.hero_featured}
+      featuredServices={featuredServices}
+      trendingServices={trendingServices}
+      nearbySection={homeSections.explore_nearby}
+      nearbyProviderCount={nearbyProviderCount}
+      cityCode={queryInput.cityCode}
+      trustedProviders={trustedProviders}
+      packagesSection={homeSections.premium_packages}
+      loyaltySection={homeSections.loyalty_club}
+      selectedCountryCode={queryInput.countryCode}
+      slots={{
+        sponsoredTop: <SponsoredMediaCarouselSection locale={locale} placement="home_top" />,
+        heroBanner: (
+          <HomeHeroBanner offer={heroOffer} section={homeSections.hero_featured} labels={labels.hero} noDescription={labels.common.noDescription} />
+        ),
+        featured: (
+          <HomeFeaturedServicesSuspenseBoundary
+            services={featuredServices}
+            locale={locale}
+            selectedCountryCode={queryInput.countryCode}
+            labels={{
+              emptyTitle: labels.featured.emptyTitle,
+              emptyDescription: labels.featured.emptyDescription,
+              discountOff: labels.featured.discountOff,
+              availableDestination: labels.featured.availableDestination,
+              noDescription: labels.common.noDescription,
+            }}
+          />
+        ),
+        nativeAd: <SponsoredMediaCarouselSection locale={locale} placement="home_native_ad" />,
+        trending: (
+          <HomeTrendingServicesSuspenseBoundary
+            services={trendingServices}
+            labels={{
+              emptyTitle: labels.trending.emptyTitle,
+              emptyDescription: labels.trending.emptyDescription,
+              bookings: labels.trending.bookings,
+            }}
+          />
+        ),
+        nearby: (
+          <ExploreNearbySection
+            section={homeSections.explore_nearby}
+            nearbyProviderCount={nearbyProviderCount}
+            countryCode={queryInput.countryCode}
+            cityCode={queryInput.cityCode}
+            latitude={nearbyLat}
+            longitude={nearbyLng}
+            locale={locale}
+            labels={labels.exploreNearby}
+          />
+        ),
+        trusted: (
+          <HomeTrustedProvidersSuspenseBoundary
+            providers={trustedProviders}
+            locale={locale}
+            labels={{
+              emptyTitle: labels.trusted.emptyTitle,
+              emptyDescription: labels.trusted.emptyDescription,
+              noDescription: labels.common.noDescription,
+            }}
+          />
+        ),
+        packages: (
+          <PremiumPackagesSection section={homeSections.premium_packages} labels={labels.premiumPackages} activePackagesCount={specialPackagesCount} />
+        ),
+        loyalty: <LoyaltyClubSection section={homeSections.loyalty_club} locale={locale} labels={labels.loyaltyClub} />,
+        sponsoredBottom: <SponsoredMediaCarouselSection locale={locale} placement="home_bottom" />,
+      }}
+    />
+    </>
   );
 }
 

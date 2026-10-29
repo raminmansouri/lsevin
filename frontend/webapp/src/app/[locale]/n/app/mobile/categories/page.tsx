@@ -7,6 +7,9 @@ import { SponsoredPlacementSlot } from "@/features/sponsered-slider/components/s
 import { buildPublicMetadata } from "@/lib/seo/metadata";
 import { getTourSettings } from "@/features/tours/server/platform/settings";
 
+import { DesktopCategoryBrowser } from "@/features/web-desktop/categories/DesktopCategoryBrowser";
+import { DesktopSponsoredSection } from "@/features/web-desktop/home/DesktopSponsoredSection";
+
 
 export async function generateMetadata({
   params,
@@ -54,13 +57,24 @@ export default async function CategoryBrowserPage({
 
   return (
     <Suspense fallback={null}>
-      <CategoryBrowserClient
+      <div className="xl:hidden">
+        <CategoryBrowserClient
+          categoryGroups={data.groups}
+          totalCategories={data.totalCategories}
+          totalProviders={data.totalProviders}
+          tourismCategoryId={tourismCategoryId}
+        />
+        <SponsoredPlacementSlot locale={locale} placement="categories" />
+      </div>
+      <DesktopCategoryBrowser
         categoryGroups={data.groups}
         totalCategories={data.totalCategories}
         totalProviders={data.totalProviders}
         tourismCategoryId={tourismCategoryId}
       />
-      <SponsoredPlacementSlot locale={locale} placement="categories" />
+      <div className="lsd hidden pb-14 xl:block">
+        <DesktopSponsoredSection locale={locale} placement="categories" />
+      </div>
     </Suspense>
   );
 }

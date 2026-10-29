@@ -18,12 +18,16 @@ export function isStandaloneAppPath(pathname: string | null) {
   return Boolean(pathname && STANDALONE_PATHS.some((pattern) => pattern.test(pathname)));
 }
 
-/** The app bar, page and bottom tabs, minus the bars on standalone pages. */
 export function AppChrome({
   appBar,
+  desktopHeader,
+  desktopFooter,
   children,
 }: {
   appBar: React.ReactNode;
+  /** Desktop (>= 1280px) header and footer; the mobile bars hide at that width. */
+  desktopHeader?: React.ReactNode;
+  desktopFooter?: React.ReactNode;
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
@@ -31,9 +35,15 @@ export function AppChrome({
 
   return (
     <>
-      {appBar}
-      <div className="pb-[calc(var(--bottom-nav-h)+env(safe-area-inset-bottom))]">{children}</div>
-      <BottomTabBar />
+      <div className="xl:hidden">{appBar}</div>
+      <div className="pb-[calc(var(--bottom-nav-h)+env(safe-area-inset-bottom))] xl:pb-0">
+        {desktopHeader}
+        {children}
+        {desktopFooter}
+      </div>
+      <div className="xl:hidden">
+        <BottomTabBar />
+      </div>
     </>
   );
 }

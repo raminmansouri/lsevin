@@ -13,16 +13,14 @@ import { isFastBuild } from "@/lib/build-mode";
 import { SponsoredPlacementSlot } from "@/features/sponsered-slider/components/sponsored-placement-slot";
 
 import { ProviderDetailView } from "./provider-detail-view";
+import { DesktopSponsoredSection } from "@/features/web-desktop/home/DesktopSponsoredSection";
+import { DesktopProviderView } from "@/features/web-desktop/provider/DesktopProviderView";
 
 type RouteParams = { locale: string; id: string };
 type PageProps = {
   params: Promise<RouteParams> | RouteParams;
 };
 
-// Static / ISR. The server shell fetches the page data in the default currency
-// with no visitor context and hands it to the interactive client view as
-// `initialData`; the view owns the favourite toggle and any currency the
-// visitor picked. `generateStaticParams` prewarms active providers.
 export const dynamic = "force-static";
 export const revalidate = 3600;
 
@@ -76,6 +74,11 @@ export default async function ProviderDetailPage({ params }: PageProps) {
 
   return (
     <>
+      <div className="xl:hidden">
+        <ProviderDetailView initialData={result.data} />
+      </div>
+      <DesktopProviderView initialData={result.data} />
+      <div className="pb-36 xl:hidden">
       <JsonLd
         data={graph(
           providerSchema({
@@ -101,9 +104,11 @@ export default async function ProviderDetailPage({ params }: PageProps) {
           ])
         )}
       />
-      <ProviderDetailView initialData={result.data} />
-      <div className="pb-36">
         <SponsoredPlacementSlot locale={locale} placement="provider_detail" />
+      </div>
+      {/* Desktop: the same slides, in the home page's sponsored showcase */}
+      <div className="lsd hidden pb-14 pt-4 xl:block">
+        <DesktopSponsoredSection locale={locale} placement="provider_detail" />
       </div>
     </>
   );

@@ -2,6 +2,65 @@
 // See: https://next-intl.dev/docs/workflows/typescript#messages-arguments
 
 declare const messages: {
+  "Assistant": {
+    "journey": {
+      "title": "برنامهٔ سفر شما",
+      "kinds": {
+        "arrival": "رسیدن",
+        "treatment": "روز درمان",
+        "recovery": "نقاهت",
+        "departure": "بازگشت"
+      },
+      "day": "روز {day, number}",
+      "days": "روز {from, number} تا {to, number}",
+      "nights": "{count, number} شب",
+      "checkout": "خروج از هتل",
+      "book": "رزرو",
+      "total": "جمع تقریبی",
+      "note": "قیمت‌ها تقریبی‌اند و هنگام رزرو نهایی می‌شوند.",
+      "partial": "قیمت برخی موارد پس از مشاوره مشخص می‌شود و در جمع نیامده است.",
+      "priceOnRequest": "پس از مشاوره"
+    },
+    "launcher": {
+      "open": "باز کردن دستیار",
+      "close": "بستن",
+      "expand": "تمام‌صفحه",
+      "collapse": "کوچک کردن"
+    },
+    "entry": {
+      "title": "دستیار هوشمند Lsevin",
+      "subtitle": "بگویید دنبال چه هستید؛ بهترین گزینه‌ها را برایتان پیدا می‌کنیم."
+    },
+    "chat": {
+      "title": "دستیار Lsevin",
+      "welcome": "بگویید دنبال چه خدمتی هستید؛ گزینه‌های مناسب را برایتان پیدا می‌کنم.",
+      "placeholder": "مثلاً: کاشت مو در تهران",
+      "history": "گفتگوهای قبلی",
+      "closeHistory": "بستن گفتگوهای قبلی",
+      "untitled": "گفتگو",
+      "newChat": "گفتگوی جدید",
+      "send": "ارسال",
+      "thinking": "در حال جستجو…",
+      "error": "مشکلی پیش آمد. دوباره تلاش کنید.",
+      "disclaimer": "دستیار پزشک نیست؛ برای تصمیم درمانی با متخصص مشورت کنید.",
+      "suggestions": {
+        "hair": "کاشت مو",
+        "dental": "دندانپزشکی",
+        "nose": "جراحی بینی"
+      }
+    },
+    "card": {
+      "priceOnRequest": "قیمت پس از مشاوره",
+      "perNight": "/ شب",
+      "viewService": "مشاهده",
+      "types": {
+        "provider": "کلینیک",
+        "specialist": "پزشک",
+        "hotel": "هتل",
+        "transfer": "ترانسفر"
+      }
+    }
+  },
   "ShopMedia": {
     "hint": "اولین تصویر، تصویر اصلی است. برای اعمال تغییرات ذخیره کنید.",
     "empty": "هنوز تصویری برای محصول وجود ندارد.",
@@ -9125,11 +9184,11 @@ declare const messages: {
         "earned": "دریافت‌شده",
         "emptyActivity": "هنوز فعالیت پاداشی ثبت نشده است.",
         "highestTierReached": "به بالاترین سطح رسیده‌اید",
-        "member": "{tier} Member",
+        "member": "عضو {tier}",
         "membershipTiers": "سطوح عضویت",
         "points": "امتیاز",
         "pointsAbbr": "امتیاز",
-        "pointsToNext": "{points} more points to {tier}",
+        "pointsToNext": "{points} امتیاز تا سطح {tier}",
         "recentActivity": "فعالیت اخیر",
         "referrals": "دعوت‌ها",
         "totalSpent": "کل هزینه‌کرد",
@@ -9173,7 +9232,36 @@ declare const messages: {
         "overview": "نمای کلی",
         "referrals": "دعوت‌ها"
       },
-      "title": "پاداش‌ها و وفاداری"
+      "title": "پاداش‌ها و وفاداری",
+      "tierNames": {
+        "Silver": "نقره‌ای",
+        "Gold": "طلایی",
+        "Platinum": "پلاتینیوم",
+        "Diamond": "الماس"
+      },
+      "benefits": {
+        "5_cashback": "۵٪ بازگشت وجه",
+        "birthday_reward": "هدیهٔ تولد",
+        "email_support": "پشتیبانی ایمیلی",
+        "10_cashback": "۱۰٪ بازگشت وجه",
+        "free_shipping": "ارسال رایگان",
+        "priority_support": "پشتیبانی در اولویت",
+        "exclusive_offers": "پیشنهادهای اختصاصی",
+        "15_cashback": "۱۵٪ بازگشت وجه",
+        "vip_lounge_access": "دسترسی به سالن VIP",
+        "24_7_concierge": "کانسیرژ ۲۴ ساعته",
+        "early_access": "دسترسی زودهنگام",
+        "partner_perks": "مزایای همکاران تجاری",
+        "20_cashback": "۲۰٪ بازگشت وجه",
+        "dedicated_manager": "مدیر اختصاصی",
+        "premium_events": "رویدادهای ویژه",
+        "luxury_gifts": "هدایای لوکس",
+        "lifetime_benefits": "مزایای مادام‌العمر"
+      },
+      "activity": {
+        "completedBookings": "{count} رزرو انجام‌شده",
+        "offerAvailable": "پیشنهاد فعال: {code}"
+      }
     }
   },
   "LazySelect": {

@@ -19,6 +19,7 @@ import {
 
 
 import type { ShareFriendsPageData } from "./types";
+import { DesktopShareFriends } from "@/features/web-desktop/profile/DesktopShareFriends";
 import { encodeShareText, formatDateLabel } from "./utils";
 
 interface ShareFriendsPageClientProps {
@@ -96,7 +97,8 @@ export function ShareFriendsPageClient({
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-8">
+    <>
+    <div className="min-h-screen bg-gray-50 pb-8 xl:hidden">
       <div className="bg-white border-b border-gray-200 sticky top-0 z-40">
         <div className="px-5 py-4 flex items-center">
           <button
@@ -314,5 +316,16 @@ export function ShareFriendsPageClient({
         </div>
       </div>
     </div>
+
+    <DesktopShareFriends
+      data={initialData}
+      pendingLabel={pendingLabel}
+      earnedLabel={earnedLabel}
+      copied={copied}
+      onCopyCode={copyCode}
+      onShare={shareViaMethod}
+      onMore={moreOptions}
+    />
+    </>
   );
 }

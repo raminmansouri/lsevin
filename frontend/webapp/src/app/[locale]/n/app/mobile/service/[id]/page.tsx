@@ -17,6 +17,9 @@ import { JsonLd } from "@/lib/seo/json-ld";
 import { getIndexableLocales } from "@/lib/seo/locale-eligibility";
 import { buildPublicMetadata } from "@/lib/seo/metadata";
 
+import { DesktopServiceView } from '@/features/web-desktop/service/DesktopServiceView';
+import { DesktopSponsoredSection } from '@/features/web-desktop/home/DesktopSponsoredSection';
+
 import ServicePage from "./service-page";
 
 type ServiceRouteParams = {
@@ -89,6 +92,11 @@ export default async function TreatmentDetailPage({
 
   return (
     <>
+      <div className="xl:hidden">
+        <ServicePage data={data} serviceId={id} locale={locale} />
+      </div>
+      <DesktopServiceView data={data} serviceId={id} locale={locale} />
+      <div className="pb-36 xl:hidden">
       {service ? (
         <JsonLd
           data={graph(
@@ -114,9 +122,11 @@ export default async function TreatmentDetailPage({
           )}
         />
       ) : null}
-      <ServicePage data={data} serviceId={id} locale={locale} />
-      <div className="pb-36">
         <SponsoredPlacementSlot locale={locale} placement="service_detail" />
+      </div>
+      {/* Desktop: the same slides, in the home page's sponsored showcase */}
+      <div className="lsd hidden pb-14 pt-4 xl:block">
+        <DesktopSponsoredSection locale={locale} placement="service_detail" />
       </div>
     </>
   );

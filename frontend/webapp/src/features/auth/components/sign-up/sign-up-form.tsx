@@ -48,7 +48,8 @@ export default function SignUpForm() {
       phoneNumber: "",
       password: "",
       confirmPassword: "",
-      referralCode: "",
+      // Pre-filled when the visitor arrived through a referral link (/ref/CODE → ?ref=CODE).
+      referralCode: (searchParams.get("ref") ?? "").trim().replace(/[^A-Za-z0-9_-]/g, "").slice(0, 40),
     },
   });
 

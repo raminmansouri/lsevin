@@ -11,6 +11,8 @@ import { searchProducts } from "@/features/shop/api/catalog.repository";
 import { RecentlyViewedRail } from "@/features/shop/components/RecentlyViewedRail";
 import { SponsoredPlacementSlot } from "@/features/sponsered-slider/components/sponsored-placement-slot";
 
+import { DesktopShopHome } from "@/features/web-desktop/shop/DesktopShopHome";
+
 /** Request-specific currency comes from the layout; catalog data remains cached. */
 export const dynamic = "force-dynamic";
 
@@ -65,7 +67,8 @@ export default async function ShopHomePage({ params }: { params: Promise<{ local
   );
 
   return (
-    <div className="min-h-screen bg-neutral-50 pb-24">
+    <>
+    <div className="min-h-screen bg-neutral-50 pb-24 xl:hidden">
       <ShopHeader currency={home.currency} selectableCurrencies={home.selectableCurrencies} />
 
       <div className="space-y-1 bg-white pb-2">
@@ -87,5 +90,7 @@ export default async function ShopHomePage({ params }: { params: Promise<{ local
         )}
       </section>
     </div>
+    <DesktopShopHome locale={locale} sections={home.sections} feed={feed.items} />
+    </>
   );
 }

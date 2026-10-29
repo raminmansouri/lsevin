@@ -36,7 +36,8 @@ export default async function ToursHomePage({ params }: { params: Promise<{ loca
     listTaxonomy(locale),
     actor.userId ? wishlistIds(actor.userId) : Promise.resolve([] as string[]),
   ]);
-  const discovery = recent.length === 0 ? (await searchTours({ sort: "popularity", pageSize: 8 }, content)).items : [];
+  // Suggested tours always show; Recently Viewed, when there is history, sits above them.
+  const discovery = (await searchTours({ sort: "popularity", pageSize: 8 }, content)).items;
 
   return (
     <ToursHome
