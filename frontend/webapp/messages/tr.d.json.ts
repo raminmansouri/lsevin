@@ -3,8 +3,30 @@
 
 declare const messages: {
   "Assistant": {
-    "journey": { "title": "Seyahat planınız", "kinds": { "arrival": "Varış", "treatment": "Tedavi günü", "recovery": "İyileşme", "departure": "Dönüş" }, "day": "{day, number}. gün", "days": "{from, number}–{to, number}. günler", "nights": "{count, number} gece", "checkout": "Otelden çıkış", "book": "Rezerve et", "total": "Tahmini toplam", "note": "Fiyatlar tahminidir ve rezervasyonda kesinleşir.", "partial": "Bazı fiyatlar danışmadan sonra belirlenir ve toplama dahil değildir.", "priceOnRequest": "Danışmadan sonra" },
-    "launcher": { "open": "Asistanı aç", "close": "Kapat", "expand": "Tam ekran", "collapse": "Küçült" },
+    "journey": {
+      "title": "Seyahat planınız",
+      "kinds": {
+        "arrival": "Varış",
+        "treatment": "Tedavi günü",
+        "recovery": "İyileşme",
+        "departure": "Dönüş"
+      },
+      "day": "{day, number}. gün",
+      "days": "{from, number}–{to, number}. günler",
+      "nights": "{count, number} gece",
+      "checkout": "Otelden çıkış",
+      "book": "Rezerve et",
+      "total": "Tahmini toplam",
+      "note": "Fiyatlar tahminidir ve rezervasyonda kesinleşir.",
+      "partial": "Bazı fiyatlar danışmadan sonra belirlenir ve toplama dahil değildir.",
+      "priceOnRequest": "Danışmadan sonra"
+    },
+    "launcher": {
+      "open": "Asistanı aç",
+      "close": "Kapat",
+      "expand": "Tam ekran",
+      "collapse": "Küçült"
+    },
     "entry": {
       "title": "LSevin akıllı asistan",
       "subtitle": "Ne aradığınızı söyleyin, sizin için en iyi seçenekleri bulalım."
@@ -21,16 +43,24 @@ declare const messages: {
       "thinking": "Aranıyor…",
       "error": "Bir sorun oluştu. Tekrar deneyin.",
       "disclaimer": "Asistan doktor değildir; tedavi kararları için bir uzmana danışın.",
-      "suggestions": { "hair": "Saç ekimi", "dental": "Diş tedavisi", "nose": "Burun estetiği" }
+      "suggestions": {
+        "hair": "Saç ekimi",
+        "dental": "Diş tedavisi",
+        "nose": "Burun estetiği"
+      }
     },
     "card": {
       "priceOnRequest": "Fiyat danışmadan sonra",
       "perNight": "/ gece",
       "viewService": "Görüntüle",
-      "types": { "provider": "Klinik", "specialist": "Doktor", "hotel": "Otel" , 	"transfer": "Transfer"}
+      "types": {
+        "provider": "Klinik",
+        "specialist": "Doktor",
+        "hotel": "Otel",
+        "transfer": "Transfer"
+      }
     }
   },
-
   "BookingCart": {
     "title": "Kaydedilen rezervasyonlar",
     "hint": "Bunlar tahminlerdir, kesin rezervasyon değildir. Uygunluğu doğrulamak ve ödeme yapmak için her rezervasyonu inceleyin. Ürünler şu anda ayrı ödenir.",
@@ -13645,6 +13675,17 @@ declare const messages: {
         "weakYou": "Bağlantın zayıf",
         "weakPeer": "{name} kişisinin bağlantısı zayıf",
         "lostPeer": "{name} kişisinin bağlantısı koptu"
+      }
+    },
+    "homeTeaser": {
+      "live": "Canlı görüntülü görüşme",
+      "title": "Doktorla görüntülü danışma",
+      "subtitle": "Bir uzmanla, nerede olursanız olun yüz yüze konuşun",
+      "cta": "Danışma talep et",
+      "perks": {
+        "secure": "Güvenli ve gizli",
+        "noInstall": "Uygulama kurmadan",
+        "verified": "Onaylı doktorlar"
       }
     }
   },

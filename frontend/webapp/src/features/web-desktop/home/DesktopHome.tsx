@@ -39,6 +39,8 @@ import { DesktopLoyaltySection } from "./DesktopLoyaltySection";
 
 import { DesktopAssistantTeaser } from "./DesktopAssistantTeaser";
 
+import { DesktopConsultationTeaser } from "./DesktopConsultationTeaser";
+
 export type DesktopHomeSlots = {
   sponsoredTop: ReactNode;
   heroBanner: ReactNode;
@@ -94,6 +96,7 @@ export async function DesktopHome({
 
       <DesktopSponsoredSection locale={locale} placement="home_top" overlapHero />
       <DesktopAssistantTeaser />
+      <DesktopConsultationTeaser />
       <DesktopFeatureBanner locale={locale} offer={heroOffer} section={heroSection} />
 
       <DesktopCategories locale={locale} categories={categories} />

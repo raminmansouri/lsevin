@@ -14888,6 +14888,17 @@ declare const messages: {
         "weakPeer": "اینترنت {name} ضعیف است",
         "lostPeer": "ارتباط {name} قطع شده است"
       }
+    },
+    "homeTeaser": {
+      "live": "تماس تصویری زنده",
+      "title": "مشاورهٔ تصویری با پزشک",
+      "subtitle": "رودررو با پزشک متخصص صحبت کنید، از هر جای دنیا",
+      "cta": "درخواست مشاوره",
+      "perks": {
+        "secure": "تماس امن و خصوصی",
+        "noInstall": "بدون نصب برنامه",
+        "verified": "پزشکان تأییدشده"
+      }
     }
   },
   "GymMemberships": {

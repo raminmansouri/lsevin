@@ -3,8 +3,30 @@
 
 declare const messages: {
   "Assistant": {
-    "journey": { "title": "خطة رحلتك", "kinds": { "arrival": "الوصول", "treatment": "يوم العلاج", "recovery": "التعافي", "departure": "المغادرة" }, "day": "اليوم {day, number}", "days": "الأيام {from, number}–{to, number}", "nights": "{count, number} ليالٍ", "checkout": "تسجيل الخروج من الفندق", "book": "احجز", "total": "الإجمالي التقريبي", "note": "الأسعار تقديرية وتُؤكَّد عند الحجز.", "partial": "تُحدَّد بعض الأسعار بعد الاستشارة ولم تُضمَّن في الإجمالي.", "priceOnRequest": "بعد الاستشارة" },
-    "launcher": { "open": "فتح المساعد", "close": "إغلاق", "expand": "ملء الشاشة", "collapse": "تصغير" },
+    "journey": {
+      "title": "خطة رحلتك",
+      "kinds": {
+        "arrival": "الوصول",
+        "treatment": "يوم العلاج",
+        "recovery": "التعافي",
+        "departure": "المغادرة"
+      },
+      "day": "اليوم {day, number}",
+      "days": "الأيام {from, number}–{to, number}",
+      "nights": "{count, number} ليالٍ",
+      "checkout": "تسجيل الخروج من الفندق",
+      "book": "احجز",
+      "total": "الإجمالي التقريبي",
+      "note": "الأسعار تقديرية وتُؤكَّد عند الحجز.",
+      "partial": "تُحدَّد بعض الأسعار بعد الاستشارة ولم تُضمَّن في الإجمالي.",
+      "priceOnRequest": "بعد الاستشارة"
+    },
+    "launcher": {
+      "open": "فتح المساعد",
+      "close": "إغلاق",
+      "expand": "ملء الشاشة",
+      "collapse": "تصغير"
+    },
     "entry": {
       "title": "مساعد LSevin الذكي",
       "subtitle": "أخبرنا بما تحتاجه وسنجد لك أفضل الخيارات."
@@ -21,17 +43,24 @@ declare const messages: {
       "thinking": "جارٍ البحث…",
       "error": "حدث خطأ ما. حاول مرة أخرى.",
       "disclaimer": "المساعد ليس طبيبًا؛ استشر مختصًا لاتخاذ قرارات العلاج.",
-      "suggestions": { "hair": "زراعة الشعر", "dental": "طب الأسنان", "nose": "جراحة الأنف" }
+      "suggestions": {
+        "hair": "زراعة الشعر",
+        "dental": "طب الأسنان",
+        "nose": "جراحة الأنف"
+      }
     },
     "card": {
       "priceOnRequest": "السعر بعد الاستشارة",
       "perNight": "/ ليلة",
       "viewService": "عرض",
-      "types": { "provider": "عيادة", "specialist": "طبيب", "hotel": "فندق" , "transfer": "نقل"}
+      "types": {
+        "provider": "عيادة",
+        "specialist": "طبيب",
+        "hotel": "فندق",
+        "transfer": "نقل"
+      }
     }
   },
-
-
   "ShopMedia": {
     "hint": "الصورة الأولى هي الصورة الرئيسية. احفظ لتطبيق التغييرات.",
     "empty": "لا توجد صور للمنتج بعد.",
@@ -13797,6 +13826,17 @@ declare const messages: {
         "weakYou": "اتصالك ضعيف",
         "weakPeer": "اتصال {name} ضعيف",
         "lostPeer": "انقطع اتصال {name}"
+      }
+    },
+    "homeTeaser": {
+      "live": "مكالمة فيديو مباشرة",
+      "title": "استشارة بالفيديو مع طبيب",
+      "subtitle": "تحدّث وجهًا لوجه مع طبيب مختص من أي مكان",
+      "cta": "اطلب استشارة",
+      "perks": {
+        "secure": "آمنة وخاصة",
+        "noInstall": "دون تثبيت تطبيق",
+        "verified": "أطباء موثّقون"
       }
     }
   },
