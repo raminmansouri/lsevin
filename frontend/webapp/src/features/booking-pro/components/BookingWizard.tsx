@@ -23,7 +23,7 @@ import { DecisionStack } from './step-service/DecisionStack';
 import { autoSelectId, canContinueService, type SlotKey } from '../lib/decision-stack';
 import { cascadeFor } from '../lib/cascade';
 import { BookingDatePicker } from './BookingDatePicker';
-import { formatBookingDateTime, isBookingTimeZone, BOOKING_CALENDARS, bookingCalendarLabel, type BookingCalendar, formatBookingDate, isReasonableBookingIsoDate, normalizeBookingCalendar, toIsoDate } from '../lib/calendar';
+import { calendarForCountry, formatBookingDateTime, isBookingTimeZone, sameBookingClock, BOOKING_CALENDARS, bookingCalendarLabel, type BookingCalendar, formatBookingDate, isReasonableBookingIsoDate, normalizeBookingCalendar, toIsoDate } from '../lib/calendar';
 import { RichTextPreview } from '@/features/booking/components/rich-text-preview';
 import { ShareMedicalCaseStep } from './ShareMedicalCaseStep';
 import { formatCurrencyAmount } from '@/features/finance/lib/money';
@@ -429,25 +429,37 @@ export function BookingWizard() {
     const tCalendarAdmin = useTranslations('AdminGenerated');
     const [viewerTimeZone, setViewerTimeZone] = useState('UTC');
     const [providerTimeZone, setProviderTimeZone] = useState('UTC');
+    // The customer's zone and calendar default to their phone number's country; the browser's
+    // zone and the page locale are only fallbacks (guests, unknown numbers). Both can still be
+    // changed in the pickers for this booking.
+    const [providerTimeZoneLoaded, setProviderTimeZoneLoaded] = useState(false);
+    const pickedByCustomer = useRef({ calendar: false, timeZone: false });
     useEffect(() => {
-        try {
-            const savedCalendar = localStorage.getItem('booking.calendar');
-            if (savedCalendar && BOOKING_CALENDARS.includes(savedCalendar as BookingCalendar)) setCalendar(savedCalendar as BookingCalendar);
-            const zone = localStorage.getItem('booking.timezone') || Intl.DateTimeFormat().resolvedOptions().timeZone;
-            if (isBookingTimeZone(zone)) setViewerTimeZone(zone);
-        } catch { setViewerTimeZone(Intl.DateTimeFormat().resolvedOptions().timeZone); }
+        let cancelled = false;
+        const browserZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        if (isBookingTimeZone(browserZone)) setViewerTimeZone(browserZone);
+        getJson<{ country: string | null; timeZone: string | null }>(`/api/booking-pro/viewer-timezone?browserTimeZone=${encodeURIComponent(browserZone)}`)
+            .then(({ country, timeZone }) => {
+                if (cancelled) return;
+                if (timeZone && isBookingTimeZone(timeZone) && !pickedByCustomer.current.timeZone) setViewerTimeZone(timeZone);
+                const phoneCalendar = calendarForCountry(country);
+                if (phoneCalendar && !pickedByCustomer.current.calendar) setCalendar(phoneCalendar);
+            })
+            .catch(() => { /* Keep the browser zone. */ });
+        return () => { cancelled = true; };
     }, []);
     const viewerTimeZones = useMemo(() => {
         const supported: string[] = (Intl as any).supportedValuesOf?.('timeZone') ?? [];
         return [...new Set(['UTC', viewerTimeZone, providerTimeZone, ...supported])];
     }, [viewerTimeZone, providerTimeZone]);
+    const viewerSharesProviderClock = sameBookingClock(draft?.selectedDate, viewerTimeZone, providerTimeZone);
     function selectCalendar(value: BookingCalendar) {
+        pickedByCustomer.current.calendar = true;
         setCalendar(value);
-        try { localStorage.setItem('booking.calendar', value); } catch { /* Optional browser preference. */ }
     }
     function selectTimeZone(value: string) {
+        pickedByCustomer.current.timeZone = true;
         setViewerTimeZone(value);
-        try { localStorage.setItem('booking.timezone', value); } catch { /* Optional browser preference. */ }
     }
 
     const [mainServiceForm, setMainServiceForm] = useState<any>(null);
@@ -722,6 +734,7 @@ export function BookingWizard() {
                 if (cancelled || serviceModeRequestSeq.current !== requestId)
                     return;
                 setProviderTimeZone(isBookingTimeZone(item.timezone_id) ? item.timezone_id : 'UTC');
+                setProviderTimeZoneLoaded(true);
                 setDraft((prev) => prev?.serviceId === serviceId ? ({
                     ...prev,
                     serviceDefinitionId: item.service_definition_id,
@@ -1347,7 +1360,7 @@ export function BookingWizard() {
 
                         {draft.selectedDate ? (<div>
                             <div className="mb-3 text-sm font-bold text-slate-900">{tBooking("availableTimeSlotsFor")}{formatBookingDate(draft.selectedDate, { locale, calendar })} <span className="text-xs font-normal">({providerTimeZone})</span></div>
-                            {viewerTimeZone !== providerTimeZone && (
+                            {providerTimeZoneLoaded && !viewerSharesProviderClock && (
                                 <div className="mb-3 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
                                     {tBooking("timezoneMismatchWarning", { providerZone: providerTimeZone, viewerZone: viewerTimeZone })}
                                 </div>
@@ -1383,7 +1396,7 @@ export function BookingWizard() {
                                     `-mx-1 grid grid-flow-col ${count >= 3 ? "grid-rows-3" : count === 2 ? "grid-rows-2" : "grid-rows-1"} auto-cols-[calc((100%-1rem)/3)] snap-x gap-2 overflow-x-auto px-1 pb-2 sm:mx-0 sm:grid-flow-row sm:grid-rows-none sm:auto-cols-auto sm:grid-cols-4 sm:overflow-visible sm:px-0 sm:pb-0 lg:grid-cols-6`;
 
                                 // Day-part groups use the provider's clock, so only group when the viewer shares it.
-                                if (viewerTimeZone !== providerTimeZone) {
+                                if (!viewerSharesProviderClock) {
                                     return <div className={gridClass(timeSlots.length)}>{timeSlots.map(renderSlot)}</div>;
                                 }
 

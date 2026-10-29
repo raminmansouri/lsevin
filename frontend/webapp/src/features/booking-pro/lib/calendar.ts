@@ -17,6 +17,15 @@ export function normalizeBookingCalendar(value?: string | null, locale?: string 
   return String(locale || '').toLowerCase().startsWith('fa') ? 'jalali' : 'gregorian';
 }
 
+/** The calendar people of a country use day to day (Iran/Afghanistan: Shamsi, Saudi Arabia: Umm al-Qura). */
+export function calendarForCountry(countryCode?: string | null): BookingCalendar | null {
+  const country = String(countryCode || '').toUpperCase();
+  if (!country) return null;
+  if (country === 'IR' || country === 'AF') return 'jalali';
+  if (country === 'SA') return 'hijri';
+  return 'gregorian';
+}
+
 export function toIsoDate(input: Date | string): string {
   if (input instanceof Date) return Number.isNaN(input.getTime()) ? '' : input.toISOString().slice(0, 10);
   const raw = String(input || '').trim();
@@ -59,6 +68,21 @@ export function bookingCalendarParts(iso: string, calendar: BookingCalendar): Ca
 
 export function isBookingTimeZone(value: string): boolean {
   try { new Intl.DateTimeFormat('en', { timeZone: value }).format(); return Boolean(value); } catch { return false; }
+}
+
+/**
+ * Whether two zones show the same wall clock on a date. Zone names alone can't say this:
+ * aliases (Asia/Istanbul vs Europe/Istanbul) and neighbours (Europe/Berlin vs Europe/Paris)
+ * differ by name yet show identical times.
+ */
+export function sameBookingClock(isoDate: string | null | undefined, a: string, b: string): boolean {
+  if (a === b) return true;
+  if (!isBookingTimeZone(a) || !isBookingTimeZone(b)) return false;
+  try {
+    const iso = toIsoDate(String(isoDate || new Date().toISOString().slice(0, 10)));
+    const noon = parseDateTime(`${parseDate(iso).toString()}T12:00`);
+    return toZoned(noon, a).toDate().getTime() === toZoned(noon, b).toDate().getTime();
+  } catch { return false; }
 }
 
 /** Reject ambiguous/nonexistent local times instead of silently shifting bookings. */
