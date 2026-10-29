@@ -91,8 +91,6 @@ export const SEGMENT_NAMESPACES = {
     "Assistant",
     "MapShared",
     "Footer",
-    "AdminGenerated",
-    // AdminGenerated: only the keys in MOBILE_ADMIN_GENERATED_KEYS, see below.
     "BookingCart",
     "RecommendationSection",
     "SearchResults",

@@ -25,6 +25,8 @@ vi.mock("@/features/tours/server/platform/settings", () => ({
   getTourSettings: async () => ({ tourismCategoryId: null }),
 }));
 vi.mock("@/lib/seo/metadata", () => ({ buildPublicMetadata: async () => ({}) }));
+vi.mock("@/features/web-desktop/categories/DesktopCategoryBrowser", () => ({ DesktopCategoryBrowser: () => null }));
+vi.mock("@/features/web-desktop/home/DesktopSponsoredSection", () => ({ DesktopSponsoredSection: () => null }));
 
 afterEach(() => {
   vi.unstubAllEnvs();
