@@ -7,6 +7,7 @@ import { useMemo, useState } from "react";
 
 import { formatCurrencyAmount } from "@/features/finance/lib/money";
 import { resolveHomeMediaUrl } from "@/features/home/components/home-media";
+import { useMyVideoSessions, VideoSessionBookingCard } from "@/features/consultation/components/my-video-sessions";
 import { useFetchBookings } from "@/features/service-providers/api/client/fetch-bookings";
 import type { Booking } from "@/features/service-providers/types";
 import { Link } from "@/i18n/navigation";
@@ -122,7 +123,13 @@ export function DesktopBookingsView() {
   const t = useTranslations("Booking");
   const locale = useLocale();
   const [tab, setTab] = useState<Tab>("upcoming");
-  const { data, error, isFetching, refetch } = useFetchBookings({} as Parameters<typeof useFetchBookings>[0]);
+  const { data, error, isFetching, refetch: refetchBookings } = useFetchBookings({} as Parameters<typeof useFetchBookings>[0]);
+  // Video consultations live in their own table and sit in the same tabs, as on mobile.
+  const { lists: consultations, refetch: refetchConsultations } = useMyVideoSessions();
+  const refetch = () => {
+    refetchBookings();
+    refetchConsultations();
+  };
 
   const lists: Record<Tab, Booking[]> = useMemo(
     () => ({
@@ -133,6 +140,8 @@ export function DesktopBookingsView() {
     [data]
   );
   const current = lists[tab];
+  const tabConsultations = consultations[tab];
+  const count = (id: Tab) => lists[id].length + consultations[id].length;
   const [next, ...rest] = tab === "upcoming" ? current : [];
   const others = tab === "upcoming" ? rest : current;
 
@@ -164,7 +173,7 @@ export function DesktopBookingsView() {
                   }`}
                 >
                   <p className="text-3xl font-black text-[#eacb7f]">
-                    <CountUp value={lists[id].length} locale={locale} />
+                    <CountUp value={count(id)} locale={locale} />
                   </p>
                   <p className="mt-1 text-sm text-white/75">{t(id)}</p>
                 </button>
@@ -196,7 +205,7 @@ export function DesktopBookingsView() {
                   tab === id ? "bg-[#083f30] text-[#eacb7f]" : "text-[#56675f] hover:text-[#083f30]"
                 }`}
               >
-                {t(id)} <span className="opacity-70">({new Intl.NumberFormat(locale).format(lists[id].length)})</span>
+                {t(id)} <span className="opacity-70">({new Intl.NumberFormat(locale).format(count(id))})</span>
               </button>
             ))}
           </div>
@@ -224,8 +233,15 @@ export function DesktopBookingsView() {
               ))}
             </div>
           </div>
-        ) : current.length ? (
+        ) : current.length + tabConsultations.length ? (
           <div className="space-y-10">
+            {tabConsultations.length ? (
+              <div className="grid grid-cols-2 gap-6">
+                {tabConsultations.map((session) => (
+                  <VideoSessionBookingCard key={session.id} session={session} />
+                ))}
+              </div>
+            ) : null}
             {next ? (
               <Reveal>
                 <Ticket booking={next} featured />

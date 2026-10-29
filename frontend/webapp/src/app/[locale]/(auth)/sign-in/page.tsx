@@ -6,6 +6,7 @@ import { TRANSLATION_KEY } from "@/features/auth/actions/sign-in/types";
 import { getAuthPageContent } from "@/features/auth/db/auth-content.queries";
 import AuthLinksContainer from "@/features/auth/components/shared/auth-links-container";
 import AuthPageHeader from "@/features/auth/components/shared/auth-page-header";
+import { getPhoneDefaultCountry } from "@/features/auth/lib/phone-country";
 import SignInForm, {
   SignInFormSkeleton,
 } from "@/features/auth/components/sign-in/sign-in-form";
@@ -34,6 +35,7 @@ const SignInPage = ({ params, searchParams }: { params: Promise<LocaleParams>; s
       <LocaleBoundary params={params} tanslationNameSpace={TRANSLATION_KEY}>
         {async (t) => {
           const { locale } = await params;
+          const phoneCountry = await getPhoneDefaultCountry();
           const content = await getAuthPageContent(locale, "sign-in", {
             title: t("page.title"),
             description: t("page.description"),
@@ -50,7 +52,7 @@ const SignInPage = ({ params, searchParams }: { params: Promise<LocaleParams>; s
                 imageAlt={content.alt}
               />
               <Suspense fallback={<SignInFormSkeleton />}>
-                <SignInForm />
+                <SignInForm defaultCountry={phoneCountry} />
               </Suspense>
               <AuthLinksContainer>
                 <span className="text-xs">
