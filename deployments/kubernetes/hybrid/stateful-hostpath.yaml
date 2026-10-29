@@ -54,7 +54,7 @@ spec:
       terminationGracePeriodSeconds: 120
       containers:
         - name: postgres
-          image: lsevin-postgres:17.10-alpine
+          image: lsevin-postgres:17.10-alpine-pgvector0.8.1
           imagePullPolicy: IfNotPresent
           args: [postgres, -c, config_file=/etc/postgresql/postgresql.conf, -c, hba_file=/etc/postgresql/pg_hba.conf]
           # a memory REQUEST makes the pod Burstable instead of BestEffort: under memory pressure the kernel no longer picks the database first
