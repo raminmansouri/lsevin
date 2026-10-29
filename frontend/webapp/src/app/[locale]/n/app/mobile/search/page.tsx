@@ -11,14 +11,20 @@ type SearchPageProps = {
   params: Promise<{ locale: string }> | { locale: string };
 };
 
-// Static / ISR: the shell shows the global "trending" + "popular categories"
-// (both `"use cache"`d). The visitor's own recent searches are pulled on the
-// client by `MobileSearchPageClient`.
+// Rendered per request; "trending" and "popular categories" come from their
+// own data caches, and the visitor's recent searches load on the client. Not
+// ISR: the image build has no database, so the prerendered copy would be empty
+// rails served as fresh for the whole revalidate window after each deploy.
 export const dynamic = "force-dynamic";
 
-export async function generateMetadata({ params }: SearchPageProps): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: SearchPageProps): Promise<Metadata> {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: "MobileSearch.metadata" });
+  const t = await getTranslations({
+    locale,
+    namespace: "MobileSearch.metadata",
+  });
 
   return {
     title: t("title"),
@@ -30,6 +36,7 @@ export default async function SearchPage({ params }: SearchPageProps) {
   const { locale } = await params;
   setRequestLocale(locale);
 
+  // An outage empties the rails for that request only; nothing is cached.
   const [popularCategories, trendingSearches] = await Promise.all([
     getPopularSearchCategoriesCached(locale, 8).catch(() => []),
     getTrendingSearchesCached(locale, 6).catch(() => []),

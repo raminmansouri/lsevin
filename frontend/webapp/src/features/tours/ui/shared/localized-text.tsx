@@ -4,11 +4,29 @@ import type { ElementType } from "react";
 import { Languages } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 
+import { getSafeLexicalPlainText, SafeLexicalRenderer } from "@/features/service-definitions/components/safe-lexical-renderer";
 import { cn } from "@/lib/utils";
 
 import { languageName } from "./format";
 
 export type LocalizedValue = { value: string; locale: string; isFallback: boolean; dir: "rtl" | "ltr" } | null | undefined;
+
+/** True when a stored text is serialized Lexical state (rich text from the admin editor). */
+export function isRichText(value: string | null | undefined): boolean {
+  if (!value || value.trimStart()[0] !== "{") return false;
+  try {
+    const parsed = JSON.parse(value) as { root?: unknown } | null;
+    return typeof parsed === "object" && parsed !== null && "root" in parsed;
+  } catch {
+    return false;
+  }
+}
+
+/** The readable text of a stored value: Lexical rich text flattened, plain text unchanged. */
+export function plainText(value: string | null | undefined): string {
+  if (!value) return "";
+  return isRichText(value) ? getSafeLexicalPlainText(value) : value;
+}
 
 /**
  * Discreet indicator that a provider-authored text is shown in another language
@@ -57,6 +75,18 @@ export function LocalizedText({
   const Tag = (as ?? "span") as ElementType;
   if (!text) {
     return placeholder ? <Tag className={cn("text-muted-foreground", className)}>{placeholder}</Tag> : null;
+  }
+  if (isRichText(text.value)) {
+    // Rich text (descriptions edited with the admin's Lexical editor) renders as blocks,
+    // so it needs a <div> even where plain text uses <p>.
+    return (
+      <>
+        <div lang={text.locale} dir={text.dir} data-latin-digits="" data-rich-text="" className={cn(clamp && "line-clamp-3", className)}>
+          <SafeLexicalRenderer content={text.value} fallback="" />
+        </div>
+        {badge && text.isFallback ? <FallbackBadge locale={text.locale} className={cn("mt-1", badgeClassName)} /> : null}
+      </>
+    );
   }
   return (
     <>

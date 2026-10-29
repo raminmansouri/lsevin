@@ -1,5 +1,7 @@
 import { getMessages } from "next-intl/server";
 
+import { MOBILE_ADMIN_GENERATED_KEYS } from "./partial-namespaces";
+
 /**
  * Which translation namespaces each route segment hands to the browser.
  *
@@ -90,6 +92,7 @@ export const SEGMENT_NAMESPACES = {
     "MapShared",
     "Footer",
     "AdminGenerated",
+    // AdminGenerated: only the keys in MOBILE_ADMIN_GENERATED_KEYS, see below.
     "BookingCart",
     "RecommendationSection",
     "SearchResults",
@@ -210,6 +213,11 @@ export type MessageSegment = keyof typeof SEGMENT_NAMESPACES;
  * why `force-static` pages like home/shop used to bake the Persian bottom nav
  * and greetings onto every /tr and /en page.
  */
+/** Large namespaces a segment needs only some keys of (see partial-namespaces.ts). */
+const SEGMENT_PARTIAL_NAMESPACES: Partial<Record<MessageSegment, Record<string, readonly string[]>>> = {
+  mobileApp: { AdminGenerated: MOBILE_ADMIN_GENERATED_KEYS },
+};
+
 export async function getClientMessages(
   segment?: MessageSegment,
   locale?: string
@@ -227,6 +235,19 @@ export async function getClientMessages(
 
   for (const namespace of wanted) {
     if (namespace in messages) picked[namespace] = messages[namespace];
+  }
+
+  // Segments that borrow a few keys of a large namespace get only those keys.
+  for (const [namespace, keys] of Object.entries(
+    (segment && SEGMENT_PARTIAL_NAMESPACES[segment]) || {}
+  )) {
+    const source = messages[namespace];
+    if (!source || typeof source !== "object" || namespace in picked) continue;
+    const subset: Record<string, unknown> = {};
+    for (const key of keys) {
+      if (key in (source as Record<string, unknown>)) subset[key] = (source as Record<string, unknown>)[key];
+    }
+    picked[namespace] = subset;
   }
 
   return picked;

@@ -44,6 +44,8 @@
     "src/hooks/use-navigate.tx"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    ".pnpm-store",
+    "artifacts"
   ]
 }

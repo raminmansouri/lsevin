@@ -3,6 +3,7 @@ import createNextIntlPlugin from "next-intl/plugin";
 
 import { routing } from "./src/i18n/routing";
 import { facetHeaders } from "./src/lib/seo/facet-headers";
+import { contentLanguageFor } from "./src/lib/seo/language-tags";
 
 // pull from env
 const filesUrl = new URL(
@@ -28,6 +29,12 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       ...facetHeaders(routing.locales),
+      // <html lang> in the server HTML is always the default locale (see
+      // src/app/layout.tsx); this tells crawlers the page's real language.
+      ...routing.locales.map((locale) => ({
+        source: `/${locale}/:path*`,
+        headers: [{ key: "Content-Language", value: contentLanguageFor(locale) }],
+      })),
       {
         source: "/sw.js",
         headers: [
@@ -80,6 +87,10 @@ const nextConfig: NextConfig = {
     // Limit Next's worker pool so compilation cannot starve Kubernetes health
     // probes or force the database and web pods into swap.
     cpus: 1,
+    // cpus limits worker count, not pages in flight within a worker. The
+    // default eight simultaneous prerenders exceeded the verification memory
+    // budget on this catalog. Preserve every route while bounding peak work.
+    staticGenerationMaxConcurrency: 1,
     // NOTE: switched from `cacheComponents` to `useCache` for the production build.
     // cacheComponents (PPR) makes static prerender strict — any request-data access
     // without a Suspense boundary is a fatal build error (e.g. next-intl getLocale in
@@ -160,6 +171,20 @@ const nextConfig: NextConfig = {
         source: `/:locale(${routing.locales.join("|")})`,
         destination: "/:locale/n/app/mobile/home",
         permanent: false,
+      },
+      // Legacy marketing templates. The provider page is the same entity (same
+      // id) on the mobile template; there is no per-type listing any more, so a
+      // type page goes to the category browser. Permanent, so search engines
+      // move the signals the old URLs collected to the current pages.
+      {
+        source: `/:locale(${routing.locales.join("|")})/service-providers/:id`,
+        destination: "/:locale/n/app/mobile/provider/:id",
+        permanent: true,
+      },
+      {
+        source: `/:locale(${routing.locales.join("|")})/type/:id`,
+        destination: "/:locale/n/app/mobile/categories",
+        permanent: true,
       },
       {
         source: "/admin/sponsered-slider/:path*",

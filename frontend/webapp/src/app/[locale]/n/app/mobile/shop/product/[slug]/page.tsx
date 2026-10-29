@@ -2,6 +2,11 @@ import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { buildPublicMetadata } from "@/lib/seo/metadata";
+import { absoluteUrl } from "@/lib/seo/alternates";
+import { breadcrumbList, graph } from "@/lib/seo/entity-schema";
+import { JsonLd } from "@/lib/seo/json-ld";
+import { seoOrigin } from "@/lib/seo/origin";
+import { firstSeoPlainText } from "@/lib/seo/plain-text";
 import { Link } from "@/i18n/navigation";
 import { getProductBySlugCached } from "@/features/shop/api/catalog.repository.cached";
 import { ShopHeader } from "@/features/shop/components/ShopHeader";
@@ -57,9 +62,57 @@ export default async function ProductDetailPage({
   const product = await getProductBySlugCached(slug, locale);
   if (!product) notFound();
 
+  const productUrl = absoluteUrl(locale, `/n/app/mobile/shop/product/${slug}`);
+  const productImages = [
+    ...product.gallery.map((g) => g.url),
+    product.imageUrl,
+  ].filter((url): url is string => Boolean(url && url.trim()));
+
   return (
     <>
     <div className="min-h-screen bg-neutral-50 pb-56 xl:hidden">
+      {/* Offer mirrors the price block below (same amount and currency). */}
+      <JsonLd
+        data={graph(
+          {
+            "@type": "Product",
+            "@id": `${productUrl}#product`,
+            name: product.name,
+            url: productUrl,
+            sku: product.id,
+            description: firstSeoPlainText([product.shortDescription, product.description], 500) || undefined,
+            image: [
+              ...new Set(
+                productImages.flatMap((url) => {
+                  // A malformed stored URL must not take the product page down.
+                  try {
+                    return [new URL(shopImageSrc(url), seoOrigin()).toString()];
+                  } catch {
+                    return [];
+                  }
+                })
+              ),
+            ].slice(0, 5),
+            ...(product.priceUnavailable || !(Number(product.price) > 0)
+              ? {}
+              : {
+                  offers: {
+                    "@type": "Offer",
+                    url: productUrl,
+                    price: Number(product.price),
+                    priceCurrency: product.currency,
+                  },
+                }),
+          },
+          breadcrumbList([
+            {
+              name: (await getTranslations({ locale, namespace: "LocaleLayout" }))("title"),
+              url: absoluteUrl(locale, "/n/app/mobile/home"),
+            },
+            { name: product.name, url: productUrl },
+          ])
+        )}
+      />
       <ShopHeader currency={product.currency} back="/n/app/mobile/shop" />
 
       <div className="bg-white">

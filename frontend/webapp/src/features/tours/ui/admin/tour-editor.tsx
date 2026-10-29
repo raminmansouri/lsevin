@@ -1,6 +1,6 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
 import { Link } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
@@ -15,19 +15,23 @@ import { OverviewTab } from "./editor-overview";
 import { PolicyTab } from "./editor-policy";
 import { PricingTab } from "./editor-pricing";
 import { ScheduleTab } from "./editor-schedule";
+import { localeName } from "./inputs";
 import { StatusBadge } from "./primitives";
 import { TOUR_EDITOR_TABS, TOURS_PLATFORM_BASE, type TourEditorTab } from "./paths";
 
 
 export type EditorLookups = {
-  providers: { id: string; name: string }[];
-  destinations: { id: string; slug: string; name: string; country_code: string | null }[];
+  providers: { id: string; name: string; names?: Record<string, string> | null }[];
+  destinations: { id: string; slug: string; name: string; country_code: string | null; names?: Record<string, string> | null }[];
   categories: { code: string; label: string; label_translations: Record<string, string> }[];
+  currencies?: string[];
+  enabledLocales?: string[];
 };
 
 export function TourEditor({ bundle, tab, targetLocale, lookups }: { bundle: TourBundle; tab: TourEditorTab; targetLocale?: string; lookups: EditorLookups }) {
   const t = useTranslations("TourAdmin.editor");
   const ts = useTranslations("TourShared");
+  const locale = useLocale();
   const core = bundle.core;
   const title = bundle.content.find((c) => c.entity_type === "tour" && c.field_key === "title" && c.locale === core.source_locale);
   const base = `${TOURS_PLATFORM_BASE}/tours/${core.id}`;
@@ -42,7 +46,7 @@ export function TourEditor({ bundle, tab, targetLocale, lookups }: { bundle: Tou
             <StatusBadge status={core.status} label={ts(`tourStatus.${core.status}`)} />
             <span className="text-muted-foreground font-mono" dir="ltr">{core.slug}</span>
             <span className="text-muted-foreground">· {core.provider_name}</span>
-            <span className="text-muted-foreground">· {t("sourceLocale")}: <span dir="ltr">{core.source_locale}</span></span>
+            <span className="text-muted-foreground">· {t("sourceLocale")}: {localeName(core.source_locale, locale)}</span>
             <span className="text-muted-foreground">· {t("revision", { draft: core.draft_revision, published: core.published_revision ?? "—" })}</span>
           </div>
         </div>

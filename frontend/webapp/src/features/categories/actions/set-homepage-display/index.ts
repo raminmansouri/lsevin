@@ -1,9 +1,9 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
-
 import sql from "@/config/database/db";
 import { getAdminContext } from "@/lib/auth/admin-guard";
+
+import { revalidateCategoryLanding } from "../../server/revalidate-landing";
 
 /**
  * Toggles whether a category appears on the homepage by setting
@@ -32,8 +32,9 @@ export async function setCategoryHomepageDisplayAction(
           last_modified_date = now()
       where id::text = ${categoryId}
     `;
-    // Refresh the cached homepage so the change is reflected.
-    revalidatePath("/", "layout");
+    // The landing shelf is a "use cache" entry tagged home-rails, which revalidatePath alone
+    // does not drop -- the switch looked saved but the landing kept the old set for a while.
+    revalidateCategoryLanding();
     return { ok: true };
   } catch (error) {
     return {

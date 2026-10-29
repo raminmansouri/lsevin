@@ -1,25 +1,37 @@
 import { Suspense } from "react";
-import { Metadata } from "next";
-import { setRequestLocale } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { getCategoryBrowserGroups } from "@/features/service-providers/actions/categories/get-category-browser-groups";
 import { CategoryBrowserClient } from "@/features/service-providers/components/categories/category-browser-client";
 import { SponsoredPlacementSlot } from "@/features/sponsered-slider/components/sponsored-placement-slot";
+import { buildPublicMetadata } from "@/lib/seo/metadata";
 import { getTourSettings } from "@/features/tours/server/platform/settings";
 
 import { DesktopCategoryBrowser } from "@/features/web-desktop/categories/DesktopCategoryBrowser";
 import { DesktopSponsoredSection } from "@/features/web-desktop/home/DesktopSponsoredSection";
 
 
-export const metadata: Metadata = {
-  title: "Categories",
-  description: "Browse all active LSevin service categories.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "CategoryBrowser" });
+  // Localized brand (السوین on Persian pages), not a hard-coded Latin name.
+  const brand = (await getTranslations({ locale, namespace: "LocaleLayout" }))("title");
+  return buildPublicMetadata({
+    locale,
+    path: "/n/app/mobile/categories",
+    title: `${t("allCategories")} | ${brand}`,
+    descriptions: [t("cantFindDescription")],
+  });
+}
 
-// Truly static: the category tree is the same for every visitor of a locale
-// (the `?parent=` deep-link is read on the client). Rebuilt at most hourly, and
-// on demand via the `cp-category-groups` cache tag the underlying
-// `unstable_cache` is already tagged with.
+// Rendered per request; the tree itself comes from the `cp-category-groups`
+// data cache (300 s), so this stays cheap. Not ISR: the image build has no
+// database, so a prerendered copy is an empty tree that would be served as
+// fresh for the whole revalidate window after every deploy.
 export const dynamic = "force-dynamic";
 
 export default async function CategoryBrowserPage({
@@ -30,9 +42,9 @@ export default async function CategoryBrowserPage({
   const { locale } = await params;
   setRequestLocale(locale);
 
-  // Never let a transient DB hiccup at build time fail the whole build — an
-  // empty tree renders fine and the next revalidation fills it in.
-  const data = await getCategoryBrowserGroups().catch(() => ({
+  // A database hiccup shows an empty tree for that one request only: the page
+  // is dynamic, so nothing empty is cached, and the data cache rejects failures.
+  const data = await getCategoryBrowserGroups(locale).catch(() => ({
     groups: [],
     totalCategories: 0,
     totalProviders: 0,

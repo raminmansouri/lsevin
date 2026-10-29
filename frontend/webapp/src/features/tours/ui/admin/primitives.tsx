@@ -12,9 +12,10 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 
-import { CALENDAR_IDS, formatIsoDate, isIsoDate, parseCalendarInput, type CalendarId } from "../../domain/calendar";
+import { CALENDAR_IDS, isIsoDate, type CalendarId } from "../../domain/calendar";
 import { directionOf } from "../../domain/content";
 
+import { formatPrice, JalaliDateInput, LocalizedTextInput } from "./inputs";
 import { selectClass } from "./styles";
 
 /** The structured result every admin action returns (errors.ts ActionResult). */
@@ -77,7 +78,7 @@ export function useAdminAction() {
 
 export function Field({ label, htmlFor, hint, children, className }: { label: string; htmlFor?: string; hint?: ReactNode; children: ReactNode; className?: string }) {
   return (
-    <div className={cn("space-y-1.5", className)}>
+    <div className={cn("min-w-0 space-y-1.5", className)}>
       <Label htmlFor={htmlFor}>{label}</Label>
       {children}
       {hint ? <p className="text-muted-foreground text-xs">{hint}</p> : null}
@@ -128,38 +129,16 @@ export function LangText({ value, locale, className }: { value: string | null | 
 }
 
 /**
- * A date typed in the admin's chosen calendar (M-027). Shows the canonical
- * ISO date and the same day in the other calendars live, so an invalid or
- * ambiguous entry is visible before it is submitted. The server re-validates.
+ * A date picked on a Jalali calendar. The value stays the canonical ISO (Gregorian)
+ * date, so send it to the server with `calendar: "gregory"`. `calendar` is kept for
+ * call-site compatibility and ignored: admins always enter dates in Jalali.
  */
-export function CalendarDateField({ id, label, value, onChange, calendar, hint, required }: {
-  id: string; label: string; value: string; onChange: (v: string) => void; calendar: CalendarId; hint?: string; required?: boolean;
+export function CalendarDateField({ id, label, value, onChange, hint, required }: {
+  id: string; label: string; value: string; onChange: (v: string) => void; calendar?: CalendarId; hint?: string; required?: boolean;
 }) {
-  const t = useTranslations("TourAdmin.calendarField");
-  const tc = useTranslations("TourShared.calendar");
-  const locale = useLocale();
-  const iso = value.trim() ? (calendar === "gregory" && isIsoDate(value.trim()) ? value.trim() : parseCalendarInput(value, calendar)) : null;
-  const invalid = Boolean(value.trim()) && !iso;
   return (
-    <Field label={label} htmlFor={id} hint={hint}>
-      <Input
-        id={id}
-        value={value}
-        required={required}
-        inputMode="numeric"
-        placeholder={t("placeholder")}
-        aria-invalid={invalid || undefined}
-        aria-describedby={`${id}-preview`}
-        onChange={(e) => onChange(e.target.value)}
-        dir="ltr"
-      />
-      <p id={`${id}-preview`} className={cn("text-xs", invalid ? "text-destructive" : "text-muted-foreground")} aria-live="polite">
-        {invalid
-          ? t("invalid", { calendar: tc(calendar) })
-          : iso
-            ? `${t("canonical")}: ${iso} · ${CALENDAR_IDS.filter((c) => c !== calendar).map((c) => `${tc(c)}: ${formatIsoDate(iso, { locale, calendar: c })}`).join(" · ")}`
-            : t("format")}
-      </p>
+    <Field label={required ? `${label} *` : label} htmlFor={id} hint={hint}>
+      <JalaliDateInput id={id} value={isIsoDate(value.trim()) ? value.trim() : ""} onChange={onChange} />
     </Field>
   );
 }
@@ -177,34 +156,11 @@ export function CalendarSelect({ id, value, onChange, label }: { id: string; val
   );
 }
 
-/** Edits a `{ locale: text }` JSON translations map for the given locales. */
-export function TranslationsInput({ idPrefix, label, locales, value, onChange, multiline }: {
-  idPrefix: string; label: string; locales: string[]; value: Record<string, string>; onChange: (v: Record<string, string>) => void; multiline?: boolean;
+/** Edits a `{ "fa-IR": text }` map with the platform's multi-language input (a tab per language). */
+export function TranslationsInput({ label, locales, value, onChange, multiline, richText }: {
+  idPrefix?: string; label: string; locales: string[]; value: Record<string, string>; onChange: (v: Record<string, string>) => void; multiline?: boolean; richText?: boolean;
 }) {
-  return (
-    <fieldset className="space-y-2 rounded-md border p-3">
-      <legend className="px-1 text-sm font-medium">{label}</legend>
-      <div className="grid gap-2 md:grid-cols-2">
-        {locales.map((loc) => {
-          const id = `${idPrefix}-${loc}`;
-          const common = {
-            id, lang: loc, dir: directionOf(loc), value: value[loc] ?? "",
-            "aria-label": `${label} (${loc})`,
-          };
-          return (
-            <div key={loc} className="space-y-1">
-              <Label htmlFor={id} className="text-muted-foreground text-xs">{loc}</Label>
-              {multiline ? (
-                <Textarea {...common} rows={3} onChange={(e) => onChange({ ...value, [loc]: e.target.value })} />
-              ) : (
-                <Input {...common} onChange={(e) => onChange({ ...value, [loc]: e.target.value })} />
-              )}
-            </div>
-          );
-        })}
-      </div>
-    </fieldset>
-  );
+  return <LocalizedTextInput label={label} locales={locales} value={value} onChange={onChange} multiline={multiline} richText={richText} />;
 }
 
 /** A destructive or consequential action that needs a written reason before it runs. */
@@ -260,11 +216,7 @@ export function Section({ title, description, actions, children, id }: { title: 
   );
 }
 
-export function formatAmount(amount: number | null | undefined, currency: string, locale: string, decimals?: number) {
-  if (amount == null) return "—";
-  try {
-    return new Intl.NumberFormat(locale, { style: "currency", currency, minimumFractionDigits: decimals, maximumFractionDigits: decimals ?? 2 }).format(amount);
-  } catch {
-    return `${amount.toLocaleString(locale)} ${currency}`;
-  }
+/** Thousands-separated amount; IRR/IRT read as ریال/تومان, never the raw code. */
+export function formatAmount(amount: number | null | undefined, currency: string, locale: string, _decimals?: number) {
+  return formatPrice(amount, currency, locale);
 }

@@ -1,4 +1,6 @@
-import { useTranslations } from "next-intl";
+"use client";
+
+import { useLocale, useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import { Link } from "@/i18n/navigation";
@@ -8,16 +10,14 @@ import { directionOf } from "../../domain/content";
 import type { LocalizedText } from "../../server/platform/catalog";
 import type { TourPreview } from "../../server/admin/preview";
 
+import { currencyLabel, formatPrice, localeName, useAdminDates } from "./inputs";
 import { selectClass } from "./styles";
 import { TOURS_PLATFORM_BASE } from "./paths";
 
-function money(amount: number | null, currency: string, locale: string, decimals: number) {
+/** Thousands separators; IRR / IRT read as ریال / تومان, never the raw code. */
+function money(amount: number | null, currency: string, locale: string) {
   if (amount == null) return "—";
-  try {
-    return new Intl.NumberFormat(locale, { style: "currency", currency, minimumFractionDigits: decimals, maximumFractionDigits: decimals }).format(amount);
-  } catch {
-    return `${amount} ${currency}`;
-  }
+  return formatPrice(amount, currency, locale);
 }
 
 /**
@@ -27,6 +27,9 @@ function money(amount: number | null, currency: string, locale: string, decimals
  */
 export function TourPreviewView({ data, tourId }: { data: TourPreview; tourId: string }) {
   const t = useTranslations("TourAdmin.preview");
+  const tc = useTranslations("TourShared.calendar");
+  const uiLocale = useLocale();
+  const dates = useAdminDates();
   const { detail, locale, calendar } = data;
   const fmtLocale = locale.split("-")[0];
   const dir = directionOf(locale);
@@ -46,11 +49,11 @@ export function TourPreviewView({ data, tourId }: { data: TourPreview; tourId: s
     );
   const convert = (amount: number | null) => {
     if (amount == null || !data.currency.rate) return null;
-    return money(amount * data.currency.rate.value, data.currency.target, fmtLocale, data.currency.targetDecimals);
+    return money(amount * data.currency.rate.value, data.currency.target, fmtLocale);
   };
   const price = (amount: number | null) => (
     <>
-      {money(amount, data.currency.base, fmtLocale, data.currency.baseDecimals)}
+      {money(amount, data.currency.base, fmtLocale)}
       {data.currency.target !== data.currency.base ? (
         <span className="text-muted-foreground ms-2 text-xs">
           {convert(amount) ? `≈ ${convert(amount)} (${t("indicative")})` : t("noRate", { currency: data.currency.target })}
@@ -70,17 +73,17 @@ export function TourPreviewView({ data, tourId }: { data: TourPreview; tourId: s
         <form method="get" className="flex flex-wrap items-end gap-2" aria-label={t("controls")}>
           <label className="space-y-1 text-sm"><span className="block">{t("language")}</span>
             <select name="lang" defaultValue={locale} className={selectClass}>
-              {data.enabledLocales.map((l) => <option key={l} value={l}>{l}</option>)}
+              {data.enabledLocales.map((l) => <option key={l} value={l}>{localeName(l, uiLocale)}</option>)}
             </select>
           </label>
           <label className="space-y-1 text-sm"><span className="block">{t("calendar")}</span>
             <select name="calendar" defaultValue={calendar} className={selectClass}>
-              {CALENDAR_IDS.map((c) => <option key={c} value={c}>{calendarDisplayName(c, "en")}</option>)}
+              {CALENDAR_IDS.map((c) => <option key={c} value={c}>{tc(c)}</option>)}
             </select>
           </label>
           <label className="space-y-1 text-sm"><span className="block">{t("currency")}</span>
             <select name="currency" defaultValue={data.currency.target} className={selectClass}>
-              {data.currencies.map((c) => <option key={c} value={c}>{c}</option>)}
+              {data.currencies.map((c) => <option key={c} value={c}>{currencyLabel(c, uiLocale)}{currencyLabel(c, uiLocale) !== c ? ` (${c})` : ""}</option>)}
             </select>
           </label>
           <Button type="submit" size="sm">{t("apply")}</Button>
@@ -134,7 +137,7 @@ export function TourPreviewView({ data, tourId }: { data: TourPreview; tourId: s
               </li>
             ))}
           </ul>
-          {data.currency.rate ? <p className="text-muted-foreground mt-1 text-xs" lang="en" dir="ltr">{t("rateNote", { base: data.currency.base, target: data.currency.target, rate: data.currency.rate.value, asOf: data.currency.rate.asOf.slice(0, 10) })}</p> : null}
+          {data.currency.rate ? <p className="text-muted-foreground mt-1 text-xs">{t("rateNote", { base: currencyLabel(data.currency.base, uiLocale), target: currencyLabel(data.currency.target, uiLocale), rate: new Intl.NumberFormat(uiLocale === "fa" ? "fa-IR" : uiLocale, { maximumFractionDigits: 6 }).format(data.currency.rate.value), asOf: dates.date(data.currency.rate.asOf) })}</p> : null}
         </section>
 
         <section>

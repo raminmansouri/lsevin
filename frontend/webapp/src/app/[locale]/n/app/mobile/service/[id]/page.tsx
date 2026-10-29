@@ -1,17 +1,26 @@
-import { notFound } from 'next/navigation';
-import { setRequestLocale } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from "next-intl/server";
+import { notFound } from "next/navigation";
 
-import { getServicePageByIdCached } from '@/features/service-providers/server/service-page.repository.cached';
-import { listActiveServicePageIds } from '@/features/service-providers/server/service-page.repository';
-
-import { buildPublicMetadata } from "@/lib/seo/metadata";
+import { listActiveServicePageIds } from "@/features/service-providers/server/service-page.repository";
+import { getServicePageByIdCached } from "@/features/service-providers/server/service-page.repository.cached";
+import { SponsoredPlacementSlot } from "@/features/sponsered-slider/components/sponsored-placement-slot";
 import { isFastBuild } from "@/lib/build-mode";
-import { SponsoredPlacementSlot } from '@/features/sponsered-slider/components/sponsored-placement-slot';
+import { absoluteUrl } from "@/lib/seo/alternates";
+import {
+  breadcrumbList,
+  graph,
+  providerUrl,
+  serviceSchema,
+  serviceUrl,
+} from "@/lib/seo/entity-schema";
+import { JsonLd } from "@/lib/seo/json-ld";
+import { getIndexableLocales } from "@/lib/seo/locale-eligibility";
+import { buildPublicMetadata } from "@/lib/seo/metadata";
 
 import { DesktopServiceView } from '@/features/web-desktop/service/DesktopServiceView';
 import { DesktopSponsoredSection } from '@/features/web-desktop/home/DesktopSponsoredSection';
 
-import ServicePage from './service-page';
+import ServicePage from "./service-page";
 
 type ServiceRouteParams = {
   locale: string;
@@ -25,7 +34,7 @@ type ServicePageRouteProps = {
 // Static / ISR. Rendered without a visitor context (default currency, no
 // favourite state — the interactive view resolves those on the client).
 // `generateStaticParams` prewarms active services; anything else is ISR'd.
-export const dynamic = 'force-static';
+export const dynamic = "force-static";
 export const revalidate = 3600;
 
 export async function generateStaticParams() {
@@ -38,34 +47,48 @@ export async function generateStaticParams() {
   }
 }
 
-export async function generateMetadata({ params }: Pick<ServicePageRouteProps, 'params'>) {
+export async function generateMetadata({
+  params,
+}: Pick<ServicePageRouteProps, "params">) {
   const { locale, id } = await params;
-  const data = await getServicePageByIdCached({ serviceId: id, locale }).catch(() => null);
+  const data = await getServicePageByIdCached({ serviceId: id, locale });
   const service = data?.service;
 
   if (!service) {
-    return buildPublicMetadata({ locale, path: `/n/app/mobile/service/${encodeURIComponent(id)}` });
+    notFound();
   }
 
   return buildPublicMetadata({
     locale,
     path: `/n/app/mobile/service/${encodeURIComponent(id)}`,
-    title: service.clinic ? `${service.name} ? ${service.clinic}` : service.name,
-    descriptions: [service.subtitle, service.definitionDescription, service.providerDescription],
+    title: service.clinic
+      ? `${service.name} | ${service.clinic}`
+      : service.name,
+    descriptions: [
+      service.subtitle,
+      service.definitionDescription,
+      service.providerDescription,
+    ],
     image: service.images?.[0],
     type: "website",
+    eligibleLocales: await getIndexableLocales("service", id),
   });
 }
 
-export default async function TreatmentDetailPage({ params }: ServicePageRouteProps) {
+export default async function TreatmentDetailPage({
+  params,
+}: ServicePageRouteProps) {
   const { locale, id } = await params;
   setRequestLocale(locale);
 
-  const data = await getServicePageByIdCached({ serviceId: id, locale }).catch(() => null);
+  const data = await getServicePageByIdCached({ serviceId: id, locale });
 
   if (!data) {
     notFound();
   }
+
+  const { service } = data;
+  const brand = (await getTranslations({ locale, namespace: "LocaleLayout" }))("title");
 
   return (
     <>
@@ -74,6 +97,31 @@ export default async function TreatmentDetailPage({ params }: ServicePageRoutePr
       </div>
       <DesktopServiceView data={data} serviceId={id} locale={locale} />
       <div className="pb-36 xl:hidden">
+      {service ? (
+        <JsonLd
+          data={graph(
+            serviceSchema({
+              locale,
+              id,
+              name: service.name,
+              description: service.subtitle || service.definitionDescription,
+              category: service.categoryName,
+              image: service.images?.[0],
+              providerId: service.clinicId,
+              providerName: service.clinic,
+              city: service.city,
+              country: service.country,
+            }),
+            breadcrumbList([
+              { name: brand, url: absoluteUrl(locale, "/n/app/mobile/home") },
+              ...(service.clinicId && service.clinic
+                ? [{ name: service.clinic, url: providerUrl(locale, service.clinicId) }]
+                : []),
+              { name: service.name, url: serviceUrl(locale, id) },
+            ])
+          )}
+        />
+      ) : null}
         <SponsoredPlacementSlot locale={locale} placement="service_detail" />
       </div>
       {/* Desktop: the same slides, in the home page's sponsored showcase */}

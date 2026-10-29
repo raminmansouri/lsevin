@@ -16,7 +16,22 @@ import sql from "@/config/database/db";
 export const INTERNATIONAL_MULTIPLIER_KEY = "international_price_multiplier";
 export const DEFAULT_INTERNATIONAL_MULTIPLIER = 3;
 
+let initialization: Promise<void> | undefined;
+
 export async function ensurePricingSettingsTable(): Promise<void> {
+  // Currency conversion reads this default repeatedly on one page. Share only
+  // schema setup, never the setting value; admin edits must remain immediately
+  // visible. A failed setup must be retryable on the next request.
+  if (!initialization) {
+    initialization = initializePricingSettingsTable().catch((error) => {
+      initialization = undefined;
+      throw error;
+    });
+  }
+  await initialization;
+}
+
+async function initializePricingSettingsTable(): Promise<void> {
   await sql`create schema if not exists finance`;
 
   await sql`
@@ -56,13 +71,18 @@ export async function getDefaultInternationalMultiplier(): Promise<number> {
   `;
 
   const value = Number(rows[0]?.value);
-  if (!Number.isFinite(value) || value <= 0) return DEFAULT_INTERNATIONAL_MULTIPLIER;
+  if (!Number.isFinite(value) || value <= 0)
+    return DEFAULT_INTERNATIONAL_MULTIPLIER;
   return value;
 }
 
-export async function updateDefaultInternationalMultiplier(value: number): Promise<void> {
+export async function updateDefaultInternationalMultiplier(
+  value: number
+): Promise<void> {
   if (!Number.isFinite(value) || value <= 0) {
-    throw new Error("International price multiplier must be a positive number.");
+    throw new Error(
+      "International price multiplier must be a positive number."
+    );
   }
 
   await ensurePricingSettingsTable();

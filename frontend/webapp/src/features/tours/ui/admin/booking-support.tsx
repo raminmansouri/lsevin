@@ -4,14 +4,14 @@ import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Link } from "@/i18n/navigation";
 
-import { formatInstant, formatIsoDate, isCalendarId, type CalendarId } from "../../domain/calendar";
+import { isCalendarId } from "../../domain/calendar";
 import { decideBookingRequestAction, openDisputeAction, rebookAction, rebookTargetsAction, revealContactAction } from "../../server/admin/actions";
 import type { SupportBooking } from "../../server/admin/support";
 
+import { currencyLabel, MoneyInput, OptionSelect, useAdminDates } from "./inputs";
 import { Field, formatAmount, NativeSelect, ReasonAction, Section, StatusBadge, useAdminAction } from "./primitives";
 import { TOURS_PLATFORM_BASE } from "./paths";
 
@@ -21,14 +21,18 @@ const REASON_CODES = ["operator_cancelled", "weather", "no_show_dispute", "servi
 export function BookingSupportView({ booking: b }: { booking: SupportBooking }) {
   const t = useTranslations("TourAdmin.booking");
   const ts = useTranslations("TourShared");
+  const tb = useTranslations("TourAdmin.bookings");
   const locale = useLocale();
+  const dates = useAdminDates();
   const { run, pending } = useAdminAction();
-  const cal: CalendarId = isCalendarId(b.displayCalendar) ? b.displayCalendar : "gregory";
   const [revealed, setRevealed] = useState<null | { buyer: { firstName: string; lastName: string; email: string | null; phone: string | null }; participants: { position: number; firstName: string; lastName: string; documentLast4: string | null; assistance: string | null }[] }>(null);
   const [targets, setTargets] = useState<{ id: string; starts_on: string; local_start_time: string | null; timezone: string; remaining: number }[] | null>(null);
   const [target, setTarget] = useState("");
   const [dispute, setDispute] = useState({ kind: "refund_exception", reasonCode: "goodwill", amount: "", notes: "" });
-  const when = (iso: string | null) => (iso ? formatInstant(iso, { locale, calendar: cal, timeZone: b.departure.timezone }) : "—");
+  // Admins always read Jalali dates; the traveler's own calendar is shown under "prefs".
+  const when = (iso: string | null) => dates.instant(iso, b.departure.timezone);
+  const payLabel = (s: string) => (tb.has(`paymentStatuses.${s}`) ? tb(`paymentStatuses.${s}`) : s);
+  const reasonOptions = REASON_CODES.map((r) => ({ value: r, label: t(`reasonCodes.${r}`) }));
   const live = ["pending_payment", "requested", "confirmed"].includes(b.status);
   return (
     <div className="space-y-4">
@@ -37,7 +41,7 @@ export function BookingSupportView({ booking: b }: { booking: SupportBooking }) 
         <h1 className="text-xl font-semibold"><span dir="ltr" className="font-mono">{b.voucher}</span></h1>
         <div className="flex flex-wrap gap-2 text-sm">
           <StatusBadge status={b.status} label={ts(`bookingStatus.${b.status}`)} />
-          <span>{t("payment")}: {b.payment.status}</span>
+          <span>{t("payment")}: {payLabel(b.payment.status)}</span>
           <span>· {t("refund")}: {b.refunds[0]?.status ?? "—"}</span>
           <span>· {t("payout")}: {b.payouts.map((p) => `${p.entry_type}:${p.status}`).join(", ") || "—"}</span>
         </div>
@@ -48,12 +52,12 @@ export function BookingSupportView({ booking: b }: { booking: SupportBooking }) 
           <dl className="grid grid-cols-2 gap-2 text-sm">
             <dt className="text-muted-foreground">{t("tour")}</dt><dd><Link href={`${TOURS_PLATFORM_BASE}/tours/${b.tour.id}`} className="hover:underline">{b.tour.title ?? b.tour.slug}</Link></dd>
             <dt className="text-muted-foreground">{t("departure")}</dt>
-            <dd data-testid="booking-departure" data-departure-id={b.departure.id}>{b.departure.localDate ? formatIsoDate(b.departure.localDate, { locale, calendar: cal, style: "full" }) : "—"} <span dir="ltr">{b.departure.localTime}</span> ({b.departure.timezone})</dd>
+            <dd data-testid="booking-departure" data-departure-id={b.departure.id}>{dates.date(b.departure.localDate, "full")} <span dir="ltr">{b.departure.localTime}</span> ({b.departure.timezone})</dd>
             <dt className="text-muted-foreground">{t("seats")}</dt><dd>{b.seats}</dd>
             <dt className="text-muted-foreground">{t("total")}</dt><dd>{formatAmount(b.total, b.currency, locale)} · {t("paid")} {formatAmount(b.payment.paid, b.currency, locale)}</dd>
             <dt className="text-muted-foreground">{t("commission")}</dt><dd>{b.commissionPercent == null ? "—" : `${b.commissionPercent}%`}</dd>
             <dt className="text-muted-foreground">{t("policy")}</dt><dd>v{b.policy.version} · <span dir="ltr">{b.policy.locale}</span> · {when(b.policy.acceptedAt)}</dd>
-            <dt className="text-muted-foreground">{t("prefs")}</dt><dd dir="ltr">{b.uiLocale} · {b.displayCalendar}</dd>
+            <dt className="text-muted-foreground">{t("prefs")}</dt><dd><span dir="ltr">{b.uiLocale}</span> · {isCalendarId(b.displayCalendar) ? ts(`calendar.${b.displayCalendar}`) : b.displayCalendar}</dd>
             <dt className="text-muted-foreground">{t("created")}</dt><dd>{when(b.createdAt)}</dd>
             {b.cancelledAt ? <><dt className="text-muted-foreground">{t("cancelled")}</dt><dd>{when(b.cancelledAt)} · {b.cancelReason}</dd></> : null}
           </dl>
@@ -103,7 +107,7 @@ export function BookingSupportView({ booking: b }: { booking: SupportBooking }) 
               <Field label={t("targetDeparture")} htmlFor="rb-target">
                 <NativeSelect id="rb-target" value={target} onChange={(e) => setTarget(e.target.value)}>
                   <option value="" />
-                  {targets.map((d) => <option key={d.id} value={d.id}>{formatIsoDate(d.starts_on, { locale, calendar: cal })} {d.local_start_time?.slice(0, 5)} · {t("free", { n: d.remaining })}</option>)}
+                  {targets.map((d) => <option key={d.id} value={d.id}>{dates.date(d.starts_on)} {d.local_start_time?.slice(0, 5)} · {t("free", { n: d.remaining })}</option>)}
                 </NativeSelect>
               </Field>
               {target ? <ReasonAction label={t("rebookConfirm")} testId="rebook" onConfirm={(reason) => run(() => rebookAction({ bookingId: b.bookingId, targetDepartureId: target, reason }), { success: t("rebooked") })} /> : null}
@@ -125,11 +129,9 @@ export function BookingSupportView({ booking: b }: { booking: SupportBooking }) 
             </NativeSelect>
           </Field>
           <Field label={t("reasonCode")} htmlFor="dp-reason">
-            <NativeSelect id="dp-reason" value={dispute.reasonCode} onChange={(e) => setDispute({ ...dispute, reasonCode: e.target.value })}>
-              {REASON_CODES.map((r) => <option key={r} value={r}>{t(`reasonCodes.${r}`)}</option>)}
-            </NativeSelect>
+            <OptionSelect id="dp-reason" value={dispute.reasonCode} onChange={(v) => setDispute({ ...dispute, reasonCode: v })} options={reasonOptions} allowEmpty={false} />
           </Field>
-          <Field label={t("amountIn", { currency: b.currency })} htmlFor="dp-amount"><Input id="dp-amount" dir="ltr" value={dispute.amount} onChange={(e) => setDispute({ ...dispute, amount: e.target.value })} /></Field>
+          <Field label={t("amountIn", { currency: currencyLabel(b.currency, locale) })} htmlFor="dp-amount"><MoneyInput id="dp-amount" value={dispute.amount} currency={b.currency} onChange={(v) => setDispute({ ...dispute, amount: v })} /></Field>
           <Field label={t("notes")} htmlFor="dp-notes"><Textarea id="dp-notes" rows={2} required value={dispute.notes} onChange={(e) => setDispute({ ...dispute, notes: e.target.value })} /></Field>
           <div><Button type="submit" size="sm" disabled={pending || dispute.notes.trim().length < 5}>{t("openDispute")}</Button></div>
         </form>

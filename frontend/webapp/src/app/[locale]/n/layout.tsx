@@ -2,7 +2,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
 import MobileAppBar from "@/components/mobile-app-bar";
 import Shell from "@/components/shell";
-import { BottomTabBar } from "./app/design-system/mobile-components";
+import { AppChrome } from "./app-chrome";
 import { getClientMessages } from "@/i18n/client-messages";
 import { DesktopFooter } from "@/features/web-desktop/components/DesktopFooter";
 import { DesktopHeader } from "@/features/web-desktop/components/DesktopHeader";
@@ -41,28 +41,22 @@ export default async function MainLayout({
       <Shell className="gap-0 py-0">
         {/* No gap: the app bar and each page's own header must meet without a seam. */}
         <div className="flex flex-col">
-          {/* The mobile app bar; on desktop its language and notifications live in DesktopHeader. */}
-          <div className="xl:hidden">
-            <MobileAppBar />
-          </div>
-          {/* Room for the mobile bottom tab bar; desktop has none. */}
-          <div className="pb-[calc(var(--bottom-nav-h)+env(safe-area-inset-bottom))] xl:pb-0">
-            <DesktopHeader
-              actions={
-                <>
-                  <NotificationsBar variant="glass" />
-                  <LocaleSwitcher variant="glass" />
-                </>
-              }
-            />
+          <AppChrome
+            appBar={<MobileAppBar />}
+            desktopHeader={
+              <DesktopHeader
+                actions={
+                  <>
+                    <NotificationsBar variant="glass" />
+                    <LocaleSwitcher variant="glass" />
+                  </>
+                }
+              />
+            }
+            desktopFooter={<DesktopFooter />}
+          >
             {children}
-            <DesktopFooter />
-          </div>
-
-          {/* The bottom tab bar is the mobile/tablet navigation; desktop uses DesktopHeader. */}
-          <div className="xl:hidden">
-            <BottomTabBar />
-          </div>
+          </AppChrome>
         </div>
       </Shell>
       <AssistantLauncher />

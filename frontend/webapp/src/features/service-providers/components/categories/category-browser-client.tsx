@@ -1,25 +1,26 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
-import { useTranslations } from "next-intl";
-import {
-  ChevronLeft,
-  ChevronRight,
-  Search,
-  Sparkles,
-} from "lucide-react";
+import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
+import { ChevronLeft, ChevronRight, Search, Sparkles } from "lucide-react";
 
-import { hasLexicalContent, LexicalRenderer } from "@/components/editor/lexical-renderer";
+import { useTranslations } from "next-intl";
+import { useSearchParams } from "next/navigation";
+
+import {
+  hasLexicalContent,
+  LexicalRenderer,
+} from "@/components/editor/lexical-renderer";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { env } from "@/config/env/client";
 import { Link, useRouter } from "@/i18n/navigation";
 import { getCategoryOverlayClassName, getCategoryOverlayStyle } from "@/features/categories/utils/category-overlay";
 import { TOURS_HOME_PATH, categoryProvidersHref, isTourismCategory } from "@/features/categories/utils/category-href";
+import { compareByPriority } from "@/features/categories/utils/priority";
 import type {
   CategoryBrowserCategory,
   CategoryBrowserGroup,
 } from "@/features/service-providers/actions/categories/get-category-browser-groups";
+
 
 const ALLOWED_GRADIENTS = [
   "from-red-500/90 to-red-600/90",
@@ -47,6 +48,16 @@ const ALLOWED_GRADIENTS = [
 
 const FALLBACK_GRADIENTS = ALLOWED_GRADIENTS.slice(0, 8);
 const ROOT_PARENT_KEY = "__root__";
+
+// Only this small leaf reads request-time URL state. Keeping useSearchParams
+// out of the catalog component lets ISR emit the category links in HTML rather
+// than replacing the entire tree with a client-render-only Suspense fallback.
+function CategoryUrlState({ onChange }: { onChange: (query: string) => void }) {
+  const searchParams = useSearchParams();
+  const query = searchParams.toString();
+  useEffect(() => onChange(query), [query, onChange]);
+  return null;
+}
 
 function parentKey(parentId?: string | null) {
   return parentId || ROOT_PARENT_KEY;
@@ -80,11 +91,8 @@ function getGradientStyle(category: CategoryBrowserCategory) {
 }
 
 export function sortCategories(categories: CategoryBrowserCategory[]) {
-  return [...categories].sort((a, b) => {
-    const orderDelta = a.displayOrder - b.displayOrder;
-    if (orderDelta !== 0) return orderDelta;
-    return a.name.localeCompare(b.name);
-  });
+  // Admin priority first (1, 2, …); categories without one (0) follow, by name.
+  return [...categories].sort(compareByPriority<CategoryBrowserCategory>((a, b) => a.name.localeCompare(b.name)));
 }
 
 function CategoryMedia({ category }: { category: CategoryBrowserCategory }) {
@@ -130,7 +138,11 @@ function CategoryDescription({ description }: { description?: string | null }) {
   }
 
   if (description?.trim()) {
-    return <p className="mb-2 line-clamp-2 text-xs leading-4 text-white/85">{description}</p>;
+    return (
+      <p className="mb-2 line-clamp-2 text-xs leading-4 text-white/85">
+        {description}
+      </p>
+    );
   }
 
   return <p className="mb-2 line-clamp-2 text-xs leading-4 text-white/85">-</p>;
@@ -167,11 +179,15 @@ function CategoryCardContent({
           .join(" ")}
         style={gradientStyle}
         data-category-gradient={category.gradient || undefined}
-        data-category-overlay={gradientStyle?.background ? "inline-style" : gradientClass || "default"}
+        data-category-overlay={
+          gradientStyle?.background
+            ? "inline-style"
+            : gradientClass || "default"
+        }
       />
 
       <div className="relative z-10 flex h-full flex-col justify-end p-4 text-left">
-        <h3 className="mb-1 text-base font-bold leading-tight text-white">
+        <h3 className="mb-1 text-base leading-tight font-bold text-white">
           {category.name}
         </h3>
         <CategoryDescription description={category.description} />
@@ -217,7 +233,11 @@ function CategoryCard({
         className={className}
         aria-label={`Open ${category.name} subcategories`}
       >
-        <CategoryCardContent category={category} hasChildren={hasChildren} index={index} />
+        <CategoryCardContent
+          category={category}
+          hasChildren={hasChildren}
+          index={index}
+        />
       </button>
     );
   }
@@ -228,7 +248,11 @@ function CategoryCard({
       className={className}
       aria-label={`Open ${category.name}`}
     >
-      <CategoryCardContent category={category} hasChildren={hasChildren} index={index} />
+      <CategoryCardContent
+        category={category}
+        hasChildren={hasChildren}
+        index={index}
+      />
     </Link>
   );
 }
@@ -266,7 +290,9 @@ export function CategoryBrowserClient({
   const router = useRouter();
   // `?parent=` deep-links straight onto a node's subcategories (home-shelf
   // links). Read on the client so the page itself stays statically rendered.
-  const initialParentId = useSearchParams().get("parent")?.trim() || null;
+  const [queryString, setQueryString] = useState("");
+  const selectedParentId =
+    new URLSearchParams(queryString).get("parent")?.trim() || null;
   const [query, setQuery] = useState("");
 
   const allCategories = useMemo(
@@ -304,7 +330,9 @@ export function CategoryBrowserClient({
 
       while (current) {
         nextPath.unshift(current);
-        current = current.parentId ? categoryById.get(current.parentId) : undefined;
+        current = current.parentId
+          ? categoryById.get(current.parentId)
+          : undefined;
       }
 
       return nextPath;
@@ -315,10 +343,21 @@ export function CategoryBrowserClient({
   // A ?parent= link lands mid-tree, so the breadcrumb has to be reconstructed from
   // the node up rather than started empty — otherwise "All categories" is the only
   // way back out of a screen the visitor entered three levels down.
-  const [path, setPath] = useState<CategoryBrowserCategory[]>(() => {
-    const target = initialParentId ? categoryById.get(initialParentId) : undefined;
+  const path = useMemo(() => {
+    const target = selectedParentId
+      ? categoryById.get(selectedParentId)
+      : undefined;
     return target ? buildPathToCategory(target) : [];
-  });
+  }, [selectedParentId, categoryById, buildPathToCategory]);
+  function navigateToParent(id?: string) {
+    const nextParams = new URLSearchParams(queryString);
+    if (id) nextParams.set("parent", id);
+    else nextParams.delete("parent");
+    const query = nextParams.toString();
+    router.push(`/n/app/mobile/categories${query ? `?${query}` : ""}`, {
+      scroll: false,
+    });
+  }
   const currentParent = path.length > 0 ? path[path.length - 1] : null;
 
   // Tourism has no category screen of its own: the Tours app is its home.
@@ -345,7 +384,13 @@ export function CategoryBrowserClient({
   const filteredGroups = useMemo(() => {
     if (hasQuery) {
       return searchedCategories.length
-        ? [{ id: "search", title: "Search results", categories: searchedCategories }]
+        ? [
+            {
+              id: "search",
+              title: "Search results",
+              categories: searchedCategories,
+            },
+          ]
         : [];
     }
 
@@ -362,14 +407,22 @@ export function CategoryBrowserClient({
     return categoryGroups
       .map((group) => ({
         ...group,
-        categories: sortCategories(group.categories.filter((category) => !category.parentId)),
+        categories: sortCategories(
+          group.categories.filter((category) => !category.parentId)
+        ),
       }))
       .filter((group) => group.categories.length > 0);
-  }, [categoriesByParent, categoryGroups, currentParent, hasQuery, searchedCategories]);
+  }, [
+    categoriesByParent,
+    categoryGroups,
+    currentParent,
+    hasQuery,
+    searchedCategories,
+  ]);
 
   function openCategory(category: CategoryBrowserCategory) {
     setQuery("");
-    setPath(buildPathToCategory(category));
+    navigateToParent(category.id);
   }
 
   function handleBack() {
@@ -379,7 +432,7 @@ export function CategoryBrowserClient({
     }
 
     if (path.length > 0) {
-      setPath((currentPath) => currentPath.slice(0, -1));
+      navigateToParent(path[path.length - 2]?.id);
       return;
     }
 
@@ -388,7 +441,10 @@ export function CategoryBrowserClient({
 
   return (
     <div className="min-h-screen bg-white pb-24">
-      <div className="sticky top-0 z-40 border-b border-gray-100 bg-white/95 px-5 pb-4 pt-3 backdrop-blur-xl">
+      <Suspense fallback={null}>
+        <CategoryUrlState onChange={setQueryString} />
+      </Suspense>
+      <div className="sticky top-0 z-40 border-b border-gray-100 bg-white/95 px-5 pt-3 pb-4 backdrop-blur-xl">
         <div className="flex items-center gap-3">
           <button
             type="button"
@@ -401,10 +457,13 @@ export function CategoryBrowserClient({
 
           <div className="min-w-0 flex-1">
             <h1 className="truncate text-2xl font-bold text-gray-900">
-              {hasQuery ? "Search categories" : currentParent?.name || "Categories"}
+              {hasQuery
+                ? t("searchCategories")
+                : currentParent?.name || t("allCategories")}
             </h1>
             <p className="text-sm text-gray-600">
-              {totalCategories.toLocaleString()} categories • {totalProviders.toLocaleString()} providers
+              {t("categoriesCount", { count: totalCategories })} •{" "}
+              {t("providersCount", { count: totalProviders })}
             </p>
           </div>
         </div>
@@ -413,7 +472,7 @@ export function CategoryBrowserClient({
           <div className="mt-3 flex flex-wrap items-center gap-2 text-xs font-semibold text-gray-500">
             <button
               type="button"
-              onClick={() => setPath([])}
+              onClick={() => navigateToParent()}
               className="rounded-full bg-gray-100 px-3 py-1 text-[#083f30]"
             >
               {t("allCategories")}
@@ -422,7 +481,7 @@ export function CategoryBrowserClient({
               <button
                 key={category.id}
                 type="button"
-                onClick={() => setPath(path.slice(0, index + 1))}
+                onClick={() => navigateToParent(path[index].id)}
                 className="rounded-full bg-gray-100 px-3 py-1 text-gray-700"
               >
                 {category.name}
@@ -460,7 +519,8 @@ export function CategoryBrowserClient({
             className="mb-6 flex items-center justify-between gap-3 rounded-2xl border border-gray-100 bg-gray-50 px-4 py-3 transition-colors hover:bg-gray-100"
           >
             <span className="min-w-0 text-sm font-semibold text-[#083f30]">
-              View all {currentParent.count.toLocaleString()} providers in {currentParent.name}
+              View all {currentParent.count.toLocaleString()} providers in{" "}
+              {currentParent.name}
             </span>
             <ChevronRight size={18} className="shrink-0 text-[#083f30]" />
           </Link>
@@ -484,7 +544,9 @@ export function CategoryBrowserClient({
                         {group.title}
                       </h2>
                       <p className="text-xs font-medium text-gray-500">
-                        {t("categoriesCount", { count: group.categories.length })}
+                        {t("categoriesCount", {
+                          count: group.categories.length,
+                        })}
                       </p>
                     </div>
                     <span className="shrink-0 text-sm font-medium text-gray-500">
@@ -494,7 +556,8 @@ export function CategoryBrowserClient({
 
                   <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
                     {group.categories.map((category, categoryIndex) => {
-                      const hasChildren = (categoriesByParent.get(category.id)?.length ?? 0) > 0;
+                      const hasChildren =
+                        (categoriesByParent.get(category.id)?.length ?? 0) > 0;
 
                       return (
                         <CategoryCard
@@ -520,7 +583,7 @@ export function CategoryBrowserClient({
           <div className="relative z-10">
             <div className="mb-3 flex items-center gap-2">
               <Sparkles size={18} className="text-[#eacb7f]" />
-              <span className="text-xs font-bold uppercase tracking-wide text-[#eacb7f]">
+              <span className="text-xs font-bold tracking-wide text-[#eacb7f] uppercase">
                 {t("smartDiscovery")}
               </span>
             </div>

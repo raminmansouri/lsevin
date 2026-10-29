@@ -1,5 +1,6 @@
 # Local dependencies and Next.js output must never enter the Docker build context.
 node_modules
+.pnpm-store
 .next
 
 # Git history is not required to compile the application.
@@ -14,6 +15,10 @@ node_modules
 # Logs, test output, and editor files only increase context size.
 *.log
 coverage
+artifacts
+test-results
+playwright-report
+public-performance-baseline.json
 .vscode
 .idea
 .DS_Store

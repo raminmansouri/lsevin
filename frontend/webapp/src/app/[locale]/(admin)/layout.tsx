@@ -61,8 +61,11 @@ export default async function AdminLayout({ children, params }: LocalePageProps)
           <header className="bg-background/95 supports-[backdrop-filter]:bg-background/80 h-header sticky top-0 z-10 flex shrink-0 items-center gap-2 border-b px-4 backdrop-blur">
             <SidebarTrigger />
             <Separator orientation="vertical" className="mx-1 h-4" />
-            <AdminBreadcrumbs />
-            <div className="ms-auto flex items-center gap-2">
+            {/* Long breadcrumbs (record ids) are clipped instead of widening the page on phones. */}
+            <div className="min-w-0 flex-1 overflow-hidden">
+              <AdminBreadcrumbs />
+            </div>
+            <div className="ms-auto flex shrink-0 items-center gap-2">
               <AdminCommandPalette tableGroups={tableGroups} />
               <AdminBugReportFloatingButton />
               <AdminNotificationsBell />

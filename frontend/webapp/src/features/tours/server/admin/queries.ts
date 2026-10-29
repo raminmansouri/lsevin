@@ -112,6 +112,7 @@ export type TourListFilters = {
 export type TourListRow = {
   id: string; slug: string; title: string | null; status: string; providerId: string; providerName: string | null;
   providerVerified: boolean; destination: string | null; country: string | null; categories: string[];
+  providerNames: Record<string, string> | null; destinationNames: Record<string, string> | null;
   submittedAt: string | null; publishedAt: string | null; updatedAt: string; requirementErrors: number;
   pendingChanges: boolean; isFeatured: boolean; isSponsored: boolean; sourceLocale: string;
 };
@@ -133,9 +134,9 @@ export async function listTours(actor: Actor, f: TourListFilters): Promise<{ row
   const q = f.q?.trim().toLowerCase().slice(0, 120) || null;
   const rows = await db<any[]>`
     select t.id::text, t.slug, t.status, t.service_provider_id::text as provider_id, t.source_locale,
-           coalesce(sp.name_translations->>'en-US', sp.name_translations->>'fa-IR') as provider_name,
+           coalesce(sp.name_translations->>'en-US', sp.name_translations->>'fa-IR') as provider_name, sp.name_translations as provider_names,
            coalesce(sp.accredited, false) as provider_verified,
-           coalesce(ds.name_translations->>'en-US', ds.name_translations->>'fa-IR', ds.slug) as destination,
+           coalesce(ds.name_translations->>'en-US', ds.name_translations->>'fa-IR', ds.slug) as destination, ds.name_translations as destination_names,
            coalesce(ds.country_code, sp.country) as country, t.category_codes, t.submitted_at, t.published_at, t.updated_at,
            t.is_featured, t.is_sponsored,
            (select coalesce(c.draft_value, c.published_value) from tour.content c
@@ -166,6 +167,7 @@ export async function listTours(actor: Actor, f: TourListFilters): Promise<{ row
     rows: rows.map((r) => ({
       id: r.id, slug: r.slug, title: r.title, status: r.status, providerId: r.provider_id, providerName: r.provider_name,
       providerVerified: r.provider_verified, destination: r.destination, country: r.country, categories: r.category_codes,
+      providerNames: r.provider_names ?? null, destinationNames: r.destination_names ?? null,
       submittedAt: iso(r.submitted_at), publishedAt: iso(r.published_at), updatedAt: iso(r.updated_at)!,
       requirementErrors: r.requirement_errors, pendingChanges: r.pending_changes, isFeatured: r.is_featured, isSponsored: r.is_sponsored,
       sourceLocale: r.source_locale,
@@ -180,17 +182,23 @@ export async function listTours(actor: Actor, f: TourListFilters): Promise<{ row
 export async function filterLookups(actor: Actor) {
   assertAdminActor(actor);
   const providers = await db<any[]>`
-    select sp.id::text, coalesce(sp.name_translations->>'en-US', sp.name_translations->>'fa-IR', sp.id::text) as name
+    select sp.id::text, coalesce(sp.name_translations->>'en-US', sp.name_translations->>'fa-IR', sp.id::text) as name, sp.name_translations as names
       from category.service_providers sp
+     -- Tourism providers, so a provider can get its first tour; plus any provider that already has tours.
      where exists (select 1 from tour.tours t where t.service_provider_id = sp.id)
+        or (sp.is_active and exists (select 1 from category.provider_types pt
+                                      where pt.id = sp.provider_type_id and pt.name_translations->>'en-US' ilike 'tourism'))
      order by 2 limit 500`;
   const destinations = await db<any[]>`
-    select id::text, slug, coalesce(name_translations->>'en-US', name_translations->>'fa-IR', slug) as name, country_code
+    select id::text, slug, coalesce(name_translations->>'en-US', name_translations->>'fa-IR', slug) as name, country_code, name_translations as names
       from tour.destinations order by sort_order, slug limit 500`;
   const categories = await db<any[]>`
     select code, coalesce(label_translations->>'en-US', code) as label, label_translations
       from tour.taxonomy_terms where kind = 'category' and is_active order by sort_order, code`;
-  return { providers, destinations, categories };
+  // Options for the admin selectors only; the actions still validate every value.
+  const currencies = await db<{ code: string }[]>`select code from finance.currencies where is_active order by code`;
+  const { enabledLocales } = await getTourSettings();
+  return { providers, destinations, categories, currencies: currencies.map((c) => c.code), enabledLocales: enabledLocales as string[] };
 }
 
 // ----------------------------------------------------------------------------
@@ -508,7 +516,9 @@ export async function publishedTourOptions(actor: Actor) {
   assertAdminActor(actor);
   return db<any[]>`
     select t.id::text, t.slug, t.status,
-           (select coalesce(c.published_value, c.draft_value) from tour.content c where c.entity_type = 'tour' and c.entity_id = t.id and c.field_key = 'title' and c.locale = t.source_locale) as title
+           (select coalesce(c.published_value, c.draft_value) from tour.content c where c.entity_type = 'tour' and c.entity_id = t.id and c.field_key = 'title' and c.locale = t.source_locale) as title,
+           (select coalesce(jsonb_object_agg(c.locale, coalesce(c.published_value, c.draft_value)) filter (where coalesce(c.published_value, c.draft_value) is not null), '{}'::jsonb)
+              from tour.content c where c.entity_type = 'tour' and c.entity_id = t.id and c.field_key = 'title') as title_translations
       from tour.tours t where t.status in ('published','paused','approved','submitted') order by t.updated_at desc limit 500`;
 }
 

@@ -28,7 +28,7 @@ import type { WeatherView } from "../../../server/ops/contract";
 import { recordViewAction } from "../../../server/actions/customer";
 import type { DepartureView, TourCard as TourCardData, TourDetail } from "../../../server/platform/catalog";
 import { formatClock, formatNumber, languageName, lines } from "../../shared/format";
-import { FallbackBadge, LocalizedText, type LocalizedValue } from "../../shared/localized-text";
+import { FallbackBadge, LocalizedText, plainText, type LocalizedValue } from "../../shared/localized-text";
 import { TourMap } from "../../shared/tour-map";
 import { FromPrice, TourPrice, useTourDateFormat } from "../common";
 import { TourCard, durationLabel } from "../tour-card";
@@ -58,7 +58,7 @@ function Expandable({ text }: { text: LocalizedValue }) {
   const t = useTranslations("TourApp.detail");
   const [open, setOpen] = useState(false);
   if (!text) return null;
-  const long = text.value.length > 280;
+  const long = plainText(text.value).length > 280;
   return (
     <div>
       <div className={cn(!open && long && "line-clamp-5")}>

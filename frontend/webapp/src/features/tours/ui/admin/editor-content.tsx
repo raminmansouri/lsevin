@@ -1,22 +1,66 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import type { SerializedEditorState } from "lexical";
 import { useLocale, useTranslations } from "next-intl";
 
+import { Editor } from "@/components/blocks/editor-00/editor";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { getSafeLexicalPlainText, SafeLexicalRenderer } from "@/features/service-definitions/components/safe-lexical-renderer";
 import { Link } from "@/i18n/navigation";
 
-import { formatInstant } from "../../domain/calendar";
 import { directionOf, REQUIRED_TOUR_FIELDS, TOUR_TEXT_FIELDS } from "../../domain/content";
 import { approveContentAction, saveContentAction } from "../../server/admin/actions";
 import type { TourBundle } from "../../server/admin/queries";
 
+import { isLexicalJson, localeName, useAdminDates } from "./inputs";
 import { LangText, Section, StatusBadge, useAdminAction } from "./primitives";
 import { TOURS_PLATFORM_BASE } from "./paths";
 
 type Row = TourBundle["content"][number];
+
+/** Long prose edited with the platform's rich text (Lexical) editor; stored as its JSON per language. */
+const RICH_TEXT_FIELDS: readonly string[] = ["description"];
+
+/** Readable text of a stored value (rich text flattened). */
+const plain = (value: string | null | undefined) => (isLexicalJson(value) ? getSafeLexicalPlainText(value) : value ?? "");
+
+/** Stored text in its language: rich text rendered, plain text as is. */
+export function StoredText({ value, locale }: { value: string | null | undefined; locale: string }) {
+  if (isLexicalJson(value) && plain(value).trim()) {
+    return <div lang={locale} dir={directionOf(locale)}><SafeLexicalRenderer content={value} fallback="" /></div>;
+  }
+  return <LangText value={isLexicalJson(value) ? "" : value} locale={locale} />;
+}
+
+/** Lexical state for a stored value; plain text (older rows) becomes one paragraph. */
+export function toEditorState(value: string, dir: "rtl" | "ltr"): SerializedEditorState | undefined {
+  if (!value) return undefined;
+  if (isLexicalJson(value)) return JSON.parse(value) as SerializedEditorState;
+  const paragraph = (text: string) => ({
+    children: text ? [{ detail: 0, format: 0, mode: "normal", style: "", text, type: "text", version: 1 }] : [],
+    direction: dir, format: "", indent: 0, type: "paragraph", version: 1,
+  });
+  return { root: { children: value.split("\n").map(paragraph), direction: dir, format: "", indent: 0, type: "root", version: 1 } } as unknown as SerializedEditorState;
+}
+
+/** The shared rich text editor for one language. Remount (key) it when the language or saved value changes. */
+export function RichTextField({ id, labelId, locale, value, onChange, testId }: {
+  id: string; labelId: string; locale: string; value: string; onChange: (json: string) => void; testId?: string;
+}) {
+  const dir = directionOf(locale);
+  return (
+    <div id={id} role="group" aria-labelledby={labelId} lang={locale} data-testid={testId}>
+      <Editor direction={dir} editorSerializedState={toEditorState(value, dir)} onSerializedChange={(state) => {
+        // An editor with no text is stored as "" so an emptied field is not saved as an empty document.
+        const json = JSON.stringify(state);
+        onChange(plain(json).trim() ? json : "");
+      }} />
+    </div>
+  );
+}
 
 /**
  * Side-by-side source / translation editor (M-028..M-032): independent
@@ -27,6 +71,7 @@ export function ContentTab({ bundle, targetLocale }: { bundle: TourBundle; targe
   const t = useTranslations("TourAdmin.content");
   const ts = useTranslations("TourShared.contentStatus");
   const uiLocale = useLocale();
+  const dates = useAdminDates();
   const { run, pending } = useAdminAction();
   const core = bundle.core;
   const source = core.source_locale as string;
@@ -46,7 +91,7 @@ export function ContentTab({ bundle, targetLocale }: { bundle: TourBundle; targe
     setValues(initial);
   }
   const dirty = TOUR_TEXT_FIELDS.filter((f) => (values[f] ?? "") !== (initial[f] ?? ""));
-  const sourceText = TOUR_TEXT_FIELDS.map((f) => byKey.get(`${f}|${source}`)?.draft_value ?? "").join("\n");
+  const sourceText = TOUR_TEXT_FIELDS.map((f) => plain(byKey.get(`${f}|${source}`)?.draft_value)).join("\n");
   const glossaryHints = bundle.glossary
     .filter((g) => g.locale === source && g.value && sourceText.includes(g.value))
     .map((g) => ({ key: g.term_key, source: g.value, target: bundle.glossary.find((x) => x.term_key === g.term_key && x.locale === target)?.value ?? null, note: g.note }));
@@ -62,8 +107,8 @@ export function ContentTab({ bundle, targetLocale }: { bundle: TourBundle; targe
               {bundle.coverage.map((c) => (
                 <tr key={c.locale} className="border-t" data-locale={c.locale}>
                   <td className="p-1.5">
-                    <Link href={`${TOURS_PLATFORM_BASE}/tours/${core.id}?tab=content&locale=${c.locale}`} className="font-mono hover:underline" dir="ltr"
-                      onClick={(e) => { if (dirty.length > 0 && !window.confirm(t("discardConfirm"))) e.preventDefault(); }}>{c.locale}</Link>
+                    <Link href={`${TOURS_PLATFORM_BASE}/tours/${core.id}?tab=content&locale=${c.locale}`} className="hover:underline"
+                      onClick={(e) => { if (dirty.length > 0 && !window.confirm(t("discardConfirm"))) e.preventDefault(); }}>{localeName(c.locale, uiLocale)} <span className="text-muted-foreground font-mono text-xs" dir="ltr">{c.locale}</span></Link>
                     {c.locale === source ? <span className="text-muted-foreground"> · {t("source")}</span> : null}
                   </td>
                   <td className="p-1.5 tabular-nums">{c.present}/{c.total}</td>
@@ -78,8 +123,8 @@ export function ContentTab({ bundle, targetLocale }: { bundle: TourBundle; targe
 
       <Section
         id="editor"
-        title={t("editorTitle", { target })}
-        description={t("editorDescription", { source })}
+        title={t("editorTitle", { target: localeName(target, uiLocale) })}
+        description={t("editorDescription", { source: localeName(source, uiLocale) })}
         actions={
           <>
             <Button type="button" size="sm" disabled={pending || dirty.length === 0} data-testid="save-content"
@@ -115,33 +160,41 @@ export function ContentTab({ bundle, targetLocale }: { bundle: TourBundle; targe
             const required = (REQUIRED_TOUR_FIELDS as readonly string[]).includes(f);
             const id = `content-${f}`;
             const label = t.has(`field.${f}`) ? t(`field.${f}`) : f;
+            const rich = RICH_TEXT_FIELDS.includes(f);
+            const savedTarget = initial[f] ?? "";
             return (
               <div key={f} className="grid gap-3 rounded-md border p-3 lg:grid-cols-2" data-field={f} data-status={status}>
                 <div className="space-y-1">
                   <div className="flex items-center gap-2 text-sm font-medium">
                     {label}{required ? <span className="text-destructive" aria-label={t("requiredField")}>*</span> : null}
-                    <span className="text-muted-foreground text-xs" dir="ltr">({source})</span>
+                    <span className="text-muted-foreground text-xs">({localeName(source, uiLocale)})</span>
                     {src ? <StatusBadge status={src.status} label={ts(src.status)} /> : <StatusBadge status="missing" label={ts("missing")} />}
                   </div>
-                  <div className="bg-muted/40 min-h-10 rounded p-2 text-sm"><LangText value={src?.draft_value ?? src?.published_value} locale={source} /></div>
+                  <div className="bg-muted/40 min-h-10 rounded p-2 text-sm"><StoredText value={src?.draft_value ?? src?.published_value} locale={source} /></div>
                   {src && src.published_value && src.published_value !== src.draft_value ? (
-                    <p className="text-xs text-sky-800 dark:text-sky-200">{t("liveValue")}: <LangText value={src.published_value} locale={source} /></p>
+                    <div className="text-xs text-sky-800 dark:text-sky-200">{t("liveValue")}: <StoredText value={src.published_value} locale={source} /></div>
                   ) : null}
                 </div>
                 <div className="space-y-1">
                   <div className="flex flex-wrap items-center gap-2">
-                    <Label htmlFor={id}>{t("translationLabel", { field: label, locale: target })}</Label>
+                    <Label htmlFor={rich ? undefined : id} id={`${id}-label`}>{t("translationLabel", { field: label, locale: localeName(target, uiLocale) })}</Label>
                     <StatusBadge status={status} label={ts(status)} />
                     {status === "outdated" ? <span className="text-xs text-amber-700" data-testid={`outdated-${f}`}>{t("outdatedHint")}</span> : null}
                     {row?.machine_translated ? <span className="text-xs text-amber-700">{t("machine")}</span> : null}
                   </div>
-                  <Textarea id={id} rows={f === "description" ? 5 : 2} lang={target} dir={directionOf(target)} value={values[f] ?? ""}
-                    onChange={(e) => setValues({ ...values, [f]: e.target.value })} aria-invalid={required && !(values[f] ?? "").trim() ? true : undefined} />
+                  {rich ? (
+                    // Remounts when the language or the saved text changes (the editor reads its value once).
+                    <RichTextField key={`${target}|${savedTarget}`} id={id} labelId={`${id}-label`} locale={target} value={values[f] ?? ""} testId={id}
+                      onChange={(json) => setValues((prev) => ({ ...prev, [f]: json }))} />
+                  ) : (
+                    <Textarea id={id} rows={2} lang={target} dir={directionOf(target)} value={values[f] ?? ""}
+                      onChange={(e) => setValues({ ...values, [f]: e.target.value })} aria-invalid={required && !(values[f] ?? "").trim() ? true : undefined} />
+                  )}
                   {row && row.published_value && row.published_value !== (values[f] ?? "") ? (
-                    <p className="text-xs text-sky-800 dark:text-sky-200" data-testid={`live-${f}`}>{t("liveValue")}: <LangText value={row.published_value} locale={target} /></p>
+                    <div className="text-xs text-sky-800 dark:text-sky-200" data-testid={`live-${f}`}>{t("liveValue")}: <StoredText value={row.published_value} locale={target} /></div>
                   ) : null}
                   <div className="text-muted-foreground flex flex-wrap items-center gap-2 text-xs">
-                    {row?.updated_at ? <span>{t("lastEdit", { at: formatInstant(row.updated_at, { locale: uiLocale, calendar: uiLocale === "fa" ? "persian" : "gregory", timeZone: "Asia/Tehran" }), by: row.updated_by?.slice(0, 8) ?? "—" })}</span> : null}
+                    {row?.updated_at ? <span>{t("lastEdit", { at: dates.instant(row.updated_at), by: row.updated_by?.slice(0, 8) ?? "—" })}</span> : null}
                     {row && ["draft", "submitted", "outdated"].includes(row.status) && (row.draft_value ?? "").trim() && !dirty.includes(f) ? (
                       <Button type="button" size="sm" variant="ghost" className="h-6 px-2" disabled={pending} data-testid={`approve-${f}`}
                         onClick={() => run(() => approveContentAction(core.id, target, [f]), { success: t("approved") })}>{t("approveField")}</Button>

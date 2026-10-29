@@ -30,7 +30,6 @@ import type {
   TopReview,
 } from '../types/service-page.types';
 
-import { getDefaultCurrencyForCountry, getUserPhoneCountryCode } from "@/features/finance/lib/server/currency-queries";
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{12}$/i;
 const DEFAULT_FALLBACK_LOCALE = 'en-US';
@@ -1349,12 +1348,6 @@ export async function getServicePageByIdFromDb({
   const effectiveInternationalMultiplier = await resolveProviderMultiplier(providerMultiplier).catch(() => 1);
 
   const sourceCurrencyCode = normalizeCurrencyCode(row.currency);
-  // The viewer's main currency follows the country of the phone number they logged in with.
-  const phoneCurrencyCode = await getUserPhoneCountryCode(userId)
-    .then((country) => getDefaultCurrencyForCountry(country))
-    .catch(() => null);
-
-  console.log("💰 service currency", { userId, preferredCurrencyCode, phoneCurrencyCode });
   const [resolvedDisplayCurrencyCode, isIranianVisitor] = await Promise.all([
     safeResolvePreferredCurrencyCode({
       userId,
@@ -1366,7 +1359,6 @@ export async function getServicePageByIdFromDb({
     resolveIsIranianVisitor().catch(() => false),
   ]);
 
-  console.log("💰 resolved", resolvedDisplayCurrencyCode);
 
   const fallbackImages = uniqueNonEmpty([row.image_url]);
 
@@ -1414,10 +1406,10 @@ export async function getServicePageByIdFromDb({
   const duration = durationMinutes > 0 ? `${durationMinutes} min` : '';
   const allowedDisplayCurrencies = uniqueCurrencyCodes([sourceCurrencyCode, resolvedDisplayCurrencyCode, ...DEFAULT_DISPLAY_CURRENCIES]);
 
-  const [priceOptions, originalPriceOptions] = await Promise.all([
-    safeGetConvertedPriceOptions({ amount: price, sourceCurrencyCode, targetCurrencyCodes: allowedDisplayCurrencies, providerMultiplier }),
-    safeGetConvertedPriceOptions({ amount: price, sourceCurrencyCode, targetCurrencyCodes: allowedDisplayCurrencies, providerMultiplier }),
-  ]);
+  // Both prices use identical inputs. Reuse one conversion instead of issuing
+  // the same finance/settings/exchange-rate queries twice on every cold render.
+  const priceOptions = await safeGetConvertedPriceOptions({ amount: price, sourceCurrencyCode, targetCurrencyCodes: allowedDisplayCurrencies, providerMultiplier });
+  const originalPriceOptions = priceOptions;
 
   // Additive override, not a change to the conversion pipeline above: when the
   // provider has an admin-set Toman price and the visitor is Iranian, that

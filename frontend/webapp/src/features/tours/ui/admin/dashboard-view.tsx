@@ -1,9 +1,12 @@
-import { useTranslations } from "next-intl";
+"use client";
+
+import { useLocale, useTranslations } from "next-intl";
 
 import { Link } from "@/i18n/navigation";
 
 import type { DashboardData } from "../../server/admin/queries";
 
+import { localeName } from "./inputs";
 import { TOURS_PLATFORM_BASE } from "./paths";
 
 function Stat({ label, value, href, tone }: { label: string; value: number | string; href?: string; tone?: "warn" | "danger" }) {
@@ -19,6 +22,7 @@ function Stat({ label, value, href, tone }: { label: string; value: number | str
 export function DashboardView({ data }: { data: DashboardData }) {
   const t = useTranslations("TourAdmin.dashboard");
   const ts = useTranslations("TourShared");
+  const locale = useLocale();
   const b = TOURS_PLATFORM_BASE;
   return (
     <div className="space-y-6">
@@ -68,7 +72,7 @@ export function DashboardView({ data }: { data: DashboardData }) {
             <tbody>
               {data.coverage.map((c) => (
                 <tr key={c.locale} className="border-t">
-                  <td className="p-2 font-mono" dir="ltr">{c.locale}</td>
+                  <td className="p-2" title={c.locale}>{localeName(c.locale, locale)}</td>
                   <td className="p-2 tabular-nums">{c.complete} / {c.total}</td>
                   <td className="p-2 tabular-nums">{c.outdated}</td>
                 </tr>

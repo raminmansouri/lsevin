@@ -3,3 +3,8 @@
 #Ignore vscode AI rules
 .github\instructions\codacy.instructions.md
 .i18n-work/
+
+# Local SEO/performance verification artifacts
+/artifacts/
+/performance-*.log
+/public-performance-baseline.json

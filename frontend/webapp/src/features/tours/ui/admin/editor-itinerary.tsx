@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useTranslations } from "next-intl";
+import { useMemo, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,11 +11,15 @@ import { directionOf } from "../../domain/content";
 import { saveItineraryAction } from "../../server/admin/actions";
 import type { TourBundle } from "../../server/admin/queries";
 
+import { RichTextField } from "./editor-content";
+import { localeName, MediaUrlInput, OptionSelect, type Option } from "./inputs";
 import { Field, NativeSelect, Section, useAdminAction } from "./primitives";
 
 type StopDraft = {
   id?: string; day: string; position: string; type: string; lat: string; lng: string; exact: boolean; startTime: string; durationMinutes: string;
   transportMode: string; included: boolean; title: string; description: string; instructions: string;
+  // Not edited here, but carried through so saving the itinerary does not clear them.
+  imageUrl: string; travelMinutesFromPrev: number | null; distanceKmFromPrev: number | null;
 };
 
 const STOP_TYPES = ["meeting", "activity", "transfer", "accommodation", "meal", "recommendation", "finish"];
@@ -23,7 +27,10 @@ const n = (v: string) => (v.trim() === "" ? null : Number(v));
 
 export function ItineraryTab({ bundle }: { bundle: TourBundle }) {
   const t = useTranslations("TourAdmin.itinerary");
+  const tm = useTranslations("TourAdmin.media");
+  const uiLocale = useLocale();
   const { run, pending } = useAdminAction();
+  const stopTypeOptions = useMemo<Option[]>(() => STOP_TYPES.map((x) => ({ value: x, label: t(`stopType.${x}`) })), [t]);
   const core = bundle.core;
   const [locale, setLocale] = useState<string>(core.source_locale);
   const textOf = (stopId: string, field: string, loc: string) => {
@@ -35,6 +42,8 @@ export function ItineraryTab({ bundle }: { bundle: TourBundle }) {
     lng: s.longitude == null ? "" : String(s.longitude), exact: s.location_exact, startTime: s.start_time ? String(s.start_time).slice(0, 5) : "",
     durationMinutes: s.duration_minutes == null ? "" : String(s.duration_minutes), transportMode: s.transport_mode ?? "", included: s.included,
     title: textOf(s.id, "title", loc), description: textOf(s.id, "description", loc), instructions: textOf(s.id, "instructions", loc),
+    imageUrl: s.image_url ?? "", travelMinutesFromPrev: s.travel_minutes_from_prev ?? null,
+    distanceKmFromPrev: s.distance_km_from_prev == null ? null : Number(s.distance_km_from_prev),
   }));
   const [stops, setStops] = useState<StopDraft[]>(() => load(core.source_locale));
   const [summary, setSummary] = useState("");
@@ -42,6 +51,7 @@ export function ItineraryTab({ bundle }: { bundle: TourBundle }) {
   const save = () => run(() => saveItineraryAction(core.id, locale, stops.map((s) => ({
     id: s.id, day: Number(s.day), position: Number(s.position), type: s.type, lat: n(s.lat), lng: n(s.lng), exact: s.exact,
     startTime: s.startTime || null, durationMinutes: n(s.durationMinutes), transportMode: s.transportMode || null, included: s.included,
+    imageUrl: s.imageUrl || null, travelMinutesFromPrev: s.travelMinutesFromPrev, distanceKmFromPrev: s.distanceKmFromPrev,
     // Only text that exists or was typed is written; blank fields never create empty rows.
     text: Object.fromEntries((["title", "description", "instructions"] as const)
       .filter((f) => s[f].trim() !== "" || (s.id ? textOf(s.id, f, locale) !== "" : false))
@@ -53,7 +63,7 @@ export function ItineraryTab({ bundle }: { bundle: TourBundle }) {
       <div className="flex flex-wrap items-end gap-3">
         <Field label={t("textLocale")} htmlFor="it-locale">
           <NativeSelect id="it-locale" value={locale} onChange={(e) => { setLocale(e.target.value); setStops(load(e.target.value)); }}>
-            {bundle.locales.map((l) => <option key={l} value={l}>{l}{l === core.source_locale ? ` (${t("source")})` : ""}</option>)}
+            {bundle.locales.map((l) => <option key={l} value={l}>{localeName(l, uiLocale)}{l === core.source_locale ? ` (${t("source")})` : ""}</option>)}
           </NativeSelect>
         </Field>
         <Field label={t("changeSummary")} htmlFor="it-summary" className="min-w-64 flex-1"><Input id="it-summary" value={summary} onChange={(e) => setSummary(e.target.value)} /></Field>
@@ -65,19 +75,25 @@ export function ItineraryTab({ bundle }: { bundle: TourBundle }) {
               <Field label={t("day")} htmlFor={`st-day-${i}`}><Input id={`st-day-${i}`} dir="ltr" value={s.day} onChange={(e) => update(i, { day: e.target.value })} /></Field>
               <Field label={t("position")} htmlFor={`st-pos-${i}`}><Input id={`st-pos-${i}`} dir="ltr" value={s.position} onChange={(e) => update(i, { position: e.target.value })} /></Field>
               <Field label={t("type")} htmlFor={`st-type-${i}`}>
-                <NativeSelect id={`st-type-${i}`} value={s.type} onChange={(e) => update(i, { type: e.target.value })}>
-                  {STOP_TYPES.map((x) => <option key={x} value={x}>{t(`stopType.${x}`)}</option>)}
-                </NativeSelect>
+                <OptionSelect id={`st-type-${i}`} value={s.type} onChange={(type) => update(i, { type })} options={stopTypeOptions} allowEmpty={false} testId={`st-type-${i}`} />
               </Field>
               <Field label={t("lat")} htmlFor={`st-lat-${i}`}><Input id={`st-lat-${i}`} dir="ltr" value={s.lat} onChange={(e) => update(i, { lat: e.target.value })} /></Field>
               <Field label={t("lng")} htmlFor={`st-lng-${i}`}><Input id={`st-lng-${i}`} dir="ltr" value={s.lng} onChange={(e) => update(i, { lng: e.target.value })} /></Field>
-              <Field label={t("startTime")} htmlFor={`st-time-${i}`}><Input id={`st-time-${i}`} dir="ltr" placeholder="HH:MM" value={s.startTime} onChange={(e) => update(i, { startTime: e.target.value })} /></Field>
+              <Field label={t("startTime")} htmlFor={`st-time-${i}`}><Input id={`st-time-${i}`} type="time" dir="ltr" value={s.startTime} onChange={(e) => update(i, { startTime: e.target.value })} /></Field>
             </div>
-            <div className="grid gap-2 md:grid-cols-3">
-              <Field label={`${t("stopTitle")} (${locale})`} htmlFor={`st-title-${i}`}><Input id={`st-title-${i}`} lang={locale} dir={directionOf(locale)} value={s.title} onChange={(e) => update(i, { title: e.target.value })} /></Field>
-              <Field label={`${t("stopDescription")} (${locale})`} htmlFor={`st-desc-${i}`}><Textarea id={`st-desc-${i}`} rows={2} lang={locale} dir={directionOf(locale)} value={s.description} onChange={(e) => update(i, { description: e.target.value })} /></Field>
-              <Field label={`${t("stopInstructions")} (${locale})`} htmlFor={`st-ins-${i}`}><Textarea id={`st-ins-${i}`} rows={2} lang={locale} dir={directionOf(locale)} value={s.instructions} onChange={(e) => update(i, { instructions: e.target.value })} /></Field>
+            <div className="grid gap-2 md:grid-cols-2">
+              <Field label={`${t("stopTitle")} (${localeName(locale, uiLocale)})`} htmlFor={`st-title-${i}`}><Input id={`st-title-${i}`} lang={locale} dir={directionOf(locale)} value={s.title} onChange={(e) => update(i, { title: e.target.value })} /></Field>
+              <Field label={`${t("stopInstructions")} (${localeName(locale, uiLocale)})`} htmlFor={`st-ins-${i}`}><Textarea id={`st-ins-${i}`} rows={2} lang={locale} dir={directionOf(locale)} value={s.instructions} onChange={(e) => update(i, { instructions: e.target.value })} /></Field>
             </div>
+            <div className="space-y-1.5">
+              <p id={`st-desc-${i}-label`} className="text-sm font-medium">{`${t("stopDescription")} (${localeName(locale, uiLocale)})`}</p>
+              {/* Rich text (Lexical JSON) for the selected language; remounts when the language changes. */}
+              <RichTextField key={`${locale}|${s.id ?? `new-${i}`}`} id={`st-desc-${i}`} labelId={`st-desc-${i}-label`} locale={locale} value={s.description}
+                onChange={(json) => setStops((prev) => prev.map((x, j) => (j === i ? { ...x, description: json } : x)))} />
+            </div>
+            <Field label={tm("kind.image")} htmlFor={`st-img-${i}`}>
+              <MediaUrlInput id={`st-img-${i}`} value={s.imageUrl} onChange={(imageUrl) => update(i, { imageUrl })} mediaType="image" />
+            </Field>
             <div className="flex flex-wrap items-center gap-4 text-sm">
               <label className="flex items-center gap-1.5"><input type="checkbox" checked={s.exact} onChange={(e) => update(i, { exact: e.target.checked })} /> {t("exact")}</label>
               <label className="flex items-center gap-1.5"><input type="checkbox" checked={s.included} onChange={(e) => update(i, { included: e.target.checked })} /> {t("included")}</label>
@@ -90,7 +106,7 @@ export function ItineraryTab({ bundle }: { bundle: TourBundle }) {
       <Button type="button" size="sm" variant="outline" onClick={() => {
         const day = stops.length ? Number(stops[stops.length - 1].day) || 1 : 1;
         const pos = stops.filter((s) => Number(s.day) === day).length + 1;
-        setStops([...stops, { day: String(day), position: String(pos), type: "activity", lat: "", lng: "", exact: true, startTime: "", durationMinutes: "", transportMode: "", included: true, title: "", description: "", instructions: "" }]);
+        setStops([...stops, { day: String(day), position: String(pos), type: "activity", lat: "", lng: "", exact: true, startTime: "", durationMinutes: "", transportMode: "", included: true, title: "", description: "", instructions: "", imageUrl: "", travelMinutesFromPrev: null, distanceKmFromPrev: null }]);
       }}>{t("add")}</Button>
       <p className="text-muted-foreground text-xs">{t("materialHint")}</p>
     </Section>

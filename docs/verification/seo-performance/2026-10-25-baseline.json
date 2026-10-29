@@ -1,0 +1,235 @@
+{
+  "measuredAt": "2026-10-25T12:17:03.644Z",
+  "origin": "https://lsevincare.com",
+  "method": "curl GET; new connection per sample; DNS/TCP/TLS included; no redirects followed",
+  "routes": [
+    {
+      "path": "/fa/n/app/mobile/home",
+      "requests": 3,
+      "successful": 3,
+      "p50Ms": 1786.751,
+      "p95Ms": 1946.723,
+      "budgetMs": 30,
+      "pass": false,
+      "samples": [
+        {
+          "status": 200,
+          "ttfbMs": 1786.751,
+          "dnsMs": 238.177,
+          "tcpMs": 241.57799999999997,
+          "tlsMs": 1214.7440000000001,
+          "totalMs": 2993.776,
+          "curlExit": 0
+        },
+        {
+          "status": 200,
+          "ttfbMs": 1946.723,
+          "dnsMs": 10.008,
+          "tcpMs": 16.532,
+          "tlsMs": 1448.311,
+          "totalMs": 2998.1420000000003,
+          "curlExit": 0
+        },
+        {
+          "status": 200,
+          "ttfbMs": 1239.721,
+          "dnsMs": 10.366999999999999,
+          "tcpMs": 12.609,
+          "tlsMs": 835.615,
+          "totalMs": 2067.97,
+          "curlExit": 0
+        }
+      ]
+    },
+    {
+      "path": "/fa/n/app/mobile/categories",
+      "requests": 3,
+      "successful": 3,
+      "p50Ms": 1378.704,
+      "p95Ms": 1648.509,
+      "budgetMs": 30,
+      "pass": false,
+      "samples": [
+        {
+          "status": 200,
+          "ttfbMs": 1648.509,
+          "dnsMs": 14.867999999999999,
+          "tcpMs": 19.134,
+          "tlsMs": 924.526,
+          "totalMs": 2223.659,
+          "curlExit": 0
+        },
+        {
+          "status": 200,
+          "ttfbMs": 1274.116,
+          "dnsMs": 12.893999999999998,
+          "tcpMs": 15.558,
+          "tlsMs": 866.133,
+          "totalMs": 1891.0720000000001,
+          "curlExit": 0
+        },
+        {
+          "status": 200,
+          "ttfbMs": 1378.704,
+          "dnsMs": 7.9590000000000005,
+          "tcpMs": 10.673,
+          "tlsMs": 860.897,
+          "totalMs": 1870.388,
+          "curlExit": 0
+        }
+      ]
+    },
+    {
+      "path": "/fa/n/app/mobile/explore",
+      "requests": 3,
+      "successful": 3,
+      "p50Ms": 1371.1789999999999,
+      "p95Ms": 1417.6280000000002,
+      "budgetMs": 30,
+      "pass": false,
+      "samples": [
+        {
+          "status": 200,
+          "ttfbMs": 1286.108,
+          "dnsMs": 11.008000000000001,
+          "tcpMs": 13.888,
+          "tlsMs": 841.8919999999999,
+          "totalMs": 2232.117,
+          "curlExit": 0
+        },
+        {
+          "status": 200,
+          "ttfbMs": 1371.1789999999999,
+          "dnsMs": 13.351,
+          "tcpMs": 15.814000000000002,
+          "tlsMs": 838.429,
+          "totalMs": 2203.496,
+          "curlExit": 0
+        },
+        {
+          "status": 200,
+          "ttfbMs": 1417.6280000000002,
+          "dnsMs": 5.135,
+          "tcpMs": 8.168999999999999,
+          "tlsMs": 856.075,
+          "totalMs": 2364.509,
+          "curlExit": 0
+        }
+      ]
+    },
+    {
+      "path": "/fa/n/app/mobile/search",
+      "requests": 3,
+      "successful": 3,
+      "p50Ms": 1410.1779999999999,
+      "p95Ms": 1518.096,
+      "budgetMs": 30,
+      "pass": false,
+      "samples": [
+        {
+          "status": 200,
+          "ttfbMs": 1518.096,
+          "dnsMs": 12.943,
+          "tcpMs": 16.181,
+          "tlsMs": 853.133,
+          "totalMs": 2022.259,
+          "curlExit": 0
+        },
+        {
+          "status": 200,
+          "ttfbMs": 1224.583,
+          "dnsMs": 3.6510000000000002,
+          "tcpMs": 7.1240000000000006,
+          "tlsMs": 852.01,
+          "totalMs": 1878.967,
+          "curlExit": 0
+        },
+        {
+          "status": 200,
+          "ttfbMs": 1410.1779999999999,
+          "dnsMs": 7.936,
+          "tcpMs": 23.61,
+          "tlsMs": 820.4860000000001,
+          "totalMs": 1900.708,
+          "curlExit": 0
+        }
+      ]
+    },
+    {
+      "path": "/sitemap.xml",
+      "requests": 3,
+      "successful": 3,
+      "p50Ms": 1677.9550000000002,
+      "p95Ms": 1854.6879999999999,
+      "budgetMs": 30,
+      "pass": false,
+      "samples": [
+        {
+          "status": 200,
+          "ttfbMs": 1854.6879999999999,
+          "dnsMs": 139.579,
+          "tcpMs": 142.849,
+          "tlsMs": 1098.422,
+          "totalMs": 4854.392,
+          "curlExit": 0
+        },
+        {
+          "status": 200,
+          "ttfbMs": 1635.646,
+          "dnsMs": 14.631,
+          "tcpMs": 17.297,
+          "tlsMs": 1035.5939999999998,
+          "totalMs": 4914.681,
+          "curlExit": 0
+        },
+        {
+          "status": 200,
+          "ttfbMs": 1677.9550000000002,
+          "dnsMs": 120.022,
+          "tcpMs": 124.138,
+          "tlsMs": 1122.947,
+          "totalMs": 5520.616999999999,
+          "curlExit": 0
+        }
+      ]
+    },
+    {
+      "path": "/robots.txt",
+      "requests": 3,
+      "successful": 3,
+      "p50Ms": 1120.043,
+      "p95Ms": 1416.302,
+      "budgetMs": 30,
+      "pass": false,
+      "samples": [
+        {
+          "status": 200,
+          "ttfbMs": 1416.302,
+          "dnsMs": 8.736,
+          "tcpMs": 11.56,
+          "tlsMs": 1019.287,
+          "totalMs": 1416.3609999999999,
+          "curlExit": 0
+        },
+        {
+          "status": 200,
+          "ttfbMs": 1120.043,
+          "dnsMs": 8.618,
+          "tcpMs": 12.951,
+          "tlsMs": 898.251,
+          "totalMs": 1120.109,
+          "curlExit": 0
+        },
+        {
+          "status": 200,
+          "ttfbMs": 1075.733,
+          "dnsMs": 8.039,
+          "tcpMs": 10.539,
+          "tlsMs": 849.684,
+          "totalMs": 1075.783,
+          "curlExit": 0
+        }
+      ]
+    }
+  ]
+}

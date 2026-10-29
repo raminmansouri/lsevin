@@ -22,6 +22,8 @@ const TERM_KINDS = ["category", "tag", "transport_mode", "difficulty", "amenity"
 const CODE_RE = /^[a-z0-9][a-z0-9_-]{0,62}$/;
 const SLUG_RE = /^[a-z0-9][a-z0-9-]{0,80}$/;
 const URL_RE = /^(https:\/\/|\/)[^\s<>"']{1,1000}$/;
+/** Per-language cap for destination descriptions, sized for serialized rich text (Lexical JSON). */
+const DESCRIPTION_MAX = 40_000;
 
 // ----------------------------------------------------------------------------
 // Taxonomy (M-002)
@@ -133,7 +135,8 @@ export async function upsertDestination(actor: Actor, input: DestinationInput) {
   if (from && until && until <= from) throw fail.validation("invalid_range");
   const values = {
     slug, name_translations: db.json(names as never), region_translations: db.json(translationsMap(input.regions, 200) as never),
-    description_translations: db.json(translationsMap(input.descriptions, 4000) as never), country_code: country, latitude: lat, longitude: lng,
+    // Descriptions are rich text (Lexical JSON per language), far longer than the visible text.
+    description_translations: db.json(translationsMap(input.descriptions, DESCRIPTION_MAX) as never), country_code: country, latitude: lat, longitude: lng,
     timezone: tz, cover_url: cover, cover_alt_translations: db.json(alts as never), is_published: Boolean(input.isPublished),
     is_featured: Boolean(input.isFeatured), sort_order: intIn(input.sortOrder ?? 0, -10_000, 10_000, "invalid_sort_order"),
     publish_from: from, publish_until: until,
