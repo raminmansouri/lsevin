@@ -44,7 +44,20 @@ tidy_images() {
   done
   # the Docker copies were only staging for the import
   docker images --format '{{.Repository}}:{{.Tag}}' | grep -E '^lsevin-(webapp|webapp-migrations|api):' | xargs -r docker rmi -f >/dev/null 2>&1
-  docker builder prune -f --reserved-space 2GB >/dev/null 2>&1 || true
+  # Untagged, unused images pile up too (22 webapp + 5 migrations images = ~3 GB on 2026-10-29, disk 94%): when a release is
+  # re-imported the older image loses its tag but stays on disk. They do not show up in the tag loop above.
+  k3s crictl images -o json > "$keep.img" 2>/dev/null && k3s crictl ps -a -o json > "$keep.ps" 2>/dev/null && \
+    py "import json
+imgs=json.load(open('$keep.img'))['images']; cs=json.load(open('$keep.ps'))['containers']
+used=set()
+for c in cs:
+    used.add(c['image'].get('image','')); used.add(c['image'].get('imageRef',''))
+print('\n'.join(i['id'] for i in imgs if not i.get('repoTags') and i['id'] not in used))" 2>/dev/null | while read -r id; do
+      timeout 60 k3s crictl rmi "$id" >/dev/null 2>&1 && removed=$((removed + 1))
+    done
+  rm -f "$keep.img" "$keep.ps"
+  # --reserved-space was a silent no-op here (8 GB of build cache stayed); --keep-storage really prunes
+  docker builder prune -af --keep-storage 2GB >/dev/null 2>&1 || true
   log "tidy: removed $removed old Kubernetes images; kept $(wc -l < "$keep") (running + previous release); disk now $(df -h --output=pcent / | tail -1 | tr -d ' ')"
   rm -f "$keep"
 }

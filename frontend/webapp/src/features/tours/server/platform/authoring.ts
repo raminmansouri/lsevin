@@ -435,7 +435,19 @@ export type OptionInput = {
   minGroup?: number; maxGroup?: number | null; privateGroupPrice?: number | null; isActive?: boolean;
   tiers: { travelerClass: string; amount: number; minAge?: number | null; maxAge?: number | null }[];
   label?: string; // in `locale`
+  /** Labels in several languages at once ({ "fa-IR": "…" }); applied after `label`. */
+  labels?: Record<string, string>;
 };
+
+/** Writes `{ locale: label }` rows for an option/add-on; empty values are skipped (never erase a translation). */
+async function upsertLabels(tx: Tx, tourId: string, sourceLocale: string, entity: "option" | "addon", entityId: string, labels: Record<string, string> | undefined, userId: string | null) {
+  if (!labels) return;
+  for (const [loc, text] of Object.entries(labels)) {
+    if (typeof text !== "string" || !text.trim()) continue;
+    if (!LOCALE_RE.test(loc)) throw fail.validation("invalid_locale");
+    await upsertContentRows(tx, tourId, sourceLocale, loc, entity, entityId, { label: text.trim() }, userId);
+  }
+}
 
 export async function saveOptions(actor: Actor, tourId: string, locale: string, options: OptionInput[]) {
   const owner = await authorizeTour(actor, tourId, "editor");
@@ -470,6 +482,7 @@ export async function saveOptions(actor: Actor, tourId: string, locale: string, 
             on conflict (option_id, traveler_class) do update set amount = excluded.amount, min_age = excluded.min_age, max_age = excluded.max_age`;
         }
         if (o.label) await upsertContentRows(tx as unknown as Tx, tourId, owner.sourceLocale, locale, "option", row.id, { label: o.label }, actor.userId);
+        await upsertLabels(tx as unknown as Tx, tourId, owner.sourceLocale, "option", row.id, o.labels, actor.userId);
       }
       await tx`update tour.tours set private_available = exists (select 1 from tour.options where tour_id = ${tourId}::uuid and kind = 'private' and is_active) where id = ${tourId}::uuid`;
       await refreshFromPrice(tx as unknown as Tx, tourId);
@@ -482,7 +495,7 @@ export async function saveOptions(actor: Actor, tourId: string, locale: string, 
   }
 }
 
-export async function saveAddons(actor: Actor, tourId: string, locale: string, addons: { code: string; pricing: "per_person" | "per_booking"; amount: number; maxQty?: number; isActive?: boolean; label?: string }[]) {
+export async function saveAddons(actor: Actor, tourId: string, locale: string, addons: { code: string; pricing: "per_person" | "per_booking"; amount: number; maxQty?: number; isActive?: boolean; label?: string; labels?: Record<string, string> }[]) {
   const owner = await authorizeTour(actor, tourId, "editor");
   await db.begin(async (tx) => {
     const codes = addons.map((a) => a.code);
@@ -497,6 +510,7 @@ export async function saveAddons(actor: Actor, tourId: string, locale: string, a
            is_active = excluded.is_active, sort_order = excluded.sort_order
         returning id::text`;
       if (a.label) await upsertContentRows(tx as unknown as Tx, tourId, owner.sourceLocale, locale, "addon", row.id, { label: a.label }, actor.userId);
+      await upsertLabels(tx as unknown as Tx, tourId, owner.sourceLocale, "addon", row.id, a.labels, actor.userId);
     }
     await bumpRevision(tx as unknown as Tx, tourId);
   });

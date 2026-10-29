@@ -1,19 +1,20 @@
 "use client";
 
 import { useState } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 
 import { addMediaAction, moderateMediaAction, removeMediaAction, reorderMediaAction } from "../../server/admin/actions";
 import type { TourBundle } from "../../server/admin/queries";
 
+import { MediaUrlInput, pickLabel } from "./inputs";
 import { EmptyState, Field, NativeSelect, ReasonAction, Section, StatusBadge, TranslationsInput, useAdminAction } from "./primitives";
 
 /** Media moderation (M-006): approve, reject with a note the provider sees, reorder, add, remove. */
 export function MediaTab({ bundle }: { bundle: TourBundle }) {
   const t = useTranslations("TourAdmin.media");
+  const uiLocale = useLocale();
   const { run, pending } = useAdminAction();
   const core = bundle.core;
   const media = bundle.media;
@@ -36,7 +37,7 @@ export function MediaTab({ bundle }: { bundle: TourBundle }) {
           {media.map((m, i) => (
             <li key={m.id} className="space-y-2 rounded-md border p-3" data-media-id={m.id} data-moderation={m.moderation_status}>
               {/* eslint-disable-next-line @next/next/no-img-element -- moderation must show the exact uploaded file, unoptimized */}
-              {m.kind === "image" ? <img src={m.thumbnail_url ?? m.url} alt={m.alt_translations?.[core.source_locale] ?? ""} className="aspect-video w-full rounded object-cover" loading="lazy" /> : (
+              {m.kind === "image" ? <img src={m.thumbnail_url ?? m.url} alt={pickLabel(m.alt_translations, uiLocale)} className="aspect-video w-full rounded object-cover" loading="lazy" /> : (
                 <a href={m.url} className="block truncate text-sm underline" dir="ltr">{m.url}</a>
               )}
               <div className="flex flex-wrap items-center gap-2 text-xs">
@@ -68,13 +69,16 @@ export function MediaTab({ bundle }: { bundle: TourBundle }) {
           e.preventDefault();
           run(() => addMediaAction(core.id, { url: url.trim(), kind, alt, isCover: cover }), { onSuccess: () => { setUrl(""); setAlt({}); setCover(false); } });
         }}>
-          <Field label={t("url")} htmlFor="media-url" className="md:col-span-2"><Input id="media-url" dir="ltr" required value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://… or /images/…" /></Field>
+          <Field label={t("file")} htmlFor="media-url" className="md:col-span-2">
+            {/* The media library picker (upload or choose); it resolves the file to the public URL the tour stores. */}
+            <MediaUrlInput id="media-url" value={url} onChange={setUrl} mediaType={kind === "video" ? "video" : "image"} placeholder={t("pick")} />
+          </Field>
           <Field label={t("kindLabel")} htmlFor="media-kind">
             <NativeSelect id="media-kind" value={kind} onChange={(e) => setKind(e.target.value as typeof kind)}>
               <option value="image">{t("kind.image")}</option><option value="video">{t("kind.video")}</option><option value="panorama">{t("kind.panorama")}</option>
             </NativeSelect>
           </Field>
-          <div className="md:col-span-3"><TranslationsInput idPrefix="media-alt" label={t("alt")} locales={bundle.locales.slice(0, 4)} value={alt} onChange={setAlt} /></div>
+          <div className="md:col-span-3"><TranslationsInput idPrefix="media-alt" label={t("alt")} locales={bundle.locales} value={alt} onChange={setAlt} /></div>
           <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={cover} onChange={(e) => setCover(e.target.checked)} /> {t("makeCover")}</label>
           <div><Button type="submit" disabled={pending || !url.trim()}>{t("add")}</Button></div>
         </form>

@@ -9,7 +9,7 @@ import { expect, test } from "@playwright/test";
 
 import { seedProvider, seedTour, seedUser } from "../../src/features/tours/testing/fixtures";
 
-import { expectToast, signInAdmin, skipIntro } from "./admin-helpers";
+import { expectToast, fillLocalized, signInAdmin, skipIntro } from "./admin-helpers";
 import { closeDb, db } from "./support/db";
 
 test.afterAll(closeDb);
@@ -26,7 +26,7 @@ test("AT-37 source cancellation change flags the English translation for review;
   await signInAdmin(context);
 
   await page.goto(`/en/admin/tours-platform/tours/${t.id}?tab=policy`);
-  await page.locator("#pol-c-fa-IR").fill("فقط تا ۴۸ ساعت قبل از حرکت بازپرداخت کامل؛ پس از آن بازپرداختی نیست.");
+  await fillLocalized(page, "Cancellation text", "fa-IR", "فقط تا ۴۸ ساعت قبل از حرکت بازپرداخت کامل؛ پس از آن بازپرداختی نیست.");
   await page.getByTestId("create-policy").click();
   await expectToast(page, "Policy version created");
 

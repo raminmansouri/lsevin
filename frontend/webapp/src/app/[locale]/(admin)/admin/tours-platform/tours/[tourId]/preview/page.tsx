@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 
+import { defaultCalendarForLocale } from "@/features/tours/domain/calendar";
 import { adminPageActor, sp } from "@/features/tours/server/admin/page-actor";
 import { previewTour } from "@/features/tours/server/admin/preview";
 import { ToursError } from "@/features/tours/server/platform/errors";
@@ -18,10 +19,13 @@ export async function generateMetadata() {
 
 export default async function TourPreviewPage({ params, searchParams }: Props) {
   const actor = await adminPageActor();
-  const { tourId } = await params;
+  const { locale, tourId } = await params;
   const q = await searchParams;
+  // Without an explicit choice, dates follow the language's default calendar (Jalali for Persian).
+  const lang = sp(q, "lang");
+  const calendar = sp(q, "calendar") || defaultCalendarForLocale(lang ?? locale);
   try {
-    const data = await previewTour(actor, { tourId, locale: sp(q, "lang"), calendar: sp(q, "calendar"), currency: sp(q, "currency") });
+    const data = await previewTour(actor, { tourId, locale: lang, calendar, currency: sp(q, "currency") });
     return <TourPreviewView data={data} tourId={tourId} />;
   } catch (e) {
     if (e instanceof ToursError && (e.kind === "not_found" || e.code === "tour_not_found")) notFound();

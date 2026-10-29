@@ -1,11 +1,20 @@
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
-import { setRequestLocale } from "next-intl/server";
 
-import { getSpecialistPageFromDbCached } from "@/features/service-providers/server/specialist-page.repository.cached";
 import { listActiveSpecialistPageIds } from "@/features/service-providers/server/specialist-page.repository";
-
-import { buildPublicMetadata } from "@/lib/seo/metadata";
+import { getSpecialistPageFromDbCached } from "@/features/service-providers/server/specialist-page.repository.cached";
 import { isFastBuild } from "@/lib/build-mode";
+import { absoluteUrl } from "@/lib/seo/alternates";
+import {
+  breadcrumbList,
+  graph,
+  personSchema,
+  specialistUrl,
+} from "@/lib/seo/entity-schema";
+import { JsonLd } from "@/lib/seo/json-ld";
+import { getIndexableLocales } from "@/lib/seo/locale-eligibility";
+import { buildPublicMetadata } from "@/lib/seo/metadata";
+
 import SpecialistProfileClient from "./specialist-page";
 
 type Awaitable<T> = T | Promise<T>;
@@ -31,21 +40,27 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: Pick<PageProps, "params">) {
-    const { locale, id } = await params;
-    const data = await getSpecialistPageFromDbCached({ specialistId: id, locale }).catch(() => null);
-    const specialist = data?.specialist;
+  const { locale, id } = await params;
+  const data = await getSpecialistPageFromDbCached({
+    specialistId: id,
+    locale,
+  });
+  const specialist = data?.specialist;
 
   if (!specialist) {
-    return buildPublicMetadata({ locale, path: `/n/app/mobile/specialist/${encodeURIComponent(id)}` });
+    notFound();
   }
 
   return buildPublicMetadata({
     locale,
     path: `/n/app/mobile/specialist/${encodeURIComponent(id)}`,
-    title: specialist.title ? `${specialist.name} ? ${specialist.title}` : specialist.name,
+    title: specialist.title
+      ? `${specialist.name} | ${specialist.title}`
+      : specialist.name,
     descriptions: [specialist.biography, specialist.specialty],
     image: specialist.image,
     type: "profile",
+    eligibleLocales: await getIndexableLocales("specialist", id),
   });
 }
 
@@ -53,9 +68,37 @@ export default async function SpecialistPage({ params }: PageProps) {
   const { locale, id } = await params;
   setRequestLocale(locale);
 
-  const data = await getSpecialistPageFromDbCached({ specialistId: id, locale }).catch(() => null);
+  const data = await getSpecialistPageFromDbCached({
+    specialistId: id,
+    locale,
+  });
 
   if (!data) notFound();
 
-  return <SpecialistProfileClient data={data} specialistId={id} locale={locale} />;
+  const { specialist } = data;
+  const brand = (await getTranslations({ locale, namespace: "LocaleLayout" }))("title");
+
+  return (
+    <>
+      <JsonLd
+        data={graph(
+          personSchema({
+            locale,
+            id,
+            name: specialist.name,
+            jobTitle: specialist.title || specialist.specialty,
+            description: specialist.biography,
+            image: specialist.image,
+            specialties: specialist.specializations,
+            providers: data.providers,
+          }),
+          breadcrumbList([
+            { name: brand, url: absoluteUrl(locale, "/n/app/mobile/home") },
+            { name: specialist.name, url: specialistUrl(locale, id) },
+          ])
+        )}
+      />
+      <SpecialistProfileClient data={data} specialistId={id} locale={locale} />
+    </>
+  );
 }

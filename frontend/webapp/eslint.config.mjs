@@ -23,6 +23,8 @@ export default defineConfig([
     ignores: [
       ".next/**",
       "node_modules/**",
+      ".pnpm-store/**",
+      "artifacts/**",
       "dist/**",
       "build/**",
       "out/**",

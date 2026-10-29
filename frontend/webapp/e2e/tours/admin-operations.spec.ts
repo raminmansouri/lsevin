@@ -8,7 +8,7 @@ import { expect, test } from "@playwright/test";
 
 import { seedProvider, seedTour, seedUser } from "../../src/features/tours/testing/fixtures";
 
-import { expectToast, seedBooking, signInAdmin } from "./admin-helpers";
+import { expectToast, fillLocalized, seedBooking, signInAdmin } from "./admin-helpers";
 import { closeDb, db } from "./support/db";
 
 test.afterAll(closeDb);
@@ -49,10 +49,10 @@ test("M-015 cancel a departure with a mass notice: all seats released, every tra
   // Cancel with a bilingual notice.
   await card.getByTestId("cancel-departure").click();
   const group = card.getByRole("group", { name: "Cancel departure" });
-  await group.getByLabel("Title (fa-IR)").fill("لغو حرکت");
-  await group.getByLabel("Message (fa-IR)").fill("به دلیل هشدار طوفان، این حرکت لغو شد. مبلغ کامل بازگردانده می‌شود.");
-  await group.getByLabel("Title (en-US)").fill("Departure cancelled");
-  await group.getByLabel("Message (en-US)").fill("Cancelled due to a storm warning. You will get a full refund.");
+  await fillLocalized(group, "Title", "fa-IR", "لغو حرکت");
+  await fillLocalized(group, "Message", "fa-IR", "به دلیل هشدار طوفان، این حرکت لغو شد. مبلغ کامل بازگردانده می‌شود.");
+  await fillLocalized(group, "Title", "en-US", "Departure cancelled");
+  await fillLocalized(group, "Message", "en-US", "Cancelled due to a storm warning. You will get a full refund.");
   await group.getByRole("textbox").last().fill("Storm warning issued by the met office");
   await group.getByRole("button", { name: "Cancel departure" }).click();
   await expectToast(page, "Departure cancelled");

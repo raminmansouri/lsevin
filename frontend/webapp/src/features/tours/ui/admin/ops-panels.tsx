@@ -1,13 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Link } from "@/i18n/navigation";
 
-import { formatInstant, type CalendarId } from "../../domain/calendar";
 import {
   clearProviderFlagAction,
   createAgreementAction,
@@ -21,14 +20,23 @@ import {
   setProviderFlagAction,
 } from "../../server/admin/actions";
 
-import { CalendarDateField, CalendarSelect, EmptyState, Field, formatAmount, LangText, NativeSelect, ReasonAction, Section, StatusBadge, useAdminAction } from "./primitives";
+import { localeName, OptionSelect, pickLabel, useAdminDates, type Option } from "./inputs";
+import { CalendarDateField, EmptyState, Field, formatAmount, LangText, NativeSelect, ReasonAction, Section, StatusBadge, useAdminAction } from "./primitives";
 import { TOURS_PLATFORM_BASE } from "./paths";
 
+/** Admins read every timestamp on the Jalali calendar, in Tehran time. */
 const useWhen = () => {
-  const locale = useLocale();
-  const cal: CalendarId = locale === "fa" ? "persian" : locale === "ar" ? "islamic-umalqura" : "gregory";
-  return (iso: string | null | undefined) => (iso ? formatInstant(iso, { locale, calendar: cal, timeZone: "Asia/Tehran" }) : "—");
+  const dates = useAdminDates();
+  return (iso: string | null | undefined) => dates.instant(iso);
 };
+
+type Provider = { id: string; name: string; names?: Record<string, string> | null };
+
+/** Providers named in the admin's language, for searchable selects. */
+function useProviderOptions(providers: Provider[]): Option[] {
+  const locale = useLocale();
+  return useMemo(() => providers.map((p) => ({ value: p.id, label: pickLabel(p.names, locale, p.name) })), [providers, locale]);
+}
 
 // ----------------------------------------------------------------------------
 // Disputes (M-018)
@@ -107,9 +115,9 @@ export function AdminRolesPanel({ roles }: { roles: { user_id: string; role: str
       <div className="flex flex-wrap items-end gap-2">
         <Field label={t("findUser")} htmlFor="ar-q"><Input id="ar-q" dir="ltr" value={q} onChange={(e) => setQ(e.target.value)} /></Field>
         <Button type="button" size="sm" variant="outline" disabled={pending || q.trim().length < 3} onClick={async () => setUsers((await run(() => searchUsersAction(q), { refresh: false, success: t("searched") })) ?? [])}>{t("search")}</Button>
-        <NativeSelect aria-label={t("user")} className="w-64" value={userId} onChange={(e) => setUserId(e.target.value)}>
-          <option value="" />{users.map((u) => <option key={u.id} value={u.id}>{u.name} {u.email ?? ""}</option>)}
-        </NativeSelect>
+        <Field label={t("user")} htmlFor="ar-user" className="w-64">
+          <OptionSelect id="ar-user" testId="ar-user" value={userId} onChange={setUserId} options={users.map((u) => ({ value: u.id, label: u.name || "—", hint: u.email ?? undefined }))} />
+        </Field>
         <NativeSelect aria-label={t("role")} className="w-40" value={role} onChange={(e) => setRole(e.target.value)}>
           {["agent", "manager", "finance"].map((r) => <option key={r} value={r}>{t(`levels.${r}`)}</option>)}
         </NativeSelect>
@@ -125,45 +133,46 @@ export function AdminRolesPanel({ roles }: { roles: { user_id: string; role: str
 
 type Agreement = { id: string; service_provider_id: string | null; provider_name: string | null; commission_percent: number; effective_from: string; effective_to: string | null; current: boolean; bookings: number };
 
-export function CommissionsPanel({ agreements, providers, platformDefault }: { agreements: Agreement[]; providers: { id: string; name: string }[]; platformDefault: number }) {
+export function CommissionsPanel({ agreements, providers, platformDefault }: { agreements: Agreement[]; providers: Provider[]; platformDefault: number }) {
   const t = useTranslations("TourAdmin.commissions");
   const locale = useLocale();
+  const dates = useAdminDates();
+  const providerOptions = useProviderOptions(providers);
   const { run, pending } = useAdminAction();
-  const [calendar, setCalendar] = useState<CalendarId>(locale === "fa" ? "persian" : "gregory");
   const [v, setV] = useState({ serviceProviderId: "", percent: "", effectiveFrom: "", effectiveTo: "" });
   return (
     <div className="space-y-4">
       <p className="text-sm">{t("settingDefault", { percent: platformDefault })}</p>
       <Section id="agreements" title={t("list")} description={t("immutableHint")}>
         {agreements.length === 0 ? <EmptyState>{t("empty")}</EmptyState> : (
+          <div className="overflow-x-auto">
           <table className="w-full text-sm" data-testid="agreements">
             <thead><tr className="text-muted-foreground"><th className="p-1.5 text-start">{t("scope")}</th><th className="p-1.5 text-start">{t("percent")}</th><th className="p-1.5 text-start">{t("from")}</th><th className="p-1.5 text-start">{t("to")}</th><th className="p-1.5 text-start">{t("bookings")}</th></tr></thead>
             <tbody>
               {agreements.map((a) => (
                 <tr key={a.id} className="border-t">
-                  <td className="p-1.5">{a.provider_name ?? t("platform")} {a.current ? <StatusBadge status="published" label={t("current")} /> : null}</td>
-                  <td className="p-1.5 tabular-nums">{a.commission_percent}%</td>
-                  <td className="p-1.5 font-mono" dir="ltr">{a.effective_from}</td>
-                  <td className="p-1.5 font-mono" dir="ltr">{a.effective_to ?? "∞"}</td>
+                  <td className="p-1.5">{a.service_provider_id ? providerOptions.find((p) => p.value === a.service_provider_id)?.label ?? a.provider_name : t("platform")} {a.current ? <StatusBadge status="published" label={t("current")} /> : null}</td>
+                  <td className="p-1.5 tabular-nums">{new Intl.NumberFormat(locale === "fa" ? "fa-IR" : locale, { style: "percent", maximumFractionDigits: 2 }).format(Number(a.commission_percent) / 100)}</td>
+                  <td className="p-1.5" data-iso={a.effective_from}>{dates.date(a.effective_from)}</td>
+                  <td className="p-1.5" data-iso={a.effective_to ?? ""}>{a.effective_to ? dates.date(a.effective_to) : "∞"}</td>
                   <td className="p-1.5 tabular-nums">{a.bookings}</td>
                 </tr>
               ))}
             </tbody>
           </table>
+          </div>
         )}
       </Section>
       <Section id="new-agreement" title={t("newTitle")} description={t("newHint")}>
-        <form className="grid gap-3 md:grid-cols-3" onSubmit={(e) => { e.preventDefault(); run(() => createAgreementAction({ ...v, serviceProviderId: v.serviceProviderId || null, effectiveTo: v.effectiveTo || null, calendar }), { onSuccess: () => setV({ serviceProviderId: "", percent: "", effectiveFrom: "", effectiveTo: "" }) }); }}>
+        <form className="grid gap-3 md:grid-cols-3" onSubmit={(e) => { e.preventDefault(); run(() => createAgreementAction({ ...v, serviceProviderId: v.serviceProviderId || null, effectiveTo: v.effectiveTo || null, calendar: "gregory" }), { onSuccess: () => setV({ serviceProviderId: "", percent: "", effectiveFrom: "", effectiveTo: "" }) }); }}>
           <Field label={t("scope")} htmlFor="ca-provider">
-            <NativeSelect id="ca-provider" value={v.serviceProviderId} onChange={(e) => setV({ ...v, serviceProviderId: e.target.value })}>
-              <option value="">{t("platform")}</option>{providers.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
-            </NativeSelect>
+            <OptionSelect id="ca-provider" testId="ca-provider" value={v.serviceProviderId} onChange={(serviceProviderId) => setV({ ...v, serviceProviderId })}
+              options={providerOptions} placeholder={t("platform")} />
           </Field>
-          <Field label={t("percent")} htmlFor="ca-percent"><Input id="ca-percent" dir="ltr" required value={v.percent} onChange={(e) => setV({ ...v, percent: e.target.value })} /></Field>
-          <CalendarSelect id="ca-cal" value={calendar} onChange={setCalendar} />
-          <CalendarDateField id="ca-from" label={t("from")} value={v.effectiveFrom} onChange={(x) => setV({ ...v, effectiveFrom: x })} calendar={calendar} required />
-          <CalendarDateField id="ca-to" label={t("to")} value={v.effectiveTo} onChange={(x) => setV({ ...v, effectiveTo: x })} calendar={calendar} />
-          <div className="flex items-end"><Button type="submit" disabled={pending}>{t("create")}</Button></div>
+          <Field label={t("percent")} htmlFor="ca-percent"><Input id="ca-percent" dir="ltr" inputMode="decimal" required value={v.percent} onChange={(e) => setV({ ...v, percent: e.target.value })} /></Field>
+          <CalendarDateField id="ca-from" label={t("from")} value={v.effectiveFrom} onChange={(x) => setV({ ...v, effectiveFrom: x })} required />
+          <CalendarDateField id="ca-to" label={t("to")} value={v.effectiveTo} onChange={(x) => setV({ ...v, effectiveTo: x })} />
+          <div className="flex items-end"><Button type="submit" disabled={pending || !v.effectiveFrom}>{t("create")}</Button></div>
         </form>
       </Section>
     </div>
@@ -216,6 +225,7 @@ type Review = {
 
 export function ReviewsPanel({ reviews, status }: { reviews: Review[]; status: string }) {
   const t = useTranslations("TourAdmin.reviews");
+  const locale = useLocale();
   const when = useWhen();
   const { run, pending } = useAdminAction();
   return (
@@ -233,12 +243,12 @@ export function ReviewsPanel({ reviews, status }: { reviews: Review[]; status: s
             <StatusBadge status={r.status} label={t(`status.${r.status}`)} /><span className="text-muted-foreground">· {when(r.created_at)}</span>
           </div>
           <div>
-            <p className="text-muted-foreground text-xs">{t("original", { locale: r.locale })}</p>
+            <p className="text-muted-foreground text-xs">{t("original", { locale: localeName(r.locale, locale) })}</p>
             <p className="text-sm"><LangText value={r.body} locale={r.locale} /></p>
           </div>
           {r.translations.map((x) => (
             <div key={x.locale} className="border-s-2 ps-2">
-              <p className="text-muted-foreground text-xs">{x.isMachine ? t("machineTranslation", { locale: x.locale }) : t("translation", { locale: x.locale })}</p>
+              <p className="text-muted-foreground text-xs">{x.isMachine ? t("machineTranslation", { locale: localeName(x.locale, locale) }) : t("translation", { locale: localeName(x.locale, locale) })}</p>
               <p className="text-sm"><LangText value={x.body} locale={x.locale} /></p>
             </div>
           ))}
@@ -250,7 +260,7 @@ export function ReviewsPanel({ reviews, status }: { reviews: Review[]; status: s
           </div>
           {r.provider_reply ? (
             <div className="rounded bg-muted/40 p-2 text-sm">
-              <p className="text-muted-foreground text-xs">{t("reply")} · {r.reply_status}</p>
+              <p className="text-muted-foreground text-xs">{t("reply")} · {r.reply_status && t.has(`status.${r.reply_status}`) ? t(`status.${r.reply_status}`) : r.reply_status}</p>
               <p className="whitespace-pre-wrap">{r.provider_reply}</p>
               {r.reply_status !== "published" ? <Button type="button" size="sm" className="mt-1" disabled={pending} onClick={() => run(() => moderateReplyAction(r.id, "published"))}>{t("publishReply")}</Button> : null}
               {r.reply_status !== "rejected" ? <Button type="button" size="sm" variant="ghost" className="mt-1" disabled={pending} onClick={() => run(() => moderateReplyAction(r.id, "rejected"))}>{t("rejectReply")}</Button> : null}
@@ -273,9 +283,11 @@ type Compliance = {
   unverifiedAttributes: { id: string; slug: string; wheelchair_accessible: boolean; low_mobility_friendly: boolean; recovery_friendly: boolean }[];
 };
 
-export function CompliancePanel({ data, providers }: { data: Compliance; providers: { id: string; name: string }[] }) {
+export function CompliancePanel({ data, providers }: { data: Compliance; providers: Provider[] }) {
   const t = useTranslations("TourAdmin.compliance");
   const when = useWhen();
+  const dates = useAdminDates();
+  const providerOptions = useProviderOptions(providers);
   const { run, pending } = useAdminAction();
   const [f, setF] = useState({ serviceProviderId: "", flag: "watch", note: "" });
   return (
@@ -284,7 +296,7 @@ export function CompliancePanel({ data, providers }: { data: Compliance; provide
         {data.qualifications.length === 0 ? <EmptyState>{t("none")}</EmptyState> : (
           <ul className="space-y-1 text-sm">
             {data.qualifications.map((q) => (
-              <li key={q.id} className={q.expired ? "text-destructive" : ""}>{q.display_name} · {q.kind}{q.issuer ? ` (${q.issuer})` : ""} · <span dir="ltr">{q.expires_on ?? "—"}</span> · {q.verification_status}{q.expired ? ` · ${t("expired")}` : ""}</li>
+              <li key={q.id} className={q.expired ? "text-destructive" : ""}>{q.display_name} · {q.kind}{q.issuer ? ` (${q.issuer})` : ""} · <span data-iso={q.expires_on ?? ""}>{dates.date(q.expires_on)}</span> · {q.verification_status}{q.expired ? ` · ${t("expired")}` : ""}</li>
             ))}
           </ul>
         )}
@@ -312,9 +324,8 @@ export function CompliancePanel({ data, providers }: { data: Compliance; provide
           ))}
         </ul>
         <form className="grid gap-2 md:grid-cols-4" onSubmit={(e) => { e.preventDefault(); run(() => setProviderFlagAction(f), { onSuccess: () => setF({ ...f, note: "" }) }); }}>
-          <NativeSelect aria-label={t("provider")} required value={f.serviceProviderId} onChange={(e) => setF({ ...f, serviceProviderId: e.target.value })}>
-            <option value="" />{providers.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
-          </NativeSelect>
+          <OptionSelect id="cf-provider" testId="cf-provider" value={f.serviceProviderId} onChange={(serviceProviderId) => setF({ ...f, serviceProviderId })}
+            options={providerOptions} placeholder={t("provider")} />
           <NativeSelect aria-label={t("flagLabel")} value={f.flag} onChange={(e) => setF({ ...f, flag: e.target.value })}>
             {["trusted", "watch", "quality_review", "documents_missing", "listing_suspended"].map((x) => <option key={x} value={x}>{t(`flag.${x}`)}</option>)}
           </NativeSelect>

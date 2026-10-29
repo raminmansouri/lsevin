@@ -181,14 +181,18 @@ export function LocalizedInput({
     error && (!hasAnyTranslations || !hasContent(translations[activeLocale]));
 
   return (
-    <div className="space-y-2">
+    // min-w-0: the language tab strip is as wide as every language name; without it a grid/flex
+    // parent grows to that width on phones instead of letting the strip scroll.
+    <div className="min-w-0 space-y-2">
       <Tabs
         value={activeLocale}
         onValueChange={(v) => setActiveLocale(v as LocaleHeaderTypes)}
       >
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <Label className="shrink-0">{label}</Label>
-          <div className="w-full overflow-x-auto sm:w-auto">
+          {/* contain:inline-size on phones: the strip fills the row and scrolls, instead of its full
+              width (every language name) becoming the form's minimum width. */}
+          <div className="w-full overflow-x-auto max-sm:[contain:inline-size] sm:w-auto">
             <TabsList className="inline-flex w-max">
               {supportedLocales.map((locale) => (
                 <TabsTrigger key={locale} value={locale}>
@@ -214,6 +218,8 @@ export function LocalizedInput({
               />
             ) : multiline ? (
               <Textarea
+                aria-label={`${label} (${getLocaleDisplayName(locale)})`}
+                lang={locale}
                 value={translations[locale] || ""}
                 onChange={(e) => handleChange(locale, e.target.value)}
                 maxLength={maxLength}
@@ -225,6 +231,8 @@ export function LocalizedInput({
               />
             ) : (
               <Input
+                aria-label={`${label} (${getLocaleDisplayName(locale)})`}
+                lang={locale}
                 value={translations[locale] || ""}
                 onChange={(e) => handleChange(locale, e.target.value)}
                 maxLength={maxLength}

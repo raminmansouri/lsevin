@@ -6,7 +6,7 @@ import { SearchParams } from "nuqs";
 import ServerFetchResult from "@/components/fetcher/fetch.server";
 import { withBaseHeaders } from "@/config/http/http-service.server";
 import { getCategories } from "@/features/categories/api/server/get-categories";
-import { getCategoryHomepageFlags } from "@/features/categories/db/homepage-display";
+import { getCategoryHomepageSettings } from "@/features/categories/db/homepage-display";
 import CategoryListTable, {
   CategoryListTableSkeleton,
 } from "@/features/categories/components/category-list/category-list-table";
@@ -75,12 +75,13 @@ const CategoryListWithHomepageFlags = async ({
 }: {
   categories: PaginatedResult<Category>;
 }) => {
-  const flags = await getCategoryHomepageFlags(
+  const settings = await getCategoryHomepageSettings(
     categories.items.map((item) => item.categoryId)
   );
   const items = categories.items.map((item) => ({
     ...item,
-    displayInHomePage: flags[item.categoryId] ?? true,
+    displayInHomePage: settings[item.categoryId]?.displayInHomePage ?? true,
+    displayOrder: settings[item.categoryId]?.displayOrder ?? 0,
   }));
 
   return (

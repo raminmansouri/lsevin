@@ -4,6 +4,7 @@ import Script from "next/script";
 
 import { ServiceWorkerRegister } from "@/components/pwa/service-worker-register";
 import { env } from "@/config/env/client";
+import { routing } from "@/i18n/routing";
 import { seoOrigin } from "@/lib/seo/origin";
 
 import "./globals.css";
@@ -58,6 +59,10 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = { themeColor: "#101E33" };
 
+const LOCALE_BOOTSTRAP = `(function(){var m=location.pathname.match(/^\\/(${routing.locales.join(
+  "|"
+)})(?=\\/|$)/);if(!m)return;var d=document.documentElement;d.lang=m[1];d.dir=/^(fa|ar|ku)$/.test(m[1])?"rtl":"ltr";})();`;
+
 // The single <html>/<body> for the whole app — it also wraps the (financial)
 // tree and the root not-found, so it stays a plain root layout.
 //
@@ -84,6 +89,13 @@ export default function RootLayout({
       className={vazirmatn.variable}
       suppressHydrationWarning
     >
+      <head>
+        {/* The server HTML can only carry the default locale (see above). Set
+            the real lang/dir from the URL before first paint, so LTR locales do
+            not render mirrored until hydration and rendering crawlers read the
+            right language. LocaleSync keeps it in sync on client navigation. */}
+        <script dangerouslySetInnerHTML={{ __html: LOCALE_BOOTSTRAP }} />
+      </head>
       <body className="antialiased" suppressHydrationWarning>
         {children}
         <ServiceWorkerRegister />

@@ -4,7 +4,7 @@
       "label": "بخش‌های پلتفرم تورها",
       "dashboard": "نمای کلی",
       "tours": "تورها و بررسی",
-      "taxonomy": "طبقه‌بندی",
+      "taxonomy": "دسته‌ها و برچسب‌ها",
       "destinations": "مقصدها",
       "editorial": "محتوای صفحه اصلی",
       "translations": "ترجمه‌ها",
@@ -17,13 +17,21 @@
       "reviews": "نظرها",
       "compliance": "انطباق",
       "reports": "گزارش‌ها",
-      "notifications": "اعلان‌ها"
+      "notifications": "اعلان‌ها",
+      "groups": {
+        "setup": "راه‌اندازی — به همین ترتیب پر کنید",
+        "operations": "عملیات روزانه"
+      }
     },
     "common": {
       "saved": "ذخیره شد",
       "cancel": "انصراف",
       "reason": "دلیل (در گزارش ممیزی ثبت می‌شود)",
-      "reasonHint": "دست‌کم {min} نویسه."
+      "reasonHint": "دست‌کم {min} نویسه.",
+      "search": "جست‌وجو…",
+      "noMatches": "موردی پیدا نشد",
+      "choose": "انتخاب کنید…",
+      "sourceLanguage": "زبان خود تور"
     },
     "calendarField": {
       "placeholder": "سال-ماه-روز",
@@ -161,7 +169,9 @@
       "titleSource": "عنوان (زبان مبدأ)",
       "sourceLocale": "زبان مبدأ",
       "currency": "ارز",
-      "create": "ساخت پیش‌نویس"
+      "create": "ساخت پیش‌نویس",
+      "countryLabel": "کشور",
+      "publishedRange": "منتشرشده از {from} تا {to}."
     },
     "editor": {
       "title": "ویرایشگر تور",
@@ -226,9 +236,20 @@
       "save": "ذخیره اطلاعات",
       "destination": "مقصد",
       "tourType": "نوع تور",
-      "type": { "single_day": "یک‌روزه", "multi_day": "چندروزه", "self_guided": "بدون راهنما", "private_charter": "اختصاصی", "activity": "فعالیت" },
+      "type": {
+        "single_day": "یک‌روزه",
+        "multi_day": "چندروزه",
+        "self_guided": "بدون راهنما",
+        "private_charter": "اختصاصی",
+        "activity": "فعالیت"
+      },
       "difficulty": "سختی",
-      "level": { "easy": "آسان", "moderate": "متوسط", "challenging": "دشوار", "strenuous": "بسیار دشوار" },
+      "level": {
+        "easy": "آسان",
+        "moderate": "متوسط",
+        "challenging": "دشوار",
+        "strenuous": "بسیار دشوار"
+      },
       "categories": "دسته‌ها",
       "durationMinutes": "مدت (دقیقه)",
       "durationDays": "روز",
@@ -242,7 +263,7 @@
       "confirmation": "تأیید رزرو",
       "instant": "فوری",
       "request": "با درخواست",
-      "timezone": "منطقه زمانی (IANA)",
+      "timezone": "منطقهٔ زمانی",
       "meetingLat": "عرض جغرافیایی محل قرار",
       "meetingLng": "طول جغرافیایی محل قرار",
       "locationPrivacy": "نمایش موقعیت به مشتری",
@@ -256,7 +277,9 @@
       "attributesVerified": "ادعاهای دسترس‌پذیری تأیید شده ({at}).",
       "attributesUnverified": "ادعاهای دسترس‌پذیری/نقاهت تأیید نشده‌اند و در فیلترهای مشتری لحاظ نمی‌شوند.",
       "verifyAttributes": "تأیید ادعاها",
-      "revokeVerification": "لغو تأیید"
+      "revokeVerification": "لغو تأیید",
+      "manageCategories": "مدیریت دسته‌بندی‌ها",
+      "guideLanguagesLabel": "زبان‌های راهنما"
     },
     "placement": {
       "title": "جایگاه ویژه / اسپانسری",
@@ -292,19 +315,39 @@
       "lastEdit": "ویرایش {at} توسط {by}",
       "discardConfirm": "تغییرات ذخیره‌نشده در این زبان حذف شود؟",
       "field": {
-        "title": "عنوان", "summary": "خلاصه", "description": "توضیحات", "highlights": "نکات برجسته", "inclusions": "شامل",
-        "exclusions": "شامل نمی‌شود", "what_to_bring": "همراه داشته باشید", "accessibility_notes": "نکات دسترس‌پذیری",
-        "meeting_instructions": "راهنمای محل قرار", "pickup_instructions": "راهنمای ترانسفر", "cancellation_policy": "قوانین لغو",
-        "safety_notes": "نکات ایمنی", "booking_instructions": "راهنمای رزرو", "faq": "پرسش‌های متداول", "rules": "قوانین",
-        "documents_notes": "مدارک", "age_conditions": "شرایط سنی"
+        "title": "عنوان",
+        "summary": "خلاصه",
+        "description": "توضیحات",
+        "highlights": "نکات برجسته",
+        "inclusions": "شامل",
+        "exclusions": "شامل نمی‌شود",
+        "what_to_bring": "همراه داشته باشید",
+        "accessibility_notes": "نکات دسترس‌پذیری",
+        "meeting_instructions": "راهنمای محل قرار",
+        "pickup_instructions": "راهنمای ترانسفر",
+        "cancellation_policy": "قوانین لغو",
+        "safety_notes": "نکات ایمنی",
+        "booking_instructions": "راهنمای رزرو",
+        "faq": "پرسش‌های متداول",
+        "rules": "قوانین",
+        "documents_notes": "مدارک",
+        "age_conditions": "شرایط سنی"
       }
     },
     "media": {
       "title": "بازبینی رسانه",
       "description": "رسانه در انتظار فقط در پیش‌نمایش دیده می‌شود. رسانه ردشده هرگز نمایش داده نمی‌شود.",
       "empty": "هنوز رسانه‌ای نیست.",
-      "status": { "pending": "در انتظار", "approved": "تأییدشده", "rejected": "ردشده" },
-      "kind": { "image": "تصویر", "video": "ویدیو", "panorama": "پانوراما" },
+      "status": {
+        "pending": "در انتظار",
+        "approved": "تأییدشده",
+        "rejected": "ردشده"
+      },
+      "kind": {
+        "image": "تصویر",
+        "video": "ویدیو",
+        "panorama": "پانوراما"
+      },
       "kindLabel": "نوع",
       "cover": "کاور",
       "note": "یادداشت",
@@ -321,7 +364,9 @@
       "url": "نشانی",
       "alt": "متن جایگزین",
       "makeCover": "استفاده به‌عنوان کاور",
-      "add": "افزودن"
+      "add": "افزودن",
+      "file": "فایل",
+      "pick": "انتخاب از کتابخانهٔ رسانه"
     },
     "itinerary": {
       "title": "برنامه سفر",
@@ -334,7 +379,15 @@
       "day": "روز",
       "position": "ترتیب",
       "type": "نوع",
-      "stopType": { "meeting": "محل قرار", "activity": "فعالیت", "transfer": "جابه‌جایی", "accommodation": "اقامت", "meal": "وعده غذایی", "recommendation": "پیشنهاد", "finish": "پایان" },
+      "stopType": {
+        "meeting": "محل قرار",
+        "activity": "فعالیت",
+        "transfer": "جابه‌جایی",
+        "accommodation": "اقامت",
+        "meal": "وعده غذایی",
+        "recommendation": "پیشنهاد",
+        "finish": "پایان"
+      },
       "lat": "عرض جغرافیایی",
       "lng": "طول جغرافیایی",
       "startTime": "ساعت شروع",
@@ -386,7 +439,12 @@
       "noShow": "درصد بازپرداخت عدم حضور",
       "late": "تحمل تأخیر ورود (دقیقه)",
       "weather": "سیاست آب‌وهوا",
-      "weatherPolicy": { "reschedule_or_refund": "تغییر زمان یا بازپرداخت", "full_refund": "بازپرداخت کامل", "operator_decides": "تصمیم برگزارکننده", "no_refund": "بدون بازپرداخت" },
+      "weatherPolicy": {
+        "reschedule_or_refund": "تغییر زمان یا بازپرداخت",
+        "full_refund": "بازپرداخت کامل",
+        "operator_decides": "تصمیم برگزارکننده",
+        "no_refund": "بدون بازپرداخت"
+      },
       "source": "مبدأ",
       "edited": "ویرایش‌شده",
       "cancellationText": "متن لغو",
@@ -415,7 +473,11 @@
       "allOptions": "همه گزینه‌ها",
       "addRule": "افزودن زمان‌بندی",
       "ruleAdded": "زمان‌بندی افزوده شد",
-      "kindLabel": { "once": "یک‌بار", "weekly": "هفتگی", "monthly_day": "ماهانه" },
+      "kindLabel": {
+        "once": "یک‌بار",
+        "weekly": "هفتگی",
+        "monthly_day": "ماهانه"
+      },
       "from": "از",
       "to": "تا",
       "inactive": "غیرفعال",
@@ -443,7 +505,10 @@
       "booked": "رزروشده",
       "held": "نگه‌داشته",
       "status": "وضعیت",
-      "blocked": "مسدود"
+      "blocked": "مسدود",
+      "direction": "جهت",
+      "increase": "افزایش",
+      "decrease": "کاهش"
     },
     "history": {
       "revisions": "نسخه‌ها",
@@ -488,7 +553,17 @@
       "title": "طبقه‌بندی",
       "description": "دسته‌ها، برچسب‌ها، شیوه‌های حمل‌ونقل، سختی، امکانات، موارد شامل، نشان‌ها، تناسب و قوانین سنی.",
       "kinds": "انواع",
-      "kind": { "category": "دسته‌ها", "tag": "برچسب‌ها", "transport_mode": "حمل‌ونقل", "difficulty": "سختی", "amenity": "امکانات", "inclusion": "موارد شامل", "badge": "نشان‌ها", "suitability": "تناسب", "age_rule": "قوانین سنی" },
+      "kind": {
+        "category": "دسته‌ها",
+        "tag": "برچسب‌ها",
+        "transport_mode": "حمل‌ونقل",
+        "difficulty": "سختی",
+        "amenity": "امکانات",
+        "inclusion": "موارد شامل",
+        "badge": "نشان‌ها",
+        "suitability": "تناسب",
+        "age_rule": "قوانین سنی"
+      },
       "kindLabel": "نوع",
       "code": "کد",
       "codeHint": "شناسه ثابت؛ تا زمانی که تورها از آن استفاده می‌کنند قابل تغییر نیست.",
@@ -506,7 +581,22 @@
       "newTitle": "مورد جدید",
       "editTitle": "ویرایش {code}",
       "save": "ذخیره",
-      "cancel": "انصراف"
+      "cancel": "انصراف",
+      "intro": "این فهرست‌ها برای توصیف تورها هستند. ارائه‌دهندگان هنگام ساخت تور از آن‌ها انتخاب می‌کنند و مشتریان با آن‌ها فیلتر می‌کنند. «کد» شناسهٔ ثابت است و «برچسب» همان چیزی است که کاربران به هر زبان می‌بینند. اگر توری از موردی استفاده می‌کند، به‌جای حذف آن را غیرفعال کنید.",
+      "kindHelp": {
+        "category": "نوع اصلی تور (مثلاً طبیعت‌گردی، فرهنگی، زیارتی)؛ در فیلترها و مجموعه‌های صفحهٔ اصلی.",
+        "tag": "کلیدواژه‌های تکمیلی برای جست‌وجو و فیلتر.",
+        "transport_mode": "وسیلهٔ جابه‌جایی در تور (اتوبوس، قطار، هواپیما و …).",
+        "difficulty": "سطح سختی بدنی که در صفحهٔ تور نمایش داده می‌شود.",
+        "amenity": "امکانات موجود در تور (اینترنت، تهویه و …).",
+        "inclusion": "آنچه در قیمت هست یا نیست (غذا، بلیت، اقامت و …).",
+        "badge": "برچسب‌های برجسته روی کارت تور (مثلاً پرفروش).",
+        "suitability": "تور برای چه کسانی مناسب است (خانواده، کاربران ویلچر و …).",
+        "age_rule": "محدودیت‌ها و شرایط سنی مسافران."
+      },
+      "deactivate": "غیرفعال‌سازی",
+      "activate": "فعال‌سازی",
+      "empty": "هنوز موردی در این فهرست نیست."
     },
     "destinations": {
       "title": "مقصدها",
@@ -537,7 +627,8 @@
       "publishFrom": "انتشار از",
       "publishUntil": "انتشار تا",
       "save": "ذخیره",
-      "cancel": "انصراف"
+      "cancel": "انصراف",
+      "descriptionTooLong": "توضیحات بیش از حد طولانی است (با قالب‌بندی). لطفاً کوتاه‌ترش کنید."
     },
     "editorial": {
       "title": "محتوای صفحه اصلی",
@@ -545,9 +636,18 @@
       "list": "ماژول‌ها",
       "code": "کد",
       "kind": "نوع",
-      "kinds": { "hero": "بنر اصلی", "onboarding": "معرفی", "collection": "مجموعه", "offers": "پیشنهادها", "popular_destinations": "مقصدهای محبوب" },
+      "kinds": {
+        "hero": "بنر اصلی",
+        "onboarding": "معرفی",
+        "collection": "مجموعه",
+        "offers": "پیشنهادها",
+        "popular_destinations": "مقصدهای محبوب"
+      },
       "status": "وضعیت",
-      "state": { "draft": "پیش‌نویس", "published": "منتشرشده" },
+      "state": {
+        "draft": "پیش‌نویس",
+        "published": "منتشرشده"
+      },
       "window": "بازه",
       "order": "ترتیب",
       "sponsored": "اسپانسری (با برچسب)",
@@ -566,7 +666,12 @@
       "rulesHint": "فقط وقتی تور مشخصی انتخاب نشده باشد استفاده می‌شود. تورهای منتشرنشده هرگز نمایش داده نمی‌شوند.",
       "category": "دسته",
       "sort": "مرتب‌سازی",
-      "sorts": { "popularity": "محبوبیت", "rating": "امتیاز", "price_asc": "قیمت", "start_date": "نزدیک‌ترین حرکت" },
+      "sorts": {
+        "popularity": "محبوبیت",
+        "rating": "امتیاز",
+        "price_asc": "قیمت",
+        "start_date": "نزدیک‌ترین حرکت"
+      },
       "maxItems": "حداکثر موارد",
       "family": "فقط مناسب خانواده",
       "accessible": "فقط دسترس‌پذیر",
@@ -642,7 +747,8 @@
         "calendarDefault": "تقویم پیش‌فرض برای سایر زبان‌ها (*) لازم است.",
         "paymentWindow": "مهلت پرداخت نمی‌تواند از زمان نگهداری صندلی کوتاه‌تر باشد."
       },
-      "save": "ذخیره تنظیمات"
+      "save": "ذخیره تنظیمات",
+      "fallbackOrderHint": "ترتیب مهم است: زبان‌ها به ترتیب انتخاب امتحان می‌شوند؛ برای جابه‌جایی، حذف و دوباره اضافه کنید."
     },
     "translations": {
       "title": "ترجمه‌ها",
@@ -674,7 +780,8 @@
       "note": "یادداشت",
       "saveTerm": "ذخیره اصطلاح",
       "noGlossary": "هنوز اصطلاحی نیست.",
-      "deleteTerm": "حذف اصطلاح"
+      "deleteTerm": "حذف اصطلاح",
+      "assignedAt": "تاریخ واگذاری"
     },
     "departures": {
       "title": "حرکت‌ها",
@@ -709,7 +816,14 @@
       "cancelled": "حرکت لغو شد و به مسافران اطلاع داده شد",
       "cancelWarning": "همه {booked} صندلی رزروشده با درخواست بازپرداخت کامل لغو و {held} صندلی نگه‌داشته آزاد می‌شود.",
       "reasonCode": "دلیل",
-      "reasons": { "weather": "آب‌وهوا", "insufficient_participants": "نرسیدن به حد نصاب", "safety": "ایمنی", "operator_unavailable": "عدم دسترسی برگزارکننده", "force_majeure": "قوه قهریه", "admin_decision": "تصمیم پلتفرم" },
+      "reasons": {
+        "weather": "آب‌وهوا",
+        "insufficient_participants": "نرسیدن به حد نصاب",
+        "safety": "ایمنی",
+        "operator_unavailable": "عدم دسترسی برگزارکننده",
+        "force_majeure": "قوه قهریه",
+        "admin_decision": "تصمیم پلتفرم"
+      },
       "notice": "پیام به مسافران",
       "noticeSource": "زبان مبدأ",
       "noticeTitle": "عنوان ({locale})",
@@ -742,7 +856,16 @@
       "payoutState": "تسویه",
       "amount": "مبلغ",
       "paid": "پرداخت‌شده",
-      "openDisputes": "{n} پرونده باز"
+      "openDisputes": "{n} پرونده باز",
+      "paymentStatuses": {
+        "Pending": "در انتظار پرداخت",
+        "Paid": "پرداخت‌شده",
+        "PartiallyPaid": "پرداخت جزئی",
+        "NotRequired": "نیازی به پرداخت نیست",
+        "Refunded": "بازپرداخت‌شده",
+        "Cancelled": "لغوشده",
+        "Failed": "ناموفق"
+      }
     },
     "booking": {
       "title": "پشتیبانی رزرو",
@@ -785,12 +908,30 @@
       "rebooked": "رزرو منتقل شد",
       "disputes": "پرونده‌ها (لغو، بازپرداخت استثنایی، برگشت وجه، شکایت)",
       "disputesHint": "تأیید بسته به نوع و مبلغ از کارشناس به مدیر و سپس مالی می‌رود.",
-      "disputeKind": { "cancellation": "لغو", "refund_exception": "بازپرداخت استثنایی", "chargeback": "برگشت وجه", "complaint": "شکایت" },
-      "disputeStatus": { "open": "باز", "pending_approval": "در انتظار تأیید", "approved": "تأییدشده", "rejected": "ردشده", "closed": "بسته" },
+      "disputeKind": {
+        "cancellation": "لغو",
+        "refund_exception": "بازپرداخت استثنایی",
+        "chargeback": "برگشت وجه",
+        "complaint": "شکایت"
+      },
+      "disputeStatus": {
+        "open": "باز",
+        "pending_approval": "در انتظار تأیید",
+        "approved": "تأییدشده",
+        "rejected": "ردشده",
+        "closed": "بسته"
+      },
       "reasonCodes": {
-        "operator_cancelled": "لغو توسط برگزارکننده", "weather": "آب‌وهوا", "no_show_dispute": "اختلاف عدم حضور", "service_not_as_described": "مغایرت با توضیحات",
-        "safety_incident": "رخداد ایمنی", "duplicate_charge": "کسر تکراری", "medical_emergency": "فوریت پزشکی", "goodwill": "حسن نیت",
-        "fraud_suspected": "مشکوک به تقلب", "other": "سایر"
+        "operator_cancelled": "لغو توسط برگزارکننده",
+        "weather": "آب‌وهوا",
+        "no_show_dispute": "اختلاف عدم حضور",
+        "service_not_as_described": "مغایرت با توضیحات",
+        "safety_incident": "رخداد ایمنی",
+        "duplicate_charge": "کسر تکراری",
+        "medical_emergency": "فوریت پزشکی",
+        "goodwill": "حسن نیت",
+        "fraud_suspected": "مشکوک به تقلب",
+        "other": "سایر"
       },
       "level": "سطح",
       "kind": "نوع",
@@ -807,11 +948,23 @@
       "title": "اختلاف‌ها و بازپرداخت‌های استثنایی",
       "description": "پرونده‌های در انتظار تصمیم با سطح تأیید و تاریخچه کامل.",
       "myLevel": "سطح تأیید شما: {level}",
-      "levels": { "agent": "کارشناس", "manager": "مدیر", "finance": "مالی" },
-      "filter": { "active": "باز", "approved": "تأییدشده", "rejected": "ردشده" },
+      "levels": {
+        "agent": "کارشناس",
+        "manager": "مدیر",
+        "finance": "مالی"
+      },
+      "filter": {
+        "active": "باز",
+        "approved": "تأییدشده",
+        "rejected": "ردشده"
+      },
       "empty": "پرونده‌ای نیست.",
       "awaiting": "در انتظار {level} (نیازمند {required})",
-      "decision": { "approve": "تأیید", "reject": "رد", "escalate": "ارجاع" },
+      "decision": {
+        "approve": "تأیید",
+        "reject": "رد",
+        "escalate": "ارجاع"
+      },
       "note": "یادداشت تصمیم",
       "approve": "تأیید",
       "reject": "رد",
@@ -847,9 +1000,20 @@
       "title": "رخدادها",
       "description": "رخدادهای ایمنی و عملیاتی با ارجاع و رفع.",
       "empty": "رخدادی نیست.",
-      "filter": { "all": "همه" },
-      "severity": { "low": "کم", "medium": "متوسط", "high": "زیاد", "critical": "بحرانی" },
-      "status": { "open": "باز", "escalated": "ارجاع‌شده", "resolved": "رفع‌شده" },
+      "filter": {
+        "all": "همه"
+      },
+      "severity": {
+        "low": "کم",
+        "medium": "متوسط",
+        "high": "زیاد",
+        "critical": "بحرانی"
+      },
+      "status": {
+        "open": "باز",
+        "escalated": "ارجاع‌شده",
+        "resolved": "رفع‌شده"
+      },
       "affected": "رزروهای متأثر",
       "resolution": "نحوه رفع",
       "escalate": "ارجاع",
@@ -859,8 +1023,20 @@
     "reviews": {
       "title": "نظرها",
       "description": "متن نظر به زبان اصلی، همراه با هر ترجمه با برچسب مشخص.",
-      "filter": { "pending": "در انتظار", "reported": "گزارش‌شده", "reply_pending": "پاسخ‌های در انتظار", "published": "منتشرشده", "hidden": "پنهان", "rejected": "ردشده" },
-      "status": { "pending": "در انتظار", "published": "منتشرشده", "rejected": "ردشده", "hidden": "پنهان" },
+      "filter": {
+        "pending": "در انتظار",
+        "reported": "گزارش‌شده",
+        "reply_pending": "پاسخ‌های در انتظار",
+        "published": "منتشرشده",
+        "hidden": "پنهان",
+        "rejected": "ردشده"
+      },
+      "status": {
+        "pending": "در انتظار",
+        "published": "منتشرشده",
+        "rejected": "ردشده",
+        "hidden": "پنهان"
+      },
       "empty": "نظری نیست.",
       "original": "متن اصلی ({locale})",
       "translation": "ترجمه ({locale})",
@@ -884,7 +1060,13 @@
       "toursCount": "{published} فعال / {total} تور",
       "attributes": "ادعاهای دسترس‌پذیری / نقاهت تأییدنشده",
       "flags": "نشان‌های ارائه‌دهنده",
-      "flag": { "trusted": "معتمد", "watch": "تحت نظر", "quality_review": "بازبینی کیفیت", "documents_missing": "کمبود مدارک", "listing_suspended": "تعلیق آگهی" },
+      "flag": {
+        "trusted": "معتمد",
+        "watch": "تحت نظر",
+        "quality_review": "بازبینی کیفیت",
+        "documents_missing": "کمبود مدارک",
+        "listing_suspended": "تعلیق آگهی"
+      },
       "clear": "برداشتن",
       "provider": "ارائه‌دهنده",
       "flagLabel": "نشان",
@@ -928,7 +1110,16 @@
       "templates": "قالب‌های اعلان پلتفرم",
       "sample": "حرکت نمونه {at} ({tz})، واچر TR-SAMPLE42.",
       "fallback": "جایگزین با {locale}",
-      "kind": { "created": "دریافت رزرو", "requested": "ارسال درخواست", "accepted": "پذیرش درخواست", "declined": "رد درخواست", "confirmed": "قطعی شدن", "cancelled": "لغو", "request_expired": "پایان مهلت درخواست", "reminder": "یادآوری" }
+      "kind": {
+        "created": "دریافت رزرو",
+        "requested": "ارسال درخواست",
+        "accepted": "پذیرش درخواست",
+        "declined": "رد درخواست",
+        "confirmed": "قطعی شدن",
+        "cancelled": "لغو",
+        "request_expired": "پایان مهلت درخواست",
+        "reminder": "یادآوری"
+      }
     }
   }
 }

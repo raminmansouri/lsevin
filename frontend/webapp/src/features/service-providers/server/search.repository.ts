@@ -545,6 +545,8 @@ export async function getSearchResults(params?: {
           -- Built once instead of re-parsed for every row it is compared against.
           plainto_tsquery('simple', NULLIF(BTRIM(${term}::text), '')) AS tsq
       ),
+      -- Keep display-only translations after ranked LIMIT. They do not affect
+      -- filtering or ordering and otherwise run for the entire matched catalog.
       service_results AS (
         SELECT
           ps.id::text AS id,
@@ -553,7 +555,7 @@ export async function getSearchResults(params?: {
             NULLIF(common.get_translation_t(ps.display_name_translations, params.locale, 'en-US'), ''),
             common.get_translation_t(sd.name_translations, params.locale, 'en-US')
           ) AS name,
-          common.get_translation_t(sp.name_translations, params.locale, 'en-US') AS provider,
+          sp.name_translations AS provider_translations,
           BTRIM(split_part(ps.image_url, ',', 1)) AS image_1,
           BTRIM(split_part(sp.image_url, ',', 1)) AS image_2,
           BTRIM(split_part(c.image_url, ',', 1)) AS image_3,
@@ -568,12 +570,10 @@ export async function getSearchResults(params?: {
           ps.value_toman::float8 AS value_toman,
           COALESCE(sp.accredited, false) AS verified,
           COALESCE(ps.tags, sp.specialties, ARRAY[]::text[]) AS specialties,
-          ARRAY_REMOVE(ARRAY[
-            NULLIF(common.get_translation_t(c.name_translations, params.locale, 'en-US'), ''),
-            NULLIF(common.get_translation_t(pt.name_translations, params.locale, 'en-US'), ''),
-            CASE WHEN sp.is_sponsored THEN COALESCE(NULLIF(BTRIM(sp.sponsored_tag), ''), ${labels.sponsored}) END,
-            CASE WHEN sp.accredited THEN ${labels.verified} END
-          ], NULL) AS tags,
+          c.name_translations AS tag_1_translations,
+          pt.name_translations AS tag_2_translations,
+          sp.is_sponsored AS is_sponsored,
+          sp.sponsored_tag AS sponsored_tag,
           CONCAT('/n/app/mobile/service/', ps.id::text) AS href,
           (
             CASE WHEN params.q IS NULL THEN 0 ELSE
@@ -622,7 +622,7 @@ export async function getSearchResults(params?: {
           sp.id::text AS id,
           'provider'::text AS type,
           common.get_translation_t(sp.name_translations, params.locale, 'en-US') AS name,
-          common.get_translation_t(pt.name_translations, params.locale, 'en-US') AS provider,
+          pt.name_translations AS provider_translations,
           BTRIM(split_part(sp.image_url, ',', 1)) AS image_1,
           NULL::text AS image_2,
           NULL::text AS image_3,
@@ -637,11 +637,10 @@ export async function getSearchResults(params?: {
           min_service.value_toman::float8 AS value_toman,
           COALESCE(sp.accredited, false) AS verified,
           COALESCE(sp.specialties, ARRAY[]::text[]) AS specialties,
-          ARRAY_REMOVE(ARRAY[
-            NULLIF(common.get_translation_t(pt.name_translations, params.locale, 'en-US'), ''),
-            CASE WHEN sp.is_sponsored THEN COALESCE(NULLIF(BTRIM(sp.sponsored_tag), ''), ${labels.sponsored}) END,
-            CASE WHEN sp.accredited THEN ${labels.verified} END
-          ], NULL) AS tags,
+          pt.name_translations AS tag_1_translations,
+          NULL::jsonb AS tag_2_translations,
+          sp.is_sponsored AS is_sponsored,
+          sp.sponsored_tag AS sponsored_tag,
           CONCAT('/n/app/mobile/provider/', sp.id::text) AS href,
           (
             CASE WHEN params.q IS NULL THEN 0 ELSE
@@ -689,7 +688,7 @@ export async function getSearchResults(params?: {
           staff.id::text AS id,
           'specialist'::text AS type,
           common.get_translation_t(staff.name_translations, params.locale, 'en-US') AS name,
-          common.get_translation_t(sp.name_translations, params.locale, 'en-US') AS provider,
+          sp.name_translations AS provider_translations,
           NULLIF(BTRIM(staff.profile_image_url), '') AS image_1,
           NULL::text AS image_2,
           NULL::text AS image_3,
@@ -704,10 +703,10 @@ export async function getSearchResults(params?: {
           NULL::float8 AS value_toman,
           true AS verified,
           ARRAY_REMOVE(ARRAY[NULLIF(COALESCE(staff.specialty, common.get_translation_t(staff.specialty_translations, params.locale, 'en-US')), '')], NULL) AS specialties,
-          ARRAY_REMOVE(ARRAY[
-            NULLIF(common.get_translation_t(staff.title_translations, params.locale, 'en-US'), ''),
-            NULLIF(common.get_translation_t(sp.name_translations, params.locale, 'en-US'), '')
-          ], NULL) AS tags,
+          staff.title_translations AS tag_1_translations,
+          sp.name_translations AS tag_2_translations,
+          false AS is_sponsored,
+          NULL::text AS sponsored_tag,
           CONCAT('/n/app/mobile/specialist/', staff.id::text) AS href,
           (COALESCE(staff.rating, 0)::float8 / 10) AS rank_score
         FROM category.staff staff
@@ -745,7 +744,7 @@ export async function getSearchResults(params?: {
         r.id,
         r.type,
         r.name,
-        r.provider,
+        common.get_translation_t(r.provider_translations, params.locale, 'en-US') AS provider,
         COALESCE(
           CASE
             WHEN r.image_1 ~* ${uuidPattern} THEN NULLIF(BTRIM(media_1.file_url), '')
@@ -775,7 +774,12 @@ export async function getSearchResults(params?: {
         r.value_toman,
         r.verified,
         r.specialties,
-        r.tags,
+        ARRAY_REMOVE(ARRAY[
+          NULLIF(common.get_translation_t(r.tag_1_translations, params.locale, 'en-US'), ''),
+          NULLIF(common.get_translation_t(r.tag_2_translations, params.locale, 'en-US'), ''),
+          CASE WHEN r.is_sponsored THEN COALESCE(NULLIF(BTRIM(r.sponsored_tag), ''), ${labels.sponsored}) END,
+          CASE WHEN r.type IN ('service', 'provider') AND r.verified THEN ${labels.verified} END
+        ], NULL) AS tags,
         r.href,
         r.rank_score
       FROM ranked r

@@ -7,6 +7,8 @@
  * in is the currency that is actually charged.
  */
 
+import { formatMoney as formatPlatformMoney } from "@/features/finance/lib/money";
+
 /** UI locale ("fa") → Intl locale tag. Persian is pinned to Persian digits. */
 export function intlLocale(locale: string): string {
   const base = String(locale || "en").toLowerCase().split("-")[0];
@@ -21,6 +23,8 @@ const moneyCache = new Map<string, Intl.NumberFormat>();
 export function formatMoney(amount: number | null | undefined, currency: string, locale: string, decimals?: number): string {
   if (amount == null || !Number.isFinite(amount)) return "—";
   const tag = intlLocale(locale);
+  // Rial/toman read as "ریال"/"تومان" (or the locale's word), never "IRR"/"IRT"; Intl has no toman at all.
+  if (currency === "IRR" || currency === "IRT") return formatPlatformMoney({ amount, currencyCode: currency }, { locale: tag });
   const key = `${tag}|${currency}|${decimals ?? "d"}`;
   let nf = moneyCache.get(key);
   if (!nf) {

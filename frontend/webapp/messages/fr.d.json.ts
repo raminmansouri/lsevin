@@ -59,7 +59,7 @@ declare const messages: {
     "uploadedBadge": "Importé"
   },
   "Manifest": {
-    "name": "L Sevin",
+    "name": "LSevin",
     "actions": {
       "addResource": "Ajouter une ressource",
       "addRule": "Ajouter une règle",
@@ -339,7 +339,7 @@ declare const messages: {
     }
   },
   "LocaleLayout": {
-    "title": "L Sevin",
+    "title": "LSevin",
     "description": "Plateforme de santé automatisée qui simplifie la planification des patients, de l'hébergement aux rendez-vous médicaux"
   },
   "Error": {
@@ -569,7 +569,8 @@ declare const messages: {
     "consultationRequests": "Demandes de consultation"
   },
   "HomePage": {
-    "title": "L Sevin - Santé automatisée",
+    "title": "LSevin | Médecins, cliniques et hôtels médicaux en Iran",
+    "h1": "Réservez médecins, cliniques, hôtels médicaux et circuits santé en Iran",
     "description": "Simplifier la planification des patients, de l'hébergement aux rendez-vous médicaux",
     "keywords": "automatisation santé,automatisation du secteur de la santé,tourisme médical,réservation médicale",
     "heroTitle": "Vivez les meilleurs services médicaux avec nous",
@@ -3645,7 +3646,7 @@ declare const messages: {
     "low": "Faible",
     "loyaltyMembers": "Membres du programme de fidélité",
     "loyaltyTiers": "Niveaux de fidélité",
-    "lSevinAdmin": "Administration L Sevin",
+    "lSevinAdmin": "Administration LSevin",
     "lucasGarcia": "Lucas Garcia",
     "luxurySpaAndWellness": "Spa et bien-être de luxe",
     "mainButtonLabel": "Libellé du bouton principal",
@@ -5489,7 +5490,6 @@ declare const messages: {
     "caseSharedSuccessfully": "Dossier partagé avec le prestataire",
     "caseShareFailed": "Impossible de partager le dossier. Veuillez réessayer.",
     "caseShareSavedPending": "Vous avez choisi de partager \"{title}\" avec ce prestataire une fois votre réservation confirmée.",
-    "changeSelection": "Modifier",
     "removeSelection": "Retirer",
     "reschedule": "Reprogrammer",
     "reservationManagement": "Gestion des réservations",
@@ -10216,7 +10216,10 @@ declare const messages: {
     }
   },
   "ServicePage": {
-    "attributeValue": { "yes": "Oui", "no": "Non" },
+    "attributeValue": {
+      "yes": "Oui",
+      "no": "Non"
+    },
     "actions": {
       "back": "Retour",
       "bookNow": "Réserver",
@@ -12744,6 +12747,30 @@ declare const messages: {
     "withdrawal_requests": "Demandes de retrait"
   },
   "Consultation": {
+    "finder": {
+      "open": "Consulter un médecin",
+      "title": "Consulter un médecin",
+      "subtitle": "Choisissez le domaine médical qui vous convient le mieux pour voir ses médecins.",
+      "doctorsSubtitle": "Parcourez les médecins de ce domaine et choisissez celui qui vous convient.",
+      "all": "Tous",
+      "back": "Retour",
+      "doctorCount": "{count, plural, one {# médecin} other {# médecins}}",
+      "rating": "{rating, number} ({count, number} avis)",
+      "experience": "{years, number} ans d'expérience",
+      "viewProfile": "Voir",
+      "empty": "Aucun médecin n'est encore référencé dans ce domaine.",
+      "noCategories": "Aucun domaine avec des médecins actifs pour le moment.",
+      "retry": "Réessayer",
+      "errors": {
+        "loadFailed": "Échec du chargement. Veuillez réessayer.",
+        "invalidCategory": "Ce domaine est introuvable."
+      }
+    },
+    "homeCard": {
+      "title": "Parlez à un médecin avant le traitement",
+      "details": "Consultation vidéo de {minutes, number} min · {price}",
+      "cta": "Commencer"
+    },
     "step": {
       "label": "Consultation gratuite",
       "title": "Vous ne savez pas quoi réserver ? Parlez d'abord à un conseiller.",
@@ -12822,6 +12849,16 @@ declare const messages: {
       "duplicatePhone": "Ce numéro de téléphone figure déjà dans la liste."
     },
     "admin": {
+      "video": {
+        "title": "Consultation vidéo avec un médecin",
+        "description": "Durée et prix de la consultation vidéo, identiques pour tous les médecins. La carte de la page d'accueil affiche exactement ces valeurs.",
+        "enabled": "Afficher la carte de consultation sur la page d'accueil",
+        "duration": "Durée (minutes)",
+        "price": "Prix de base",
+        "currency": "Devise",
+        "priceToman": "Prix en tomans (facultatif)",
+        "priceTomanHint": "Si renseigné, les visiteurs iraniens voient ce prix en tomans à la place."
+      },
       "title": "Demandes de consultation",
       "description": "Rappels de consultation gratuite demandés depuis le parcours de réservation.",
       "empty": "Aucune demande de consultation pour le moment.",
@@ -12926,6 +12963,281 @@ declare const messages: {
         "confirmDelete": "Retirer ce destinataire ?",
         "empty": "Aucun destinataire pour l'instant — personne n'est prévenu.",
         "cancel": "Annuler"
+      },
+      "videoDoctors": {
+        "title": "Généralistes de consultation vidéo",
+        "description": "Enregistrez ici les médecins généralistes. Seuls ces médecins apparaissent sur la page ouverte par la carte d'accueil, séparément des autres médecins de l'app.",
+        "migrationMissing": "La table des médecins de consultation n'existe pas encore. Lancez d'abord pnpm migrate.",
+        "listTitle": "Médecins enregistrés ({count, number})",
+        "empty": "Aucun médecin enregistré pour l'instant.",
+        "addTitle": "Enregistrer un nouveau généraliste",
+        "editTitle": "Modifier le médecin",
+        "nameFa": "Nom complet (persan)",
+        "nameEn": "Nom (anglais, facultatif)",
+        "nameRequired": "Saisissez le nom en persan.",
+        "councilNumber": "Numéro d'ordre",
+        "experience": "Années d'expérience",
+        "bioFa": "Courte bio (persan)",
+        "bioEn": "Courte bio (anglais, facultatif)",
+        "photo": "Photo du médecin",
+        "photoPlaceholder": "Choisir une photo",
+        "active": "Afficher aux patients",
+        "add": "Enregistrer",
+        "save": "Enregistrer les modifications",
+        "cancelEdit": "Annuler",
+        "added": "Médecin enregistré",
+        "updated": "Modifications enregistrées",
+        "edit": "Modifier",
+        "remove": "Supprimer",
+        "removed": "Médecin supprimé",
+        "confirmRemove": "Supprimer ce médecin ?",
+        "moveUp": "Monter",
+        "moveDown": "Descendre",
+        "accountTitle": "Compte de connexion du médecin",
+        "accountHint": "Le médecin se connecte sur la page de connexion habituelle de l'app avec ce numéro et ce mot de passe, puis reçoit un code par SMS. Si un compte avec ce numéro ou cet e-mail existe déjà, il est associé et son mot de passe reste inchangé.",
+        "accountPhone": "Numéro de mobile",
+        "accountEmail": "E-mail",
+        "accountPassword": "Mot de passe (6 caractères minimum)",
+        "hasAccount": "Compte associé",
+        "noAccount": "Aucun compte",
+        "accountCreated": "Médecin enregistré et compte de connexion créé",
+        "unlink": "Dissocier le compte",
+        "unlinked": "Compte dissocié",
+        "confirmUnlink": "Dissocier ce compte du médecin ? Le compte lui-même ne sera pas supprimé.",
+        "errors": {
+          "invalidPhone": "Le numéro de mobile n'est pas valide.",
+          "emailRequired": "Un e-mail est nécessaire pour créer un nouveau compte.",
+          "passwordTooShort": "Le mot de passe doit contenir au moins 6 caractères.",
+          "registerFailed": "Impossible de créer le compte.",
+          "accountTaken": "Ce compte est déjà associé à {name}.",
+          "savedWithoutAccount": "Le médecin a été enregistré, mais le compte de connexion n'a pas été créé :"
+        }
+      }
+    },
+    "doctorsPage": {
+      "back": "Retour",
+      "title": "Consultation vidéo",
+      "subtitle": "Parlez à l'un de nos médecins généralistes",
+      "offerTitle": "Consultation vidéo avant le traitement",
+      "offerDetails": "{minutes, number} min · {price}",
+      "experience": "{years, number} ans d'expérience",
+      "empty": "Aucun médecin disponible pour la consultation vidéo pour le moment.",
+      "unavailable": "La consultation vidéo n'est pas disponible pour le moment.",
+      "loadFailed": "Échec du chargement. Veuillez réessayer.",
+      "retry": "Réessayer",
+      "generalPractitioner": "Médecin généraliste",
+      "councilNumber": "N° d'ordre {number}",
+      "book": "Réserver une consultation"
+    },
+    "doctorPanel": {
+      "title": "Espace médecin",
+      "greeting": "Bienvenue",
+      "role": "Généraliste en consultation vidéo",
+      "signOut": "Se déconnecter",
+      "emptyTitle": "Pas encore de consultations",
+      "emptyBody": "Les demandes des patients apparaîtront bientôt ici.",
+      "availability": "Disponibilité",
+      "online": "Je suis disponible",
+      "offline": "Je suis indisponible",
+      "tabs": {
+        "upcoming": "Consultations",
+        "history": "Historique",
+        "hours": "Horaires"
+      },
+      "today": "Aujourd'hui",
+      "minutes": "{minutes, number} min",
+      "age": "{age, number} ans",
+      "gender": {
+        "male": "Homme",
+        "female": "Femme",
+        "other": "Autre"
+      },
+      "hasSummary": "Compte rendu rédigé",
+      "status": {
+        "awaiting_payment": "En attente de paiement",
+        "scheduled": "Programmée",
+        "in_progress": "En appel",
+        "completed": "Terminée",
+        "cancelled": "Annulée",
+        "no_show": "Absent"
+      },
+      "historySearch": "Rechercher un patient, une note ou un compte rendu",
+      "historyEmpty": "Aucune consultation pour le moment.",
+      "historyNoResults": "Aucun résultat.",
+      "loadMore": "Afficher plus",
+      "hoursHint": "Les horaires sont à l'heure de Téhéran. Les patients ne peuvent réserver que pendant ces horaires.",
+      "weekdays": {
+        "0": "Samedi",
+        "1": "Dimanche",
+        "2": "Lundi",
+        "3": "Mardi",
+        "4": "Mercredi",
+        "5": "Jeudi",
+        "6": "Vendredi"
+      },
+      "addRange": "Ajouter une plage",
+      "removeRange": "Supprimer la plage",
+      "dayOff": "Jour de repos",
+      "from": "De",
+      "to": "À",
+      "saveHours": "Enregistrer les horaires",
+      "hoursSaved": "Horaires enregistrés",
+      "sessionTitle": "Consultation",
+      "backToPanel": "Retour au tableau de bord",
+      "backToSession": "Retour à la consultation",
+      "join": "Rejoindre l'appel",
+      "rejoin": "Revenir à l'appel",
+      "awaitingPaymentHint": "Le patient n'a pas encore payé. La consultation sera confirmée après le paiement.",
+      "patientTitle": "Patient",
+      "patientNote": "Note du patient",
+      "noNote": "Aucune note rédigée.",
+      "attachments": "Fichiers et photos",
+      "noAttachments": "Aucun fichier joint.",
+      "summaryTitle": "Compte rendu après l'appel",
+      "summaryLocked": "Vous pourrez rédiger le compte rendu après avoir rejoint l'appel une première fois. L'enregistrer marque la consultation comme terminée.",
+      "summaryAdvice": "Conseils",
+      "summaryNextSteps": "Prochaines étapes",
+      "summarySuggestion": "Traitement ou centre suggéré",
+      "summarySuggestionHint": "Facultatif ; visible par le patient.",
+      "summarySave": "Enregistrer le compte rendu",
+      "summaryUpdate": "Mettre à jour le compte rendu",
+      "summarySaved": "Compte rendu enregistré",
+      "errors": {
+        "loadFailed": "Une erreur s'est produite. Veuillez réessayer.",
+        "notFound": "Cette consultation est introuvable.",
+        "notJoinable": "Ce n'est pas encore le moment de rejoindre cet appel.",
+        "invalid": "Vérifiez les horaires.",
+        "overlap": "Les plages d'un même jour ne peuvent pas se chevaucher.",
+        "endBeforeStart": "L'heure de fin doit être postérieure à l'heure de début.",
+        "summaryEmpty": "Rédigez au moins une partie du compte rendu.",
+        "summaryNotAllowed": "Impossible de rédiger un compte rendu pour cette consultation pour le moment.",
+        "forbidden": "Vous n'avez pas accès."
+      },
+      "callWindow": "La salle d'appel est ouverte de {from} à {to} ; vous pouvez la rejoindre et la quitter autant de fois que vous le souhaitez.",
+      "callWindowClosed": "La salle d'appel est fermée ({from}–{to})."
+    },
+    "booking": {
+      "back": "Retour",
+      "title": "Réserver une consultation vidéo",
+      "generalPractitioner": "Médecin généraliste",
+      "offer": "{minutes, number} min · {price}",
+      "pickTime": "Choisissez un jour et une heure",
+      "noSlots": "Ce médecin n'a aucun créneau libre dans les deux prochaines semaines.",
+      "tehranTime": "Les horaires sont à l'heure de Téhéran.",
+      "aboutYou": "À propos de vous",
+      "name": "Nom complet",
+      "age": "Âge",
+      "gender": "Sexe",
+      "genders": {
+        "female": "Femme",
+        "male": "Homme"
+      },
+      "note": "Décrivez votre problème",
+      "noteHint": "Symptômes, depuis quand, médicaments que vous prenez.",
+      "files": "Fichiers et photos (facultatif)",
+      "filesHint": "Résultats d'analyses, photos ou ordonnances ; 10 fichiers maximum.",
+      "addFiles": "Ajouter des fichiers",
+      "submit": "Envoyer la demande pour {time}",
+      "pickTimeFirst": "Choisissez d'abord une heure",
+      "sessionTitle": "Consultation vidéo",
+      "requestSent": "Votre demande a été envoyée",
+      "payNext": "Ce créneau vous est réservé pendant 15 minutes. Payez pour le confirmer.",
+      "when": "Quand",
+      "length": "Durée",
+      "price": "Prix",
+      "minutes": "{minutes, number} min",
+      "callWindow": "La salle d'appel est ouverte de {from} à {to} ; vous pouvez la rejoindre et la quitter autant de fois que vous le souhaitez.",
+      "yourNote": "Votre note",
+      "errors": {
+        "signIn": "Veuillez vous connecter pour réserver.",
+        "unavailable": "La consultation vidéo n'est pas disponible pour le moment.",
+        "notFound": "Ce médecin ou cette consultation est introuvable.",
+        "slotTaken": "Ce créneau vient d'être réservé. Veuillez en choisir un autre.",
+        "invalid": "Veuillez vérifier les champs en surbrillance.",
+        "loadFailed": "Une erreur s'est produite. Veuillez réessayer.",
+        "pickTime": "Veuillez choisir une heure.",
+        "name": "Saisissez votre nom complet.",
+        "age": "L'âge n'est pas valide.",
+        "note": "Veuillez décrire votre problème en au moins une phrase.",
+        "notJoinable": "Ce n'est pas encore le moment de rejoindre cet appel.",
+        "alreadyPaid": "Cette consultation est déjà payée.",
+        "expired": "La réservation de ce créneau a expiré. Veuillez réserver à nouveau.",
+        "paymentUnavailable": "Le paiement en ligne est indisponible pour le moment. Réessayez dans un instant."
+      },
+      "joinCall": "Rejoindre l'appel",
+      "joinLater": "Le bouton pour rejoindre s'activera à l'ouverture de la salle d'appel.",
+      "joinAfterPayment": "Le bouton pour rejoindre apparaîtra ici une fois le paiement effectué.",
+      "callWindowClosed": "La salle d'appel est fermée ({from}–{to}).",
+      "expired": "Le délai de paiement de cette demande a expiré et le créneau a été libéré. Veuillez réserver à nouveau.",
+      "expiredBadge": "Expirée",
+      "doctorSummary": "Compte rendu du médecin",
+      "summaryAdvice": "Conseils",
+      "summaryNextSteps": "Prochaines étapes",
+      "summarySuggestion": "Traitement ou centre suggéré",
+      "backToSession": "Retour à la consultation",
+      "payNow": "Payer {price}",
+      "paying": "Redirection vers la page de paiement…",
+      "paymentResult": {
+        "paid": "Paiement reçu. Votre consultation est confirmée.",
+        "cancelled": "Le paiement a été annulé. Vous pouvez payer à nouveau tant que le créneau est réservé.",
+        "failed": "Le paiement n'a pas pu être confirmé. Si de l'argent a été débité, il est généralement restitué sous 72 heures.",
+        "refund": "Le paiement a abouti, mais ce créneau n'était plus libre. Vous serez remboursé ; veuillez contacter le support."
+      },
+      "testPay": "Paiement de test (tests uniquement)",
+      "foreignVpnNote": "Ce service n'est pour l'instant disponible qu'en Iran."
+    },
+    "call": {
+      "phase": {
+        "before": "Avant l'heure réservée",
+        "during": "Temps restant de la consultation",
+        "after": "Avant la fermeture de la salle"
+      },
+      "leave": "Quitter l'appel",
+      "roomClosed": "Le temps de la salle d'appel est écoulé.",
+      "videoPlaceholder": "Les appels vidéo ne sont pas encore configurés sur ce serveur. Le minuteur et l'entrée/sortie fonctionnent déjà.",
+      "unavailable": "L'appel vidéo n'est pas disponible pour le moment. Réessayez dans un instant et contactez le support si le problème persiste.",
+      "connecting": "Connexion…",
+      "reconnecting": "Connexion perdue, reconnexion…",
+      "waitingFor": "En attente de {name}…",
+      "cameraOff": "La caméra de {name} est désactivée",
+      "muteMic": "Couper le micro",
+      "unmuteMic": "Activer le micro",
+      "cameraOffButton": "Désactiver la caméra",
+      "cameraOnButton": "Activer la caméra",
+      "flipCamera": "Changer de caméra",
+      "notice": {
+        "permission": "L'accès à la caméra ou au micro a été bloqué. Autorisez-le dans les réglages du navigateur et rouvrez la page.",
+        "device": "Aucune caméra ou aucun micro trouvé, ou une autre application l'utilise.",
+        "duplicate": "Cet appel a été ouvert dans un autre onglet ou appareil.",
+        "failed": "Impossible de se connecter au serveur d'appel. Vérifiez votre connexion et rejoignez à nouveau.",
+        "unreachable": "Impossible de joindre le serveur d'appel. Si vous êtes en données mobiles, essayez le Wi‑Fi ou la carte SIM d'un autre opérateur."
+      },
+      "prejoin": {
+        "hint": "Vérifiez votre image et votre son avant d'entrer.",
+        "cameraOff": "La caméra est désactivée",
+        "micLevel": "Niveau du micro",
+        "camera": "Caméra",
+        "microphone": "Micro",
+        "cameraName": "Caméra {n}",
+        "micName": "Micro {n}",
+        "back": "Retour",
+        "join": "Rejoindre l'appel"
+      },
+      "audioOnly": "Audio seul",
+      "videoBack": "Réactiver la vidéo",
+      "audioOnlyActive": "Audio seul : aucune vidéo n'est envoyée ni reçue.",
+      "chat": "Discussion",
+      "chatEmpty": "Aucun message. Si le son coupe, écrivez ici.",
+      "chatPlaceholder": "Écrivez un message…",
+      "send": "Envoyer",
+      "you": "Vous",
+      "patientInfo": "Infos patient",
+      "closePanel": "Fermer",
+      "closingSoon": "La salle d'appel ferme dans {minutes, number} min.",
+      "quality": {
+        "weakYou": "Votre connexion est faible",
+        "weakPeer": "La connexion de {name} est faible",
+        "lostPeer": "La connexion de {name} a été perdue"
       }
     }
   },
@@ -12933,7 +13245,9 @@ declare const messages: {
     "customer": {
       "title": "Mes abonnements de salle de sport",
       "empty": "Vous n'avez encore aucun abonnement de salle de sport.",
-      "plan": { "monthlyPriceLabel": "Prix mensuel" },
+      "plan": {
+        "monthlyPriceLabel": "Prix mensuel"
+      },
       "subscribe": {
         "title": "S'abonner",
         "selectMonths": "Sélectionnez les mois à payer",

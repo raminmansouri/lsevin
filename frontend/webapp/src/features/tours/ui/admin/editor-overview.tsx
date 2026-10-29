@@ -1,15 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { useRouter } from "@/i18n/navigation";
+import { Link, useRouter } from "@/i18n/navigation";
 
-import { formatInstant, type CalendarId } from "../../domain/calendar";
 import {
   approveAndPublishAction,
   duplicateTourAction,
@@ -22,7 +21,8 @@ import {
 } from "../../server/admin/actions";
 import type { TourBundle } from "../../server/admin/queries";
 
-import { CalendarDateField, CalendarSelect, Field, NativeSelect, ReasonAction, Section, useAdminAction } from "./primitives";
+import { OptionMultiSelect, OptionSelect, pickLabel, TimezoneSelect, useAdminDates, useLanguageOptions, type Option } from "./inputs";
+import { CalendarDateField, Field, NativeSelect, ReasonAction, Section, useAdminAction } from "./primitives";
 import { TOURS_PLATFORM_BASE } from "./paths";
 import type { EditorLookups } from "./tour-editor";
 
@@ -137,18 +137,30 @@ function CoreForm({ bundle, lookups }: { bundle: TourBundle; lookups: EditorLook
     durationMinutes: c.duration_minutes == null ? "" : String(c.duration_minutes), durationDays: String(c.duration_days), nights: String(c.nights),
     minParticipants: String(c.min_participants), maxParticipants: c.max_participants == null ? "" : String(c.max_participants),
     minAge: c.min_age == null ? "" : String(c.min_age), maxAge: c.max_age == null ? "" : String(c.max_age),
-    guideLanguages: (c.guide_languages as string[]).join(", "), confirmationMode: c.confirmation_mode,
+    guideLanguages: (c.guide_languages as string[]) ?? [], confirmationMode: c.confirmation_mode,
     bookingCutoffMinutes: String(c.booking_cutoff_minutes), timezone: c.timezone,
     meetingLat: c.meeting_lat == null ? "" : String(c.meeting_lat), meetingLng: c.meeting_lng == null ? "" : String(c.meeting_lng),
     locationPrivacy: c.location_privacy, wheelchairAccessible: c.wheelchair_accessible, lowMobilityFriendly: c.low_mobility_friendly,
     familyFriendly: c.family_friendly, recoveryFriendly: c.recovery_friendly, pickupAvailable: c.pickup_available,
   });
   const set = (patch: Partial<typeof v>) => setV({ ...v, ...patch });
+  const destinationOptions = useMemo<Option[]>(() => lookups.destinations.map((d) => ({ value: d.id, label: pickLabel(d.names, locale, d.name), hint: d.country_code ?? undefined })), [lookups.destinations, locale]);
+  // Codes already on the tour stay selectable (and removable) even when the term is inactive or the language is not listed.
+  const categoryOptions = useMemo<Option[]>(() => {
+    const opts: Option[] = lookups.categories.map((cat) => ({ value: cat.code, label: pickLabel(cat.label_translations, locale, cat.label), hint: cat.code }));
+    for (const code of c.category_codes as string[]) if (!opts.some((o) => o.value === code)) opts.push({ value: code, label: code });
+    return opts;
+  }, [lookups.categories, locale, c.category_codes]);
+  const baseLanguages = useLanguageOptions();
+  const languageOptions = useMemo<Option[]>(() => {
+    const extra = ((c.guide_languages as string[]) ?? []).filter((x) => !baseLanguages.some((o) => o.value === x)).map((x) => ({ value: x, label: x }));
+    return [...baseLanguages, ...extra];
+  }, [baseLanguages, c.guide_languages]);
   const submit = () => run(() => updateTourCoreAction(c.id, {
     destinationId: v.destinationId || null, tourType: v.tourType, categoryCodes: v.categoryCodes, difficulty: v.difficulty || null,
     durationMinutes: numOrNull(v.durationMinutes), durationDays: Number(v.durationDays), nights: Number(v.nights),
     minParticipants: Number(v.minParticipants), maxParticipants: numOrNull(v.maxParticipants), minAge: numOrNull(v.minAge), maxAge: numOrNull(v.maxAge),
-    guideLanguages: v.guideLanguages.split(",").map((s) => s.trim()).filter(Boolean), confirmationMode: v.confirmationMode,
+    guideLanguages: v.guideLanguages, confirmationMode: v.confirmationMode,
     bookingCutoffMinutes: Number(v.bookingCutoffMinutes), timezone: v.timezone, meetingLat: numOrNull(v.meetingLat), meetingLng: numOrNull(v.meetingLng),
     locationPrivacy: v.locationPrivacy, wheelchairAccessible: v.wheelchairAccessible, lowMobilityFriendly: v.lowMobilityFriendly,
     familyFriendly: v.familyFriendly, recoveryFriendly: v.recoveryFriendly, pickupAvailable: v.pickupAvailable,
@@ -168,10 +180,7 @@ function CoreForm({ bundle, lookups }: { bundle: TourBundle; lookups: EditorLook
       actions={<Button type="button" size="sm" disabled={pending} onClick={submit}>{t("save")}</Button>}>
       <form className="grid gap-3 md:grid-cols-3" onSubmit={(e) => { e.preventDefault(); submit(); }}>
         <Field label={t("destination")} htmlFor="core-destination">
-          <NativeSelect id="core-destination" value={v.destinationId} onChange={(e) => set({ destinationId: e.target.value })}>
-            <option value="">—</option>
-            {lookups.destinations.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
-          </NativeSelect>
+          <OptionSelect id="core-destination" value={v.destinationId} onChange={(destinationId) => set({ destinationId })} options={destinationOptions} />
         </Field>
         <Field label={t("tourType")} htmlFor="core-type">
           <NativeSelect id="core-type" value={v.tourType} onChange={(e) => set({ tourType: e.target.value })}>
@@ -184,18 +193,10 @@ function CoreForm({ bundle, lookups }: { bundle: TourBundle; lookups: EditorLook
             {["easy", "moderate", "challenging", "strenuous"].map((x) => <option key={x} value={x}>{t(`level.${x}`)}</option>)}
           </NativeSelect>
         </Field>
-        <fieldset className="space-y-1 md:col-span-3">
-          <legend className="text-sm font-medium">{t("categories")}</legend>
-          <div className="flex flex-wrap gap-3">
-            {lookups.categories.map((cat) => (
-              <label key={cat.code} className="flex items-center gap-1.5 text-sm">
-                <input type="checkbox" checked={v.categoryCodes.includes(cat.code)}
-                  onChange={(e) => set({ categoryCodes: e.target.checked ? [...v.categoryCodes, cat.code] : v.categoryCodes.filter((x) => x !== cat.code) })} />
-                {cat.label_translations?.[locale] ?? cat.label}
-              </label>
-            ))}
-          </div>
-        </fieldset>
+        <Field label={t("categories")} htmlFor="core-categories" className="md:col-span-3"
+          hint={<Link href={`${TOURS_PLATFORM_BASE}/taxonomy`} className="underline" data-testid="manage-categories">{t("manageCategories")}</Link>}>
+          <OptionMultiSelect id="core-categories" values={v.categoryCodes} onChange={(categoryCodes) => set({ categoryCodes })} options={categoryOptions} testId="core-categories" />
+        </Field>
         {num("durationMinutes", t("durationMinutes"))}
         {num("durationDays", t("durationDays"))}
         {num("nights", t("nights"))}
@@ -204,14 +205,14 @@ function CoreForm({ bundle, lookups }: { bundle: TourBundle; lookups: EditorLook
         {num("bookingCutoffMinutes", t("bookingCutoff"))}
         {num("minAge", t("minAge"))}
         {num("maxAge", t("maxAge"))}
-        <Field label={t("guideLanguages")} htmlFor="core-langs"><Input id="core-langs" dir="ltr" value={v.guideLanguages} onChange={(e) => set({ guideLanguages: e.target.value })} /></Field>
+        <Field label={t("guideLanguagesLabel")} htmlFor="core-langs"><OptionMultiSelect id="core-langs" values={v.guideLanguages} onChange={(guideLanguages) => set({ guideLanguages })} options={languageOptions} testId="core-langs" /></Field>
         <Field label={t("confirmation")} htmlFor="core-confirm">
           <NativeSelect id="core-confirm" value={v.confirmationMode} onChange={(e) => set({ confirmationMode: e.target.value })}>
             <option value="instant">{t("instant")}</option>
             <option value="request">{t("request")}</option>
           </NativeSelect>
         </Field>
-        <Field label={t("timezone")} htmlFor="core-tz"><Input id="core-tz" dir="ltr" value={v.timezone} onChange={(e) => set({ timezone: e.target.value })} /></Field>
+        <Field label={t("timezone")} htmlFor="core-tz"><TimezoneSelect id="core-tz" value={v.timezone} onChange={(timezone) => set({ timezone })} testId="core-tz" /></Field>
         {num("meetingLat", t("meetingLat"))}
         {num("meetingLng", t("meetingLng"))}
         <Field label={t("locationPrivacy")} htmlFor="core-privacy">
@@ -235,14 +236,14 @@ function CoreForm({ bundle, lookups }: { bundle: TourBundle; lookups: EditorLook
 
 function AttributeVerification({ bundle }: { bundle: TourBundle }) {
   const t = useTranslations("TourAdmin.core");
-  const locale = useLocale();
+  const dates = useAdminDates();
   const { run, pending } = useAdminAction();
   const c = bundle.core;
   const claims = c.wheelchair_accessible || c.low_mobility_friendly || c.recovery_friendly;
   if (!claims) return null;
   return (
     <div className="flex flex-wrap items-center gap-3 rounded-md border p-3 text-sm">
-      <span>{c.attributes_verified_at ? t("attributesVerified", { at: formatInstant(c.attributes_verified_at, { locale, calendar: locale === "fa" ? "persian" : "gregory", timeZone: c.timezone }) }) : t("attributesUnverified")}</span>
+      <span>{c.attributes_verified_at ? t("attributesVerified", { at: dates.instant(c.attributes_verified_at, c.timezone) }) : t("attributesUnverified")}</span>
       <Button type="button" size="sm" variant="outline" disabled={pending} onClick={() => run(() => verifyTourAttributesAction(c.id, !c.attributes_verified_at))}>
         {c.attributes_verified_at ? t("revokeVerification") : t("verifyAttributes")}
       </Button>
@@ -252,26 +253,24 @@ function AttributeVerification({ bundle }: { bundle: TourBundle }) {
 
 function PlacementPanel({ bundle }: { bundle: TourBundle }) {
   const t = useTranslations("TourAdmin.placement");
-  const locale = useLocale();
+  const dates = useAdminDates();
   const { run, pending } = useAdminAction();
   const c = bundle.core;
-  const [calendar, setCalendar] = useState<CalendarId>(locale === "fa" ? "persian" : "gregory");
   const [featured, setFeatured] = useState<boolean>(c.is_featured);
   const [sponsored, setSponsored] = useState<boolean>(c.is_sponsored);
   const [until, setUntil] = useState("");
   return (
     <Section id="placement" title={t("title")} description={t("description")}>
-      <div className="grid gap-3 md:grid-cols-4">
+      <div className="grid gap-3 md:grid-cols-3">
         <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={featured} onChange={(e) => setFeatured(e.target.checked)} /> {t("featured")}</label>
         <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={sponsored} onChange={(e) => setSponsored(e.target.checked)} /> {t("sponsored")}</label>
-        <CalendarSelect id="placement-cal" value={calendar} onChange={setCalendar} />
-        <CalendarDateField id="placement-until" label={t("until")} value={until} onChange={setUntil} calendar={calendar} />
+        <CalendarDateField id="placement-until" label={t("until")} value={until} onChange={setUntil} />
       </div>
       <p className="text-muted-foreground text-xs">
-        {c.featured_until ? t("currentUntil", { at: formatInstant(c.featured_until, { locale, calendar, timeZone: c.timezone }) }) : t("noEnd")}
+        {c.featured_until ? t("currentUntil", { at: dates.instant(c.featured_until, c.timezone) }) : t("noEnd")}
       </p>
       <Button type="button" size="sm" disabled={pending}
-        onClick={() => run(() => setTourPlacementAction(c.id, { isFeatured: featured, isSponsored: sponsored, featuredUntil: until || null, calendar }))}>
+        onClick={() => run(() => setTourPlacementAction(c.id, { isFeatured: featured, isSponsored: sponsored, featuredUntil: until || null, calendar: "gregory" }))}>
         {t("save")}
       </Button>
     </Section>

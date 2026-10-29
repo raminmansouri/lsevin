@@ -15,6 +15,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 
 import { CategoryListItem } from "../../types/category";
+import { CategoryPriorityInput } from "./category-priority-input";
 import Image from "next/image";
 import { env } from "@/config/env/client";
 import { getCategoryOverlayClassName, getCategoryOverlayStyle } from "../../utils/category-overlay";
@@ -90,7 +91,7 @@ export const getCategoryListColumns = (
   
   {
     id: "displayInHomePage",
-    header: "Show on homepage",
+    header: t("homepage.showOnHome"),
     cell: ({ row }) => {
       const category = row.original;
       const checked = category.displayInHomePage ?? true;
@@ -99,14 +100,23 @@ export const getCategoryListColumns = (
           <Switch
             checked={checked}
             onCheckedChange={(value) => handleToggleHomepage(category, value)}
-            aria-label="Show on homepage"
+            aria-label={`${t("homepage.showOnHome")}: ${category.name}`}
+            data-testid={`category-homepage-${category.categoryId}`}
           />
           <span className="text-xs text-muted-foreground">
-            {checked ? "Shown" : "Hidden"}
+            {checked ? t("homepage.shown") : t("homepage.hidden")}
           </span>
         </div>
       );
     },
+    enableSorting: false,
+  },
+  {
+    id: "displayOrder",
+    // A plain string: the data table's phone-card view prints `header` as text, so a render
+    // function showed up as its own source code (and broke hydration).
+    header: t("homepage.priority"),
+    cell: ({ row }) => <CategoryPriorityInput category={row.original} />,
     enableSorting: false,
   },
   {

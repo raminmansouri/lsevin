@@ -1,5 +1,6 @@
 import "server-only";
 import { routing } from "@/i18n/routing";
+import { contentLanguageFor } from "./language-tags";
 import { seoOrigin } from "./origin";
 
 export type SeoLocale = (typeof routing.locales)[number];
@@ -30,7 +31,7 @@ export function absoluteUrl(locale: string, path = ""): string {
 /** Existing callers retain routed locales; provenance-aware callers can narrow eligibility. */
 export function languageAlternates(path = "", eligibleLocales: readonly SeoLocale[] = routing.locales): Record<string, string> {
   const languages: Record<string, string> = {};
-  for (const locale of eligibleLocales) languages[locale] = absoluteUrl(locale, path);
+  for (const locale of eligibleLocales) languages[contentLanguageFor(locale)] = absoluteUrl(locale, path);
   if (eligibleLocales.includes(routing.defaultLocale)) languages["x-default"] = absoluteUrl(routing.defaultLocale, path);
   return languages;
 }
