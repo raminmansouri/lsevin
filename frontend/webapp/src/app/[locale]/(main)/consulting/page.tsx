@@ -8,6 +8,9 @@ import {
   ConsultingFormSkeleton,
 } from "@/features/consulting/components/consulting-form";
 import { TRANSLATION_KEY } from "@/features/consulting/types/constants";
+import { absoluteUrl } from "@/lib/seo/alternates";
+import { breadcrumbList, graph, organizationId } from "@/lib/seo/entity-schema";
+import { JsonLd } from "@/lib/seo/json-ld";
 import { buildPublicMetadata } from "@/lib/seo/metadata";
 import { getUserDocuments } from "@/features/shared/api/server/get-user-documents";
 import { IUserDocuments } from "@/features/shared/types/user";
@@ -87,17 +90,54 @@ export async function generateMetadata(
 
 const ConsultingPage = ({ params }: { params: Promise<LocaleParams> }) => {
   return (
-    <Suspense fallback={<ConsultingFormSkeleton />}>
-      <LocaleBoundary params={params} tanslationNameSpace={TRANSLATION_KEY}>
-        {(_) => (
-          <div className="container">
-            <Suspense fallback={<ConsultingFormSkeleton />}>
-              <SuspenseBoundary />
-            </Suspense>
-          </div>
+    <>
+      <ConsultingSeo params={params} />
+      <Suspense fallback={<ConsultingFormSkeleton />}>
+        <LocaleBoundary params={params} tanslationNameSpace={TRANSLATION_KEY}>
+          {(_) => (
+            <div className="container">
+              <Suspense fallback={<ConsultingFormSkeleton />}>
+                <SuspenseBoundary />
+              </Suspense>
+            </div>
+          )}
+        </LocaleBoundary>
+      </Suspense>
+    </>
+  );
+};
+
+// Server-rendered heading and structured data, outside the form's Suspense
+// boundary so both are in the initial HTML.
+const ConsultingSeo = async ({ params }: { params: Promise<LocaleParams> }) => {
+  const { locale } = await params;
+  const copy = SEO_COPY[locale] ?? SEO_COPY.en;
+  const heading = copy.title.split(" | ")[0];
+  const url = absoluteUrl(locale, "/consulting");
+  return (
+    <>
+      <JsonLd
+        data={graph(
+          {
+            "@type": "Service",
+            "@id": `${url}#service`,
+            name: heading,
+            description: copy.description,
+            url,
+            serviceType: "Medical travel consultation",
+            areaServed: { "@type": "Country", name: "Iran" },
+            provider: { "@id": organizationId() },
+          },
+          breadcrumbList([
+            { name: copy.title.split(" | ")[1] ?? "LSevin", url: absoluteUrl(locale, "/n/app/mobile/home") },
+            { name: heading, url },
+          ])
         )}
-      </LocaleBoundary>
-    </Suspense>
+      />
+      <div className="container pt-4">
+        <h1 className="text-xl font-bold">{heading}</h1>
+      </div>
+    </>
   );
 };
 
