@@ -1931,6 +1931,14 @@ declare const messages: {
       "deleteSuccess": "Kategori başarıyla silindi",
       "deleteError": "Kategori silinemedi",
       "deleteErrorLog": "Kategori silme hatası:"
+    },
+    "activeSwitch": {
+      "label": "Kategori aktif",
+      "description": "Kapatıldığında bu kategori ve tüm alt kategorileri sitenin tamamından kaldırılır. Hemen kaydedilir. \"Ana sayfada göster\" seçeneğinden ayrıdır.",
+      "activated": "Kategori etkinleştirildi.",
+      "deactivated": "Kategori devre dışı bırakıldı ve sitede gizlendi.",
+      "parentInactive": "Önce üst kategoriyi etkinleştirin.",
+      "failed": "Kategori durumu değiştirilemedi."
     }
   },
   "ServiceDefinition": {

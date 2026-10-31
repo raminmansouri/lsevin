@@ -487,6 +487,8 @@ function buildTrendingServicesWhere(filters: ExploreFiltersInput, lang: string) 
     // other reason. trending_score in the order by below only decides the order
     // among the services that were actually chosen.
     sql`coalesce(ps.is_featured, false) = true`,
+    // Services filed under an inactive category are off the site with it.
+    sql`exists (select 1 from category.categories c_active where c_active.id = sd.category_id and c_active.is_active = true)`,
   ];
 
   if (filters.categoryId) {

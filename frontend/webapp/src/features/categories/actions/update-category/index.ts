@@ -11,6 +11,7 @@ import { createAuthenticatedSafeAction } from "@/lib/safe-action";
 import { LocaleHeaderTypes } from "@/types/common";
 
 import { revalidateCategoryCache } from "../../db/cache";
+import { readCategoryActive, restoreCategoryActive } from "../../db/active-status";
 import { readCategoryPriority, restoreCategoryPriority } from "../../db/priority";
 import { getCpCategoryGroupsTag } from "@/features/service-providers/db/cache";
 import { UpdateCategorySchema } from "./schema";
@@ -65,6 +66,12 @@ const handler = async (
     console.error("Failed to read category priority before update", { categoryId: input.categoryId, readError });
     return null;
   });
+  // Same problem with the active switch: the .NET handler hard-codes IsActive = true, so saving an
+  // inactive category's name or description would quietly switch it back on site-wide.
+  const activeBefore = await readCategoryActive(input.categoryId).catch((readError) => {
+    console.error("Failed to read category active flag before update", { categoryId: input.categoryId, readError });
+    return null;
+  });
 
   const { data, error } = await putData<InputType, RequestOutputType>(
     `${CATEGORY_MODULE_BASE_PATH}/${ADMIN_BASE_PATH}/categories/${input.categoryId}`,
@@ -78,6 +85,21 @@ const handler = async (
     } catch (persistError) {
       // Not fatal: the category itself was saved; only its landing position may have moved.
       console.error("Failed to restore category priority after update", { categoryId: input.categoryId, persistError });
+    }
+    try {
+      await restoreCategoryActive(input.categoryId, activeBefore);
+    } catch (persistError) {
+      console.error("Failed to restore category active flag after update", { categoryId: input.categoryId, persistError });
+      return {
+        data: undefined,
+        error: {
+          type: "category-active-restore-failed",
+          title: "Category was switched back on",
+          status: 500,
+          detail: "The category was saved, but it could not be kept inactive. Please turn it off again with the active switch.",
+          instance: "update-category",
+        },
+      };
     }
     try {
       await persistCategoryGradient(input.categoryId, input.gradient);

@@ -126,6 +126,8 @@ function buildOffersWhere(filters: OffersFiltersInput, lang: string) {
     sql`o.valid_until >= now()`,
     sql`ps.is_active = true`,
     sql`sp.is_active = true and category.provider_type_is_public(sp.provider_type_id)`,
+    // An inactive category is switched off site-wide, offers on its services included.
+    sql`c.is_active = true`,
   ];
 
   if (filters.categoryId) {
