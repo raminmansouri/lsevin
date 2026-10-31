@@ -1,7 +1,8 @@
 import "server-only";
 
 import { cookies, headers } from "next/headers";
-import { isSupportedCountry, type Country } from "react-phone-number-input";
+import { isSupportedCountry } from "libphonenumber-js";
+import type { Country } from "react-phone-number-input";
 
 import {
   FALLBACK_PHONE_COUNTRY,
@@ -16,8 +17,9 @@ function toCountry(value?: string | null): Country | null {
 /**
  * Starting country for the sign-in / sign-up / forgot-password phone inputs:
  *   1. The country the visitor picked last time (cookie).
- *   2. The country of their IP: Caddy's GeoIP `X-Country` header, or
- *      Cloudflare's `CF-IPCountry` where Caddy is not in front (local dev).
+ *   2. The country of their IP: Cloudflare's `CF-IPCountry` (lsevincare.com),
+ *      else Caddy's GeoIP `X-Country` (lsevin.ir via ArvanCloud, whose visitors
+ *      are in Iran; Arvan sends visitors from outside Iran to lsevincare.com).
  *      VPN users get the VPN's country, like everyone else.
  *   3. Iran.
  */
@@ -26,5 +28,5 @@ export async function getPhoneDefaultCountry(): Promise<Country> {
   if (fromCookie) return fromCookie;
 
   const h = await headers();
-  return toCountry(h.get("x-country")) ?? toCountry(h.get("cf-ipcountry")) ?? FALLBACK_PHONE_COUNTRY;
+  return toCountry(h.get("cf-ipcountry")) ?? toCountry(h.get("x-country")) ?? FALLBACK_PHONE_COUNTRY;
 }
