@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { ArrowLeft, BedDouble, Dumbbell, Search, Sparkles, Stethoscope } from "lucide-react";
+import { ArrowLeft, BedDouble, Dumbbell, Flower2, Search, Stethoscope } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
@@ -11,12 +11,12 @@ import { AnimatedWords, CountUp, Magnetic, PointerParallax, Reveal } from "../co
 
 const CHIPS = [
   { key: "surgery", icon: Stethoscope },
-  { key: "beauty", icon: Sparkles },
+  { key: "beauty", icon: Flower2 },
   { key: "hotels", icon: BedDouble },
   { key: "gyms", icon: Dumbbell },
 ] as const;
 
-// Three arches: size, position and parallax depth. The middle one is the largest and nearest.
+
 const ARCHES = [
   { className: "start-[34%] top-0 h-[480px] w-[300px]", depth: 1.4, delay: "0s" },
   { className: "start-0 top-[150px] h-[340px] w-[210px]", depth: 0.7, delay: "-2s" },
