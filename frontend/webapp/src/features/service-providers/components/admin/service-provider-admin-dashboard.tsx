@@ -1314,12 +1314,80 @@ function PoliciesManager({ provider, lookups, locale }: Props) {
 }
 
 
+// Mirrors AttributeType in features/shared/attributes/types/attribute-type.ts
+const ATTR_TYPE = {
+  Text: 1,
+  Number: 2,
+  DateTime: 3,
+  Boolean: 4,
+  Select: 5,
+  MultiSelect: 6,
+  Enum: 7,
+} as const;
+
+type AttributeDefinitionOption =
+  AdminServiceProviderDetails["attributeDefinitions"][number];
+
+function isOptionAttributeType(typeId?: number) {
+  return (
+    typeId === ATTR_TYPE.Select ||
+    typeId === ATTR_TYPE.MultiSelect ||
+    typeId === ATTR_TYPE.Enum
+  );
+}
+
+/** Same plain value in every supported locale (numbers, dates, booleans). */
+function sameValueAllLocales(value: string): Record<string, string> {
+  return Object.fromEntries(
+    SUPPORTED_LOCALE_HEADERS.map((localeHeader) => [localeHeader, value]),
+  );
+}
+
+function firstTranslation(value?: Record<string, string> | null) {
+  if (!value) return "";
+  return (
+    Object.values(value).find((item) => String(item ?? "").trim()) ?? ""
+  ).trim();
+}
+
+/** Finds the option whose stored value matches the attribute's saved value. */
+function findMatchingOption(
+  definition: AttributeDefinitionOption | undefined,
+  value?: Record<string, string> | null,
+) {
+  if (!definition || !value) return undefined;
+  return definition.options.find((option) =>
+    Object.entries(option.value).some(
+      ([key, optionValue]) =>
+        optionValue?.trim() && value[key]?.trim() === optionValue.trim(),
+    ),
+  );
+}
+
+/** datetime-local wants "YYYY-MM-DDTHH:mm"; tolerate ISO strings already saved. */
+function toDateTimeLocalValue(raw: string) {
+  const match = raw.match(/^(\d{4}-\d{2}-\d{2})(?:[T ](\d{2}:\d{2}))?/);
+  if (!match) return "";
+  return `${match[1]}T${match[2] ?? "00:00"}`;
+}
+
 function AttributesManager({ provider, lookups, locale }: Props) {
   const t = useTranslations("AdminGenerated");
   const tAdmin = useTranslations("AdminGenerated");
   const [isPending, startTransition] = useTransition();
   const [attributeDefinitionId, setAttributeDefinitionId] = useState("");
+  // Plain value for Text/Number/DateTime/Boolean; option id for Select types.
   const [value, setValue] = useState("");
+
+  const definitions = provider.attributeDefinitions ?? [];
+  const selectedDefinition = definitions.find(
+    (item) => item.id === attributeDefinitionId,
+  );
+  const selectedTypeId =
+    selectedDefinition?.attributeTypeId ??
+    lookups.attributeDefinitions.find((item) => item.id === attributeDefinitionId)
+      ?.attributeTypeId;
+
   const save = useAction(saveProviderAttributeAction, {
     startTransition,
     onSuccess: () => {
@@ -1334,6 +1402,162 @@ function AttributesManager({ provider, lookups, locale }: Props) {
     onError: ActionErrorToast,
   });
 
+  // When an attribute is picked, start from its saved value (save is an upsert),
+  // converted into the shape the typed input expects.
+  const handleDefinitionChange = (nextId: string) => {
+    setAttributeDefinitionId(nextId);
+    const definition = definitions.find((item) => item.id === nextId);
+    const existing = provider.attributes.find(
+      (item) => item.attributeDefinitionId === nextId,
+    );
+    if (!definition || !existing) {
+      setValue(definition?.attributeTypeId === ATTR_TYPE.Boolean ? "false" : "");
+      return;
+    }
+    const saved = firstTranslation(existing.value);
+    switch (definition.attributeTypeId) {
+      case ATTR_TYPE.Boolean:
+        setValue(saved.toLowerCase() === "true" ? "true" : "false");
+        break;
+      case ATTR_TYPE.DateTime:
+        setValue(toDateTimeLocalValue(saved));
+        break;
+      default:
+        if (isOptionAttributeType(definition.attributeTypeId)) {
+          const option = findMatchingOption(definition, existing.value);
+          setValue(option ? String(option.id) : "");
+        } else {
+          setValue(saved);
+        }
+    }
+  };
+
+  const buildPayloadValue = (): Record<string, string> | null => {
+    const trimmed = value.trim();
+    switch (selectedTypeId) {
+      case ATTR_TYPE.Boolean:
+        return sameValueAllLocales(trimmed === "true" ? "true" : "false");
+      case ATTR_TYPE.Number:
+        if (!trimmed || !Number.isFinite(Number(trimmed))) return null;
+        return sameValueAllLocales(String(Number(trimmed)));
+      case ATTR_TYPE.DateTime:
+        return trimmed ? sameValueAllLocales(trimmed) : null;
+      default:
+        if (isOptionAttributeType(selectedTypeId)) {
+          const option = selectedDefinition?.options.find(
+            (item) => String(item.id) === trimmed,
+          );
+          return option && Object.keys(option.value).length ? option.value : null;
+        }
+        return trimmed ? { "en-US": trimmed } : null;
+    }
+  };
+
+  const payloadValue = attributeDefinitionId ? buildPayloadValue() : null;
+
+  const renderValueInput = () => {
+    switch (selectedTypeId) {
+      case ATTR_TYPE.Boolean:
+        return (
+          // Two explicit buttons instead of a Switch: the admin theme has no
+          // --switch-background, so an unchecked Switch rendered invisible.
+          <div className="grid h-10 grid-cols-2 gap-1 rounded-md border p-1">
+            {(["true", "false"] as const).map((option) => (
+              <Button
+                key={option}
+                type="button"
+                size="sm"
+                className="h-full"
+                variant={value === option ? "default" : "ghost"}
+                aria-pressed={value === option}
+                onClick={() => setValue(option)}
+                disabled={isPending}
+              >
+                {option === "true" ? tAdmin("yes") : tAdmin("no")}
+              </Button>
+            ))}
+          </div>
+        );
+      case ATTR_TYPE.Number:
+        return (
+          <Input
+            type="number"
+            inputMode="decimal"
+            step="any"
+            dir="ltr"
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+            placeholder={tAdmin("value")}
+            disabled={isPending}
+          />
+        );
+      case ATTR_TYPE.DateTime:
+        return (
+          <Input
+            type="datetime-local"
+            dir="ltr"
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+            disabled={isPending}
+          />
+        );
+      default:
+        if (isOptionAttributeType(selectedTypeId)) {
+          const options = selectedDefinition?.options ?? [];
+          return (
+            <Select
+              value={value}
+              onValueChange={setValue}
+              disabled={isPending || options.length === 0}
+            >
+              <SelectTrigger>
+                <SelectValue
+                  placeholder={
+                    options.length
+                      ? tAdmin("value")
+                      : "No options defined for this attribute"
+                  }
+                />
+              </SelectTrigger>
+              <SelectContent>
+                {options.map((option) => (
+                  <SelectItem key={option.id} value={String(option.id)}>
+                    {option.label ||
+                      translationText(option.value, String(option.id), locale)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          );
+        }
+        return (
+          <Input
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+            placeholder={tAdmin("value")}
+            disabled={isPending}
+          />
+        );
+    }
+  };
+
+  const displayValue = (item: AdminServiceProviderDetails["attributes"][number]) => {
+    const definition = definitions.find(
+      (def) => def.id === item.attributeDefinitionId,
+    );
+    const typeId = definition?.attributeTypeId ?? item.attributeTypeId;
+    if (typeId === ATTR_TYPE.Boolean) {
+      const raw = firstTranslation(item.value).toLowerCase();
+      if (raw === "true") return tAdmin("yes");
+      if (raw === "false") return tAdmin("no");
+    }
+    if (isOptionAttributeType(typeId)) {
+      const option = findMatchingOption(definition, item.value);
+      if (option?.label) return option.label;
+    }
+    return translationText(item.value, "-", locale);
+  };
+
   return (
     <RelationCard
       title={tAdmin("providerAttributes")}
@@ -1344,30 +1568,30 @@ function AttributesManager({ provider, lookups, locale }: Props) {
           lookupType="attributeDefinitions"
           locale={locale}
           value={attributeDefinitionId}
-          onValueChange={setAttributeDefinitionId}
+          onValueChange={handleDefinitionChange}
           placeholder={tAdmin("selectAttribute")}
-          initialOptions={lookups.attributeDefinitions.filter(
-            (item) => item.providerTypeId === provider.providerTypeId,
-          )}
+          initialOptions={
+            definitions.length
+              ? definitions.map(({ id, label }) => ({ id, label }))
+              : lookups.attributeDefinitions.filter(
+                  (item) => item.providerTypeId === provider.providerTypeId,
+                )
+          }
           queryParams={{ providerTypeId: provider.providerTypeId }}
           disabled={isPending}
           contentClassName="w-[420px]"
         />
-        <Input
-          value={value}
-          onChange={(e) => setValue(e.target.value)}
-          placeholder={tAdmin("value")}
-          disabled={isPending}
-        />
+        {renderValueInput()}
         <Button
-          onClick={() =>
+          onClick={() => {
+            if (!payloadValue) return;
             save.execute({
               serviceProviderId: provider.id,
               attributeDefinitionId,
-              value: { "en-US": value },
-            })
-          }
-          disabled={isPending || !attributeDefinitionId || !value.trim()}
+              value: payloadValue,
+            });
+          }}
+          disabled={isPending || !attributeDefinitionId || !payloadValue}
         >
           <Plus className="me-2 h-4 w-4" /> {t("save")}
         </Button>
@@ -1382,7 +1606,7 @@ function AttributesManager({ provider, lookups, locale }: Props) {
               <div>
                 <div className="font-medium">{item.attributeName}</div>
                 <p className="text-sm text-muted-foreground">
-                  {translationText(item.value)}
+                  {displayValue(item)}
                 </p>
               </div>
               <Button
