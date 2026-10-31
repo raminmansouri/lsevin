@@ -4,6 +4,7 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { MoreHorizontal } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { useState } from "react";
 
 import { LexicalRenderer } from "@/components/editor/lexical-renderer";
 import { Button } from "@/components/ui/button";
@@ -15,16 +16,20 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { IconRenderer } from "@/components/ui/icon-renderer";
 
+import { resolveProviderTypeImageUrl } from "../../lib/provider-type-image";
 import { ProviderTypeFiltered } from "../../types/provider-type";
 
 const ProviderTypeVisual = ({ providerType }: { providerType: ProviderTypeFiltered }) => {
-  const image = providerType.imagePreviewUrl || providerType.imageUrl;
+  const image = resolveProviderTypeImageUrl(providerType);
+  const [failedSrc, setFailedSrc] = useState<string | null>(null);
 
-  if (image) {
+  if (image && failedSrc !== image) {
     return (
       <img
         src={image}
         alt={providerType.name}
+        loading="lazy"
+        onError={() => setFailedSrc(image)}
         className="h-12 w-12 rounded-xl border bg-muted object-cover shadow-sm"
       />
     );
