@@ -360,6 +360,54 @@ export async function deleteBrand(input: { id: string }): Promise<void> {
   await sql`update shop.brands set deleted_at = now(), is_active = false where id = ${input.id}::uuid`;
 }
 
+
+
+
+// ======================================================================
+// Sellers (marketplace): who sells an offer. The default seller holds the
+// offers backfilled from the old single-seller catalogue, so it stays active.
+// ======================================================================
+export async function upsertSeller(input: {
+  id?: string;
+  slug: string;
+  nameTranslations: Record<string, string>;
+  warrantyTranslations: Record<string, string>;
+  logoUrl?: string | null;
+  phone?: string | null;
+  email?: string | null;
+  isActive: boolean;
+}): Promise<string> {
+  await assertShopPermission(SHOP_PERMISSIONS.catalogManage);
+  if (input.id) {
+    await sql`
+      update shop.sellers set slug = ${input.slug}, name_translations = ${j(input.nameTranslations)},
+        warranty_translations = ${j(input.warrantyTranslations)}, logo_url = ${input.logoUrl ?? null},
+        phone = ${input.phone ?? null}, email = ${input.email ?? null},
+        is_active = case when is_default then true else ${input.isActive} end,
+        last_modified_date = now()
+      where id = ${input.id}::uuid and deleted_at is null
+    `;
+    return input.id;
+  }
+  const [row] = await sql<{ id: string }[]>`
+    insert into shop.sellers (slug, name_translations, warranty_translations, logo_url, phone, email, is_active)
+    values (${input.slug}, ${j(input.nameTranslations)}, ${j(input.warrantyTranslations)}, ${input.logoUrl ?? null},
+      ${input.phone ?? null}, ${input.email ?? null}, ${input.isActive})
+    returning id::text as id
+  `;
+  return row.id;
+}
+
+export async function deleteSeller(input: { id: string }): Promise<void> {
+  await assertShopPermission(SHOP_PERMISSIONS.catalogManage);
+  const [row] = await sql<{ is_default: boolean }[]>`select is_default from shop.sellers where id = ${input.id}::uuid`;
+  if (row?.is_default) throw new Error("The default seller cannot be archived.");
+  await sql`update shop.sellers set deleted_at = now(), is_active = false where id = ${input.id}::uuid and not is_default`;
+}
+
+
+
+
 // ======================================================================
 // Home merchandising (SHP-ADM-018, SHP-API-028, SHP-DB-003)
 // ======================================================================

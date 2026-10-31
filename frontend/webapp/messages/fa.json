@@ -16207,7 +16207,9 @@
       "settings": "تنظیمات",
       "backToDashboard": "← داشبورد",
       "backToProducts": "← محصولات",
-      "backToCategories": "← دسته‌بندی‌ها"
+      "backToCategories": "← دسته‌بندی‌ها",
+      "sellers": "فروشندگان",
+      "warehouses": "انبارها"
     },
     "common": {
       "save": "ذخیره",
@@ -16748,6 +16750,29 @@
         "hidden": "پنهان",
         "all": "همه"
       }
+    },
+    "sellers": {
+      "title": "فروشندگان",
+      "add": "افزودن فروشنده",
+      "nameEn": "نام (انگلیسی)",
+      "nameFa": "نام (فارسی)",
+      "nameAr": "نام (عربی)",
+      "slug": "نامک",
+      "phone": "تلفن",
+      "email": "ایمیل",
+      "warrantyEn": "گارانتی (انگلیسی)",
+      "warrantyFa": "گارانتی (فارسی)",
+      "warrantyAr": "گارانتی (عربی)",
+      "warrantyHint": "متن پیش‌فرض گارانتی این فروشنده؛ هر پیشنهاد می‌تواند گارانتی خودش را داشته باشد.",
+      "logo": "لوگو",
+      "save": "ذخیرهٔ فروشنده",
+      "archive": "بایگانی",
+      "noSellers": "هنوز فروشنده‌ای نیست.",
+      "colSeller": "فروشنده",
+      "colOffers": "پیشنهادهای فعال",
+      "colStatus": "وضعیت",
+      "default": "پیش‌فرض",
+      "defaultHint": "فروشندهٔ پیش‌فرض همیشه فعال است."
     }
   },
   "Patients": {

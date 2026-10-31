@@ -253,6 +253,26 @@ export async function listBrandsAdmin() {
   `;
 }
 
+
+
+export async function listSellersAdmin() {
+  await assertShopAdmin();
+  return sql<any[]>`
+    select s.id::text as id, s.slug, s.is_active, s.is_default, s.logo_url, s.phone, s.email,
+      s.name_translations, s.warranty_translations,
+      common.get_translation_t(s.name_translations, 'fa', 'en') as name,
+      (count(o.id) filter (where o.deleted_at is null and o.is_active))::int as offer_count
+    from shop.sellers s
+    left join shop.offers o on o.seller_id = s.id
+    where s.deleted_at is null
+    group by s.id
+    order by s.is_default desc, name asc
+  `;
+}
+
+
+
+
 // ======================================================================
 // Categories (SHP-ADM-006)
 // ======================================================================

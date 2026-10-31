@@ -14362,7 +14362,9 @@ declare const messages: {
       "settings": "الإعدادات",
       "backToDashboard": "← لوحة التحكم",
       "backToProducts": "← المنتجات",
-      "backToCategories": "← الفئات"
+      "backToCategories": "← الفئات",
+      "sellers": "Sellers",
+      "warehouses": "المستودعات"
     },
     "common": {
       "save": "حفظ",
@@ -14903,6 +14905,29 @@ declare const messages: {
         "hidden": "مخفي",
         "all": "الكل"
       }
+    },
+    "sellers": {
+      "title": "Sellers",
+      "add": "Add seller",
+      "nameEn": "Name (English)",
+      "nameFa": "Name (Persian)",
+      "nameAr": "Name (Arabic)",
+      "slug": "Slug",
+      "phone": "Phone",
+      "email": "Email",
+      "warrantyEn": "Warranty (English)",
+      "warrantyFa": "Warranty (Persian)",
+      "warrantyAr": "Warranty (Arabic)",
+      "warrantyHint": "This seller's default warranty text; each offer can set its own.",
+      "logo": "Logo",
+      "save": "Save seller",
+      "archive": "Archive",
+      "noSellers": "No sellers yet.",
+      "colSeller": "Seller",
+      "colOffers": "Active offers",
+      "colStatus": "Status",
+      "default": "Default",
+      "defaultHint": "The default seller is always active."
     }
   },
   "Patients": {

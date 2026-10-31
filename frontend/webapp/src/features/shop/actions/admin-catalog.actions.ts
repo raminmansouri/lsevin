@@ -17,6 +17,7 @@ import {
   deleteCategory,
   deleteCoupon,
   deleteHomeSection,
+  deleteSeller,
   deleteVariant,
   removeCategoryServiceLink,
   removeHomeSectionItem,
@@ -32,6 +33,7 @@ import {
   upsertCategory,
   upsertCoupon,
   upsertHomeSection,
+  upsertSeller,
   upsertVariant,
 } from "../server/admin-catalog.service";
 
@@ -527,6 +529,38 @@ export async function deleteBrandAction(input: { id: string }) {
   revalidatePath("/[locale]/admin/shop/brands", "page");
   return { ok: true as const };
 }
+
+
+
+// ======================================================================
+// Sellers (marketplace)
+// ======================================================================
+const sellerSchema = z.object({
+  id: shopId.optional(),
+  slug: z.string().trim().min(1).max(180),
+  nameTranslations: localized,
+  warrantyTranslations: localized,
+  logoUrl: z.string().trim().optional().nullable(),
+  phone: z.string().trim().max(40).optional().nullable(),
+  email: z.string().trim().max(160).optional().nullable(),
+  isActive: z.coerce.boolean().default(true),
+});
+export async function upsertSellerAction(input: unknown) {
+  const p = sellerSchema.parse(input);
+  const id = await upsertSeller(p);
+  revalidateShopCatalog();
+  revalidatePath("/[locale]/admin/shop/sellers", "page");
+  return { ok: true as const, id };
+}
+export async function deleteSellerAction(input: { id: string }) {
+  await deleteSeller({ id: shopId.parse(input.id) });
+  revalidateShopCatalog();
+  revalidatePath("/[locale]/admin/shop/sellers", "page");
+  return { ok: true as const };
+}
+
+
+
 
 // ======================================================================
 // Home merchandising
