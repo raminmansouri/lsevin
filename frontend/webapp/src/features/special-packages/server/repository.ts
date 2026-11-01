@@ -51,6 +51,8 @@ export type SpecialPackagePublicItem = {
     originalPriceAmount: number | null;
     imageUrl: string | null;
     displayOrder: number;
+    /** Present on detail reads so SEO can distinguish Persian copy from fallback text. */
+    hasPersianTitle?: boolean;
 };
 
 function mapAdminRow(row: any): SpecialPackageAdminRow {
@@ -86,6 +88,7 @@ function mapPublicRow(row: any): SpecialPackagePublicItem {
     originalPriceAmount: toNumberOrNull(row.original_price_amount),
     imageUrl: row.image_url ?? null,
     displayOrder: Number(row.display_order ?? 0),
+    hasPersianTitle: typeof row.has_persian_title === "boolean" ? row.has_persian_title : undefined,
   };
 }
 
@@ -225,6 +228,7 @@ export async function getSpecialPackageById(
     const rows = await sql<any[]>`
       select
         sp.id::text,
+        (nullif(btrim(sp.title_translations ->> 'fa-IR'), '') is not null) as has_persian_title,
         sp.provider_service_id::text as provider_service_id,
         coalesce(
           nullif(common.get_translation_t(sp.title_translations, ${normalizedLocale}, ${FALLBACK_LOCALE}), ''),

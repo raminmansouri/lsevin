@@ -26,10 +26,32 @@ export default function robots(): MetadataRoute.Robots {
     "profile",
   ];
 
+  const privateMobileAreas = [
+    "profile",
+    "bookings",
+    "booking",
+    "booking-v2",
+    "notifications",
+    "support",
+    "bug-reports",
+    "shop/cart",
+    "shop/checkout",
+    "shop/orders",
+    "shop/order",
+    "shop/addresses",
+    "shop/wishlist",
+    "shop/compare",
+    "packages/*/checkout",
+  ];
+
   const disallow = [
     "/api/",
     "/*/api/",
     ...privateAreas.flatMap((area) => [`/${area}`, `/*/${area}`]),
+    ...privateMobileAreas.flatMap((area) => [
+      `/n/app/mobile/${area}`,
+      `/*/n/app/mobile/${area}`,
+    ]),
   ];
 
   return {

@@ -200,7 +200,7 @@ const nextConfig: NextConfig = {
   },
 
   async rewrites() {
-    const localePattern = "en|fa|tr|ar|es|ku|de|fr";
+    const localePattern = routing.locales.join("|");
 
     // Only use Next rewrites locally (or whenever you explicitly set BOOKING_ORIGIN)
     // In production behind Caddy, leave BOOKING_ORIGIN empty and rewrites will be disabled.

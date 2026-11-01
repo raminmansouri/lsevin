@@ -1,6 +1,7 @@
 import { getTranslations } from 'next-intl/server';
 import { ChevronLeft, Sparkles } from 'lucide-react';
 import { notFound } from 'next/navigation';
+import { cache } from 'react';
 
 import { ImageWithFallback } from '@/components/ui/image-with-fallback';
 import { Link } from '@/i18n/navigation';
@@ -10,6 +11,10 @@ import { SafePriceText } from '@/features/home/components/safe-price-text';
 import { getSpecialPackageById, listActiveSpecialPackageIds } from '@/features/special-packages/server/repository';
 import { isFastBuild } from '@/lib/build-mode';
 import { DesktopPackageDetail } from '@/features/web-desktop/packages/DesktopPackages';
+import { buildPublicMetadata } from '@/lib/seo/metadata';
+import { INDEXABLE_SHOP_LOCALES } from '@/lib/seo/locale-eligibility';
+
+const getPackage = cache(getSpecialPackageById);
 
 // Static / ISR.
 export const dynamic = 'force-static';
@@ -35,13 +40,28 @@ async function getLocaleFromParams(params: PageProps['params']) {
   return String((resolved as { locale?: string } | undefined)?.locale || 'fa-IR');
 }
 
+export async function generateMetadata({ params }: Pick<PageProps, 'params'>) {
+  const locale = await getLocaleFromParams(params);
+  const { packageId } = (await params) as { packageId: string };
+  const pkg = await getPackage(locale, packageId);
+  if (!pkg) notFound();
+  return buildPublicMetadata({
+    locale,
+    path: `/n/app/mobile/packages/${packageId}`,
+    title: pkg.title,
+    descriptions: [pkg.description, pkg.subtitle],
+    image: pkg.imageUrl,
+    eligibleLocales: pkg.hasPersianTitle ? INDEXABLE_SHOP_LOCALES : [],
+  });
+}
+
 export default async function SpecialPackageDetailPage({ params }: PageProps) {
   const locale = await getLocaleFromParams(params);
   const resolvedParams = (await params) as { packageId?: string } | undefined;
   const packageId = String(resolvedParams?.packageId || '');
   const t = await getTranslations({ locale, namespace: 'Home' });
 
-  const pkg = await getSpecialPackageById(locale, packageId).catch(() => null);
+  const pkg = await getPackage(locale, packageId).catch(() => null);
   if (!pkg) notFound();
 
   const mediaUrl = resolveHomeMediaUrl(pkg.imageUrl);

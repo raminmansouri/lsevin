@@ -28,6 +28,9 @@ const STATIC_PATHS: CatalogEntry[] = [
   { path: "/n/app/mobile/categories", locales: INDEXABLE_CATEGORY_LOCALES },
   { path: "/n/app/mobile/explore", locales: ALL_LOCALES },
   { path: "/n/app/mobile/shop", locales: INDEXABLE_SHOP_LOCALES },
+  { path: "/n/app/mobile/offers", locales: PERSIAN_ONLY },
+  { path: "/n/app/mobile/featured", locales: PERSIAN_ONLY },
+  { path: "/n/app/mobile/packages", locales: PERSIAN_ONLY },
   { path: "/consulting", locales: ALL_LOCALES },
   { path: "/privacy-policy", locales: ALL_LOCALES },
 ];
@@ -65,6 +68,11 @@ const catalogEntries = unstable_cache(
       select '/n/app/mobile/shop/category/' || c.slug, null, true
       from shop.categories c
       where c.deleted_at is null and c.is_active = true and c.slug is not null and c.slug <> ''
+      union all
+      select '/n/app/mobile/packages/' || p.id::text, null, true
+      from marketing.special_packages p
+      where p.is_active = true
+        and nullif(btrim(p.title_translations ->> 'fa-IR'), '') is not null
       order by path
     `;
     return rows.map((row) => ({
@@ -72,7 +80,7 @@ const catalogEntries = unstable_cache(
       locales: row.persian_only ? PERSIAN_ONLY : indexableLocalesFromKeys(row.keys),
     }));
   },
-  ["public-sitemap-catalog-v3"],
+  ["public-sitemap-catalog-v4"],
   { revalidate: 300, tags: ["sitemap-catalog"] }
 );
 

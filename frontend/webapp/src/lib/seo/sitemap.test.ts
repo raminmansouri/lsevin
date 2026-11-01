@@ -19,7 +19,7 @@ const isCatalogQuery = (first: unknown) =>
 const catalogSql = () =>
   (query.mock.calls.find(([first]) => isCatalogQuery(first))![0] as string[]).join("?");
 
-const STATIC_COUNT = 4 * routing.locales.length + 2 + 1;
+const STATIC_COUNT = 4 * routing.locales.length + 2 + 1 + 3;
 const GUIDE_COUNT = allGuides().reduce((sum, guide) => sum + guideLocales(guide).length, 0);
 
 beforeEach(() => {
@@ -60,11 +60,12 @@ describe("public search domain and sitemap", () => {
       { path: "/n/app/mobile/specialist/t", keys: [], persian_only: false },
       { path: "/n/app/mobile/service/s", keys: ["fa-IR"], persian_only: false },
       { path: "/n/app/mobile/shop/product/x", keys: null, persian_only: true },
+      { path: "/n/app/mobile/packages/package-id", keys: null, persian_only: true },
     ]);
     const result = await sitemap();
     const urls = result.map((x) => x.url);
 
-    expect(result).toHaveLength(STATIC_COUNT + GUIDE_COUNT + 3 + 1 + 1 + 1);
+    expect(result).toHaveLength(STATIC_COUNT + GUIDE_COUNT + 3 + 1 + 1 + 1 + 1);
     expect(new Set(urls).size).toBe(urls.length);
     expect(urls.every((url) => url.startsWith("https://lsevincare.com/"))).toBe(true);
     expect(urls.some((url) => url.includes("/service-providers/") || url.includes("/type/"))).toBe(false);
@@ -79,6 +80,9 @@ describe("public search domain and sitemap", () => {
       });
     }
     expect(result.filter((x) => x.url.endsWith("/n/app/mobile/shop")).map((x) => x.url.split("/")[3])).toEqual(["fa"]);
+    for (const path of ["offers", "featured", "packages", "packages/package-id"]) {
+      expect(result.filter((x) => x.url.endsWith(`/n/app/mobile/${path}`)).map((x) => x.url.split("/")[3])).toEqual(["fa"]);
+    }
 
     const provider = result.filter((x) => x.url.endsWith("/n/app/mobile/provider/p"));
     expect(provider.map((x) => x.url.split("/")[3]).sort()).toEqual(["ar", "en", "fa"]);
@@ -105,6 +109,8 @@ describe("public search domain and sitemap", () => {
     expect(sql).toContain("psf.is_active = true and sp.is_active = true");
     expect(sql).toContain("category.provider_type_is_public(sp.provider_type_id)");
     expect(sql).toContain("p.deleted_at is null and p.status = 'active'");
+    expect(sql).toContain("from marketing.special_packages p");
+    expect(sql).toContain("p.title_translations ->> 'fa-IR'");
     expect(catalogRows).toHaveBeenCalledTimes(1);
   });
 

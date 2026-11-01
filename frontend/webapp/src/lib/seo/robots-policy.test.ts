@@ -5,6 +5,7 @@ import { describe, expect, it } from "vitest";
 import { privateMetadata, searchMetadata } from "./robots-policy";
 import { facetHeaders } from "./facet-headers";
 import { routing } from "@/i18n/routing";
+import robots from "@/app/robots";
 
 const app = resolve(process.cwd(), "src/app");
 // Resolve the actual server layout chain: this catches accidental broad noindex
@@ -26,6 +27,16 @@ function policies(route: string) {
 }
 
 describe("server robots boundaries", () => {
+  it("blocks private mobile URLs without blocking crawlable search", () => {
+    const rules = robots().rules;
+    const disallow = (Array.isArray(rules) ? rules[0] : rules).disallow;
+    expect(disallow).toContain("/*/n/app/mobile/support");
+    expect(disallow).toContain("/*/n/app/mobile/shop/checkout");
+    expect(disallow).toContain("/*/n/app/mobile/bookings");
+    expect(disallow).toContain("/*/n/app/mobile/packages/*/checkout");
+    expect(disallow).not.toContain("/*/n/app/mobile/search");
+    expect(disallow).not.toContain("/*/n/app/mobile/home");
+  });
   it("limits facet headers to known queries on supported locale landings", () => {
     const headers = facetHeaders(routing.locales);
     expect(headers).toHaveLength(12);
@@ -47,7 +58,7 @@ describe("server robots boundaries", () => {
     "[locale]/(admin)/admin", "[locale]/(auth)/sign-in", "[locale]/(auth)/sign-up",
     "[locale]/provider-panel", "[locale]/provider-portal", "[locale]/(main)/profile",
     "[locale]/n/app/admin", "(financial)/financial/sign-in", "(financial)/financial/(protected)",
-    ...["booking", "booking-v2", "bookings", "bug-reports", "care", "medical", "notifications", "profile/wallet"].map(p => `[locale]/n/app/mobile/${p}`),
+    ...["booking", "booking-v2", "bookings", "bug-reports", "care", "medical", "notifications", "profile/wallet", "support", "packages/[packageId]/checkout"].map(p => `[locale]/n/app/mobile/${p}`),
     ...["addresses", "cart", "checkout", "compare", "order", "orders", "wishlist"].map(p => `[locale]/n/app/mobile/shop/${p}`),
   ])("noindexes private route %s", (route) => {
     expect(policies(route)).toEqual(["privateMetadata"]);

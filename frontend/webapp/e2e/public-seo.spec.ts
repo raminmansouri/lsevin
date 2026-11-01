@@ -98,6 +98,35 @@ test("SEO sitemap and robots advertise the public domain", async ({
   expect(xml).toContain(`${origin}/en/n/app/mobile/categories`);
   expect(xml).not.toContain(`${origin}/es/n/app/mobile/categories`);
   expect(xml).not.toContain(`${origin}/en/n/app/mobile/shop</loc>`);
+  for (const route of ["offers", "featured", "packages"]) {
+    expect(xml).toContain(`${origin}/fa/n/app/mobile/${route}</loc>`);
+    expect(xml).not.toContain(`${origin}/en/n/app/mobile/${route}</loc>`);
+  }
+  expect(await robots.text()).toContain("Disallow: /*/n/app/mobile/support");
+  expect(await robots.text()).not.toContain("Disallow: /*/n/app/mobile/search");
+});
+
+test("public campaign pages have canonicals and private support is noindex", async ({ page }) => {
+  for (const route of ["offers", "featured", "packages"]) {
+    const path = `/fa/n/app/mobile/${route}`;
+    const response = await page.goto(path);
+    expect(response?.status()).toBe(200);
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", `${origin}${path}`);
+    await expect(page.locator('meta[name="description"]')).toHaveAttribute("content", /\S+/);
+  }
+  await page.goto("/fa/n/app/mobile/support");
+  await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex.*nofollow/);
+});
+
+test("an indexed package detail is canonical and its fallback locale is noindex", async ({ page, request }) => {
+  const xml = await (await request.get("/sitemap.xml")).text();
+  const packagePath = xml.match(/<loc>[^<]+(\/fa\/n\/app\/mobile\/packages\/[0-9a-f-]{36})<\/loc>/i)?.[1];
+  test.skip(!packagePath, "No active package with Persian title is published in this environment");
+  const response = await page.goto(packagePath!);
+  expect(response?.status()).toBe(200);
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", `${origin}${packagePath}`);
+  await page.goto(packagePath!.replace("/fa/", "/en/"));
+  await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex/);
 });
 
 test("category and shop fallback locales are excluded from search", async ({

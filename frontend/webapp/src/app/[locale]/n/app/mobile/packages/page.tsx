@@ -16,6 +16,8 @@ import {
 
 import { DesktopPackagesList } from '@/features/web-desktop/packages/DesktopPackages';
 import { DesktopSponsoredSection } from '@/features/web-desktop/home/DesktopSponsoredSection';
+import { buildPublicMetadata } from '@/lib/seo/metadata';
+import { INDEXABLE_SHOP_LOCALES } from '@/lib/seo/locale-eligibility';
 
 // Static / ISR — the package list is the same for every visitor of a locale.
 export const dynamic = 'force-dynamic';
@@ -23,6 +25,18 @@ export const dynamic = 'force-dynamic';
 async function getLocaleFromParams(params: PageProps['params']) {
   const resolved = await params;
   return String((resolved as { locale?: string } | undefined)?.locale || 'fa-IR');
+}
+
+export async function generateMetadata({ params }: Pick<PageProps, 'params'>) {
+  const locale = await getLocaleFromParams(params);
+  const t = await getTranslations({ locale, namespace: 'Home' });
+  return buildPublicMetadata({
+    locale,
+    path: '/n/app/mobile/packages',
+    title: t('packagesPage.title'),
+    descriptions: [t('packagesPage.subtitle')],
+    eligibleLocales: INDEXABLE_SHOP_LOCALES,
+  });
 }
 
 export default async function SpecialPackagesPage({ params }: PageProps) {
