@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { buildPublicMetadata } from "@/lib/seo/metadata";
+import { INDEXABLE_SHOP_LOCALES } from "@/lib/seo/locale-eligibility";
 import {
   getShopBrandsCached,
   getShopCategoriesCached,
@@ -34,6 +35,7 @@ export async function generateMetadata({
     title: category?.name,
     descriptions: category ? [t("categoryMetaDescription", { count: category.productCount, name: category.name })] : [],
     image: category?.imageUrl,
+    eligibleLocales: INDEXABLE_SHOP_LOCALES,
   });
 }
 

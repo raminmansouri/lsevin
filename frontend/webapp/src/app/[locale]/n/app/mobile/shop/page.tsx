@@ -1,6 +1,7 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { buildPublicMetadata } from "@/lib/seo/metadata";
+import { INDEXABLE_SHOP_LOCALES } from "@/lib/seo/locale-eligibility";
 import {
   getShopDefaultCurrencyCached,
 } from "@/features/shop/api/catalog.repository.cached";
@@ -41,6 +42,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     path: "/n/app/mobile/shop",
     title: t("title"),
     descriptions: [t("metaDescription")],
+    eligibleLocales: INDEXABLE_SHOP_LOCALES,
   });
 }
 

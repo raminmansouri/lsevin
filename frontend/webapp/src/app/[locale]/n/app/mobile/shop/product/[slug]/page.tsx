@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { buildPublicMetadata } from "@/lib/seo/metadata";
+import { INDEXABLE_SHOP_LOCALES } from "@/lib/seo/locale-eligibility";
 import { absoluteUrl } from "@/lib/seo/alternates";
 import { breadcrumbList, graph } from "@/lib/seo/entity-schema";
 import { JsonLd } from "@/lib/seo/json-ld";
@@ -46,6 +47,7 @@ export async function generateMetadata({
     descriptions: [product.shortDescription, product.description],
     image: product.imageUrl,
     type: "website",
+    eligibleLocales: INDEXABLE_SHOP_LOCALES,
   });
 }
 

@@ -413,7 +413,18 @@
     "smartDiscovery": "جستجوی هوشمند",
     "cantFindTitle": "آنچه دنبالش هستید را پیدا نکردید؟",
     "cantFindDescription": "از جستجوی هوشمند برای یافتن خدمات، ارائه‌دهندگان، پکیج‌ها و متخصصان نزدیک استفاده کنید.",
-    "searchNow": "جستجو کنید"
+    "searchNow": "جستجو کنید",
+    "otherServices": "سایر خدمات",
+    "subcategoriesCount": "{count} زیردسته",
+    "openCategory": "باز کردن {name}",
+    "openSubcategories": "باز کردن زیردسته‌های {name}",
+    "noMatchingCategories": "دسته‌ای مطابق جستجو پیدا نشد",
+    "noCategoriesAvailable": "هنوز دسته‌ای در دسترس نیست",
+    "tryDifferentKeyword": "عبارت دیگری جستجو کنید یا همه دسته‌ها را ببینید.",
+    "categoriesAppear": "دسته‌های فعال پس از ثبت نمایش داده می‌شوند.",
+    "searchResults": "نتایج جستجو",
+    "goBack": "بازگشت",
+    "viewAllProviders": "نمایش همه {count} ارائه‌دهنده در {name}"
   },
   "Explore": {
     "lsevin": "السوین",

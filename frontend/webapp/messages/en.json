@@ -413,7 +413,18 @@
     "smartDiscovery": "Smart discovery",
     "cantFindTitle": "Can't find what you're looking for?",
     "cantFindDescription": "Use smart search to find services, providers, packages, and nearby specialists.",
-    "searchNow": "Search Now"
+    "searchNow": "Search Now",
+    "otherServices": "Other services",
+    "subcategoriesCount": "{count, plural, one {# subcategory} other {# subcategories}}",
+    "openCategory": "Open {name}",
+    "openSubcategories": "Open {name} subcategories",
+    "noMatchingCategories": "No matching categories",
+    "noCategoriesAvailable": "No categories available",
+    "tryDifferentKeyword": "Try a different keyword or browse all available categories.",
+    "categoriesAppear": "Active categories will appear here once they are added.",
+    "searchResults": "Search results",
+    "goBack": "Go back",
+    "viewAllProviders": "View all {count} providers in {name}"
   },
   "Booking": {
     "dayParts": {

@@ -1,5 +1,6 @@
 # Local dependencies and Next.js output must never enter the Docker build context.
 node_modules
+.seo_node_modules
 .pnpm-store
 .next
 

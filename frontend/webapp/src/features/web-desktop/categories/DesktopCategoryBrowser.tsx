@@ -1,10 +1,10 @@
 "use client";
 
-import Image from "next/image";
-import { ArrowLeft, ChevronLeft, Search, Sparkles } from "lucide-react";
-import { useSearchParams } from "next/navigation";
-import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useMemo, useState } from "react";
+import { ArrowLeft, ChevronLeft, Search, Sparkles } from "lucide-react";
+import { useTranslations } from "next-intl";
+import Image from "next/image";
+import { useSearchParams } from "next/navigation";
 
 import {
   categoryBrowserHref,
@@ -13,8 +13,14 @@ import {
   isTourismCategory,
   TOURS_HOME_PATH,
 } from "@/features/categories/utils/category-href";
-import type { CategoryBrowserCategory, CategoryBrowserGroup } from "@/features/service-providers/actions/categories/get-category-browser-groups";
-import { buildCategoryImageSrc, sortCategories } from "@/features/service-providers/components/categories/category-browser-client";
+import type {
+  CategoryBrowserCategory,
+  CategoryBrowserGroup,
+} from "@/features/service-providers/actions/categories/get-category-browser-groups";
+import {
+  buildCategoryImageSrc,
+  sortCategories,
+} from "@/features/service-providers/components/categories/category-browser-client";
 import { Link, useRouter } from "@/i18n/navigation";
 
 import { Reveal, Tilt } from "../components/motion";
@@ -39,18 +45,31 @@ function plainText(value?: string | null): string {
   if (!raw.startsWith("{")) return raw;
   try {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const walk = (node: any): string => node?.text ?? (Array.isArray(node?.children) ? node.children.map(walk).join(" ") : "");
+    const walk = (node: any): string =>
+      node?.text ??
+      (Array.isArray(node?.children) ? node.children.map(walk).join(" ") : "");
     return walk(JSON.parse(raw)?.root).replace(/\s+/g, " ").trim();
   } catch {
     return "";
   }
 }
 
-function Room({ category, index, span, href }: { category: CategoryBrowserCategory; index: number; span: string; href: string }) {
+function Room({
+  category,
+  index,
+  span,
+  href,
+}: {
+  category: CategoryBrowserCategory;
+  index: number;
+  span: string;
+  href: string;
+}) {
   const t = useTranslations("CategoryBrowser");
-  const locale = useLocale();
   const image = buildCategoryImageSrc(category.image);
-  const number = new Intl.NumberFormat(locale, { minimumIntegerDigits: 2 }).format(index + 1);
+  const number = new Intl.NumberFormat(locale, {
+    minimumIntegerDigits: 2,
+  }).format(index + 1);
 
   return (
     <Reveal delay={(index % 4) * 70} className={span}>
@@ -59,19 +78,28 @@ function Room({ category, index, span, href }: { category: CategoryBrowserCatego
           <div className="relative h-full overflow-hidden rounded-[30px] bg-[#062a20]">
             {image ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={image} alt="" className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1.6s] group-hover:scale-110" />
+              <img
+                src={image}
+                alt=""
+                className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1.6s] group-hover:scale-110"
+              />
             ) : (
               <div className="absolute inset-0" aria-hidden="true" />
             )}
             <div className="absolute inset-0 bg-gradient-to-t from-[#062a20] via-[#062a20]/35 to-transparent" />
             <span className="lsd-room-arch" aria-hidden="true" />
 
-            <span className="lsd-outline-num absolute end-6 top-5 text-[44px] font-black leading-none" aria-hidden="true">
+            <span
+              className="lsd-outline-num absolute end-6 top-5 text-[44px] leading-none font-black"
+              aria-hidden="true"
+            >
               {number}
             </span>
 
             <div className="absolute inset-x-7 bottom-6 text-white">
-              <h3 className="text-[26px] font-black leading-tight">{category.name}</h3>
+              <h3 className="text-[26px] leading-tight font-black">
+                {category.name}
+              </h3>
               <div className="lsd-room-reveal mt-3 flex items-center justify-between gap-4">
                 <span className="text-sm text-white/75">
                   {category.childCount > 0
@@ -90,11 +118,23 @@ function Room({ category, index, span, href }: { category: CategoryBrowserCatego
   );
 }
 
-function RoomWall({ categories, hrefFor }: { categories: CategoryBrowserCategory[]; hrefFor: (category: CategoryBrowserCategory) => string }) {
+function RoomWall({
+  categories,
+  hrefFor,
+}: {
+  categories: CategoryBrowserCategory[];
+  hrefFor: (category: CategoryBrowserCategory) => string;
+}) {
   return (
     <div className="grid grid-flow-dense auto-rows-[230px] grid-cols-12 gap-5">
       {categories.map((category, index) => (
-        <Room key={category.id} category={category} index={index} span={ROOM_SPANS[index % ROOM_SPANS.length]} href={hrefFor(category)} />
+        <Room
+          key={category.id}
+          category={category}
+          index={index}
+          span={ROOM_SPANS[index % ROOM_SPANS.length]}
+          href={hrefFor(category)}
+        />
       ))}
     </div>
   );
@@ -114,20 +154,33 @@ export function DesktopCategoryBrowser({
   tourismCategoryId?: string | null;
 }) {
   const t = useTranslations("CategoryBrowser");
-  const locale = useLocale();
   const parentId = useSearchParams().get("parent")?.trim() || null;
   const [query, setQuery] = useState("");
 
-  const all = useMemo(() => categoryGroups.flatMap((group) => group.categories), [categoryGroups]);
-  const byId = useMemo(() => new Map(all.map((category) => [category.id, category])), [all]);
-  const current = parentId ? byId.get(parentId) ?? null : null;
+  const all = useMemo(
+    () => categoryGroups.flatMap((group) => group.categories),
+    [categoryGroups]
+  );
+  const byId = useMemo(
+    () => new Map(all.map((category) => [category.id, category])),
+    [all]
+  );
+  const current = parentId ? (byId.get(parentId) ?? null) : null;
   const router = useRouter();
   const parentOf = (id: string) => byId.get(id)?.parentId;
-  const hrefFor = (category: CategoryBrowserCategory) => categoryCardHref(category, { tourismCategoryId, parentOf });
+  const hrefFor = (category: CategoryBrowserCategory) =>
+    categoryCardHref(category, { tourismCategoryId, parentOf });
 
   // Tourism has no category screen of its own: the Tours app is its home.
   useEffect(() => {
-    if (current && isTourismCategory(current.id, (id) => byId.get(id)?.parentId, tourismCategoryId)) {
+    if (
+      current &&
+      isTourismCategory(
+        current.id,
+        (id) => byId.get(id)?.parentId,
+        tourismCategoryId
+      )
+    ) {
       router.replace(TOURS_HOME_PATH);
     }
   }, [byId, current, router, tourismCategoryId]);
@@ -144,21 +197,37 @@ export function DesktopCategoryBrowser({
   }, [byId, current]);
 
   const children = useMemo(
-    () => (current ? sortCategories(all.filter((category) => category.parentId === current.id)) : []),
+    () =>
+      current
+        ? sortCategories(
+            all.filter((category) => category.parentId === current.id)
+          )
+        : [],
     [all, current]
   );
   const normalized = query.trim().toLowerCase();
   const results = useMemo(
     () =>
       normalized
-        ? sortCategories(all.filter((category) => [category.name, plainText(category.description)].some((value) => value?.toLowerCase().includes(normalized))))
+        ? sortCategories(
+            all.filter((category) =>
+              [category.name, plainText(category.description)].some((value) =>
+                value?.toLowerCase().includes(normalized)
+              )
+            )
+          )
         : [],
     [all, normalized]
   );
   const rootGroups = useMemo(
     () =>
       categoryGroups
-        .map((group) => ({ ...group, categories: sortCategories(group.categories.filter((category) => !category.parentId)) }))
+        .map((group) => ({
+          ...group,
+          categories: sortCategories(
+            group.categories.filter((category) => !category.parentId)
+          ),
+        }))
         .filter((group) => group.categories.length),
     [categoryGroups]
   );
@@ -174,17 +243,31 @@ export function DesktopCategoryBrowser({
           {heroImage ? (
             <div className="absolute inset-0">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={heroImage} alt="" className="lsd-kenburns h-full w-full object-cover" />
+              <img
+                src={heroImage}
+                alt=""
+                className="lsd-kenburns h-full w-full object-cover"
+              />
               <div className="absolute inset-0 bg-gradient-to-t from-[#062a20] via-[#062a20]/55 to-[#062a20]/10" />
             </div>
           ) : (
             <div className="absolute inset-0" aria-hidden="true" />
           )}
-          <Image src="/brand/lsevin-mark-reversed.png" alt="" aria-hidden="true" width={240} height={339} className="lsd-mark-bg -end-8 -top-10" />
+          <Image
+            src="/brand/lsevin-mark-reversed.png"
+            alt=""
+            aria-hidden="true"
+            width={240}
+            height={339}
+            className="lsd-mark-bg -end-8 -top-10"
+          />
 
           <div className="relative w-full space-y-5 p-14">
             <nav className="flex flex-wrap items-center gap-2 text-sm text-white/70">
-              <Link href={BROWSER_PATH} className="transition hover:text-[#eacb7f]">
+              <Link
+                href={BROWSER_PATH}
+                className="transition hover:text-[#eacb7f]"
+              >
                 {t("allCategories")}
               </Link>
               {path.map((node, index) => (
@@ -193,7 +276,10 @@ export function DesktopCategoryBrowser({
                   {index === path.length - 1 ? (
                     <span className="text-[#eacb7f]">{node.name}</span>
                   ) : (
-                    <Link href={categoryBrowserHref(node.id)} className="transition hover:text-[#eacb7f]">
+                    <Link
+                      href={categoryBrowserHref(node.id)}
+                      className="transition hover:text-[#eacb7f]"
+                    >
                       {node.name}
                     </Link>
                   )}
@@ -201,18 +287,31 @@ export function DesktopCategoryBrowser({
               ))}
             </nav>
 
-            <h1 className="lsd-gold-text text-[64px] font-black leading-[1.1]">{current ? current.name : t("allCategories")}</h1>
-            {description ? <p className="line-clamp-2 max-w-2xl text-lg leading-8 text-white/75">{description}</p> : null}
+            <h1 className="lsd-gold-text text-[64px] leading-[1.1] font-black">
+              {current ? current.name : t("allCategories")}
+            </h1>
+            {description ? (
+              <p className="line-clamp-2 max-w-2xl text-lg leading-8 text-white/75">
+                {description}
+              </p>
+            ) : null}
 
             <div className="flex flex-wrap items-center gap-4 pt-2">
               <span className="lsd-glass rounded-full px-5 py-2 text-sm">
-                {t("providersCount", { count: current ? current.count : totalProviders })}
+                {t("providersCount", {
+                  count: current ? current.count : totalProviders,
+                })}
               </span>
               <span className="lsd-glass rounded-full px-5 py-2 text-sm">
-                {t("categoriesCount", { count: current ? children.length : totalCategories })}
+                {t("categoriesCount", {
+                  count: current ? children.length : totalCategories,
+                })}
               </span>
               {current ? (
-                <Link href={categoryProvidersHref(current.id)} className="lsd-btn lsd-btn-gold h-12 px-6 text-sm">
+                <Link
+                  href={categoryProvidersHref(current.id)}
+                  className="lsd-btn lsd-btn-gold h-12 px-6 text-sm"
+                >
                   {t("providersCount", { count: current.count })}
                   <ArrowLeft size={16} className="ltr:rotate-180" />
                 </Link>
@@ -238,14 +337,19 @@ export function DesktopCategoryBrowser({
           results.length ? (
             <RoomWall categories={results} hrefFor={hrefFor} />
           ) : (
-            <p className="py-16 text-center text-lg text-[#56675f]">{t("cantFindTitle")}</p>
+            <p className="py-16 text-center text-lg text-[#56675f]">
+              {t("cantFindTitle")}
+            </p>
           )
         ) : current ? (
           children.length ? (
             <RoomWall categories={children} hrefFor={hrefFor} />
           ) : (
             <div className="py-16 text-center">
-              <Link href={categoryProvidersHref(current.id)} className="lsd-btn lsd-btn-green h-14 px-8">
+              <Link
+                href={categoryProvidersHref(current.id)}
+                className="lsd-btn lsd-btn-green h-14 px-8"
+              >
                 {t("providersCount", { count: current.count })}
                 <ArrowLeft size={16} className="ltr:rotate-180" />
               </Link>
@@ -255,8 +359,14 @@ export function DesktopCategoryBrowser({
           rootGroups.map((group) => (
             <div key={group.id}>
               <Reveal className="mb-8 flex items-end justify-between gap-6">
-                <h2 className="lsd-heading text-4xl font-black text-[#0e1a16]">{group.title}</h2>
-                <span className="text-sm text-[#56675f]">{t("categoriesCount", { count: group.categories.length })}</span>
+                <h2 className="lsd-heading text-4xl font-black text-[#0e1a16]">
+                  {group.title === "Other Services"
+                    ? t("otherServices")
+                    : group.title}
+                </h2>
+                <span className="text-sm text-[#56675f]">
+                  {t("categoriesCount", { count: group.categories.length })}
+                </span>
               </Reveal>
               <RoomWall categories={group.categories} hrefFor={hrefFor} />
             </div>
@@ -273,10 +383,17 @@ export function DesktopCategoryBrowser({
                 <Sparkles size={14} />
                 {t("smartDiscovery")}
               </span>
-              <h3 className="text-2xl font-black text-[#0e1a16]">{t("cantFindTitle")}</h3>
-              <p className="max-w-xl text-[#5c5242]">{t("cantFindDescription")}</p>
+              <h3 className="text-2xl font-black text-[#0e1a16]">
+                {t("cantFindTitle")}
+              </h3>
+              <p className="max-w-xl text-[#5c5242]">
+                {t("cantFindDescription")}
+              </p>
             </div>
-            <Link href="/n/app/mobile/explore" className="lsd-btn lsd-btn-green h-14 shrink-0 px-8">
+            <Link
+              href="/n/app/mobile/explore"
+              className="lsd-btn lsd-btn-green h-14 shrink-0 px-8"
+            >
               {t("searchNow")}
               <ArrowLeft size={16} className="ltr:rotate-180" />
             </Link>
