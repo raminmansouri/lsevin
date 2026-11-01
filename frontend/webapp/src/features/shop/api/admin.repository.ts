@@ -273,6 +273,35 @@ export async function listSellersAdmin() {
 
 
 
+
+/** A product's offers (one per seller per item), for the product edit page. */
+export async function listProductOffersAdmin(productId: string) {
+  await assertShopAdmin();
+  return sql<any[]>`
+    select o.id::text as id, o.variant_id::text as variant_id, o.seller_id::text as seller_id, o.seller_sku,
+      o.currency, o.price, o.compare_at_price, o.stock_quantity, o.handling_days, o.warranty_translations, o.is_active,
+      common.get_translation_t(s.name_translations, 'fa', 'en') as seller_name, s.is_default as seller_is_default,
+      common.get_translation_t(v.title_translations, 'fa', 'en') as variant_title, v.sku as variant_sku
+    from shop.offers o
+    join shop.sellers s on s.id = o.seller_id
+    left join shop.product_variants v on v.id = o.variant_id
+    where o.product_id = ${productId}::uuid and o.deleted_at is null
+    order by v.sku nulls first, o.price asc
+  `;
+}
+
+/** Active sellers for the "add seller" picker. */
+export async function listSellersForPicker() {
+  await assertShopAdmin();
+  return sql<{ id: string; name: string }[]>`
+    select id::text as id, common.get_translation_t(name_translations, 'fa', 'en') as name
+    from shop.sellers where deleted_at is null and is_active
+    order by is_default desc, name asc
+  `;
+}
+
+
+
 // ======================================================================
 // Categories (SHP-ADM-006)
 // ======================================================================

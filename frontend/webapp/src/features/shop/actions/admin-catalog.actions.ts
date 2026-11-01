@@ -17,6 +17,7 @@ import {
   deleteCategory,
   deleteCoupon,
   deleteHomeSection,
+  deleteOffer,
   deleteSeller,
   deleteVariant,
   removeCategoryServiceLink,
@@ -33,6 +34,7 @@ import {
   upsertCategory,
   upsertCoupon,
   upsertHomeSection,
+  upsertOffer,
   upsertSeller,
   upsertVariant,
 } from "../server/admin-catalog.service";
@@ -558,6 +560,65 @@ export async function deleteSellerAction(input: { id: string }) {
   revalidatePath("/[locale]/admin/shop/sellers", "page");
   return { ok: true as const };
 }
+
+
+
+
+// ======================================================================
+// Offers (product edit page)
+// ======================================================================
+// Empty inputs mean "not set", never 0.
+const optional = (formData: FormData, key: string) => {
+  const value = formData.get(key);
+  return value === null || String(value).trim() === "" ? undefined : String(value).trim();
+};
+const offerFormSchema = z.object({
+  id: shopId.optional(),
+  productId: shopId,
+  variantId: shopId.optional(),
+  sellerId: shopId.optional(),
+  sellerSku: z.string().max(120).optional(),
+  currency: z.string().min(3).max(15),
+  price: z.coerce.number().min(0),
+  compareAtPrice: z.coerce.number().min(0).optional(),
+  stockQuantity: z.coerce.number().int().min(0).optional(),
+  handlingDays: z.coerce.number().int().min(0).max(90).optional(),
+  warrantyFa: z.string().max(300).optional(),
+  warrantyEn: z.string().max(300).optional(),
+  isActive: z.boolean(),
+});
+const revalidateProduct = () => {
+  revalidateShopCatalog();
+  revalidatePath("/[locale]/admin/shop/products/[id]", "page");
+};
+export async function upsertOfferForm(formData: FormData) {
+  const p = offerFormSchema.parse({
+    id: optional(formData, "id"),
+    productId: optional(formData, "productId"),
+    variantId: optional(formData, "variantId"),
+    sellerId: optional(formData, "sellerId"),
+    sellerSku: optional(formData, "sellerSku"),
+    currency: optional(formData, "currency"),
+    price: optional(formData, "price"),
+    compareAtPrice: optional(formData, "compareAtPrice"),
+    stockQuantity: optional(formData, "stockQuantity"),
+    handlingDays: optional(formData, "handlingDays"),
+    warrantyFa: optional(formData, "warrantyFa"),
+    warrantyEn: optional(formData, "warrantyEn"),
+    isActive: formData.get("isActive") === "on",
+  });
+  const hasWarranty = formData.has("warrantyFa") || formData.has("warrantyEn");
+  await upsertOffer({
+    ...p,
+    warrantyTranslations: hasWarranty ? { fa: p.warrantyFa ?? "", en: p.warrantyEn ?? "" } : undefined,
+  });
+  revalidateProduct();
+}
+export async function deleteOfferForm(formData: FormData) {
+  await deleteOffer({ id: shopId.parse(formData.get("id")), productId: shopId.parse(formData.get("productId")) });
+  revalidateProduct();
+}
+
 
 
 

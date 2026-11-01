@@ -16751,6 +16751,22 @@
       "colStatus": "Status",
       "default": "Default",
       "defaultHint": "The default seller is always active."
+    },
+    "offers": {
+      "title": "Sellers of this product",
+      "hint": "Title, images and specs belong to the product; each seller only has its own price, stock and terms.",
+      "price": "Price",
+      "compareAt": "Compare-at price",
+      "stock": "Stock",
+      "handlingDays": "Ships in (days)",
+      "none": "No seller offers this product yet.",
+      "add": "Add seller",
+      "pickSeller": "Pick a seller",
+      "pickVariant": "Pick a variant",
+      "sellerSku": "Seller SKU",
+      "warrantyFa": "Warranty (Persian)",
+      "warrantyEn": "Warranty (English)",
+      "addNote": "Empty stock means stock is read from the shop's current inventory. A seller can have one offer per item."
     }
   },
   "Patients": {
