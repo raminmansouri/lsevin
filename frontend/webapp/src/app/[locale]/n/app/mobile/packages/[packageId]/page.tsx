@@ -42,7 +42,8 @@ async function getLocaleFromParams(params: PageProps['params']) {
 
 export async function generateMetadata({ params }: Pick<PageProps, 'params'>) {
   const locale = await getLocaleFromParams(params);
-  const { packageId } = (await params) as { packageId: string };
+  const packageId = String(((await params) as { packageId?: string }).packageId || '');
+  if (!packageId) notFound();
   const pkg = await getPackage(locale, packageId);
   if (!pkg) notFound();
   return buildPublicMetadata({
