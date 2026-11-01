@@ -14,7 +14,6 @@ import HomeTrendingServicesSuspenseBoundary from './components/trending-services
 import HomeTrustedProvidersSuspenseBoundary from './components/trusted-providers';
 import { HomeAssistantTeaser, HomeConsultationTeaser } from './components/home-teasers';
 import UserInfoSubBar from './components/user-info';
-import { VideoConsultationHomeCard } from '@/features/consultation/components/video-consultation-home-card';
 import { type HomeHeroOffer } from '@/features/home/api/server/get-home-page';
 import {
   getFeaturedHomeServicesCached,
@@ -370,8 +369,6 @@ async function Home({ params }: PageProps) {
             <span className="truncate font-medium text-gray-500">{labels.search.placeholder}</span>
           </Link>
         </div>
-
-        <VideoConsultationHomeCard />
       </div>
 
       <SponsoredMediaCarouselSection locale={locale} placement="home_top" />
