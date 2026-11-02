@@ -87,8 +87,6 @@ services:
     environment:
       APP_DOMAIN: ${APP_DOMAIN:-appmain.lsevin.com}
       APP_ALIAS_DOMAIN: ${APP_ALIAS_DOMAIN:-lsevincare.com}
-      # ArvanCloud edge ranges (space-separated) trusted for the real visitor IP; see Caddyfile.server.
-      ARVAN_IP_RANGES: ${ARVAN_IP_RANGES:-}
     ports:
       - "80:80"
       - "443:443"

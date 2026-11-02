@@ -17,8 +17,8 @@ import sql from "@/config/database/db";
  * The ids of a category and every active category beneath it.
  *
  * Usable anywhere a subquery is: `sql\`sp.category_id in (${categorySubtreeIds(id)})\``.
- * The starting node is included whether or not it is active — the caller has
- * already decided to browse it.
+ * The starting node must be active too: an inactive category is switched off for the
+ * whole site, so browsing it by a stale link or a hand-typed id returns nothing.
  */
 export function categorySubtreeIds(categoryId: string) {
   return sql`
@@ -26,6 +26,7 @@ export function categorySubtreeIds(categoryId: string) {
       select c.id
       from category.categories c
       where c.id = ${categoryId}::uuid
+        and c.is_active = true
       union all
       select child.id
       from category.categories child

@@ -34,7 +34,17 @@ export const getCategoryListColumns = (
       const category = row.original;
       return (
         <div className="flex flex-col">
-          <span className="font-medium">{category.name}</span>
+          <span className="font-medium">
+            {category.name}
+            {category.isActive === false && (
+              <span
+                className="ms-2 rounded-full bg-destructive/10 px-2 py-0.5 text-xs font-normal text-destructive"
+                data-testid={`category-inactive-${category.categoryId}`}
+              >
+                {t("status.inactive")}
+              </span>
+            )}
+          </span>
           {category.parentName && (
             <span className="text-muted-foreground text-sm">
               {category.parentName}

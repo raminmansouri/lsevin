@@ -1869,6 +1869,14 @@
       "deleteSuccess": "هاوپۆل بە سەرکەوتوویی سڕایەوە",
       "deleteError": "نەتوانرا هاوپۆل بسڕدرێتەوە",
       "deleteErrorLog": "هەڵەی سڕینەوەی هاوپۆل:"
+    },
+    "activeSwitch": {
+      "label": "Category is active",
+      "description": "When off, this category and all of its sub-categories disappear from the whole site: landing page, category pages, explore, map, offers and search. Saved immediately. This is separate from \"Show on landing page\".",
+      "activated": "Category activated.",
+      "deactivated": "Category deactivated. It is now hidden across the site.",
+      "parentInactive": "Turn the parent category on first.",
+      "failed": "Could not change the category status."
     }
   },
   "ServiceDefinition": {

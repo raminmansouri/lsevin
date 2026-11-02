@@ -21,7 +21,7 @@ create temp table _upd on commit drop as
   select table_name from _tbl where exists (select 1 from information_schema.columns k where k.table_schema=:'schema' and k.table_name=_tbl.table_name and k.column_name='updated_at');
 
 insert into sym_trigger
-select (jsonb_populate_record(null::sym_trigger, to_jsonb(tpl) || jsonb_build_object('trigger_id',:'schema'||'__'||tbl.table_name,'source_table_name',tbl.table_name,'create_time',now(),'last_update_time',now()))).*
+select (jsonb_populate_record(null::sym_trigger, to_jsonb(tpl) || jsonb_build_object('trigger_id',:'schema'||'__'||tbl.table_name,'source_schema_name',:'schema','source_table_name',tbl.table_name,'create_time',now(),'last_update_time',now()))).*
 from (select * from sym_trigger where trigger_id='tour__departures') tpl cross join _tbl tbl;
 
 insert into sym_trigger_router
