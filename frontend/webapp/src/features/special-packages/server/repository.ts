@@ -41,6 +41,7 @@ export type SpecialPackageAdminRow = {
 
 export type SpecialPackagePublicItem = {
     id: string;
+    slug: string | null;
     title: string;
     subtitle: string;
     description: string;
@@ -78,6 +79,7 @@ function mapAdminRow(row: any): SpecialPackageAdminRow {
 function mapPublicRow(row: any): SpecialPackagePublicItem {
   return {
     id: row.id,
+    slug: row.slug ?? null,
     title: row.title || "",
     subtitle: row.subtitle || "",
     description: row.description || "",
@@ -184,6 +186,7 @@ export async function getActiveSpecialPackages(locale?: string | null): Promise<
     const rows = await sql<any[]>`
       select
         sp.id::text,
+        sp.slug,
         sp.provider_service_id::text as provider_service_id,
         coalesce(
           nullif(common.get_translation_t(sp.title_translations, ${normalizedLocale}, ${FALLBACK_LOCALE}), ''),
@@ -228,6 +231,7 @@ export async function getSpecialPackageById(
     const rows = await sql<any[]>`
       select
         sp.id::text,
+        sp.slug,
         (nullif(btrim(sp.title_translations ->> 'fa-IR'), '') is not null) as has_persian_title,
         sp.provider_service_id::text as provider_service_id,
         coalesce(

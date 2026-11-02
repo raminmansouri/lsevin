@@ -1,4 +1,4 @@
-﻿import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import robots from "@/app/robots";
 import sitemap from "@/app/sitemap";
@@ -55,12 +55,12 @@ describe("public search domain and sitemap", () => {
 
   it("lists each entity only in the locales whose text exists", async () => {
     catalogRows.mockResolvedValue([
-      { path: "/n/app/mobile/provider/p", keys: ["fa-IR", "en-US", "ar-SA"], persian_only: false },
-      { path: "/n/app/mobile/service/s", keys: ["fa-IR"], persian_only: false },
-      { path: "/n/app/mobile/specialist/t", keys: [], persian_only: false },
-      { path: "/n/app/mobile/service/s", keys: ["fa-IR"], persian_only: false },
-      { path: "/n/app/mobile/shop/product/x", keys: null, persian_only: true },
-      { path: "/n/app/mobile/packages/package-id", keys: null, persian_only: true },
+      { path: "/providers/p", keys: ["fa-IR", "en-US", "ar-SA"], persian_only: false },
+      { path: "/services/s", keys: ["fa-IR"], persian_only: false },
+      { path: "/specialists/t", keys: [], persian_only: false },
+      { path: "/services/s", keys: ["fa-IR"], persian_only: false },
+      { path: "/products/x", keys: null, persian_only: true },
+      { path: "/packages/package-id", keys: null, persian_only: true },
     ]);
     const result = await sitemap();
     const urls = result.map((x) => x.url);
@@ -70,21 +70,21 @@ describe("public search domain and sitemap", () => {
     expect(urls.every((url) => url.startsWith("https://lsevincare.com/"))).toBe(true);
     expect(urls.some((url) => url.includes("/service-providers/") || url.includes("/type/"))).toBe(false);
 
-    const categories = result.filter((x) => x.url.endsWith("/n/app/mobile/categories"));
+    const categories = result.filter((x) => x.url.endsWith("/categories"));
     expect(categories.map((x) => x.url.split("/")[3]).sort()).toEqual(["en", "fa"]);
     for (const item of categories) {
       expect(item.alternates?.languages).toEqual({
-        fa: "https://lsevincare.com/fa/n/app/mobile/categories",
-        en: "https://lsevincare.com/en/n/app/mobile/categories",
-        "x-default": "https://lsevincare.com/fa/n/app/mobile/categories",
+        fa: "https://lsevincare.com/fa/categories",
+        en: "https://lsevincare.com/en/categories",
+        "x-default": "https://lsevincare.com/fa/categories",
       });
     }
-    expect(result.filter((x) => x.url.endsWith("/n/app/mobile/shop")).map((x) => x.url.split("/")[3])).toEqual(["fa"]);
+    expect(result.filter((x) => x.url.endsWith("/shop")).map((x) => x.url.split("/")[3])).toEqual(["fa"]);
     for (const path of ["offers", "featured", "packages", "packages/package-id"]) {
-      expect(result.filter((x) => x.url.endsWith(`/n/app/mobile/${path}`)).map((x) => x.url.split("/")[3])).toEqual(["fa"]);
+      expect(result.filter((x) => x.url.endsWith(`/${path}`)).map((x) => x.url.split("/")[3])).toEqual(["fa"]);
     }
 
-    const provider = result.filter((x) => x.url.endsWith("/n/app/mobile/provider/p"));
+    const provider = result.filter((x) => x.url.endsWith("/providers/p"));
     expect(provider.map((x) => x.url.split("/")[3]).sort()).toEqual(["ar", "en", "fa"]);
     for (const item of provider) {
       const languages = item.alternates!.languages!;
@@ -93,7 +93,7 @@ describe("public search domain and sitemap", () => {
     }
 
     // Persian-only entities: one URL, no alternates to reciprocate.
-    for (const path of ["/n/app/mobile/service/s", "/n/app/mobile/specialist/t", "/n/app/mobile/shop/product/x"]) {
+    for (const path of ["/services/s", "/specialists/t", "/products/x"]) {
       const items = result.filter((x) => x.url.endsWith(path));
       expect(items.map((x) => x.url)).toEqual([`https://lsevincare.com/fa${path}`]);
       expect(items[0].alternates).toBeUndefined();
@@ -105,7 +105,7 @@ describe("public search domain and sitemap", () => {
     expect(hub[0].lastModified).toMatch(/^\d{4}-\d{2}-\d{2}$/);
 
     const sql = catalogSql();
-    expect(sql).toContain("ps.is_active = true and sp.is_active = true");
+    expect(sql).toContain("ps.is_active = true and ps.slug is not null and sp.is_active = true");
     expect(sql).toContain("psf.is_active = true and sp.is_active = true");
     expect(sql).toContain("category.provider_type_is_public(sp.provider_type_id)");
     expect(sql).toContain("p.deleted_at is null and p.status = 'active'");
@@ -121,7 +121,7 @@ describe("public search domain and sitemap", () => {
       expect(await sitemap()).toHaveLength(STATIC_COUNT + GUIDE_COUNT);
       expect(log.mock.calls.flat().join(" ")).not.toContain("private connection detail");
       catalogRows.mockResolvedValueOnce([
-        { path: "/n/app/mobile/service/recovered", keys: ["fa-IR"], persian_only: false },
+        { path: "/services/recovered", keys: ["fa-IR"], persian_only: false },
       ]);
       expect(await sitemap()).toHaveLength(STATIC_COUNT + GUIDE_COUNT + 1);
     } finally {
@@ -133,7 +133,7 @@ describe("public search domain and sitemap", () => {
     const everyKey = ["fa-IR", "en-US", "ar-SA", "tr-TR", "ru-RU", "ku-KU", "tg-TJ", "zh-CN", "de-DE", "fr-FR", "es-ES"];
     catalogRows.mockResolvedValue(
       Array.from({ length: 4600 }, (_, i) => ({
-        path: `/n/app/mobile/service/${i}`,
+        path: `/services/${i}`,
         keys: everyKey,
         persian_only: false,
       }))

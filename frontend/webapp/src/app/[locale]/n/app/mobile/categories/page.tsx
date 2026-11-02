@@ -26,7 +26,7 @@ export async function generateMetadata({
   );
   return buildPublicMetadata({
     locale,
-    path: "/n/app/mobile/categories",
+    path: "/categories",
     title: `${t("allCategories")} | ${brand}`,
     descriptions: [t("cantFindDescription")],
     eligibleLocales: INDEXABLE_CATEGORY_LOCALES,

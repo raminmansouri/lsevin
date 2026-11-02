@@ -1,5 +1,5 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 
 import { listActiveSpecialistPageIds } from "@/features/service-providers/server/specialist-page.repository";
 import { getSpecialistPageFromDbCached } from "@/features/service-providers/server/specialist-page.repository.cached";
@@ -14,6 +14,7 @@ import {
 import { JsonLd } from "@/lib/seo/json-ld";
 import { getIndexableLocales } from "@/lib/seo/locale-eligibility";
 import { buildPublicMetadata } from "@/lib/seo/metadata";
+import { resolvePublicEntity } from "@/lib/seo/public-slugs";
 
 import SpecialistProfileClient from "./specialist-page";
 
@@ -40,7 +41,10 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: Pick<PageProps, "params">) {
-  const { locale, id } = await params;
+  const { locale, id: identifier } = await params;
+  const ref = await resolvePublicEntity('specialist', identifier);
+  if (!ref) notFound();
+  const id = ref.id;
   const data = await getSpecialistPageFromDbCached({
     specialistId: id,
     locale,
@@ -53,7 +57,7 @@ export async function generateMetadata({ params }: Pick<PageProps, "params">) {
 
   return buildPublicMetadata({
     locale,
-    path: `/n/app/mobile/specialist/${encodeURIComponent(id)}`,
+    path: `/specialists/${ref.slug ?? id}`,
     title: specialist.title
       ? `${specialist.name} | ${specialist.title}`
       : specialist.name,
@@ -65,8 +69,13 @@ export async function generateMetadata({ params }: Pick<PageProps, "params">) {
 }
 
 export default async function SpecialistPage({ params }: PageProps) {
-  const { locale, id } = await params;
+  const { locale, id: identifier } = await params;
   setRequestLocale(locale);
+  const ref = await resolvePublicEntity('specialist', identifier);
+  if (!ref) notFound();
+  if (ref.slug && identifier !== ref.slug) permanentRedirect(`/${locale}/specialists/${ref.slug}`);
+  const id = ref.id;
+  const canonicalPath = `/specialists/${ref.slug ?? id}`;
 
   const data = await getSpecialistPageFromDbCached({
     specialistId: id,
@@ -85,6 +94,7 @@ export default async function SpecialistPage({ params }: PageProps) {
           personSchema({
             locale,
             id,
+            url: canonicalPath ? absoluteUrl(locale, canonicalPath) : undefined,
             name: specialist.name,
             jobTitle: specialist.title || specialist.specialty,
             description: specialist.biography,
@@ -94,7 +104,7 @@ export default async function SpecialistPage({ params }: PageProps) {
           }),
           breadcrumbList([
             { name: brand, url: absoluteUrl(locale, "/n/app/mobile/home") },
-            { name: specialist.name, url: specialistUrl(locale, id) },
+            { name: specialist.name, url: canonicalPath ? absoluteUrl(locale, canonicalPath) : specialistUrl(locale, id) },
           ])
         )}
       />

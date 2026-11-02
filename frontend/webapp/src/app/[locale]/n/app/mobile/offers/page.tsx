@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: Pick<PageProps, "params">) {
   const t = await getTranslations({ locale, namespace: "MobileOffers" });
   return buildPublicMetadata({
     locale,
-    path: "/n/app/mobile/offers",
+    path: "/offers",
     title: t("title"),
     descriptions: [t("subtitle")],
     eligibleLocales: INDEXABLE_SHOP_LOCALES,

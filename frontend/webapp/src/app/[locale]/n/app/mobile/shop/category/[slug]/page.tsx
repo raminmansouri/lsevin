@@ -31,7 +31,7 @@ export async function generateMetadata({
 
   return buildPublicMetadata({
     locale,
-    path: `/n/app/mobile/shop/category/${encodeURIComponent(slug)}`,
+    path: `/shop/${encodeURIComponent(slug)}`,
     title: category?.name,
     descriptions: category ? [t("categoryMetaDescription", { count: category.productCount, name: category.name })] : [],
     image: category?.imageUrl,

@@ -1,6 +1,6 @@
 import { getTranslations } from 'next-intl/server';
 import { ChevronLeft, Sparkles } from 'lucide-react';
-import { notFound } from 'next/navigation';
+import { notFound, permanentRedirect } from 'next/navigation';
 import { cache } from 'react';
 
 import { ImageWithFallback } from '@/components/ui/image-with-fallback';
@@ -13,6 +13,7 @@ import { isFastBuild } from '@/lib/build-mode';
 import { DesktopPackageDetail } from '@/features/web-desktop/packages/DesktopPackages';
 import { buildPublicMetadata } from '@/lib/seo/metadata';
 import { INDEXABLE_SHOP_LOCALES } from '@/lib/seo/locale-eligibility';
+import { resolvePublicEntity } from '@/lib/seo/public-slugs';
 
 const getPackage = cache(getSpecialPackageById);
 
@@ -42,13 +43,15 @@ async function getLocaleFromParams(params: PageProps['params']) {
 
 export async function generateMetadata({ params }: Pick<PageProps, 'params'>) {
   const locale = await getLocaleFromParams(params);
-  const packageId = String(((await params) as { packageId?: string }).packageId || '');
-  if (!packageId) notFound();
+  const identifier = String(((await params) as { packageId?: string }).packageId || '');
+  const ref = await resolvePublicEntity('package', identifier);
+  if (!ref) notFound();
+  const packageId = ref.id;
   const pkg = await getPackage(locale, packageId);
   if (!pkg) notFound();
   return buildPublicMetadata({
     locale,
-    path: `/n/app/mobile/packages/${packageId}`,
+    path: `/packages/${ref.slug ?? packageId}`,
     title: pkg.title,
     descriptions: [pkg.description, pkg.subtitle],
     image: pkg.imageUrl,
@@ -59,7 +62,11 @@ export async function generateMetadata({ params }: Pick<PageProps, 'params'>) {
 export default async function SpecialPackageDetailPage({ params }: PageProps) {
   const locale = await getLocaleFromParams(params);
   const resolvedParams = (await params) as { packageId?: string } | undefined;
-  const packageId = String(resolvedParams?.packageId || '');
+  const identifier = String(resolvedParams?.packageId || '');
+  const ref = await resolvePublicEntity('package', identifier);
+  if (!ref) notFound();
+  if (ref.slug && identifier !== ref.slug) permanentRedirect(`/${locale}/packages/${ref.slug}`);
+  const packageId = ref.id;
   const t = await getTranslations({ locale, namespace: 'Home' });
 
   const pkg = await getPackage(locale, packageId).catch(() => null);
@@ -73,7 +80,7 @@ export default async function SpecialPackageDetailPage({ params }: PageProps) {
       <div className="sticky top-0 z-40 border-b border-gray-100 bg-white px-5 pb-4 pt-3">
         <div className="flex items-center gap-3">
           <Link
-            href="/n/app/mobile/packages"
+            href="/packages"
             className="flex h-10 w-10 items-center justify-center rounded-full transition-colors hover:bg-gray-100"
             aria-label={t('packagesPage.backAria')}
           >

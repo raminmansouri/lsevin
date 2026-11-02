@@ -1,5 +1,5 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 
 import { listActiveServicePageIds } from "@/features/service-providers/server/service-page.repository";
 import { getServicePageByIdCached } from "@/features/service-providers/server/service-page.repository.cached";
@@ -16,6 +16,7 @@ import {
 import { JsonLd } from "@/lib/seo/json-ld";
 import { getIndexableLocales } from "@/lib/seo/locale-eligibility";
 import { buildPublicMetadata } from "@/lib/seo/metadata";
+import { resolvePublicEntity } from "@/lib/seo/public-slugs";
 
 import { DesktopServiceView } from '@/features/web-desktop/service/DesktopServiceView';
 import { DesktopSponsoredSection } from '@/features/web-desktop/home/DesktopSponsoredSection';
@@ -50,7 +51,10 @@ export async function generateStaticParams() {
 export async function generateMetadata({
   params,
 }: Pick<ServicePageRouteProps, "params">) {
-  const { locale, id } = await params;
+  const { locale, id: identifier } = await params;
+  const ref = await resolvePublicEntity('service', identifier);
+  if (!ref) notFound();
+  const id = ref.id;
   const data = await getServicePageByIdCached({ serviceId: id, locale });
   const service = data?.service;
 
@@ -60,7 +64,7 @@ export async function generateMetadata({
 
   return buildPublicMetadata({
     locale,
-    path: `/n/app/mobile/service/${encodeURIComponent(id)}`,
+    path: `/services/${ref.slug ?? id}`,
     title: service.clinic
       ? `${service.name} | ${service.clinic}`
       : service.name,
@@ -78,8 +82,13 @@ export async function generateMetadata({
 export default async function TreatmentDetailPage({
   params,
 }: ServicePageRouteProps) {
-  const { locale, id } = await params;
+  const { locale, id: identifier } = await params;
   setRequestLocale(locale);
+  const ref = await resolvePublicEntity('service', identifier);
+  if (!ref) notFound();
+  if (ref.slug && identifier !== ref.slug) permanentRedirect(`/${locale}/services/${ref.slug}`);
+  const id = ref.id;
+  const canonicalPath = `/services/${ref.slug ?? id}`;
 
   const data = await getServicePageByIdCached({ serviceId: id, locale });
 
@@ -103,6 +112,7 @@ export default async function TreatmentDetailPage({
             serviceSchema({
               locale,
               id,
+              url: canonicalPath ? absoluteUrl(locale, canonicalPath) : undefined,
               name: service.name,
               description: service.subtitle || service.definitionDescription,
               category: service.categoryName,
@@ -117,7 +127,7 @@ export default async function TreatmentDetailPage({
               ...(service.clinicId && service.clinic
                 ? [{ name: service.clinic, url: providerUrl(locale, service.clinicId) }]
                 : []),
-              { name: service.name, url: serviceUrl(locale, id) },
+              { name: service.name, url: canonicalPath ? absoluteUrl(locale, canonicalPath) : serviceUrl(locale, id) },
             ])
           )}
         />

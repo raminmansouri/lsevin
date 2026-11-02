@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { Metadata } from "next";
+import { permanentRedirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 
 import MultiServerFetchResult from "@/components/fetcher/multi-fetch.server";
@@ -17,6 +18,7 @@ import {
 } from "@/features/service-providers/types";
 import { SERVICE_PROVIDER_PAGE_TRANSLATION_KEY as TRANSLATION_KEY } from "@/features/service-providers/types/constants";
 import { alternatesFor } from "@/lib/seo/alternates";
+import { resolvePublicEntity } from "@/lib/seo/public-slugs";
 import { PaginatedResult } from "@/types/network";
 import { ComponentProps, TranslationType } from "@/types/next";
 
@@ -46,7 +48,10 @@ export async function generateMetadata({
   };
 }
 
-const ServiceProviderPage = ({ params }: ComponentProps) => {
+const ServiceProviderPage = async ({ params }: ComponentProps) => {
+  const { locale, id } = await params;
+  const ref = await resolvePublicEntity('provider', id);
+  if (ref?.slug) permanentRedirect(`/${locale}/providers/${ref.slug}`);
   return (
     <Suspense fallback={<ServiceProviderDetailsSkeleton />}>
       <LocaleBoundary tanslationNameSpace={TRANSLATION_KEY} params={params}>

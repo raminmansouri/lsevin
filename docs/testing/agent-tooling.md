@@ -9,6 +9,16 @@ Status values: `VERIFIED` (exercised in that environment), `CONFIGURED`
 
 ## Tools
 
+### @next/eslint-plugin-next — Next.js lint during builds
+
+| | |
+|---|---|
+| Version | 15.5.6, pinned directly in `frontend/webapp/package.json` and `pnpm-lock.yaml` |
+| Why | `eslint-config-next` requests the plugin from the project root; a transitive pnpm installation left its root import unresolved during the production build |
+| Install | `cd frontend/webapp && pnpm install --frozen-lockfile` |
+| Verify | `pnpm exec eslint --version`, then `pnpm build:production` with the required build environment |
+| Status | Codex F: validation worktree: installed and root package path verified; Jenkins and other agents: not independently verified |
+
 ### @playwright/test — persistent E2E suites
 
 | | |

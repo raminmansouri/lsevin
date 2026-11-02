@@ -34,6 +34,12 @@ vi.mock("next/navigation", () => ({
   notFound: () => {
     throw new Error("NEXT_HTTP_ERROR_FALLBACK;404");
   },
+  permanentRedirect: () => {
+    throw new Error("NEXT_REDIRECT;308");
+  },
+}));
+vi.mock("@/lib/seo/public-slugs", () => ({
+  resolvePublicEntity: async (_kind: string, id: string) => ({ id, slug: null }),
 }));
 vi.mock("next-intl/server", () => ({
   setRequestLocale: vi.fn(),

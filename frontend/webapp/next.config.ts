@@ -156,6 +156,16 @@ const nextConfig: NextConfig = {
   // working. Both the bare and the locale-prefixed form are covered, because the
   // intl middleware only adds the prefix on a plain page request.
   async redirects() {
+    const localePattern = routing.locales.join("|");
+    const publicMoves = [
+      ['explore', 'explore'],
+      ['categories', 'categories'],
+      ['offers', 'offers'],
+      ['featured', 'featured'],
+      ['packages', 'packages'],
+      ['shop', 'shop'],
+      ['map-discovery', 'map'],
+    ] as const;
     return [
       // The locale root is not a real page: it forwards to the mobile home. Doing
       // that here gives a real 307 that keeps the locale. The page-level redirect()
@@ -178,18 +188,21 @@ const nextConfig: NextConfig = {
         destination: "/:locale/n/app/mobile/home",
         permanent: false,
       },
-      // Legacy marketing templates. The provider page is the same entity (same
-      // id) on the mobile template; there is no per-type listing any more, so a
-      // type page goes to the category browser. Permanent, so search engines
-      // move the signals the old URLs collected to the current pages.
+      // Entity redirects resolve the database slug in their legacy page so each
+      // UUID reaches its final public URL in a single response.
+      ...publicMoves.map(([oldPath, newPath]) => ({
+        source: `/:locale(${localePattern})/n/app/mobile/${oldPath}`,
+        destination: `/:locale/${newPath}`,
+        permanent: true,
+      })),
       {
-        source: `/:locale(${routing.locales.join("|")})/service-providers/:id`,
-        destination: "/:locale/n/app/mobile/provider/:id",
+        source: `/:locale(${localePattern})/n/app/mobile/shop/category/:slug`,
+        destination: '/:locale/shop/:slug',
         permanent: true,
       },
       {
-        source: `/:locale(${routing.locales.join("|")})/type/:id`,
-        destination: "/:locale/n/app/mobile/categories",
+        source: `/:locale(${localePattern})/n/app/mobile/shop/product/:slug`,
+        destination: '/:locale/products/:slug',
         permanent: true,
       },
       {
@@ -207,14 +220,61 @@ const nextConfig: NextConfig = {
 
   async rewrites() {
     const localePattern = routing.locales.join("|");
+    const seoRewrites = [
+      ['explore', 'explore'],
+      ['categories', 'categories'],
+      ['offers', 'offers'],
+      ['featured', 'featured'],
+      ['packages', 'packages'],
+      ['shop', 'shop'],
+      ['map', 'map-discovery'],
+    ].map(([newPath, oldPath]) => ({
+      source: `/:locale(${localePattern})/${newPath}`,
+      destination: `/:locale/n/app/mobile/${oldPath}`,
+    }));
+    seoRewrites.push(
+      {
+        source: `/:locale(${localePattern})/providers/:id`,
+        destination: '/:locale/n/app/mobile/provider/:id',
+      },
+      {
+        source: `/:locale(${localePattern})/services/:id/gallery`,
+        destination: '/:locale/n/app/mobile/service/:id/gallery',
+      },
+      {
+        source: `/:locale(${localePattern})/services/:id`,
+        destination: '/:locale/n/app/mobile/service/:id',
+      },
+      {
+        source: `/:locale(${localePattern})/specialists/:id`,
+        destination: '/:locale/n/app/mobile/specialist/:id',
+      },
+      {
+        source: `/:locale(${localePattern})/specialties/:id`,
+        destination: '/:locale/type/:id',
+      },
+      {
+        source: `/:locale(${localePattern})/packages/:packageId`,
+        destination: '/:locale/n/app/mobile/packages/:packageId',
+      },
+      {
+        source: `/:locale(${localePattern})/shop/:slug`,
+        destination: '/:locale/n/app/mobile/shop/category/:slug',
+      },
+      {
+        source: `/:locale(${localePattern})/products/:slug`,
+        destination: '/:locale/n/app/mobile/shop/product/:slug',
+      },
+    );
 
     // Only use Next rewrites locally (or whenever you explicitly set BOOKING_ORIGIN)
     // In production behind Caddy, leave BOOKING_ORIGIN empty and rewrites will be disabled.
     const bookingOrigin = process.env.BOOKING_ORIGIN;
 
-    if (!bookingOrigin) return [];
+    if (!bookingOrigin) return seoRewrites;
 
     return [
+      ...seoRewrites,
       // locale assets
       {
         source: `/:locale(${localePattern})/booking/assets/:path*`,

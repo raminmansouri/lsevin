@@ -42,7 +42,7 @@ export async function generateMetadata({
 
   return buildPublicMetadata({
     locale,
-    path: `/n/app/mobile/shop/product/${encodeURIComponent(slug)}`,
+    path: `/products/${encodeURIComponent(slug)}`,
     title: product.name,
     descriptions: [product.shortDescription, product.description],
     image: product.imageUrl,

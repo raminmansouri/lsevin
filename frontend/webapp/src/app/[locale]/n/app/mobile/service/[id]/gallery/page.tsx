@@ -1,12 +1,14 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { ArrowLeft, ArrowRight, Image as ImageIcon, PlayCircle } from "lucide-react";
 
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { LexicalDescription } from "@/features/service-providers/components/lexical-description";
-import { env } from "@/config/env/server";
 import { isFastBuild } from "@/lib/build-mode";
+import { resolvePublicEntity } from "@/lib/seo/public-slugs";
+import { buildPublicMetadata } from "@/lib/seo/metadata";
+import { getIndexableLocales } from "@/lib/seo/locale-eligibility";
 import {
   getServicePageByIdFromDb,
   listActiveServicePageIds,
@@ -43,7 +45,7 @@ function resolveServerMediaUrl(value?: string | null) {
   if (!value) return "";
   if (isAbsoluteUrl(value)) return value;
 
-  const base = env.NEXT_PUBLIC_FILES_URL?.replace(/\/+$/, "") ?? "";
+  const base = process.env.NEXT_PUBLIC_FILES_URL?.replace(/\/+$/, "") ?? "";
   const path = value.replace(/^\/+/, "");
 
   return base ? `${base}/${path}` : `/${path}`;
@@ -54,18 +56,28 @@ function isRtlLocale(locale: string) {
 }
 
 export async function generateMetadata({ params }: Pick<ServiceGalleryPageProps, "params">) {
-  const { locale } = await params;
+  const { locale, id: identifier } = await params;
+  const ref = await resolvePublicEntity('service', identifier);
+  if (!ref) notFound();
+  const id = ref.id;
   const t = await getTranslations({ locale, namespace: "ServiceGalleryPage" });
 
-  return {
+  return buildPublicMetadata({
+    locale,
+    path: `/services/${ref.slug ?? id}/gallery`,
     title: t("metadata.title"),
-    description: t("metadata.description"),
-  };
+    descriptions: [t("metadata.description")],
+    eligibleLocales: await getIndexableLocales('service', id),
+  });
 }
 
 export default async function ServiceGalleryPage({ params }: ServiceGalleryPageProps) {
-  const { locale, id } = await params;
+  const { locale, id: identifier } = await params;
   setRequestLocale(locale);
+  const ref = await resolvePublicEntity('service', identifier);
+  if (!ref) notFound();
+  if (ref.slug && identifier !== ref.slug) permanentRedirect(`/${locale}/services/${ref.slug}/gallery`);
+  const id = ref.id;
 
   const t = await getTranslations({ locale, namespace: "ServiceGalleryPage" });
   const data = await getServicePageByIdFromDb({ serviceId: id, locale }).catch(() => null);
@@ -75,7 +87,7 @@ export default async function ServiceGalleryPage({ params }: ServiceGalleryPageP
   }
 
   const gallery = data.service.galleryItems || [];
-  const backHref = `/n/app/mobile/service/${id}`;
+  const backHref = `/services/${ref.slug ?? id}`;
   const BackIcon = isRtlLocale(locale) ? ArrowRight : ArrowLeft;
 
   return (

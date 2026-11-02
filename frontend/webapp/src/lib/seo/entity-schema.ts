@@ -81,6 +81,7 @@ export function breadcrumbList(items: { name: string; url: string }[]): Node {
 export interface ProviderSchemaInput {
   locale: string;
   id: string;
+  url?: string;
   name: string;
   providerType?: string | null;
   description?: unknown;
@@ -97,7 +98,7 @@ export interface ProviderSchemaInput {
 }
 
 export function providerSchema(input: ProviderSchemaInput): Node {
-  const url = providerUrl(input.locale, input.id);
+  const url = input.url ?? providerUrl(input.locale, input.id);
   const hasGeo =
     typeof input.latitude === "number" &&
     typeof input.longitude === "number" &&
@@ -144,6 +145,7 @@ export function providerSchema(input: ProviderSchemaInput): Node {
 export interface ServiceSchemaInput {
   locale: string;
   id: string;
+  url?: string;
   name: string;
   description?: unknown;
   category?: string | null;
@@ -155,7 +157,7 @@ export interface ServiceSchemaInput {
 }
 
 export function serviceSchema(input: ServiceSchemaInput): Node {
-  const url = serviceUrl(input.locale, input.id);
+  const url = input.url ?? serviceUrl(input.locale, input.id);
   return compact({
     "@type": "Service",
     "@id": `${url}#service`,
@@ -180,6 +182,7 @@ export function serviceSchema(input: ServiceSchemaInput): Node {
 export interface PersonSchemaInput {
   locale: string;
   id: string;
+  url?: string;
   name: string;
   jobTitle?: string | null;
   description?: unknown;
@@ -189,7 +192,7 @@ export interface PersonSchemaInput {
 }
 
 export function personSchema(input: PersonSchemaInput): Node {
-  const url = specialistUrl(input.locale, input.id);
+  const url = input.url ?? specialistUrl(input.locale, input.id);
   return compact({
     "@type": "Person",
     "@id": `${url}#person`,

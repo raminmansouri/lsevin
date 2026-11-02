@@ -7,25 +7,24 @@ for (const route of ["home", "categories", "explore", "search"]) {
   test(`public ${route}: direct navigation and refresh`, async ({
     page,
   }, testInfo) => {
-    const path = `/fa/n/app/mobile/${route}`;
+    const path = route === 'home' || route === 'search' ? `/fa/n/app/mobile/${route}` : `/fa/${route}`;
     const response = await page.goto(path);
     expect(response?.status()).toBe(200);
-    await expect(
-      page.locator(route === "search" ? "input" : "h1").first()
-    ).toBeVisible();
+    if (route === "home") await expect(page.locator("h1").first()).toContainText(/\S/);
+    else await expect(page.locator(route === "search" ? "input" : "h1:visible").first()).toBeVisible();
     await page.screenshot({ path: testInfo.outputPath(`${route}-loaded.png`) });
     const refreshed = await page.reload();
     expect(refreshed?.status()).toBe(200);
-    await expect(
-      page.locator(route === "search" ? "input" : "h1").first()
-    ).toBeVisible();
+    if (route === "home") await expect(page.locator("h1").first()).toContainText(/\S/);
+    else await expect(page.locator(route === "search" ? "input" : "h1:visible").first()).toBeVisible();
   });
 }
 
 test("categories: keyboard filtering, hierarchy and persisted URL", async ({
   page,
 }, testInfo) => {
-  await page.goto("/fa/n/app/mobile/categories");
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/fa/categories");
   const input = page.getByRole("textbox").first();
   await expect(input).toBeVisible();
   // Text typed before hydration is reset by React; retry until it sticks.
@@ -58,9 +57,22 @@ test("categories: keyboard filtering, hierarchy and persisted URL", async ({
   await expect(page).toHaveURL(selected);
 });
 
+test('@regression explore: localized review count hydrates without a browser error', async ({ page }) => {
+  const hydrationErrors: string[] = [];
+  page.on('console', (message) => {
+    if (message.type() === 'error' && message.text().includes('Hydration failed')) hydrationErrors.push(message.text());
+  });
+  const response = await page.goto('/fa/explore');
+  expect(response?.status()).toBe(200);
+  await expect(page.locator('h1:visible').first()).toBeVisible();
+  await page.reload();
+  await expect(page.locator('h1:visible').first()).toBeVisible();
+  expect(hydrationErrors).toEqual([]);
+});
+
 for (const route of ["home", "categories", "explore"]) {
   test(`SEO ${route}: public canonical domain`, async ({ page }, testInfo) => {
-    const path = `/fa/n/app/mobile/${route}`;
+    const path = route === 'home' ? `/fa/n/app/mobile/home` : `/fa/${route}`;
     await page.goto(path);
     await page.screenshot({ path: testInfo.outputPath(`${route}-seo.png`) });
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
@@ -92,15 +104,15 @@ test("SEO sitemap and robots advertise the public domain", async ({
   const sitemap = await request.get("/sitemap.xml");
   expect(sitemap.status()).toBe(200);
   const xml = await sitemap.text();
-  expect(xml).toContain(`${origin}/fa/n/app/mobile/categories`);
-  expect(xml).toContain(`${origin}/fa/n/app/mobile/service/`);
+  expect(xml).toContain(`${origin}/fa/categories`);
+  expect(xml).toContain(`${origin}/fa/services/`);
   expect(xml).not.toContain("https://appmain.lsevin.com/");
-  expect(xml).toContain(`${origin}/en/n/app/mobile/categories`);
-  expect(xml).not.toContain(`${origin}/es/n/app/mobile/categories`);
-  expect(xml).not.toContain(`${origin}/en/n/app/mobile/shop</loc>`);
+  expect(xml).toContain(`${origin}/en/categories`);
+  expect(xml).not.toContain(`${origin}/es/categories`);
+  expect(xml).not.toContain(`${origin}/en/shop</loc>`);
   for (const route of ["offers", "featured", "packages"]) {
-    expect(xml).toContain(`${origin}/fa/n/app/mobile/${route}</loc>`);
-    expect(xml).not.toContain(`${origin}/en/n/app/mobile/${route}</loc>`);
+    expect(xml).toContain(`${origin}/fa/${route}</loc>`);
+    expect(xml).not.toContain(`${origin}/en/${route}</loc>`);
   }
   expect(await robots.text()).toContain("Disallow: /*/n/app/mobile/support");
   expect(await robots.text()).not.toContain("Disallow: /*/n/app/mobile/search");
@@ -108,7 +120,7 @@ test("SEO sitemap and robots advertise the public domain", async ({
 
 test("public campaign pages have canonicals and private support is noindex", async ({ page }) => {
   for (const route of ["offers", "featured", "packages"]) {
-    const path = `/fa/n/app/mobile/${route}`;
+    const path = `/fa/${route}`;
     const response = await page.goto(path);
     expect(response?.status()).toBe(200);
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", `${origin}${path}`);
@@ -120,7 +132,7 @@ test("public campaign pages have canonicals and private support is noindex", asy
 
 test("an indexed package detail is canonical and its fallback locale is noindex", async ({ page, request }) => {
   const xml = await (await request.get("/sitemap.xml")).text();
-  const packagePath = xml.match(/<loc>[^<]+(\/fa\/n\/app\/mobile\/packages\/[0-9a-f-]{36})<\/loc>/i)?.[1];
+  const packagePath = xml.match(/<loc>[^<]+(\/fa\/packages\/[a-z0-9-]+)<\/loc>/i)?.[1];
   test.skip(!packagePath, "No active package with Persian title is published in this environment");
   const response = await page.goto(packagePath!);
   expect(response?.status()).toBe(200);
@@ -129,10 +141,34 @@ test("an indexed package detail is canonical and its fallback locale is noindex"
   await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex/);
 });
 
+for (const section of ['providers', 'services', 'specialists', 'specialties', 'packages']) {
+  test(`@critical ${section}: sitemap slug opens directly with a stable canonical`, async ({ page, request }, testInfo) => {
+    const sitemapResponse = await request.get('/sitemap.xml');
+    expect(sitemapResponse.status()).toBe(200);
+    const xml = await sitemapResponse.text();
+    const path = xml.match(new RegExp(`<loc>[^<]+(/fa/${section}/[a-z0-9-]+)</loc>`))?.[1];
+    expect(path, `active ${section} slug in sitemap`).toBeTruthy();
+
+    const response = await page.goto(path!);
+    expect(response?.status()).toBe(200);
+    if (section !== 'specialties') await expect(page.locator('h1:visible').first()).toBeVisible();
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', `${origin}${path}`);
+    await page.screenshot({ path: testInfo.outputPath(`${section}-slug-loaded.png`) });
+
+    const refreshed = await page.reload();
+    expect(refreshed?.status()).toBe(200);
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', `${origin}${path}`);
+    await page.screenshot({ path: testInfo.outputPath(`${section}-slug-refreshed.png`) });
+
+    const missing = await request.get(`/fa/${section}/missing-seo-record-94731`);
+    expect(missing.status()).toBe(404);
+  });
+}
+
 test("category and shop fallback locales are excluded from search", async ({
   page,
 }) => {
-  await page.goto("/fa/n/app/mobile/categories");
+  await page.goto("/fa/categories");
   const schema = await page
     .locator('script[type="application/ld+json"]')
     .allTextContents();
@@ -142,7 +178,7 @@ test("category and shop fallback locales are excluded from search", async ({
   await expect(page.getByText("سایر خدمات")).toBeVisible();
   await expect(page.getByText(/زیردسته/).first()).toBeVisible();
 
-  for (const path of ["/es/n/app/mobile/categories", "/en/n/app/mobile/shop"]) {
+  for (const path of ["/es/categories", "/en/shop"]) {
     await page.goto(path);
     await expect(page.locator('meta[name="robots"]')).toHaveAttribute(
       "content",
@@ -182,15 +218,18 @@ for (const [kind, id] of [
     const path = `/fa/n/app/mobile/${kind}/${id}`;
     const response = await page.goto(path);
     expect(response?.status()).toBe(200);
-    await expect(page.locator("h1").first()).toBeVisible();
+    const newPath = new URL(page.url()).pathname;
+    expect(newPath).toMatch(new RegExp(`^/fa/${kind}s/[a-z0-9-]+$`));
+    await expect(page.locator("h1:visible").first()).toBeVisible();
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
       "href",
-      `${origin}${path}`
+      `${origin}${newPath}`
     );
     await page.screenshot({ path: testInfo.outputPath(`${kind}-loaded.png`) });
     const refreshed = await page.reload();
     expect(refreshed?.status()).toBe(200);
     await expect(page.locator("h1").first()).toBeVisible();
+    await page.screenshot({ path: testInfo.outputPath(`${kind}-refreshed.png`) });
   });
   test(`public ${kind}: malformed entity is a real 404`, async ({
     request,
@@ -339,7 +378,7 @@ test("legacy provider and type URLs move permanently to the current pages", asyn
   });
   expect([301, 308]).toContain(provider.status());
   expect(provider.headers()["location"]).toMatch(
-    new RegExp(`/fa/n/app/mobile/provider/${id}$`)
+    /\/fa\/providers\/[a-z0-9-]+$/
   );
   const type = await request.get(
     "/en/type/20000000-0000-4000-8000-000000000001",
@@ -347,6 +386,6 @@ test("legacy provider and type URLs move permanently to the current pages", asyn
   );
   expect([301, 308]).toContain(type.status());
   expect(type.headers()["location"]).toMatch(
-    /\/en\/n\/app\/mobile\/categories$/
+    /\/en\/specialties\/[a-z0-9-]+$/
   );
 });

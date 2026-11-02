@@ -13,7 +13,7 @@ const savedPercent = (pkg: SpecialPackagePublicItem) =>
     ? Math.round((1 - pkg.priceAmount / pkg.originalPriceAmount) * 100)
     : 0;
 const checkoutHref = (pkg: SpecialPackagePublicItem) => (pkg.providerServiceId ? `/n/app/mobile/packages/${pkg.id}/checkout` : null);
-const detailHref = (pkg: SpecialPackagePublicItem) => `/n/app/mobile/packages/${pkg.id}`;
+const detailHref = (pkg: SpecialPackagePublicItem) => `/packages/${pkg.slug ?? pkg.id}`;
 
 function SaveChip({ percent, locale }: { percent: number; locale: string }) {
   if (percent <= 0) return null;

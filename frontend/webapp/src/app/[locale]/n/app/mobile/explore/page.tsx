@@ -21,7 +21,7 @@ export async function generateMetadata({
   return {
     title: t("header.title"),
     description: t("header.subtitle"),
-    alternates: alternatesFor(locale, "/n/app/mobile/explore"),
+    alternates: alternatesFor(locale, "/explore"),
   };
 }
 

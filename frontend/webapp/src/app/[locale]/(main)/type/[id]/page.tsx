@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { Metadata } from "next";
+import { notFound, permanentRedirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { SearchParams } from "nuqs/server";
 
@@ -11,6 +12,7 @@ import { ProviderTypeLayout } from "@/features/home/components/by-type/provider-
 import { byTypeSearchParamsCache } from "@/features/home/types";
 import { BY_TYPE_TRANSLATION_KEY } from "@/features/home/types/constants";
 import { alternatesFor } from "@/lib/seo/alternates";
+import { resolvePublicEntity } from "@/lib/seo/public-slugs";
 import { getProviderTypeAttributes } from "@/features/provider-types/api/server/get-provider-type-attributes";
 import type { ProviderTypeAttributesResponse } from "@/features/provider-types/types/provider-type";
 import { getAvailableCitiesByCountry } from "@/features/service-providers/api/server/get-available-cities-by-country";
@@ -24,10 +26,13 @@ export async function generateMetadata({
   params: Promise<{ locale: string; id: string }>;
 }): Promise<Metadata> {
   const { locale, id } = await params;
+  const ref = await resolvePublicEntity('specialty', id);
+  if (!ref) notFound();
+  if (ref.slug && id !== ref.slug) permanentRedirect(`/${locale}/specialties/${ref.slug}`);
   const t = await getTranslations(BY_TYPE_TRANSLATION_KEY);
 
   return {
-    alternates: alternatesFor(locale, `/type/${id}`),
+    alternates: alternatesFor(locale, `/specialties/${ref.slug ?? ref.id}`),
     title: t("title"),
     description: t("description"),
     keywords: t("title"),
@@ -45,6 +50,11 @@ export async function generateMetadata({
 }
 
 const ProviderTypeDetailsPage = async ({ params, searchParams }: PageProps) => {
+  const { locale, id: identifier } = await params;
+  const ref = await resolvePublicEntity('specialty', identifier);
+  if (!ref) notFound();
+  if (ref.slug && identifier !== ref.slug) permanentRedirect(`/${locale}/specialties/${ref.slug}`);
+  const resolvedParams = Promise.resolve({ locale, id: ref.id });
   return (
     <div className="container">
       <div className="flex flex-col items-center gap-4">
@@ -57,7 +67,7 @@ const ProviderTypeDetailsPage = async ({ params, searchParams }: PageProps) => {
       </div>
       <Suspense fallback={<ProviderTypeLayoutSkeleton />}>
         <ProviderTypeContentBoundary
-          params={params}
+          params={resolvedParams}
           searchParams={searchParams}
         />
       </Suspense>

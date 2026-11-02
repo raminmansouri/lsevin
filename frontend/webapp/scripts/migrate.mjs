@@ -18,7 +18,7 @@
  * the same way `next dev` resolves it. Nothing here is ever run automatically —
  * deploys do not call it; a human does.
  */
-import { createHash } from "node:crypto";
+import { migrationChecksum } from "./migration-checksum.mjs";
 import fs from "node:fs";
 import { createRequire } from "node:module";
 import path from "node:path";
@@ -67,7 +67,7 @@ function loadMigrations() {
       return {
         name,
         sqlText,
-        checksum: createHash("sha256").update(sqlText).digest("hex"),
+        checksum: migrationChecksum(sqlText),
         // CREATE INDEX CONCURRENTLY and a few other statements cannot run inside a
         // transaction block. Such a file opts out with this header directive and
         // takes responsibility for its own atomicity.

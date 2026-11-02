@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { getProviderPageDataFromDbCached } from "@/features/service-providers/server/provider-page.repository.cached";
@@ -9,6 +9,7 @@ import { breadcrumbList, graph, providerSchema, providerUrl } from "@/lib/seo/en
 import { JsonLd } from "@/lib/seo/json-ld";
 import { getIndexableLocales } from "@/lib/seo/locale-eligibility";
 import { buildPublicMetadata } from "@/lib/seo/metadata";
+import { resolvePublicEntity } from "@/lib/seo/public-slugs";
 import { isFastBuild } from "@/lib/build-mode";
 import { SponsoredPlacementSlot } from "@/features/sponsered-slider/components/sponsored-placement-slot";
 
@@ -35,7 +36,10 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: PageProps) {
-  const { locale, id } = await params;
+  const { locale, id: identifier } = await params;
+  const ref = await resolvePublicEntity('provider', identifier);
+  if (!ref) notFound();
+  const id = ref.id;
   const result = await getProviderPageDataFromDbCached({ providerId: id, locale });
   const provider = result?.data?.provider;
 
@@ -48,7 +52,7 @@ export async function generateMetadata({ params }: PageProps) {
 
   return buildPublicMetadata({
     locale,
-    path: `/n/app/mobile/provider/${encodeURIComponent(id)}`,
+    path: `/providers/${ref.slug ?? id}`,
     title: provider.city ? `${provider.name} | ${provider.city}` : provider.name,
     descriptions: [provider.about, provider.tagline, provider.description],
     image: undefined,
@@ -58,8 +62,13 @@ export async function generateMetadata({ params }: PageProps) {
 }
 
 export default async function ProviderDetailPage({ params }: PageProps) {
-  const { locale, id } = await params;
+  const { locale, id: identifier } = await params;
   setRequestLocale(locale);
+  const ref = await resolvePublicEntity('provider', identifier);
+  if (!ref) notFound();
+  if (ref.slug && identifier !== ref.slug) permanentRedirect(`/${locale}/providers/${ref.slug}`);
+  const id = ref.id;
+  const canonicalPath = `/providers/${ref.slug ?? id}`;
 
   const result = await getProviderPageDataFromDbCached({ providerId: id, locale });
   if (!result?.data) {
@@ -84,6 +93,7 @@ export default async function ProviderDetailPage({ params }: PageProps) {
           providerSchema({
             locale,
             id: provider.id,
+            url: canonicalPath ? absoluteUrl(locale, canonicalPath) : undefined,
             name: provider.name,
             providerType: provider.providerType,
             description: provider.about || provider.tagline || provider.description,
@@ -100,7 +110,7 @@ export default async function ProviderDetailPage({ params }: PageProps) {
           }),
           breadcrumbList([
             { name: brand, url: absoluteUrl(locale, "/n/app/mobile/home") },
-            { name: provider.name, url: providerUrl(locale, provider.id) },
+            { name: provider.name, url: canonicalPath ? absoluteUrl(locale, canonicalPath) : providerUrl(locale, provider.id) },
           ])
         )}
       />

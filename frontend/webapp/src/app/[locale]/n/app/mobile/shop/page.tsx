@@ -39,7 +39,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 
   return buildPublicMetadata({
     locale,
-    path: "/n/app/mobile/shop",
+    path: "/shop",
     title: t("title"),
     descriptions: [t("metaDescription")],
     eligibleLocales: INDEXABLE_SHOP_LOCALES,

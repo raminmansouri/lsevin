@@ -118,9 +118,15 @@ export function buildSearchQuery(next: ExploreFiltersInput) {
 // catch-fallback here silently mislabeled those amounts with a "$" sign.
 // formatMoney is the finance module's canonical formatter and handles every
 // currency code in use without that crash.
-export function formatPrice(value: number | null, currency: string = "USD") {
+export function formatPrice(value: number | null, currency: string = "USD", locale = "en") {
   if (value == null) return null;
-  return formatMoney({ amount: value, currencyCode: currency }, { locale: "en-US" });
+  return formatMoney({ amount: value, currencyCode: currency }, { locale: locale === "fa" ? "fa-IR" : locale });
+}
+
+function formatNumericText(value: string, locale: string): string {
+  return value.replace(/\d+/g, (digits) =>
+    [...digits].map((digit) => Number(digit).toLocaleString(locale)).join(""),
+  );
 }
 
 
@@ -575,7 +581,7 @@ export default function ExploreClient({
     : providerTypes.slice(0, 4);
 
   return (
-    <div className="relative min-h-screen bg-white pb-24">
+    <div className="relative min-h-screen bg-white pb-24" data-latin-digits>
       {isPending && <ExplorePendingOverlay />}
 
       <div className="bg-white px-5 pt-3 pb-4 border-b border-gray-100 sticky top-0 z-40 backdrop-blur-xl bg-white/95">
@@ -628,7 +634,7 @@ export default function ExploreClient({
                   : "bg-gray-100 text-gray-700 hover:bg-gray-200"
               }`}
             >
-              {cat.label} <span className="opacity-70">({cat.count})</span>
+              {cat.label} <span className="opacity-70">({cat.count.toLocaleString(locale)})</span>
             </button>
           ))}
         </div>
@@ -702,13 +708,13 @@ export default function ExploreClient({
                   <div className="flex items-center gap-2 mb-2">
                     <div className="flex items-center gap-1">
                       <Star size={14} className="fill-yellow-400 text-yellow-400" />
-                      <span className="font-bold text-sm text-gray-900">{provider.rating}</span>
-                      <span className="text-xs text-gray-500">({provider.reviews.toLocaleString()})</span>
+                      <span className="font-bold text-sm text-gray-900">{provider.rating.toLocaleString(locale)}</span>
+                      <span className="text-xs text-gray-500">({provider.reviews.toLocaleString(locale)})</span>
                     </div>
                     <span className="text-gray-300">•</span>
                     <div className="flex items-center gap-1">
                       <Users size={14} className="text-gray-400" />
-                      <span className="text-xs text-gray-600">{provider.bookings}</span>
+                      <span className="text-xs text-gray-600">{formatNumericText(provider.bookings, locale)}</span>
                     </div>
                   </div>
 
@@ -777,7 +783,7 @@ export default function ExploreClient({
                 </button>
                 {sponsoredProviders[0].price != null && (
                   <span className="text-2xl font-bold text-white">
-                    {formatPrice(sponsoredProviders[0].price, sponsoredProviders[0].currency)}
+                    {formatPrice(sponsoredProviders[0].price, sponsoredProviders[0].currency, locale)}
                   </span>
                 )}
               </div>
@@ -855,15 +861,15 @@ export default function ExploreClient({
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1">
                     <Star size={14} className="fill-yellow-400 text-yellow-400" />
-                    <span className="font-bold text-sm">{service.rating}</span>
-                    <span className="text-xs text-gray-500">({service.reviews})</span>
+                    <span className="font-bold text-sm">{service.rating.toLocaleString(locale)}</span>
+                    <span className="text-xs text-gray-500">({service.reviews.toLocaleString(locale)})</span>
                   </div>
 
                   <div className="text-right">
                     {service.originalPrice && (
-                      <div className="text-xs text-gray-400 line-through">{formatPrice(service.originalPrice, service.currency)}</div>
+                      <div className="text-xs text-gray-400 line-through">{formatPrice(service.originalPrice, service.currency, locale)}</div>
                     )}
-                    <div className="font-bold text-[#083f30]">{formatPrice(service.price, service.currency)}</div>
+                    <div className="font-bold text-[#083f30]">{formatPrice(service.price, service.currency, locale)}</div>
                   </div>
                 </div>
               </div>
@@ -939,7 +945,7 @@ export default function ExploreClient({
                       className="line-clamp-2 text-gray-600"
                     />
                   </div>
-                  <p className="text-xs font-medium text-[#083f30]">{t("counts.providers", { count: providerType.count })}</p>
+                  <p className="text-xs font-medium text-[#083f30]">{formatNumericText(t("counts.providers", { count: providerType.count }), locale)}</p>
                 </div>
               </article>
             ))}
@@ -1068,7 +1074,7 @@ export default function ExploreClient({
                     <option value="">{t("filters.allCurrencies")}</option>
                     {availableCurrencies.map((currency) => (
                       <option key={currency.code} value={currency.code}>
-                        {currency.symbol} {currency.code} — {currency.label} ({currency.count})
+                        {currency.symbol} {currency.code} — {currency.label} ({currency.count.toLocaleString(locale)})
                       </option>
                     ))}
                   </select>
@@ -1210,7 +1216,7 @@ export default function ExploreClient({
                   <option value="">{t("filters.selectLanguage")}</option>
                   {availableLanguages.map((language) => (
                     <option key={language.value} value={language.value}>
-                      {language.label} ({language.count})
+                      {language.label} ({language.count.toLocaleString(locale)})
                     </option>
                   ))}
                 </select>

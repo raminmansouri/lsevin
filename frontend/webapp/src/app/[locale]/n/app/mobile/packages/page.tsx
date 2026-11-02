@@ -32,7 +32,7 @@ export async function generateMetadata({ params }: Pick<PageProps, 'params'>) {
   const t = await getTranslations({ locale, namespace: 'Home' });
   return buildPublicMetadata({
     locale,
-    path: '/n/app/mobile/packages',
+    path: '/packages',
     title: t('packagesPage.title'),
     descriptions: [t('packagesPage.subtitle')],
     eligibleLocales: INDEXABLE_SHOP_LOCALES,
@@ -113,7 +113,7 @@ function SpecialPackageCard({
 
   return (
     <div className="group relative flex flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all hover:shadow-md active:scale-[0.99]">
-      <Link href={`/n/app/mobile/packages/${pkg.id}`} aria-label={pkg.title} className="absolute inset-0 z-[1]" />
+      <Link href={`/packages/${pkg.slug ?? pkg.id}`} aria-label={pkg.title} className="absolute inset-0 z-[1]" />
       <div className="relative h-40 w-full overflow-hidden bg-gray-100">
         {mediaUrl ? (
           <ImageWithFallback
