@@ -225,7 +225,10 @@
       "description": "与预约关联及手工登记的钱包流水",
       "title": "钱包交易"
     },
-    "consultationRequests": "咨询申请"
+    "consultationRequests": "咨询申请",
+    "nav": {
+      "editorial": "网站内容"
+    }
   },
   "AdminGenerated": {
     "deleteCurrency": "Delete currency",
@@ -13564,6 +13567,107 @@
       "quoteFailed": "无法更新配送或付款选项，点击重试。",
       "updating": "正在更新配送和付款选项…",
       "retryNotice": "订单已保存，请重试付款，无需重复下单。"
+    }
+  },
+  "Footer": {
+    "columns": {
+      "policies": {
+        "title": "政策条款"
+      }
+    }
+  },
+  "SitePages": {
+    "faqTitle": "常见问题",
+    "updated": "最后更新",
+    "home": "首页",
+    "more": "关于 LSevin"
+  },
+  "AdminEditorial": {
+    "heading": "网站内容",
+    "intro": "管理网站页面（关于我们、联系我们、各项政策）以及在全站显示的常见问题，涵盖所有语言。",
+    "tabs": {
+      "pages": "网站页面",
+      "faqs": "常见问题"
+    },
+    "pagesHelp": "页面发布后才会在网站上显示。没有翻译的语言会显示英文版本，且不会出现在搜索结果中。",
+    "faqsHelp": "每条常见问题显示在一类页面上。不选择具体项目，则显示在该类的所有页面上。",
+    "page": "页面",
+    "languages": "语言",
+    "status": "状态",
+    "actions": "操作",
+    "edit": "编辑",
+    "delete": "删除",
+    "confirmDelete": "要删除这条常见问题的所有语言版本吗？此操作无法撤销。",
+    "deleted": "常见问题已删除。",
+    "published": "已发布",
+    "publishedHelp": "在网站和搜索结果中可见。",
+    "draft": "草稿",
+    "notCreated": "未创建",
+    "inFooter": "在页脚中",
+    "showInFooter": "在页脚显示",
+    "showInFooterHelp": "在网站页脚中添加指向此页面的链接。",
+    "displayOrder": "排序",
+    "editPage": "编辑页面",
+    "pageUrl": "网址",
+    "title": "标题",
+    "summary": "摘要",
+    "summaryHelp": "一两句话，用作搜索结果中的页面描述。",
+    "body": "页面正文",
+    "bodyHelp": "请使用标题划分章节。每种语言单独撰写，不要未经审校直接粘贴机器翻译。",
+    "heroImage": "页首图片",
+    "heroImageHelp": "可选。从媒体库中选择。",
+    "pickImage": "选择图片",
+    "save": "保存",
+    "saving": "正在保存…",
+    "saved": "已保存。",
+    "back": "返回",
+    "viewPage": "查看页面",
+    "newFaq": "新建常见问题",
+    "editFaq": "编辑常见问题",
+    "faqHelp": "请在希望显示的每种语言中填写问题和答案。只填写了问题或只填写了答案的语言无法保存。",
+    "showOn": "显示位置",
+    "section": "板块",
+    "choose": "请选择…",
+    "specificItem": "具体项目（可选）",
+    "specificItemHelp": "有专属常见问题的项目只显示其专属内容，其他项目显示通用常见问题。",
+    "allItems": "该类全部",
+    "currentItem": "当前",
+    "question": "问题",
+    "answer": "答案",
+    "active": "启用",
+    "inactive": "隐藏",
+    "all": "全部",
+    "noFaqs": "这里还没有常见问题。",
+    "scopes": {
+      "home": "首页",
+      "explore": "发现",
+      "search": "搜索",
+      "map": "地图",
+      "categories": "分类页面",
+      "provider": "服务机构页面",
+      "specialist": "专家页面",
+      "service": "服务页面",
+      "category": "某个分类",
+      "provider_type": "某类服务机构",
+      "app": "板块（商店、旅游、健身房…）",
+      "site_page": "某个网站页面"
+    },
+    "apps": {
+      "shop": "商店",
+      "tours": "旅游",
+      "gym": "健身房与健身",
+      "transfers": "机场接送"
+    },
+    "pages": {
+      "about-us": "关于我们",
+      "services": "服务",
+      "contact-us": "联系我们",
+      "licenses-certifications": "执照与认证",
+      "pricing-fees": "价格与费用",
+      "shipping-delivery": "配送与发货",
+      "returns-refunds": "退货与退款",
+      "terms-conditions": "条款与条件",
+      "privacy-policy": "隐私政策"
     }
   }
 }

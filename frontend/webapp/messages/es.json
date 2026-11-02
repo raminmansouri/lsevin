@@ -563,7 +563,10 @@
       "description": "Movimientos de billetera manuales y vinculados a reservas",
       "title": "Transacciones de billetera"
     },
-    "consultationRequests": "Solicitudes de consulta"
+    "consultationRequests": "Solicitudes de consulta",
+    "nav": {
+      "editorial": "Contenido del sitio"
+    }
   },
   "HomePage": {
     "title": "LSevin | Médicos, clínicas y hoteles médicos en Irán",
@@ -13593,5 +13596,106 @@
     "previous": "Anterior",
     "next": "Siguiente",
     "confirm": "Usar archivos seleccionados"
+  },
+  "Footer": {
+    "columns": {
+      "policies": {
+        "title": "Políticas"
+      }
+    }
+  },
+  "SitePages": {
+    "faqTitle": "Preguntas frecuentes",
+    "updated": "Última actualización",
+    "home": "Inicio",
+    "more": "Acerca de LSevin"
+  },
+  "AdminEditorial": {
+    "heading": "Contenido del sitio",
+    "intro": "Las páginas del sitio (Quiénes somos, Contacto, políticas) y las preguntas frecuentes que se muestran en todo el sitio, en todos los idiomas.",
+    "tabs": {
+      "pages": "Páginas del sitio",
+      "faqs": "Preguntas frecuentes"
+    },
+    "pagesHelp": "Una página aparece en el sitio una vez publicada. Los idiomas sin traducción muestran la versión en inglés y quedan fuera de los resultados de búsqueda.",
+    "faqsHelp": "Cada pregunta frecuente se muestra en un tipo de página. Deja vacío el elemento específico para mostrarla en todas las páginas de ese tipo.",
+    "page": "Página",
+    "languages": "Idiomas",
+    "status": "Estado",
+    "actions": "Acciones",
+    "edit": "Editar",
+    "delete": "Eliminar",
+    "confirmDelete": "¿Eliminar esta pregunta frecuente en todos los idiomas? Esta acción no se puede deshacer.",
+    "deleted": "Pregunta frecuente eliminada.",
+    "published": "Publicado",
+    "publishedHelp": "Visible en el sitio y en los resultados de búsqueda.",
+    "draft": "Borrador",
+    "notCreated": "No creada",
+    "inFooter": "En el pie de página",
+    "showInFooter": "Mostrar en el pie de página",
+    "showInFooterHelp": "Enlazar esta página desde el pie de página del sitio.",
+    "displayOrder": "Orden",
+    "editPage": "Editar página",
+    "pageUrl": "Dirección",
+    "title": "Título",
+    "summary": "Resumen",
+    "summaryHelp": "Una o dos frases. Se usa como descripción en los resultados de búsqueda.",
+    "body": "Texto de la página",
+    "bodyHelp": "Usa encabezados para las secciones. Escribe cada idioma por separado; no pegues traducciones automáticas sin revisarlas.",
+    "heroImage": "Imagen de cabecera",
+    "heroImageHelp": "Opcional. Elígela de la biblioteca multimedia.",
+    "pickImage": "Elegir imagen",
+    "save": "Guardar",
+    "saving": "Guardando...",
+    "saved": "Guardado.",
+    "back": "Atrás",
+    "viewPage": "Ver página",
+    "newFaq": "Nueva pregunta frecuente",
+    "editFaq": "Editar pregunta frecuente",
+    "faqHelp": "Escribe la pregunta y la respuesta en cada idioma en que quieras que aparezca. No se puede guardar un idioma que tenga solo la pregunta o solo la respuesta.",
+    "showOn": "Mostrar en",
+    "section": "Sección",
+    "choose": "Elige...",
+    "specificItem": "Elemento específico (opcional)",
+    "specificItemHelp": "Los elementos con preguntas frecuentes propias muestran solo esas; los demás muestran las generales.",
+    "allItems": "Todos los de este tipo",
+    "currentItem": "Actual",
+    "question": "Pregunta",
+    "answer": "Respuesta",
+    "active": "Activa",
+    "inactive": "Oculta",
+    "all": "Todas",
+    "noFaqs": "Todavía no hay preguntas frecuentes aquí.",
+    "scopes": {
+      "home": "Página de inicio",
+      "explore": "Explorar",
+      "search": "Búsqueda",
+      "map": "Mapa",
+      "categories": "Página de categorías",
+      "provider": "Páginas de proveedores",
+      "specialist": "Páginas de especialistas",
+      "service": "Páginas de servicios",
+      "category": "Una categoría",
+      "provider_type": "Un tipo de proveedor",
+      "app": "Sección (tienda, tours, gimnasios...)",
+      "site_page": "Una página del sitio"
+    },
+    "apps": {
+      "shop": "Tienda",
+      "tours": "Tours",
+      "gym": "Gimnasios y fitness",
+      "transfers": "Traslados al aeropuerto"
+    },
+    "pages": {
+      "about-us": "Quiénes somos",
+      "services": "Servicios",
+      "contact-us": "Contacto",
+      "licenses-certifications": "Licencias y certificaciones",
+      "pricing-fees": "Precios y tarifas",
+      "shipping-delivery": "Envío y entrega",
+      "returns-refunds": "Devoluciones y reembolsos",
+      "terms-conditions": "Términos y condiciones",
+      "privacy-policy": "Política de privacidad"
+    }
   }
 }

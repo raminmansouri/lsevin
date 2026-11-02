@@ -1,0 +1,1345 @@
+{
+  "slug": "licenses-certifications",
+  "status": "draft",
+  "needsConfirmation": [
+    "Registered legal entity name that holds the Enamad seal 7764782, and the domain the seal was issued for (lsevin.com or lsevincare.com)",
+    "Whether LSevin holds any licence of its own (for example a health tourism facilitator licence from the Ministry of Cultural Heritage, Tourism and Handicrafts, or a business registration number); none is in the codebase, so the page claims none",
+    "The exact criteria and documents LSevin administrators check before setting the Accredited flag on a provider (the code only shows that the flag is admin-only)",
+    "Whether provider onboarding license uploads are reviewed by staff before a provider goes live (the onboarding screen asks for a medical license upload; the review process is not visible in code)",
+    "Whether the statement from the published guides that LSevin only coordinates with IPD-licensed facilities applies to every international booking"
+  ],
+  "sources": [
+    "src/app/[locale]/n/app/mobile/home/page.tsx (Enamad seal id 7764782; link https://trustseal.enamad.ir/?id=7764782)",
+    "src/app/layout.tsx (enamad domain-verification meta tag rendered on every page)",
+    "src/features/service-providers/actions/admin/index.ts and components/admin/service-provider-admin-form.tsx (accredited flag edited in admin)",
+    "src/features/provider-portal/components/settings-manager.tsx (Accredited/verified flags and commission policy are listed as settings providers cannot change)",
+    "src/app/[locale]/n/app/mobile/explore/explore.data.ts, map-discovery/nearby.data.ts, offers/offers.data.ts (filter: show only accredited providers)",
+    "messages/en.json ProviderPage.badges (Verified, Accredited) and MobileDoctorProfile (Certifications & memberships listed by the doctor)",
+    "src/app/[locale]/n/app/providers/onboarding/ClinicOnboarding.tsx (onboarding asks for a medical license upload and accreditation certifications)",
+    "src/features/shop/api and admin reviews page (is_verified_purchase marker on shop reviews)",
+    "src/features/guides/content/licensed-hospitals.ts (IPD licence meaning, official list at iht.behdasht.gov.ir, how to check a facility, medical council number, national accreditation vs JCI, no confirmed JCI accreditations)",
+    "src/features/guides/content/hub.ts and visa.ts (travel side handled by health tourism companies licensed by the Ministry of Cultural Heritage, Tourism and Handicrafts; LSevin does not issue visas)"
+  ],
+  "locales": {
+    "en-US": {
+      "title": "Licenses and Certifications",
+      "metaDescription": "The credentials LSevin displays, what the Accredited badge on a provider means, and how to check a hospital's IPD licence and a doctor's registration yourself.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "This page lists the credentials LSevin can show you, explains the badges you see on provider profiles, and tells you how to check a hospital, clinic or doctor yourself before you pay or travel. We only list what we can document. Where a check has to be done with an official register, we point you to it."
+        },
+        {
+          "type": "h2",
+          "text": "Enamad electronic trust seal"
+        },
+        {
+          "type": "p",
+          "text": "LSevin displays the Enamad electronic trust seal with ID 7764782. Enamad is the programme that issues trust seals to online businesses in Iran."
+        },
+        {
+          "type": "p",
+          "text": "To check it, click the seal on the LSevin site. It opens the seal's record on trustseal.enamad.ir, where you can see the business details registered with Enamad. A genuine seal opens on the enamad.ir domain; a seal image that does not link there should not be trusted."
+        },
+        {
+          "type": "h2",
+          "text": "What LSevin is and is not licensed to do"
+        },
+        {
+          "type": "p",
+          "text": "LSevin is a booking and coordination platform. It is not a hospital or clinic and does not provide medical treatment. LSevin also does not issue visas or medical invitation letters."
+        },
+        {
+          "type": "p",
+          "text": "For patients coming from abroad, Iran's rules split the work. The Ministry of Health licenses facilities to admit international patients, and health tourism companies licensed by the Ministry of Cultural Heritage, Tourism and Handicrafts handle bringing patients to Iran and home again. LSevin works within this framework and coordinates with licensed facilities and facilitators."
+        },
+        {
+          "type": "h2",
+          "text": "Badges on provider profiles"
+        },
+        {
+          "type": "p",
+          "text": "Accredited: a flag set by LSevin administrators on a provider's profile. Providers cannot turn it on themselves, and it is managed together with other settings only staff can change. You can filter search, map and offer results to show only accredited providers."
+        },
+        {
+          "type": "p",
+          "text": "The Accredited badge is an LSevin marker. It is not an accreditation issued by the Ministry of Health or by an international body such as JCI. For treatment as an international patient, the official reference is the facility's IPD licence."
+        },
+        {
+          "type": "p",
+          "text": "Certifications and memberships: specialist pages can list board certifications, fellowships and professional memberships. The doctor supplies this information. Ask for the certificate if a specific credential matters to your decision."
+        },
+        {
+          "type": "p",
+          "text": "Verified purchase: in the LSevin shop, a review can carry a verified purchase marker when it is linked to an order."
+        },
+        {
+          "type": "h2",
+          "text": "How to check a hospital or clinic"
+        },
+        {
+          "type": "p",
+          "text": "The Ministry of Health publishes the list of facilities licensed to admit international patients (IPD licence) on its health tourism portal, iht.behdasht.gov.ir. IPD stands for International Patient Department."
+        },
+        {
+          "type": "p",
+          "text": "Step 1: ask for the facility's exact registered name and city, and whether its IPD licence covers your treatment."
+        },
+        {
+          "type": "p",
+          "text": "Step 2: search for that name on iht.behdasht.gov.ir and confirm it appears on the list."
+        },
+        {
+          "type": "p",
+          "text": "Step 3: for a medical visa, make sure the invitation letter comes from a facility authorised by the Ministry of Health. Iran's e-visa portal sets this as the condition for the medical (T) visa."
+        },
+        {
+          "type": "p",
+          "text": "Step 4: keep the written quote, the licence details and the treatment plan together."
+        },
+        {
+          "type": "h2",
+          "text": "How to check a doctor"
+        },
+        {
+          "type": "p",
+          "text": "Ask for the treating doctor's specialty and medical council registration number (شماره نظام پزشکی), and check that the name and specialty match. If a doctor or facility says it holds JCI accreditation, ask for the certificate and look it up on the JCI website. We have not been able to confirm from JCI's own directory that any Iranian facility currently holds JCI accreditation, so LSevin does not make that claim for any provider."
+        },
+        {
+          "type": "h2",
+          "text": "Warning signs"
+        },
+        {
+          "type": "p",
+          "text": "Be careful with anyone who asks you to pay outside the LSevin checkout or wallet, cannot give a facility's registered name, or promises a visa without a licensed facility's invitation. Report these to LSevin support before you pay."
+        },
+        {
+          "type": "quote",
+          "text": "Licences and registrations change over time. Check the official register close to your treatment date."
+        }
+      ],
+      "faq": [
+        {
+          "q": "How do I verify LSevin's Enamad seal?",
+          "a": "Click the seal on the LSevin site. It should open the record for ID 7764782 on trustseal.enamad.ir."
+        },
+        {
+          "q": "Does the Accredited badge mean the Ministry of Health accredited the provider?",
+          "a": "No. It is a flag that LSevin administrators set. For international treatment, check the facility's IPD licence on iht.behdasht.gov.ir."
+        },
+        {
+          "q": "Can a provider add the Accredited badge itself?",
+          "a": "No. The flag can only be changed by LSevin staff in the admin panel."
+        },
+        {
+          "q": "Where is the official list of hospitals that can treat foreign patients?",
+          "a": "On the Ministry of Health's health tourism portal at iht.behdasht.gov.ir, which lists facilities holding an IPD licence."
+        },
+        {
+          "q": "Is any Iranian hospital JCI accredited?",
+          "a": "We could not confirm it from JCI's own directory, so LSevin does not claim it. If a facility says it is, ask for the certificate and check it on the JCI website."
+        }
+      ]
+    },
+    "fa-IR": {
+      "title": "مجوزها و گواهی‌ها",
+      "metaDescription": "مدارکی که السوین نمایش می‌دهد، معنای نشان «معتبر» روی پروفایل ارائه‌دهندگان و روش استعلام مجوز IPD بیمارستان و شماره نظام پزشکی پزشک توسط خود شما.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "در این صفحه مدارکی را که السوین می‌تواند به شما نشان دهد فهرست کرده‌ایم، نشان‌های روی پروفایل ارائه‌دهندگان را توضیح داده‌ایم و گفته‌ایم پیش از پرداخت یا سفر چطور خودتان بیمارستان، کلینیک یا پزشک را استعلام کنید. فقط چیزی را می‌آوریم که بتوانیم مستند کنیم و هر جا استعلام باید از سامانه رسمی انجام شود، نشانی آن را می‌دهیم."
+        },
+        {
+          "type": "h2",
+          "text": "نماد اعتماد الکترونیکی (اینماد)"
+        },
+        {
+          "type": "p",
+          "text": "السوین نماد اعتماد الکترونیکی با شناسه ۷۷۶۴۷۸۲ را نمایش می‌دهد. اینماد نماد اعتماد کسب‌وکارهای اینترنتی در ایران را صادر می‌کند."
+        },
+        {
+          "type": "p",
+          "text": "برای بررسی، روی نماد در سایت السوین کلیک کنید. صفحه آن در trustseal.enamad.ir باز می‌شود و مشخصات کسب‌وکار ثبت‌شده در اینماد را می‌بینید. نماد واقعی روی دامنه enamad.ir باز می‌شود؛ به تصویر نمادی که به این دامنه پیوند ندارد اعتماد نکنید."
+        },
+        {
+          "type": "h2",
+          "text": "السوین چه کاری انجام می‌دهد و چه کاری نه"
+        },
+        {
+          "type": "p",
+          "text": "السوین پلتفرم رزرو و هماهنگی است. بیمارستان یا کلینیک نیست و خدمات درمانی ارائه نمی‌دهد. السوین ویزا یا دعوت‌نامه درمانی هم صادر نمی‌کند."
+        },
+        {
+          "type": "p",
+          "text": "برای بیمارانی که از خارج می‌آیند، مقررات ایران کار را تقسیم کرده است. وزارت بهداشت به مراکز درمانی مجوز پذیرش بیمار بین‌الملل می‌دهد و انتقال بیمار به ایران و بازگشت او بر عهده شرکت‌های گردشگری سلامت دارای مجوز از وزارت میراث فرهنگی، گردشگری و صنایع دستی است. السوین در همین چارچوب کار می‌کند و با مراکز و شرکت‌های دارای مجوز هماهنگ می‌شود."
+        },
+        {
+          "type": "h2",
+          "text": "نشان‌های روی پروفایل ارائه‌دهندگان"
+        },
+        {
+          "type": "p",
+          "text": "معتبر: نشانی که مدیران السوین روی پروفایل ارائه‌دهنده فعال می‌کنند. ارائه‌دهنده نمی‌تواند خودش آن را روشن کند و این نشان همراه تنظیماتی مدیریت می‌شود که فقط کارکنان السوین اجازه تغییرشان را دارند. در جست‌وجو، نقشه و پیشنهادها می‌توانید فقط ارائه‌دهندگان معتبر را ببینید."
+        },
+        {
+          "type": "p",
+          "text": "نشان «معتبر» علامت داخلی السوین است و اعتباربخشی وزارت بهداشت یا نهاد بین‌المللی مثل JCI نیست. برای درمان بیمار بین‌الملل، مرجع رسمی مجوز IPD مرکز درمانی است."
+        },
+        {
+          "type": "p",
+          "text": "گواهی‌ها و عضویت‌ها: در صفحه پزشکان ممکن است بورد تخصصی، فلوشیپ و عضویت در انجمن‌های حرفه‌ای آمده باشد. این اطلاعات را خود پزشک ثبت می‌کند. اگر مدرک خاصی برای تصمیم شما مهم است، تصویر گواهی را بخواهید."
+        },
+        {
+          "type": "p",
+          "text": "خرید تأییدشده: در فروشگاه السوین، نظری که به یک سفارش واقعی متصل باشد علامت خرید تأییدشده می‌گیرد."
+        },
+        {
+          "type": "h2",
+          "text": "استعلام بیمارستان یا کلینیک"
+        },
+        {
+          "type": "p",
+          "text": "وزارت بهداشت فهرست مراکز دارای مجوز پذیرش بیمار بین‌الملل (مجوز IPD) را در سامانه گردشگری سلامت به نشانی iht.behdasht.gov.ir منتشر می‌کند. IPD کوتاه‌شده International Patient Department یعنی بخش بیماران بین‌الملل است."
+        },
+        {
+          "type": "p",
+          "text": "گام ۱: نام ثبت‌شده دقیق مرکز و شهر آن را بپرسید و اینکه آیا مجوز IPD آن درمان شما را پوشش می‌دهد."
+        },
+        {
+          "type": "p",
+          "text": "گام ۲: همین نام را در iht.behdasht.gov.ir جست‌وجو کنید و از وجود آن در فهرست مطمئن شوید."
+        },
+        {
+          "type": "p",
+          "text": "گام ۳: برای ویزای درمان، مطمئن شوید دعوت‌نامه از مرکز درمانی مجاز وزارت بهداشت صادر شده است. سامانه ویزای الکترونیک ایران همین را شرط ویزای درمان (T) گذاشته است."
+        },
+        {
+          "type": "p",
+          "text": "گام ۴: پیش‌فاکتور مکتوب، مشخصات مجوز و برنامه درمان را کنار هم نگه دارید."
+        },
+        {
+          "type": "h2",
+          "text": "استعلام پزشک"
+        },
+        {
+          "type": "p",
+          "text": "تخصص پزشک معالج و شماره نظام پزشکی او را بپرسید و بررسی کنید نام و تخصص با هم بخوانند. اگر پزشک یا مرکزی گفت اعتباربخشی JCI دارد، گواهی را بخواهید و در وب‌سایت JCI بررسی کنید. ما نتوانستیم از فهرست خود JCI تأیید کنیم که مرکزی در ایران اکنون اعتباربخشی JCI دارد، پس السوین چنین ادعایی درباره هیچ ارائه‌دهنده‌ای نمی‌کند."
+        },
+        {
+          "type": "h2",
+          "text": "نشانه‌های هشدار"
+        },
+        {
+          "type": "p",
+          "text": "مراقب کسی باشید که از شما می‌خواهد بیرون از صفحه پرداخت یا کیف پول السوین پول بدهید، نام ثبت‌شده مرکز را نمی‌گوید یا بدون دعوت‌نامه مرکز دارای مجوز وعده ویزا می‌دهد. پیش از پرداخت این موارد را به پشتیبانی السوین گزارش دهید."
+        },
+        {
+          "type": "quote",
+          "text": "مجوزها و ثبت‌ها در طول زمان تغییر می‌کنند. نزدیک به تاریخ درمان، سامانه رسمی را دوباره بررسی کنید."
+        }
+      ],
+      "faq": [
+        {
+          "q": "نماد اینماد السوین را چطور بررسی کنم؟",
+          "a": "روی نماد در سایت السوین کلیک کنید. باید صفحه شناسه ۷۷۶۴۷۸۲ در trustseal.enamad.ir باز شود."
+        },
+        {
+          "q": "آیا نشان «معتبر» یعنی وزارت بهداشت ارائه‌دهنده را اعتباربخشی کرده است؟",
+          "a": "خیر. این نشان را مدیران السوین فعال می‌کنند. برای درمان بیمار بین‌الملل، مجوز IPD مرکز را در iht.behdasht.gov.ir بررسی کنید."
+        },
+        {
+          "q": "آیا ارائه‌دهنده می‌تواند خودش نشان «معتبر» بگذارد؟",
+          "a": "خیر. فقط کارکنان السوین از پنل مدیریت می‌توانند آن را تغییر دهند."
+        },
+        {
+          "q": "فهرست رسمی بیمارستان‌هایی که بیمار خارجی می‌پذیرند کجاست؟",
+          "a": "در سامانه گردشگری سلامت وزارت بهداشت به نشانی iht.behdasht.gov.ir که مراکز دارای مجوز IPD را فهرست می‌کند."
+        },
+        {
+          "q": "آیا بیمارستانی در ایران اعتباربخشی JCI دارد؟",
+          "a": "ما نتوانستیم این را از فهرست خود JCI تأیید کنیم، پس السوین چنین ادعایی نمی‌کند. اگر مرکزی چنین گفت، گواهی را بخواهید و در وب‌سایت JCI بررسی کنید."
+        }
+      ]
+    },
+    "ar-SA": {
+      "title": "التراخيص والشهادات",
+      "metaDescription": "الوثائق التي تعرضها لسوين، ومعنى شارة «معتمد» على ملفات مقدمي الخدمات، وكيف تتحقق بنفسك من ترخيص IPD للمستشفى ومن رقم تسجيل الطبيب في النقابة.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "تعرض هذه الصفحة الوثائق التي تستطيع لسوين أن تريك إياها، وتشرح الشارات التي تراها على ملفات مقدمي الخدمات، وتوضح كيف تتحقق بنفسك من المستشفى أو العيادة أو الطبيب قبل الدفع أو السفر. لا نذكر إلا ما نستطيع توثيقه، وحيث يجب التحقق من سجل رسمي نرشدك إليه."
+        },
+        {
+          "type": "h2",
+          "text": "ختم الثقة الإلكتروني إي‌نماد"
+        },
+        {
+          "type": "p",
+          "text": "تعرض لسوين ختم الثقة الإلكتروني «إي‌نماد» برقم 7764782. وإي‌نماد هو البرنامج الذي يمنح أختام الثقة للأعمال الإلكترونية في إيران."
+        },
+        {
+          "type": "p",
+          "text": "للتحقق منه، اضغط على الختم في موقع لسوين، فيفتح سجله على trustseal.enamad.ir حيث ترى بيانات النشاط التجاري المسجلة لدى إي‌نماد. الختم الحقيقي يفتح على نطاق enamad.ir، ولا تثق بصورة ختم لا ترتبط بهذا النطاق."
+        },
+        {
+          "type": "h2",
+          "text": "ما الذي تقوم به لسوين وما الذي لا تقوم به"
+        },
+        {
+          "type": "p",
+          "text": "لسوين منصة حجز وتنسيق، وليست مستشفى أو عيادة ولا تقدم علاجاً طبياً. ولا تصدر لسوين تأشيرات أو رسائل دعوة علاجية."
+        },
+        {
+          "type": "p",
+          "text": "بالنسبة للمرضى القادمين من الخارج، توزّع الأنظمة الإيرانية المهام: تمنح وزارة الصحة المنشآت الطبية ترخيص استقبال المرضى الدوليين، وتتولى شركات السياحة العلاجية المرخصة من وزارة التراث الثقافي والسياحة والصناعات اليدوية نقل المرضى إلى إيران وعودتهم. تعمل لسوين ضمن هذا الإطار وتنسق مع المنشآت والشركات المرخصة."
+        },
+        {
+          "type": "h2",
+          "text": "الشارات على ملفات مقدمي الخدمات"
+        },
+        {
+          "type": "p",
+          "text": "معتمد: علامة يفعّلها مشرفو لسوين على ملف مقدم الخدمة، ولا يستطيع مقدم الخدمة تفعيلها بنفسه، وتُدار مع إعدادات أخرى لا يغيرها إلا موظفو لسوين. ويمكنك تصفية نتائج البحث والخريطة والعروض لإظهار مقدمي الخدمات المعتمدين فقط."
+        },
+        {
+          "type": "p",
+          "text": "شارة «معتمد» علامة خاصة بلسوين، وليست اعتماداً من وزارة الصحة أو من جهة دولية مثل JCI. وللعلاج بصفتك مريضاً دولياً، المرجع الرسمي هو ترخيص IPD للمنشأة."
+        },
+        {
+          "type": "p",
+          "text": "الشهادات والعضويات: قد تعرض صفحات الأطباء شهادات البورد والزمالات والعضويات المهنية، ويضيف الطبيب هذه المعلومات بنفسه. فإذا كانت شهادة معينة مهمة لقرارك، فاطلب نسخة منها."
+        },
+        {
+          "type": "p",
+          "text": "شراء موثّق: في متجر لسوين، يحمل التقييم علامة الشراء الموثّق عندما يكون مرتبطاً بطلب فعلي."
+        },
+        {
+          "type": "h2",
+          "text": "كيف تتحقق من مستشفى أو عيادة"
+        },
+        {
+          "type": "p",
+          "text": "تنشر وزارة الصحة قائمة المنشآت المرخصة لاستقبال المرضى الدوليين (ترخيص IPD) على بوابة السياحة العلاجية iht.behdasht.gov.ir. وIPD اختصار International Patient Department أي قسم المرضى الدوليين."
+        },
+        {
+          "type": "p",
+          "text": "الخطوة 1: اطلب الاسم المسجل الدقيق للمنشأة ومدينتها، واسأل هل يغطي ترخيص IPD علاجك."
+        },
+        {
+          "type": "p",
+          "text": "الخطوة 2: ابحث عن هذا الاسم على iht.behdasht.gov.ir وتأكد من وروده في القائمة."
+        },
+        {
+          "type": "p",
+          "text": "الخطوة 3: في التأشيرة العلاجية، تأكد من أن رسالة الدعوة صادرة عن منشأة مرخصة من وزارة الصحة، فهذا شرط بوابة التأشيرة الإلكترونية الإيرانية للتأشيرة العلاجية (T)."
+        },
+        {
+          "type": "p",
+          "text": "الخطوة 4: احتفظ بعرض السعر المكتوب وبيانات الترخيص وخطة العلاج معاً."
+        },
+        {
+          "type": "h2",
+          "text": "كيف تتحقق من الطبيب"
+        },
+        {
+          "type": "p",
+          "text": "اسأل عن تخصص الطبيب المعالج ورقم تسجيله في نقابة الأطباء الإيرانية (نظام پزشکی)، وتأكد من تطابق الاسم والتخصص. وإذا قال طبيب أو منشأة إنه حاصل على اعتماد JCI، فاطلب الشهادة وابحث عنها في موقع JCI. لم نتمكن من التأكد من دليل JCI نفسه أن أي منشأة إيرانية تحمل اعتماد JCI حالياً، لذلك لا تدّعي لسوين ذلك لأي مقدم خدمة."
+        },
+        {
+          "type": "h2",
+          "text": "علامات تحذيرية"
+        },
+        {
+          "type": "p",
+          "text": "احذر ممن يطلب منك الدفع خارج صفحة الدفع أو محفظة لسوين، أو لا يذكر الاسم المسجل للمنشأة، أو يعدك بتأشيرة دون دعوة من منشأة مرخصة. أبلغ دعم لسوين بذلك قبل الدفع."
+        },
+        {
+          "type": "quote",
+          "text": "تتغير التراخيص والتسجيلات مع الوقت، فراجع السجل الرسمي قرب موعد علاجك."
+        }
+      ],
+      "faq": [
+        {
+          "q": "كيف أتحقق من ختم إي‌نماد الخاص بلسوين؟",
+          "a": "اضغط على الختم في موقع لسوين، ويجب أن يفتح سجل الرقم 7764782 على trustseal.enamad.ir."
+        },
+        {
+          "q": "هل تعني شارة «معتمد» أن وزارة الصحة اعتمدت مقدم الخدمة؟",
+          "a": "لا. هي علامة يفعّلها مشرفو لسوين. وللعلاج الدولي تحقق من ترخيص IPD للمنشأة على iht.behdasht.gov.ir."
+        },
+        {
+          "q": "هل يستطيع مقدم الخدمة إضافة شارة «معتمد» بنفسه؟",
+          "a": "لا. لا يغيّرها إلا موظفو لسوين من لوحة الإدارة."
+        },
+        {
+          "q": "أين القائمة الرسمية للمستشفيات التي تستقبل المرضى الأجانب؟",
+          "a": "على بوابة السياحة العلاجية لوزارة الصحة iht.behdasht.gov.ir، وهي تعرض المنشآت الحاصلة على ترخيص IPD."
+        },
+        {
+          "q": "هل يوجد مستشفى إيراني معتمد من JCI؟",
+          "a": "لم نتمكن من التأكد من ذلك من دليل JCI نفسه، لذلك لا تدّعيه لسوين. وإذا قالت منشأة ذلك، فاطلب الشهادة وتحقق منها في موقع JCI."
+        }
+      ]
+    },
+    "tr-TR": {
+      "title": "Lisanslar ve Sertifikalar",
+      "metaDescription": "LSevin'in gösterdiği belgeler, sağlayıcılardaki Akredite rozetinin anlamı ve bir hastanenin IPD lisansını ve doktor kaydını kendiniz nasıl kontrol edebileceğiniz.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Bu sayfada LSevin'in size gösterebileceği belgeler listelenir, sağlayıcı profillerinde gördüğünüz rozetler açıklanır ve ödeme yapmadan ya da yola çıkmadan önce bir hastaneyi, kliniği veya doktoru kendiniz nasıl kontrol edebileceğiniz anlatılır. Yalnızca belgeleyebildiğimiz bilgileri listeleriz. Bir kontrolün resmi bir sicil üzerinden yapılması gerekiyorsa sizi o sicile yönlendiririz."
+        },
+        {
+          "type": "h2",
+          "text": "Enamad elektronik güven mührü"
+        },
+        {
+          "type": "p",
+          "text": "LSevin, 7764782 numaralı Enamad elektronik güven mührünü gösterir. Enamad, İran'daki online işletmelere güven mührü veren programdır."
+        },
+        {
+          "type": "p",
+          "text": "Kontrol etmek için LSevin sitesindeki mühre tıklayın. Mührün trustseal.enamad.ir üzerindeki kaydı açılır ve burada Enamad'a kayıtlı işletme bilgilerini görebilirsiniz. Gerçek bir mühür enamad.ir alan adında açılır; bu adrese bağlanmayan bir mühür görseline güvenmeyin."
+        },
+        {
+          "type": "h2",
+          "text": "LSevin'in lisans kapsamı ve kapsam dışı olanlar"
+        },
+        {
+          "type": "p",
+          "text": "LSevin bir rezervasyon ve koordinasyon platformudur. Hastane veya klinik değildir ve tıbbi tedavi sunmaz. LSevin ayrıca vize veya tıbbi davet mektubu düzenlemez."
+        },
+        {
+          "type": "p",
+          "text": "Yurt dışından gelen hastalar için İran'daki kurallar işi paylaştırır. Sağlık Bakanlığı, kuruluşlara uluslararası hasta kabul etme lisansı verir; Kültürel Miras, Turizm ve El Sanatları Bakanlığı'ndan lisanslı sağlık turizmi şirketleri ise hastaların İran'a gelişini ve ülkelerine dönüşünü organize eder. LSevin bu çerçevede çalışır ve lisanslı kuruluşlar ile aracı şirketlerle koordinasyon sağlar."
+        },
+        {
+          "type": "h2",
+          "text": "Sağlayıcı profillerindeki rozetler"
+        },
+        {
+          "type": "p",
+          "text": "Akredite: LSevin yöneticilerinin bir sağlayıcının profiline tanımladığı bir işarettir. Sağlayıcılar bunu kendileri açamaz; yalnızca çalışanların değiştirebildiği diğer ayarlarla birlikte yönetilir. Arama, harita ve fırsat sonuçlarını yalnızca akredite sağlayıcıları gösterecek şekilde filtreleyebilirsiniz."
+        },
+        {
+          "type": "p",
+          "text": "Akredite rozeti bir LSevin işaretidir. Sağlık Bakanlığı veya JCI gibi uluslararası bir kuruluş tarafından verilmiş bir akreditasyon değildir. Uluslararası hasta olarak tedavi için resmi referans, kuruluşun IPD lisansıdır."
+        },
+        {
+          "type": "p",
+          "text": "Sertifikalar ve üyelikler: Uzman sayfalarında uzmanlık belgeleri, yan dal eğitimleri (fellowship) ve mesleki üyelikler listelenebilir. Bu bilgileri doktorun kendisi sağlar. Belirli bir belge kararınız için önemliyse sertifikayı isteyin."
+        },
+        {
+          "type": "p",
+          "text": "Doğrulanmış Satın Alma: LSevin mağazasında bir değerlendirme, bir siparişe bağlı olduğunda doğrulanmış satın alma işareti taşıyabilir."
+        },
+        {
+          "type": "h2",
+          "text": "Bir hastane veya klinik nasıl kontrol edilir"
+        },
+        {
+          "type": "p",
+          "text": "Sağlık Bakanlığı, uluslararası hasta kabul etmeye lisanslı kuruluşların listesini (IPD lisansı) sağlık turizmi portalı iht.behdasht.gov.ir üzerinde yayımlar. IPD, International Patient Department (Uluslararası Hasta Birimi) anlamına gelir."
+        },
+        {
+          "type": "p",
+          "text": "1. adım: Kuruluşun tam tescilli adını ve şehrini, ayrıca IPD lisansının sizin tedavinizi kapsayıp kapsamadığını sorun."
+        },
+        {
+          "type": "p",
+          "text": "2. adım: Bu adı iht.behdasht.gov.ir üzerinde aratın ve listede yer aldığını doğrulayın."
+        },
+        {
+          "type": "p",
+          "text": "3. adım: Tıbbi vize için davet mektubunun Sağlık Bakanlığı tarafından yetkilendirilmiş bir kuruluştan geldiğinden emin olun. İran'ın e-vize portalı bunu tıbbi (T) vize için şart olarak belirler."
+        },
+        {
+          "type": "p",
+          "text": "4. adım: Yazılı fiyat teklifini, lisans bilgilerini ve tedavi planını bir arada saklayın."
+        },
+        {
+          "type": "h2",
+          "text": "Bir doktor nasıl kontrol edilir"
+        },
+        {
+          "type": "p",
+          "text": "Sizi tedavi edecek doktorun uzmanlık alanını ve tabip odası sicil numarasını (شماره نظام پزشکی) isteyin; ad ile uzmanlık alanının eşleştiğini kontrol edin. Bir doktor veya kuruluş JCI akreditasyonuna sahip olduğunu söylüyorsa sertifikayı isteyin ve JCI web sitesinde arayın. JCI'nin kendi dizininden herhangi bir İran kuruluşunun şu anda JCI akreditasyonuna sahip olduğunu doğrulayamadık; bu nedenle LSevin hiçbir sağlayıcı için böyle bir iddiada bulunmaz."
+        },
+        {
+          "type": "h2",
+          "text": "Uyarı işaretleri"
+        },
+        {
+          "type": "p",
+          "text": "LSevin ödeme sayfası veya cüzdanı dışında ödeme yapmanızı isteyen, kuruluşun tescilli adını veremeyen ya da lisanslı bir kuruluşun daveti olmadan vize vaat eden kişilere karşı dikkatli olun. Bu durumları ödeme yapmadan önce LSevin desteğine bildirin."
+        },
+        {
+          "type": "quote",
+          "text": "Lisanslar ve kayıtlar zamanla değişir. Resmi sicili tedavi tarihinize yakın bir zamanda kontrol edin."
+        }
+      ],
+      "faq": [
+        {
+          "q": "LSevin'in Enamad mührünü nasıl doğrularım?",
+          "a": "LSevin sitesindeki mühre tıklayın. trustseal.enamad.ir üzerinde 7764782 numaralı kaydı açması gerekir."
+        },
+        {
+          "q": "Akredite rozeti, sağlayıcının Sağlık Bakanlığı tarafından akredite edildiği anlamına mı gelir?",
+          "a": "Hayır. Bu, LSevin yöneticilerinin tanımladığı bir işarettir. Uluslararası tedavi için kuruluşun IPD lisansını iht.behdasht.gov.ir üzerinden kontrol edin."
+        },
+        {
+          "q": "Bir sağlayıcı Akredite rozetini kendisi ekleyebilir mi?",
+          "a": "Hayır. Bu işaret yalnızca LSevin çalışanları tarafından yönetim panelinden değiştirilebilir."
+        },
+        {
+          "q": "Yabancı hasta tedavi edebilen hastanelerin resmi listesi nerede?",
+          "a": "Sağlık Bakanlığı'nın iht.behdasht.gov.ir adresindeki sağlık turizmi portalında. Bu portal IPD lisansına sahip kuruluşları listeler."
+        },
+        {
+          "q": "JCI akreditasyonuna sahip bir İran hastanesi var mı?",
+          "a": "Bunu JCI'nin kendi dizininden doğrulayamadık; bu nedenle LSevin böyle bir iddiada bulunmaz. Bir kuruluş akredite olduğunu söylüyorsa sertifikayı isteyin ve JCI web sitesinde kontrol edin."
+        }
+      ]
+    },
+    "ku-KU": {
+      "title": "مۆڵەت و بڕوانامەکان",
+      "metaDescription": "ئەو بەڵگانەی LSevin پیشانیان دەدات، واتای نیشانەی «پەسەندکراوی فەرمی» لەسەر دابینکەر، و چۆنیەتیی پشکنینی مۆڵەتی IPDی نەخۆشخانە و تۆماری پزیشک بە خۆتان.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "ئەم پەڕەیە ئەو بەڵگانە دەخاتە ڕوو کە LSevin دەتوانێت پیشانتانی بدات، نیشانەکانی سەر پرۆفایلی دابینکەران ڕوون دەکاتەوە، و پێتان دەڵێت چۆن پێش پارەدان یان گەشتکردن خۆتان نەخۆشخانە، کلینیک یان پزیشکێک بپشکنن. تەنها ئەوە دەنووسین کە دەتوانین بەڵگەی بۆ بهێنینەوە. لەو شوێنانەی پشکنینەکە دەبێت لە تۆمارێکی فەرمیدا بکرێت، ئاماژەتان بۆ ئەو تۆمارە دەکەین."
+        },
+        {
+          "type": "h2",
+          "text": "نیشانەی متمانەی ئەلیکترۆنیی ئینماد"
+        },
+        {
+          "type": "p",
+          "text": "LSevin نیشانەی متمانەی ئەلیکترۆنیی ئینماد بە ژمارەی ناسنامەی 7764782 پیشان دەدات. ئینماد ئەو بەرنامەیەیە کە نیشانەی متمانە بە کارە ئۆنلاینەکان لە ئێران دەدات."
+        },
+        {
+          "type": "p",
+          "text": "بۆ پشکنینی، لە ماڵپەڕی LSevin کرتە لەسەر نیشانەکە بکەن. تۆماری نیشانەکە لە trustseal.enamad.ir دەکاتەوە و لەوێ دەتوانن ئەو زانیارییانەی کارەکە ببینن کە لە ئینماددا تۆمار کراون. نیشانەی ڕاستەقینە لەسەر دۆمەینی enamad.ir دەکرێتەوە؛ نابێت متمانە بەو وێنەیەی نیشانە بکرێت کە بەستەرەکەی بۆ ئەوێ نەچێت."
+        },
+        {
+          "type": "h2",
+          "text": "LSevin مۆڵەتی چی هەیە و چی نییە"
+        },
+        {
+          "type": "p",
+          "text": "LSevin پلاتفۆرمێکی حجز و هەماهەنگییە. نەخۆشخانە یان کلینیک نییە و چارەسەری پزیشکی پێشکەش ناکات. هەروەها LSevin ڤیزا یان بانگهێشتنامەی پزیشکی دەرناکات."
+        },
+        {
+          "type": "p",
+          "text": "بۆ ئەو نەخۆشانەی لە دەرەوەی وڵاتەوە دێن، یاساکانی ئێران کارەکە دابەش دەکەن. وەزارەتی تەندروستی مۆڵەت بە دامەزراوەکان دەدات بۆ وەرگرتنی نەخۆشی نێودەوڵەتی، و ئەو کۆمپانیا گەشتیارییە تەندروستییانەی وەزارەتی میراتی کەلتووری، گەشتیاری و پیشەسازییە دەستییەکان مۆڵەتی پێداون، هێنانی نەخۆش بۆ ئێران و گەڕاندنەوەیان بۆ وڵاتی خۆیان ئەنجام دەدەن. LSevin لەناو ئەم چوارچێوەیەدا کار دەکات و لەگەڵ دامەزراوە و ئاسانکارە مۆڵەتدارەکاندا هەماهەنگی دەکات."
+        },
+        {
+          "type": "h2",
+          "text": "نیشانەکانی سەر پرۆفایلی دابینکەران"
+        },
+        {
+          "type": "p",
+          "text": "«پەسەندکراوی فەرمی»: نیشانەیەکە کە بەڕێوەبەرانی LSevin لەسەر پرۆفایلی دابینکەر دایدەنێن. دابینکەران خۆیان ناتوانن چالاکی بکەن، و لەگەڵ ئەو ڕێکخستنانەی تردا بەڕێوە دەبرێت کە تەنها کارمەندان دەتوانن بیانگۆڕن. دەتوانن ئەنجامەکانی گەڕان، نەخشە و ئۆفەرەکان فلتەر بکەن بۆ ئەوەی تەنها دابینکەرە پەسەندکراوەکان پیشان بدرێن."
+        },
+        {
+          "type": "p",
+          "text": "نیشانەی «پەسەندکراوی فەرمی» نیشانەیەکی تایبەتی LSevinە. پەسەندکردنێک نییە کە وەزارەتی تەندروستی یان دەزگایەکی نێودەوڵەتیی وەک JCI دەریکردبێت. بۆ چارەسەر وەک نەخۆشی نێودەوڵەتی، سەرچاوەی فەرمی مۆڵەتی IPDی دامەزراوەکەیە."
+        },
+        {
+          "type": "p",
+          "text": "بڕوانامە و ئەندامێتییەکان: پەڕەکانی پسپۆڕان دەتوانن بڕوانامەی بۆرد، فێلۆشیپ و ئەندامێتیی پیشەیی پیشان بدەن. پزیشکەکە خۆی ئەم زانیارییانە دەدات. ئەگەر بەڵگەیەکی دیاریکراو بۆ بڕیارەکەتان گرنگە، داوای بڕوانامەکە بکەن."
+        },
+        {
+          "type": "p",
+          "text": "کڕینی پشتڕاستکراو: لە فرۆشگای LSevin، بۆچوونێک کاتێک بە داواکارییەکەوە بەسترابێت، دەتوانێت نیشانەی کڕینی پشتڕاستکراوی هەبێت."
+        },
+        {
+          "type": "h2",
+          "text": "چۆن نەخۆشخانە یان کلینیکێک بپشکنن"
+        },
+        {
+          "type": "p",
+          "text": "وەزارەتی تەندروستی لیستی ئەو دامەزراوانەی مۆڵەتی وەرگرتنی نەخۆشی نێودەوڵەتییان (مۆڵەتی IPD) هەیە لە دەروازەی گەشتیاریی تەندروستیی خۆیدا، iht.behdasht.gov.ir، بڵاو دەکاتەوە. IPD کورتکراوەی International Patient Department واتە بەشی نەخۆشانی نێودەوڵەتییە."
+        },
+        {
+          "type": "p",
+          "text": "هەنگاوی 1: داوای ناوی تۆمارکراوی تەواو و شاری دامەزراوەکە بکەن، و بپرسن ئایا مۆڵەتی IPDیەکەی چارەسەرەکەی ئێوە دەگرێتەوە."
+        },
+        {
+          "type": "p",
+          "text": "هەنگاوی 2: لە iht.behdasht.gov.ir بەو ناوە بگەڕێن و دڵنیا ببنەوە کە لە لیستەکەدا هەیە."
+        },
+        {
+          "type": "p",
+          "text": "هەنگاوی 3: بۆ ڤیزای پزیشکی، دڵنیا ببنەوە کە بانگهێشتنامەکە لە دامەزراوەیەکەوە هاتووە کە وەزارەتی تەندروستی ڕێگەی پێداوە. دەروازەی ڤیزای ئەلیکترۆنیی ئێران ئەمە وەک مەرج بۆ ڤیزای پزیشکی (T) دادەنێت."
+        },
+        {
+          "type": "p",
+          "text": "هەنگاوی 4: نرخنامەی نووسراو، زانیارییەکانی مۆڵەت و پلانی چارەسەر پێکەوە بپارێزن."
+        },
+        {
+          "type": "h2",
+          "text": "چۆن پزیشکێک بپشکنن"
+        },
+        {
+          "type": "p",
+          "text": "داوای پسپۆڕی و ژمارەی تۆماری ئەنجومەنی پزیشکیی (شماره نظام پزشکی) پزیشکی چارەسەرکەر بکەن و دڵنیا ببنەوە کە ناو و پسپۆڕییەکە یەک دەگرنەوە. ئەگەر پزیشک یان دامەزراوەیەک بڵێت پەسەندکراوی JCIی هەیە، داوای بڕوانامەکە بکەن و لە ماڵپەڕی JCIدا بیپشکنن. ئێمە نەمانتوانیوە لە ڕێبەری فەرمیی خودی JCIەوە پشتڕاستی بکەینەوە کە هیچ دامەزراوەیەکی ئێرانی ئێستا پەسەندکراوی JCIی هەبێت، بۆیە LSevin ئەم بانگەشەیە بۆ هیچ دابینکەرێک ناکات."
+        },
+        {
+          "type": "h2",
+          "text": "نیشانەکانی مەترسی"
+        },
+        {
+          "type": "p",
+          "text": "ئاگاداری هەر کەسێک بن کە داواتان لێ دەکات لە دەرەوەی پارەدانی LSevin یان جزدانەکەی پارە بدەن، ناتوانێت ناوی تۆمارکراوی دامەزراوەیەک بدات، یان بەڵێنی ڤیزا دەدات بەبێ بانگهێشتنامەی دامەزراوەیەکی مۆڵەتدار. پێش پارەدان ئەمانە بە پشتگیریی LSevin ڕابگەیەنن."
+        },
+        {
+          "type": "quote",
+          "text": "مۆڵەت و تۆمارەکان بە تێپەڕبوونی کات دەگۆڕێن. نزیک لە بەرواری چارەسەرەکەتان تۆماری فەرمی بپشکنن."
+        }
+      ],
+      "faq": [
+        {
+          "q": "چۆن نیشانەی ئینمادی LSevin پشتڕاست بکەمەوە؟",
+          "a": "لە ماڵپەڕی LSevin کرتە لەسەر نیشانەکە بکەن. دەبێت تۆماری ژمارەی ناسنامەی 7764782 لە trustseal.enamad.ir بکاتەوە."
+        },
+        {
+          "q": "ئایا نیشانەی «پەسەندکراوی فەرمی» واتای ئەوەیە کە وەزارەتی تەندروستی دابینکەرەکەی پەسەند کردووە؟",
+          "a": "نەخێر. نیشانەیەکە کە بەڕێوەبەرانی LSevin دایدەنێن. بۆ چارەسەری نێودەوڵەتی، مۆڵەتی IPDی دامەزراوەکە لە iht.behdasht.gov.ir بپشکنن."
+        },
+        {
+          "q": "ئایا دابینکەر دەتوانێت خۆی نیشانەی «پەسەندکراوی فەرمی» زیاد بکات؟",
+          "a": "نەخێر. ئەم نیشانەیە تەنها لەلایەن کارمەندانی LSevinەوە لە پەڕەی بەڕێوەبردندا دەگۆڕدرێت."
+        },
+        {
+          "q": "لیستی فەرمیی ئەو نەخۆشخانانەی دەتوانن نەخۆشی بیانی چارەسەر بکەن لە کوێیە؟",
+          "a": "لە دەروازەی گەشتیاریی تەندروستیی وەزارەتی تەندروستی لە iht.behdasht.gov.ir، کە لیستی ئەو دامەزراوانەی مۆڵەتی IPDیان هەیە بڵاو دەکاتەوە."
+        },
+        {
+          "q": "ئایا هیچ نەخۆشخانەیەکی ئێرانی پەسەندکراوی JCIی هەیە؟",
+          "a": "نەمانتوانی لە ڕێبەری فەرمیی خودی JCIەوە پشتڕاستی بکەینەوە، بۆیە LSevin ئەم بانگەشەیە ناکات. ئەگەر دامەزراوەیەک بڵێت هەیەتی، داوای بڕوانامەکە بکەن و لە ماڵپەڕی JCIدا بیپشکنن."
+        }
+      ]
+    },
+    "ru-RU": {
+      "title": "Лицензии и сертификаты",
+      "metaDescription": "Какие подтверждения размещает LSevin, что означает отметка «Аккредитован» у поставщика и как самостоятельно проверить лицензию IPD больницы и регистрацию врача.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "На этой странице перечислены подтверждения, которые LSevin может Вам предъявить, объяснены отметки в профилях поставщиков и описано, как самостоятельно проверить больницу, клинику или врача до оплаты или поездки. Мы указываем только то, что можем подтвердить документально. Если проверку нужно провести по официальному реестру, мы даём ссылку на него."
+        },
+        {
+          "type": "h2",
+          "text": "Электронный знак доверия Enamad"
+        },
+        {
+          "type": "p",
+          "text": "На сайте LSevin размещён электронный знак доверия Enamad с ID 7764782. Enamad — программа, которая выдаёт знаки доверия интернет-компаниям в Иране."
+        },
+        {
+          "type": "p",
+          "text": "Чтобы проверить знак, нажмите на него на сайте LSevin. Откроется запись знака на trustseal.enamad.ir, где видны сведения о компании, зарегистрированные в Enamad. Подлинный знак открывается на домене enamad.ir; изображению знака, которое не ведёт туда, доверять не следует."
+        },
+        {
+          "type": "h2",
+          "text": "На что у LSevin есть лицензия, а на что нет"
+        },
+        {
+          "type": "p",
+          "text": "LSevin — платформа бронирования и координации. Это не больница и не клиника, и медицинских услуг LSevin не оказывает. LSevin также не оформляет визы и медицинские приглашения."
+        },
+        {
+          "type": "p",
+          "text": "Для пациентов из-за рубежа иранские правила разделяют обязанности. Министерство здравоохранения выдаёт учреждениям лицензии на приём иностранных пациентов, а компании медицинского туризма с лицензией Министерства культурного наследия, туризма и ремёсел организуют приезд пациентов в Иран и возвращение домой. LSevin работает в этих рамках и взаимодействует с лицензированными учреждениями и посредниками."
+        },
+        {
+          "type": "h2",
+          "text": "Отметки в профилях поставщиков"
+        },
+        {
+          "type": "p",
+          "text": "«Аккредитован»: отметка, которую администраторы LSevin устанавливают в профиле поставщика. Сам поставщик включить её не может; она управляется вместе с другими настройками, которые могут менять только сотрудники. В результатах поиска, на карте и в предложениях можно включить фильтр, чтобы видеть только аккредитованных поставщиков."
+        },
+        {
+          "type": "p",
+          "text": "Отметка «Аккредитован» — внутренний знак LSevin. Это не аккредитация Министерства здравоохранения или международной организации, например JCI. Для лечения в качестве иностранного пациента официальным подтверждением служит лицензия IPD учреждения."
+        },
+        {
+          "type": "p",
+          "text": "Сертификаты и членство: на страницах врачей могут быть указаны сертификаты профильных советов, стажировки (fellowship) и членство в профессиональных организациях. Эти сведения предоставляет сам врач. Если конкретная квалификация важна для Вашего решения, попросите показать сертификат."
+        },
+        {
+          "type": "p",
+          "text": "Подтверждённая покупка: в магазине LSevin отзыв может иметь отметку о подтверждённой покупке, если он связан с заказом."
+        },
+        {
+          "type": "h2",
+          "text": "Как проверить больницу или клинику"
+        },
+        {
+          "type": "p",
+          "text": "Министерство здравоохранения публикует список учреждений, имеющих лицензию на приём иностранных пациентов (лицензия IPD), на своём портале медицинского туризма iht.behdasht.gov.ir. IPD означает International Patient Department — отделение для иностранных пациентов."
+        },
+        {
+          "type": "p",
+          "text": "Шаг 1: узнайте точное зарегистрированное название учреждения и город, а также уточните, распространяется ли его лицензия IPD на Ваше лечение."
+        },
+        {
+          "type": "p",
+          "text": "Шаг 2: найдите это название на iht.behdasht.gov.ir и убедитесь, что учреждение есть в списке."
+        },
+        {
+          "type": "p",
+          "text": "Шаг 3: для медицинской визы убедитесь, что приглашение выдано учреждением, уполномоченным Министерством здравоохранения. Иранский портал электронных виз ставит это условием для получения медицинской визы (T)."
+        },
+        {
+          "type": "p",
+          "text": "Шаг 4: храните письменное ценовое предложение, сведения о лицензии и план лечения вместе."
+        },
+        {
+          "type": "h2",
+          "text": "Как проверить врача"
+        },
+        {
+          "type": "p",
+          "text": "Узнайте специальность лечащего врача и его регистрационный номер в медицинском совете (شماره نظام پزشکی) и проверьте, что имя и специальность совпадают. Если врач или учреждение заявляет об аккредитации JCI, попросите сертификат и проверьте его на сайте JCI. По собственному реестру JCI нам не удалось подтвердить, что какое-либо иранское учреждение в настоящее время имеет аккредитацию JCI, поэтому LSevin не делает такого заявления ни об одном поставщике."
+        },
+        {
+          "type": "h2",
+          "text": "Тревожные признаки"
+        },
+        {
+          "type": "p",
+          "text": "Будьте осторожны, если Вас просят оплатить вне оформления заказа или кошелька LSevin, не могут назвать зарегистрированное название учреждения или обещают визу без приглашения от лицензированного учреждения. Сообщите о таких случаях в поддержку LSevin до оплаты."
+        },
+        {
+          "type": "quote",
+          "text": "Лицензии и регистрационные данные со временем меняются. Проверяйте официальный реестр ближе к дате лечения."
+        }
+      ],
+      "faq": [
+        {
+          "q": "Как проверить знак Enamad на сайте LSevin?",
+          "a": "Нажмите на знак на сайте LSevin. Должна открыться запись для ID 7764782 на trustseal.enamad.ir."
+        },
+        {
+          "q": "Означает ли отметка «Аккредитован», что поставщика аккредитовало Министерство здравоохранения?",
+          "a": "Нет. Это отметка, которую устанавливают администраторы LSevin. Если Вы едете на лечение из-за рубежа, проверьте лицензию IPD учреждения на iht.behdasht.gov.ir."
+        },
+        {
+          "q": "Может ли поставщик сам добавить отметку «Аккредитован»?",
+          "a": "Нет. Изменить эту отметку могут только сотрудники LSevin в панели администратора."
+        },
+        {
+          "q": "Где найти официальный список больниц, которые могут лечить иностранных пациентов?",
+          "a": "На портале медицинского туризма Министерства здравоохранения iht.behdasht.gov.ir: там перечислены учреждения с лицензией IPD."
+        },
+        {
+          "q": "Есть ли в Иране больницы с аккредитацией JCI?",
+          "a": "По собственному реестру JCI нам не удалось это подтвердить, поэтому LSevin такого не заявляет. Если учреждение говорит, что аккредитовано, попросите сертификат и проверьте его на сайте JCI."
+        }
+      ]
+    },
+    "tg-TJ": {
+      "title": "Иҷозатномаҳо ва сертификатҳо",
+      "metaDescription": "Ҳуҷҷатҳое, ки LSevin нишон медиҳад, маънои нишони «Аккредитатсияшуда» ва чӣ тавр худатон иҷозатномаи IPD-и беморхона ва бақайдгирии духтурро санҷед.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Дар ин саҳифа ҳуҷҷатҳое, ки LSevin ба шумо нишон дода метавонад, оварда шудаанд, нишонҳои профили хидматрасонҳо шарҳ дода мешаванд ва гуфта мешавад, ки чӣ тавр пеш аз пардохт ё сафар беморхона, клиника ё духтурро худатон санҷед. Мо танҳо он чиро меорем, ки ҳуҷҷатан тасдиқ карда метавонем. Агар санҷиш бояд тавассути феҳристи расмӣ анҷом ёбад, мо шуморо ба он равона мекунем."
+        },
+        {
+          "type": "h2",
+          "text": "Мӯҳри электронии эътимоди Enamad"
+        },
+        {
+          "type": "p",
+          "text": "LSevin мӯҳри электронии эътимоди Enamad бо рақами 7764782-ро нишон медиҳад. Enamad барномаест, ки ба тиҷорати онлайн дар Эрон мӯҳри эътимод медиҳад."
+        },
+        {
+          "type": "p",
+          "text": "Барои санҷиш мӯҳрро дар сайти LSevin пахш кунед. Сабти мӯҳр дар trustseal.enamad.ir кушода мешавад ва дар он ҷо маълумоти тиҷорате, ки дар Enamad ба қайд гирифта шудааст, дида мешавад. Мӯҳри аслӣ дар домени enamad.ir кушода мешавад; ба тасвири мӯҳре, ки ба он ҷо пайванд надорад, эътимод накунед."
+        },
+        {
+          "type": "h2",
+          "text": "LSevin ба чӣ иҷозат дорад ва ба чӣ не"
+        },
+        {
+          "type": "p",
+          "text": "LSevin платформаи брон ва ҳамоҳангсозӣ аст. Он беморхона ё клиника нест ва табобати тиббӣ анҷом намедиҳад. LSevin инчунин раводид ё даъватномаи тиббӣ намедиҳад."
+        },
+        {
+          "type": "p",
+          "text": "Барои беморони аз хориҷа омада қоидаҳои Эрон корро тақсим мекунанд. Вазорати тандурустӣ ба муассисаҳо барои қабули беморони хориҷӣ иҷозатнома медиҳад, ва ширкатҳои сайёҳии тиббӣ, ки аз Вазорати мероси фарҳангӣ, сайёҳӣ ва ҳунарҳои дастӣ иҷозатнома доранд, овардани беморон ба Эрон ва баргардонидани онҳоро ба ватан ба уҳда доранд. LSevin дар ҳамин чаҳорчӯба кор мекунад ва бо муассисаҳо ва миёнаравҳои иҷозатноманок ҳамоҳангӣ мекунад."
+        },
+        {
+          "type": "h2",
+          "text": "Нишонҳо дар профили хидматрасонҳо"
+        },
+        {
+          "type": "p",
+          "text": "«Аккредитатсияшуда»: нишонае, ки маъмурони LSevin дар профили хидматрасон мегузоранд. Хидматрасонҳо онро худашон фаъол карда наметавонанд ва он ҳамроҳи дигар танзимоте идора мешавад, ки танҳо кормандон тағйир дода метавонанд. Натиҷаҳои ҷустуҷӯ, харита ва пешниҳодҳоро метавонед тавре филтр кунед, ки танҳо хидматрасонҳои аккредитатсияшуда нишон дода шаванд."
+        },
+        {
+          "type": "p",
+          "text": "Нишони «Аккредитатсияшуда» аломати худи LSevin аст. Он аккредитатсияе нест, ки Вазорати тандурустӣ ё ягон ниҳоди байналмилалӣ, масалан JCI, додааст. Барои табобат ҳамчун бемори хориҷӣ манбаи расмӣ иҷозатномаи IPD-и муассиса мебошад."
+        },
+        {
+          "type": "p",
+          "text": "Сертификатҳо ва узвиятҳо: дар саҳифаҳои мутахассисон сертификатҳои тахассусӣ, фелловшипҳо ва узвият дар иттиҳодияҳои касбӣ оварда шуда метавонанд. Ин маълумотро худи духтур медиҳад. Агар ягон ҳуҷҷати мушаххас барои қарори шумо муҳим бошад, сертификатро талаб кунед."
+        },
+        {
+          "type": "p",
+          "text": "Хариди тасдиқшуда: дар мағозаи LSevin шарҳ метавонад нишони хариди тасдиқшуда дошта бошад, агар ба фармоиш пайваст бошад."
+        },
+        {
+          "type": "h2",
+          "text": "Чӣ тавр беморхона ё клиникаро санҷед"
+        },
+        {
+          "type": "p",
+          "text": "Вазорати тандурустӣ рӯйхати муассисаҳои дорои иҷозатномаи қабули беморони хориҷӣ (иҷозатномаи IPD)-ро дар портали сайёҳии тиббии худ, iht.behdasht.gov.ir, нашр мекунад. IPD ихтисораи International Patient Department, яъне шӯъбаи беморони байналмилалӣ аст."
+        },
+        {
+          "type": "p",
+          "text": "Қадами 1: номи дақиқи ба қайдгирифташуда ва шаҳри муассисаро пурсед ва фаҳмед, ки оё иҷозатномаи IPD-и он табобати шуморо фаро мегирад."
+        },
+        {
+          "type": "p",
+          "text": "Қадами 2: ин номро дар iht.behdasht.gov.ir ҷустуҷӯ кунед ва боварӣ ҳосил кунед, ки он дар рӯйхат ҳаст."
+        },
+        {
+          "type": "p",
+          "text": "Қадами 3: барои раводиди тиббӣ боварӣ ҳосил кунед, ки даъватнома аз муассисаи ваколатдори Вазорати тандурустӣ омадааст. Портали раводиди электронии Эрон инро шарти раводиди тиббӣ (T) муқаррар кардааст."
+        },
+        {
+          "type": "p",
+          "text": "Қадами 4: нархномаи хаттӣ, маълумоти иҷозатнома ва нақшаи табобатро якҷо нигоҳ доред."
+        },
+        {
+          "type": "h2",
+          "text": "Чӣ тавр духтурро санҷед"
+        },
+        {
+          "type": "p",
+          "text": "Тахассус ва рақами бақайдгирии шӯрои тиббии (شماره نظام پزشکی) духтури муолиҷро пурсед ва санҷед, ки ном ва тахассус мувофиқанд. Агар духтур ё муассиса гӯяд, ки аккредитатсияи JCI дорад, сертификатро талаб кунед ва онро дар сайти JCI санҷед. Мо аз феҳристи худи JCI тасдиқ карда натавонистем, ки ягон муассисаи эронӣ ҳоло аккредитатсияи JCI дорад, бинобар ин LSevin чунин даъвоеро дар бораи ягон хидматрасон намекунад."
+        },
+        {
+          "type": "h2",
+          "text": "Аломатҳои хатар"
+        },
+        {
+          "type": "p",
+          "text": "Бо касе эҳтиёт бошед, ки аз шумо пардохт берун аз саҳифаи пардохти LSevin ё ҳамён талаб мекунад, номи ба қайдгирифташудаи муассисаро гуфта наметавонад ё бе даъватномаи муассисаи иҷозатноманок ваъдаи раводид медиҳад. Пеш аз пардохт дар ин бора ба дастгирии LSevin хабар диҳед."
+        },
+        {
+          "type": "quote",
+          "text": "Иҷозатномаҳо ва бақайдгириҳо бо мурури вақт тағйир меёбанд. Феҳристи расмиро ба санаи табобати худ наздиктар санҷед."
+        }
+      ],
+      "faq": [
+        {
+          "q": "Мӯҳри Enamad-и LSevin-ро чӣ тавр санҷам?",
+          "a": "Мӯҳрро дар сайти LSevin пахш кунед. Бояд сабти рақами 7764782 дар trustseal.enamad.ir кушода шавад."
+        },
+        {
+          "q": "Оё нишони «Аккредитатсияшуда» маънои онро дорад, ки Вазорати тандурустӣ хидматрасонро аккредитатсия кардааст?",
+          "a": "Не. Ин нишонаест, ки маъмурони LSevin мегузоранд. Барои табобати хориҷӣ иҷозатномаи IPD-и муассисаро дар iht.behdasht.gov.ir санҷед."
+        },
+        {
+          "q": "Оё хидматрасон метавонад нишони «Аккредитатсияшуда»-ро худаш илова кунад?",
+          "a": "Не. Ин нишонаро танҳо кормандони LSevin дар панели маъмурӣ тағйир дода метавонанд."
+        },
+        {
+          "q": "Рӯйхати расмии беморхонаҳое, ки беморони хориҷиро табобат карда метавонанд, дар куҷост?",
+          "a": "Дар портали сайёҳии тиббии Вазорати тандурустӣ дар iht.behdasht.gov.ir, ки дар он муассисаҳои дорои иҷозатномаи IPD оварда шудаанд."
+        },
+        {
+          "q": "Оё ягон беморхонаи Эрон аккредитатсияи JCI дорад?",
+          "a": "Мо инро аз феҳристи худи JCI тасдиқ карда натавонистем, бинобар ин LSevin чунин даъво намекунад. Агар муассиса гӯяд, ки дорад, сертификатро талаб кунед ва онро дар сайти JCI санҷед."
+        }
+      ]
+    },
+    "zh-CN": {
+      "title": "许可与资质认证",
+      "metaDescription": "LSevin展示的资质、服务商“已获资质认可”标识的含义，以及如何自行查询医院的IPD许可和医生的执业注册信息。",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "本页列出LSevin可以向您展示的资质，解释服务商资料上各类标识的含义，并告诉您在付款或出行前如何自行核查医院、诊所或医生。我们只列出有据可查的内容；需要通过官方登记系统核查的，我们会告诉您去哪里查。"
+        },
+        {
+          "type": "h2",
+          "text": "Enamad电子信任标识"
+        },
+        {
+          "type": "p",
+          "text": "LSevin展示了Enamad电子信任标识，编号7764782。Enamad是伊朗向网上商家颁发信任标识的认证项目。"
+        },
+        {
+          "type": "p",
+          "text": "核查方法：点击LSevin网站上的标识，系统会打开该标识在 trustseal.enamad.ir 上的备案记录，您可以在其中查看在Enamad登记的商家信息。真实的标识会打开 enamad.ir 域名下的页面；如果标识图片没有链接到该域名，请不要相信。"
+        },
+        {
+          "type": "h2",
+          "text": "LSevin获准从事和不从事的业务"
+        },
+        {
+          "type": "p",
+          "text": "LSevin是预约与协调平台，不是医院或诊所，也不提供医疗服务。LSevin同样不签发签证或医疗邀请函。"
+        },
+        {
+          "type": "p",
+          "text": "对于来自国外的患者，伊朗的规定对相关工作作了分工：卫生部向医疗机构颁发接收国际患者的许可；由文化遗产、旅游和手工业部颁发许可的医疗旅游公司负责安排患者入境伊朗和返回本国。LSevin在这一框架内开展工作，并与持证的医疗机构和服务机构进行协调。"
+        },
+        {
+          "type": "h2",
+          "text": "服务商资料上的标识"
+        },
+        {
+          "type": "p",
+          "text": "已获资质认可：由LSevin管理员在服务商资料上设置的标识。服务商无法自行开启，该标识与其他仅限工作人员修改的设置一起管理。在搜索、地图和优惠结果中，您可以通过筛选只显示已获资质认可的服务商。"
+        },
+        {
+          "type": "p",
+          "text": "“已获资质认可”是LSevin自己的标识，并非由卫生部或JCI等国际机构颁发的认证。以国际患者身份就医时，官方依据是医疗机构的IPD许可。"
+        },
+        {
+          "type": "p",
+          "text": "资质认证与学会会员：专家页面可以列出专科医师资格认证、进修经历和专业学会会员资格。这些信息由医生本人提供。如果某项资质对您的决定很重要，请向对方索取证书。"
+        },
+        {
+          "type": "p",
+          "text": "已验证购买：在LSevin商店中，与订单关联的评价可以带有“已验证购买”标记。"
+        },
+        {
+          "type": "h2",
+          "text": "如何核查医院或诊所"
+        },
+        {
+          "type": "p",
+          "text": "卫生部在其医疗旅游门户网站 iht.behdasht.gov.ir 上公布可接收国际患者的医疗机构名单（IPD许可）。IPD是International Patient Department（国际患者部）的缩写。"
+        },
+        {
+          "type": "p",
+          "text": "第1步：向对方索取该机构准确的注册名称和所在城市，并确认其IPD许可是否涵盖您要接受的治疗。"
+        },
+        {
+          "type": "p",
+          "text": "第2步：在 iht.behdasht.gov.ir 上搜索该名称，确认其在名单之中。"
+        },
+        {
+          "type": "p",
+          "text": "第3步：办理医疗签证时，请确认邀请函由卫生部授权的医疗机构出具。伊朗电子签证门户网站将此列为医疗（T）签证的办理条件。"
+        },
+        {
+          "type": "p",
+          "text": "第4步：将书面报价、许可信息和治疗方案妥善保存在一起。"
+        },
+        {
+          "type": "h2",
+          "text": "如何核查医生"
+        },
+        {
+          "type": "p",
+          "text": "请向主治医生询问其专科以及医学委员会注册号（شماره نظام پزشکی），并核对姓名与专科是否一致。如果医生或医疗机构声称获得JCI认证，请索取证书并在JCI官网上查询。我们未能通过JCI官方名录确认目前有任何伊朗医疗机构持有JCI认证，因此LSevin不会为任何服务商作出此类声明。"
+        },
+        {
+          "type": "h2",
+          "text": "需要警惕的情况"
+        },
+        {
+          "type": "p",
+          "text": "如果有人要求您在LSevin结算页面或钱包之外付款、无法提供医疗机构的注册名称，或者在没有持证医疗机构邀请函的情况下承诺为您办理签证，请务必提高警惕，并在付款前向LSevin客服举报。"
+        },
+        {
+          "type": "quote",
+          "text": "许可和注册信息会随时间变化，请在临近治疗日期时到官方登记系统再次核查。"
+        }
+      ],
+      "faq": [
+        {
+          "q": "如何核验LSevin的Enamad标识？",
+          "a": "点击LSevin网站上的标识，应会打开 trustseal.enamad.ir 上编号为7764782的备案记录。"
+        },
+        {
+          "q": "“已获资质认可”标识是否表示该服务商获得了卫生部认证？",
+          "a": "不是。这是LSevin管理员设置的标识。如需出国就医，请在 iht.behdasht.gov.ir 上查询该医疗机构的IPD许可。"
+        },
+        {
+          "q": "服务商能自行添加“已获资质认可”标识吗？",
+          "a": "不能。该标识只能由LSevin工作人员在管理后台修改。"
+        },
+        {
+          "q": "可接诊外国患者的医院官方名单在哪里？",
+          "a": "在卫生部的医疗旅游门户网站 iht.behdasht.gov.ir 上，该网站列出了持有IPD许可的医疗机构。"
+        },
+        {
+          "q": "有伊朗医院获得JCI认证吗？",
+          "a": "我们未能通过JCI官方名录确认这一点，因此LSevin不作此声明。如果有医疗机构声称已获认证，请索取证书并在JCI官网上核查。"
+        }
+      ]
+    },
+    "de-DE": {
+      "title": "Lizenzen und Zertifizierungen",
+      "metaDescription": "Welche Nachweise LSevin zeigt, was das Abzeichen „Akkreditiert“ bedeutet und wie Sie die IPD-Lizenz eines Krankenhauses und die Registrierung eines Arztes selbst prüfen.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Diese Seite listet die Nachweise auf, die LSevin Ihnen zeigen kann, erklärt die Abzeichen in Anbieterprofilen und beschreibt, wie Sie ein Krankenhaus, eine Klinik oder einen Arzt selbst prüfen, bevor Sie bezahlen oder reisen. Wir führen nur auf, was wir belegen können. Wo eine Prüfung über ein amtliches Register erfolgen muss, verweisen wir Sie darauf."
+        },
+        {
+          "type": "h2",
+          "text": "Elektronisches Vertrauenssiegel Enamad"
+        },
+        {
+          "type": "p",
+          "text": "LSevin zeigt das elektronische Vertrauenssiegel Enamad mit der ID 7764782. Enamad ist das Programm, das im Iran Vertrauenssiegel an Online-Unternehmen vergibt."
+        },
+        {
+          "type": "p",
+          "text": "Zur Prüfung klicken Sie auf der LSevin Website auf das Siegel. Es öffnet den Eintrag des Siegels auf trustseal.enamad.ir, wo Sie die bei Enamad registrierten Unternehmensangaben sehen. Ein echtes Siegel öffnet sich auf der Domain enamad.ir; einem Siegelbild, das nicht dorthin verlinkt, sollten Sie nicht vertrauen."
+        },
+        {
+          "type": "h2",
+          "text": "Wofür LSevin zugelassen ist und wofür nicht"
+        },
+        {
+          "type": "p",
+          "text": "LSevin ist eine Buchungs- und Koordinationsplattform. LSevin ist kein Krankenhaus und keine Klinik und erbringt keine medizinische Behandlung. LSevin stellt auch keine Visa oder medizinischen Einladungsschreiben aus."
+        },
+        {
+          "type": "p",
+          "text": "Für Patienten aus dem Ausland teilen die iranischen Vorschriften die Aufgaben auf. Das Gesundheitsministerium erteilt Einrichtungen die Zulassung zur Aufnahme internationaler Patienten, und Unternehmen für Gesundheitstourismus, die vom Ministerium für Kulturerbe, Tourismus und Kunsthandwerk lizenziert sind, übernehmen die Anreise der Patienten in den Iran und ihre Rückreise. LSevin arbeitet innerhalb dieses Rahmens und stimmt sich mit zugelassenen Einrichtungen und Vermittlern ab."
+        },
+        {
+          "type": "h2",
+          "text": "Abzeichen in Anbieterprofilen"
+        },
+        {
+          "type": "p",
+          "text": "Akkreditiert: eine Markierung, die Administratoren von LSevin im Profil eines Anbieters setzen. Anbieter können sie nicht selbst aktivieren; sie wird zusammen mit anderen Einstellungen verwaltet, die nur Mitarbeitende ändern können. Sie können Ergebnisse in der Suche, auf der Karte und bei Angeboten so filtern, dass nur akkreditierte Anbieter angezeigt werden."
+        },
+        {
+          "type": "p",
+          "text": "Das Abzeichen „Akkreditiert“ ist eine Kennzeichnung von LSevin. Es ist keine Akkreditierung durch das Gesundheitsministerium oder durch eine internationale Stelle wie die JCI. Für eine Behandlung als internationaler Patient ist die IPD-Lizenz der Einrichtung der amtliche Nachweis."
+        },
+        {
+          "type": "p",
+          "text": "Zertifizierungen und Mitgliedschaften: Facharztseiten können Facharztanerkennungen, Fellowships und Mitgliedschaften in Berufsverbänden aufführen. Diese Angaben stammen vom Arzt. Fragen Sie nach dem Zertifikat, wenn ein bestimmter Nachweis für Ihre Entscheidung wichtig ist."
+        },
+        {
+          "type": "p",
+          "text": "Verifizierter Kauf: Im LSevin Shop kann eine Bewertung als verifizierter Kauf gekennzeichnet sein, wenn sie mit einer Bestellung verknüpft ist."
+        },
+        {
+          "type": "h2",
+          "text": "So prüfen Sie ein Krankenhaus oder eine Klinik"
+        },
+        {
+          "type": "p",
+          "text": "Das Gesundheitsministerium veröffentlicht die Liste der Einrichtungen, die internationale Patienten aufnehmen dürfen (IPD-Lizenz), auf seinem Portal für Gesundheitstourismus iht.behdasht.gov.ir. IPD steht für International Patient Department."
+        },
+        {
+          "type": "p",
+          "text": "Schritt 1: Fragen Sie nach dem genauen eingetragenen Namen und der Stadt der Einrichtung und danach, ob ihre IPD-Lizenz Ihre Behandlung abdeckt."
+        },
+        {
+          "type": "p",
+          "text": "Schritt 2: Suchen Sie diesen Namen auf iht.behdasht.gov.ir und vergewissern Sie sich, dass er auf der Liste steht."
+        },
+        {
+          "type": "p",
+          "text": "Schritt 3: Achten Sie bei einem medizinischen Visum darauf, dass das Einladungsschreiben von einer Einrichtung stammt, die vom Gesundheitsministerium zugelassen ist. Das iranische E-Visa-Portal nennt dies als Voraussetzung für das medizinische Visum (T)."
+        },
+        {
+          "type": "p",
+          "text": "Schritt 4: Bewahren Sie das schriftliche Angebot, die Lizenzangaben und den Behandlungsplan zusammen auf."
+        },
+        {
+          "type": "h2",
+          "text": "So prüfen Sie einen Arzt"
+        },
+        {
+          "type": "p",
+          "text": "Fragen Sie nach dem Fachgebiet des behandelnden Arztes und seiner Registrierungsnummer bei der Ärztekammer (شماره نظام پزشکی), und prüfen Sie, ob Name und Fachgebiet übereinstimmen. Wenn ein Arzt oder eine Einrichtung angibt, eine JCI-Akkreditierung zu besitzen, lassen Sie sich das Zertifikat zeigen und prüfen Sie es auf der Website der JCI. Wir konnten im eigenen Verzeichnis der JCI nicht bestätigen, dass derzeit eine iranische Einrichtung JCI-akkreditiert ist; deshalb erhebt LSevin diesen Anspruch für keinen Anbieter."
+        },
+        {
+          "type": "h2",
+          "text": "Warnzeichen"
+        },
+        {
+          "type": "p",
+          "text": "Seien Sie vorsichtig bei Personen, die Sie auffordern, außerhalb der LSevin Kasse oder des Wallets zu bezahlen, die den eingetragenen Namen einer Einrichtung nicht nennen können oder ein Visum ohne Einladung einer zugelassenen Einrichtung versprechen. Melden Sie solche Fälle dem LSevin Support, bevor Sie bezahlen."
+        },
+        {
+          "type": "quote",
+          "text": "Lizenzen und Registrierungen ändern sich mit der Zeit. Prüfen Sie das amtliche Register möglichst kurz vor Ihrem Behandlungstermin."
+        }
+      ],
+      "faq": [
+        {
+          "q": "Wie prüfe ich das Enamad-Siegel von LSevin?",
+          "a": "Klicken Sie auf der LSevin Website auf das Siegel. Es sollte den Eintrag für die ID 7764782 auf trustseal.enamad.ir öffnen."
+        },
+        {
+          "q": "Bedeutet das Abzeichen „Akkreditiert“, dass das Gesundheitsministerium den Anbieter akkreditiert hat?",
+          "a": "Nein. Es ist eine Markierung, die Administratoren von LSevin setzen. Prüfen Sie für eine Behandlung als internationaler Patient die IPD-Lizenz der Einrichtung auf iht.behdasht.gov.ir."
+        },
+        {
+          "q": "Kann ein Anbieter das Abzeichen „Akkreditiert“ selbst hinzufügen?",
+          "a": "Nein. Die Markierung kann nur von Mitarbeitenden von LSevin im Administrationsbereich geändert werden."
+        },
+        {
+          "q": "Wo finde ich die amtliche Liste der Krankenhäuser, die ausländische Patienten behandeln dürfen?",
+          "a": "Auf dem Portal für Gesundheitstourismus des Gesundheitsministeriums unter iht.behdasht.gov.ir, das die Einrichtungen mit IPD-Lizenz aufführt."
+        },
+        {
+          "q": "Ist ein iranisches Krankenhaus JCI-akkreditiert?",
+          "a": "Wir konnten das im eigenen Verzeichnis der JCI nicht bestätigen, daher behauptet LSevin es nicht. Wenn eine Einrichtung angibt, akkreditiert zu sein, lassen Sie sich das Zertifikat zeigen und prüfen Sie es auf der Website der JCI."
+        }
+      ]
+    },
+    "fr-FR": {
+      "title": "Licences et certifications",
+      "metaDescription": "Les justificatifs affichés par LSevin, le sens du badge Accrédité, et comment vérifier vous-même la licence IPD d’un hôpital et l’inscription d’un médecin.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Cette page présente les justificatifs que LSevin peut vous montrer, explique les badges visibles sur les profils des prestataires et vous indique comment vérifier vous-même un hôpital, une clinique ou un médecin avant de payer ou de voyager. Nous n’indiquons que ce que nous pouvons documenter. Lorsqu’une vérification doit se faire auprès d’un registre officiel, nous vous y renvoyons."
+        },
+        {
+          "type": "h2",
+          "text": "Sceau de confiance électronique Enamad"
+        },
+        {
+          "type": "p",
+          "text": "LSevin affiche le sceau de confiance électronique Enamad portant l’ID 7764782. Enamad est le programme qui délivre des sceaux de confiance aux entreprises en ligne en Iran."
+        },
+        {
+          "type": "p",
+          "text": "Pour le vérifier, cliquez sur le sceau affiché sur le site LSevin. Il ouvre la fiche du sceau sur trustseal.enamad.ir, où figurent les informations de l’entreprise enregistrées auprès d’Enamad. Un sceau authentique s’ouvre sur le domaine enamad.ir ; ne vous fiez pas à une image de sceau qui ne renvoie pas vers ce domaine."
+        },
+        {
+          "type": "h2",
+          "text": "Ce que LSevin est autorisé à faire, et ce qui ne relève pas de son rôle"
+        },
+        {
+          "type": "p",
+          "text": "LSevin est une plateforme de réservation et de coordination. Ce n’est ni un hôpital ni une clinique, et LSevin ne dispense aucun traitement médical. LSevin ne délivre pas non plus de visas ni de lettres d’invitation médicale."
+        },
+        {
+          "type": "p",
+          "text": "Pour les patients venant de l’étranger, la réglementation iranienne répartit les rôles. Le ministère de la Santé autorise les établissements à accueillir des patients internationaux, et les agences de tourisme médical agréées par le ministère du Patrimoine culturel, du Tourisme et de l’Artisanat se chargent de faire venir les patients en Iran puis de les ramener chez eux. LSevin s’inscrit dans ce cadre et travaille en coordination avec des établissements et des intermédiaires agréés."
+        },
+        {
+          "type": "h2",
+          "text": "Badges sur les profils des prestataires"
+        },
+        {
+          "type": "p",
+          "text": "Accrédité : un indicateur attribué par les administrateurs de LSevin au profil d’un prestataire. Les prestataires ne peuvent pas l’activer eux-mêmes, et il est géré avec d’autres paramètres que seul le personnel peut modifier. Vous pouvez filtrer les résultats de recherche, de la carte et des offres pour n’afficher que les prestataires accrédités."
+        },
+        {
+          "type": "p",
+          "text": "Le badge Accrédité est un repère propre à LSevin. Il ne s’agit pas d’une accréditation délivrée par le ministère de la Santé ni par un organisme international comme la JCI. Pour un traitement en tant que patient international, la référence officielle est la licence IPD de l’établissement."
+        },
+        {
+          "type": "p",
+          "text": "Certifications et affiliations : les pages des spécialistes peuvent mentionner des certifications de spécialité, des fellowships et des affiliations à des sociétés professionnelles. Ces informations sont fournies par le médecin. Demandez le certificat si un titre précis compte dans votre décision."
+        },
+        {
+          "type": "p",
+          "text": "Achat vérifié : dans la boutique LSevin, un avis peut porter la mention Achat vérifié lorsqu’il est lié à une commande."
+        },
+        {
+          "type": "h2",
+          "text": "Comment vérifier un hôpital ou une clinique"
+        },
+        {
+          "type": "p",
+          "text": "Le ministère de la Santé publie la liste des établissements autorisés à accueillir des patients internationaux (licence IPD) sur son portail du tourisme médical, iht.behdasht.gov.ir. IPD signifie International Patient Department, le service des patients internationaux."
+        },
+        {
+          "type": "p",
+          "text": "Étape 1 : demandez le nom officiel exact de l’établissement et sa ville, et vérifiez si sa licence IPD couvre votre traitement."
+        },
+        {
+          "type": "p",
+          "text": "Étape 2 : recherchez ce nom sur iht.behdasht.gov.ir et assurez-vous qu’il figure sur la liste."
+        },
+        {
+          "type": "p",
+          "text": "Étape 3 : pour un visa médical, assurez-vous que la lettre d’invitation émane d’un établissement autorisé par le ministère de la Santé. Le portail iranien des visas électroniques en fait la condition d’obtention du visa médical (T)."
+        },
+        {
+          "type": "p",
+          "text": "Étape 4 : conservez ensemble le devis écrit, les références de la licence et le plan de traitement."
+        },
+        {
+          "type": "h2",
+          "text": "Comment vérifier un médecin"
+        },
+        {
+          "type": "p",
+          "text": "Demandez la spécialité du médecin traitant et son numéro d’inscription à l’ordre des médecins (شماره نظام پزشکی), puis vérifiez que le nom et la spécialité correspondent. Si un médecin ou un établissement affirme être accrédité par la JCI, demandez le certificat et vérifiez-le sur le site de la JCI. Nous n’avons pas pu confirmer, à partir de l’annuaire de la JCI elle-même, qu’un établissement iranien détienne actuellement une accréditation JCI ; LSevin ne revendique donc cette accréditation pour aucun prestataire."
+        },
+        {
+          "type": "h2",
+          "text": "Signaux d’alerte"
+        },
+        {
+          "type": "p",
+          "text": "Méfiez-vous de toute personne qui vous demande de payer en dehors du paiement ou du portefeuille LSevin, qui ne peut pas vous donner le nom officiel d’un établissement ou qui vous promet un visa sans invitation d’un établissement agréé. Signalez ces situations à l’assistance LSevin avant de payer."
+        },
+        {
+          "type": "quote",
+          "text": "Les licences et les inscriptions évoluent avec le temps. Consultez le registre officiel peu avant la date de votre traitement."
+        }
+      ],
+      "faq": [
+        {
+          "q": "Comment vérifier le sceau Enamad de LSevin ?",
+          "a": "Cliquez sur le sceau affiché sur le site LSevin. Il doit ouvrir la fiche correspondant à l’ID 7764782 sur trustseal.enamad.ir."
+        },
+        {
+          "q": "Le badge Accrédité signifie-t-il que le ministère de la Santé a accrédité le prestataire ?",
+          "a": "Non. Il s’agit d’un indicateur attribué par les administrateurs de LSevin. Pour un traitement en tant que patient international, vérifiez la licence IPD de l’établissement sur iht.behdasht.gov.ir."
+        },
+        {
+          "q": "Un prestataire peut-il ajouter lui-même le badge Accrédité ?",
+          "a": "Non. Seul le personnel de LSevin peut modifier cet indicateur, depuis le panneau d’administration."
+        },
+        {
+          "q": "Où trouver la liste officielle des hôpitaux autorisés à soigner des patients étrangers ?",
+          "a": "Sur le portail du tourisme médical du ministère de la Santé, iht.behdasht.gov.ir, qui recense les établissements titulaires d’une licence IPD."
+        },
+        {
+          "q": "Des hôpitaux iraniens sont-ils accrédités par la JCI ?",
+          "a": "Nous n’avons pas pu le confirmer à partir de l’annuaire de la JCI elle-même ; LSevin ne l’affirme donc pas. Si un établissement déclare l’être, demandez le certificat et vérifiez-le sur le site de la JCI."
+        }
+      ]
+    },
+    "es-ES": {
+      "title": "Licencias y certificaciones",
+      "metaDescription": "Las credenciales que muestra LSevin, qué significa la insignia Acreditado y cómo comprobar usted mismo la licencia IPD de un hospital y el registro de un médico.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Esta página recoge las credenciales que LSevin puede mostrarle, explica las insignias que verá en los perfiles de proveedores y le indica cómo comprobar por su cuenta un hospital, una clínica o un médico antes de pagar o viajar. Solo incluimos lo que podemos documentar. Cuando la comprobación deba hacerse en un registro oficial, le indicamos cuál."
+        },
+        {
+          "type": "h2",
+          "text": "Sello electrónico de confianza Enamad"
+        },
+        {
+          "type": "p",
+          "text": "LSevin muestra el sello electrónico de confianza Enamad con ID 7764782. Enamad es el programa que concede sellos de confianza a los comercios en línea en Irán."
+        },
+        {
+          "type": "p",
+          "text": "Para comprobarlo, haga clic en el sello del sitio de LSevin. Se abrirá el registro del sello en trustseal.enamad.ir, donde puede ver los datos de la empresa registrados en Enamad. Un sello auténtico se abre en el dominio enamad.ir; no confíe en una imagen de sello que no enlace allí."
+        },
+        {
+          "type": "h2",
+          "text": "Para qué está autorizado LSevin y para qué no"
+        },
+        {
+          "type": "p",
+          "text": "LSevin es una plataforma de reservas y coordinación. No es un hospital ni una clínica y no presta tratamiento médico. LSevin tampoco emite visados ni cartas de invitación médica."
+        },
+        {
+          "type": "p",
+          "text": "Para los pacientes que llegan del extranjero, la normativa iraní reparte las funciones. El Ministerio de Salud autoriza a los centros para atender a pacientes internacionales, y las empresas de turismo de salud con licencia del Ministerio de Patrimonio Cultural, Turismo y Artesanía se encargan de traer a los pacientes a Irán y de su regreso. LSevin trabaja dentro de este marco y se coordina con centros y facilitadores autorizados."
+        },
+        {
+          "type": "h2",
+          "text": "Insignias en los perfiles de proveedores"
+        },
+        {
+          "type": "p",
+          "text": "Acreditado: una marca que los administradores de LSevin asignan en el perfil de un proveedor. Los proveedores no pueden activarla por sí mismos, y se gestiona junto con otros ajustes que solo puede modificar el personal. Puede filtrar los resultados de búsqueda, del mapa y de las ofertas para mostrar solo proveedores acreditados."
+        },
+        {
+          "type": "p",
+          "text": "La insignia Acreditado es un distintivo de LSevin. No es una acreditación expedida por el Ministerio de Salud ni por un organismo internacional como JCI. Para recibir tratamiento como paciente internacional, la referencia oficial es la licencia IPD del centro."
+        },
+        {
+          "type": "p",
+          "text": "Certificaciones y afiliaciones: las páginas de especialistas pueden incluir certificaciones de especialidad, fellowships y afiliaciones profesionales. Esta información la facilita el propio médico. Si una credencial concreta es importante para su decisión, pida el certificado."
+        },
+        {
+          "type": "p",
+          "text": "Compra verificada: en la tienda de LSevin, una reseña puede llevar la marca de compra verificada cuando está vinculada a un pedido."
+        },
+        {
+          "type": "h2",
+          "text": "Cómo comprobar un hospital o una clínica"
+        },
+        {
+          "type": "p",
+          "text": "El Ministerio de Salud publica la lista de centros autorizados para atender a pacientes internacionales (licencia IPD) en su portal de turismo de salud, iht.behdasht.gov.ir. IPD son las siglas en inglés de International Patient Department (departamento de pacientes internacionales)."
+        },
+        {
+          "type": "p",
+          "text": "Paso 1: pida el nombre registrado exacto del centro y la ciudad, y pregunte si su licencia IPD cubre su tratamiento."
+        },
+        {
+          "type": "p",
+          "text": "Paso 2: busque ese nombre en iht.behdasht.gov.ir y confirme que figura en la lista."
+        },
+        {
+          "type": "p",
+          "text": "Paso 3: para un visado médico, asegúrese de que la carta de invitación procede de un centro autorizado por el Ministerio de Salud. El portal de visados electrónicos de Irán establece esta condición para el visado médico (T)."
+        },
+        {
+          "type": "p",
+          "text": "Paso 4: guarde juntos el presupuesto por escrito, los datos de la licencia y el plan de tratamiento."
+        },
+        {
+          "type": "h2",
+          "text": "Cómo comprobar a un médico"
+        },
+        {
+          "type": "p",
+          "text": "Pida la especialidad del médico tratante y su número de colegiación en el Consejo Médico (شماره نظام پزشکی), y compruebe que el nombre y la especialidad coinciden. Si un médico o un centro afirma contar con la acreditación JCI, pida el certificado y búsquelo en el sitio web de JCI. No hemos podido confirmar en el directorio de la propia JCI que algún centro iraní tenga actualmente esa acreditación, por lo que LSevin no lo afirma de ningún proveedor."
+        },
+        {
+          "type": "h2",
+          "text": "Señales de alerta"
+        },
+        {
+          "type": "p",
+          "text": "Tenga cuidado con quien le pida pagar fuera del proceso de pago o del monedero de LSevin, no pueda darle el nombre registrado de un centro o le prometa un visado sin la invitación de un centro autorizado. Comuníquelo al soporte de LSevin antes de pagar."
+        },
+        {
+          "type": "quote",
+          "text": "Las licencias y los registros cambian con el tiempo. Consulte el registro oficial en fechas próximas a su tratamiento."
+        }
+      ],
+      "faq": [
+        {
+          "q": "¿Cómo verifico el sello Enamad de LSevin?",
+          "a": "Haga clic en el sello del sitio de LSevin. Debería abrirse el registro del ID 7764782 en trustseal.enamad.ir."
+        },
+        {
+          "q": "¿La insignia Acreditado significa que el Ministerio de Salud ha acreditado al proveedor?",
+          "a": "No. Es una marca que asignan los administradores de LSevin. Para un tratamiento internacional, compruebe la licencia IPD del centro en iht.behdasht.gov.ir."
+        },
+        {
+          "q": "¿Puede un proveedor añadirse la insignia Acreditado por sí mismo?",
+          "a": "No. Solo el personal de LSevin puede cambiar esta marca desde el panel de administración."
+        },
+        {
+          "q": "¿Dónde está la lista oficial de hospitales que pueden atender a pacientes extranjeros?",
+          "a": "En el portal de turismo de salud del Ministerio de Salud, iht.behdasht.gov.ir, que recoge los centros con licencia IPD."
+        },
+        {
+          "q": "¿Hay algún hospital iraní con acreditación JCI?",
+          "a": "No hemos podido confirmarlo en el directorio de la propia JCI, por lo que LSevin no lo afirma. Si un centro dice tenerla, pida el certificado y compruébelo en el sitio web de JCI."
+        }
+      ]
+    }
+  }
+}

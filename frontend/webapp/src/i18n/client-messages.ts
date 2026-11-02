@@ -101,6 +101,8 @@ export const SEGMENT_NAMESPACES = {
   ],
   admin: [
     "Admin",
+    // admin → Editorial: page/FAQ forms and the delete button are client components.
+    "AdminEditorial",
     "ShopAdmin",
     "AdminColumn",
     "AdminGenerated",

@@ -566,7 +566,10 @@ declare const messages: {
       "description": "Buchungsbezogene und manuelle Wallet-Buchungen",
       "title": "Wallet-Transaktionen"
     },
-    "consultationRequests": "Beratungsanfragen"
+    "consultationRequests": "Beratungsanfragen",
+    "nav": {
+      "editorial": "Website-Inhalte"
+    }
   },
   "HomePage": {
     "title": "LSevin | Ärzte, Kliniken & Medizinhotels im Iran buchen",
@@ -13593,6 +13596,107 @@ declare const messages: {
     "previous": "Zurück",
     "next": "Weiter",
     "confirm": "Ausgewählte Dateien verwenden"
+  },
+  "Footer": {
+    "columns": {
+      "policies": {
+        "title": "Richtlinien"
+      }
+    }
+  },
+  "SitePages": {
+    "faqTitle": "Häufig gestellte Fragen",
+    "updated": "Zuletzt aktualisiert",
+    "home": "Startseite",
+    "more": "Über LSevin"
+  },
+  "AdminEditorial": {
+    "heading": "Website-Inhalte",
+    "intro": "Seiten der Website (Über uns, Kontakt, Richtlinien) und die FAQs auf der gesamten Website, in allen Sprachen.",
+    "tabs": {
+      "pages": "Seiten",
+      "faqs": "FAQs"
+    },
+    "pagesHelp": "Eine Seite erscheint auf der Website, sobald sie veröffentlicht ist. Sprachen ohne Übersetzung zeigen die englische Fassung und werden nicht in Suchergebnissen geführt.",
+    "faqsHelp": "Jede FAQ erscheint auf einer Art von Seite. Lassen Sie das konkrete Element leer, um sie auf allen Seiten dieser Art anzuzeigen.",
+    "page": "Seite",
+    "languages": "Sprachen",
+    "status": "Status",
+    "actions": "Aktionen",
+    "edit": "Bearbeiten",
+    "delete": "Löschen",
+    "confirmDelete": "Diese FAQ in allen Sprachen löschen? Dies kann nicht rückgängig gemacht werden.",
+    "deleted": "FAQ gelöscht.",
+    "published": "Veröffentlicht",
+    "publishedHelp": "Sichtbar auf der Website und in Suchergebnissen.",
+    "draft": "Entwurf",
+    "notCreated": "Nicht angelegt",
+    "inFooter": "In der Fußzeile",
+    "showInFooter": "In der Fußzeile anzeigen",
+    "showInFooterHelp": "Diese Seite in der Fußzeile der Website verlinken.",
+    "displayOrder": "Reihenfolge",
+    "editPage": "Seite bearbeiten",
+    "pageUrl": "Adresse",
+    "title": "Titel",
+    "summary": "Zusammenfassung",
+    "summaryHelp": "Ein bis zwei Sätze. Wird als Beschreibung in Suchergebnissen verwendet.",
+    "body": "Seitentext",
+    "bodyHelp": "Gliedern Sie Abschnitte mit Überschriften. Schreiben Sie jede Sprache separat und fügen Sie keine ungeprüften maschinellen Übersetzungen ein.",
+    "heroImage": "Titelbild",
+    "heroImageHelp": "Optional. Aus der Mediathek wählen.",
+    "pickImage": "Bild auswählen",
+    "save": "Speichern",
+    "saving": "Wird gespeichert...",
+    "saved": "Gespeichert.",
+    "back": "Zurück",
+    "viewPage": "Seite ansehen",
+    "newFaq": "Neue FAQ",
+    "editFaq": "FAQ bearbeiten",
+    "faqHelp": "Schreiben Sie Frage und Antwort in jeder Sprache, in der die FAQ erscheinen soll. Eine Sprache mit nur einer Frage oder nur einer Antwort kann nicht gespeichert werden.",
+    "showOn": "Anzeigen auf",
+    "section": "Bereich",
+    "choose": "Auswählen...",
+    "specificItem": "Konkretes Element (optional)",
+    "specificItemHelp": "Elemente mit eigener FAQ zeigen nur diese; alle anderen zeigen die allgemeine.",
+    "allItems": "Alle dieser Art",
+    "currentItem": "Aktuell",
+    "question": "Frage",
+    "answer": "Antwort",
+    "active": "Aktiv",
+    "inactive": "Ausgeblendet",
+    "all": "Alle",
+    "noFaqs": "Hier gibt es noch keine FAQs.",
+    "scopes": {
+      "home": "Startseite",
+      "explore": "Entdecken",
+      "search": "Suche",
+      "map": "Karte",
+      "categories": "Kategorienseite",
+      "provider": "Anbieterseiten",
+      "specialist": "Spezialistenseiten",
+      "service": "Leistungsseiten",
+      "category": "Eine Kategorie",
+      "provider_type": "Ein Anbietertyp",
+      "app": "Bereich (Shop, Touren, Fitnessstudio...)",
+      "site_page": "Eine Website-Seite"
+    },
+    "apps": {
+      "shop": "Shop",
+      "tours": "Touren",
+      "gym": "Fitnessstudios und Fitness",
+      "transfers": "Flughafentransfers"
+    },
+    "pages": {
+      "about-us": "Über uns",
+      "services": "Leistungen",
+      "contact-us": "Kontakt",
+      "licenses-certifications": "Lizenzen und Zertifizierungen",
+      "pricing-fees": "Preise und Gebühren",
+      "shipping-delivery": "Versand und Lieferung",
+      "returns-refunds": "Rückgabe und Erstattung",
+      "terms-conditions": "Allgemeine Geschäftsbedingungen",
+      "privacy-policy": "Datenschutzerklärung"
+    }
   }
 };
 export default messages;

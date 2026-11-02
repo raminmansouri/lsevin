@@ -625,7 +625,10 @@ declare const messages: {
       "description": "Rezervasyona bağlı ve manuel cüzdan defter kayıtları",
       "title": "Cüzdan işlemleri"
     },
-    "consultationRequests": "Danışmanlık talepleri"
+    "consultationRequests": "Danışmanlık talepleri",
+    "nav": {
+      "editorial": "Site içeriği"
+    }
   },
   "HomePage": {
     "title": "LSevin | İran'da Doktor, Klinik ve Sağlık Oteli Rezervasyonu",
@@ -2940,6 +2943,9 @@ declare const messages: {
           "terms": "Kullanım koşulları",
           "privacy": "Gizlilik politikası"
         }
+      },
+      "policies": {
+        "title": "Politikalar"
       }
     }
   },
@@ -14010,6 +14016,100 @@ declare const messages: {
     "previous": "Önceki",
     "next": "Sonraki",
     "confirm": "Seçilen dosyaları kullan"
+  },
+  "SitePages": {
+    "faqTitle": "Sıkça sorulan sorular",
+    "updated": "Son güncelleme",
+    "home": "Ana Sayfa",
+    "more": "LSevin hakkında"
+  },
+  "AdminEditorial": {
+    "heading": "Site içeriği",
+    "intro": "Site sayfaları (Hakkımızda, İletişim, politikalar) ve sitenin her yerinde gösterilen SSS'ler, tüm dillerde.",
+    "tabs": {
+      "pages": "Site sayfaları",
+      "faqs": "SSS"
+    },
+    "pagesHelp": "Bir sayfa yayınlandığında sitede görünür. Çevirisi olmayan dillerde İngilizce sürüm gösterilir ve bu diller arama sonuçlarına dahil edilmez.",
+    "faqsHelp": "Her SSS tek bir sayfa türünde gösterilir. O türdeki tüm sayfalarda göstermek için belirli öğe alanını boş bırakın.",
+    "page": "Sayfa",
+    "languages": "Diller",
+    "status": "Durum",
+    "actions": "İşlemler",
+    "edit": "Düzenle",
+    "delete": "Sil",
+    "confirmDelete": "Bu SSS tüm dillerde silinsin mi? Bu işlem geri alınamaz.",
+    "deleted": "SSS silindi.",
+    "published": "Yayınlandı",
+    "publishedHelp": "Sitede ve arama sonuçlarında görünür.",
+    "draft": "Taslak",
+    "notCreated": "Oluşturulmadı",
+    "inFooter": "Altbilgide",
+    "showInFooter": "Altbilgide göster",
+    "showInFooterHelp": "Site altbilgisinde bu sayfaya bağlantı ver.",
+    "displayOrder": "Sıra",
+    "editPage": "Sayfayı düzenle",
+    "pageUrl": "Adres",
+    "title": "Başlık",
+    "summary": "Özet",
+    "summaryHelp": "Bir iki cümle. Arama sonuçlarında açıklama olarak kullanılır.",
+    "body": "Sayfa metni",
+    "bodyHelp": "Bölümler için başlık kullanın. Her dili ayrı yazın; makine çevirilerini kontrol etmeden yapıştırmayın.",
+    "heroImage": "Üst görsel",
+    "heroImageHelp": "İsteğe bağlı. Medya kitaplığından seçin.",
+    "pickImage": "Görsel seç",
+    "save": "Kaydet",
+    "saving": "Kaydediliyor...",
+    "saved": "Kaydedildi.",
+    "back": "Geri",
+    "viewPage": "Sayfayı görüntüle",
+    "newFaq": "Yeni SSS",
+    "editFaq": "SSS'yi düzenle",
+    "faqHelp": "Soruyu ve cevabı, görünmesini istediğiniz her dilde yazın. Yalnızca sorusu veya yalnızca cevabı olan bir dil kaydedilemez.",
+    "showOn": "Gösterileceği yer",
+    "section": "Bölüm",
+    "choose": "Seçin...",
+    "specificItem": "Belirli öğe (isteğe bağlı)",
+    "specificItemHelp": "Kendi SSS'si olan öğelerde yalnızca o SSS gösterilir; diğerlerinde genel SSS gösterilir.",
+    "allItems": "Bu türün tümü",
+    "currentItem": "Mevcut",
+    "question": "Soru",
+    "answer": "Cevap",
+    "active": "Aktif",
+    "inactive": "Gizli",
+    "all": "Tümü",
+    "noFaqs": "Burada henüz SSS yok.",
+    "scopes": {
+      "home": "Ana sayfa",
+      "explore": "Keşfet",
+      "search": "Arama",
+      "map": "Harita",
+      "categories": "Kategoriler sayfası",
+      "provider": "Hizmet sağlayıcı sayfaları",
+      "specialist": "Uzman sayfaları",
+      "service": "Hizmet sayfaları",
+      "category": "Bir kategori",
+      "provider_type": "Bir sağlayıcı türü",
+      "app": "Bölüm (mağaza, turlar, spor salonu...)",
+      "site_page": "Bir site sayfası"
+    },
+    "apps": {
+      "shop": "Mağaza",
+      "tours": "Turlar",
+      "gym": "Spor salonları ve fitness",
+      "transfers": "Havalimanı transferleri"
+    },
+    "pages": {
+      "about-us": "Hakkımızda",
+      "services": "Hizmetler",
+      "contact-us": "İletişim",
+      "licenses-certifications": "Lisanslar ve sertifikalar",
+      "pricing-fees": "Fiyatlar ve ücretler",
+      "shipping-delivery": "Kargo ve teslimat",
+      "returns-refunds": "İade ve geri ödeme",
+      "terms-conditions": "Şartlar ve koşullar",
+      "privacy-policy": "Gizlilik politikası"
+    }
   }
 };
 export default messages;

@@ -16,6 +16,7 @@ import { getIndexableLocales } from "@/lib/seo/locale-eligibility";
 import { buildPublicMetadata } from "@/lib/seo/metadata";
 
 import SpecialistProfileClient from "./specialist-page";
+import { PageFaq } from "@/features/site-content/components/faq-section";
 
 type Awaitable<T> = T | Promise<T>;
 
@@ -99,6 +100,7 @@ export default async function SpecialistPage({ params }: PageProps) {
         )}
       />
       <SpecialistProfileClient data={data} specialistId={id} locale={locale} />
+      <PageFaq target={{ scope: "specialist", entityId: id }} locale={locale} pageUrl={specialistUrl(locale, id)} />
     </>
   );
 }

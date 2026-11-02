@@ -1,16 +1,26 @@
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 
+import type { FooterPageLink, SitePageSlug } from "@/features/site-content/types";
 import { Link } from "@/i18n/navigation";
 
 import { BackToTop, Reveal } from "./motion";
 
 
 
-/** Desktop-only footer (>= 1280px). */
-export function DesktopFooter() {
+const COMPANY_PAGES: readonly SitePageSlug[] = ["about-us", "services", "contact-us", "licenses-certifications"];
+
+/**
+ * Desktop-only footer (>= 1280px). `pages` are the published editorial pages
+ * (admin → Editorial); without them the footer keeps its built-in links.
+ */
+export function DesktopFooter({ pages = [] }: { pages?: FooterPageLink[] }) {
   const t = useTranslations("Footer");
   const year = new Date().getFullYear();
+  const toLink = (page: FooterPageLink) => ({ href: `/${page.slug}`, label: page.title });
+  const published = new Set(pages.map((page) => page.slug));
+  const companyPages = pages.filter((page) => COMPANY_PAGES.includes(page.slug)).map(toLink);
+  const policyPages = pages.filter((page) => !COMPANY_PAGES.includes(page.slug)).map(toLink);
 
   const columns = [
     {
@@ -25,9 +35,15 @@ export function DesktopFooter() {
     {
       title: t("columns.company.title"),
       links: [
-        { href: "/n/app/mobile/support", label: t("columns.company.links.contact") },
-        { href: "/n/app/mobile/profile/privacy-policy", label: t("columns.company.links.privacy") },
+        ...companyPages,
+        ...(published.has("contact-us") ? [] : [{ href: "/n/app/mobile/support", label: t("columns.company.links.contact") }]),
       ],
+    },
+    {
+      title: t("columns.policies.title"),
+      links: published.has("privacy-policy")
+        ? policyPages
+        : [...policyPages, { href: "/privacy-policy", label: t("columns.company.links.privacy") }],
     },
   ];
 
@@ -41,7 +57,7 @@ export function DesktopFooter() {
         </span>
       </div>
 
-      <div className="lsd-container relative grid grid-cols-[1.5fr_1fr_1fr_auto] gap-14 pb-14 pt-14">
+      <div className="lsd-container relative grid grid-cols-[1.5fr_1fr_1fr_1fr] gap-14 pb-14 pt-14">
         <Reveal className="space-y-5">
           <Link href="/n/app/mobile/home" className="flex w-fit items-center gap-3">
             <Image src="/brand/lsevin-mark-reversed.png" alt="" width={30} height={42} />

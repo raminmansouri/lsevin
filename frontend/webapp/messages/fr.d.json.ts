@@ -566,7 +566,10 @@ declare const messages: {
       "description": "Écritures du portefeuille liées à une réservation ou saisies manuellement",
       "title": "Transactions du portefeuille"
     },
-    "consultationRequests": "Demandes de consultation"
+    "consultationRequests": "Demandes de consultation",
+    "nav": {
+      "editorial": "Contenu du site"
+    }
   },
   "HomePage": {
     "title": "LSevin | Médecins, cliniques et hôtels médicaux en Iran",
@@ -13593,6 +13596,107 @@ declare const messages: {
     "previous": "Précédent",
     "next": "Suivant",
     "confirm": "Utiliser les fichiers sélectionnés"
+  },
+  "Footer": {
+    "columns": {
+      "policies": {
+        "title": "Politiques"
+      }
+    }
+  },
+  "SitePages": {
+    "faqTitle": "Questions fréquentes",
+    "updated": "Dernière mise à jour",
+    "home": "Accueil",
+    "more": "À propos de LSevin"
+  },
+  "AdminEditorial": {
+    "heading": "Contenu du site",
+    "intro": "Les pages du site (À propos, Contact, politiques) et les FAQ affichées sur l'ensemble du site, dans toutes les langues.",
+    "tabs": {
+      "pages": "Pages du site",
+      "faqs": "FAQ"
+    },
+    "pagesHelp": "Une page apparaît sur le site dès sa publication. Les langues sans traduction affichent la version anglaise et sont exclues des résultats de recherche.",
+    "faqsHelp": "Chaque FAQ s'affiche sur un type de page. Laissez l'élément précis vide pour l'afficher sur toutes les pages de ce type.",
+    "page": "Page",
+    "languages": "Langues",
+    "status": "Statut",
+    "actions": "Actions",
+    "edit": "Modifier",
+    "delete": "Supprimer",
+    "confirmDelete": "Supprimer cette FAQ dans toutes les langues ? Cette action est irréversible.",
+    "deleted": "FAQ supprimée.",
+    "published": "Publié",
+    "publishedHelp": "Visible sur le site et dans les résultats de recherche.",
+    "draft": "Brouillon",
+    "notCreated": "Non créée",
+    "inFooter": "Dans le pied de page",
+    "showInFooter": "Afficher dans le pied de page",
+    "showInFooterHelp": "Ajouter un lien vers cette page dans le pied de page du site.",
+    "displayOrder": "Ordre",
+    "editPage": "Modifier la page",
+    "pageUrl": "Adresse",
+    "title": "Titre",
+    "summary": "Résumé",
+    "summaryHelp": "Une ou deux phrases. Utilisé comme description dans les résultats de recherche.",
+    "body": "Texte de la page",
+    "bodyHelp": "Utilisez des titres pour les sections. Rédigez chaque langue séparément ; ne collez pas de traductions automatiques sans les relire.",
+    "heroImage": "Image d'en-tête",
+    "heroImageHelp": "Facultatif. À choisir dans la médiathèque.",
+    "pickImage": "Choisir une image",
+    "save": "Enregistrer",
+    "saving": "Enregistrement...",
+    "saved": "Enregistré.",
+    "back": "Retour",
+    "viewPage": "Voir la page",
+    "newFaq": "Nouvelle FAQ",
+    "editFaq": "Modifier la FAQ",
+    "faqHelp": "Rédigez la question et la réponse dans chaque langue où elle doit apparaître. Une langue avec seulement une question ou seulement une réponse ne peut pas être enregistrée.",
+    "showOn": "Afficher sur",
+    "section": "Rubrique",
+    "choose": "Choisir...",
+    "specificItem": "Élément précis (facultatif)",
+    "specificItemHelp": "Les éléments qui ont leur propre FAQ n'affichent que celle-ci ; les autres affichent la FAQ générale.",
+    "allItems": "Tous ceux de ce type",
+    "currentItem": "Actuel",
+    "question": "Question",
+    "answer": "Réponse",
+    "active": "Active",
+    "inactive": "Masquée",
+    "all": "Toutes",
+    "noFaqs": "Aucune FAQ ici pour le moment.",
+    "scopes": {
+      "home": "Page d'accueil",
+      "explore": "Explorer",
+      "search": "Recherche",
+      "map": "Carte",
+      "categories": "Page des catégories",
+      "provider": "Pages des prestataires",
+      "specialist": "Pages des spécialistes",
+      "service": "Pages des services",
+      "category": "Une catégorie",
+      "provider_type": "Un type de prestataire",
+      "app": "Rubrique (boutique, circuits, salles de sport...)",
+      "site_page": "Une page du site"
+    },
+    "apps": {
+      "shop": "Boutique",
+      "tours": "Circuits",
+      "gym": "Salles de sport et fitness",
+      "transfers": "Transferts aéroport"
+    },
+    "pages": {
+      "about-us": "À propos",
+      "services": "Services",
+      "contact-us": "Contact",
+      "licenses-certifications": "Licences et certifications",
+      "pricing-fees": "Tarifs et frais",
+      "shipping-delivery": "Expédition et livraison",
+      "returns-refunds": "Retours et remboursements",
+      "terms-conditions": "Conditions générales",
+      "privacy-policy": "Politique de confidentialité"
+    }
   }
 };
 export default messages;

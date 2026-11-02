@@ -1,0 +1,307 @@
+{
+  "scope": "app",
+  "entityKey": "shop",
+  "sources": [
+    "messages/en.json Shop.addToCart / buyNow / selectVariantFirst / proceedToCheckout / shippingAddress / deliveryMethod / paymentMethod / placeOrder: order flow",
+    "src/lib/auth/routes.ts protectedSegments includes 'checkout': sign-in required at /n/app/mobile/shop/checkout",
+    "messages/en.json Shop.preorderShipsAfter / preorderDeposit / preorderProforma: pre-order shipping date and deposit",
+    "src/features/shop/server/shop-payment.service.ts: online gateway or manual bank_transfer; bank transfer confirmed after verification",
+    "messages/en.json Shop.bankTransferInstructions / checkoutHints.retryNotice / orderPaymentFailed: retry payment without a new order",
+    "messages/en.json Shop.checkoutHints.delivery / noDelivery / shipping / freeShipping: delivery depends on address; shipping line or Free",
+    "src/features/shop/components/OrderView.tsx: tracking number and carrier on the order page; messages Shop.myOrders",
+    "src/features/shop/server/returns.service.ts: cancel allowed in pending/awaiting_payment/paid/processing; paid cancellations do not auto-refund (refund_pending, team runs refund); returns need shipped/partially_shipped/completed order",
+    "messages/en.json Shop.cancelOrder / refundPendingNote / requestReturn / returnReason / returnSubmitted / returnsHeading",
+    "src/app/[locale]/n/app/mobile/shop/product/[slug]/page.tsx + Consultation.cta.beforePurchase: free consultation before buying",
+    "src/features/shop/components/CompareButton.tsx + WishlistHeart.tsx: compare and wishlist"
+  ],
+  "items": [
+    {
+      "locales": {
+        "en-US": {
+          "q": "How do I order from the LSevin shop?",
+          "a": "Open a product, choose an option if it has variants, and tap “Add to cart” or “Buy now”. In the cart tap “Proceed to checkout”, enter or pick a “Shipping address”, choose a “Delivery method” and a “Payment method”, then tap “Place order”. You need to be signed in at checkout. Items marked “Pre-order” ship after the date shown and may take a deposit now, with the balance due before dispatch."
+        },
+        "fa-IR": {
+          "q": "چطور از فروشگاه السوین سفارش بدهم؟",
+          "a": "صفحهٔ محصول را باز کنید، اگر گزینه‌های مختلف دارد یکی را انتخاب کنید و «افزودن به سبد» یا «خرید فوری» را بزنید. در سبد خرید روی «ادامه و تسویه» بزنید، «آدرس ارسال» را وارد یا انتخاب کنید، «روش ارسال» و «روش پرداخت» را برگزینید و بعد «ثبت سفارش» را بزنید. برای تسویه باید وارد حساب خود شوید. کالاهای «پیش‌خرید» پس از تاریخ اعلام‌شده ارسال می‌شوند و ممکن است بخشی از مبلغ را اکنون و مابقی را پیش از ارسال بپردازید."
+        },
+        "ar-SA": {
+          "q": "كيف أطلب من متجر لسوين؟",
+          "a": "افتح صفحة المنتج، واختر أحد الخيارات إن كانت له أنواع متعددة، ثم اضغط «أضف إلى السلة» أو «اشترِ الآن». في السلة اضغط «المتابعة للدفع»، وأدخل «عنوان الشحن» أو اختره، ثم اختر «طريقة التوصيل» و«طريقة الدفع» واضغط «تأكيد الطلب». يلزم تسجيل الدخول عند الدفع. وتُشحن منتجات «طلب مسبق» بعد التاريخ المعروض، وقد يُطلب عربون الآن والباقي قبل الشحن."
+        },
+        "tr-TR": {
+          "q": "LSevin mağazasından nasıl sipariş veririm?",
+          "a": "Bir ürünü açın, varyantları varsa bir seçenek belirleyin ve “Sepete ekle” veya “Hemen al”a dokunun. Sepette “Ödemeye geç”e dokunun, bir “Teslimat adresi” girin veya seçin, bir “Teslimat yöntemi” ve bir “Ödeme yöntemi” belirleyin, ardından “Siparişi tamamla”ya dokunun. Ödeme adımında giriş yapmış olmanız gerekir. “Ön sipariş” işaretli ürünler gösterilen tarihten sonra kargoya verilir; bunlar için şimdi bir depozito alınabilir ve kalan tutar gönderimden önce ödenir."
+        },
+        "ku-KU": {
+          "q": "چۆن لە فرۆشگای LSevin داواکاری بکەم؟",
+          "a": "بەرهەمێک بکەنەوە، ئەگەر جۆری جیاوازی هەبێت بژاردەیەک هەڵبژێرن، و کرتە لەسەر «زیادکردن بۆ سەبەتە» یان «ئێستا بیکڕە» بکەن. لە سەبەتەدا کرتە لەسەر «بەردەوامبوون بۆ پارەدان» بکەن، «ناونیشانی گەیاندن» بنووسن یان هەڵبژێرن، «شێوازی گەیاندن» و «شێوازی پارەدان» دیاری بکەن، پاشان کرتە لەسەر «تۆمارکردنی داواکاری» بکەن. لە کاتی پارەداندا پێویستە چووبنە ژوورەوە. ئەو کاڵایانەی نیشانەی «پێش‌داواکاری»یان لەسەرە دوای ئەو بەروارەی پیشان دراوە دەنێردرێن و لەوانەیە ئێستا پێشەکییەک وەربگرن و ماوەکەی پێش ناردن بدرێت."
+        },
+        "ru-RU": {
+          "q": "Как сделать заказ в магазине LSevin?",
+          "a": "Откройте товар, выберите вариант, если их несколько, и нажмите «В корзину» или «Купить сейчас». В корзине нажмите «Перейти к оформлению», введите или выберите «Адрес доставки», выберите «Способ доставки» и «Способ оплаты», затем нажмите «Оформить заказ». Для оформления нужно войти в аккаунт. Товары с пометкой «Предзаказ» отправляются после указанной даты; за них может взиматься предоплата сейчас, а остаток нужно внести до отправки."
+        },
+        "tg-TJ": {
+          "q": "Чӣ тавр аз мағозаи LSevin фармоиш диҳам?",
+          "a": "Маҳсулотро кушоед, агар вариантҳо дошта бошад, яке аз онҳоро интихоб кунед ва «Ба сабад илова кардан» ё «Ҳозир харидан»-ро пахш кунед. Дар сабад «Гузаштан ба пардохт»-ро пахш кунед, «Суроғаи расонидан»-ро ворид ё интихоб кунед, «Усули расонидан» ва «Усули пардохт»-ро интихоб намоед, баъд «Сабти фармоиш»-ро пахш кунед. Ҳангоми ба расмият даровардани фармоиш бояд ворид шуда бошед. Молҳое, ки нишони «Пешфармоиш» доранд, пас аз санаи нишондодашуда фиристода мешаванд ва метавонанд ҳозир пешпардохт талаб кунанд, ки боқимондаи он пеш аз фиристодан пардохт мешавад."
+        },
+        "zh-CN": {
+          "q": "如何在LSevin商店下单？",
+          "a": "打开商品页面，如有多个规格请先选择，然后点击“加入购物车”或“立即购买”。在购物车中点击“去结算”，填写或选择“收货地址”，选择“配送方式”和“支付方式”，然后点击“提交订单”。结算时需要登录。标有“预售”的商品会在所示日期之后发货，可能需要现在支付定金，尾款在发货前支付。"
+        },
+        "de-DE": {
+          "q": "Wie bestelle ich im LSevin Shop?",
+          "a": "Öffnen Sie ein Produkt, wählen Sie eine Variante, falls es mehrere gibt, und tippen Sie auf „In den Warenkorb“ oder „Jetzt kaufen“. Tippen Sie im Warenkorb auf „Zur Kasse“, geben Sie eine „Lieferadresse“ ein oder wählen Sie eine aus, wählen Sie eine „Versandart“ und eine „Zahlungsmethode“ und tippen Sie dann auf „Bestellung aufgeben“. An der Kasse müssen Sie angemeldet sein. Als „Vorbestellung“ gekennzeichnete Artikel werden nach dem angegebenen Datum versendet; dafür kann jetzt eine Anzahlung fällig werden, der Restbetrag vor dem Versand."
+        },
+        "fr-FR": {
+          "q": "Comment commander dans la boutique LSevin ?",
+          "a": "Ouvrez un produit, choisissez une option s’il existe des variantes, puis touchez « Ajouter au panier » ou « Acheter maintenant ». Dans le panier, touchez « Passer la commande », saisissez ou choisissez une « Adresse de livraison », sélectionnez un « Mode de livraison » et un « Moyen de paiement », puis touchez « Valider la commande ». Vous devez être connecté au moment du paiement. Les articles marqués « Précommande » sont expédiés après la date indiquée et peuvent nécessiter un acompte dès maintenant, le solde étant dû avant l’expédition."
+        },
+        "es-ES": {
+          "q": "¿Cómo hago un pedido en la tienda de LSevin?",
+          "a": "Abra un producto, elija una opción si tiene variantes y toque «Añadir al carrito» o «Comprar ahora». En el carrito, toque «Finalizar compra», introduzca o elija una «Dirección de envío», seleccione un «Método de envío» y un «Método de pago», y toque «Realizar pedido». Para finalizar la compra debe haber iniciado sesión. Los artículos marcados como «Reserva anticipada» se envían después de la fecha indicada y pueden requerir ahora un depósito, con el resto a pagar antes del envío."
+        }
+      }
+    },
+    {
+      "locales": {
+        "en-US": {
+          "q": "Which payment methods does the shop accept?",
+          "a": "The methods available for your order are listed at checkout under “Payment method”, and can include online payment through a payment gateway and bank transfer. With bank transfer, LSevin shows the amount and account details, and the order is confirmed once the payment is verified. If an online payment doesn't go through, your order stays saved and you can retry payment without placing a second order."
+        },
+        "fa-IR": {
+          "q": "فروشگاه چه روش‌های پرداختی را می‌پذیرد؟",
+          "a": "روش‌هایی که برای سفارش شما در دسترس است هنگام تسویه زیر «روش پرداخت» نمایش داده می‌شود و می‌تواند شامل پرداخت آنلاین از طریق درگاه و واریز بانکی باشد. در واریز بانکی، السوین مبلغ و مشخصات حساب را نشان می‌دهد و سفارش پس از تأیید پرداخت نهایی می‌شود. اگر پرداخت آنلاین انجام نشود، سفارش شما ثبت‌شده باقی می‌ماند و می‌توانید بدون ثبت سفارش تکراری دوباره پرداخت کنید."
+        },
+        "ar-SA": {
+          "q": "ما طرق الدفع التي يقبلها المتجر؟",
+          "a": "تظهر طرق الدفع المتاحة لطلبك عند إتمام الشراء تحت «طريقة الدفع»، وقد تشمل الدفع الإلكتروني عبر بوابة دفع والتحويل المصرفي. في التحويل المصرفي تعرض لسوين المبلغ وبيانات الحساب، ويتم تأكيد الطلب بعد التحقق من الدفع. وإذا لم تكتمل عملية الدفع الإلكتروني يبقى طلبك محفوظًا، ويمكنك إعادة محاولة الدفع دون إنشاء طلب آخر."
+        },
+        "tr-TR": {
+          "q": "Mağaza hangi ödeme yöntemlerini kabul ediyor?",
+          "a": "Siparişiniz için kullanılabilen yöntemler ödeme adımında “Ödeme yöntemi” altında listelenir; bunlar arasında bir ödeme altyapısı üzerinden online ödeme ve banka havalesi olabilir. Banka havalesinde LSevin tutarı ve hesap bilgilerini gösterir; sipariş, ödeme doğrulandığında onaylanır. Online ödeme gerçekleşmezse siparişiniz kayıtlı kalır ve ikinci bir sipariş vermeden ödemeyi yeniden deneyebilirsiniz."
+        },
+        "ku-KU": {
+          "q": "فرۆشگا کام شێوازەکانی پارەدان وەردەگرێت؟",
+          "a": "ئەو شێوازانەی بۆ داواکارییەکەتان بەردەستن لە کاتی پارەداندا لە ژێر «شێوازی پارەدان» پیشان دەدرێن، و دەکرێت پارەدانی ئۆنلاین لە ڕێگەی دەروازەی پارەدانەوە و گواستنەوەی بانکی لەخۆ بگرن. بە گواستنەوەی بانکی، LSevin بڕەکە و زانیاریی هەژمارەکە پیشان دەدات، و داواکارییەکە دوای پشتڕاستکردنەوەی پارەدانەکە پشتڕاست دەکرێتەوە. ئەگەر پارەدانێکی ئۆنلاین سەرکەوتوو نەبوو، داواکارییەکەتان پاشەکەوت دەمێنێتەوە و دەتوانن بەبێ تۆمارکردنی داواکارییەکی دووەم دووبارە پارە بدەن."
+        },
+        "ru-RU": {
+          "q": "Какие способы оплаты принимает магазин?",
+          "a": "Способы оплаты, доступные для Вашего заказа, перечислены при оформлении в разделе «Способ оплаты»; среди них могут быть онлайн-оплата через платёжный шлюз и банковский перевод. При банковском переводе LSevin показывает сумму и реквизиты счёта, а заказ подтверждается после проверки платежа. Если онлайн-оплата не прошла, заказ остаётся сохранённым, и оплату можно повторить, не оформляя второй заказ."
+        },
+        "tg-TJ": {
+          "q": "Мағоза кадом усулҳои пардохтро қабул мекунад?",
+          "a": "Усулҳое, ки барои фармоиши шумо дастрасанд, ҳангоми пардохт дар зери «Усули пардохт» нишон дода мешаванд ва метавонанд пардохти онлайн тавассути дарвозаи пардохт ва интиқоли бонкиро дар бар гиранд. Ҳангоми интиқоли бонкӣ LSevin маблағ ва маълумоти ҳисобро нишон медиҳад ва фармоиш пас аз санҷидани пардохт тасдиқ мешавад. Агар пардохти онлайн анҷом наёбад, фармоиши шумо нигоҳ дошта мешавад ва метавонед бе сабти фармоиши дуюм пардохтро аз нав анҷом диҳед."
+        },
+        "zh-CN": {
+          "q": "商店支持哪些支付方式？",
+          "a": "您的订单可用的支付方式会在结算时列于“支付方式”下，可能包括通过支付网关在线支付和银行转账。选择银行转账时，LSevin会显示应付金额和收款账户信息，款项核验后订单即被确认。如果在线支付未成功，您的订单仍会保留，可以重新付款，无需再次下单。"
+        },
+        "de-DE": {
+          "q": "Welche Zahlungsmethoden akzeptiert der Shop?",
+          "a": "Die für Ihre Bestellung verfügbaren Methoden stehen an der Kasse unter „Zahlungsmethode“; möglich sind Online-Zahlung über ein Zahlungsgateway und Banküberweisung. Bei einer Banküberweisung zeigt LSevin den Betrag und die Kontodaten an, und die Bestellung wird bestätigt, sobald die Zahlung geprüft ist. Geht eine Online-Zahlung nicht durch, bleibt Ihre Bestellung gespeichert, und Sie können die Zahlung wiederholen, ohne eine zweite Bestellung aufzugeben."
+        },
+        "fr-FR": {
+          "q": "Quels moyens de paiement la boutique accepte-t-elle ?",
+          "a": "Les moyens disponibles pour votre commande s’affichent au moment du paiement sous « Moyen de paiement » ; il peut s’agir du paiement en ligne via une passerelle de paiement et du virement bancaire. Pour un virement bancaire, LSevin affiche le montant et les coordonnées du compte, et la commande est confirmée une fois le paiement vérifié. Si un paiement en ligne n’aboutit pas, votre commande reste enregistrée et vous pouvez relancer le paiement sans passer une deuxième commande."
+        },
+        "es-ES": {
+          "q": "¿Qué métodos de pago acepta la tienda?",
+          "a": "Los métodos disponibles para su pedido aparecen al finalizar la compra, en «Método de pago», y pueden incluir el pago en línea a través de una pasarela de pago y la transferencia bancaria. Con la transferencia bancaria, LSevin le muestra el importe y los datos de la cuenta, y el pedido se confirma una vez verificado el pago. Si un pago en línea no se completa, su pedido queda guardado y puede volver a intentar el pago sin hacer un segundo pedido."
+        }
+      }
+    },
+    {
+      "locales": {
+        "en-US": {
+          "q": "How much does delivery cost, and where do you deliver?",
+          "a": "Delivery options and their cost depend on your address, so they appear at checkout once you enter it. The order summary shows the shipping charge, or “Free” when there isn't one. If you see “Delivery is unavailable for this address”, the shop can't deliver there yet, so try another address. After your order ships, the tracking number and carrier appear on the order in “My orders”."
+        },
+        "fa-IR": {
+          "q": "هزینهٔ ارسال چقدر است و به کجا ارسال می‌کنید؟",
+          "a": "روش‌های ارسال و هزینهٔ آن‌ها به آدرس شما بستگی دارد و پس از وارد کردن آدرس در مرحلهٔ تسویه نمایش داده می‌شود. در خلاصهٔ سفارش، «هزینه ارسال» یا در صورت نبود هزینه، «رایگان» را می‌بینید. اگر پیام «ارسال به این نشانی امکان‌پذیر نیست» را دیدید، فعلاً به آن نشانی ارسال نداریم و باید نشانی دیگری را امتحان کنید. پس از ارسال سفارش، «کد رهگیری» و «شرکت حمل» در «سفارش‌های من» نمایش داده می‌شود."
+        },
+        "ar-SA": {
+          "q": "كم تكلفة التوصيل، وإلى أين توصلون؟",
+          "a": "تعتمد خيارات التوصيل وتكلفتها على عنوانك، لذلك تظهر عند إتمام الشراء بعد إدخاله. ويعرض ملخص الطلب رسوم الشحن، أو «مجاني» عندما لا توجد رسوم. وإذا ظهرت رسالة «التوصيل غير متاح لهذا العنوان» فلا يمكن التوصيل إليه حاليًا، فجرّب عنوانًا آخر. وبعد شحن طلبك يظهر «رقم التتبع» و«شركة الشحن» في الطلب ضمن «طلباتي»."
+        },
+        "tr-TR": {
+          "q": "Teslimat ne kadar tutar ve nereye teslimat yapıyorsunuz?",
+          "a": "Teslimat seçenekleri ve ücretleri adresinize bağlıdır; bu nedenle adresinizi girdiğinizde ödeme adımında görünür. Sipariş özeti kargo ücretini, ücret yoksa “Ücretsiz” ibaresini gösterir. “Bu adrese teslimat yapılamıyor” mesajını görürseniz mağaza oraya henüz teslimat yapamıyor demektir; başka bir adres deneyin. Siparişiniz kargoya verildikten sonra takip numarası ve kargo firması “Siparişlerim” bölümündeki siparişte görünür."
+        },
+        "ku-KU": {
+          "q": "گەیاندن چەندی تێدەچێت، و بۆ کوێ دەگەیەنن؟",
+          "a": "بژاردەکانی گەیاندن و تێچووەکانیان بەندن بە ناونیشانەکەتان، بۆیە لە کاتی پارەداندا دوای نووسینی ناونیشان دەردەکەون. پوختەی داواکارییەکە کرێی ناردن پیشان دەدات، یان «بەخۆڕایی» ئەگەر کرێی نەبێت. ئەگەر «گەیاندن بۆ ئەم ناونیشانە بەردەست نییە» دەبینن، فرۆشگا هێشتا ناتوانێت بۆ ئەوێ بگەیەنێت، بۆیە ناونیشانێکی تر تاقی بکەنەوە. دوای ناردنی داواکارییەکەتان، ژمارەی بەدواداچوون و کۆمپانیای گەیاندن لەسەر داواکارییەکە لە «داواکارییەکانم» دەردەکەون."
+        },
+        "ru-RU": {
+          "q": "Сколько стоит доставка и куда вы доставляете?",
+          "a": "Варианты доставки и их стоимость зависят от Вашего адреса, поэтому они появляются при оформлении после ввода адреса. В сводке заказа указана стоимость доставки или «Бесплатно», если платы нет. Если Вы видите сообщение «Доставка по этому адресу недоступна», магазин пока не может туда доставить; попробуйте другой адрес. После отправки заказа трек-номер и перевозчик отображаются в заказе в разделе «Мои заказы»."
+        },
+        "tg-TJ": {
+          "q": "Расонидан чӣ қадар арзиш дорад ва шумо ба куҷо мерасонед?",
+          "a": "Имконоти расонидан ва нархи онҳо аз суроғаи шумо вобастаанд, бинобар ин онҳо ҳангоми пардохт, пас аз ворид кардани суроға пайдо мешаванд. Дар хулосаи фармоиш ҳаққи расонидан ё, агар он набошад, «Ройгон» нишон дода мешавад. Агар «Расонидан ба ин суроға дастрас нест»-ро бинед, мағоза ҳанӯз ба он ҷо расонида наметавонад, бинобар ин суроғаи дигарро санҷед. Пас аз фиристодани фармоиш рақами пайгирӣ ва ширкати расонанда дар фармоиш дар «Фармоишҳои ман» нишон дода мешаванд."
+        },
+        "zh-CN": {
+          "q": "配送费是多少？可以配送到哪些地方？",
+          "a": "配送选项和费用取决于您的地址，因此会在您填写地址后于结算时显示。订单摘要会显示运费，如无运费则显示“免费”。如果看到“此地址暂不支持配送”，说明商店目前无法配送到该地址，请尝试其他地址。订单发货后，物流单号和承运商会显示在“我的订单”中的该订单下。"
+        },
+        "de-DE": {
+          "q": "Was kostet der Versand, und wohin liefern Sie?",
+          "a": "Versandoptionen und ihre Kosten hängen von Ihrer Adresse ab und erscheinen daher an der Kasse, sobald Sie sie eingegeben haben. Die Bestellübersicht zeigt die Versandkosten oder „Kostenlos“, wenn keine anfallen. Wenn Sie „Lieferung an diese Adresse nicht möglich“ sehen, kann der Shop dorthin noch nicht liefern; versuchen Sie es mit einer anderen Adresse. Nach dem Versand erscheinen Sendungsnummer und Versanddienstleister bei der Bestellung unter „Meine Bestellungen“."
+        },
+        "fr-FR": {
+          "q": "Combien coûte la livraison, et où livrez-vous ?",
+          "a": "Les options de livraison et leur coût dépendent de votre adresse : elles s’affichent donc au moment du paiement, une fois l’adresse saisie. Le récapitulatif de la commande indique les frais de livraison, ou « Gratuit » lorsqu’il n’y en a pas. Si vous voyez « La livraison n’est pas disponible pour cette adresse », la boutique ne peut pas encore y livrer : essayez une autre adresse. Une fois la commande expédiée, le numéro de suivi et le transporteur apparaissent sur la commande dans « Mes commandes »."
+        },
+        "es-ES": {
+          "q": "¿Cuánto cuesta el envío y adónde entregan?",
+          "a": "Las opciones de envío y su coste dependen de su dirección, por lo que aparecen al finalizar la compra, una vez que la introduce. El resumen del pedido muestra el coste de envío, o «Gratis» cuando no lo hay. Si ve «La entrega no está disponible para esta dirección», la tienda todavía no puede entregar allí; pruebe con otra dirección. Cuando su pedido se envía, el número de seguimiento y el transportista aparecen en el pedido, dentro de «Mis pedidos»."
+        }
+      }
+    },
+    {
+      "locales": {
+        "en-US": {
+          "q": "Can I cancel a shop order?",
+          "a": "Yes, until fulfilment starts. Open the order in “My orders” and tap “Cancel order”. If you had already paid, the refund isn't automatic: the LSevin team processes it, and the order shows that a refund is pending. Once the order has shipped it can no longer be cancelled, but you can request a return instead."
+        },
+        "fa-IR": {
+          "q": "آیا می‌توانم سفارش فروشگاه را لغو کنم؟",
+          "a": "بله، تا پیش از شروع آماده‌سازی و ارسال. سفارش را در «سفارش‌های من» باز کنید و «لغو سفارش» را بزنید. اگر مبلغ را پرداخت کرده باشید، بازپرداخت خودکار نیست؛ تیم السوین آن را انجام می‌دهد و در سفارش نشان داده می‌شود که بازپرداخت در جریان است. بعد از ارسال، سفارش دیگر قابل لغو نیست، اما می‌توانید درخواست مرجوعی ثبت کنید."
+        },
+        "ar-SA": {
+          "q": "هل يمكنني إلغاء طلب من المتجر؟",
+          "a": "نعم، قبل بدء تجهيز الطلب. افتح الطلب في «طلباتي» واضغط «إلغاء الطلب». وإذا كنت قد دفعت، فلا يُسترد المبلغ تلقائيًا، بل يعالج فريق لسوين الاسترداد ويظهر في الطلب أنه قيد المعالجة. وبعد شحن الطلب لا يمكن إلغاؤه، لكن يمكنك تقديم طلب إرجاع."
+        },
+        "tr-TR": {
+          "q": "Bir mağaza siparişini iptal edebilir miyim?",
+          "a": "Evet, sipariş hazırlanmaya başlayana kadar. Siparişi “Siparişlerim” bölümünde açın ve “Siparişi iptal et”e dokunun. Ödemeyi zaten yaptıysanız geri ödeme otomatik değildir: İşlemi LSevin ekibi yapar ve siparişte geri ödemenin beklemede olduğu görünür. Sipariş kargoya verildikten sonra artık iptal edilemez, ancak bunun yerine iade talebi oluşturabilirsiniz."
+        },
+        "ku-KU": {
+          "q": "دەتوانم داواکارییەکی فرۆشگا هەڵبوەشێنمەوە؟",
+          "a": "بەڵێ، تا ئامادەکردنی دەست پێ دەکات. داواکارییەکە لە «داواکارییەکانم» بکەنەوە و کرتە لەسەر «هەڵوەشاندنەوەی داواکاری» بکەن. ئەگەر پێشتر پارەتان داوە، گەڕاندنەوەی پارە خۆکار نییە: تیمی LSevin جێبەجێی دەکات، و داواکارییەکە پیشان دەدات کە گەڕاندنەوەی پارە لە چاوەڕوانیدایە. کاتێک داواکارییەکە نێردرا ئیتر هەڵناوەشێتەوە، بەڵام دەتوانن لە جیاتی ئەوە داوای گەڕاندنەوەی کاڵا بکەن."
+        },
+        "ru-RU": {
+          "q": "Можно ли отменить заказ в магазине?",
+          "a": "Да, пока не началась его комплектация. Откройте заказ в разделе «Мои заказы» и нажмите «Отменить заказ». Если Вы уже оплатили заказ, возврат средств не происходит автоматически: его обрабатывает команда LSevin, а в заказе отображается, что возврат ожидается. После отправки заказ отменить нельзя, но вместо этого можно оформить возврат."
+        },
+        "tg-TJ": {
+          "q": "Оё фармоиши мағозаро бекор карда метавонам?",
+          "a": "Бале, то оғози иҷрои фармоиш. Фармоишро дар «Фармоишҳои ман» кушоед ва «Бекор кардани фармоиш»-ро пахш кунед. Агар аллакай пардохт карда бошед, маблағ худкор баргардонида намешавад: гурӯҳи LSevin онро коркард мекунад ва дар фармоиш нишон дода мешавад, ки бозгардонии маблағ дар интизорӣ аст. Пас аз фиристодани фармоиш онро дигар бекор кардан мумкин нест, вале метавонед ба ҷои ин баргардониданро дархост кунед."
+        },
+        "zh-CN": {
+          "q": "商店订单可以取消吗？",
+          "a": "可以，在开始履约之前都能取消。在“我的订单”中打开该订单，点击“取消订单”。如果您已付款，退款不会自动进行，而是由LSevin团队处理，订单会显示退款待处理。订单发货后便无法取消，但您可以改为申请退货。"
+        },
+        "de-DE": {
+          "q": "Kann ich eine Shop-Bestellung stornieren?",
+          "a": "Ja, bis die Bearbeitung für den Versand beginnt. Öffnen Sie die Bestellung unter „Meine Bestellungen“ und tippen Sie auf „Bestellung stornieren“. Wenn Sie bereits bezahlt hatten, erfolgt die Erstattung nicht automatisch: Das LSevin Team bearbeitet sie, und die Bestellung zeigt an, dass eine Erstattung aussteht. Nach dem Versand kann die Bestellung nicht mehr storniert werden, Sie können aber stattdessen eine Rückgabe beantragen."
+        },
+        "fr-FR": {
+          "q": "Puis-je annuler une commande en boutique ?",
+          "a": "Oui, tant que la préparation n’a pas commencé. Ouvrez la commande dans « Mes commandes » et touchez « Annuler la commande ». Si vous aviez déjà payé, le remboursement n’est pas automatique : l’équipe LSevin le traite, et la commande indique qu’un remboursement est en attente. Une fois la commande expédiée, elle ne peut plus être annulée, mais vous pouvez demander un retour."
+        },
+        "es-ES": {
+          "q": "¿Puedo cancelar un pedido de la tienda?",
+          "a": "Sí, hasta que empiece su preparación para el envío. Abra el pedido en «Mis pedidos» y toque «Cancelar pedido». Si ya lo había pagado, el reembolso no es automático: el equipo de LSevin lo tramita y el pedido indica que hay un reembolso pendiente. Una vez enviado, el pedido ya no puede cancelarse, pero puede solicitar una devolución."
+        }
+      }
+    },
+    {
+      "locales": {
+        "en-US": {
+          "q": "How do I return a product?",
+          "a": "For an order that has shipped or been completed, open it in “My orders” and tap “Request a return”. Choose the items and quantities, say why you are returning them, and submit. The LSevin team reviews each request, and its progress shows under “Returns” on the order page. Whether an item qualifies is decided in that review, so contact support before sending anything back if you're unsure."
+        },
+        "fa-IR": {
+          "q": "چطور کالایی را مرجوع کنم؟",
+          "a": "برای سفارشی که ارسال یا تکمیل شده است، آن را در «سفارش‌های من» باز کنید و «درخواست مرجوعی» را بزنید. کالاها و تعداد آن‌ها را انتخاب کنید، دلیل مرجوع کردن را بنویسید و درخواست را ثبت کنید. تیم السوین هر درخواست را بررسی می‌کند و وضعیت آن در بخش «مرجوعی‌ها» در صفحهٔ سفارش نمایش داده می‌شود. پذیرفته شدن هر کالا در همین بررسی مشخص می‌شود؛ اگر مطمئن نیستید، پیش از فرستادن کالا با پشتیبانی تماس بگیرید."
+        },
+        "ar-SA": {
+          "q": "كيف أُرجع منتجًا؟",
+          "a": "إذا كان الطلب قد شُحن أو اكتمل، افتحه في «طلباتي» واضغط «طلب إرجاع». اختر المنتجات والكميات، واذكر سبب الإرجاع، ثم أرسل الطلب. يراجع فريق لسوين كل طلب، وتظهر حالته في قسم «المرتجعات» في صفحة الطلب. ويُحدَّد قبول كل منتج خلال هذه المراجعة، لذا تواصل مع الدعم قبل إرسال أي شيء إذا لم تكن متأكدًا."
+        },
+        "tr-TR": {
+          "q": "Bir ürünü nasıl iade ederim?",
+          "a": "Kargoya verilmiş veya tamamlanmış bir sipariş için siparişi “Siparişlerim” bölümünde açın ve “İade talebi oluştur”a dokunun. Ürünleri ve adetleri seçin, iade nedeninizi yazın ve gönderin. LSevin ekibi her talebi inceler; talebin ilerleyişi sipariş sayfasında “İadeler” altında görünür. Bir ürünün iadeye uygun olup olmadığına bu incelemede karar verilir; emin değilseniz herhangi bir şeyi geri göndermeden önce desteğe başvurun."
+        },
+        "ku-KU": {
+          "q": "چۆن بەرهەمێک بگەڕێنمەوە؟",
+          "a": "بۆ داواکارییەک کە نێردراوە یان تەواو بووە، لە «داواکارییەکانم» بیکەنەوە و کرتە لەسەر «داوای گەڕاندنەوە بکە» بکەن. کاڵاکان و ژمارەکانیان هەڵبژێرن، بنووسن بۆچی دەیانگەڕێننەوە، و بینێرن. تیمی LSevin هەر داواکارییەک هەڵدەسەنگێنێت، و پێشکەوتنەکەی لە ژێر «گەڕاندنەوەکان» لە پەڕەی داواکارییەکەدا دەردەکەوێت. ئەوەی ئایا کاڵایەک شایستەی گەڕاندنەوەیە لەو هەڵسەنگاندنەدا بڕیاری لەسەر دەدرێت، بۆیە ئەگەر دڵنیا نین، پێش ناردنەوەی هەر شتێک پەیوەندی بە پشتگیرییەوە بکەن."
+        },
+        "ru-RU": {
+          "q": "Как вернуть товар?",
+          "a": "Если заказ отправлен или завершён, откройте его в разделе «Мои заказы» и нажмите «Оформить возврат». Выберите товары и их количество, укажите причину возврата и отправьте запрос. Команда LSevin рассматривает каждый запрос, а ход его рассмотрения отображается в блоке «Возвраты» на странице заказа. Подходит ли товар для возврата, решается при этом рассмотрении, поэтому, если Вы не уверены, обратитесь в поддержку, прежде чем что-либо отправлять."
+        },
+        "tg-TJ": {
+          "q": "Маҳсулотро чӣ тавр баргардонам?",
+          "a": "Барои фармоише, ки фиристода ё анҷом шудааст, онро дар «Фармоишҳои ман» кушоед ва «Дархости баргардонидан»-ро пахш кунед. Молҳо ва миқдорро интихоб кунед, сабаби баргардониданро нависед ва фиристед. Гурӯҳи LSevin ҳар дархостро баррасӣ мекунад ва ҷараёни он дар саҳифаи фармоиш дар зери «Баргардониданҳо» нишон дода мешавад. Оё мол ба баргардонидан мувофиқ аст ё не, дар ҳамин баррасӣ муайян мешавад, бинобар ин агар боварӣ надошта бошед, пеш аз фиристодани чизе ба дастгирӣ муроҷиат кунед."
+        },
+        "zh-CN": {
+          "q": "如何退回商品？",
+          "a": "对于已发货或已完成的订单，请在“我的订单”中打开该订单，点击“申请退货”。选择商品和数量，说明退货原因后提交。LSevin团队会逐一审核申请，处理进度显示在订单页面的“退货”部分。商品是否符合退货条件由审核决定，如不确定，请在寄回任何商品前先联系客服。"
+        },
+        "de-DE": {
+          "q": "Wie sende ich ein Produkt zurück?",
+          "a": "Öffnen Sie eine versendete oder abgeschlossene Bestellung unter „Meine Bestellungen“ und tippen Sie auf „Rückgabe beantragen“. Wählen Sie die Artikel und Mengen, geben Sie den Grund für die Rückgabe an und senden Sie den Antrag ab. Das LSevin Team prüft jeden Antrag, und der Fortschritt erscheint auf der Bestellseite unter „Rückgaben“. Ob ein Artikel zurückgegeben werden kann, wird bei dieser Prüfung entschieden; wenden Sie sich daher im Zweifel an den Support, bevor Sie etwas zurückschicken."
+        },
+        "fr-FR": {
+          "q": "Comment retourner un produit ?",
+          "a": "Pour une commande expédiée ou terminée, ouvrez-la dans « Mes commandes » et touchez « Demander un retour ». Choisissez les articles et les quantités, indiquez le motif du retour, puis envoyez la demande. L’équipe LSevin examine chaque demande, et son avancement s’affiche sous « Retours » sur la page de la commande. L’éligibilité d’un article est déterminée lors de cet examen : en cas de doute, contactez l’assistance avant de renvoyer quoi que ce soit."
+        },
+        "es-ES": {
+          "q": "¿Cómo devuelvo un producto?",
+          "a": "Si el pedido se ha enviado o completado, ábralo en «Mis pedidos» y toque «Solicitar una devolución». Elija los artículos y las cantidades, indique por qué los devuelve y envíe la solicitud. El equipo de LSevin revisa cada solicitud, y su estado aparece en «Devoluciones», en la página del pedido. Si un artículo admite devolución se decide en esa revisión, así que, si tiene dudas, contacte con soporte antes de enviar nada."
+        }
+      }
+    },
+    {
+      "locales": {
+        "en-US": {
+          "q": "Can I get advice before buying a product?",
+          "a": "Yes. Product pages have a “Free consultation before buying” button: leave your phone number and a short note, and an LSevin advisor calls you back. The consultation is free. To weigh up similar products, add them to “Compare” to see them side by side, or save them to your wishlist and decide later."
+        },
+        "fa-IR": {
+          "q": "آیا پیش از خرید می‌توانم مشاوره بگیرم؟",
+          "a": "بله. در صفحهٔ محصولات دکمهٔ «مشاوره قبل از خرید» هست؛ شمارهٔ تماس و توضیح کوتاهی بگذارید تا کارشناس السوین با شما تماس بگیرد. این مشاوره رایگان است. برای سنجیدن محصولات مشابه، آن‌ها را به «مقایسه» اضافه کنید تا کنار هم ببینید، یا در «علاقه‌مندی» ذخیره کنید و بعداً تصمیم بگیرید."
+        },
+        "ar-SA": {
+          "q": "هل يمكنني الحصول على استشارة قبل شراء منتج؟",
+          "a": "نعم. في صفحات المنتجات زر «استشارة مجانية قبل الشراء»: اترك رقم هاتفك وملاحظة قصيرة، وسيتصل بك أحد مستشاري لسوين. الاستشارة مجانية. ولموازنة المنتجات المتشابهة أضفها إلى «المقارنة» لتراها جنبًا إلى جنب، أو احفظها في «المفضلة» لتقرر لاحقًا."
+        },
+        "tr-TR": {
+          "q": "Bir ürünü satın almadan önce tavsiye alabilir miyim?",
+          "a": "Evet. Ürün sayfalarında bir “Satın almadan önce ücretsiz danışmanlık” düğmesi bulunur: Telefon numaranızı ve kısa bir not bırakın, bir LSevin danışmanı sizi geri arar. Danışmanlık ücretsizdir. Benzer ürünleri tartmak için onları “Karşılaştır”a ekleyerek yan yana görebilir ya da istek listenize kaydedip daha sonra karar verebilirsiniz."
+        },
+        "ku-KU": {
+          "q": "دەتوانم پێش کڕینی بەرهەمێک ڕاوێژ وەربگرم؟",
+          "a": "بەڵێ. پەڕەکانی بەرهەم دوگمەی «ڕاوێژکاریی بەخۆڕایی پێش کڕین»یان هەیە: ژمارەی تەلەفۆن و تێبینییەکی کورت بنووسن، و ڕاوێژکارێکی LSevin پەیوەندیتان پێوە دەکاتەوە. ڕاوێژکارییەکە بەخۆڕاییە. بۆ هەڵسەنگاندنی بەرهەمە هاوشێوەکان، بیانخەنە ناو «بەراوردکردن» بۆ ئەوەی لە تەنیشت یەکەوە بیانبینن، یان لە لیستی ئاواتەکانتاندا پاشەکەوتیان بکەن و دواتر بڕیار بدەن."
+        },
+        "ru-RU": {
+          "q": "Можно ли получить консультацию перед покупкой товара?",
+          "a": "Да. На страницах товаров есть кнопка «Бесплатная консультация перед покупкой»: оставьте номер телефона и короткий комментарий, и консультант LSevin Вам перезвонит. Консультация бесплатна. Чтобы сопоставить похожие товары, добавьте их в «Сравнение» и посмотрите рядом, или сохраните их в список желаний и примите решение позже."
+        },
+        "tg-TJ": {
+          "q": "Оё пеш аз харид маслиҳат гирифта метавонам?",
+          "a": "Бале. Дар саҳифаҳои маҳсулот тугмаи «Машварати ройгон пеш аз харид» ҳаст: рақами телефон ва ёддошти кӯтоҳ гузоред ва мушовири LSevin ба шумо занг мезанад. Машварат ройгон аст. Барои санҷидани маҳсулоти шабеҳ онҳоро ба «Муқоиса» илова кунед, то паҳлӯ ба паҳлӯ бинед, ё онҳоро дар рӯйхати дилхоҳҳо нигоҳ доред ва баъдтар қарор диҳед."
+        },
+        "zh-CN": {
+          "q": "购买前可以先咨询吗？",
+          "a": "可以。商品页面上有“购买前免费咨询”按钮：留下您的电话号码和简短说明，LSevin顾问会给您回电。咨询免费。如需比较相似的商品，可以将它们加入“对比”并排查看，或加入心愿单稍后再决定。"
+        },
+        "de-DE": {
+          "q": "Kann ich mich vor dem Kauf eines Produkts beraten lassen?",
+          "a": "Ja. Produktseiten haben die Schaltfläche „Kostenlose Beratung vor dem Kauf“: Hinterlassen Sie Ihre Telefonnummer und eine kurze Notiz, und ein LSevin Berater ruft Sie zurück. Die Beratung ist kostenlos. Um ähnliche Produkte abzuwägen, fügen Sie sie zu „Vergleichen“ hinzu und sehen sie nebeneinander, oder speichern Sie sie auf Ihrer Wunschliste und entscheiden Sie später."
+        },
+        "fr-FR": {
+          "q": "Puis-je obtenir des conseils avant d’acheter un produit ?",
+          "a": "Oui. Les pages des produits comportent un bouton « Consultation gratuite avant achat » : laissez votre numéro de téléphone et un court message, et un conseiller LSevin vous rappelle. La consultation est gratuite. Pour départager des produits similaires, ajoutez-les à « Comparer » pour les voir côte à côte, ou enregistrez-les dans votre liste de souhaits pour décider plus tard."
+        },
+        "es-ES": {
+          "q": "¿Puedo recibir asesoramiento antes de comprar un producto?",
+          "a": "Sí. Las páginas de producto tienen un botón «Consulta gratuita antes de comprar»: deje su número de teléfono y una nota breve, y un asesor de LSevin le devolverá la llamada. La consulta es gratuita. Para valorar productos similares, añádalos a «Comparar» y véalos uno al lado del otro, o guárdelos en su lista de deseos y decida más tarde."
+        }
+      }
+    }
+  ]
+}

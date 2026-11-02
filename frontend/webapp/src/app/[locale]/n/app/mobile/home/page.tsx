@@ -36,6 +36,9 @@ import { countActiveSpecialPackages } from '@/features/special-packages/server/r
 import { LANDING_CATEGORY_LIMIT } from "@/features/categories/constants";
 
 import { DesktopHome } from "@/features/web-desktop/home/DesktopHome";
+import { absoluteUrl } from "@/lib/seo/alternates";
+import { FaqSection } from "@/features/site-content/components/faq-section";
+import { SiteLinks } from "@/features/site-content/components/site-links";
 
 // Static / ISR — the landing page shell no longer reads the visitor's location
 // or profile on the server; see `Home` below.
@@ -514,6 +517,7 @@ async function Home({ params }: PageProps) {
       <SponsoredMediaCarouselSection locale={locale} placement="home_bottom" />
 
 
+<SiteLinks locale={locale} />
 <div className="container" style={{  
   display:'flex',
   justifyContent:'center',
@@ -603,6 +607,10 @@ async function Home({ params }: PageProps) {
         sponsoredBottom: <SponsoredMediaCarouselSection locale={locale} placement="home_bottom" />,
       }}
     />
+    {/* One FAQ block for both layouts (a single FAQPage node per page). */}
+    <div className="mx-auto max-w-3xl px-4 pb-10 xl:py-16">
+      <FaqSection target={{ scope: "home" }} locale={locale} pageUrl={absoluteUrl(locale, "/n/app/mobile/home")} />
+    </div>
     </>
   );
 }

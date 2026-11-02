@@ -13,6 +13,7 @@ import { getTourSettings } from "@/features/tours/server/platform/settings";
 
 import { DesktopCategoryBrowser } from "@/features/web-desktop/categories/DesktopCategoryBrowser";
 import { DesktopSponsoredSection } from "@/features/web-desktop/home/DesktopSponsoredSection";
+import { PageFaq } from "@/features/site-content/components/faq-section";
 
 
 export async function generateMetadata({
@@ -40,10 +41,19 @@ export const dynamic = "force-dynamic";
 
 export default async function CategoryBrowserPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string }>;
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const { locale } = await params;
+  // ?parent=<id> opens a category's subcategories: show that category's FAQ.
+  const rawParent = (await searchParams)?.parent;
+  const parentCandidate = Array.isArray(rawParent) ? rawParent[0] : rawParent;
+  const parentId =
+    parentCandidate && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu.test(parentCandidate)
+      ? parentCandidate
+      : null;
   setRequestLocale(locale);
 
   // A database hiccup shows an empty tree for that one request only: the page
@@ -117,6 +127,11 @@ export default async function CategoryBrowserPage({
       <div className="lsd hidden pb-14 xl:block">
         <DesktopSponsoredSection locale={locale} placement="categories" />
       </div>
+      <PageFaq
+        target={parentId ? { scope: "category", entityId: parentId } : { scope: "categories" }}
+        locale={locale}
+        pageUrl={parentId ? undefined : pageUrl}
+      />
     </Suspense>
   );
 }

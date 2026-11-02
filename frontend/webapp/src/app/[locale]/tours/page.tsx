@@ -13,6 +13,7 @@ import {
 } from "@/features/tours/server/platform/catalog";
 import { ToursHome } from "@/features/tours/ui/customer/home/tours-home";
 import { redirect } from "@/i18n/navigation";
+import { PageFaq } from "@/features/site-content/components/faq-section";
 
 /**
  * Tours Home (C-009..C-020). First eligible visit goes through the intro
@@ -40,14 +41,17 @@ export default async function ToursHomePage({ params }: { params: Promise<{ loca
   const discovery = (await searchTours({ sort: "popularity", pageSize: 8 }, content)).items;
 
   return (
-    <ToursHome
-      recent={recent}
-      discovery={discovery}
-      destinations={destinations}
-      offers={offers}
-      modules={modules}
-      categories={taxonomy.category ?? []}
-      savedIds={saved}
-    />
+    <>
+      <ToursHome
+        recent={recent}
+        discovery={discovery}
+        destinations={destinations}
+        offers={offers}
+        modules={modules}
+        categories={taxonomy.category ?? []}
+        savedIds={saved}
+      />
+      <PageFaq target={{ scope: "app", entityKey: "tours" }} locale={locale} />
+    </>
   );
 }

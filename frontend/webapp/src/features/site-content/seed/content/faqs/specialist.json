@@ -1,0 +1,257 @@
+{
+  "scope": "specialist",
+  "entityKey": null,
+  "sources": [
+    "src/app/[locale]/n/app/mobile/specialist/[id]/specialist-page.tsx: Book Now -> /n/app/mobile/booking?specialistId=; errors.noActiveProvider when not linked to an active provider",
+    "src/lib/auth/routes.ts protectedSegments 'booking': sign-in required",
+    "messages/en.json SpecialistPage.tabs (About, Places, Services, Reviews, Credentials) + sections.placesThisSpecialistWorks / servicesProvided + common.minutes",
+    "messages/en.json SpecialistPage.credentials (Education, Certifications & memberships, Credentials) + empty.* states",
+    "messages/en.json SpecialistPage.empty.reviews.description: reviews come from the specialist's connected providers",
+    "messages/en.json SpecialistPage.availability.title + days.*: weekly availability",
+    "messages/en.json Booking.timezoneMismatchWarning: times converted to the viewer's time zone with a notice",
+    "src/app/[locale]/n/app/mobile/specialist/[id]/specialist-page.tsx tConsultation('cta.beforeBooking') + Consultation.step.subtitle: free advisor call-back that does not change the booking",
+    "messages/en.json Assistant.chat.disclaimer: treatment decisions belong with a specialist"
+  ],
+  "items": [
+    {
+      "locales": {
+        "en-US": {
+          "q": "How do I book an appointment with this specialist?",
+          "a": "Tap “Book Now” at the bottom of the profile. The booking opens with this specialist already selected; you then choose the place and service, pick a date and time, and pay at “Review & Pay”. You need to be signed in. If the specialist isn't linked to an active provider yet, booking isn't available, and the “Places” tab shows no workplaces."
+        },
+        "fa-IR": {
+          "q": "چطور از این متخصص نوبت بگیرم؟",
+          "a": "دکمهٔ «رزرو کنید» پایین پروفایل را بزنید. رزرو با انتخاب همین متخصص باز می‌شود؛ بعد محل و خدمت را انتخاب می‌کنید، تاریخ و ساعت را مشخص می‌کنید و در «بررسی و پرداخت» هزینه را می‌پردازید. برای رزرو باید وارد حساب خود شوید. اگر متخصص هنوز به ارائه‌دهندهٔ فعالی متصل نشده باشد، رزرو ممکن نیست و زبانهٔ «محل‌ها» محل فعالیتی نشان نمی‌دهد."
+        },
+        "ar-SA": {
+          "q": "كيف أحجز موعدًا مع هذا الأخصائي؟",
+          "a": "اضغط «احجز الآن» أسفل الملف الشخصي. يُفتح الحجز وقد اختير هذا الأخصائي مسبقًا، ثم تختار المكان والخدمة وتحدد التاريخ والوقت وتدفع في خطوة «المراجعة والدفع». يلزم تسجيل الدخول للحجز. وإذا لم يكن الأخصائي مرتبطًا بمقدم خدمة نشط بعد، فلا يمكن الحجز، ولا يعرض تبويب «الأماكن» أي مكان عمل."
+        },
+        "tr-TR": {
+          "q": "Bu uzmandan nasıl randevu alırım?",
+          "a": "Profilin altındaki “Randevu Al”a dokunun. Rezervasyon bu uzman seçili olarak açılır; ardından yeri ve hizmeti seçer, bir tarih ve saat belirler ve “İncele ve Öde” adımında ödeme yaparsınız. Giriş yapmış olmanız gerekir. Uzman henüz aktif bir sağlayıcıya bağlı değilse randevu alınamaz ve “Yerler” sekmesinde çalıştığı bir yer görünmez."
+        },
+        "ku-KU": {
+          "q": "چۆن چاوپێکەوتنێک لەگەڵ ئەم پسپۆڕە حجز بکەم؟",
+          "a": "لە خوارەوەی پرۆفایلەکە کرتە لەسەر «ئێستا حجز بکە» بکەن. حجزەکە بەو شێوەیە دەکرێتەوە کە ئەم پسپۆڕە پێشتر هەڵبژێردراوە؛ پاشان شوێن و خزمەت هەڵدەبژێرن، بەروار و کاتێک دیاری دەکەن، و لە «پێداچوونەوە و پارەدان»دا پارە دەدەن. پێویستە چووبنە ژوورەوە. ئەگەر پسپۆڕەکە هێشتا بە دابینکەرێکی چالاکەوە نەبەسترابێت، حجزکردن بەردەست نییە و تابی «شوێنەکان» هیچ شوێنێکی کار پیشان نادات."
+        },
+        "ru-RU": {
+          "q": "Как записаться на приём к этому врачу?",
+          "a": "Нажмите «Записаться» внизу профиля. Бронирование откроется с уже выбранным врачом; затем Вы выбираете место и услугу, дату и время и оплачиваете на шаге «Проверка и оплата». Для этого нужно войти в аккаунт. Если врач ещё не привязан к действующему поставщику, запись недоступна, а на вкладке «Места» нет мест работы."
+        },
+        "tg-TJ": {
+          "q": "Чӣ тавр ба қабули ин мутахассис навбат гирам?",
+          "a": "Дар поёни профил «Ҳозир брон кунед»-ро пахш кунед. Брон бо ҳамин мутахассиси аллакай интихобшуда кушода мешавад; баъд шумо ҷой ва хидматро интихоб мекунед, сана ва вақтро муайян мекунед ва дар «Санҷиш ва пардохт» пардохт менамоед. Шумо бояд ворид шуда бошед. Агар мутахассис ҳанӯз ба хидматрасони фаъол пайваст набошад, брон дастрас нест ва бахши «Ҷойҳо» ҷойи корро нишон намедиҳад."
+        },
+        "zh-CN": {
+          "q": "如何预约这位专家？",
+          "a": "点击资料页底部的“立即预约”。预约页面打开时已选好这位专家；接下来选择执业地点和服务，挑选日期和时间，然后在“核对与支付”中付款。您需要先登录。如果这位专家尚未关联到正在营业的服务商，则无法预约，“地点”标签页也不会显示任何执业地点。"
+        },
+        "de-DE": {
+          "q": "Wie buche ich einen Termin bei diesem Spezialisten?",
+          "a": "Tippen Sie unten im Profil auf „Jetzt buchen“. Die Buchung öffnet sich mit diesem Spezialisten bereits ausgewählt; Sie wählen dann Ort und Leistung, Datum und Uhrzeit und bezahlen unter „Prüfen & Bezahlen“. Sie müssen angemeldet sein. Ist der Spezialist noch keinem aktiven Anbieter zugeordnet, ist keine Buchung möglich, und der Tab „Standorte“ zeigt keine Arbeitsorte."
+        },
+        "fr-FR": {
+          "q": "Comment prendre rendez-vous avec ce spécialiste ?",
+          "a": "Touchez « Réserver » en bas du profil. La réservation s’ouvre avec ce spécialiste déjà sélectionné ; vous choisissez ensuite le lieu et le service, une date et une heure, puis vous payez à l’étape « Vérification et paiement ». Vous devez être connecté. Si le spécialiste n’est pas encore rattaché à un prestataire actif, la réservation n’est pas disponible et l’onglet « Lieux » n’affiche aucun lieu d’exercice."
+        },
+        "es-ES": {
+          "q": "¿Cómo reservo una cita con este especialista?",
+          "a": "Toque «Reservar ahora» en la parte inferior del perfil. La reserva se abre con este especialista ya seleccionado; después elige el lugar y el servicio, selecciona la fecha y la hora, y paga en «Revisar y pagar». Debe haber iniciado sesión. Si el especialista todavía no está vinculado a un proveedor activo, no es posible reservar y la pestaña «Lugares» no muestra lugares de trabajo."
+        }
+      }
+    },
+    {
+      "locales": {
+        "en-US": {
+          "q": "Where does this specialist see patients?",
+          "a": "The “Places” tab lists the clinics and hospitals this specialist works with on LSevin. Tap one to see its address, map location, policies and contact options. The “Services” tab shows what the specialist offers at those places, with the price and session length where they are listed."
+        },
+        "fa-IR": {
+          "q": "این متخصص کجا بیمار می‌پذیرد؟",
+          "a": "زبانهٔ «محل‌ها» کلینیک‌ها و بیمارستان‌هایی را نشان می‌دهد که این متخصص در السوین با آن‌ها کار می‌کند. با زدن روی هر کدام، آدرس، موقعیت روی نقشه، سیاست‌ها و راه‌های تماس آن را می‌بینید. زبانهٔ «خدمات» هم خدماتی را که متخصص در این مراکز ارائه می‌دهد، همراه با قیمت و مدت جلسه در صورت ثبت، نمایش می‌دهد."
+        },
+        "ar-SA": {
+          "q": "أين يستقبل هذا الأخصائي المرضى؟",
+          "a": "يعرض تبويب «الأماكن» العيادات والمستشفيات التي يعمل معها هذا الأخصائي على لسوين. اضغط على أي منها لمعرفة العنوان والموقع على الخريطة والسياسات وطرق التواصل. ويعرض تبويب «الخدمات» ما يقدمه الأخصائي في هذه الأماكن، مع السعر ومدة الجلسة إن كانت مدرجة."
+        },
+        "tr-TR": {
+          "q": "Bu uzman hastaları nerede kabul ediyor?",
+          "a": "“Yerler” sekmesi, bu uzmanın LSevin'de birlikte çalıştığı klinikleri ve hastaneleri listeler. Adresini, haritadaki konumunu, politikalarını ve iletişim seçeneklerini görmek için birine dokunun. “Hizmetler” sekmesi, uzmanın bu yerlerde sunduğu hizmetleri, belirtilmişse fiyat ve seans süresiyle birlikte gösterir."
+        },
+        "ku-KU": {
+          "q": "ئەم پسپۆڕە لە کوێ نەخۆش دەبینێت؟",
+          "a": "تابی «شوێنەکان» ئەو کلینیک و نەخۆشخانانە دەخاتە ڕوو کە ئەم پسپۆڕە لە LSevin لەگەڵیان کار دەکات. کرتە لەسەر یەکێکیان بکەن بۆ بینینی ناونیشان، شوێنی سەر نەخشە، سیاسەتەکان و ڕێگاکانی پەیوەندی. تابی «خزمەتەکان» ئەوە پیشان دەدات کە پسپۆڕەکە لەو شوێنانەدا پێشکەشی دەکات، لەگەڵ نرخ و ماوەی دانیشتن لەو شوێنانەی تۆمار کراون."
+        },
+        "ru-RU": {
+          "q": "Где принимает этот врач?",
+          "a": "На вкладке «Места» перечислены клиники и больницы, с которыми этот врач работает на LSevin. Нажмите на любое из них, чтобы увидеть адрес, расположение на карте, правила и способы связи. На вкладке «Услуги» показано, что врач предлагает в этих местах, с ценой и продолжительностью приёма, если они указаны."
+        },
+        "tg-TJ": {
+          "q": "Ин мутахассис беморонро дар куҷо қабул мекунад?",
+          "a": "Дар бахши «Ҷойҳо» клиникаҳо ва беморхонаҳое, ки ин мутахассис дар LSevin бо онҳо кор мекунад, номбар шудаанд. Яке аз онҳоро пахш кунед, то суроға, ҷойгиршавӣ дар харита, қоидаҳо ва роҳҳои тамосро бинед. Бахши «Хидматҳо» нишон медиҳад, ки мутахассис дар ин ҷойҳо чӣ пешниҳод мекунад, бо нарх ва давомнокии ҷаласа, агар онҳо нишон дода шуда бошанд."
+        },
+        "zh-CN": {
+          "q": "这位专家在哪里接诊？",
+          "a": "“地点”标签页列出了这位专家在LSevin上合作的诊所和医院。点击其中一家可查看其地址、地图位置、政策和联系方式。“服务”标签页显示专家在这些地点提供的服务，以及价格和单次时长（如有填写）。"
+        },
+        "de-DE": {
+          "q": "Wo behandelt dieser Spezialist Patienten?",
+          "a": "Der Tab „Standorte“ listet die Kliniken und Krankenhäuser auf, mit denen dieser Spezialist auf LSevin zusammenarbeitet. Tippen Sie auf einen Eintrag, um Adresse, Kartenstandort, Richtlinien und Kontaktmöglichkeiten zu sehen. Der Tab „Leistungen“ zeigt, was der Spezialist an diesen Orten anbietet, mit Preis und Dauer der Sitzung, sofern angegeben."
+        },
+        "fr-FR": {
+          "q": "Où ce spécialiste reçoit-il ses patients ?",
+          "a": "L’onglet « Lieux » liste les cliniques et les hôpitaux avec lesquels ce spécialiste travaille sur LSevin. Touchez-en un pour voir son adresse, son emplacement sur la carte, ses conditions et ses moyens de contact. L’onglet « Services » présente ce que le spécialiste propose dans ces lieux, avec le prix et la durée de la séance lorsqu’ils sont indiqués."
+        },
+        "es-ES": {
+          "q": "¿Dónde atiende este especialista?",
+          "a": "La pestaña «Lugares» enumera las clínicas y hospitales con los que trabaja este especialista en LSevin. Toque uno para ver su dirección, su ubicación en el mapa, sus políticas y las opciones de contacto. La pestaña «Servicios» muestra lo que ofrece el especialista en esos lugares, con el precio y la duración de la sesión cuando se indican."
+        }
+      }
+    },
+    {
+      "locales": {
+        "en-US": {
+          "q": "How can I check this specialist's qualifications?",
+          "a": "Open the “Credentials” tab. It shows the education, certifications and memberships, and other credentials added to this profile. If a section says nothing has been added yet, the profile simply doesn't list it, so ask the provider before you book. Reviews on this profile come from the providers the specialist is connected to."
+        },
+        "fa-IR": {
+          "q": "چطور سوابق و مدارک این متخصص را بررسی کنم؟",
+          "a": "زبانهٔ «مدارک» را باز کنید. در آن «تحصیلات»، «گواهی‌نامه‌ها و عضویت‌ها» و سایر مدارکی که به این پروفایل اضافه شده نمایش داده می‌شود. اگر بخشی خالی است، یعنی آن مورد در پروفایل ثبت نشده است؛ در این صورت پیش از رزرو از ارائه‌دهنده بپرسید. دیدگاه‌های این پروفایل از ارائه‌دهندگانی می‌آید که متخصص به آن‌ها متصل است."
+        },
+        "ar-SA": {
+          "q": "كيف أتحقق من مؤهلات هذا الأخصائي؟",
+          "a": "افتح تبويب «المؤهلات». ستجد فيه «التعليم» و«الشهادات والعضويات» وغيرها من المؤهلات المضافة إلى هذا الملف. وإذا كان أحد الأقسام فارغًا، فهذا يعني أن الملف لا يتضمنه، فاسأل مقدم الخدمة قبل الحجز. وتأتي التقييمات في هذا الملف من مقدمي الخدمة المرتبط بهم الأخصائي."
+        },
+        "tr-TR": {
+          "q": "Bu uzmanın niteliklerini nasıl kontrol edebilirim?",
+          "a": "“Nitelikler” sekmesini açın. Burada bu profile eklenmiş eğitim bilgileri, sertifikalar ve üyelikler ile diğer nitelikler gösterilir. Bir bölümde henüz bir şey eklenmediği yazıyorsa profil o bilgiyi içermiyor demektir; rezervasyon yapmadan önce sağlayıcıya sorun. Bu profildeki değerlendirmeler, uzmanın bağlı olduğu sağlayıcılardan gelir."
+        },
+        "ku-KU": {
+          "q": "چۆن بڕوانامەکانی ئەم پسپۆڕە بپشکنم؟",
+          "a": "تابی «بڕوانامەکان» بکەنەوە. خوێندن، بڕوانامە و ئەندامێتییەکان و بەڵگەکانی تر کە بۆ ئەم پرۆفایلە زیاد کراون پیشان دەدات. ئەگەر بەشێک دەڵێت هێشتا هیچ شتێک زیاد نەکراوە، واتای ئەوەیە کە پرۆفایلەکە ئەو زانیارییەی تێدا نییە، بۆیە پێش حجزکردن لە دابینکەرەکەی بپرسن. بۆچوونەکانی سەر ئەم پرۆفایلە لەو دابینکەرانەوە دێن کە پسپۆڕەکە پەیوەندیی پێیانەوە هەیە."
+        },
+        "ru-RU": {
+          "q": "Как проверить квалификацию этого врача?",
+          "a": "Откройте вкладку «Квалификация». На ней указаны образование, сертификаты, членство в организациях и другие подтверждения квалификации, добавленные в этот профиль. Если в каком-то разделе написано, что сведения ещё не добавлены, значит, в профиле их просто нет, поэтому уточните у поставщика до бронирования. Отзывы в этом профиле поступают от поставщиков, с которыми связан врач."
+        },
+        "tg-TJ": {
+          "q": "Тахассуси ин мутахассисро чӣ тавр санҷам?",
+          "a": "Бахши «Ҳуҷҷатҳои тахассусӣ»-ро кушоед. Дар он таҳсилот, сертификатҳо, узвиятҳо ва дигар ҳуҷҷатҳое, ки ба ин профил илова шудаанд, нишон дода мешаванд. Агар дар ягон қисм навишта бошад, ки ҳанӯз чизе илова нашудааст, ин танҳо маънои онро дорад, ки профил онро нишон намедиҳад, бинобар ин пеш аз брон аз хидматрасон пурсед. Шарҳҳо дар ин профил аз хидматрасонҳое меоянд, ки мутахассис ба онҳо пайваст аст."
+        },
+        "zh-CN": {
+          "q": "如何查看这位专家的资质？",
+          "a": "打开“资质”标签页，其中显示添加到该资料中的教育背景、资质认证、学会会员及其他资质。如果某个部分显示尚未添加内容，只是说明资料中没有列出这项信息，请在预约前向服务商询问。此资料上的评价来自与这位专家关联的服务商。"
+        },
+        "de-DE": {
+          "q": "Wie kann ich die Qualifikationen dieses Spezialisten prüfen?",
+          "a": "Öffnen Sie den Tab „Qualifikationen“. Er zeigt Ausbildung, Zertifizierungen und Mitgliedschaften sowie weitere Nachweise, die diesem Profil hinzugefügt wurden. Steht in einem Abschnitt, dass noch nichts hinzugefügt wurde, enthält das Profil diese Angabe einfach nicht; fragen Sie dann vor der Buchung beim Anbieter nach. Bewertungen in diesem Profil stammen von den Anbietern, mit denen der Spezialist verbunden ist."
+        },
+        "fr-FR": {
+          "q": "Comment vérifier les qualifications de ce spécialiste ?",
+          "a": "Ouvrez l’onglet « Qualifications ». Il présente la formation, les certifications, les affiliations et les autres titres ajoutés à ce profil. Si une rubrique indique que rien n’a encore été ajouté, cela signifie simplement que le profil ne le mentionne pas : renseignez-vous auprès du prestataire avant de réserver. Les avis affichés sur ce profil proviennent des prestataires auxquels le spécialiste est rattaché."
+        },
+        "es-ES": {
+          "q": "¿Cómo puedo comprobar la cualificación de este especialista?",
+          "a": "Abra la pestaña «Credenciales». Muestra la formación, las certificaciones, las afiliaciones y otras credenciales añadidas a este perfil. Si una sección indica que todavía no se ha añadido nada, simplemente el perfil no lo incluye, así que pregunte al proveedor antes de reservar. Las reseñas de este perfil proceden de los proveedores con los que está vinculado el especialista."
+        }
+      }
+    },
+    {
+      "locales": {
+        "en-US": {
+          "q": "Which days is the specialist available, and in which time zone?",
+          "a": "The “Availability” section shows the days and hours the specialist works, where they're listed. The actual free slots appear in the “Schedule” step of the booking. If the provider works in a different time zone from yours, LSevin shows a notice and converts the times to your time zone, so double-check the time before you pay."
+        },
+        "fa-IR": {
+          "q": "این متخصص چه روزهایی در دسترس است و ساعت‌ها به وقت کجاست؟",
+          "a": "بخش «زمان‌های در دسترس» روزها و ساعت‌های کاری متخصص را، در صورت ثبت، نشان می‌دهد. نوبت‌های خالی دقیق در مرحلهٔ «زمان‌بندی» رزرو نمایش داده می‌شود. اگر منطقهٔ زمانی ارائه‌دهنده با شما فرق داشته باشد، السوین پیامی نشان می‌دهد و ساعت‌ها را به وقت شما تبدیل می‌کند؛ پس پیش از پرداخت ساعت را دوباره بررسی کنید."
+        },
+        "ar-SA": {
+          "q": "ما الأيام التي يتوفر فيها الأخصائي، وبأي توقيت؟",
+          "a": "يعرض قسم «الأوقات المتاحة» أيام عمل الأخصائي وساعاته إن كانت مدرجة. أما المواعيد الشاغرة الفعلية فتظهر في خطوة «الجدولة» أثناء الحجز. وإذا كان مقدم الخدمة يعمل بتوقيت مختلف عن توقيتك، تعرض لسوين تنبيهًا وتحوّل الأوقات إلى توقيتك، لذا تحقق من الموعد قبل الدفع."
+        },
+        "tr-TR": {
+          "q": "Uzman hangi günler müsait ve hangi saat diliminde?",
+          "a": "“Müsaitlik” bölümü, belirtilmişse uzmanın çalıştığı günleri ve saatleri gösterir. Gerçek boş saatler rezervasyonun “Program” adımında görünür. Sağlayıcı sizinkinden farklı bir saat diliminde çalışıyorsa LSevin bir uyarı gösterir ve saatleri sizin saat diliminize çevirir; bu yüzden ödeme yapmadan önce saati tekrar kontrol edin."
+        },
+        "ku-KU": {
+          "q": "پسپۆڕەکە کام ڕۆژان بەردەستە، و بە کام ناوچەی کاتی؟",
+          "a": "بەشی «کاتە بەردەستەکان» ئەو ڕۆژ و کاتژمێرانە پیشان دەدات کە پسپۆڕەکە کاریان تێدا دەکات، لەو شوێنانەی تۆمار کراون. کاتە بەتاڵە ڕاستەقینەکان لە هەنگاوی «خشتەی کات»ی حجزکردندا دەردەکەون. ئەگەر دابینکەر لە ناوچەیەکی کاتیی جیاواز لە ئێوەدا کار بکات، LSevin ئاگادارییەک پیشان دەدات و کاتەکان بۆ ناوچەی کاتیی ئێوە دەگۆڕێت، بۆیە پێش پارەدان کاتەکە دووبارە بپشکنن."
+        },
+        "ru-RU": {
+          "q": "В какие дни принимает врач и в каком часовом поясе указано время?",
+          "a": "В разделе «Свободное время» указаны дни и часы работы врача, если они заданы. Фактически свободное время для записи появляется на шаге бронирования «Расписание». Если поставщик работает в другом часовом поясе, LSevin показывает уведомление и пересчитывает время в Ваш часовой пояс, поэтому перед оплатой ещё раз проверьте время."
+        },
+        "tg-TJ": {
+          "q": "Мутахассис кадом рӯзҳо дастрас аст ва дар кадом минтақаи вақт?",
+          "a": "Бахши «Дастрасӣ» рӯзҳо ва соатҳои кори мутахассисро нишон медиҳад, агар онҳо зикр шуда бошанд. Вақтҳои воқеан холӣ дар қадами «Ҷадвал»-и брон пайдо мешаванд. Агар хидматрасон дар минтақаи вақти дигар аз шумо кор кунад, LSevin огоҳӣ нишон медиҳад ва вақтҳоро ба минтақаи вақти шумо табдил медиҳад, бинобар ин пеш аз пардохт вақтро бори дигар санҷед."
+        },
+        "zh-CN": {
+          "q": "这位专家哪些日子可以预约？使用哪个时区？",
+          "a": "如有填写，“可预约时段”部分会显示专家的工作日和工作时间。实际的空闲时段会在预约的“日程”步骤中显示。如果服务商所在时区与您不同，LSevin会显示提示，并将时间换算为您所在的时区，因此请在付款前再次核对时间。"
+        },
+        "de-DE": {
+          "q": "An welchen Tagen ist der Spezialist verfügbar, und in welcher Zeitzone?",
+          "a": "Der Abschnitt „Verfügbarkeit“ zeigt die Arbeitstage und -zeiten des Spezialisten, sofern sie angegeben sind. Die tatsächlich freien Termine erscheinen im Schritt „Termin“ der Buchung. Arbeitet der Anbieter in einer anderen Zeitzone als Sie, zeigt LSevin einen Hinweis an und rechnet die Zeiten in Ihre Zeitzone um; prüfen Sie die Uhrzeit daher noch einmal, bevor Sie bezahlen."
+        },
+        "fr-FR": {
+          "q": "Quels jours le spécialiste est-il disponible, et dans quel fuseau horaire ?",
+          "a": "La section « Disponibilités » indique les jours et les heures de travail du spécialiste, lorsqu’ils sont renseignés. Les créneaux réellement libres s’affichent à l’étape « Planning » de la réservation. Si le prestataire se trouve dans un fuseau horaire différent du vôtre, LSevin affiche un avis et convertit les horaires dans votre fuseau : vérifiez donc bien l’heure avant de payer."
+        },
+        "es-ES": {
+          "q": "¿Qué días está disponible el especialista y en qué zona horaria?",
+          "a": "La sección «Disponibilidad» muestra los días y horarios en que trabaja el especialista, cuando están indicados. Los huecos libres reales aparecen en el paso «Agenda» de la reserva. Si el proveedor trabaja en una zona horaria distinta de la suya, LSevin muestra un aviso y convierte los horarios a su zona horaria; aun así, compruebe bien la hora antes de pagar."
+        }
+      }
+    },
+    {
+      "locales": {
+        "en-US": {
+          "q": "Can I talk to someone before booking with this specialist?",
+          "a": "Yes. Tap “Free consultation before booking” and leave your phone number and a short description of what you need. An LSevin advisor calls you back to help you choose the right service and place. The consultation is free and doesn't affect your booking. Decisions about your treatment itself are made with the specialist."
+        },
+        "fa-IR": {
+          "q": "آیا پیش از رزرو با این متخصص می‌توانم با کسی مشورت کنم؟",
+          "a": "بله. «مشاوره قبل از رزرو» را بزنید و شمارهٔ تماس و توضیح کوتاهی از نیازتان را بنویسید. کارشناس السوین با شما تماس می‌گیرد تا در انتخاب خدمت و محل مناسب کمکتان کند. این مشاوره رایگان است و روی رزرو شما اثری ندارد. تصمیم دربارهٔ خود درمان با متخصص گرفته می‌شود."
+        },
+        "ar-SA": {
+          "q": "هل يمكنني التحدث مع أحد قبل الحجز مع هذا الأخصائي؟",
+          "a": "نعم. اضغط «استشارة مجانية قبل الحجز» واترك رقم هاتفك ووصفًا قصيرًا لما تحتاجه. سيتصل بك أحد مستشاري لسوين ليساعدك في اختيار الخدمة والمكان المناسبين. الاستشارة مجانية ولا تؤثر على حجزك، أما القرارات المتعلقة بالعلاج نفسه فتُتخذ مع الأخصائي."
+        },
+        "tr-TR": {
+          "q": "Bu uzmandan randevu almadan önce biriyle görüşebilir miyim?",
+          "a": "Evet. “Randevudan önce ücretsiz danışmanlık”a dokunun ve telefon numaranızla ihtiyacınızın kısa bir açıklamasını bırakın. Bir LSevin danışmanı, doğru hizmeti ve yeri seçmenize yardımcı olmak için sizi geri arar. Danışmanlık ücretsizdir ve rezervasyonunuzu etkilemez. Tedavinizin kendisiyle ilgili kararlar uzmanla birlikte verilir."
+        },
+        "ku-KU": {
+          "q": "دەتوانم پێش حجزکردن لەگەڵ ئەم پسپۆڕە لەگەڵ کەسێک قسە بکەم؟",
+          "a": "بەڵێ. کرتە لەسەر «ڕاوێژکاریی بەخۆڕایی پێش کاتبەندی» بکەن و ژمارەی تەلەفۆن و باسێکی کورتی ئەوەی پێویستتانە بنووسن. ڕاوێژکارێکی LSevin پەیوەندیتان پێوە دەکاتەوە بۆ ئەوەی یارمەتیتان بدات خزمەت و شوێنی گونجاو هەڵبژێرن. ڕاوێژکارییەکە بەخۆڕاییە و کاریگەریی لەسەر حجزەکەتان نییە. بڕیار لەسەر خودی چارەسەرەکەتان لەگەڵ پسپۆڕەکەدا دەدرێت."
+        },
+        "ru-RU": {
+          "q": "Можно ли с кем-то поговорить перед записью к этому врачу?",
+          "a": "Да. Нажмите «Бесплатная консультация перед записью» и оставьте номер телефона и краткое описание того, что Вам нужно. Консультант LSevin перезвонит и поможет выбрать подходящую услугу и место. Консультация бесплатна и не влияет на бронирование. Решения о самом лечении принимаются вместе с врачом."
+        },
+        "tg-TJ": {
+          "q": "Оё пеш аз брон бо ин мутахассис бо касе сӯҳбат карда метавонам?",
+          "a": "Бале. «Машварати ройгон пеш аз қабул»-ро пахш кунед ва рақами телефон ва тавсифи кӯтоҳи ниёзи худро гузоред. Мушовири LSevin ба шумо занг мезанад, то дар интихоби хидмат ва ҷойи мувофиқ кӯмак кунад. Машварат ройгон аст ва ба брони шумо таъсир намерасонад. Қарорҳо дар бораи худи табобат бо мутахассис қабул карда мешаванд."
+        },
+        "zh-CN": {
+          "q": "预约这位专家前可以先找人咨询吗？",
+          "a": "可以。点击“预约前免费咨询”，留下您的电话号码，并简要说明您的需求。LSevin顾问会给您回电，帮您选择合适的服务和地点。咨询免费，也不会影响您的预约。有关治疗本身的决定，需要与专家共同商定。"
+        },
+        "de-DE": {
+          "q": "Kann ich vor der Buchung bei diesem Spezialisten mit jemandem sprechen?",
+          "a": "Ja. Tippen Sie auf „Kostenlose Beratung vor der Buchung“ und hinterlassen Sie Ihre Telefonnummer und eine kurze Beschreibung Ihres Anliegens. Ein LSevin Berater ruft Sie zurück und hilft Ihnen, die passende Leistung und den passenden Ort zu wählen. Die Beratung ist kostenlos und hat keinen Einfluss auf Ihre Buchung. Entscheidungen über die Behandlung selbst treffen Sie gemeinsam mit dem Spezialisten."
+        },
+        "fr-FR": {
+          "q": "Puis-je parler à quelqu’un avant de réserver avec ce spécialiste ?",
+          "a": "Oui. Touchez « Consultation gratuite avant réservation » et laissez votre numéro de téléphone ainsi qu’une courte description de votre besoin. Un conseiller LSevin vous rappelle pour vous aider à choisir le service et le lieu adaptés. La consultation est gratuite et n’a aucune incidence sur votre réservation. Les décisions concernant le traitement lui-même se prennent avec le spécialiste."
+        },
+        "es-ES": {
+          "q": "¿Puedo hablar con alguien antes de reservar con este especialista?",
+          "a": "Sí. Toque «Consulta gratuita antes de reservar» y deje su número de teléfono y una breve descripción de lo que necesita. Un asesor de LSevin le devolverá la llamada para ayudarle a elegir el servicio y el lugar adecuados. La consulta es gratuita y no afecta a su reserva. Las decisiones sobre el tratamiento en sí se toman con el especialista."
+        }
+      }
+    }
+  ]
+}
