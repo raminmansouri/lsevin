@@ -1,0 +1,10 @@
+[Unit]
+Description=Tidy old Kubernetes application images hourly
+
+[Timer]
+OnCalendar=*-*-* *:20:00
+Persistent=true
+RandomizedDelaySec=10m
+
+[Install]
+WantedBy=timers.target
