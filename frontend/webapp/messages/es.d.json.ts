@@ -13554,7 +13554,13 @@ declare const messages: {
       "shipsIn": "Ships in {days} business days",
       "shipsToday": "Ships today",
       "outOfStock": "Out of stock",
-      "add": "Add"
+      "add": "Add",
+      "others": "{count} other sellers"
+    },
+    "sellerPage": {
+      "products": "{count} products",
+      "yearsOnSite": "{count}+ years on L Sevin",
+      "newSeller": "New on L Sevin"
     }
   },
   "ShopMedia": {

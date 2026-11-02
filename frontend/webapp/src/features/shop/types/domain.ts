@@ -82,6 +82,7 @@ export interface ProductOfferView {
   id: UUID;
   variantId: UUID | null;
   sellerId: UUID;
+  sellerSlug: string;
   sellerName: string;
   sellerLogoUrl: string | null;
   isDefaultSeller: boolean;

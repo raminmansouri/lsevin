@@ -6,6 +6,7 @@ export const productSearchSchema = z.object({
   q: z.string().trim().max(120).default(""),
   category: z.string().trim().optional(),
   brand: z.string().trim().optional(),
+  seller: z.string().trim().optional(),
   sort: z.enum(["popularity", "newest", "price_asc", "price_desc", "rating"]).default("popularity"),
   minPrice: z.coerce.number().min(0).default(0),
   maxPrice: z.coerce.number().min(0).default(0),

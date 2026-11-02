@@ -168,6 +168,7 @@ export async function searchProducts(
   if (filters.brand)
     conditions.push(sql`exists (select 1 from shop.brands b where b.id = p.brand_id and b.slug = ${filters.brand})`);
   if (filters.featuredOnly) conditions.push(sql`p.is_featured = true`);
+  if (filters.seller) conditions.push(sql`price_summary.min_price is not null`);
   if (filters.discountedOnly)
     conditions.push(sql`p.compare_at_price is not null and p.compare_at_price > coalesce(price_summary.min_price, p.base_price)`);
   if (filters.slugs && filters.slugs.length) conditions.push(sql`p.slug = any(${filters.slugs})`);
@@ -230,7 +231,22 @@ export async function searchProducts(
     from shop.products p
     left join shop.brands b on b.id = p.brand_id
     left join shop.categories c on c.id = p.primary_category_id
-    left join shop.v_product_price_summary price_summary on price_summary.product_id = p.id
+    ${filters.seller
+      ? sql`left join lateral (
+          -- On a seller's page, cards show that seller's own price and stock.
+          select min(o.price) as min_price, max(o.price) as max_price,
+            coalesce(
+              bool_or(o.stock_quantity > 0 or o.allow_backorder) filter (where o.stock_quantity is not null),
+              (select v.has_stock from shop.v_product_price_summary v where v.product_id = p.id)
+            ) as has_stock,
+            1 as seller_count
+          from shop.offers o
+          join shop.sellers s on s.id = o.seller_id
+          where o.product_id = p.id and s.slug = ${filters.seller}
+            and s.is_active and s.deleted_at is null
+            and o.deleted_at is null and o.is_active
+        ) price_summary on true`
+      : sql`left join shop.v_product_price_summary price_summary on price_summary.product_id = p.id`}
     left join lateral (
       select url from shop.product_media pm where pm.product_id = p.id order by pm.is_primary desc, pm.display_order asc limit 1
     ) pm on true
@@ -396,7 +412,7 @@ export async function getProductBySlug(
     // Live offers: same rules as shop.v_product_price_summary (active offer, active seller,
     // active item; the offer's own stock when set, else the shop inventory).
     sql<any[]>`
-      select o.id::text as id, o.variant_id::text as "variantId", o.seller_id::text as "sellerId",
+      select o.id::text as id, o.variant_id::text as "variantId", o.seller_id::text as "sellerId", s.slug as "sellerSlug",
         common.get_translation_t(s.name_translations, ${lang}, 'en') as "sellerName",
         s.logo_url as "sellerLogoUrl", s.is_default as "isDefaultSeller",
         o.price::float as price, o.compare_at_price::float as "compareAtPrice", o.currency as "sourceCurrency",
@@ -434,6 +450,7 @@ export async function getProductBySlug(
         id: o.id,
         variantId: o.variantId ?? null,
         sellerId: o.sellerId,
+        sellerSlug: o.sellerSlug,
         sellerName: o.sellerName ?? "",
         sellerLogoUrl: o.sellerLogoUrl ?? null,
         isDefaultSeller: Boolean(o.isDefaultSeller),
@@ -506,10 +523,39 @@ export async function getProductBySlug(
   };
 }
 
-/**
- * Active, listable product slugs — for `generateStaticParams` on the PDP.
- * Cookie-free and cheap; bounded by `limit`.
- */
+
+
+export async function getShopSellerBySlug(slug: string, locale?: string) {
+  const lang = normalizeLocale(locale ?? (await getShopContext()).locale);
+  const [row] = await sql<
+    {
+      id: string;
+      slug: string;
+      name: string;
+      description: string;
+      warranty: string;
+      logoUrl: string | null;
+      joinedAt: string;
+      productCount: number;
+    }[]
+  >`
+    select s.id::text as id, s.slug,
+      common.get_translation_t(s.name_translations, ${lang}, 'en') as name,
+      common.get_translation_t(s.description_translations, ${lang}, 'en') as description,
+      common.get_translation_t(s.warranty_translations, ${lang}, 'en') as warranty,
+      s.logo_url as "logoUrl", s.create_date::text as "joinedAt",
+      (select count(distinct o.product_id)::int
+         from shop.offers o join shop.products p on p.id = o.product_id
+        where o.seller_id = s.id and o.deleted_at is null and o.is_active
+          and p.deleted_at is null and p.status = 'active') as "productCount"
+    from shop.sellers s
+    where s.slug = ${slug} and s.deleted_at is null and s.is_active
+    limit 1
+  `;
+  return row ?? null;
+}
+
+
 export async function listActiveProductSlugs(limit = 500): Promise<string[]> {
   const rows = await sql<{ slug: string }[]>`
     select slug from shop.products

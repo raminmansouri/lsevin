@@ -4,7 +4,7 @@ import { useMemo, useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { ShieldCheck, Store, Truck } from "lucide-react";
 
-import { useRouter } from "@/i18n/navigation";
+import { useRouter, Link } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 
 import { addToCartAction } from "../actions/cart.actions";
@@ -118,10 +118,18 @@ export function ProductDetailClient({
 
       {bestOffer ? (
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1 rounded-xl bg-neutral-50 px-3 py-2.5 text-xs text-neutral-600 ring-1 ring-neutral-100">
-          <span className="flex items-center gap-1.5 font-semibold text-neutral-900">
+          <Link
+            href={`/n/app/mobile/shop/seller/${bestOffer.sellerSlug}`}
+            className="flex items-center gap-1.5 font-semibold text-neutral-900 hover:text-[#083f30] hover:underline"
+          >
             <Store size={14} className="text-[#083f30]" />
             {t("sellerOffers.soldBy", { name: bestOffer.sellerName })}
-          </span>
+          </Link>
+          {itemOffers.length > 1 ? (
+            <a href="#product-sellers" className="ms-auto font-semibold text-[#083f30]">
+              {t("sellerOffers.others", { count: itemOffers.length - 1 })}
+            </a>
+          ) : null}
           {bestOffer.warranty ? (
             <span className="flex items-center gap-1">
               <ShieldCheck size={13} className="text-[#083f30]" />
@@ -185,7 +193,7 @@ export function ProductDetailClient({
 
       {/* Every seller of the selected item, cheapest in-stock first (the first is the winner). */}
       {itemOffers.length > 1 ? (
-        <div className="rounded-2xl ring-1 ring-neutral-200">
+        <div id="product-sellers" className="scroll-mt-28 rounded-2xl ring-1 ring-neutral-200">
           <p className="border-b border-neutral-100 px-4 py-3 text-sm font-bold text-neutral-900">
             {t("sellerOffers.title", { count: itemOffers.length })}
           </p>
@@ -202,7 +210,9 @@ export function ProductDetailClient({
                 </span>
                 <span className="min-w-0 flex-1">
                   <span className="flex items-center gap-2 text-sm font-semibold text-neutral-900">
-                    {o.sellerName}
+                    <Link href={`/n/app/mobile/shop/seller/${o.sellerSlug}`} className="hover:text-[#083f30] hover:underline">
+                      {o.sellerName}
+                    </Link>
                     {index === 0 ? (
                       <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-800">{t("sellerOffers.best")}</span>
                     ) : null}

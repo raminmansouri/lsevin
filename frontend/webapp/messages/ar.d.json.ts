@@ -14350,7 +14350,13 @@ declare const messages: {
       "shipsIn": "الشحن خلال {days} أيام عمل",
       "shipsToday": "الشحن اليوم",
       "outOfStock": "غير متوفر",
-      "add": "إضافة"
+      "add": "إضافة",
+      "others": "{count} بائعين آخرين"
+    },
+    "sellerPage": {
+      "products": "{count} منتج",
+      "yearsOnSite": "+{count} سنة على السوين",
+      "newSeller": "بائع جديد على السوين"
     }
   },
   "ShopAdmin": {

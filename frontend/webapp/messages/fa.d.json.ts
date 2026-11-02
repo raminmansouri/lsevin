@@ -16197,7 +16197,13 @@ declare const messages: {
       "shipsIn": "ارسال تا {days} روز کاری",
       "shipsToday": "ارسال امروز",
       "outOfStock": "ناموجود",
-      "add": "افزودن"
+      "add": "افزودن",
+      "others": "{count} فروشندهٔ دیگر"
+    },
+    "sellerPage": {
+      "products": "{count} کالا",
+      "yearsOnSite": "+{count} سال در السوین",
+      "newSeller": "فروشندهٔ تازه در السوین"
     }
   },
   "ShopAdmin": {
