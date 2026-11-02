@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-
+import { useLocale } from "next-intl";
 import { getCartAction } from "../actions/cart.actions";
 
 /**
@@ -11,6 +11,9 @@ import { getCartAction } from "../actions/cart.actions";
  */
 export function ShopCartCountBadge({ initial = 0 }: { initial?: number }) {
   const [count, setCount] = useState(initial);
+  // Format in the page's locale so the server and the browser render the same digits (۱ vs 1).
+  const locale = useLocale();
+  const format = (n: number) => new Intl.NumberFormat(locale).format(n);
 
   useEffect(() => {
     let alive = true;
@@ -28,7 +31,7 @@ export function ShopCartCountBadge({ initial = 0 }: { initial?: number }) {
 
   return (
     <span className="absolute end-0 top-0 min-w-[16px] rounded-full bg-[#eacb7f] px-1 text-center text-[10px] font-bold leading-4 text-[#083f30]">
-      {count > 99 ? "99+" : count}
+      {count > 99 ? `${format(99)}+` : format(count)}
     </span>
   );
 }
