@@ -302,6 +302,43 @@ export async function listSellersForPicker() {
 
 
 
+/**
+ * Products whose name, in any language, contains every word of one of the given names:
+ * the "this product may already exist" hint on the new-product form. Drafts included.
+ */
+export async function findSimilarProductsAdmin(names: string[]) {
+  await assertShopAdmin();
+  const found = new Map<string, { id: string; name: string; brand: string | null; imageUrl: string | null; sellerCount: number }>();
+  for (const name of names.slice(0, 3)) {
+    const words = name.split(/\s+/).map((w) => w.trim()).filter((w) => w.length >= 2).slice(0, 6);
+    if (!words.length) continue;
+    const patterns = words.map((w) => `%${w.replace(/[%_\\]/g, "\\$&")}%`);
+    const rows = await sql<{ id: string; name: string; brand: string | null; imageUrl: string | null; sellerCount: number }[]>`
+      select p.id::text as id,
+        common.get_translation_t(p.name_translations, 'fa', 'en') as name,
+        common.get_translation_t(b.name_translations, 'fa', 'en') as brand,
+        (select m.url from shop.product_media m where m.product_id = p.id order by m.is_primary desc, m.display_order asc limit 1) as "imageUrl",
+        coalesce(ps.seller_count, 0)::int as "sellerCount"
+      from shop.products p
+      left join shop.brands b on b.id = p.brand_id
+      left join shop.v_product_price_summary ps on ps.product_id = p.id
+      where p.deleted_at is null
+        and (
+          select bool_and(exists (
+            select 1 from jsonb_each_text(case when jsonb_typeof(p.name_translations) = 'object' then p.name_translations else '{}'::jsonb end) t
+            where t.value ilike w))
+          from unnest(${patterns}::text[]) w
+        )
+      order by p.create_date desc
+      limit 5
+    `;
+    for (const r of rows) found.set(r.id, r);
+  }
+  return [...found.values()].slice(0, 6);
+}
+
+
+
 // ======================================================================
 // Categories (SHP-ADM-006)
 // ======================================================================

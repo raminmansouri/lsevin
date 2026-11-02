@@ -14951,6 +14951,12 @@
       "warrantyFa": "Warranty (Persian)",
       "warrantyEn": "Warranty (English)",
       "addNote": "Empty stock means stock is read from the shop's current inventory. A seller can have one offer per item."
+    },
+    "similar": {
+      "title": "This product may already exist",
+      "hint": "If it's the same product, add the seller to it instead of creating a duplicate.",
+      "addSeller": "Add seller to this product",
+      "sellers": "{count} sellers"
     }
   },
   "Patients": {

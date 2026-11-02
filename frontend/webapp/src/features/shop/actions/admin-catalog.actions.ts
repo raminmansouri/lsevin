@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
+import { findSimilarProductsAdmin } from "../api/admin.repository";
 
 import { revalidateShopCatalog } from "../lib/cache";
 import { productGallerySchema } from "../schemas/gallery";
@@ -721,4 +722,13 @@ export async function removeHomeSectionItemForm(formData: FormData) {
   revalidateShopCatalog();
   revalidatePath("/[locale]/admin/shop/merchandising", "page");
   revalidatePath("/n/app/mobile/shop");
+}
+
+
+// ======================================================================
+// "This product may already exist" (new-product form)
+// ======================================================================
+export async function findSimilarProductsAction(input: unknown) {
+  const { names } = z.object({ names: z.array(z.string().trim().max(200)).max(3) }).parse(input);
+  return findSimilarProductsAdmin(names);
 }
