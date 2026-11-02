@@ -3,7 +3,6 @@ import "server-only";
 import { unstable_cache } from "next/cache";
 
 import sql from "@/config/database/db";
-import { resolveHomeMediaUrl } from "@/features/home/components/home-media";
 import { catalogDataLocale } from "@/lib/pwa/data-locale";
 import { routing } from "@/i18n/routing";
 import type { SeoLocale } from "@/lib/seo/alternates";
@@ -32,6 +31,19 @@ export const SITE_CONTENT_TAG = "global:site-content";
 // bundled seed content (the same content the seed migration inserts). At runtime
 // the database copy replaces it on the first revalidation or editorial save.
 const isBuildPhase = () => process.env.NEXT_PHASE === "phase-production-build";
+
+// Same rule as features/home/components/home-media (absolute URLs pass through,
+// paths resolve against the files host), but read at call time: importing the
+// validated client env here would make every module that renders a footer or an
+// FAQ (sitemap, llms.txt, layouts) fail to load without all NEXT_PUBLIC_* set.
+function mediaUrl(value: string | null): string | null {
+  const normalized = (value ?? "").trim();
+  if (!normalized) return null;
+  if (/^https?:\/\//iu.test(normalized)) return normalized;
+  const base = (process.env.NEXT_PUBLIC_FILES_URL ?? "").replace(/\/+$/u, "");
+  const path = normalized.replace(/^\/+/u, "");
+  return base ? `${base}/${path}` : `/${path}`;
+}
 
 const asTranslations = (value: unknown): Translations =>
   value && typeof value === "object" && !Array.isArray(value) ? (value as Translations) : {};
@@ -169,7 +181,10 @@ const seedPageRows = (): SitePageRow[] =>
 async function publishedPages(): Promise<SitePageRow[] | null> {
   if (isBuildPhase()) return seedPageRows();
   try {
-    return await cachedPublishedPages();
+    const rows = await cachedPublishedPages();
+    // Anything but a row list (a stubbed client, a proxy error) counts as unavailable.
+    if (!Array.isArray(rows)) throw new Error("unexpected result from content.site_pages");
+    return rows;
   } catch (error) {
     console.error("site-content: published pages read failed", { error });
     return null;
@@ -185,7 +200,7 @@ function toPublicPage(row: SitePageRow, localeKey: string): PublicSitePage | nul
     title,
     summary: pick(asTranslations(row.summaryTranslations), localeKey),
     body,
-    heroImageUrl: row.heroUrl ? resolveHomeMediaUrl(row.heroUrl) || null : null,
+    heroImageUrl: mediaUrl(row.heroUrl),
     updatedAt: row.updatedAt ?? new Date(0).toISOString(),
   };
 }
@@ -368,6 +383,7 @@ export async function getFaqs(target: FaqTarget, locale: string): Promise<Public
   let rows: FaqRow[];
   try {
     rows = isBuildPhase() ? seedFaqRows(target.scope, entityKey) : await cachedFaqs(target.scope, entityId, entityKey);
+    if (!Array.isArray(rows)) throw new Error("unexpected result from content.faq_items");
   } catch (error) {
     console.error("site-content: FAQ read failed", { scope: target.scope, entityId, entityKey, error });
     return [];

@@ -164,7 +164,7 @@ describe("guides", () => {
   });
 
   it("lists every guide version in llms.txt on the canonical domain", async () => {
-    const text = await llmsTxt().text();
+    const text = await (await llmsTxt()).text();
     expect(text).toMatch(/^# LSevin/);
     expect(text).toContain("https://lsevincare.com/sitemap.xml");
     for (const guide of allGuides()) {
