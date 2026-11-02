@@ -1,8 +1,8 @@
 [Unit]
-Description=Run LSevin Docker cleanup every 6 hours
+Description=Run LSevin Docker cleanup hourly
 
 [Timer]
-OnCalendar=*-*-* 00,06,12,18:45:00
+OnCalendar=hourly
 Persistent=true
 RandomizedDelaySec=20m
 Unit=lsevin-docker-cleanup.service

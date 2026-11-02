@@ -16211,8 +16211,8 @@ declare const messages: {
       "backToDashboard": "← داشبورد",
       "backToProducts": "← محصولات",
       "backToCategories": "← دسته‌بندی‌ها",
-      "sellers": "فروشندگان",
-      "warehouses": "انبارها"
+      "warehouses": "انبارها",
+      "sellers": "فروشندگان"
     },
     "common": {
       "save": "ذخیره",

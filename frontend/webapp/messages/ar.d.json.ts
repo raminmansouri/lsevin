@@ -14363,8 +14363,8 @@ declare const messages: {
       "backToDashboard": "← لوحة التحكم",
       "backToProducts": "← المنتجات",
       "backToCategories": "← الفئات",
-      "sellers": "Sellers",
-      "warehouses": "المستودعات"
+      "warehouses": "المستودعات",
+      "sellers": "Sellers"
     },
     "common": {
       "save": "حفظ",
