@@ -1,0 +1,8 @@
+[Unit]
+Description=Expire old SeaweedFS object snapshots (by the date in their name)
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/lsevin-object-backup-prune
+Nice=10
+IOSchedulingClass=idle
