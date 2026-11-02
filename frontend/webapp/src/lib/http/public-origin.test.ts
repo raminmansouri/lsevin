@@ -16,7 +16,7 @@ function request(host: string, forwardedHost?: string) {
 }
 
 describe("public aliases preserve host cookies through authentication", () => {
-  it.each(["lsevin.ir", "lsevincare.com", "appmain.lsevin.com"])(
+  it.each(["lsevin.ir", "lsevincare.com", "lsevin.com", "appmain.lsevin.com"])(
     "keeps %s with a canonical auth URL configured",
     (host) => {
       vi.stubEnv("NODE_ENV", "production");

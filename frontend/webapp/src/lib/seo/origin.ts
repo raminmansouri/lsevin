@@ -34,8 +34,15 @@ export function validateSeoOrigin(
 // variable published every canonical on the app host instead of lsevincare.com.
 // (Site A's image rewrites the app host string to lsevin.ir, key included, so
 // it consolidates onto the same public domain.)
+//
+// PRIMARY_PUBLIC_ORIGIN is the domain search engines should index. The brand's
+// primary domain is moving to lsevin.com; switch this only once lsevin.com
+// actually serves the app (today it is the WordPress site, so canonicals there
+// would 404). Cutover steps: docs/seo/lsevin-com-migration.md.
+export const PRIMARY_PUBLIC_ORIGIN = "https://lsevincare.com";
+
 const SEO_DOMAIN_FOR_APP_ORIGIN: Record<string, string> = {
-  "https://appmain.lsevin.com": "https://lsevincare.com",
+  "https://appmain.lsevin.com": PRIMARY_PUBLIC_ORIGIN,
 };
 
 // The public search domain can differ from the app/SSO origin. Never infer it
