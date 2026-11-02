@@ -14362,7 +14362,8 @@ declare const messages: {
       "settings": "الإعدادات",
       "backToDashboard": "← لوحة التحكم",
       "backToProducts": "← المنتجات",
-      "backToCategories": "← الفئات"
+      "backToCategories": "← الفئات",
+      "warehouses": "المستودعات"
     },
     "common": {
       "save": "حفظ",

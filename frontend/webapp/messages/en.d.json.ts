@@ -16188,7 +16188,8 @@ declare const messages: {
       "settings": "Settings",
       "backToDashboard": "← Dashboard",
       "backToProducts": "← Products",
-      "backToCategories": "← Categories"
+      "backToCategories": "← Categories",
+      "warehouses": "Warehouses"
     },
     "common": {
       "save": "Save",

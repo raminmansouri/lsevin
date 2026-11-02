@@ -16210,7 +16210,8 @@ declare const messages: {
       "settings": "تنظیمات",
       "backToDashboard": "← داشبورد",
       "backToProducts": "← محصولات",
-      "backToCategories": "← دسته‌بندی‌ها"
+      "backToCategories": "← دسته‌بندی‌ها",
+      "warehouses": "انبارها"
     },
     "common": {
       "save": "ذخیره",
