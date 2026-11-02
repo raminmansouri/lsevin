@@ -33,7 +33,6 @@ import { HomeHeroCard } from '@/features/home/components/home-hero-card';
 import { resolveHomeMediaUrl } from '@/features/home/components/home-media';
 import { SponsoredMediaCarouselSection } from '@/features/home/components/sponsored-media-carousel-section';
 import { countActiveSpecialPackages } from '@/features/special-packages/server/repository';
-import { findGuide, guidePath } from '@/features/guides/registry';
 import { LANDING_CATEGORY_LIMIT } from "@/features/categories/constants";
 
 import { DesktopHome } from "@/features/web-desktop/home/DesktopHome";
@@ -404,7 +403,7 @@ async function Home({ params }: PageProps) {
         </div>
       </section>
 
-      <HomeGuidesSection locale={locale} />
+
 
       <section className="pb-8">
         <div className="mb-5 flex items-center justify-between px-5">
@@ -608,40 +607,7 @@ async function Home({ params }: PageProps) {
   );
 }
 
-// Crawlable entry to the editorial guides, in the languages they are written in.
-function HomeGuidesSection({ locale }: { locale: string }) {
-  const hub = findGuide(locale, '');
-  if (!hub) return null;
-  // The hub lists every guide; the home block shows the first few, in hub order.
-  const guides = hub.guide.related
-    .map((slug) => findGuide(locale, slug))
-    .filter((item): item is NonNullable<typeof item> => Boolean(item))
-    .slice(0, 8);
-  return (
-    <section className="px-5 pb-8">
-      <div className="rounded-2xl bg-[#083f30]/[0.05] p-5 ring-1 ring-[#083f30]/10">
-        <h2 className="mb-1 text-lg font-bold text-gray-900">
-          <Link href={guidePath('')} className="hover:underline">
-            {hub.copy.h1}
-          </Link>
-        </h2>
-        <p className="mb-3 line-clamp-2 text-sm text-gray-600">{hub.copy.description}</p>
-        <ul className="flex flex-wrap gap-2">
-          {guides.map((item) => (
-            <li key={item.guide.slug}>
-              <Link
-                href={guidePath(item.guide.slug)}
-                className="inline-flex rounded-full bg-white px-3 py-1.5 text-sm font-semibold text-[#083f30] ring-1 ring-[#083f30]/15 hover:bg-[#083f30]/5"
-              >
-                {item.copy.navLabel}
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </div>
-    </section>
-  );
-}
+
 
 function HomeHeroBanner({
   offer,

@@ -162,13 +162,19 @@ const nextConfig: NextConfig = {
       // ran after the layout had started streaming, so it became a 200 with a
       // 1-second meta refresh to the unprefixed /n/app/mobile/home, and the
       // middleware then sent every visitor to /fa — /en visitors included.
+      //
+      // The financial panel host is excluded: config redirects run before the
+      // middleware, so without `missing` its "/" was sent to the customer mobile
+      // home (a 404 there) instead of being rewritten to /financial.
       {
         source: "/",
+        missing: [{ type: "host", value: "financial\\..*" }],
         destination: `/${routing.defaultLocale}/n/app/mobile/home`,
         permanent: false,
       },
       {
         source: `/:locale(${routing.locales.join("|")})`,
+        missing: [{ type: "host", value: "financial\\..*" }],
         destination: "/:locale/n/app/mobile/home",
         permanent: false,
       },
