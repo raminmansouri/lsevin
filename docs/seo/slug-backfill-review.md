@@ -31,3 +31,9 @@ The raw English-only candidate check found four provider names and eight staff n
 4. Run the app, integration tests, persistent Playwright suite, and production-like smoke tests against the upgraded clone; verify deployment and live responses before release.
 
 The branch is **not ready for release** until these steps pass.
+
+## Approved mapping and staging result (2 November 2026)
+
+The owner approved the proposed CSV without edits. The exact ID-to-slug mapping is now in immutable migration `0086_public_url_slug_backfill.sql`; no production backfill was run. On the isolated production-derived clone, `0085` followed by `0086` populated 186/186 providers, 12/12 types, 3,065/3,065 services, 304/304 staff, and 3/3 packages. Each entity's slug count equals its distinct-slug count. Re-running `0086` changed zero rows. A persistent mapping integrity test is in `tests/public-slug-migration.test.mjs`.
+
+Google Search Central's [URL guidance](https://developers.google.com/search/docs/crawling-indexing/url-structure) recommends descriptive words, the audience's language or transliteration, lowercase normalization, and hyphens. Its [site-move guidance](https://developers.google.com/search/docs/crawling-indexing/site-move-with-url-changes) calls for server-side permanent redirects, self-canonical new pages, updated internal links and sitemaps, and avoiding redirect chains. These are criteria for the subsequent route cutover. Search ranking position is not guaranteed by any URL format.
