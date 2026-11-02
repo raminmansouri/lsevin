@@ -24,6 +24,11 @@ test("categories: keyboard filtering, hierarchy and persisted URL", async ({
   page,
 }, testInfo) => {
   await page.setViewportSize({ width: 390, height: 844 });
+  const browserErrors: string[] = [];
+  page.on('pageerror', (error) => browserErrors.push(error.message));
+  page.on('console', (message) => {
+    if (message.type() === 'error' && message.text().includes('Hydration failed')) browserErrors.push(message.text());
+  });
   await page.goto("/fa/categories");
   const input = page.getByRole("textbox").first();
   await expect(input).toBeVisible();
@@ -55,6 +60,7 @@ test("categories: keyboard filtering, hierarchy and persisted URL", async ({
   await page.goto("/fa/n/app/mobile/home");
   await page.goBack();
   await expect(page).toHaveURL(selected);
+  expect(browserErrors).toEqual([]);
 });
 
 test('@regression explore: localized review count hydrates without a browser error', async ({ page }) => {

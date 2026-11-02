@@ -68,8 +68,8 @@ export default async function CategoryBrowserPage({
           data={{
             "@context": "https://schema.org",
             "@type": "CollectionPage",
-            "@id": `${absoluteUrl(locale, "/n/app/mobile/categories")}#collection`,
-            url: absoluteUrl(locale, "/n/app/mobile/categories"),
+            "@id": `${absoluteUrl(locale, "/categories")}#collection`,
+            url: absoluteUrl(locale, "/categories"),
             name: t("allCategories"),
             description: t("cantFindDescription"),
             inLanguage: locale,
