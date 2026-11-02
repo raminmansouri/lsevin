@@ -7,11 +7,6 @@ import { resolveDisplayCurrency, resolvePrices, resolvePrice } from "../lib/pric
 import { sql } from "../lib/db";
 import { joinSql, sortProductsSql } from "../lib/query-helpers";
 
-/**
- * Storefront read model. Every price that leaves this module is already
- * resolved into the request's display currency by `../lib/pricing`
- * (SHP-V01-025, SHP-CHK-013, SHP-API-006). Raw `base_price` never reaches the client.
- */
 
 type RawProductRow = {
   id: string;
@@ -33,11 +28,13 @@ type RawProductRow = {
   isNewArrival: boolean;
   hasStock: boolean;
   allowBackorder: boolean;
+  sellerCount: number;
   totalCount?: number;
 };
 
-/** Wishlisted product ids for the current customer (empty for guests). Inlined
- *  here rather than imported to avoid a cycle with wishlist.repository. */
+
+
+
 async function loadWishlistIds(): Promise<Set<string>> {
   const ctx = await getShopContext();
   if (!ctx.customerId) return new Set();
@@ -96,6 +93,7 @@ async function priceCards(rows: RawProductRow[], displayCurrency: string, wishli
       hasDiscount,
       hasStock: r.hasStock,
       isPreorder: !r.hasStock && r.allowBackorder,
+      sellerCount: Number(r.sellerCount) || 1,
       wishlistActive: wishlistIds ? wishlistIds.has(r.id) : false,
     };
   });
@@ -227,6 +225,7 @@ export async function searchProducts(
       p.is_new_arrival as "isNewArrival",
       p.allow_backorder as "allowBackorder",
       coalesce(price_summary.has_stock, false) as "hasStock",
+      coalesce(price_summary.seller_count, 1)::int as "sellerCount",
       count(*) over()::int as total_count
     from shop.products p
     left join shop.brands b on b.id = p.brand_id

@@ -14341,7 +14341,8 @@ declare const messages: {
     "returnSubmitted": "تم إرسال طلب الإرجاع — سنراجعه قريباً.",
     "returnsHeading": "المرتجعات",
     "returnStatusLabel": "الحالة",
-    "qty": "الكمية"
+    "qty": "الكمية",
+    "sellers": "{count} بائعين"
   },
   "ShopAdmin": {
     "nav": {

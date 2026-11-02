@@ -6097,7 +6097,8 @@ declare const messages: {
     "returnSubmitted": "İade talebiniz alındı — kısa süre içinde inceleyeceğiz.",
     "returnsHeading": "İadeler",
     "returnStatusLabel": "Durum",
-    "qty": "Adet"
+    "qty": "Adet",
+    "sellers": "{count} satıcı"
   },
   "Categories": {
     "actions": {

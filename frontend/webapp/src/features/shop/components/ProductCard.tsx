@@ -10,6 +10,7 @@ import { WishlistHeart } from "./WishlistHeart";
 type Labels = {
   from: string;
   sold: (n: number) => string;
+  sellers: (n: number) => string;
   outOfStock: string;
   preorder: string;
   priceUnavailable: string;
@@ -19,6 +20,7 @@ export function shopCardLabels(t: (k: string, v?: Record<string, unknown>) => st
   return {
     from: t("from"),
     sold: (n: number) => t("sold", { count: n >= 1000 ? `${Math.floor(n / 100) / 10}k` : n }),
+    sellers: (n: number) => t("sellers", { count: n }),
     outOfStock: t("outOfStock"),
     preorder: t("preorder"),
     priceUnavailable: t("priceUnavailable"),
@@ -131,6 +133,9 @@ export function ProductCard({
             </span>
           ) : null}
           {product.soldCount > 0 ? <span>{labels.sold(product.soldCount)}</span> : null}
+          {(product.sellerCount ?? 1) > 1 ? (
+            <span className="font-semibold text-[#083f30]">· {labels.sellers(product.sellerCount!)}</span>
+          ) : null}
           {product.brandName ? <span className="truncate">· {product.brandName}</span> : null}
         </div>
       </div>

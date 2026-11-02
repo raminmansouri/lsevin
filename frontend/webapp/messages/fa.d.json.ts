@@ -16188,7 +16188,8 @@ declare const messages: {
     "returnSubmitted": "درخواست مرجوعی ثبت شد — به‌زودی بررسی می‌کنیم.",
     "returnsHeading": "مرجوعی‌ها",
     "returnStatusLabel": "وضعیت",
-    "qty": "تعداد"
+    "qty": "تعداد",
+    "sellers": "{count} فروشنده"
   },
   "ShopAdmin": {
     "acmeHealth": "acme-health",

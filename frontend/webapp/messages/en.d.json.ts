@@ -16166,7 +16166,8 @@ declare const messages: {
     "returnSubmitted": "Return request submitted — we'll review it shortly.",
     "returnsHeading": "Returns",
     "returnStatusLabel": "Status",
-    "qty": "Qty"
+    "qty": "Qty",
+    "sellers": "{count} sellers"
   },
   "ShopAdmin": {
     "acmeHealth": "acme-health",

@@ -55,6 +55,7 @@ export interface ProductCard {
   isBestSeller: boolean;
   isNewArrival: boolean;
   hasDiscount: boolean;
+  sellerCount?: number;
   hasStock: boolean;
   isPreorder: boolean;
   wishlistActive: boolean;
