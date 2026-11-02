@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 /**
  * Writes the seed migration for the editorial pages and FAQs from
  * src/features/site-content/seed/content (see seed/index.ts).
