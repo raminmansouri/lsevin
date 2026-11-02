@@ -9,7 +9,7 @@ vi.mock("next/navigation", () => ({
     throw new Promise(() => {});
   },
 }));
-vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
+vi.mock("next-intl", () => ({ useLocale: () => "fa", useTranslations: () => (key: string) => key }));
 vi.mock("@/i18n/navigation", () => ({
   useRouter: () => ({ push: vi.fn(), back: vi.fn() }),
   Link: ({ children, href, ...props }: any) =>

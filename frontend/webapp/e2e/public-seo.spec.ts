@@ -33,14 +33,14 @@ test("categories: keyboard filtering, hierarchy and persisted URL", async ({
     await expect(input).toHaveValue("no-category-matches-qa-94731", {
       timeout: 1_000,
     });
-    await expect(page.locator('button[aria-label^="باز کردن "]')).toHaveCount(
+    await expect(page.locator('main main button[aria-label^="باز کردن "]')).toHaveCount(
       0,
       { timeout: 1_000 }
     );
   }).toPass({ timeout: 15_000 });
   await input.press("ControlOrMeta+A");
   await input.press("Backspace");
-  const parent = page.locator('button[aria-label^="باز کردن "]').first();
+  const parent = page.locator('main main button[aria-label^="باز کردن "]').first();
   await expect(parent).toBeVisible();
   await parent.focus();
   await page.keyboard.press("Enter");

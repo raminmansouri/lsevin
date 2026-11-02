@@ -2,7 +2,7 @@
 
 import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight, Search, Sparkles } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 
 import {
@@ -166,6 +166,7 @@ function CategoryCardContent({
   hasChildren: boolean;
   index: number;
 }) {
+  const locale = useLocale();
   const t = useTranslations("CategoryBrowser");
   const gradientClass = getGradientClass(category, index);
   const gradientStyle = getGradientStyle(category);
@@ -173,9 +174,10 @@ function CategoryCardContent({
   // Providers, never services. The old fallback swapped in a service count
   // whenever the provider count was zero, so one shelf mixed "70 providers" with
   // "121 services" and neither number could be read against the other.
-  const metaLabel = hasChildren
+  const metaLabel = (hasChildren
     ? t("subcategoriesCount", { count: childCount })
-    : t("providersCount", { count: Math.max(category.count, 0) });
+    : t("providersCount", { count: Math.max(category.count, 0) }))
+    .replace(/\d+/g, (digits) => [...digits].map((digit) => Number(digit).toLocaleString(locale)).join(""));
 
   return (
     <>
@@ -467,7 +469,7 @@ export function CategoryBrowserClient({
   }
 
   return (
-    <div className="min-h-screen bg-white pb-24">
+    <div className="min-h-screen bg-white pb-24" data-latin-digits>
       <Suspense fallback={null}>
         <CategoryUrlState onChange={setQueryString} />
       </Suspense>

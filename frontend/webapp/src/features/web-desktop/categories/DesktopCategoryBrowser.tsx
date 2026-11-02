@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { ArrowLeft, ChevronLeft, Search, Sparkles } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 
@@ -65,6 +65,7 @@ function Room({
   span: string;
   href: string;
 }) {
+  const locale = useLocale();
   const t = useTranslations("CategoryBrowser");
   const image = buildCategoryImageSrc(category.image);
   const number = new Intl.NumberFormat(locale, {
