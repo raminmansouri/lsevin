@@ -179,9 +179,18 @@ export async function searchProducts(
     const like = `%${filters.q}%`;
     conditions.push(sql`(
       p.search_vector @@ websearch_to_tsquery('simple', ${filters.q})
-      or common.get_translation_t(p.name_translations, ${lang}, 'en') ilike ${like}
-      or common.get_translation_t(p.short_description_translations, ${lang}, 'en') ilike ${like}
-      or exists (select 1 from shop.brands b where b.id = p.brand_id and common.get_translation_t(b.name_translations, ${lang}, 'en') ilike ${like})
+      -- Match the name, short description and brand in every language, so a product is
+      -- found whichever language the visitor types in (not only the site's current one).
+      or exists (
+        select 1 from jsonb_each_text(case when jsonb_typeof(p.name_translations) = 'object' then p.name_translations else '{}'::jsonb end) t
+        where t.value ilike ${like})
+      or exists (
+        select 1 from jsonb_each_text(case when jsonb_typeof(p.short_description_translations) = 'object' then p.short_description_translations else '{}'::jsonb end) t
+        where t.value ilike ${like})
+      or exists (
+        select 1 from shop.brands b,
+          jsonb_each_text(case when jsonb_typeof(b.name_translations) = 'object' then b.name_translations else '{}'::jsonb end) t
+        where b.id = p.brand_id and t.value ilike ${like})
     )`);
   }
   const whereSql = sql`where ${joinSql(conditions, sql` and `)}`;
