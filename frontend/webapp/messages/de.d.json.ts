@@ -13543,7 +13543,16 @@ declare const messages: {
       "retryNotice": "Die Bestellung ist gespeichert. Zahlung wiederholen, ohne erneut zu bestellen."
     },
     "changeCurrency": "Anzeigewährung ändern",
-    "currencyChangeFailed": "Die Währung konnte nicht geändert werden. Bitte versuche es erneut."
+    "currencyChangeFailed": "Die Währung konnte nicht geändert werden. Bitte versuche es erneut.",
+    "sellerOffers": {
+      "soldBy": "Sold by {name}",
+      "title": "Sellers of this product ({count})",
+      "best": "Best offer",
+      "shipsIn": "Ships in {days} business days",
+      "shipsToday": "Ships today",
+      "outOfStock": "Out of stock",
+      "add": "Add"
+    }
   },
   "ShopMedia": {
     "hint": "Das erste Bild ist das Hauptbild. Änderungen bitte speichern.",

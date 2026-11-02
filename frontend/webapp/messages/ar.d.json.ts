@@ -14342,7 +14342,16 @@ declare const messages: {
     "returnsHeading": "المرتجعات",
     "returnStatusLabel": "الحالة",
     "qty": "الكمية",
-    "sellers": "{count} بائعين"
+    "sellers": "{count} بائعين",
+    "sellerOffers": {
+      "soldBy": "البائع: {name}",
+      "title": "بائعو هذا المنتج ({count})",
+      "best": "أفضل عرض",
+      "shipsIn": "الشحن خلال {days} أيام عمل",
+      "shipsToday": "الشحن اليوم",
+      "outOfStock": "غير متوفر",
+      "add": "إضافة"
+    }
   },
   "ShopAdmin": {
     "nav": {

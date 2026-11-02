@@ -120,20 +120,26 @@ async function loadCartLines(
         (select url from shop.product_media where product_id = ci.product_id order by is_primary desc, display_order asc limit 1)
       ) as "imageUrl",
       ci.quantity,
-      coalesce(v.price, p.base_price)::float as "sourceUnitPrice",
-      coalesce(v.currency, p.base_currency) as "sourceCurrency",
-      coalesce(v.compare_at_price, p.compare_at_price)::float as "sourceCompareAt",
+      ci.offer_id::text as "offerId",
+      common.get_translation_t(s.name_translations, ${lang}, 'en') as "sellerName",
+      coalesce(o.price, v.price, p.base_price)::float as "sourceUnitPrice",
+      coalesce(o.currency, v.currency, p.base_currency) as "sourceCurrency",
+      (case when o.id is not null then o.compare_at_price else coalesce(v.compare_at_price, p.compare_at_price) end)::float as "sourceCompareAt",
       ci.saved_for_later as "savedForLater",
-      coalesce((
+      coalesce(o.stock_quantity, (
         select sum(greatest(i.on_hand - i.reserved, 0))::int from shop.inventory i
         where (ci.variant_id is not null and i.variant_id = ci.variant_id)
            or (ci.variant_id is null and i.product_id = ci.product_id and i.variant_id is null)
       ), 0) as available,
-      coalesce(v.allow_backorder, p.allow_backorder) as "allowBackorder",
-      (p.status = 'active' and p.deleted_at is null and (v.id is null or (v.is_active and v.deleted_at is null))) as "productActive"
+      (coalesce(o.allow_backorder, false) or coalesce(v.allow_backorder, p.allow_backorder)) as "allowBackorder",
+      (p.status = 'active' and p.deleted_at is null and (v.id is null or (v.is_active and v.deleted_at is null))
+        -- A line tied to an offer that was removed or switched off is unavailable, never repriced.
+        and (ci.offer_id is null or (o.id is not null and o.deleted_at is null and o.is_active and s.is_active and s.deleted_at is null))) as "productActive"
     from shop.cart_items ci
     join shop.products p on p.id = ci.product_id
     left join shop.product_variants v on v.id = ci.variant_id
+    left join shop.offers o on o.id = ci.offer_id
+    left join shop.sellers s on s.id = o.seller_id
     where ci.cart_id = ${cartId}::uuid
     order by ci.saved_for_later asc, ci.create_date desc
   `;
@@ -280,6 +286,8 @@ export async function getCartView(opts?: {
 export async function addCartItem(input: {
   productId: string;
   variantId?: string | null;
+  /** A specific seller's offer picked on the product page; otherwise the best live offer. */
+  offerId?: string | null;
   quantity: number;
   guestToken?: string;
 }): Promise<CartView> {
@@ -305,11 +313,32 @@ export async function addCartItem(input: {
     throw new Error("The selected option is no longer available.");
   }
 
+  // The offer this line buys from: the seller the shopper picked, else the best live offer
+  // for the item (in stock first, cheapest, fastest to ship), as on the product card.
+  const [offer] = await sql<{ id: string; price: number; compare_price: number | null; currency: string }[]>`
+    select o.id::text as id, o.price::float as price, o.compare_at_price::float as compare_price, o.currency
+    from shop.offers o
+    join shop.sellers s on s.id = o.seller_id and s.is_active and s.deleted_at is null
+    where o.product_id = ${input.productId}::uuid
+      and o.variant_id is not distinct from ${input.variantId ?? null}::uuid
+      and o.deleted_at is null and o.is_active
+      and (${input.offerId ?? null}::uuid is null or o.id = ${input.offerId ?? null}::uuid)
+    order by (o.stock_quantity is null or o.stock_quantity > 0 or o.allow_backorder) desc,
+      o.price asc, o.handling_days asc nulls last, o.id
+    limit 1
+  `;
+  if (input.offerId && !offer) throw new Error("This seller's offer is no longer available.");
+  const unitPrice = offer?.price ?? product.price;
+  const comparePrice = offer ? offer.compare_price : product.compare_price;
+  const currency = offer?.currency ?? product.currency;
+
   // duplicate add merges into the existing line (SHP-CART-003)
   const existing = await sql<{ id: string; quantity: number }[]>`
     select id::text as id, quantity from shop.cart_items
     where cart_id = ${cartId}::uuid and product_id = ${input.productId}::uuid
       and variant_id is not distinct from ${input.variantId ?? null}::uuid and saved_for_later = false
+      -- The same item from two sellers stays on two lines.
+      and offer_id is not distinct from ${offer?.id ?? null}::uuid
     limit 1
   `;
   if (existing[0]) {
@@ -318,12 +347,12 @@ export async function addCartItem(input: {
   } else {
     await sql`
       insert into shop.cart_items
-        (cart_id, product_id, variant_id, quantity, unit_price, compare_at_price, currency,
+        (cart_id, product_id, variant_id, offer_id, quantity, unit_price, compare_at_price, currency,
          source_currency, source_unit_price, item_snapshot)
       values
-        (${cartId}::uuid, ${input.productId}::uuid, ${input.variantId ?? null}::uuid, ${qty},
-         ${product.price}, ${product.compare_price ?? null}, ${product.currency},
-         ${product.currency}, ${product.price}, ${sql.json({ addedAt: new Date().toISOString() })})
+        (${cartId}::uuid, ${input.productId}::uuid, ${input.variantId ?? null}::uuid, ${offer?.id ?? null}::uuid, ${qty},
+         ${unitPrice}, ${comparePrice ?? null}, ${currency},
+         ${currency}, ${unitPrice}, ${sql.json({ addedAt: new Date().toISOString() })})
     `;
   }
   await touchCart(cartId);
@@ -461,7 +490,7 @@ export async function mergeGuestCartIntoCustomer(
 
     const targetId = customerCart[0].id;
     const guestItems = await tx<any[]>`
-      select product_id, variant_id, quantity, unit_price, compare_at_price, currency,
+      select product_id, variant_id, offer_id, quantity, unit_price, compare_at_price, currency,
              source_currency, source_unit_price, saved_for_later, item_snapshot
       from shop.cart_items where cart_id = ${guestCartId}::uuid
     `;
@@ -470,6 +499,7 @@ export async function mergeGuestCartIntoCustomer(
         select id::text as id, quantity from shop.cart_items
         where cart_id = ${targetId}::uuid and product_id = ${gi.product_id}
           and variant_id is not distinct from ${gi.variant_id} and saved_for_later = ${gi.saved_for_later}
+          and offer_id is not distinct from ${gi.offer_id}
         limit 1
       `;
       if (dup[0]) {
@@ -477,9 +507,9 @@ export async function mergeGuestCartIntoCustomer(
       } else {
         await tx`
           insert into shop.cart_items
-            (cart_id, product_id, variant_id, quantity, unit_price, compare_at_price, currency, source_currency, source_unit_price, saved_for_later, item_snapshot)
+            (cart_id, product_id, variant_id, offer_id, quantity, unit_price, compare_at_price, currency, source_currency, source_unit_price, saved_for_later, item_snapshot)
           values
-            (${targetId}::uuid, ${gi.product_id}, ${gi.variant_id}, ${gi.quantity}, ${gi.unit_price}, ${gi.compare_at_price},
+            (${targetId}::uuid, ${gi.product_id}, ${gi.variant_id}, ${gi.offer_id}, ${gi.quantity}, ${gi.unit_price}, ${gi.compare_at_price},
              ${gi.currency}, ${gi.source_currency}, ${gi.source_unit_price}, ${gi.saved_for_later}, ${tx.json(gi.item_snapshot)})
         `;
       }

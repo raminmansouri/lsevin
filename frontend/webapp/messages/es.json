@@ -13543,7 +13543,16 @@
       "retryNotice": "Tu pedido está guardado. Reintenta el pago sin crear otro pedido."
     },
     "changeCurrency": "Cambiar moneda de visualización",
-    "currencyChangeFailed": "No se pudo cambiar la moneda. Inténtalo de nuevo."
+    "currencyChangeFailed": "No se pudo cambiar la moneda. Inténtalo de nuevo.",
+    "sellerOffers": {
+      "soldBy": "Sold by {name}",
+      "title": "Sellers of this product ({count})",
+      "best": "Best offer",
+      "shipsIn": "Ships in {days} business days",
+      "shipsToday": "Ships today",
+      "outOfStock": "Out of stock",
+      "add": "Add"
+    }
   },
   "ShopMedia": {
     "hint": "La primera imagen es la principal. Guarda para aplicar los cambios.",

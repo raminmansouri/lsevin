@@ -350,7 +350,7 @@ export async function getProductBySlug(
     opts?.noFx
   );
 
-  const [gallery, categories, variantRows, attrRows, reviews, serviceLinks, questions] = await Promise.all([
+  const [gallery, categories, variantRows, attrRows, reviews, serviceLinks, questions, offerRows] = await Promise.all([
     sql<any[]>`select id::text as id, url, media_type as "mediaType", common.get_translation_t(alt_translations, ${lang}, 'en') as alt, is_primary as "isPrimary" from shop.product_media where product_id = ${row.id}::uuid order by is_primary desc, display_order asc`,
     sql<ShopCategory[]>`select c.id::text as id, c.parent_id::text as "parentId", common.get_translation_t(c.name_translations, ${lang}, 'en') as name, c.slug, c.image_url as "imageUrl", c.banner_url as "bannerUrl", c.icon, c.gradient, 0::int as "productCount" from shop.product_categories pc join shop.categories c on c.id = pc.category_id where pc.product_id = ${row.id}::uuid`,
     sql<any[]>`
@@ -393,7 +393,60 @@ export async function getProductBySlug(
       where q.product_id = ${row.id}::uuid and q.status = 'answered'
       order by q.last_modified_date desc limit 10
     `,
+    // Live offers: same rules as shop.v_product_price_summary (active offer, active seller,
+    // active item; the offer's own stock when set, else the shop inventory).
+    sql<any[]>`
+      select o.id::text as id, o.variant_id::text as "variantId", o.seller_id::text as "sellerId",
+        common.get_translation_t(s.name_translations, ${lang}, 'en') as "sellerName",
+        s.logo_url as "sellerLogoUrl", s.is_default as "isDefaultSeller",
+        o.price::float as price, o.compare_at_price::float as "compareAtPrice", o.currency as "sourceCurrency",
+        o.handling_days as "handlingDays",
+        coalesce(nullif(common.get_translation_t(o.warranty_translations, ${lang}, 'en'), ''),
+                 common.get_translation_t(s.warranty_translations, ${lang}, 'en')) as warranty,
+        ((case
+           when o.stock_quantity is not null then o.stock_quantity > 0
+           else coalesce((
+             select sum(greatest(i.on_hand - i.reserved, 0)) from shop.inventory i
+             where (o.variant_id is not null and i.variant_id = o.variant_id)
+                or (o.variant_id is null and i.product_id = o.product_id and i.variant_id is null)
+           ), 0) > 0
+         end) or o.allow_backorder or coalesce(v.allow_backorder, p.allow_backorder)) as "inStock"
+      from shop.offers o
+      join shop.sellers s on s.id = o.seller_id and s.is_active and s.deleted_at is null
+      join shop.products p on p.id = o.product_id
+      left join shop.product_variants v on v.id = o.variant_id
+      where o.product_id = ${row.id}::uuid and o.deleted_at is null and o.is_active
+        and (o.variant_id is null or (v.deleted_at is null and v.is_active))
+      order by o.price asc
+    `,
   ]);
+
+  const offers = await Promise.all(
+    offerRows.map(async (o) => {
+      const pr = await resolvePrice({
+        noFx: opts?.noFx,
+        amount: Number(o.price),
+        sourceCurrency: o.sourceCurrency,
+        compareAtAmount: o.compareAtPrice != null ? Number(o.compareAtPrice) : null,
+        displayCurrency,
+      });
+      return {
+        id: o.id,
+        variantId: o.variantId ?? null,
+        sellerId: o.sellerId,
+        sellerName: o.sellerName ?? "",
+        sellerLogoUrl: o.sellerLogoUrl ?? null,
+        isDefaultSeller: Boolean(o.isDefaultSeller),
+        price: pr.price.amount,
+        compareAtPrice: pr.compareAtPrice && !pr.compareAtPrice.unavailable ? pr.compareAtPrice.amount : null,
+        currency: pr.price.currency,
+        priceUnavailable: pr.price.unavailable,
+        inStock: Boolean(o.inStock),
+        handlingDays: o.handlingDays == null ? null : Number(o.handlingDays),
+        warranty: o.warranty ?? "",
+      };
+    })
+  );
 
   const variants = await Promise.all(
     variantRows.map(async (v) => {
@@ -449,6 +502,7 @@ export async function getProductBySlug(
     questions: questions.map((q) => ({ id: q.id, question: q.question, answer: q.answer, createDate: q.createDate })),
     reviews,
     relatedProducts: related.items.filter((x) => x.id !== row.id).slice(0, 8),
+    offers,
   };
 }
 

@@ -13564,6 +13564,15 @@
       "quoteFailed": "无法更新配送或付款选项，点击重试。",
       "updating": "正在更新配送和付款选项…",
       "retryNotice": "订单已保存，请重试付款，无需重复下单。"
+    },
+    "sellerOffers": {
+      "soldBy": "Sold by {name}",
+      "title": "Sellers of this product ({count})",
+      "best": "Best offer",
+      "shipsIn": "Ships in {days} business days",
+      "shipsToday": "Ships today",
+      "outOfStock": "Out of stock",
+      "add": "Add"
     }
   }
 }

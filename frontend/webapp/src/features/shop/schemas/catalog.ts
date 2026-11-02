@@ -17,6 +17,6 @@ export const productSearchSchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
   pageSize: z.coerce.number().int().min(1).max(60).default(12),
 });
-export const addToCartSchema = z.object({ productId: uuidSchema, variantId: uuidSchema.nullish(), quantity: z.coerce.number().int().min(1).max(999) });
+export const addToCartSchema = z.object({ productId: uuidSchema, variantId: uuidSchema.nullish(), offerId: uuidSchema.nullish(), quantity: z.coerce.number().int().min(1).max(999) });
 export const wishlistToggleSchema = z.object({ productId: uuidSchema, variantId: uuidSchema.nullish() });
 export const reviewCreateSchema = z.object({ productId: uuidSchema, orderItemId: uuidSchema.nullish(), rating: z.coerce.number().int().min(1).max(5), title: z.string().trim().max(120).optional(), body: z.string().trim().max(4000).optional() });

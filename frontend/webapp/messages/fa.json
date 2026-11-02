@@ -16186,7 +16186,16 @@
     "returnsHeading": "مرجوعی‌ها",
     "returnStatusLabel": "وضعیت",
     "qty": "تعداد",
-    "sellers": "{count} فروشنده"
+    "sellers": "{count} فروشنده",
+    "sellerOffers": {
+      "soldBy": "فروشنده: {name}",
+      "title": "فروشندگان این کالا ({count})",
+      "best": "بهترین پیشنهاد",
+      "shipsIn": "ارسال تا {days} روز کاری",
+      "shipsToday": "ارسال امروز",
+      "outOfStock": "ناموجود",
+      "add": "افزودن"
+    }
   },
   "ShopAdmin": {
     "acmeHealth": "acme-health",

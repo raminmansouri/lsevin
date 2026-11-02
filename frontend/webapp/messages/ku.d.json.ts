@@ -13543,7 +13543,16 @@ declare const messages: {
       "retryNotice": "داواکارییەکەت تۆمار کرا. پارەدان دووبارە بکەرەوە بەبێ داواکاریی نوێ."
     },
     "changeCurrency": "گۆڕینی دراوی پیشاندان",
-    "currencyChangeFailed": "گۆڕینی دراو سەرکەوتوو نەبوو. تکایە دووبارە هەوڵ بدەوە."
+    "currencyChangeFailed": "گۆڕینی دراو سەرکەوتوو نەبوو. تکایە دووبارە هەوڵ بدەوە.",
+    "sellerOffers": {
+      "soldBy": "Sold by {name}",
+      "title": "Sellers of this product ({count})",
+      "best": "Best offer",
+      "shipsIn": "Ships in {days} business days",
+      "shipsToday": "Ships today",
+      "outOfStock": "Out of stock",
+      "add": "Add"
+    }
   },
   "ShopMedia": {
     "hint": "وێنەی یەکەم وێنەی سەرەکییە. بۆ جێبەجێکردنی گۆڕانکارییەکان پاشەکەوت بکە.",

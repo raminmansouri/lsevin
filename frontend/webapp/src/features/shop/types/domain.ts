@@ -77,6 +77,23 @@ export interface ProductVariantView {
   selections: Record<string, string>;
 }
 
+
+export interface ProductOfferView {
+  id: UUID;
+  variantId: UUID | null;
+  sellerId: UUID;
+  sellerName: string;
+  sellerLogoUrl: string | null;
+  isDefaultSeller: boolean;
+  price: number;
+  compareAtPrice: number | null;
+  currency: string;
+  priceUnavailable: boolean;
+  inStock: boolean;
+  handlingDays: number | null;
+  warranty: string;
+}
+
 export interface ProductDetail extends ProductCard {
   description: string;
   requiresShipping: boolean;
@@ -96,6 +113,8 @@ export interface ProductDetail extends ProductCard {
   questions: Array<{ id: UUID; question: string; answer: string | null; createDate: string }>;
   reviews: Array<{ id: UUID; rating: number; title: string | null; body: string | null; createDate: string; customerName: string | null; isVerifiedPurchase: boolean; }>;
   relatedProducts: ProductCard[];
+  /** Live offers, every seller and variant; the page picks the winner per selected variant. */
+  offers: ProductOfferView[];
 }
 
 export interface CartItem {

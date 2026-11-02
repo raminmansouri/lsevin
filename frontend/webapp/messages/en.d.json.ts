@@ -16167,7 +16167,16 @@ declare const messages: {
     "returnsHeading": "Returns",
     "returnStatusLabel": "Status",
     "qty": "Qty",
-    "sellers": "{count} sellers"
+    "sellers": "{count} sellers",
+    "sellerOffers": {
+      "soldBy": "Sold by {name}",
+      "title": "Sellers of this product ({count})",
+      "best": "Best offer",
+      "shipsIn": "Ships in {days} business days",
+      "shipsToday": "Ships today",
+      "outOfStock": "Out of stock",
+      "add": "Add"
+    }
   },
   "ShopAdmin": {
     "acmeHealth": "acme-health",

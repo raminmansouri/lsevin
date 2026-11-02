@@ -6098,7 +6098,16 @@ declare const messages: {
     "returnsHeading": "İadeler",
     "returnStatusLabel": "Durum",
     "qty": "Adet",
-    "sellers": "{count} satıcı"
+    "sellers": "{count} satıcı",
+    "sellerOffers": {
+      "soldBy": "Sold by {name}",
+      "title": "Sellers of this product ({count})",
+      "best": "Best offer",
+      "shipsIn": "Ships in {days} business days",
+      "shipsToday": "Ships today",
+      "outOfStock": "Out of stock",
+      "add": "Add"
+    }
   },
   "Categories": {
     "actions": {

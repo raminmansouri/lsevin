@@ -13564,6 +13564,15 @@
       "quoteFailed": "Навсозии усулҳои расонидан ё пардохт ноком шуд. Барои такрор пахш кунед.",
       "updating": "Навсозии усулҳои расонидан ва пардохт…",
       "retryNotice": "Фармоиш сабт шуд. Пардохтро бе фармоиши такрорӣ аз нав кӯшиш кунед."
+    },
+    "sellerOffers": {
+      "soldBy": "Sold by {name}",
+      "title": "Sellers of this product ({count})",
+      "best": "Best offer",
+      "shipsIn": "Ships in {days} business days",
+      "shipsToday": "Ships today",
+      "outOfStock": "Out of stock",
+      "add": "Add"
     }
   }
 }

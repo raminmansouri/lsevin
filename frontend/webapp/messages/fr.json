@@ -13540,7 +13540,16 @@
       "retryNotice": "Votre commande est enregistrée. Réessayez de payer sans créer une autre commande."
     },
     "changeCurrency": "Changer la devise affichée",
-    "currencyChangeFailed": "Impossible de changer de devise. Veuillez réessayer."
+    "currencyChangeFailed": "Impossible de changer de devise. Veuillez réessayer.",
+    "sellerOffers": {
+      "soldBy": "Sold by {name}",
+      "title": "Sellers of this product ({count})",
+      "best": "Best offer",
+      "shipsIn": "Ships in {days} business days",
+      "shipsToday": "Ships today",
+      "outOfStock": "Out of stock",
+      "add": "Add"
+    }
   },
   "ShopMedia": {
     "hint": "La première image est l’image principale. Enregistrez pour appliquer les modifications.",

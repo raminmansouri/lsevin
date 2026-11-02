@@ -2,6 +2,7 @@
 
 import { useMemo, useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
+import { ShieldCheck, Store, Truck } from "lucide-react";
 
 import { useRouter } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
@@ -32,13 +33,32 @@ export function ProductDetailClient({
   );
 
   const needsVariant = product.variants.length > 0;
-  const price = selected ? selected.price : product.price;
-  const compareAt = selected ? selected.compareAtPrice : product.compareAtPrice;
-  const currency = selected ? selected.currency : product.currency;
-  const priceUnavailable = selected
-    ? selected.priceUnavailable
-    : product.priceUnavailable;
-  const inStock = selected ? selected.hasStock : product.hasStock;
+  // The winning offer for the selected item: in stock first, cheapest, fastest to ship
+  // (the same rule as the product card and the cart).
+  const itemOffers = useMemo(
+    () =>
+      (product.offers ?? [])
+        .filter((o) => o.variantId === (variantId ?? null))
+        .sort(
+          (a, b) =>
+            Number(b.inStock) - Number(a.inStock) ||
+            a.price - b.price ||
+            (a.handlingDays ?? 99) - (b.handlingDays ?? 99)
+        ),
+    [product.offers, variantId]
+  );
+  const bestOffer = itemOffers[0] ?? null;
+  const shipping = (days: number | null) =>
+    days == null ? null : days === 0 ? t("sellerOffers.shipsToday") : t("sellerOffers.shipsIn", { days });
+  const price = bestOffer ? bestOffer.price : selected ? selected.price : product.price;
+  const compareAt = bestOffer ? bestOffer.compareAtPrice : selected ? selected.compareAtPrice : product.compareAtPrice;
+  const currency = bestOffer ? bestOffer.currency : selected ? selected.currency : product.currency;
+  const priceUnavailable = bestOffer
+    ? bestOffer.priceUnavailable
+    : selected
+      ? selected.priceUnavailable
+      : product.priceUnavailable;
+  const inStock = bestOffer ? bestOffer.inStock : selected ? selected.hasStock : product.hasStock;
   const maxQty = Math.max(
     1,
     selected
@@ -46,7 +66,7 @@ export function ProductDetailClient({
       : product.inventoryAvailable || 99
   );
 
-  function add(then?: "cart" | "stay") {
+  function add(then?: "cart" | "stay", offerId?: string) {
     setMsg(null);
     if (needsVariant && !variantId) {
       setMsg(t("selectVariantFirst"));
@@ -57,6 +77,7 @@ export function ProductDetailClient({
         await addToCartAction({
           productId: product.id,
           variantId,
+          offerId: offerId ?? bestOffer?.id ?? null,
           quantity: qty,
         });
         if (then === "cart") router.push("/n/app/mobile/shop/cart");
@@ -92,6 +113,27 @@ export function ProductDetailClient({
               </button>
             ))}
           </div>
+        </div>
+      ) : null}
+
+      {bestOffer ? (
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 rounded-xl bg-neutral-50 px-3 py-2.5 text-xs text-neutral-600 ring-1 ring-neutral-100">
+          <span className="flex items-center gap-1.5 font-semibold text-neutral-900">
+            <Store size={14} className="text-[#083f30]" />
+            {t("sellerOffers.soldBy", { name: bestOffer.sellerName })}
+          </span>
+          {bestOffer.warranty ? (
+            <span className="flex items-center gap-1">
+              <ShieldCheck size={13} className="text-[#083f30]" />
+              {bestOffer.warranty}
+            </span>
+          ) : null}
+          {shipping(bestOffer.handlingDays) ? (
+            <span className="flex items-center gap-1">
+              <Truck size={13} className="text-[#083f30]" />
+              {shipping(bestOffer.handlingDays)}
+            </span>
+          ) : null}
         </div>
       ) : null}
 
@@ -139,6 +181,56 @@ export function ProductDetailClient({
         >
           {msg}
         </p>
+      ) : null}
+
+      {/* Every seller of the selected item, cheapest in-stock first (the first is the winner). */}
+      {itemOffers.length > 1 ? (
+        <div className="rounded-2xl ring-1 ring-neutral-200">
+          <p className="border-b border-neutral-100 px-4 py-3 text-sm font-bold text-neutral-900">
+            {t("sellerOffers.title", { count: itemOffers.length })}
+          </p>
+          <ul className="divide-y divide-neutral-100">
+            {itemOffers.map((o, index) => (
+              <li key={o.id} className="flex items-center gap-3 px-4 py-3">
+                <span className="grid h-9 w-9 shrink-0 place-items-center overflow-hidden rounded-full bg-[#083f30]/5 text-sm font-bold text-[#083f30]">
+                  {o.sellerLogoUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={o.sellerLogoUrl} alt="" className="h-full w-full object-cover" />
+                  ) : (
+                    o.sellerName.charAt(0)
+                  )}
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="flex items-center gap-2 text-sm font-semibold text-neutral-900">
+                    {o.sellerName}
+                    {index === 0 ? (
+                      <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-800">{t("sellerOffers.best")}</span>
+                    ) : null}
+                  </span>
+                  <span className="mt-0.5 block truncate text-xs text-neutral-500">
+                    {[o.warranty, shipping(o.handlingDays)].filter(Boolean).join(" · ")}
+                  </span>
+                </span>
+                <span className="shrink-0 text-end">
+                  {o.priceUnavailable ? (
+                    <span className="text-xs text-neutral-500">{t("priceUnavailable")}</span>
+                  ) : (
+                    <ShopPrice amount={o.price} currency={o.currency} locale={locale} className="block text-sm font-extrabold text-[#e02e2a]" />
+                  )}
+                  {!o.inStock ? <span className="text-[11px] text-neutral-400">{t("sellerOffers.outOfStock")}</span> : null}
+                </span>
+                <button
+                  type="button"
+                  disabled={pending || o.priceUnavailable || !o.inStock}
+                  onClick={() => add("stay", o.id)}
+                  className="shrink-0 rounded-full border border-[#083f30] px-3 py-1.5 text-xs font-bold text-[#083f30] disabled:opacity-40"
+                >
+                  {t("sellerOffers.add")}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
       ) : null}
 
       {/* sticky action bar */}
