@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+# lsevin-k3s-image-tidy - removes old application images from Kubernetes' image store (containerd). Every release leaves its images
+# behind (webapp ~110 MB + migrations ~60 MB + API ~115 MB); kubelet only cleans up at 85% disk, which is where the site health check
+# turns red. Keeps: every image a pod/deployment uses + the KEEP newest builds of each repository (so `rollout undo` still has its image).
+# "Newest" = highest build number in the tag <commit>-<build>. Run from lsevin-k3s-image-tidy.timer (every 6 hours) on server B.
+set -uo pipefail
+KEEP=${KEEP:-3}; NS=${NS:-lsevin}; LOG=${LOG:-/var/log/lsevin-k3s-image-tidy.log}
+K=${KUBECTL:-kubectl}; command -v "$K" >/dev/null 2>&1 || K="k3s kubectl"; [ "$(id -u)" = 0 ] || K="sudo -n $K"
+CTR="k3s ctr -n k8s.io"; [ "$(id -u)" = 0 ] || CTR="sudo -n $CTR"
+log() { printf '%s %s\n' "$(date -u +%FT%TZ)" "$*" | tee -a "$LOG" >&2; }
+# never run while a build/deploy is importing images
+ps -eo args | grep -qE "[d]ocker build|[k]3s-deploy.sh (import|deploy)" && { log "a build/deploy is running; skipped"; exit 0; }
+before=$(df --output=pcent / | tail -1 | tr -dc 0-9)
+
+used=$($K -n "$NS" get pods,deploy,sts,cronjob,job -o jsonpath='{..image}' 2>/dev/null | tr ' ' '\n' | sed 's#^docker.io/library/##' | sort -u)
+[ -n "$used" ] || { log "could not read the images in use; nothing removed"; exit 1; }
+
+removed=0
+# lsevin-crm / lsevin-providers / lsevin-portal are tagged by commit only (no build number), so "newest" cannot be told from the tag:
+# only the image a workload uses stays. A rollback image is still in Docker (docker-cleanup.sh keeps the newest tags there).
+for repo in lsevin-crm lsevin-providers lsevin-portal; do
+  for ref in $($CTR images ls -q 2>/dev/null | sed 's#^docker.io/library/##' | grep -E "^$repo:" | grep -v '@'); do
+    printf '%s\n' "$used" | grep -qxF "$ref" && continue
+    $CTR images rm --sync "docker.io/library/$ref" >/dev/null 2>&1 && removed=$((removed + 1))
+  done
+done
+for repo in lsevin-webapp lsevin-webapp-migrations lsevin-api; do
+  refs=$($CTR images ls -q 2>/dev/null | sed 's#^docker.io/library/##' | grep -E "^$repo:" | grep -v '@')
+  [ -n "$refs" ] || continue
+  # newest KEEP by build number (non-numeric tags count as 0 and go first to the bin)
+  newest=$(printf '%s\n' $refs | awk -F: '{n=$2; sub(/.*-/,"",n); if (n !~ /^[0-9]+$/) n=0; print n" "$0}' | sort -rn | head -n "$KEEP" | awk '{print $2}')
+  for ref in $refs; do
+    printf '%s\n' "$used"   | grep -qxF "$ref" && continue
+    printf '%s\n' "$newest" | grep -qxF "$ref" && continue
+    $CTR images rm --sync "docker.io/library/$ref" >/dev/null 2>&1 && removed=$((removed + 1))
+  done
+done
+log "removed $removed old images (kept: in use + newest $KEEP builds per repository); disk ${before}% -> $(df --output=pcent / | tail -1 | tr -dc 0-9)%"
