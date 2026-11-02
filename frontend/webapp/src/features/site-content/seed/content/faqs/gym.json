@@ -75,23 +75,23 @@
         },
         "tr-TR": {
           "q": "Spor salonu üyeliğimin aylarını nasıl öderim?",
-          "a": "Abonelik formu kartla ödeme almaz. Banka havalesiyle ödeme yaptıysanız ekibin ödemeyi talebinizle eşleştirebilmesi için havalenin referans numarasını “Ödeme referansı (isteğe bağlı)” alanına girin. Ardından her ayın durumu görünür: “İnceleniyor”, “Ödendi”, nedeniyle birlikte “Reddedildi” veya “Vadesi geçmiş”. Bir ay reddedilirse nedenini okuyun ve LSevin desteğine başvurun."
+          "a": "Abonelik formu kartla ödeme almaz. Banka havalesiyle ödeme yaptıysanız ekibin ödemeyi talebinizle eşleştirebilmesi için havalenin referans numarasını “Ödeme referansı (isteğe bağlı)” alanına girin. Ardından her ayın durumu görünür: “İnceleniyor”, “Ödendi”, nedeniyle birlikte “Reddedildi” veya “Ödenecek”. Bir ay reddedilirse nedenini okuyun ve LSevin desteğine başvurun."
         },
         "ku-KU": {
           "q": "چۆن پارەی مانگەکانی ئەندامێتیی جیمەکەم بدەم؟",
-          "a": "فۆرمی بەشداریکردن پارەدان بە کارت وەرناگرێت. ئەگەر پێشتر بە گواستنەوەی بانکی پارەتان داوە، ژمارەی بەدواداچوونی گواستنەوەکە لە «ژمارەی پشتڕاستکردنەوەی پارەدان (ئارەزوومەندانە)» بنووسن بۆ ئەوەی تیمەکە بتوانێت بە داواکارییەکەتانەوە ببەستێتەوە. پاشان هەر مانگێک دۆخی خۆی پیشان دەدات: «چاوەڕوانی پێداچوونەوە»، «پارەدراوە»، «ڕەتکراوەتەوە» لەگەڵ هۆکارەکەی، یان «کاتی سەلماندنی هاتووە». ئەگەر مانگێک ڕەت کرایەوە، هۆکارەکە بخوێننەوە و پەیوەندی بە پشتگیریی LSevinەوە بکەن."
+          "a": "فۆرمی بەشداریکردن پارەدان بە کارت وەرناگرێت. ئەگەر پێشتر بە گواستنەوەی بانکی پارەتان داوە، ژمارەی بەدواداچوونی گواستنەوەکە لە «ژمارەی پشتڕاستکردنەوەی پارەدان (ئارەزوومەندانە)» بنووسن بۆ ئەوەی تیمەکە بتوانێت بە داواکارییەکەتانەوە ببەستێتەوە. پاشان هەر مانگێک دۆخی خۆی پیشان دەدات: «چاوەڕوانی پێداچوونەوە»، «پارەدراوە»، «ڕەتکراوەتەوە» لەگەڵ هۆکارەکەی، یان «کاتی پارەدانە». ئەگەر مانگێک ڕەت کرایەوە، هۆکارەکە بخوێننەوە و پەیوەندی بە پشتگیریی LSevinەوە بکەن."
         },
         "ru-RU": {
           "q": "Как оплатить месяцы абонемента?",
-          "a": "Форма оформления абонемента не принимает оплату картой. Если Вы уже оплатили банковским переводом, введите номер перевода в поле «Номер платежа (необязательно)», чтобы команда могла сопоставить его с Вашей заявкой. Затем у каждого месяца отображается статус: «На проверке», «Оплачено», «Отклонено» с указанием причины или «Просрочено». Если месяц отклонён, ознакомьтесь с причиной и обратитесь в поддержку LSevin."
+          "a": "Форма оформления абонемента не принимает оплату картой. Если Вы уже оплатили банковским переводом, введите номер перевода в поле «Номер платежа (необязательно)», чтобы команда могла сопоставить его с Вашей заявкой. Затем у каждого месяца отображается статус: «На проверке», «Оплачено», «Отклонено» с указанием причины или «К оплате». Если месяц отклонён, ознакомьтесь с причиной и обратитесь в поддержку LSevin."
         },
         "tg-TJ": {
           "q": "Барои моҳҳои аъзогӣ чӣ тавр пардохт кунам?",
-          "a": "Формаи обуна пардохт бо кортро қабул намекунад. Агар аллакай бо интиқоли бонкӣ пардохт карда бошед, рақами пайгирии интиқолро дар «Рақами пайгирии пардохт (ихтиёрӣ)» ворид кунед, то гурӯҳ онро ба дархости шумо мувофиқ кунад. Баъд ҳар моҳ ҳолати худро нишон медиҳад: «Дар интизори баррасӣ», «Пардохтшуда», «Радшуда» бо сабаби он ё «Мӯҳлаташ гузашт». Агар моҳе рад шуда бошад, сабабро хонед ва ба дастгирии LSevin муроҷиат кунед."
+          "a": "Формаи обуна пардохт бо кортро қабул намекунад. Агар аллакай бо интиқоли бонкӣ пардохт карда бошед, рақами пайгирии интиқолро дар «Рақами пайгирии пардохт (ихтиёрӣ)» ворид кунед, то гурӯҳ онро ба дархости шумо мувофиқ кунад. Баъд ҳар моҳ ҳолати худро нишон медиҳад: «Дар интизори баррасӣ», «Пардохтшуда», «Радшуда» бо сабаби он ё «Барои пардохт». Агар моҳе рад шуда бошад, сабабро хонед ва ба дастгирии LSevin муроҷиат кунед."
         },
         "zh-CN": {
           "q": "如何支付健身房会员的月费？",
-          "a": "订阅表单不支持银行卡付款。如果您已通过银行转账付款，请在“付款参考号（可选）”中填写转账参考号，方便团队将其与您的申请对应。之后每个月份都会显示状态：“待审核”、“已支付”、“已拒绝”（附原因）或“已到期”。如果某个月份被拒绝，请查看原因并联系LSevin客服。"
+          "a": "订阅表单不支持银行卡付款。如果您已通过银行转账付款，请在“付款参考号（可选）”中填写转账参考号，方便团队将其与您的申请对应。之后每个月份都会显示状态：“待审核”、“已支付”、“已拒绝”（附原因）或“待支付”。如果某个月份被拒绝，请查看原因并联系LSevin客服。"
         },
         "de-DE": {
           "q": "Wie bezahle ich die Monate meiner Fitnessstudio-Mitgliedschaft?",
@@ -99,11 +99,11 @@
         },
         "fr-FR": {
           "q": "Comment payer les mois de mon abonnement ?",
-          "a": "Le formulaire d’abonnement n’accepte pas les paiements par carte. Si vous avez déjà payé par virement bancaire, saisissez la référence du virement dans « Référence de paiement (facultatif) » afin que l’équipe puisse la rapprocher de votre demande. Chaque mois affiche ensuite son statut : « En attente de vérification », « Payé », « Refusé » avec le motif, ou « Échu ». Si un mois est refusé, lisez le motif et contactez l’assistance LSevin."
+          "a": "Le formulaire d’abonnement n’accepte pas les paiements par carte. Si vous avez déjà payé par virement bancaire, saisissez la référence du virement dans « Référence de paiement (facultatif) » afin que l’équipe puisse la rapprocher de votre demande. Chaque mois affiche ensuite son statut : « En attente de vérification », « Payé », « Refusé » avec le motif, ou « À payer ». Si un mois est refusé, lisez le motif et contactez l’assistance LSevin."
         },
         "es-ES": {
           "q": "¿Cómo pago los meses de mi membresía de gimnasio?",
-          "a": "El formulario de suscripción no admite pagos con tarjeta. Si ya ha pagado por transferencia bancaria, introduzca el número de referencia de la transferencia en «Referencia de pago (opcional)» para que el equipo pueda asociarla a su solicitud. Después, cada mes muestra su estado: «En revisión», «Pagado», «Rechazado» con el motivo, o «Vencido». Si se rechaza un mes, lea el motivo y contacte con el soporte de LSevin."
+          "a": "El formulario de suscripción no admite pagos con tarjeta. Si ya ha pagado por transferencia bancaria, introduzca el número de referencia de la transferencia en «Referencia de pago (opcional)» para que el equipo pueda asociarla a su solicitud. Después, cada mes muestra su estado: «En revisión», «Pagado», «Rechazado» con el motivo, o «Pendiente de pago». Si se rechaza un mes, lea el motivo y contacte con el soporte de LSevin."
         }
       }
     },
