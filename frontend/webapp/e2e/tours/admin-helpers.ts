@@ -60,6 +60,10 @@ export async function editorTab(page: Page, name: string) {
   const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   const link = page.getByRole("navigation", { name: "Editor sections" }).getByRole("link", { name: new RegExp(`^${escaped}( \\(\\d+\\))?$`) });
   const href = await link.getAttribute("href");
+  // A save still in flight keeps its form marked unsaved, and leaving then asks for
+  // confirmation (Playwright dismisses it). An earlier toast can satisfy expectToast
+  // before this save finishes, so wait for every form to be saved first.
+  await expect(page.locator('[data-testid$="-unsaved"]')).toHaveCount(0, { timeout: 60_000 });
   await link.click();
   await page.waitForURL((url) => href != null && url.href.endsWith(href.split("/").pop()!), { timeout: 180_000 });
   await expect(link).toHaveAttribute("aria-current", "page", { timeout: 60_000 });

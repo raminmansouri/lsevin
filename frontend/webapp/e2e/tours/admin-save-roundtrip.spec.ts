@@ -17,6 +17,10 @@ import { closeDb, db } from "./support/db";
 
 test.afterAll(closeDb);
 test.describe.configure({ timeout: 300_000 });
+// The library file lives on the files host, cross-origin to a local server. Locally `next start`
+// serves sw.js with `connect-src 'self'` (Caddy replaces it in production), so once the PWA
+// worker controls the page it cannot re-fetch that image. Keep the worker out of these tests.
+test.use({ serviceWorkers: "block" });
 
 async function evidence(page: Page, testInfo: TestInfo, scenario: string, step: string) {
   const name = `tours-admin-save__${scenario}__${step}`;
