@@ -1,7 +1,7 @@
 "use server";
 
 import { AuthError } from "next-auth";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 
 import {
   clearOtpChallengePhone,
@@ -9,6 +9,7 @@ import {
 } from "@/features/auth/lib/otp-challenge";
 import { redeemPendingSignupReferral } from "@/features/auth/lib/referral-signup";
 import { signIn } from "@/lib/auth";
+import { findUserIdByPhone, getAppRoles, homePathForRoles } from "@/lib/auth/app-roles";
 import { parsePhone } from "@/lib/parse-phone";
 import { createSafeAction } from "@/lib/safe-action";
 
@@ -46,10 +47,23 @@ const handler = async (input: InputType): Promise<ReturnType> => {
         phoneNumberCountryCode: parsedPhone.country,
       });
     }
+    // Some roles have their own landing page (a consultation GP goes to their
+    // panel). Resolved from the phone just verified, as the new session cookie is
+    // not readable within this same request. Never blocks the sign-in.
+    let destination: string | undefined;
+    if (parsedPhone) {
+      try {
+        const userId = await findUserIdByPhone(parsedPhone.value, parsedPhone.country);
+        const home = homePathForRoles(await getAppRoles(userId));
+        if (home) destination = `/${await getLocale()}${home}`;
+      } catch (error) {
+        console.error("[auth] resolving role landing page failed", error);
+      }
+    }
     // The client performs a full-page navigation after this action succeeds so
     // the new session is picked up. Returning normally avoids treating Next.js'
     // redirect control-flow exception as an authentication error.
-    return { error: undefined, payload: input };
+    return { data: destination ? { destination } : undefined, error: undefined, payload: input };
   } catch (exception) {
     // Handle auth errors
     if (exception instanceof AuthError) {

@@ -16,6 +16,7 @@ import { LocalizedText } from "../../shared/localized-text";
 import { TourImage } from "../common";
 import { DestinationCard } from "../destination-card";
 import { TourCard } from "../tour-card";
+import { DesktopToursHome } from "@/features/web-desktop/tours/DesktopToursHome";
 
 function SectionHeader({ title, href, seeAll, id }: { title: string; href?: string; seeAll?: string; id: string }) {
   const rtl = directionOf(useLocale()) === "rtl";
@@ -135,7 +136,8 @@ export function ToursHome({
   }
 
   return (
-    <div className="space-y-8 pb-6">
+    <>
+    <div className="space-y-8 pb-6 xl:hidden">
       {/* Hero (C-010): admin hero module when published, otherwise a licensed photo of Naqsh-e Jahan Square. */}
       <section aria-labelledby="tours-hero-title" className="relative overflow-hidden md:mx-6 md:mt-4 md:rounded-3xl">
         <TourImage src={heroImage} alt="" className="absolute inset-0 h-full w-full" eager />
@@ -207,8 +209,10 @@ export function ToursHome({
             ))}
           </Rail>
         </section>
-      ) : discovery.length > 0 ? (
-        <section aria-labelledby="discover-title" data-testid="discovery" data-section-order="1">
+      ) : null}
+
+      {discovery.length > 0 ? (
+        <section aria-labelledby="discover-title" data-testid="discovery" data-section-order={recent.length > 0 ? "2" : "1"}>
           <div className="mb-3 px-4 sm:px-6">
             <h2 id="discover-title" className="text-lg font-bold text-slate-900">
               {t("home.discover.title")}
@@ -275,5 +279,23 @@ export function ToursHome({
         </div>
       ) : null}
     </div>
+
+    <DesktopToursHome
+      recent={recent}
+      discovery={discovery}
+      destinations={destinations}
+      offers={offers}
+      collections={collections}
+      categories={categories}
+      saved={saved}
+      hero={hero}
+      heroImage={heroImage}
+      heroCredit={hero?.imageUrl ? null : { credit: HOME_HERO.credit, source: HOME_HERO.source }}
+      nothing={nothing}
+      error={error}
+      pending={pending}
+      onClearHistory={clearHistory}
+    />
+    </>
   );
 }

@@ -54,12 +54,13 @@ const OtpForm = ({ phoneNumber, redirectTo }: Props) => {
 
   const { execute: executeVerify } = useAction(verifyOtp, {
     startTransition,
-    onSuccess: () => {
+    onSuccess: (data) => {
       toast.success(t("messages.success"));
       // redirectTo is already locale-prefixed (e.g. "/fa/profile"); use a full
       // navigation so the new session is picked up and avoid the next-intl
-      // router re-adding the locale prefix.
-      window.location.href = redirectTo || "/";
+      // router re-adding the locale prefix. A role's own landing page (also
+      // locale-prefixed) wins over it.
+      window.location.href = data?.destination || redirectTo || "/";
     },
     onError: (err) => {
       toast.error(err.detail || t("messages.error"));

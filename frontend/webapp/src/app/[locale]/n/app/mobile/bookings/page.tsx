@@ -8,6 +8,10 @@ import { useFetchBookings } from "@/features/service-providers/api/client/fetch-
 import type { Booking } from "@/features/service-providers/types";
 import { useNavigate } from "@/hooks/use-navigate";
 import { useLocale, useTranslations } from "next-intl";
+import { DesktopBookingsView } from "@/features/web-desktop/bookings/DesktopBookingsView";
+
+
+import { useMyVideoSessions, VideoSessionBookingCard } from "@/features/consultation/components/my-video-sessions";
 const BRAND_GREEN = "#083f30";
 type BookingTab = "upcoming" | "past" | "cancelled";
 const TABS: Array<{
@@ -126,16 +130,23 @@ function BookingCard({ booking, onOpen }: {
       </div>
     </button>);
 }
-export default function Bookings() {
+function MobileBookings() {
     const tBooking = useTranslations("Booking");
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState<BookingTab>("upcoming");
-    const { data, error, isFetching, refetch } = useFetchBookings({});
+    const { data, error, isFetching, refetch: refetchBookings } = useFetchBookings({} as Parameters<typeof useFetchBookings>[0])
+    // Video consultations live in their own table and sit in the same tabs.
+    const { lists: consultations, refetch: refetchConsultations } = useMyVideoSessions();
+    const refetch = () => {
+        refetchBookings();
+        refetchConsultations();
+    };
     const counts = useMemo(() => ({
-        upcoming: data?.upcomingBookings.length ?? 0,
-        past: data?.pastBookings.length ?? 0,
-        cancelled: data?.cancelledBookings.length ?? 0,
-    }), [data]);
+        upcoming: (data?.upcomingBookings.length ?? 0) + consultations.upcoming.length,
+        past: (data?.pastBookings.length ?? 0) + consultations.past.length,
+        cancelled: (data?.cancelledBookings.length ?? 0) + consultations.cancelled.length,
+    }), [data, consultations]);
+    const tabConsultations = consultations[activeTab];
     const bookings = useMemo(() => {
         if (activeTab === "past")
             return data?.pastBookings ?? [];
@@ -174,7 +185,8 @@ export default function Bookings() {
           <button type="button" onClick={() => refetch()} className="rounded-xl bg-[#083f30] px-6 py-3 font-semibold text-white transition-colors hover:bg-[#0a5a44]">{tBooking("tryAgain")}</button>
         </div>) : isFetching && !data ? (<div className="space-y-3 px-5 py-4">
           {[1, 2, 3].map((item) => (<div key={item} className="h-44 animate-pulse rounded-2xl border border-gray-100 bg-white shadow-sm"/>))}
-        </div>) : bookings.length > 0 ? (<div className="space-y-3 px-5 py-4">
+        </div>) : bookings.length + tabConsultations.length > 0 ? (<div className="space-y-3 px-5 py-4">
+          {tabConsultations.map((session) => (<VideoSessionBookingCard key={session.id} session={session}/>))}
           {bookings.map((booking) => (<BookingCard key={booking.id} booking={booking} onOpen={() => navigate(`/n/app/mobile/bookings/${booking.id}`)}/>))}
         </div>) : (<div className="px-5 py-16 text-center">
           <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-gray-100">
@@ -191,4 +203,17 @@ export default function Bookings() {
           {activeTab === "upcoming" && (<button type="button" onClick={() => navigate("/n/app/mobile/explore")} className="rounded-xl bg-[#083f30] px-6 py-3 font-semibold text-white transition-colors hover:bg-[#0a5a44]" style={{ backgroundColor: BRAND_GREEN }}>{tBooking("exploreServices")}</button>)}
         </div>)}
     </div>);
+}
+
+
+/** Mobile/tablet below 1280px, the desktop journal above it. Both share the same cached query. */
+export default function Bookings() {
+  return (
+    <>
+      <div className="xl:hidden">
+        <MobileBookings />
+      </div>
+      <DesktopBookingsView />
+    </>
+  );
 }

@@ -44,7 +44,7 @@ const TOMAN_LABEL: Record<string, string> = {
 };
 
 
-function formatReferralMoney(amount: number, currency: string, locale: string) {
+export function formatReferralMoney(amount: number, currency: string, locale: string) {
   if (currency === "IRT" || currency === "IRR") {
     const label = currency === "IRT" ? (TOMAN_LABEL[locale.slice(0, 2)] ?? "Toman") : getRialTomanLabel(currency, locale);
     return `${new Intl.NumberFormat(locale).format(Math.round(amount))} ${label}`;

@@ -49,16 +49,18 @@ import { useRouter } from "@/i18n/navigation";
 import { getEnabledPaymentGatewaysAction } from "@/payment/actions/get-enabled-payment-gateways";
 import type { AvailablePaymentGateway } from "@/payment/actions/get-enabled-payment-gateways/types";
 import { initiateBookingPaymentAction } from "@/payment/actions/initiate-booking-payment";
+import { DesktopBookingDetailContent } from "@/features/web-desktop/bookings/DesktopBookingDetailContent";
 
-function normalizeStatus(value?: string | null) {
+
+export function normalizeStatus(value?: string | null) {
   return String(value || "pending")
     .trim()
     .toLowerCase();
 }
-function buildFileUrl(value?: string | null) {
+export function buildFileUrl(value?: string | null) {
   return resolveHomeMediaUrl(value);
 }
-function resolveIntlLocale(locale?: string | null) {
+export function resolveIntlLocale(locale?: string | null) {
   const normalized = (locale || "fa").trim().toLowerCase();
   const map: Record<string, string> = {
     fa: "fa-IR",
@@ -79,7 +81,7 @@ function resolveIntlLocale(locale?: string | null) {
 // environments -- it falls back to printing the raw ISO code "IRR" instead of a real
 // unit name. Rial is the actual unit the stored amount is denominated in (no /10
 // conversion to Toman -- that would silently change the displayed number).
-function formatMoney(
+export function formatMoney(
   amount?: number | null,
   currency?: string | null,
   locale?: string | null
@@ -96,12 +98,12 @@ function formatMoney(
 // same mapping BookingWizard.tsx uses for the checkout-step summary. Anything unmapped
 // (an online gateway's own code/provider name) falls back to the raw value since those
 // are typically brand names (Zarinpal, BTCPay).
-const PAYMENT_METHOD_LABEL_KEYS: Record<string, string> = {
+export const PAYMENT_METHOD_LABEL_KEYS: Record<string, string> = {
   pay_on_delivery: "paymentMethodPayOnDelivery",
   bank_receipt: "paymentMethodBankReceipt",
   wallet: "wallet",
 };
-const BOOKING_PAYMENT_STATUS_LABEL_KEYS: Record<string, string> = {
+export const BOOKING_PAYMENT_STATUS_LABEL_KEYS: Record<string, string> = {
   pending: "pending",
   paid: "paid",
   partiallypaid: "partial",
@@ -110,7 +112,7 @@ const BOOKING_PAYMENT_STATUS_LABEL_KEYS: Record<string, string> = {
   failed: "failed",
   notrequired: "notRequired",
 };
-function translateWithFallback(
+export function translateWithFallback(
   t: ReturnType<typeof useTranslations>,
   map: Record<string, string>,
   raw?: string | null
@@ -118,7 +120,7 @@ function translateWithFallback(
   const key = map[String(raw || "").toLowerCase()];
   return key ? t(key as never) : raw || "";
 }
-function getStatusBadge(
+export function getStatusBadge(
   status: string | null | undefined,
   tBooking: ReturnType<typeof useTranslations>
 ) {
@@ -152,7 +154,7 @@ function getStatusBadge(
     helper: tBooking("providerReviewingYourAppointmentRequest"),
   };
 }
-function DescriptionBlock({
+export function DescriptionBlock({
   title,
   content,
 }: {
@@ -171,7 +173,7 @@ function DescriptionBlock({
   );
 }
 
-function BookingCaseTimeline({ booking }: { booking: BookingRecord }) {
+export function BookingCaseTimeline({ booking }: { booking: BookingRecord }) {
   const tBooking = useTranslations("Booking");
   const locale = useLocale();
   const timeline = booking.caseTimeline;
@@ -252,7 +254,7 @@ function BookingCaseTimeline({ booking }: { booking: BookingRecord }) {
     </section>
   );
 }
-function DetailRow({ label, value }: { label: string; value?: string | null }) {
+export function DetailRow({ label, value }: { label: string; value?: string | null }) {
   return (
     <div className="flex justify-between gap-4 text-sm">
       <span className="text-gray-600">{label}</span>
@@ -262,7 +264,7 @@ function DetailRow({ label, value }: { label: string; value?: string | null }) {
     </div>
   );
 }
-function AddonsList({
+export function AddonsList({
   addons,
   currency,
 }: {
@@ -308,7 +310,7 @@ function AddonsList({
     </div>
   );
 }
-function ChildBookingsList({ items }: { items?: BookingChildSummary[] }) {
+export function ChildBookingsList({ items }: { items?: BookingChildSummary[] }) {
   const tBooking = useTranslations("Booking");
   if (!items?.length) return null;
   return (
@@ -347,7 +349,7 @@ function ChildBookingsList({ items }: { items?: BookingChildSummary[] }) {
     </div>
   );
 }
-function DocumentsList({
+export function DocumentsList({
   documents,
 }: {
   documents?: BookingDocumentSummary[];
@@ -887,8 +889,8 @@ export default function BookingDetail() {
     });
   }, [booking, tBooking]);
   return (
-    <div className="min-h-screen bg-gray-50 pb-24">
-      <div className="sticky top-0 z-40 border-b border-gray-100 bg-white">
+    <div className="min-h-screen bg-gray-50 pb-24 xl:bg-transparent xl:pb-0">
+      <div className="sticky top-0 z-40 border-b border-gray-100 bg-white xl:hidden">
         <div className="px-5 pt-3 pb-4">
           <div className="flex items-center gap-3">
             <button
@@ -951,18 +953,34 @@ export default function BookingDetail() {
           <div className="h-32 animate-pulse rounded-2xl bg-white" />
         </div>
       ) : booking ? (
-        <BookingDetailContent
-          booking={booking}
-          onCancel={() => setShowCancelModal(true)}
-          onPay={(gateway) =>
-            executeInitiatePayment({
-              bookingId: booking.id,
-              gateway: gateway.code,
-            })
-          }
-          isPaying={isPaymentPending}
-          paymentGateway={enabledPaymentGateways[0] || null}
-        />
+        <>
+          <div className="xl:hidden">
+            <BookingDetailContent
+              booking={booking}
+              onCancel={() => setShowCancelModal(true)}
+              onPay={(gateway) =>
+                executeInitiatePayment({
+                  bookingId: booking.id,
+                  gateway: gateway.code,
+                })
+              }
+              isPaying={isPaymentPending}
+              paymentGateway={enabledPaymentGateways[0] || null}
+            />
+          </div>
+          <DesktopBookingDetailContent
+            booking={booking}
+            onCancel={() => setShowCancelModal(true)}
+            onPay={(gateway) =>
+              executeInitiatePayment({
+                bookingId: booking.id,
+                gateway: gateway.code,
+              })
+            }
+            isPaying={isPaymentPending}
+            paymentGateway={enabledPaymentGateways[0] || null}
+          />
+        </>
       ) : null}
 
       {showCancelModal && booking && (

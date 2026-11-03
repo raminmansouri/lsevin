@@ -1,4 +1,5 @@
-import { TrendingUp, Users } from 'lucide-react';
+// import { TrendingUp, Users } from 'lucide-react';
+import { TrendingUp } from 'lucide-react';
 import { FavoriteButton } from '@/features/favorites/components/favorite-button';
 
 import { ImageWithFallback } from '@/components/ui/image-with-fallback';
@@ -84,10 +85,10 @@ function TrendingServiceCard({ service, labels }: { service: HomeTrendingService
         />
         <div className="absolute bottom-0 left-0 right-0 p-3">
           <h3 className="mb-1 line-clamp-2 text-sm font-bold text-white">{service.displayName}</h3>
-          <div className="flex items-center gap-1 text-white/80">
+          {/* <div className="flex items-center gap-1 text-white/80">
             <Users size={12} />
             <span className="text-xs font-medium">{formatLabel(labels.bookings, { count: service.bookingLabel })}</span>
-          </div>
+          </div> */}
         </div>
       </div>
     </Link>

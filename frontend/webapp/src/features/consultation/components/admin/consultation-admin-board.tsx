@@ -12,6 +12,8 @@ import { ConsultationRecipientsManager } from "./consultation-recipients-manager
 import { ConsultationRequestsTable } from "./consultation-requests-table";
 import { ConsultationSmsSettingsForm } from "./consultation-sms-settings-form";
 import { ConsultationStatsStrip } from "./consultation-stats-strip";
+import { VideoConsultationDoctorsManager } from "./video-consultation-doctors-manager";
+import { VideoConsultationSettingsForm } from "./video-consultation-settings-form";
 
 /**
  * Everything on the page is driven from one server read, so the board takes the
@@ -25,6 +27,13 @@ export function ConsultationAdminBoard({ data }: { data: ConsultationAdminPageDa
   return (
     <div className="space-y-6">
       <ConsultationStatsStrip stats={data.stats} />
+
+      <VideoConsultationSettingsForm
+        settings={data.videoSettings}
+        currencyCodes={data.currencyCodes}
+      />
+
+      <VideoConsultationDoctorsManager />
 
       <div className="space-y-3">
         <ConsultationFilters filters={data.filters} />

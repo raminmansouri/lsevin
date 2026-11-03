@@ -10,6 +10,7 @@ import { LocalizedContentResponse } from "@/features/shared/types/localization";
 import { BaseRequest, LocaleHeaderTypes } from "@/types/common";
 import { ApiReturnType } from "@/types/network";
 
+import { readCategoryActive } from "../../db/active-status";
 import { CategoryDetails } from "../../types/category";
 
 type CategoryDetailsRow = {
@@ -124,7 +125,17 @@ export const getCategoryById = async (
     }
   );
 
-  if (response?.data) return response;
+  if (response?.data) {
+    // The API's isActive is not trustworthy (its update hard-codes true), and the edit page's
+    // active switch must show what the site actually uses: the database flag.
+    try {
+      const isActive = await readCategoryActive(id);
+      if (isActive !== null) response.data.isActive = isActive;
+    } catch (readError) {
+      console.error("Failed to read category active flag", { id, readError });
+    }
+    return response;
+  }
 
   try {
     return await getCategoryByIdFromDatabase(id, request);

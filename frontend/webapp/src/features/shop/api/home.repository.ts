@@ -80,28 +80,48 @@ export async function getShopHome(opts?: {
   for (const row of sectionRows) {
     if (row.section_type === "shortcut_rail") {
       const items = await sql<any[]>`
-        select i.id::text as id,
+        select i.id::text as id, i.category_id::text as "categoryId",
           common.get_translation_t(i.label_translations, ${lang}, 'en') as label,
-          c.slug, coalesce(i.image_url, c.image_url) as "imageUrl", c.icon, c.gradient, i.link_url as "linkUrl"
+          i.image_url as "imageUrl", i.link_url as "linkUrl"
         from shop.home_section_items i
-        left join shop.categories c on c.id = i.category_id
         where i.section_id = ${row.id}::uuid and i.is_active = true
         order by i.display_order asc
       `;
+      const overrides = new Map(items.filter((it) => it.categoryId).map((it) => [it.categoryId as string, it]));
+
+      const categoryTiles: HomeShortcut[] = categories
+        .filter((c) => !c.parentId)
+        .map((c) => {
+          const o = overrides.get(c.id);
+          return {
+            id: c.id,
+            label: o?.label || c.name,
+            slug: c.slug,
+            imageUrl: o?.imageUrl || c.imageUrl || null,
+            icon: c.icon || null,
+            gradient: c.gradient || null,
+            linkUrl: o?.linkUrl || `/n/app/mobile/shop/category/${c.slug}`,
+          };
+        });
+
+      const customTiles: HomeShortcut[] = items
+        .filter((it) => !it.categoryId && it.linkUrl)
+        .map((it) => ({
+          id: it.id,
+          label: it.label,
+          slug: null,
+          imageUrl: it.imageUrl ?? null,
+          icon: null,
+          gradient: null,
+          linkUrl: it.linkUrl,
+        }));
+
       sections.push({
         key: row.key,
         type: "shortcut_rail",
         title: row.title ?? "",
         subtitle: row.subtitle ?? "",
-        shortcuts: items.map((it) => ({
-          id: it.id,
-          label: it.label,
-          slug: it.slug ?? null,
-          imageUrl: it.imageUrl ?? null,
-          icon: it.icon ?? null,
-          gradient: it.gradient ?? null,
-          linkUrl: it.linkUrl || (it.slug ? `/n/app/mobile/shop/category/${it.slug}` : "/n/app/mobile/shop/search"),
-        })),
+        shortcuts: [...categoryTiles, ...customTiles],
       });
     } else if (row.section_type === "promo_cards") {
       const items = await sql<any[]>`

@@ -2,6 +2,8 @@ import { SponsoredPlacementSlot } from "@/features/sponsered-slider/components/s
 
 import OffersClient from "./OffersClient";
 import { getOffersPageData, parseOffersFilters } from "./offers.data";
+import { DesktopOffersView } from "@/features/web-desktop/offers/DesktopOffersView";
+import { DesktopSponsoredSection } from "@/features/web-desktop/home/DesktopSponsoredSection";
 
 export const dynamic = "force-dynamic";
 
@@ -18,8 +20,14 @@ export default async function Page({ params, searchParams }: PageProps) {
 
   return (
     <>
-      <OffersClient {...data} filters={filters} />
-      <SponsoredPlacementSlot locale={locale} placement="offers" />
+      <div className="xl:hidden">
+        <OffersClient {...data} filters={filters} />
+        <SponsoredPlacementSlot locale={locale} placement="offers" />
+      </div>
+      <DesktopOffersView {...data} filters={filters} />
+      <div className="lsd hidden pb-14 xl:block">
+        <DesktopSponsoredSection locale={locale} placement="offers" />
+      </div>
     </>
   );
 }

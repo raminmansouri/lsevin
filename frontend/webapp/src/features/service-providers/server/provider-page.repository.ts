@@ -734,6 +734,7 @@ async function getProviderBeforeAfter(
         coalesce(after_media.file_url, nullif(btrim(ba.after_image), '')) as "after",
         ba.procedure,
         ba.months,
+        ba.provider_service_id::text as "providerServiceId",
         coalesce(
           nullif(common.get_translation_t(ps.display_name_translations, ${locale}, 'en-US'), ''),
           common.get_translation_t(sd.name_translations, ${locale}, 'en-US')

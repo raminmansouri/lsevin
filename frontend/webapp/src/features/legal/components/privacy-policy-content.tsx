@@ -1,6 +1,8 @@
 import { ChevronLeft } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 
+import { DesktopPrivacyPolicy } from "@/features/web-desktop/legal/DesktopPrivacyPolicy";
+
 function BulletList({ items }: { items: string }) {
   return (
     <ul className="list-disc space-y-2 ps-5">
@@ -21,7 +23,8 @@ export async function PrivacyPolicyContent({ backHref }: { backHref: string }) {
   const t = await getTranslations("MobileProfile.privacyPolicy");
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <>
+    <div className="min-h-screen bg-gray-50 xl:hidden">
       <div className="sticky top-0 z-40 border-b border-gray-200 bg-white/95 backdrop-blur">
         <div className="flex items-center gap-4 px-6 py-4">
           <a
@@ -107,5 +110,7 @@ export async function PrivacyPolicyContent({ backHref }: { backHref: string }) {
         <p className="text-center text-xs text-gray-400">{t("contact")}</p>
       </div>
     </div>
+    <DesktopPrivacyPolicy backHref={backHref} />
+    </>
   );
 }

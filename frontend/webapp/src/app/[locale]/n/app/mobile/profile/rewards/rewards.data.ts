@@ -41,8 +41,12 @@ export type RewardCoupon = {
 export type RewardActivity = {
   type: "earned" | "redeemed";
   points: number;
+  /** English fallback; the UI translates from `kind` when it is set. */
   description: string;
   date: string;
+  kind?: "completedBookings" | "offerAvailable";
+  count?: number;
+  code?: string;
 };
 
 export type RewardReferralSummary = {
@@ -382,6 +386,8 @@ const capabilities: RewardsCapabilities = {
       type: "earned",
       points,
       description: `${bookingsCount} completed booking${bookingsCount > 1 ? "s" : ""}`,
+      kind: "completedBookings",
+      count: bookingsCount,
       date: spendingRows[0]?.last_booking_date || new Date().toISOString(),
     });
   }
@@ -390,6 +396,8 @@ const capabilities: RewardsCapabilities = {
       type: "redeemed",
       points: -50,
       description: `Offer available: ${coupons[0].code}`,
+      kind: "offerAvailable",
+      code: coupons[0].code,
       date: coupons[0].expiresAt,
     });
   }

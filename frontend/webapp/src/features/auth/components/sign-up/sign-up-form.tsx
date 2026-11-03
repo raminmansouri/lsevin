@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
+import type { Country } from "react-phone-number-input";
 import { toast } from "sonner";
 
 import { PasswordInput } from "@/components/form/password-input";
@@ -27,9 +28,13 @@ import { useRouter } from "@/i18n/navigation";
 import { signUp } from "../../actions/sign-up";
 import { SignUpSchema } from "../../actions/sign-up/schema";
 import { InputType, TRANSLATION_KEY } from "../../actions/sign-up/types";
+import {
+  FALLBACK_PHONE_COUNTRY,
+  rememberPhoneCountry,
+} from "../../lib/phone-country.constants";
 import AuthFormContainer from "../shared/auth-form-container";
 
-export default function SignUpForm() {
+export default function SignUpForm({ defaultCountry = FALLBACK_PHONE_COUNTRY }: { defaultCountry?: Country }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get("redirectTo")?.trim() || "";
@@ -48,7 +53,8 @@ export default function SignUpForm() {
       phoneNumber: "",
       password: "",
       confirmPassword: "",
-      referralCode: "",
+      // Pre-filled when the visitor arrived through a referral link (/ref/CODE → ?ref=CODE).
+      referralCode: (searchParams.get("ref") ?? "").trim().replace(/[^A-Za-z0-9_-]/g, "").slice(0, 40),
     },
   });
 
@@ -142,7 +148,8 @@ export default function SignUpForm() {
                     <PhoneInput
                       placeholder="9121111111"
                       {...field}
-                      defaultCountry="IR"
+                      defaultCountry={defaultCountry}
+                      onCountryChange={rememberPhoneCountry}
                     />
                   </FormControl>
                   <FormMessage />

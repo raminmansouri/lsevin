@@ -6,6 +6,8 @@ import {
   getPopularSearchCategoriesCached,
   getTrendingSearchesCached,
 } from "@/features/service-providers/server/search.repository.cached";
+import { PageFaq } from "@/features/site-content/components/faq-section";
+import { absoluteUrl } from "@/lib/seo/alternates";
 
 type SearchPageProps = {
   params: Promise<{ locale: string }> | { locale: string };
@@ -43,8 +45,11 @@ export default async function SearchPage({ params }: SearchPageProps) {
   ]);
 
   return (
-    <MobileSearchPageClient
-      initialData={{ recentSearches: [], popularCategories, trendingSearches }}
-    />
+    <>
+      <MobileSearchPageClient
+        initialData={{ recentSearches: [], popularCategories, trendingSearches }}
+      />
+      <PageFaq target={{ scope: "search" }} locale={locale} pageUrl={absoluteUrl(locale, "/n/app/mobile/search")} />
+    </>
   );
 }

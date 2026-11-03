@@ -1,6 +1,9 @@
 import NearbyClient from "./NearbyClient";
 import { getNearbyPageData, parseNearbyFilters } from "./nearby.data";
 
+import { DesktopNearbyView } from "@/features/web-desktop/nearby/DesktopNearbyView";
+import { PageFaq } from "@/features/site-content/components/faq-section";
+
 export const dynamic = "force-dynamic";
 
 export default async function MapDiscoveryPage({
@@ -23,6 +26,8 @@ export default async function MapDiscoveryPage({
   const initialView = (Array.isArray(requestedView) ? requestedView[0] : requestedView) === "list" ? "list" : "map";
 
   return (
+    <>
+    <div className="xl:hidden">
     <NearbyClient
       initialView={initialView}
       locale={locale}
@@ -37,5 +42,25 @@ export default async function MapDiscoveryPage({
       mapCenter={data.mapCenter}
       expandedBeyondFilters={data.expandedBeyondFilters}
     />
+    </div>
+    <DesktopNearbyView
+      initialView={initialView}
+      locale={locale}
+      categories={data.categories}
+      providers={data.providers}
+      filters={filters}
+      mapCenter={data.mapCenter}
+      expandedBeyondFilters={data.expandedBeyondFilters}
+    />
+    {/* A category or provider-type filter shows that FAQ (exact), else the map FAQ. */}
+    <PageFaq
+      target={[
+        ...(filters.categoryId ? [{ scope: "category" as const, entityId: filters.categoryId, exact: true }] : []),
+        ...(filters.providerTypeId ? [{ scope: "provider_type" as const, entityId: filters.providerTypeId, exact: true }] : []),
+        { scope: "map" as const },
+      ]}
+      locale={locale}
+    />
+    </>
   );
 }

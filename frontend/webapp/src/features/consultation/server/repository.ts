@@ -1,7 +1,12 @@
 import "server-only";
 
 import db from "@/config/database/db";
+import { getActiveCurrencies } from "@/features/finance/lib/server/currency-queries";
 
+import {
+  VIDEO_CONSULTATION_DEFAULTS,
+  type VideoConsultationSettings,
+} from "../types";
 import type {
   ConsultationAdminPageData,
   ConsultationListFilters,
@@ -423,6 +428,82 @@ export async function getConsultationSmsSettings(): Promise<ConsultationSmsSetti
   };
 }
 
+const VIDEO_SETTING_KEYS = {
+  enabled: "video.enabled",
+  durationMinutes: "video.duration_minutes",
+  priceAmount: "video.price_amount",
+  priceCurrency: "video.price_currency",
+  priceToman: "video.price_toman",
+} as const;
+
+function finiteNumber(value: unknown): number | null {
+  if (value === null || value === undefined || value === "") return null;
+  const n = Number(value);
+  return Number.isFinite(n) ? n : null;
+}
+
+// Earlier saves double-encoded values (true became the JSON string "true"), so a
+// string that is itself JSON is decoded once more.
+function unwrapJsonString(value: unknown): unknown {
+  if (typeof value !== "string") return value;
+  try {
+    return JSON.parse(value);
+  } catch {
+    return value;
+  }
+}
+
+export async function getVideoConsultationSettings(): Promise<VideoConsultationSettings> {
+  const rows = await db<{ key: string; value: unknown }[]>`
+    select key as "key", value as "value"
+    from consultation.settings
+    where key in (
+      ${VIDEO_SETTING_KEYS.enabled}, ${VIDEO_SETTING_KEYS.durationMinutes},
+      ${VIDEO_SETTING_KEYS.priceAmount}, ${VIDEO_SETTING_KEYS.priceCurrency},
+      ${VIDEO_SETTING_KEYS.priceToman}
+    )
+  `;
+  const map = new Map(rows.map((row) => [row.key, unwrapJsonString(row.value)]));
+  const defaults = VIDEO_CONSULTATION_DEFAULTS;
+  const currency = String(map.get(VIDEO_SETTING_KEYS.priceCurrency) ?? "").trim().toUpperCase();
+
+  return {
+    // Absent means off, unlike SMS: an unpriced card must never reach the home page.
+    enabled: map.get(VIDEO_SETTING_KEYS.enabled) === true,
+    durationMinutes:
+      finiteNumber(map.get(VIDEO_SETTING_KEYS.durationMinutes)) ?? defaults.durationMinutes,
+    priceAmount: finiteNumber(map.get(VIDEO_SETTING_KEYS.priceAmount)) ?? defaults.priceAmount,
+    priceCurrency: /^[A-Z]{3}$/.test(currency) ? currency : defaults.priceCurrency,
+    priceToman: finiteNumber(map.get(VIDEO_SETTING_KEYS.priceToman)),
+  };
+}
+
+export async function saveVideoConsultationSettings(
+  args: VideoConsultationSettings & { actorUserId: string | null }
+): Promise<void> {
+  const entries: Array<[string, unknown]> = [
+    [VIDEO_SETTING_KEYS.enabled, args.enabled],
+    [VIDEO_SETTING_KEYS.durationMinutes, args.durationMinutes],
+    [VIDEO_SETTING_KEYS.priceAmount, args.priceAmount],
+    [VIDEO_SETTING_KEYS.priceCurrency, args.priceCurrency],
+    [VIDEO_SETTING_KEYS.priceToman, args.priceToman],
+  ];
+
+  // value is jsonb NOT NULL, and db.json(null) binds SQL NULL, so an empty Toman
+  // price is written as the JSON null literal instead.
+  await db.begin(async (tx) => {
+    for (const [key, value] of entries) {
+      const jsonValue = value === null ? tx`'null'::jsonb` : tx`${db.json(value as never)}`;
+      await tx`
+        insert into consultation.settings (key, value, updated_by)
+        values (${key}, ${jsonValue}, ${args.actorUserId}::uuid)
+        on conflict (key) do update
+          set value = excluded.value, updated_by = excluded.updated_by
+      `;
+    }
+  });
+}
+
 export async function saveConsultationSmsSettings(args: {
   enabled: boolean;
   customerBodyId: string | null;
@@ -528,23 +609,36 @@ export async function getConsultationAdminPageData(
         adminBodyId: null,
         rateLimitPerHour: 5,
       },
+      videoSettings: VIDEO_CONSULTATION_DEFAULTS,
+      currencyCodes: [],
       filters,
       schemaMissing: true,
     };
   }
 
-  const [list, stats, recipients, smsSettings] = await Promise.all([
-    listConsultationRequests(filters),
-    getConsultationStats(),
-    listConsultationRecipients(),
-    getConsultationSmsSettings(),
-  ]);
+  const [list, stats, recipients, smsSettings, videoSettings, currencies] =
+    await Promise.all([
+      listConsultationRequests(filters),
+      getConsultationStats(),
+      listConsultationRecipients(),
+      getConsultationSmsSettings(),
+      getVideoConsultationSettings(),
+      getActiveCurrencies().catch(() => []),
+    ]);
+
+  const currencyCodes = currencies.map((currency) => currency.code);
+  // Keep the saved currency selectable even if it has since been deactivated.
+  if (!currencyCodes.includes(videoSettings.priceCurrency)) {
+    currencyCodes.unshift(videoSettings.priceCurrency);
+  }
 
   return {
     list,
     stats,
     recipients,
     smsSettings,
+    videoSettings,
+    currencyCodes,
     filters,
     schemaMissing: false,
   };

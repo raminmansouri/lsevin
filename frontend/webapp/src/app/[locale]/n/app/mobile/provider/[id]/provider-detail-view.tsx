@@ -729,8 +729,8 @@ export function ProviderDetailView({ initialData }: { initialData?: ProviderPage
               <div>
                 <h3 className="mb-3 text-lg font-bold text-gray-900">{t("sections.certifications")}</h3>
                 <div className="space-y-3">
-                  {provider.certifications.map((item) => (
-                    <div key={item.name} className="rounded-xl border border-gray-100 bg-white p-3">
+                  {provider.certifications.map((item, index) => (
+                    <div key={`${item.name}-${index}`} className="rounded-xl border border-gray-100 bg-white p-3">
                       <div className="flex items-start gap-3">
                         {item.verified ? <Shield size={20} className="mt-0.5 flex-shrink-0 text-[#083f30]" /> : <CheckCircle2 size={20} className="mt-0.5 flex-shrink-0 text-gray-400" />}
                         <span className="text-sm text-gray-700">{item.name}</span>

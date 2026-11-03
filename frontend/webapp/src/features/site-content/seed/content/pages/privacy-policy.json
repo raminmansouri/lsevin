@@ -1,0 +1,2139 @@
+{
+  "slug": "privacy-policy",
+  "status": "draft",
+  "needsConfirmation": [
+    "CONFLICT with the approved text: MobileProfile.privacyPolicy.section1aItems says LSevin does not collect or store medical records or clinical information on its servers, but the web app stores health information the user chooses to submit (video consultation requests with symptoms and up to 10 files, the medical profile and health record pages, and provider conversations whose UI says messages are saved to the medical record). This page describes the actual behaviour; legal must approve it or the approved text must be updated",
+    "CONFLICT with the approved text: section2Note says the app has no wallet, top-up or payment-processing feature; the website has a wallet, Zarinpal online payment and bank-transfer receipts. Confirm the note applies only to the store-listed mobile app build",
+    "Legal entity acting as data controller, and its address",
+    "Whether video consultation calls are recorded (not stated on the page)",
+    "Names of processors to disclose, if required: Zarinpal (payments), ipapi.co (IP country lookup), MeliPayamak (SMS), LiveKit (video), hosting provider, analytics tools",
+    "Whether personal data is stored or processed outside Iran, and where",
+    "Retention periods for payment, booking and support records",
+    "'Last updated' date for this version"
+  ],
+  "sources": [
+    "messages/en.json and fa.json MobileProfile.privacyPolicy (all sections 1-9: data collected, uses, sharing, TLS, retention, deletion by email with subject lines, 30-day processing, what may be kept, rights, 18+, changes, contact lsevin.turkiye@gmail.com)",
+    "src/features/finance/lib/server/iranian-visitor.ts (country decided from account phone country code, then IP geolocation through ipapi.co cached per IP for a day, then site language; used for pricing currency)",
+    "src/features/wallet/payment-gateway.ts and payment-callback.ts (redirect to Zarinpal gateway; callback with payment result)",
+    "messages/en.json Wallet strings ('Transfer the amount to one of the accounts below and upload the receipt image')",
+    "messages/en.json Consultation.booking (symptoms, age, gender, up to 10 files for a video consultation)",
+    "src/app/[locale]/n/app/mobile/profile/medical-profile, my-health-record, my-passport pages (health and passport sections in the profile)",
+    "messages/en.json SupportPages.customer.conversationSubtitle ('everything you send here is saved to your medical record')",
+    "src/features/consultation/server/melipayamak.ts and livekit.ts (SMS notifications; browser video calls)",
+    "src/features/shop/api (shop orders with name, email, phone, delivery address; guest order lookup by email)"
+  ],
+  "locales": {
+    "en-US": {
+      "title": "Privacy and Data Protection",
+      "metaDescription": "What personal data LSevin collects, why, who it is shared with, how it is protected and how to delete your account or data. Requests are handled within 30 days.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "LSevin (\"LSevin\", \"we\", \"us\") runs the LSevin website and app, a marketplace where you can research, compare and book health travel and wellness services with independent clinics and providers, talk to them through in-app chat, and buy products from the LSevin shop. This policy explains what information we collect, how we use it and the choices you have."
+        },
+        {
+          "type": "h2",
+          "text": "1. Information we collect"
+        },
+        {
+          "type": "h3",
+          "text": "a. Information you give us"
+        },
+        {
+          "type": "p",
+          "text": "Account: your phone number, used to sign you in with a one-time password (OTP). There is no separate username or password."
+        },
+        {
+          "type": "p",
+          "text": "Profile: your name and any other contact details you choose to add, such as an email address. International patients may also add travel details, such as passport information, when a booking needs them."
+        },
+        {
+          "type": "p",
+          "text": "Messages: what you send through chat to clinics and providers or to LSevin support, including files you attach."
+        },
+        {
+          "type": "p",
+          "text": "Bookings and requests: the service you are interested in, preferred dates, companions and similar details you enter when you ask about or book a service, or request a free consultation callback."
+        },
+        {
+          "type": "p",
+          "text": "Shop orders: your name, email, phone number and delivery address, and the items you order."
+        },
+        {
+          "type": "p",
+          "text": "Payments: when you pay online, you enter your card details on the payment gateway's page, not on LSevin. We receive the result of the payment, its amount and its reference number. If you pay by bank transfer, we receive the receipt image you upload."
+        },
+        {
+          "type": "h3",
+          "text": "b. Health information you choose to share"
+        },
+        {
+          "type": "p",
+          "text": "You do not need to give us medical records to make a booking. Some features let you share health information if you decide to: describing your symptoms and attaching test results or photos when you book a video consultation, filling in the health sections of your profile, or sending reports to a provider in chat."
+        },
+        {
+          "type": "p",
+          "text": "When you use these features, the information is stored with your account so that the doctor or provider you chose can see it. It is shared only with them and with LSevin staff who support your case. You decide what to share."
+        },
+        {
+          "type": "h3",
+          "text": "c. Information collected automatically"
+        },
+        {
+          "type": "p",
+          "text": "Device and app data: device identifiers, app version and crash or diagnostic logs, used to keep the service secure and working."
+        },
+        {
+          "type": "p",
+          "text": "Notification tokens: used to send booking updates and chat notifications."
+        },
+        {
+          "type": "p",
+          "text": "Approximate location: if you give permission, used to show providers near you and improve local search. You can refuse or withdraw this permission at any time in your device settings."
+        },
+        {
+          "type": "p",
+          "text": "Country for pricing: to show prices in the right currency, we work out your country from the country code of your account phone number. If that is not available, we estimate it from your IP address using an IP location service, and as a last resort from the site language you use."
+        },
+        {
+          "type": "p",
+          "text": "Usage data: pages viewed and actions taken, used to improve the service."
+        },
+        {
+          "type": "h2",
+          "text": "2. How we use information"
+        },
+        {
+          "type": "p",
+          "text": "To create and secure your account and sign you in with OTP. To connect you with clinics and providers and to handle bookings, orders, payments, refunds and in-app communication. To send booking confirmations, updates, delivery notices and support messages by notification, SMS or email. To show prices in your currency. To maintain, secure and improve the service and to detect and prevent fraud or abuse. To meet legal obligations."
+        },
+        {
+          "type": "quote",
+          "text": "We do not sell your personal data."
+        },
+        {
+          "type": "h2",
+          "text": "3. How we share information"
+        },
+        {
+          "type": "p",
+          "text": "With clinics and providers: the information needed to handle your enquiry or booking, such as your name, contact details and the messages, booking details or health information you choose to send them."
+        },
+        {
+          "type": "p",
+          "text": "With service providers: companies that help us run LSevin, such as cloud hosting, payment gateways, SMS and push notification delivery, video calling, IP location lookup and analytics. They work under confidentiality and data-protection obligations."
+        },
+        {
+          "type": "p",
+          "text": "For legal reasons: when required by law, regulation, legal process or a government request."
+        },
+        {
+          "type": "h2",
+          "text": "4. Data security"
+        },
+        {
+          "type": "p",
+          "text": "All data sent between your device and our servers is encrypted in transit (HTTPS/TLS). We apply reasonable administrative, technical and physical safeguards to protect your information."
+        },
+        {
+          "type": "h2",
+          "text": "5. Data retention"
+        },
+        {
+          "type": "p",
+          "text": "We keep personal information while your account is active or as long as needed to provide the service, meet legal obligations, resolve disputes and enforce our agreements. You can ask for deletion at any time as described below."
+        },
+        {
+          "type": "h2",
+          "text": "6. Your rights and account or data deletion"
+        },
+        {
+          "type": "p",
+          "text": "How to ask: email lsevin.turkiye@gmail.com from the email address or phone number linked to your account. Use the subject line Account deletion request to delete your account and its personal data, or Data deletion request to delete specific data while keeping your account."
+        },
+        {
+          "type": "p",
+          "text": "What happens: we verify the request, then delete or anonymise your profile, phone number and chat history from our active systems."
+        },
+        {
+          "type": "p",
+          "text": "What may be kept: records we must keep for legal, tax, security or fraud-prevention reasons, such as payment records, kept only as long as necessary and then deleted."
+        },
+        {
+          "type": "p",
+          "text": "Timeframe: requests are processed within 30 days."
+        },
+        {
+          "type": "p",
+          "text": "Depending on where you live, you may also have the right to access, correct or export your personal data. Write to the same email address to use these rights."
+        },
+        {
+          "type": "h2",
+          "text": "7. Children"
+        },
+        {
+          "type": "p",
+          "text": "LSevin is for users aged 18 and over and is not directed at children. We do not knowingly collect personal information from children."
+        },
+        {
+          "type": "h2",
+          "text": "8. Changes to this policy"
+        },
+        {
+          "type": "p",
+          "text": "We may update this policy from time to time. Material changes are shown by updating the Last updated date on this page."
+        },
+        {
+          "type": "h2",
+          "text": "9. Contact us"
+        },
+        {
+          "type": "p",
+          "text": "Questions about this policy or your data: lsevin.turkiye@gmail.com."
+        }
+      ],
+      "faq": [
+        {
+          "q": "Does LSevin sell my data?",
+          "a": "No. We share data only with the providers you book with, the companies that help us run the service, and authorities when the law requires it."
+        },
+        {
+          "q": "Does LSevin store my medical records?",
+          "a": "Only the health information you choose to submit, for example in a video consultation request or the health sections of your profile. It is used so the doctor or provider you chose can see it."
+        },
+        {
+          "q": "Does LSevin see my card number?",
+          "a": "No. You enter card details on the payment gateway's page. LSevin receives the payment result, amount and reference number."
+        },
+        {
+          "q": "How do I delete my account?",
+          "a": "Email lsevin.turkiye@gmail.com from the email or phone number on your account with the subject Account deletion request. We process it within 30 days."
+        },
+        {
+          "q": "Why does LSevin need my country?",
+          "a": "To show prices in the right currency. We use your account phone number's country code, or an estimate from your IP address if that is not available."
+        }
+      ]
+    },
+    "fa-IR": {
+      "title": "حریم خصوصی و حفاظت از داده‌ها",
+      "metaDescription": "السوین چه اطلاعاتی را چرا جمع‌آوری می‌کند، با چه کسانی به اشتراک می‌گذارد، چطور از آن محافظت می‌کند و چطور حذف حساب یا داده را بخواهید؛ رسیدگی ظرف ۳۰ روز.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "السوین (\"السوین\"، \"ما\") وب‌سایت و برنامه السوین را اداره می‌کند؛ بازارچه‌ای که در آن می‌توانید خدمات گردشگری سلامت و تندرستی را از کلینیک‌ها و ارائه‌دهندگان مستقل بررسی، مقایسه و رزرو کنید، از طریق چت درون‌برنامه با آن‌ها در ارتباط باشید و از فروشگاه السوین خرید کنید. این سیاست توضیح می‌دهد چه اطلاعاتی را جمع‌آوری می‌کنیم، چگونه از آن استفاده می‌کنیم و چه اختیاراتی دارید."
+        },
+        {
+          "type": "h2",
+          "text": "۱. اطلاعاتی که جمع‌آوری می‌کنیم"
+        },
+        {
+          "type": "h3",
+          "text": "الف. اطلاعاتی که شما ارائه می‌دهید"
+        },
+        {
+          "type": "p",
+          "text": "حساب کاربری: شماره تلفن شما که برای ورود با رمز یک‌بارمصرف (OTP) استفاده می‌شود. نام کاربری یا رمز عبور جداگانه‌ای وجود ندارد."
+        },
+        {
+          "type": "p",
+          "text": "پروفایل: نام شما و هر اطلاعات تماس دیگری که خودتان اضافه کنید، مثل ایمیل. بیماران خارجی ممکن است وقتی رزروی لازم داشته باشد، اطلاعات سفر مثل مشخصات گذرنامه را هم وارد کنند."
+        },
+        {
+          "type": "p",
+          "text": "پیام‌ها: آنچه از طریق چت برای کلینیک‌ها و ارائه‌دهندگان یا پشتیبانی السوین می‌فرستید، همراه فایل‌های پیوست."
+        },
+        {
+          "type": "p",
+          "text": "رزرو و درخواست‌ها: خدمت مورد نظر، تاریخ‌های ترجیحی، همراهان و جزئیات مشابهی که هنگام استعلام یا رزرو خدمت یا درخواست تماس مشاوره رایگان وارد می‌کنید."
+        },
+        {
+          "type": "p",
+          "text": "سفارش‌های فروشگاه: نام، ایمیل، شماره تلفن، نشانی تحویل و کالاهایی که سفارش می‌دهید."
+        },
+        {
+          "type": "p",
+          "text": "پرداخت: در پرداخت آنلاین، اطلاعات کارت را در صفحه درگاه پرداخت وارد می‌کنید، نه در السوین. ما نتیجه پرداخت، مبلغ و شماره پیگیری آن را دریافت می‌کنیم. اگر با واریز بانکی بپردازید، تصویر رسیدی را که بارگذاری می‌کنید دریافت می‌کنیم."
+        },
+        {
+          "type": "h3",
+          "text": "ب. اطلاعات سلامتی که خودتان به اشتراک می‌گذارید"
+        },
+        {
+          "type": "p",
+          "text": "برای رزرو لازم نیست پرونده پزشکی به ما بدهید. برخی قابلیت‌ها به شما امکان می‌دهند اگر خواستید اطلاعات سلامت را به اشتراک بگذارید: شرح علائم و پیوست جواب آزمایش یا عکس هنگام رزرو مشاوره تصویری، تکمیل بخش‌های سلامت پروفایل، یا فرستادن گزارش‌ها به ارائه‌دهنده در چت."
+        },
+        {
+          "type": "p",
+          "text": "وقتی از این قابلیت‌ها استفاده می‌کنید، اطلاعات همراه حساب شما ذخیره می‌شود تا پزشک یا ارائه‌دهنده‌ای که انتخاب کرده‌اید آن را ببیند. این اطلاعات فقط با آن‌ها و کارکنانی از السوین که پیگیر پرونده شما هستند به اشتراک گذاشته می‌شود. تصمیم اینکه چه چیزی را بفرستید با خود شماست."
+        },
+        {
+          "type": "h3",
+          "text": "ج. اطلاعاتی که به‌صورت خودکار جمع‌آوری می‌شود"
+        },
+        {
+          "type": "p",
+          "text": "داده‌های دستگاه و برنامه: شناسه‌های دستگاه، نسخه برنامه و گزارش خطا و عیب‌یابی، برای حفظ امنیت و عملکرد درست سرویس."
+        },
+        {
+          "type": "p",
+          "text": "توکن‌های اعلان: برای ارسال به‌روزرسانی‌های رزرو و اعلان‌های چت."
+        },
+        {
+          "type": "p",
+          "text": "موقعیت تقریبی: در صورت اجازه شما، برای نمایش ارائه‌دهندگان نزدیک و بهبود جست‌وجوی محلی. می‌توانید این اجازه را هر زمان از تنظیمات دستگاه رد یا لغو کنید."
+        },
+        {
+          "type": "p",
+          "text": "کشور برای قیمت‌گذاری: برای نمایش قیمت به ارز درست، کشور شما را از پیش‌شماره کشوری شماره تلفن حسابتان تشخیص می‌دهیم. اگر این اطلاعات نباشد، آن را با یک سرویس تعیین موقعیت IP از روی نشانی IP شما تخمین می‌زنیم و در آخرین مرحله از زبان سایتی که استفاده می‌کنید."
+        },
+        {
+          "type": "p",
+          "text": "داده‌های استفاده: صفحات مشاهده‌شده و اقدامات انجام‌شده، برای بهبود سرویس."
+        },
+        {
+          "type": "h2",
+          "text": "۲. نحوه استفاده از اطلاعات"
+        },
+        {
+          "type": "p",
+          "text": "برای ساخت و امن‌سازی حساب و ورود شما با OTP؛ برای ارتباط شما با کلینیک‌ها و ارائه‌دهندگان و رسیدگی به رزرو، سفارش، پرداخت، بازگشت وجه و ارتباطات درون‌برنامه؛ برای ارسال تأیید رزرو، به‌روزرسانی‌ها، اطلاع‌رسانی ارسال سفارش و پیام‌های پشتیبانی از طریق اعلان، پیامک یا ایمیل؛ برای نمایش قیمت به ارز شما؛ برای نگهداری، امن‌سازی و بهبود سرویس و شناسایی و پیشگیری از تقلب یا سوءاستفاده؛ و برای انجام تعهدات قانونی."
+        },
+        {
+          "type": "quote",
+          "text": "ما داده‌های شخصی شما را نمی‌فروشیم."
+        },
+        {
+          "type": "h2",
+          "text": "۳. نحوه اشتراک‌گذاری اطلاعات"
+        },
+        {
+          "type": "p",
+          "text": "با کلینیک‌ها و ارائه‌دهندگان: اطلاعات لازم برای رسیدگی به استعلام یا رزرو شما، مثل نام، اطلاعات تماس و پیام‌ها، جزئیات رزرو یا اطلاعات سلامتی که خودتان برایشان می‌فرستید."
+        },
+        {
+          "type": "p",
+          "text": "با ارائه‌دهندگان خدمات: شرکت‌هایی که در اداره السوین به ما کمک می‌کنند، مثل میزبانی ابری، درگاه پرداخت، ارسال پیامک و اعلان، تماس تصویری، تعیین موقعیت IP و تحلیل داده. این شرکت‌ها تحت تعهدات محرمانگی و حفاظت از داده کار می‌کنند."
+        },
+        {
+          "type": "p",
+          "text": "به دلایل قانونی: در صورت الزام قانون، مقررات، فرایند قضایی یا درخواست دولتی."
+        },
+        {
+          "type": "h2",
+          "text": "۴. امنیت داده‌ها"
+        },
+        {
+          "type": "p",
+          "text": "تمام داده‌هایی که میان دستگاه شما و سرورهای ما منتقل می‌شود در حین انتقال رمزنگاری می‌شود (HTTPS/TLS). برای محافظت از اطلاعات شما تدابیر مدیریتی، فنی و فیزیکی معقولی به کار می‌بریم."
+        },
+        {
+          "type": "h2",
+          "text": "۵. نگهداری داده‌ها"
+        },
+        {
+          "type": "p",
+          "text": "اطلاعات شخصی را تا زمانی که حسابتان فعال است یا تا زمانی که برای ارائه سرویس، انجام تعهدات قانونی، حل اختلاف و اجرای توافق‌ها لازم باشد نگه می‌داریم. می‌توانید هر زمان طبق توضیحات زیر درخواست حذف بدهید."
+        },
+        {
+          "type": "h2",
+          "text": "۶. حقوق شما و حذف حساب یا داده"
+        },
+        {
+          "type": "p",
+          "text": "نحوه درخواست: از نشانی ایمیل یا شماره تلفن مرتبط با حسابتان به lsevin.turkiye@gmail.com ایمیل بزنید. برای حذف حساب و داده‌های شخصی آن موضوع را «درخواست حذف حساب» و برای حذف داده‌های مشخص بدون حذف حساب «درخواست حذف داده» بگذارید."
+        },
+        {
+          "type": "p",
+          "text": "چه اتفاقی می‌افتد: درخواست را تأیید می‌کنیم و سپس پروفایل، شماره تلفن و تاریخچه چت شما را از سیستم‌های فعال حذف یا ناشناس می‌کنیم."
+        },
+        {
+          "type": "p",
+          "text": "چه مواردی ممکن است بماند: سوابقی که به دلایل قانونی، مالیاتی، امنیتی یا پیشگیری از تقلب باید نگه داریم، مثل سوابق پرداخت، فقط تا زمان لازم نگه داشته و سپس حذف می‌شوند."
+        },
+        {
+          "type": "p",
+          "text": "بازه زمانی: درخواست‌ها ظرف ۳۰ روز رسیدگی می‌شوند."
+        },
+        {
+          "type": "p",
+          "text": "بسته به محل زندگی‌تان، ممکن است حق دسترسی، اصلاح یا دریافت خروجی از داده‌های شخصی خود را هم داشته باشید. برای استفاده از این حقوق به همان ایمیل بنویسید."
+        },
+        {
+          "type": "h2",
+          "text": "۷. کودکان"
+        },
+        {
+          "type": "p",
+          "text": "السوین برای کاربران ۱۸ سال به بالاست و مخاطب آن کودکان نیستند. ما آگاهانه اطلاعات شخصی کودکان را جمع‌آوری نمی‌کنیم."
+        },
+        {
+          "type": "h2",
+          "text": "۸. تغییرات این سیاست"
+        },
+        {
+          "type": "p",
+          "text": "ممکن است این سیاست را گاه‌به‌گاه به‌روزرسانی کنیم. تغییرات اساسی با به‌روزرسانی تاریخ «آخرین به‌روزرسانی» در این صفحه نشان داده می‌شود."
+        },
+        {
+          "type": "h2",
+          "text": "۹. تماس با ما"
+        },
+        {
+          "type": "p",
+          "text": "پرسش درباره این سیاست یا داده‌های خود را به lsevin.turkiye@gmail.com بفرستید."
+        }
+      ],
+      "faq": [
+        {
+          "q": "آیا السوین داده‌های مرا می‌فروشد؟",
+          "a": "خیر. داده‌ها فقط با ارائه‌دهندگانی که رزرو می‌کنید، شرکت‌هایی که در اداره سرویس به ما کمک می‌کنند و در صورت الزام قانون با مراجع قانونی به اشتراک گذاشته می‌شود."
+        },
+        {
+          "q": "آیا السوین پرونده پزشکی مرا نگه می‌دارد؟",
+          "a": "فقط اطلاعات سلامتی که خودتان ثبت کنید، مثلاً در درخواست مشاوره تصویری یا بخش‌های سلامت پروفایل، تا پزشک یا ارائه‌دهنده‌ای که انتخاب کرده‌اید آن را ببیند."
+        },
+        {
+          "q": "آیا السوین شماره کارت مرا می‌بیند؟",
+          "a": "خیر. اطلاعات کارت را در صفحه درگاه پرداخت وارد می‌کنید و السوین فقط نتیجه پرداخت، مبلغ و شماره پیگیری را دریافت می‌کند."
+        },
+        {
+          "q": "چطور حسابم را حذف کنم؟",
+          "a": "از ایمیل یا شماره تلفن حسابتان به lsevin.turkiye@gmail.com با موضوع «درخواست حذف حساب» ایمیل بزنید. ظرف ۳۰ روز رسیدگی می‌کنیم."
+        },
+        {
+          "q": "چرا السوین کشور مرا لازم دارد؟",
+          "a": "برای نمایش قیمت به ارز درست. از پیش‌شماره کشوری شماره تلفن حساب استفاده می‌کنیم و اگر نبود، کشور را از روی نشانی IP تخمین می‌زنیم."
+        }
+      ]
+    },
+    "ar-SA": {
+      "title": "الخصوصية وحماية البيانات",
+      "metaDescription": "ما البيانات الشخصية التي تجمعها لسوين ولماذا، ومع من تشاركها، وكيف تحميها، وكيف تطلب حذف حسابك أو بياناتك. تُعالج الطلبات خلال 30 يوماً.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "تدير لسوين («لسوين» أو «نحن») موقع لسوين وتطبيقها، وهي سوق إلكترونية تتيح لك البحث عن خدمات السياحة العلاجية والعافية لدى عيادات ومقدمي خدمات مستقلين ومقارنتها وحجزها، والتواصل معهم عبر المحادثة داخل التطبيق، والشراء من متجر لسوين. توضح هذه السياسة المعلومات التي نجمعها وكيف نستخدمها والخيارات المتاحة لك."
+        },
+        {
+          "type": "h2",
+          "text": "1. المعلومات التي نجمعها"
+        },
+        {
+          "type": "h3",
+          "text": "أ. المعلومات التي تقدمها"
+        },
+        {
+          "type": "p",
+          "text": "الحساب: رقم هاتفك، ويُستخدم لتسجيل دخولك بكلمة مرور لمرة واحدة (OTP)، ولا يوجد اسم مستخدم أو كلمة مرور منفصلة."
+        },
+        {
+          "type": "p",
+          "text": "الملف الشخصي: اسمك وأي بيانات تواصل أخرى تختار إضافتها مثل البريد الإلكتروني. وقد يضيف المرضى الدوليون بيانات السفر، مثل معلومات جواز السفر، عندما يتطلبها الحجز."
+        },
+        {
+          "type": "p",
+          "text": "الرسائل: ما ترسله عبر المحادثة إلى العيادات ومقدمي الخدمات أو إلى دعم لسوين، ومنه الملفات المرفقة."
+        },
+        {
+          "type": "p",
+          "text": "الحجوزات والطلبات: الخدمة التي تهتم بها والتواريخ المفضلة والمرافقون وما شابه ذلك من تفاصيل تدخلها عند الاستفسار عن خدمة أو حجزها أو طلب اتصال للاستشارة المجانية."
+        },
+        {
+          "type": "p",
+          "text": "طلبات المتجر: اسمك وبريدك الإلكتروني ورقم هاتفك وعنوان التوصيل والمنتجات التي تطلبها."
+        },
+        {
+          "type": "p",
+          "text": "المدفوعات: في الدفع الإلكتروني تُدخل بيانات بطاقتك في صفحة بوابة الدفع لا في لسوين، ونتلقى نتيجة الدفع ومبلغه ورقمه المرجعي. وإذا دفعت بتحويل بنكي، نتلقى صورة الإيصال التي ترفعها."
+        },
+        {
+          "type": "h3",
+          "text": "ب. المعلومات الصحية التي تختار مشاركتها"
+        },
+        {
+          "type": "p",
+          "text": "لا تحتاج إلى تقديم سجلات طبية لإجراء حجز. لكن بعض الميزات تتيح لك مشاركة معلومات صحية إن أردت: وصف الأعراض وإرفاق نتائج التحاليل أو الصور عند حجز استشارة مرئية، أو تعبئة الأقسام الصحية في ملفك، أو إرسال التقارير إلى مقدم الخدمة في المحادثة."
+        },
+        {
+          "type": "p",
+          "text": "عند استخدام هذه الميزات تُحفظ المعلومات مع حسابك ليطّلع عليها الطبيب أو مقدم الخدمة الذي اخترته، ولا تُشارك إلا معه ومع موظفي لسوين الذين يتابعون حالتك. وأنت من يقرر ما يشاركه."
+        },
+        {
+          "type": "h3",
+          "text": "ج. المعلومات التي تُجمع تلقائياً"
+        },
+        {
+          "type": "p",
+          "text": "بيانات الجهاز والتطبيق: معرّفات الجهاز وإصدار التطبيق وسجلات الأعطال والتشخيص، للحفاظ على أمان الخدمة وعملها."
+        },
+        {
+          "type": "p",
+          "text": "رموز الإشعارات: لإرسال تحديثات الحجز وإشعارات المحادثة."
+        },
+        {
+          "type": "p",
+          "text": "الموقع التقريبي: بإذنك، لعرض مقدمي الخدمات القريبين منك وتحسين البحث المحلي. ويمكنك رفض هذا الإذن أو سحبه في أي وقت من إعدادات جهازك."
+        },
+        {
+          "type": "p",
+          "text": "الدولة لأغراض التسعير: لعرض الأسعار بالعملة المناسبة نحدد دولتك من رمز الدولة في رقم هاتف حسابك، فإن لم يتوفر نقدّرها من عنوان IP عبر خدمة لتحديد الموقع، وأخيراً من لغة الموقع التي تستخدمها."
+        },
+        {
+          "type": "p",
+          "text": "بيانات الاستخدام: الصفحات التي تزورها والإجراءات التي تتخذها، لتحسين الخدمة."
+        },
+        {
+          "type": "h2",
+          "text": "2. كيف نستخدم المعلومات"
+        },
+        {
+          "type": "p",
+          "text": "لإنشاء حسابك وتأمينه وتسجيل دخولك بكلمة المرور لمرة واحدة؛ ولربطك بالعيادات ومقدمي الخدمات ومعالجة الحجوزات والطلبات والمدفوعات والمبالغ المستردة والتواصل داخل التطبيق؛ ولإرسال تأكيدات الحجز والتحديثات وإشعارات الشحن ورسائل الدعم عبر الإشعارات أو الرسائل النصية أو البريد الإلكتروني؛ ولعرض الأسعار بعملتك؛ ولصيانة الخدمة وتأمينها وتحسينها وكشف الاحتيال أو إساءة الاستخدام ومنعهما؛ وللوفاء بالالتزامات القانونية."
+        },
+        {
+          "type": "quote",
+          "text": "نحن لا نبيع بياناتك الشخصية."
+        },
+        {
+          "type": "h2",
+          "text": "3. كيف نشارك المعلومات"
+        },
+        {
+          "type": "p",
+          "text": "مع العيادات ومقدمي الخدمات: المعلومات اللازمة لمعالجة استفسارك أو حجزك، مثل اسمك وبيانات تواصلك والرسائل أو تفاصيل الحجز أو المعلومات الصحية التي تختار إرسالها إليهم."
+        },
+        {
+          "type": "p",
+          "text": "مع مزودي الخدمات: الشركات التي تساعدنا في تشغيل لسوين، مثل الاستضافة السحابية وبوابات الدفع وإرسال الرسائل النصية والإشعارات والاتصال المرئي وتحديد الموقع عبر IP والتحليلات، وتعمل وفق التزامات السرية وحماية البيانات."
+        },
+        {
+          "type": "p",
+          "text": "لأسباب قانونية: عندما يقتضي ذلك القانون أو اللوائح أو الإجراءات القضائية أو طلب حكومي."
+        },
+        {
+          "type": "h2",
+          "text": "4. أمان البيانات"
+        },
+        {
+          "type": "p",
+          "text": "تُشفَّر جميع البيانات المنقولة بين جهازك وخوادمنا أثناء النقل (HTTPS/TLS). ونطبق ضمانات إدارية وتقنية ومادية معقولة لحماية معلوماتك."
+        },
+        {
+          "type": "h2",
+          "text": "5. الاحتفاظ بالبيانات"
+        },
+        {
+          "type": "p",
+          "text": "نحتفظ بالمعلومات الشخصية ما دام حسابك نشطاً أو ما دامت لازمة لتقديم الخدمة والوفاء بالالتزامات القانونية وحل النزاعات وتنفيذ اتفاقاتنا. ويمكنك طلب الحذف في أي وقت كما هو موضح أدناه."
+        },
+        {
+          "type": "h2",
+          "text": "6. حقوقك وحذف الحساب أو البيانات"
+        },
+        {
+          "type": "p",
+          "text": "كيفية الطلب: راسل lsevin.turkiye@gmail.com من البريد الإلكتروني أو رقم الهاتف المرتبط بحسابك، واجعل عنوان الرسالة «طلب حذف الحساب» لحذف حسابك وبياناته الشخصية، أو «طلب حذف البيانات» لحذف بيانات محددة مع إبقاء الحساب."
+        },
+        {
+          "type": "p",
+          "text": "ما الذي يحدث: نتحقق من الطلب ثم نحذف ملفك ورقم هاتفك وسجل محادثاتك من أنظمتنا النشطة أو نجعلها مجهولة الهوية."
+        },
+        {
+          "type": "p",
+          "text": "ما قد نحتفظ به: السجلات التي يجب الاحتفاظ بها لأسباب قانونية أو ضريبية أو أمنية أو لمنع الاحتيال، مثل سجلات الدفع، ولا نحتفظ بها إلا للمدة اللازمة ثم نحذفها."
+        },
+        {
+          "type": "p",
+          "text": "المدة: تُعالج الطلبات خلال 30 يوماً."
+        },
+        {
+          "type": "p",
+          "text": "وبحسب مكان إقامتك، قد يحق لك أيضاً الاطلاع على بياناتك الشخصية أو تصحيحها أو الحصول على نسخة منها. راسل البريد نفسه لممارسة هذه الحقوق."
+        },
+        {
+          "type": "h2",
+          "text": "7. الأطفال"
+        },
+        {
+          "type": "p",
+          "text": "لسوين مخصصة لمن بلغوا 18 عاماً فأكثر، وليست موجهة إلى الأطفال، ولا نجمع عن علم معلومات شخصية من الأطفال."
+        },
+        {
+          "type": "h2",
+          "text": "8. التغييرات على هذه السياسة"
+        },
+        {
+          "type": "p",
+          "text": "قد نحدّث هذه السياسة من وقت لآخر، ونوضح التغييرات الجوهرية بتحديث تاريخ «آخر تحديث» في هذه الصفحة."
+        },
+        {
+          "type": "h2",
+          "text": "9. تواصل معنا"
+        },
+        {
+          "type": "p",
+          "text": "لأسئلتك عن هذه السياسة أو عن بياناتك: lsevin.turkiye@gmail.com."
+        }
+      ],
+      "faq": [
+        {
+          "q": "هل تبيع لسوين بياناتي؟",
+          "a": "لا. نشارك البيانات فقط مع مقدمي الخدمات الذين تحجز لديهم، والشركات التي تساعدنا في تشغيل الخدمة، والجهات الرسمية عندما يقتضي القانون ذلك."
+        },
+        {
+          "q": "هل تحتفظ لسوين بسجلاتي الطبية؟",
+          "a": "تحتفظ فقط بالمعلومات الصحية التي تختار إدخالها، مثل طلب الاستشارة المرئية أو الأقسام الصحية في ملفك، ليطّلع عليها الطبيب أو مقدم الخدمة الذي اخترته."
+        },
+        {
+          "q": "هل ترى لسوين رقم بطاقتي؟",
+          "a": "لا. تُدخل بيانات البطاقة في صفحة بوابة الدفع، وتتلقى لسوين نتيجة الدفع ومبلغه ورقمه المرجعي فقط."
+        },
+        {
+          "q": "كيف أحذف حسابي؟",
+          "a": "راسل lsevin.turkiye@gmail.com من البريد أو رقم الهاتف المرتبط بحسابك بعنوان «طلب حذف الحساب»، ونعالج الطلب خلال 30 يوماً."
+        },
+        {
+          "q": "لماذا تحتاج لسوين إلى معرفة دولتي؟",
+          "a": "لعرض الأسعار بالعملة المناسبة. نستخدم رمز الدولة في رقم هاتف حسابك، وإن لم يتوفر نقدّر الدولة من عنوان IP."
+        }
+      ]
+    },
+    "tr-TR": {
+      "title": "Gizlilik ve Veri Koruma",
+      "metaDescription": "LSevin hangi kişisel verileri neden toplar, kimlerle paylaşır, nasıl korur ve hesabınızı ya da verilerinizi nasıl silebilirsiniz. Talepler 30 gün içinde işleme alınır.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "LSevin (“LSevin”, “biz”), bağımsız klinik ve sağlayıcılara ait sağlık turizmi ve sağlıklı yaşam hizmetlerini araştırabileceğiniz, karşılaştırabileceğiniz ve rezervasyonunu yapabileceğiniz, uygulama içi sohbetle bu sağlayıcılarla görüşebileceğiniz ve LSevin mağazasından ürün satın alabileceğiniz bir pazar yeri olan LSevin web sitesini ve uygulamasını işletir. Bu politika hangi bilgileri topladığımızı, bunları nasıl kullandığımızı ve sahip olduğunuz seçenekleri açıklar."
+        },
+        {
+          "type": "h2",
+          "text": "1. Topladığımız bilgiler"
+        },
+        {
+          "type": "h3",
+          "text": "a. Bize verdiğiniz bilgiler"
+        },
+        {
+          "type": "p",
+          "text": "Hesap: Tek kullanımlık şifreyle (OTP) giriş yapmanız için kullanılan telefon numaranız. Ayrı bir kullanıcı adı veya şifre yoktur."
+        },
+        {
+          "type": "p",
+          "text": "Profil: Adınız ve eklemeyi seçtiğiniz e-posta adresi gibi diğer iletişim bilgileriniz. Uluslararası hastalar, bir rezervasyon gerektirdiğinde pasaport bilgileri gibi seyahat bilgilerini de ekleyebilir."
+        },
+        {
+          "type": "p",
+          "text": "Mesajlar: Sohbet üzerinden kliniklere ve sağlayıcılara ya da LSevin desteğine gönderdikleriniz, eklediğiniz dosyalar dahil."
+        },
+        {
+          "type": "p",
+          "text": "Rezervasyonlar ve talepler: Bir hizmet hakkında bilgi aldığınızda, rezervasyon yaptığınızda veya ücretsiz danışmanlık geri araması istediğinizde girdiğiniz ilgilendiğiniz hizmet, tercih ettiğiniz tarihler, refakatçiler ve benzeri bilgiler."
+        },
+        {
+          "type": "p",
+          "text": "Mağaza siparişleri: Adınız, e-posta adresiniz, telefon numaranız, teslimat adresiniz ve sipariş ettiğiniz ürünler."
+        },
+        {
+          "type": "p",
+          "text": "Ödemeler: Online ödeme yaptığınızda kart bilgilerinizi LSevin'e değil, ödeme altyapısının sayfasına girersiniz. Biz ödemenin sonucunu, tutarını ve referans numarasını alırız. Banka havalesiyle öderseniz yüklediğiniz dekont görselini alırız."
+        },
+        {
+          "type": "h3",
+          "text": "b. Paylaşmayı seçtiğiniz sağlık bilgileri"
+        },
+        {
+          "type": "p",
+          "text": "Rezervasyon yapmak için bize tıbbi kayıt vermeniz gerekmez. Bazı özellikler, isterseniz sağlık bilgilerinizi paylaşmanıza olanak tanır: görüntülü danışma randevusu alırken şikâyetlerinizi anlatmak ve tahlil sonuçları ya da fotoğraf eklemek, profilinizin sağlıkla ilgili bölümlerini doldurmak veya sohbette bir sağlayıcıya rapor göndermek."
+        },
+        {
+          "type": "p",
+          "text": "Bu özellikleri kullandığınızda bilgiler, seçtiğiniz doktor veya sağlayıcının görebilmesi için hesabınızla birlikte saklanır. Yalnızca onlarla ve sürecinizde size destek olan LSevin çalışanlarıyla paylaşılır. Neyi paylaşacağınıza siz karar verirsiniz."
+        },
+        {
+          "type": "h3",
+          "text": "c. Otomatik olarak toplanan bilgiler"
+        },
+        {
+          "type": "p",
+          "text": "Cihaz ve uygulama verileri: Hizmetin güvenli ve çalışır durumda kalması için kullanılan cihaz tanımlayıcıları, uygulama sürümü ve çökme ya da tanılama kayıtları."
+        },
+        {
+          "type": "p",
+          "text": "Bildirim belirteçleri: Rezervasyon güncellemeleri ve sohbet bildirimleri göndermek için kullanılır."
+        },
+        {
+          "type": "p",
+          "text": "Yaklaşık konum: İzin verirseniz size yakın sağlayıcıları göstermek ve yerel aramayı iyileştirmek için kullanılır. Bu izni dilediğiniz zaman cihaz ayarlarınızdan reddedebilir veya geri alabilirsiniz."
+        },
+        {
+          "type": "p",
+          "text": "Fiyatlandırma için ülke: Fiyatları doğru para biriminde göstermek için ülkenizi hesabınızdaki telefon numarasının ülke kodundan belirleriz. Bu yoksa bir IP konum hizmeti kullanarak IP adresinizden, son çare olarak da kullandığınız site dilinden tahmin ederiz."
+        },
+        {
+          "type": "p",
+          "text": "Kullanım verileri: Hizmeti iyileştirmek için kullanılan görüntülenen sayfalar ve yapılan işlemler."
+        },
+        {
+          "type": "h2",
+          "text": "2. Bilgileri nasıl kullanırız"
+        },
+        {
+          "type": "p",
+          "text": "Hesabınızı oluşturmak, güvenliğini sağlamak ve OTP ile giriş yapmanızı sağlamak için. Sizi klinik ve sağlayıcılarla buluşturmak; rezervasyonları, siparişleri, ödemeleri, iadeleri ve uygulama içi iletişimi yürütmek için. Rezervasyon onaylarını, güncellemeleri, teslimat bildirimlerini ve destek mesajlarını bildirim, SMS veya e-posta ile göndermek için. Fiyatları sizin para biriminizde göstermek için. Hizmetin bakımını yapmak, güvenliğini sağlamak, hizmeti iyileştirmek ve dolandırıcılığı ya da kötüye kullanımı tespit edip önlemek için. Yasal yükümlülükleri yerine getirmek için."
+        },
+        {
+          "type": "quote",
+          "text": "Kişisel verilerinizi satmayız."
+        },
+        {
+          "type": "h2",
+          "text": "3. Bilgileri nasıl paylaşırız"
+        },
+        {
+          "type": "p",
+          "text": "Klinik ve sağlayıcılarla: Talebinizi veya rezervasyonunuzu yürütmek için gereken bilgiler; örneğin adınız, iletişim bilgileriniz ve onlara göndermeyi seçtiğiniz mesajlar, rezervasyon bilgileri veya sağlık bilgileri."
+        },
+        {
+          "type": "p",
+          "text": "Hizmet sağlayıcılarla: Bulut barındırma, ödeme altyapıları, SMS ve anlık bildirim gönderimi, görüntülü görüşme, IP konum sorgulama ve analiz gibi LSevin'i işletmemize yardımcı olan şirketler. Bu şirketler gizlilik ve veri koruma yükümlülükleri altında çalışır."
+        },
+        {
+          "type": "p",
+          "text": "Yasal nedenlerle: Kanun, düzenleme, yasal süreç veya bir resmi makam talebi gerektirdiğinde."
+        },
+        {
+          "type": "h2",
+          "text": "4. Veri güvenliği"
+        },
+        {
+          "type": "p",
+          "text": "Cihazınız ile sunucularımız arasında gönderilen tüm veriler aktarım sırasında şifrelenir (HTTPS/TLS). Bilgilerinizi korumak için makul idari, teknik ve fiziksel önlemler uygularız."
+        },
+        {
+          "type": "h2",
+          "text": "5. Verilerin saklanması"
+        },
+        {
+          "type": "p",
+          "text": "Kişisel bilgileri hesabınız aktif olduğu sürece veya hizmeti sunmak, yasal yükümlülükleri yerine getirmek, uyuşmazlıkları çözmek ve sözleşmelerimizi uygulamak için gerektiği sürece saklarız. Aşağıda açıklandığı şekilde dilediğiniz zaman silme talep edebilirsiniz."
+        },
+        {
+          "type": "h2",
+          "text": "6. Haklarınız ve hesap ya da veri silme"
+        },
+        {
+          "type": "p",
+          "text": "Nasıl talep edilir: Hesabınıza bağlı e-posta adresinden veya telefon numarasından lsevin.turkiye@gmail.com adresine e-posta gönderin. Hesabınızı ve kişisel verilerini silmek için konu satırına “Hesap silme talebi”, hesabınızı koruyarak belirli verileri silmek için “Veri silme talebi” yazın."
+        },
+        {
+          "type": "p",
+          "text": "Ne olur: Talebi doğrularız, ardından profilinizi, telefon numaranızı ve sohbet geçmişinizi aktif sistemlerimizden siler veya anonim hale getiririz."
+        },
+        {
+          "type": "p",
+          "text": "Neler saklanabilir: Ödeme kayıtları gibi yasal, vergisel, güvenlik veya dolandırıcılığı önleme nedenleriyle saklamak zorunda olduğumuz kayıtlar; bunlar yalnızca gerektiği süre boyunca tutulur ve ardından silinir."
+        },
+        {
+          "type": "p",
+          "text": "Süre: Talepler 30 gün içinde işleme alınır."
+        },
+        {
+          "type": "p",
+          "text": "Yaşadığınız yere bağlı olarak kişisel verilerinize erişme, bunları düzeltme veya dışa aktarma hakkınız da olabilir. Bu hakları kullanmak için aynı e-posta adresine yazın."
+        },
+        {
+          "type": "h2",
+          "text": "7. Çocuklar"
+        },
+        {
+          "type": "p",
+          "text": "LSevin 18 yaş ve üzeri kullanıcılar içindir ve çocuklara yönelik değildir. Çocuklardan bilerek kişisel bilgi toplamayız."
+        },
+        {
+          "type": "h2",
+          "text": "8. Bu politikadaki değişiklikler"
+        },
+        {
+          "type": "p",
+          "text": "Bu politikayı zaman zaman güncelleyebiliriz. Önemli değişiklikler, bu sayfadaki Son Güncelleme tarihi güncellenerek belirtilir."
+        },
+        {
+          "type": "h2",
+          "text": "9. Bize ulaşın"
+        },
+        {
+          "type": "p",
+          "text": "Bu politika veya verilerinizle ilgili sorularınız için: lsevin.turkiye@gmail.com."
+        }
+      ],
+      "faq": [
+        {
+          "q": "LSevin verilerimi satıyor mu?",
+          "a": "Hayır. Verileri yalnızca rezervasyon yaptığınız sağlayıcılarla, hizmeti işletmemize yardımcı olan şirketlerle ve kanunun gerektirdiği durumlarda resmi makamlarla paylaşırız."
+        },
+        {
+          "q": "LSevin tıbbi kayıtlarımı saklıyor mu?",
+          "a": "Yalnızca göndermeyi seçtiğiniz sağlık bilgilerini; örneğin bir görüntülü danışma talebinde veya profilinizin sağlıkla ilgili bölümlerinde paylaştıklarınızı. Bu bilgiler, seçtiğiniz doktor veya sağlayıcının görebilmesi için kullanılır."
+        },
+        {
+          "q": "LSevin kart numaramı görüyor mu?",
+          "a": "Hayır. Kart bilgilerinizi ödeme altyapısının sayfasına girersiniz. LSevin ödeme sonucunu, tutarı ve referans numarasını alır."
+        },
+        {
+          "q": "Hesabımı nasıl silerim?",
+          "a": "Hesabınızdaki e-posta adresinden veya telefon numarasından, konu satırına “Hesap silme talebi” yazarak lsevin.turkiye@gmail.com adresine e-posta gönderin. Talebi 30 gün içinde işleme alırız."
+        },
+        {
+          "q": "LSevin neden ülkemi bilmek istiyor?",
+          "a": "Fiyatları doğru para biriminde göstermek için. Hesabınızdaki telefon numarasının ülke kodunu, bu yoksa IP adresinizden yapılan bir tahmini kullanırız."
+        }
+      ]
+    },
+    "ku-KU": {
+      "title": "تایبەتێتی و پاراستنی زانیاری",
+      "metaDescription": "LSevin چ زانیارییەکی کەسی کۆ دەکاتەوە، بۆچی، لەگەڵ کێ هاوبەشی دەکات، چۆن دەیپارێزێت و چۆن هەژمار یان زانیارییەکانتان بسڕنەوە. داواکارییەکان لە 30 ڕۆژدا جێبەجێ دەکرێن.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "LSevin («LSevin»، «ئێمە») ماڵپەڕ و ئەپی LSevin بەڕێوە دەبات، کە بازاڕێکە تێیدا دەتوانن لەسەر خزمەتگوزارییەکانی گەشتی چارەسەری و ئاسوودەیی لەگەڵ کلینیک و دابینکەرە سەربەخۆکان بکۆڵنەوە، بەراوردیان بکەن و حجزیان بکەن، لە ڕێگەی چاتی ناو ئەپەکەوە قسەیان لەگەڵ بکەن، و لە فرۆشگای LSevin بەرهەم بکڕن. ئەم سیاسەتە ڕوونی دەکاتەوە چ زانیارییەک کۆ دەکەینەوە، چۆن بەکاری دەهێنین و چ هەڵبژاردنێکتان هەیە."
+        },
+        {
+          "type": "h2",
+          "text": "1. ئەو زانیارییانەی کۆیان دەکەینەوە"
+        },
+        {
+          "type": "h3",
+          "text": "أ. ئەو زانیارییانەی خۆتان پێمانی دەدەن"
+        },
+        {
+          "type": "p",
+          "text": "هەژمار: ژمارەی تەلەفۆنەکەتان، کە بۆ چوونەژوورەوە بە وشەی نهێنیی یەکجاری (OTP) بەکاردێت. هیچ ناوی بەکارهێنەر یان وشەی نهێنییەکی جیا نییە."
+        },
+        {
+          "type": "p",
+          "text": "پرۆفایل: ناوتان و هەر زانیارییەکی پەیوەندیی تر کە خۆتان هەڵیدەبژێرن زیادی بکەن، وەک ناونیشانی ئیمەیڵ. نەخۆشانی نێودەوڵەتی دەتوانن زانیاریی گەشتیش زیاد بکەن، وەک زانیاریی پاسپۆرت، کاتێک حجزێک پێویستی پێیان بێت."
+        },
+        {
+          "type": "p",
+          "text": "پەیامەکان: ئەوەی لە ڕێگەی چاتەوە بۆ کلینیک و دابینکەران یان بۆ پشتگیریی LSevin دەینێرن، لەوانە ئەو فایلانەی هاوپێچیان دەکەن."
+        },
+        {
+          "type": "p",
+          "text": "حجز و داواکارییەکان: ئەو خزمەتەی بەلاتانەوە گرنگە، بەروارە دڵخوازەکان، یاوەران و وردەکاریی هاوشێوە کە کاتی پرسیارکردن دەربارەی خزمەتێک یان حجزکردنی، یان داواکردنی پەیوەندیی ڕاوێژکاریی بەخۆڕایی دەینووسن."
+        },
+        {
+          "type": "p",
+          "text": "داواکارییەکانی فرۆشگا: ناو، ئیمەیڵ، ژمارەی تەلەفۆن و ناونیشانی گەیاندنتان، و ئەو کاڵایانەی داوایان دەکەن."
+        },
+        {
+          "type": "p",
+          "text": "پارەدانەکان: کاتێک بە ئۆنلاین پارە دەدەن، زانیاریی کارتەکەتان لە پەڕەی دەروازەی پارەدان دەنووسن، نەک لە LSevin. ئێمە ئەنجامی پارەدانەکە، بڕەکەی و ژمارەی بەدواداچوونەکەی وەردەگرین. ئەگەر بە گواستنەوەی بانکی پارە بدەن، ئەو وێنەی فیشە وەردەگرین کە بارتان کردووە."
+        },
+        {
+          "type": "h3",
+          "text": "ب. ئەو زانیارییە تەندروستییانەی خۆتان هەڵدەبژێرن هاوبەشی بکەن"
+        },
+        {
+          "type": "p",
+          "text": "بۆ حجزکردن پێویست ناکات تۆماری پزیشکیمان پێ بدەن. هەندێک تایبەتمەندی ڕێگەتان پێ دەدەن ئەگەر خۆتان بڕیار بدەن زانیاریی تەندروستی هاوبەش بکەن: باسکردنی نیشانەکانی نەخۆشی و هاوپێچکردنی ئەنجامی پشکنین یان وێنە کاتێک ڕاوێژی ڤیدیۆیی حجز دەکەن، پڕکردنەوەی بەشە تەندروستییەکانی پرۆفایلەکەتان، یان ناردنی ڕاپۆرت بۆ دابینکەر لە چاتدا."
+        },
+        {
+          "type": "p",
+          "text": "کاتێک ئەم تایبەتمەندییانە بەکاردەهێنن، زانیارییەکە لەگەڵ هەژمارەکەتاندا هەڵدەگیرێت بۆ ئەوەی ئەو پزیشک یان دابینکەرەی هەڵتانبژاردووە بتوانێت بیبینێت. تەنها لەگەڵ ئەوان و ئەو کارمەندانەی LSevin هاوبەش دەکرێت کە پشتگیریی دۆسیەکەتان دەکەن. بڕیاری ئەوەی چی هاوبەش بکەن لای خۆتانە."
+        },
+        {
+          "type": "h3",
+          "text": "ج. ئەو زانیارییانەی بە شێوەی خۆکار کۆ دەکرێنەوە"
+        },
+        {
+          "type": "p",
+          "text": "زانیاریی ئامێر و ئەپ: ناسێنەرەکانی ئامێر، وەشانی ئەپ و تۆمارەکانی تێکچوون یان دەستنیشانکردنی کێشە، کە بۆ پاراستن و کارکردنی دروستی خزمەتگوزارییەکە بەکاردێن."
+        },
+        {
+          "type": "p",
+          "text": "تۆکنەکانی ئاگادارکردنەوە: بۆ ناردنی نوێکارییەکانی حجز و ئاگادارکردنەوەکانی چات بەکاردێن."
+        },
+        {
+          "type": "p",
+          "text": "شوێنی نزیکەیی: ئەگەر ڕێگە بدەن، بۆ پیشاندانی دابینکەرانی نزیکتان و باشترکردنی گەڕانی ناوچەیی بەکاردێت. دەتوانن هەر کاتێک لە ڕێکخستنەکانی ئامێرەکەتاندا ئەم ڕێگەپێدانە ڕەت بکەنەوە یان بیکشێننەوە."
+        },
+        {
+          "type": "p",
+          "text": "وڵات بۆ نرخدانان: بۆ پیشاندانی نرخ بە دراوی دروست، وڵاتەکەتان لە کۆدی وڵاتی ژمارەی تەلەفۆنی هەژمارەکەتانەوە دیاری دەکەین. ئەگەر ئەوە بەردەست نەبوو، لە ناونیشانی IPەکەتانەوە و بە یارمەتیی خزمەتگوزارییەکی دیاریکردنی شوێنی IP دەیخەمڵێنین، و وەک دوایین ڕێگا لە زمانی ئەو ماڵپەڕەوە کە بەکاری دەهێنن."
+        },
+        {
+          "type": "p",
+          "text": "زانیاریی بەکارهێنان: ئەو پەڕانەی سەیرکراون و ئەو کارانەی ئەنجام دراون، کە بۆ باشترکردنی خزمەتگوزارییەکە بەکاردێن."
+        },
+        {
+          "type": "h2",
+          "text": "2. چۆن زانیارییەکان بەکاردەهێنین"
+        },
+        {
+          "type": "p",
+          "text": "بۆ دروستکردن و پاراستنی هەژمارەکەتان و چوونەژوورەوەتان بە OTP. بۆ پەیوەندیکردنتان بە کلینیک و دابینکەرانەوە و بەڕێوەبردنی حجز، داواکاری، پارەدان، گەڕاندنەوەی پارە و پەیوەندیی ناو ئەپ. بۆ ناردنی پشتڕاستکردنەوەی حجز، نوێکارییەکان، ئاگادارییەکانی گەیاندن و پەیامەکانی پشتگیری لە ڕێگەی ئاگادارکردنەوە، SMS یان ئیمەیڵەوە. بۆ پیشاندانی نرخ بە دراوەکەی ئێوە. بۆ پاراستن، ئاسایش و باشترکردنی خزمەتگوزارییەکە و دۆزینەوە و ڕێگریکردن لە فێڵ یان خراپ بەکارهێنان. بۆ جێبەجێکردنی ئەرکە یاساییەکان."
+        },
+        {
+          "type": "quote",
+          "text": "ئێمە زانیارییە کەسییەکانتان نافرۆشین."
+        },
+        {
+          "type": "h2",
+          "text": "3. چۆن زانیارییەکان هاوبەش دەکەین"
+        },
+        {
+          "type": "p",
+          "text": "لەگەڵ کلینیک و دابینکەران: ئەو زانیارییانەی بۆ بەڕێوەبردنی پرسیار یان حجزەکەتان پێویستن، وەک ناو، زانیاریی پەیوەندی و ئەو پەیام، وردەکاریی حجز یان زانیارییە تەندروستییانەی خۆتان هەڵدەبژێرن بۆیانی بنێرن."
+        },
+        {
+          "type": "p",
+          "text": "لەگەڵ دابینکەرانی خزمەتگوزاری: ئەو کۆمپانیایانەی یارمەتیمان دەدەن LSevin بەڕێوە ببەین، وەک هۆستینگی هەوری، دەروازەکانی پارەدان، ناردنی SMS و ئاگادارکردنەوەی push، پەیوەندیی ڤیدیۆیی، دیاریکردنی شوێنی IP و شیکاری. ئەوان لە ژێر ئەرکی نهێنیپارێزی و پاراستنی زانیاریدا کار دەکەن."
+        },
+        {
+          "type": "p",
+          "text": "بە هۆکاری یاسایی: کاتێک یاسا، ڕێسا، کارێکی یاسایی یان داواکارییەکی حکومی پێویستی بکات."
+        },
+        {
+          "type": "h2",
+          "text": "4. ئاسایشی زانیاری"
+        },
+        {
+          "type": "p",
+          "text": "هەموو ئەو زانیارییانەی لە نێوان ئامێرەکەتان و سێرڤەرەکانماندا دەنێردرێن لە کاتی گواستنەوەدا شفرە دەکرێن (HTTPS/TLS). ڕێکاری گونجاوی کارگێڕی، تەکنیکی و فیزیکی بۆ پاراستنی زانیارییەکانتان بەکاردەهێنین."
+        },
+        {
+          "type": "h2",
+          "text": "5. هێشتنەوەی زانیاری"
+        },
+        {
+          "type": "p",
+          "text": "زانیارییە کەسییەکان تا هەژمارەکەتان چالاکە یان تا ئەو کاتەی بۆ پێشکەشکردنی خزمەتگوزارییەکە، جێبەجێکردنی ئەرکە یاساییەکان، چارەسەرکردنی ناکۆکییەکان و جێبەجێکردنی ڕێککەوتنەکانمان پێویستە دەیانهێڵینەوە. دەتوانن هەر کاتێک بەو شێوەیەی لە خوارەوە باس کراوە داوای سڕینەوە بکەن."
+        },
+        {
+          "type": "h2",
+          "text": "6. مافەکانتان و سڕینەوەی هەژمار یان زانیاری"
+        },
+        {
+          "type": "p",
+          "text": "چۆن داوا بکەن: لەو ئیمەیڵ یان ژمارە تەلەفۆنەی بە هەژمارەکەتانەوە بەستراوە، ئیمەیڵ بنێرن بۆ lsevin.turkiye@gmail.com. بۆ سڕینەوەی هەژمار و زانیارییە کەسییەکانی، بابەتی نامەکە بکەنە «داواکاری سڕینەوەی هەژمار»، یان بۆ سڕینەوەی زانیاریی دیاریکراو و هێشتنەوەی هەژمارەکە، «داواکاری سڕینەوەی زانیاری»."
+        },
+        {
+          "type": "p",
+          "text": "چی ڕوو دەدات: داواکارییەکە پشتڕاست دەکەینەوە، پاشان پرۆفایل، ژمارەی تەلەفۆن و مێژووی چاتەکانتان لە سیستەمە چالاکەکانماندا دەسڕینەوە یان بێناسنامەیان دەکەین."
+        },
+        {
+          "type": "p",
+          "text": "چی دەکرێت بمێنێتەوە: ئەو تۆمارانەی بە هۆکاری یاسایی، باج، ئاسایش یان ڕێگریکردن لە فێڵ دەبێت بیانهێڵینەوە، وەک تۆمارەکانی پارەدان، کە تەنها بۆ ماوەی پێویست دەمێننەوە و پاشان دەسڕدرێنەوە."
+        },
+        {
+          "type": "p",
+          "text": "ماوە: داواکارییەکان لە ماوەی 30 ڕۆژدا جێبەجێ دەکرێن."
+        },
+        {
+          "type": "p",
+          "text": "بەپێی شوێنی نیشتەجێبوونتان، لەوانەیە مافی دەستگەیشتن، ڕاستکردنەوە یان هەناردەکردنی زانیارییە کەسییەکانیشتان هەبێت. بۆ بەکارهێنانی ئەم مافانە بۆ هەمان ناونیشانی ئیمەیڵ بنووسن."
+        },
+        {
+          "type": "h2",
+          "text": "7. منداڵان"
+        },
+        {
+          "type": "p",
+          "text": "LSevin بۆ بەکارهێنەرانی 18 ساڵ و سەرووترە و ئاراستەی منداڵان نەکراوە. ئێمە بە ئاگاداریی خۆمان زانیاریی کەسی لە منداڵان کۆ ناکەینەوە."
+        },
+        {
+          "type": "h2",
+          "text": "8. گۆڕانکاری لەم سیاسەتەدا"
+        },
+        {
+          "type": "p",
+          "text": "لەوانەیە جار جار ئەم سیاسەتە نوێ بکەینەوە. گۆڕانکارییە گرنگەکان بە نوێکردنەوەی بەرواری «دوایین نوێکردنەوە» لەم پەڕەیەدا دیار دەکرێن."
+        },
+        {
+          "type": "h2",
+          "text": "9. پەیوەندیمان پێوە بکەن"
+        },
+        {
+          "type": "p",
+          "text": "بۆ پرسیار دەربارەی ئەم سیاسەتە یان زانیارییەکانتان: lsevin.turkiye@gmail.com."
+        }
+      ],
+      "faq": [
+        {
+          "q": "ئایا LSevin زانیارییەکانم دەفرۆشێت؟",
+          "a": "نەخێر. زانیاری تەنها لەگەڵ ئەو دابینکەرانەی حجزیان لەلا دەکەن، ئەو کۆمپانیایانەی یارمەتیمان دەدەن خزمەتگوزارییەکە بەڕێوە ببەین، و دەسەڵاتداران کاتێک یاسا پێویستی بکات، هاوبەش دەکەین."
+        },
+        {
+          "q": "ئایا LSevin تۆمارە پزیشکییەکانم هەڵدەگرێت؟",
+          "a": "تەنها ئەو زانیارییە تەندروستییانەی خۆتان هەڵدەبژێرن بینێرن، بۆ نموونە لە داواکاریی ڕاوێژی ڤیدیۆیی یان بەشە تەندروستییەکانی پرۆفایلەکەتاندا. بەکاردێن بۆ ئەوەی ئەو پزیشک یان دابینکەرەی هەڵتانبژاردووە بیانبینێت."
+        },
+        {
+          "q": "ئایا LSevin ژمارەی کارتەکەم دەبینێت؟",
+          "a": "نەخێر. زانیاریی کارت لە پەڕەی دەروازەی پارەدان دەنووسن. LSevin ئەنجامی پارەدان، بڕ و ژمارەی بەدواداچوون وەردەگرێت."
+        },
+        {
+          "q": "چۆن هەژمارەکەم بسڕمەوە؟",
+          "a": "لەو ئیمەیڵ یان ژمارە تەلەفۆنەی لەسەر هەژمارەکەتانە، ئیمەیڵ بنێرن بۆ lsevin.turkiye@gmail.com بە بابەتی «داواکاری سڕینەوەی هەژمار». لە ماوەی 30 ڕۆژدا جێبەجێی دەکەین."
+        },
+        {
+          "q": "بۆچی LSevin پێویستی بە زانینی وڵاتەکەمە؟",
+          "a": "بۆ پیشاندانی نرخ بە دراوی دروست. کۆدی وڵاتی ژمارەی تەلەفۆنی هەژمارەکەتان بەکاردەهێنین، یان ئەگەر ئەوە بەردەست نەبوو، خەمڵاندنێک لە ناونیشانی IPەکەتانەوە."
+        }
+      ]
+    },
+    "ru-RU": {
+      "title": "Конфиденциальность и защита данных",
+      "metaDescription": "Какие персональные данные собирает LSevin, зачем, кому их передаёт, как защищает и как удалить аккаунт или данные. Запросы обрабатываются в течение 30 дней.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "LSevin («LSevin», «мы», «нас») управляет сайтом и приложением LSevin — маркетплейсом, где можно изучать, сравнивать и бронировать услуги медицинских и оздоровительных поездок у независимых клиник и поставщиков, общаться с ними в чате приложения и покупать товары в магазине LSevin. В этой политике описано, какую информацию мы собираем, как её используем и какой выбор есть у Вас."
+        },
+        {
+          "type": "h2",
+          "text": "1. Какую информацию мы собираем"
+        },
+        {
+          "type": "h3",
+          "text": "а. Информация, которую Вы предоставляете"
+        },
+        {
+          "type": "p",
+          "text": "Аккаунт: Ваш номер телефона, по которому Вы входите с помощью одноразового пароля (OTP). Отдельного логина или пароля нет."
+        },
+        {
+          "type": "p",
+          "text": "Профиль: Ваше имя и другие контактные данные, которые Вы решите добавить, например адрес электронной почты. Иностранные пациенты также могут добавить данные для поездки, например паспортные данные, если они нужны для бронирования."
+        },
+        {
+          "type": "p",
+          "text": "Сообщения: то, что Вы отправляете в чате клиникам и поставщикам или в поддержку LSevin, включая прикреплённые файлы."
+        },
+        {
+          "type": "p",
+          "text": "Бронирования и заявки: интересующая Вас услуга, желаемые даты, сопровождающие и подобные сведения, которые Вы указываете, когда спрашиваете об услуге или бронируете её либо оставляете заявку на бесплатную консультацию с обратным звонком."
+        },
+        {
+          "type": "p",
+          "text": "Заказы в магазине: Ваше имя, адрес электронной почты, номер телефона и адрес доставки, а также заказанные товары."
+        },
+        {
+          "type": "p",
+          "text": "Платежи: при онлайн-оплате Вы вводите данные карты на странице платёжного шлюза, а не на LSevin. Мы получаем результат платежа, его сумму и номер операции. Если Вы платите банковским переводом, мы получаем загруженное Вами изображение квитанции."
+        },
+        {
+          "type": "h3",
+          "text": "б. Сведения о здоровье, которыми Вы решаете поделиться"
+        },
+        {
+          "type": "p",
+          "text": "Чтобы сделать бронирование, предоставлять нам медицинские документы не нужно. Некоторые функции позволяют поделиться сведениями о здоровье, если Вы этого хотите: описать симптомы и приложить результаты анализов или фотографии при бронировании видеоконсультации, заполнить разделы профиля о здоровье или отправить заключения поставщику в чате."
+        },
+        {
+          "type": "p",
+          "text": "Когда Вы пользуетесь этими функциями, информация хранится в Вашем аккаунте, чтобы её мог видеть выбранный Вами врач или поставщик. Она передаётся только им и сотрудникам LSevin, которые сопровождают Ваш случай. Чем делиться, решаете Вы."
+        },
+        {
+          "type": "h3",
+          "text": "в. Информация, собираемая автоматически"
+        },
+        {
+          "type": "p",
+          "text": "Данные устройства и приложения: идентификаторы устройства, версия приложения и журналы сбоев или диагностики, которые нужны для безопасной и стабильной работы сервиса."
+        },
+        {
+          "type": "p",
+          "text": "Токены уведомлений: используются для отправки обновлений по бронированиям и уведомлений из чата."
+        },
+        {
+          "type": "p",
+          "text": "Приблизительное местоположение: если Вы дадите разрешение, оно используется, чтобы показывать поставщиков поблизости и улучшать местный поиск. Вы можете отказать в этом разрешении или отозвать его в любое время в настройках устройства."
+        },
+        {
+          "type": "p",
+          "text": "Страна для расчёта цен: чтобы показывать цены в нужной валюте, мы определяем Вашу страну по коду страны номера телефона в аккаунте. Если он недоступен, мы оцениваем страну по IP-адресу с помощью сервиса геолокации по IP, а в крайнем случае по языку сайта, которым Вы пользуетесь."
+        },
+        {
+          "type": "p",
+          "text": "Данные об использовании: просмотренные страницы и выполненные действия; они нужны для улучшения сервиса."
+        },
+        {
+          "type": "h2",
+          "text": "2. Как мы используем информацию"
+        },
+        {
+          "type": "p",
+          "text": "Чтобы создать и защитить Ваш аккаунт и обеспечить вход по OTP. Чтобы связать Вас с клиниками и поставщиками и обрабатывать бронирования, заказы, платежи, возвраты средств и переписку в приложении. Чтобы отправлять подтверждения бронирований, обновления, уведомления о доставке и сообщения поддержки в виде уведомлений, SMS или писем. Чтобы показывать цены в Вашей валюте. Чтобы поддерживать, защищать и улучшать сервис, а также выявлять и предотвращать мошенничество и злоупотребления. Чтобы выполнять требования законодательства."
+        },
+        {
+          "type": "quote",
+          "text": "Мы не продаём Ваши персональные данные."
+        },
+        {
+          "type": "h2",
+          "text": "3. Кому мы передаём информацию"
+        },
+        {
+          "type": "p",
+          "text": "Клиникам и поставщикам: информацию, необходимую для обработки Вашего запроса или бронирования, например имя, контактные данные, а также сообщения, детали бронирования или сведения о здоровье, которые Вы решите им отправить."
+        },
+        {
+          "type": "p",
+          "text": "Поставщикам сервисов: компаниям, которые помогают нам обеспечивать работу LSevin, например облачный хостинг, платёжные шлюзы, доставка SMS и push-уведомлений, видеосвязь, определение местоположения по IP и аналитика. Они работают в рамках обязательств о конфиденциальности и защите данных."
+        },
+        {
+          "type": "p",
+          "text": "По юридическим основаниям: когда этого требуют закон, нормативные акты, судебный процесс или запрос государственного органа."
+        },
+        {
+          "type": "h2",
+          "text": "4. Безопасность данных"
+        },
+        {
+          "type": "p",
+          "text": "Все данные, передаваемые между Вашим устройством и нашими серверами, шифруются при передаче (HTTPS/TLS). Мы применяем разумные административные, технические и физические меры для защиты Вашей информации."
+        },
+        {
+          "type": "h2",
+          "text": "5. Хранение данных"
+        },
+        {
+          "type": "p",
+          "text": "Мы храним персональные данные, пока Ваш аккаунт активен или пока это необходимо для оказания услуг, выполнения требований законодательства, разрешения споров и исполнения наших соглашений. Вы можете в любое время запросить удаление, как описано ниже."
+        },
+        {
+          "type": "h2",
+          "text": "6. Ваши права и удаление аккаунта или данных"
+        },
+        {
+          "type": "p",
+          "text": "Как подать запрос: напишите на lsevin.turkiye@gmail.com с адреса электронной почты или указав номер телефона, привязанные к Вашему аккаунту. Укажите тему Account deletion request, чтобы удалить аккаунт и связанные с ним персональные данные, или Data deletion request, чтобы удалить отдельные данные и сохранить аккаунт."
+        },
+        {
+          "type": "p",
+          "text": "Что происходит: мы проверяем запрос, затем удаляем или обезличиваем Ваш профиль, номер телефона и историю переписки в наших рабочих системах."
+        },
+        {
+          "type": "p",
+          "text": "Что может сохраниться: записи, которые мы обязаны хранить по требованиям законодательства, налогового учёта, безопасности или предотвращения мошенничества, например сведения о платежах. Они хранятся только в течение необходимого срока, а затем удаляются."
+        },
+        {
+          "type": "p",
+          "text": "Сроки: запросы обрабатываются в течение 30 дней."
+        },
+        {
+          "type": "p",
+          "text": "В зависимости от страны проживания у Вас также может быть право на доступ к своим персональным данным, их исправление или выгрузку. Чтобы воспользоваться этими правами, напишите на тот же адрес."
+        },
+        {
+          "type": "h2",
+          "text": "7. Дети"
+        },
+        {
+          "type": "p",
+          "text": "LSevin предназначен для пользователей от 18 лет и не ориентирован на детей. Мы сознательно не собираем персональные данные детей."
+        },
+        {
+          "type": "h2",
+          "text": "8. Изменения политики"
+        },
+        {
+          "type": "p",
+          "text": "Время от времени мы можем обновлять эту политику. О существенных изменениях сообщает обновлённая дата последнего изменения на этой странице."
+        },
+        {
+          "type": "h2",
+          "text": "9. Связаться с нами"
+        },
+        {
+          "type": "p",
+          "text": "Вопросы об этой политике или Ваших данных: lsevin.turkiye@gmail.com."
+        }
+      ],
+      "faq": [
+        {
+          "q": "Продаёт ли LSevin мои данные?",
+          "a": "Нет. Мы передаём данные только поставщикам, у которых Вы бронируете, компаниям, которые помогают нам обеспечивать работу сервиса, и государственным органам, когда этого требует закон."
+        },
+        {
+          "q": "Хранит ли LSevin мои медицинские документы?",
+          "a": "Только сведения о здоровье, которые Вы сами решили отправить, например в заявке на видеоконсультацию или в разделах профиля о здоровье. Они используются для того, чтобы их мог видеть выбранный Вами врач или поставщик."
+        },
+        {
+          "q": "Видит ли LSevin номер моей карты?",
+          "a": "Нет. Данные карты Вы вводите на странице платёжного шлюза. LSevin получает результат платежа, сумму и номер операции."
+        },
+        {
+          "q": "Как удалить аккаунт?",
+          "a": "Напишите на lsevin.turkiye@gmail.com с адреса электронной почты или указав номер телефона, привязанные к аккаунту, с темой Account deletion request. Мы обработаем запрос в течение 30 дней."
+        },
+        {
+          "q": "Зачем LSevin знать мою страну?",
+          "a": "Чтобы показывать цены в нужной валюте. Мы используем код страны номера телефона в Вашем аккаунте, а если он недоступен, оцениваем страну по IP-адресу."
+        }
+      ]
+    },
+    "tg-TJ": {
+      "title": "Махфият ва ҳифзи маълумот",
+      "metaDescription": "LSevin кадом маълумоти шахсиро ва барои чӣ ҷамъ меорад, бо кӣ мубодила мекунад, чӣ тавр ҳифз мекунад ва чӣ тавр ҳисоб ё маълумотро нест кунед. Мӯҳлат: 30 рӯз.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "LSevin («LSevin», «мо») сайт ва барномаи LSevin-ро идора мекунад. Ин бозорест, ки дар он шумо метавонед хидматҳои сафари табобатӣ ва солимиро дар клиникаҳо ва хидматрасонҳои мустақил омӯзед, муқоиса ва брон кунед, бо онҳо тавассути чати дохили барнома сӯҳбат намоед ва аз мағозаи LSevin маҳсулот харед. Ин сиёсат шарҳ медиҳад, ки мо кадом маълумотро ҷамъ меорем, онро чӣ тавр истифода мебарем ва шумо чӣ имконоте доред."
+        },
+        {
+          "type": "h2",
+          "text": "1. Маълумоте, ки мо ҷамъ меорем"
+        },
+        {
+          "type": "h3",
+          "text": "а. Маълумоте, ки шумо ба мо медиҳед"
+        },
+        {
+          "type": "p",
+          "text": "Ҳисоб: рақами телефони шумо, ки барои воридшавӣ бо рамзи яккарата (OTP) истифода мешавад. Номи корбар ё пароли алоҳида вуҷуд надорад."
+        },
+        {
+          "type": "p",
+          "text": "Профил: номи шумо ва дигар маълумоти тамос, ки худатон илова мекунед, масалан почтаи электронӣ. Беморони хориҷӣ метавонанд маълумоти сафар, масалан маълумоти шиносномаро низ илова кунанд, агар барои брон лозим бошад."
+        },
+        {
+          "type": "p",
+          "text": "Паёмҳо: он чи шумо тавассути чат ба клиникаҳо ва хидматрасонҳо ё ба дастгирии LSevin мефиристед, аз ҷумла файлҳои замимашуда."
+        },
+        {
+          "type": "p",
+          "text": "Бронҳо ва дархостҳо: хидмати мавриди таваҷҷуҳ, санаҳои дилхоҳ, ҳамроҳон ва маълумоти шабеҳе, ки ҳангоми пурсидан дар бораи хидмат, брон кардани он ё дархости занги баргашти машварати ройгон ворид мекунед."
+        },
+        {
+          "type": "p",
+          "text": "Фармоишҳои мағоза: ном, почтаи электронӣ, рақами телефон ва суроғаи расонидан, инчунин молҳое, ки фармоиш медиҳед."
+        },
+        {
+          "type": "p",
+          "text": "Пардохтҳо: ҳангоми пардохти онлайн шумо маълумоти кортро дар саҳифаи дарвозаи пардохт ворид мекунед, на дар LSevin. Мо натиҷаи пардохт, маблағ ва рақами пайгирии онро мегирем. Агар бо интиқоли бонкӣ пардохт кунед, мо тасвири квитансияеро, ки шумо бор мекунед, мегирем."
+        },
+        {
+          "type": "h3",
+          "text": "б. Маълумоти тиббие, ки бо хоҳиши худ мубодила мекунед"
+        },
+        {
+          "type": "p",
+          "text": "Барои брон ба мо додани ҳуҷҷатҳои тиббӣ лозим нест. Баъзе имконот ба шумо иҷозат медиҳанд, ки агар хоҳед, маълумоти тиббӣ диҳед: тавсифи аломатҳо ва замимаи натиҷаи таҳлилҳо ё суратҳо ҳангоми брони машварати видеоӣ, пур кардани бахшҳои тиббии профил ё фиристодани ҳуҷҷатҳо ба хидматрасон дар чат."
+        },
+        {
+          "type": "p",
+          "text": "Вақте ки шумо аз ин имконот истифода мебаред, маълумот дар ҳисоби шумо нигоҳ дошта мешавад, то духтур ё хидматрасони интихобкардаатон онро бинад. Он танҳо бо онҳо ва бо кормандони LSevin, ки ҳолати шуморо пайгирӣ мекунанд, мубодила мешавад. Чӣ мубодила карданро худатон ҳал мекунед."
+        },
+        {
+          "type": "h3",
+          "text": "в. Маълумоте, ки ба таври худкор ҷамъ мешавад"
+        },
+        {
+          "type": "p",
+          "text": "Маълумоти дастгоҳ ва барнома: идентификаторҳои дастгоҳ, версияи барнома ва гузоришҳои хатогӣ ё ташхисӣ, ки барои бехатар ва корӣ нигоҳ доштани хидмат истифода мешаванд."
+        },
+        {
+          "type": "p",
+          "text": "Токенҳои огоҳинома: барои фиристодани хабарҳо дар бораи брон ва огоҳиномаҳои чат истифода мешаванд."
+        },
+        {
+          "type": "p",
+          "text": "Ҷойгиршавии тахминӣ: агар иҷозат диҳед, барои нишон додани хидматрасонҳои наздики шумо ва беҳтар кардани ҷустуҷӯи маҳаллӣ истифода мешавад. Шумо метавонед ин иҷозатро надиҳед ё дар ҳар вақт дар танзимоти дастгоҳ бекор кунед."
+        },
+        {
+          "type": "p",
+          "text": "Кишвар барои нархгузорӣ: барои нишон додани нархҳо бо асъори дуруст мо кишвари шуморо аз рамзи кишвари рақами телефони ҳисоб муайян мекунем. Агар он дастрас набошад, онро аз рӯи суроғаи IP бо хидмати муайянкунии ҷойгиршавӣ аз IP ва дар охир аз рӯи забони сайте, ки истифода мебаред, тахмин мезанем."
+        },
+        {
+          "type": "p",
+          "text": "Маълумоти истифода: саҳифаҳои дидашуда ва амалҳои иҷрошуда, ки барои беҳтар кардани хидмат истифода мешаванд."
+        },
+        {
+          "type": "h2",
+          "text": "2. Мо маълумотро чӣ тавр истифода мебарем"
+        },
+        {
+          "type": "p",
+          "text": "Барои сохтан ва ҳифзи ҳисоби шумо ва воридшавӣ бо OTP. Барои пайваст кардани шумо бо клиникаҳо ва хидматрасонҳо ва коркарди бронҳо, фармоишҳо, пардохтҳо, бозгардонии маблағ ва муоширати дохили барнома. Барои фиристодани тасдиқи брон, хабарҳо, огоҳиномаҳои расонидан ва паёмҳои дастгирӣ тавассути огоҳинома, SMS ё почтаи электронӣ. Барои нишон додани нархҳо бо асъори шумо. Барои нигоҳдорӣ, ҳифз ва беҳтар кардани хидмат ва ошкор ва пешгирии қаллобӣ ё сӯистифода. Барои иҷрои ӯҳдадориҳои қонунӣ."
+        },
+        {
+          "type": "quote",
+          "text": "Мо маълумоти шахсии шуморо намефурӯшем."
+        },
+        {
+          "type": "h2",
+          "text": "3. Мо маълумотро бо кӣ мубодила мекунем"
+        },
+        {
+          "type": "p",
+          "text": "Бо клиникаҳо ва хидматрасонҳо: маълумоте, ки барои коркарди дархост ё брони шумо лозим аст, масалан ном, маълумоти тамос ва паёмҳо, тафсилоти брон ё маълумоти тиббие, ки худатон ба онҳо мефиристед."
+        },
+        {
+          "type": "p",
+          "text": "Бо таъминкунандагони хидмат: ширкатҳое, ки ба мо дар идораи LSevin кӯмак мекунанд, масалан хостинги абрӣ, дарвозаҳои пардохт, расонидани SMS ва огоҳиномаҳои push, занги видеоӣ, муайянкунии ҷойгиршавӣ аз IP ва таҳлил. Онҳо дар доираи ӯҳдадориҳои махфият ва ҳифзи маълумот кор мекунанд."
+        },
+        {
+          "type": "p",
+          "text": "Бо сабабҳои қонунӣ: вақте ки қонун, муқаррарот, мурофиаи судӣ ё дархости мақомоти давлатӣ талаб мекунад."
+        },
+        {
+          "type": "h2",
+          "text": "4. Амнияти маълумот"
+        },
+        {
+          "type": "p",
+          "text": "Тамоми маълумоте, ки байни дастгоҳи шумо ва серверҳои мо фиристода мешавад, ҳангоми интиқол рамзгузорӣ мешавад (HTTPS/TLS). Мо барои ҳифзи маълумоти шумо тадбирҳои оқилонаи маъмурӣ, техникӣ ва ҷисмониро истифода мебарем."
+        },
+        {
+          "type": "h2",
+          "text": "5. Нигоҳдории маълумот"
+        },
+        {
+          "type": "p",
+          "text": "Мо маълумоти шахсиро то вақте ки ҳисоби шумо фаъол аст ё то вақте ки барои расонидани хидмат, иҷрои ӯҳдадориҳои қонунӣ, ҳалли баҳсҳо ва иҷрои созишномаҳои мо лозим аст, нигоҳ медорем. Шумо метавонед дар ҳар вақт, тавре ки дар поён шарҳ дода шудааст, нест карданро дархост кунед."
+        },
+        {
+          "type": "h2",
+          "text": "6. Ҳуқуқҳои шумо ва нест кардани ҳисоб ё маълумот"
+        },
+        {
+          "type": "p",
+          "text": "Чӣ тавр дархост кунед: аз почтаи электронӣ ё рақами телефоне, ки ба ҳисобатон пайваст аст, ба lsevin.turkiye@gmail.com нависед. Барои нест кардани ҳисоб ва маълумоти шахсии он мавзӯи «Дархости нест кардани ҳисоб»-ро нависед, ё барои нест кардани маълумоти мушаххас бо нигоҳ доштани ҳисоб «Дархости нест кардани маълумот»-ро."
+        },
+        {
+          "type": "p",
+          "text": "Чӣ мешавад: мо дархостро месанҷем, баъд профил, рақами телефон ва таърихи чати шуморо аз системаҳои фаъоли худ нест ё беном мекунем."
+        },
+        {
+          "type": "p",
+          "text": "Чӣ нигоҳ дошта шуда метавонад: сабтҳое, ки мо бояд бо сабабҳои қонунӣ, андозӣ, амниятӣ ё пешгирии қаллобӣ нигоҳ дорем, масалан сабтҳои пардохт. Онҳо танҳо то муддати зарурӣ нигоҳ дошта мешаванд ва баъд нест карда мешаванд."
+        },
+        {
+          "type": "p",
+          "text": "Мӯҳлат: дархостҳо дар давоми 30 рӯз иҷро мешаванд."
+        },
+        {
+          "type": "p",
+          "text": "Вобаста ба ҷои зисти шумо, шумо метавонед инчунин ҳуқуқи дастрасӣ, ислоҳ ё содироти маълумоти шахсии худро дошта бошед. Барои истифодаи ин ҳуқуқҳо ба ҳамон почтаи электронӣ нависед."
+        },
+        {
+          "type": "h2",
+          "text": "7. Кӯдакон"
+        },
+        {
+          "type": "p",
+          "text": "LSevin барои корбарони аз 18 сола боло пешбинӣ шудааст ва ба кӯдакон нигаронида нашудааст. Мо огоҳона аз кӯдакон маълумоти шахсӣ ҷамъ намеорем."
+        },
+        {
+          "type": "h2",
+          "text": "8. Тағйирот дар ин сиёсат"
+        },
+        {
+          "type": "p",
+          "text": "Мо метавонем ин сиёсатро гоҳ-гоҳ навсозӣ кунем. Дар бораи тағйироти муҳим бо навсозии санаи «Навсозии охирин» дар ҳамин саҳифа хабар дода мешавад."
+        },
+        {
+          "type": "h2",
+          "text": "9. Тамос бо мо"
+        },
+        {
+          "type": "p",
+          "text": "Саволҳо дар бораи ин сиёсат ё маълумоти шумо: lsevin.turkiye@gmail.com."
+        }
+      ],
+      "faq": [
+        {
+          "q": "Оё LSevin маълумоти маро мефурӯшад?",
+          "a": "Не. Мо маълумотро танҳо бо хидматрасонҳое, ки шумо бо онҳо брон мекунед, бо ширкатҳое, ки дар идораи хидмат ба мо кӯмак мекунанд, ва бо мақомот, вақте ки қонун талаб мекунад, мубодила мекунем."
+        },
+        {
+          "q": "Оё LSevin ҳуҷҷатҳои тиббии маро нигоҳ медорад?",
+          "a": "Танҳо маълумоти тиббиеро, ки худатон мефиристед, масалан дар дархости машварати видеоӣ ё бахшҳои тиббии профил. Он барои он истифода мешавад, ки духтур ё хидматрасони интихобкардаатон онро бинад."
+        },
+        {
+          "q": "Оё LSevin рақами корти маро мебинад?",
+          "a": "Не. Шумо маълумоти кортро дар саҳифаи дарвозаи пардохт ворид мекунед. LSevin натиҷаи пардохт, маблағ ва рақами пайгириро мегирад."
+        },
+        {
+          "q": "Чӣ тавр ҳисобамро нест кунам?",
+          "a": "Аз почтаи электронӣ ё рақами телефони ҳисоби худ ба lsevin.turkiye@gmail.com бо мавзӯи «Дархости нест кардани ҳисоб» нависед. Мо онро дар давоми 30 рӯз иҷро мекунем."
+        },
+        {
+          "q": "Чаро LSevin бояд кишвари маро донад?",
+          "a": "Барои нишон додани нархҳо бо асъори дуруст. Мо рамзи кишвари рақами телефони ҳисоби шуморо истифода мебарем ё, агар он дастрас набошад, кишварро аз рӯи суроғаи IP тахмин мезанем."
+        }
+      ]
+    },
+    "zh-CN": {
+      "title": "隐私与数据保护",
+      "metaDescription": "LSevin收集哪些个人数据、用途为何、与谁共享、如何保护，以及如何删除您的账户或数据。相关申请在30天内处理。",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "LSevin（以下称“LSevin”或“我们”）运营LSevin网站和应用。这是一个服务平台，您可以在这里了解、比较并预约独立诊所和服务商提供的医疗旅行与健康养生服务，通过应用内聊天与他们沟通，还可以在LSevin商店购买产品。本政策说明我们收集哪些信息、如何使用这些信息，以及您可以作出的选择。"
+        },
+        {
+          "type": "h2",
+          "text": "1. 我们收集的信息"
+        },
+        {
+          "type": "h3",
+          "text": "a. 您提供给我们的信息"
+        },
+        {
+          "type": "p",
+          "text": "账户：您的手机号码，用于通过一次性密码（OTP）登录。我们不另设用户名或密码。"
+        },
+        {
+          "type": "p",
+          "text": "个人资料：您的姓名，以及您选择添加的其他联系方式，例如邮箱地址。当预约需要时，国际患者还可以添加护照信息等出行资料。"
+        },
+        {
+          "type": "p",
+          "text": "消息：您通过聊天发送给诊所、服务商或LSevin客服的内容，包括您附加的文件。"
+        },
+        {
+          "type": "p",
+          "text": "预约与申请：您在咨询或预约服务、申请免费咨询回电时填写的信息，例如感兴趣的服务、期望日期、同行人员及类似信息。"
+        },
+        {
+          "type": "p",
+          "text": "商店订单：您的姓名、邮箱、手机号码和收货地址，以及您订购的商品。"
+        },
+        {
+          "type": "p",
+          "text": "付款：在线支付时，您是在支付网关的页面上输入银行卡信息，而不是在LSevin上输入。我们会收到付款结果、金额和参考号。如果您通过银行转账付款，我们会收到您上传的凭证图片。"
+        },
+        {
+          "type": "h3",
+          "text": "b. 您选择分享的健康信息"
+        },
+        {
+          "type": "p",
+          "text": "预约服务无需向我们提供病历。部分功能允许您自行决定是否分享健康信息，例如：预约视频问诊时描述症状并附上检查结果或照片、填写个人资料中的健康信息部分，或在聊天中向服务商发送检查报告。"
+        },
+        {
+          "type": "p",
+          "text": "使用这些功能时，相关信息会与您的账户一同保存，以便您选择的医生或服务商查看。这些信息只与他们以及为您的个案提供支持的LSevin工作人员共享。分享哪些内容由您决定。"
+        },
+        {
+          "type": "h3",
+          "text": "c. 自动收集的信息"
+        },
+        {
+          "type": "p",
+          "text": "设备与应用数据：设备标识符、应用版本以及崩溃或诊断日志，用于保障服务的安全和正常运行。"
+        },
+        {
+          "type": "p",
+          "text": "通知令牌：用于发送预约更新和聊天通知。"
+        },
+        {
+          "type": "p",
+          "text": "大致位置：在您授权的情况下，用于显示您附近的服务商并改进本地搜索。您可以随时在设备设置中拒绝或撤回此项授权。"
+        },
+        {
+          "type": "p",
+          "text": "用于定价的国家信息：为以正确的货币显示价格，我们会根据您账户手机号码的国家代码判断您所在的国家。如果无法获取，我们会借助IP定位服务根据您的IP地址进行推测，最后再根据您使用的网站语言判断。"
+        },
+        {
+          "type": "p",
+          "text": "使用数据：浏览的页面和执行的操作，用于改进服务。"
+        },
+        {
+          "type": "h2",
+          "text": "2. 我们如何使用信息"
+        },
+        {
+          "type": "p",
+          "text": "用于创建并保护您的账户，并通过OTP为您登录；为您对接诊所和服务商，处理预约、订单、付款、退款和应用内沟通；通过通知、短信或邮件发送预约确认、更新、配送通知和客服消息；以您的货币显示价格；维护、保护和改进服务，发现并防范欺诈或滥用行为；履行法律义务。"
+        },
+        {
+          "type": "quote",
+          "text": "我们不出售您的个人数据。"
+        },
+        {
+          "type": "h2",
+          "text": "3. 我们如何共享信息"
+        },
+        {
+          "type": "p",
+          "text": "与诊所和服务商共享：处理您的咨询或预约所需的信息，例如您的姓名、联系方式，以及您选择发送给他们的消息、预约详情或健康信息。"
+        },
+        {
+          "type": "p",
+          "text": "与服务提供方共享：协助我们运营LSevin的公司，例如云托管、支付网关、短信与推送通知发送、视频通话、IP定位查询和数据分析服务商。他们须履行保密和数据保护义务。"
+        },
+        {
+          "type": "p",
+          "text": "出于法律原因：在法律、法规、法律程序或政府要求的情况下。"
+        },
+        {
+          "type": "h2",
+          "text": "4. 数据安全"
+        },
+        {
+          "type": "p",
+          "text": "您的设备与我们服务器之间传输的所有数据均经过加密（HTTPS/TLS）。我们采取合理的管理、技术和物理保护措施来保护您的信息。"
+        },
+        {
+          "type": "h2",
+          "text": "5. 数据保留"
+        },
+        {
+          "type": "p",
+          "text": "在您的账户有效期间，或在提供服务、履行法律义务、解决争议和执行协议所需的期限内，我们会保留您的个人信息。您可以按照下文所述随时申请删除。"
+        },
+        {
+          "type": "h2",
+          "text": "6. 您的权利以及账户或数据的删除"
+        },
+        {
+          "type": "p",
+          "text": "申请方式：使用与账户关联的邮箱地址或手机号码发送邮件至 lsevin.turkiye@gmail.com。如需删除账户及其个人数据，邮件主题请填写“账户删除申请”；如需在保留账户的同时删除特定数据，请填写“数据删除申请”。"
+        },
+        {
+          "type": "p",
+          "text": "处理过程：我们会核实申请，然后从现行系统中删除或匿名化处理您的个人资料、手机号码和聊天记录。"
+        },
+        {
+          "type": "p",
+          "text": "可能保留的内容：出于法律、税务、安全或防范欺诈的原因必须保留的记录，例如付款记录。这些记录仅在必要期限内保留，之后将被删除。"
+        },
+        {
+          "type": "p",
+          "text": "处理时限：申请会在30天内处理。"
+        },
+        {
+          "type": "p",
+          "text": "根据您所在地区的规定，您可能还享有访问、更正或导出个人数据的权利。如需行使这些权利，请发送邮件至同一邮箱地址。"
+        },
+        {
+          "type": "h2",
+          "text": "7. 未成年人"
+        },
+        {
+          "type": "p",
+          "text": "LSevin面向18岁及以上的用户，不以未成年人为服务对象。我们不会在知情的情况下收集未成年人的个人信息。"
+        },
+        {
+          "type": "h2",
+          "text": "8. 本政策的变更"
+        },
+        {
+          "type": "p",
+          "text": "我们可能会不时更新本政策。发生重大变更时，我们会更新本页面上的“最后更新”日期。"
+        },
+        {
+          "type": "h2",
+          "text": "9. 联系我们"
+        },
+        {
+          "type": "p",
+          "text": "如对本政策或您的数据有疑问，请联系：lsevin.turkiye@gmail.com。"
+        }
+      ],
+      "faq": [
+        {
+          "q": "LSevin会出售我的数据吗？",
+          "a": "不会。我们只与您预约的服务商、协助我们运营服务的公司，以及在法律要求时与相关主管部门共享数据。"
+        },
+        {
+          "q": "LSevin会保存我的病历吗？",
+          "a": "只保存您选择提交的健康信息，例如视频问诊申请或个人资料健康信息部分中填写的内容。这些信息用于让您选择的医生或服务商查看。"
+        },
+        {
+          "q": "LSevin能看到我的银行卡号吗？",
+          "a": "不能。您是在支付网关的页面上输入银行卡信息。LSevin只会收到付款结果、金额和参考号。"
+        },
+        {
+          "q": "如何删除我的账户？",
+          "a": "请使用账户绑定的邮箱或手机号码发送邮件至 lsevin.turkiye@gmail.com，主题填写“账户删除申请”。我们会在30天内处理。"
+        },
+        {
+          "q": "LSevin为什么需要知道我所在的国家？",
+          "a": "为了以正确的货币显示价格。我们使用您账户手机号码的国家代码；如果无法获取，则根据您的IP地址进行推测。"
+        }
+      ]
+    },
+    "de-DE": {
+      "title": "Datenschutz",
+      "metaDescription": "Welche personenbezogenen Daten LSevin erhebt, wozu, mit wem sie geteilt und wie sie geschützt werden und wie Sie Ihr Konto löschen. Bearbeitung innerhalb von 30 Tagen.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "LSevin („LSevin“, „wir“, „uns“) betreibt die LSevin Website und App, einen Marktplatz, auf dem Sie Leistungen für Gesundheitsreisen und Wellness bei unabhängigen Kliniken und Anbietern recherchieren, vergleichen und buchen, sich mit ihnen über den In-App-Chat austauschen und Produkte im LSevin Shop kaufen können. Diese Richtlinie erklärt, welche Informationen wir erheben, wie wir sie verwenden und welche Wahlmöglichkeiten Sie haben."
+        },
+        {
+          "type": "h2",
+          "text": "1. Welche Informationen wir erheben"
+        },
+        {
+          "type": "h3",
+          "text": "a. Informationen, die Sie uns geben"
+        },
+        {
+          "type": "p",
+          "text": "Konto: Ihre Telefonnummer, mit der Sie sich über ein Einmalpasswort (OTP) anmelden. Einen separaten Benutzernamen oder ein Passwort gibt es nicht."
+        },
+        {
+          "type": "p",
+          "text": "Profil: Ihr Name und weitere Kontaktdaten, die Sie freiwillig hinzufügen, etwa eine E-Mail-Adresse. Internationale Patienten können außerdem Reisedaten wie Passangaben hinzufügen, wenn eine Buchung sie erfordert."
+        },
+        {
+          "type": "p",
+          "text": "Nachrichten: was Sie über den Chat an Kliniken und Anbieter oder an den LSevin Support senden, einschließlich angehängter Dateien."
+        },
+        {
+          "type": "p",
+          "text": "Buchungen und Anfragen: die Leistung, an der Sie interessiert sind, Wunschtermine, Begleitpersonen und ähnliche Angaben, die Sie eingeben, wenn Sie eine Leistung anfragen oder buchen oder einen kostenlosen Beratungsrückruf anfordern."
+        },
+        {
+          "type": "p",
+          "text": "Shop-Bestellungen: Ihr Name, Ihre E-Mail-Adresse, Telefonnummer und Lieferadresse sowie die bestellten Artikel."
+        },
+        {
+          "type": "p",
+          "text": "Zahlungen: Bei einer Online-Zahlung geben Sie Ihre Kartendaten auf der Seite des Zahlungsgateways ein, nicht bei LSevin. Wir erhalten das Ergebnis der Zahlung, ihren Betrag und ihre Referenznummer. Wenn Sie per Banküberweisung zahlen, erhalten wir das Bild des Belegs, das Sie hochladen."
+        },
+        {
+          "type": "h3",
+          "text": "b. Gesundheitsinformationen, die Sie freiwillig teilen"
+        },
+        {
+          "type": "p",
+          "text": "Für eine Buchung müssen Sie uns keine medizinischen Unterlagen geben. Einige Funktionen ermöglichen es Ihnen, Gesundheitsinformationen zu teilen, wenn Sie das möchten: Ihre Beschwerden beschreiben und Laborbefunde oder Fotos anhängen, wenn Sie eine Videosprechstunde buchen, die Gesundheitsbereiche Ihres Profils ausfüllen oder einem Anbieter im Chat Befunde senden."
+        },
+        {
+          "type": "p",
+          "text": "Wenn Sie diese Funktionen nutzen, werden die Informationen in Ihrem Konto gespeichert, damit der von Ihnen gewählte Arzt oder Anbieter sie sehen kann. Sie werden nur mit ihm und mit den Mitarbeitenden von LSevin geteilt, die Ihren Fall betreuen. Sie entscheiden, was Sie teilen."
+        },
+        {
+          "type": "h3",
+          "text": "c. Automatisch erhobene Informationen"
+        },
+        {
+          "type": "p",
+          "text": "Geräte- und App-Daten: Gerätekennungen, App-Version sowie Absturz- und Diagnoseprotokolle, die dazu dienen, den Dienst sicher und funktionsfähig zu halten."
+        },
+        {
+          "type": "p",
+          "text": "Benachrichtigungstokens: werden verwendet, um Buchungsaktualisierungen und Chat-Benachrichtigungen zu senden."
+        },
+        {
+          "type": "p",
+          "text": "Ungefährer Standort: Mit Ihrer Erlaubnis verwendet, um Ihnen Anbieter in Ihrer Nähe zu zeigen und die lokale Suche zu verbessern. Sie können diese Erlaubnis jederzeit in den Einstellungen Ihres Geräts verweigern oder widerrufen."
+        },
+        {
+          "type": "p",
+          "text": "Land für die Preisanzeige: Um Preise in der richtigen Währung anzuzeigen, ermitteln wir Ihr Land anhand der Ländervorwahl der Telefonnummer Ihres Kontos. Ist sie nicht verfügbar, schätzen wir es anhand Ihrer IP-Adresse mithilfe eines IP-Standortdienstes und als letzte Möglichkeit anhand der Sprache, in der Sie die Website nutzen."
+        },
+        {
+          "type": "p",
+          "text": "Nutzungsdaten: aufgerufene Seiten und ausgeführte Aktionen, die zur Verbesserung des Dienstes verwendet werden."
+        },
+        {
+          "type": "h2",
+          "text": "2. Wie wir Informationen verwenden"
+        },
+        {
+          "type": "p",
+          "text": "Um Ihr Konto zu erstellen und zu schützen und Sie per OTP anzumelden. Um Sie mit Kliniken und Anbietern in Verbindung zu bringen und Buchungen, Bestellungen, Zahlungen, Erstattungen und die Kommunikation in der App abzuwickeln. Um Buchungsbestätigungen, Aktualisierungen, Versandhinweise und Support-Nachrichten per Benachrichtigung, SMS oder E-Mail zu senden. Um Preise in Ihrer Währung anzuzeigen. Um den Dienst zu betreiben, zu schützen und zu verbessern und Betrug oder Missbrauch zu erkennen und zu verhindern. Um gesetzliche Pflichten zu erfüllen."
+        },
+        {
+          "type": "quote",
+          "text": "Wir verkaufen Ihre personenbezogenen Daten nicht."
+        },
+        {
+          "type": "h2",
+          "text": "3. Wie wir Informationen weitergeben"
+        },
+        {
+          "type": "p",
+          "text": "An Kliniken und Anbieter: die Informationen, die zur Bearbeitung Ihrer Anfrage oder Buchung nötig sind, etwa Ihr Name, Ihre Kontaktdaten und die Nachrichten, Buchungsdetails oder Gesundheitsinformationen, die Sie ihnen senden möchten."
+        },
+        {
+          "type": "p",
+          "text": "An Dienstleister: Unternehmen, die uns beim Betrieb von LSevin unterstützen, etwa für Cloud-Hosting, Zahlungsgateways, den Versand von SMS und Push-Benachrichtigungen, Videoanrufe, IP-Standortabfragen und Analysen. Sie unterliegen Vertraulichkeits- und Datenschutzpflichten."
+        },
+        {
+          "type": "p",
+          "text": "Aus rechtlichen Gründen: wenn Gesetze, Vorschriften, ein rechtliches Verfahren oder eine behördliche Anfrage dies verlangen."
+        },
+        {
+          "type": "h2",
+          "text": "4. Datensicherheit"
+        },
+        {
+          "type": "p",
+          "text": "Alle Daten, die zwischen Ihrem Gerät und unseren Servern übertragen werden, sind während der Übertragung verschlüsselt (HTTPS/TLS). Wir treffen angemessene organisatorische, technische und physische Schutzmaßnahmen, um Ihre Informationen zu schützen."
+        },
+        {
+          "type": "h2",
+          "text": "5. Aufbewahrung von Daten"
+        },
+        {
+          "type": "p",
+          "text": "Wir speichern personenbezogene Informationen, solange Ihr Konto aktiv ist oder solange es nötig ist, um den Dienst zu erbringen, gesetzliche Pflichten zu erfüllen, Streitigkeiten beizulegen und unsere Vereinbarungen durchzusetzen. Sie können jederzeit die Löschung verlangen, wie unten beschrieben."
+        },
+        {
+          "type": "h2",
+          "text": "6. Ihre Rechte und die Löschung von Konto oder Daten"
+        },
+        {
+          "type": "p",
+          "text": "So stellen Sie die Anfrage: Schreiben Sie an lsevin.turkiye@gmail.com, und zwar von der E-Mail-Adresse oder unter Angabe der Telefonnummer, die mit Ihrem Konto verknüpft ist. Verwenden Sie den Betreff Account deletion request, um Ihr Konto und die zugehörigen personenbezogenen Daten löschen zu lassen, oder Data deletion request, um bestimmte Daten zu löschen und Ihr Konto zu behalten."
+        },
+        {
+          "type": "p",
+          "text": "Was geschieht: Wir prüfen die Anfrage und löschen oder anonymisieren dann Ihr Profil, Ihre Telefonnummer und Ihren Chatverlauf in unseren aktiven Systemen."
+        },
+        {
+          "type": "p",
+          "text": "Was aufbewahrt werden kann: Unterlagen, die wir aus rechtlichen, steuerlichen, sicherheitsbezogenen Gründen oder zur Betrugsprävention aufbewahren müssen, etwa Zahlungsbelege. Sie werden nur so lange wie nötig gespeichert und dann gelöscht."
+        },
+        {
+          "type": "p",
+          "text": "Frist: Anfragen werden innerhalb von 30 Tagen bearbeitet."
+        },
+        {
+          "type": "p",
+          "text": "Je nach Wohnort haben Sie möglicherweise auch das Recht auf Auskunft über Ihre personenbezogenen Daten, auf deren Berichtigung oder Export. Schreiben Sie an dieselbe E-Mail-Adresse, um diese Rechte auszuüben."
+        },
+        {
+          "type": "h2",
+          "text": "7. Kinder"
+        },
+        {
+          "type": "p",
+          "text": "LSevin richtet sich an Nutzer ab 18 Jahren und nicht an Kinder. Wir erheben nicht wissentlich personenbezogene Informationen von Kindern."
+        },
+        {
+          "type": "h2",
+          "text": "8. Änderungen dieser Richtlinie"
+        },
+        {
+          "type": "p",
+          "text": "Wir können diese Richtlinie von Zeit zu Zeit aktualisieren. Wesentliche Änderungen erkennen Sie am aktualisierten Datum „Zuletzt aktualisiert“ auf dieser Seite."
+        },
+        {
+          "type": "h2",
+          "text": "9. Kontakt"
+        },
+        {
+          "type": "p",
+          "text": "Fragen zu dieser Richtlinie oder zu Ihren Daten: lsevin.turkiye@gmail.com."
+        }
+      ],
+      "faq": [
+        {
+          "q": "Verkauft LSevin meine Daten?",
+          "a": "Nein. Wir geben Daten nur an die Anbieter weiter, bei denen Sie buchen, an die Unternehmen, die uns beim Betrieb des Dienstes unterstützen, und an Behörden, wenn das Gesetz es verlangt."
+        },
+        {
+          "q": "Speichert LSevin meine medizinischen Unterlagen?",
+          "a": "Nur die Gesundheitsinformationen, die Sie selbst übermitteln, zum Beispiel in einer Anfrage für eine Videosprechstunde oder in den Gesundheitsbereichen Ihres Profils. Sie werden verwendet, damit der von Ihnen gewählte Arzt oder Anbieter sie sehen kann."
+        },
+        {
+          "q": "Sieht LSevin meine Kartennummer?",
+          "a": "Nein. Sie geben die Kartendaten auf der Seite des Zahlungsgateways ein. LSevin erhält das Ergebnis der Zahlung, den Betrag und die Referenznummer."
+        },
+        {
+          "q": "Wie lösche ich mein Konto?",
+          "a": "Schreiben Sie von der E-Mail-Adresse oder unter Angabe der Telefonnummer Ihres Kontos an lsevin.turkiye@gmail.com mit dem Betreff Account deletion request. Wir bearbeiten die Anfrage innerhalb von 30 Tagen."
+        },
+        {
+          "q": "Warum benötigt LSevin mein Land?",
+          "a": "Um Preise in der richtigen Währung anzuzeigen. Wir verwenden die Ländervorwahl der Telefonnummer Ihres Kontos oder, falls diese nicht verfügbar ist, eine Schätzung anhand Ihrer IP-Adresse."
+        }
+      ]
+    },
+    "fr-FR": {
+      "title": "Confidentialité et protection des données",
+      "metaDescription": "Les données personnelles collectées par LSevin, leurs finalités, leurs destinataires, leur protection et la suppression de votre compte. Réponse sous 30 jours.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "LSevin (« LSevin », « nous ») exploite le site web et l’application LSevin, une place de marché où vous pouvez rechercher, comparer et réserver des services de voyage de santé et de bien-être auprès de cliniques et de prestataires indépendants, échanger avec eux par le chat intégré et acheter des produits dans la boutique LSevin. Cette politique explique quelles informations nous collectons, comment nous les utilisons et quels choix s’offrent à vous."
+        },
+        {
+          "type": "h2",
+          "text": "1. Informations que nous collectons"
+        },
+        {
+          "type": "h3",
+          "text": "a. Informations que vous nous communiquez"
+        },
+        {
+          "type": "p",
+          "text": "Compte : votre numéro de téléphone, utilisé pour vous connecter au moyen d’un mot de passe à usage unique (OTP). Il n’existe pas de nom d’utilisateur ni de mot de passe distincts."
+        },
+        {
+          "type": "p",
+          "text": "Profil : votre nom et toute autre coordonnée que vous choisissez d’ajouter, comme une adresse e-mail. Les patients internationaux peuvent aussi ajouter des informations de voyage, par exemple les données de leur passeport, lorsqu’une réservation l’exige."
+        },
+        {
+          "type": "p",
+          "text": "Messages : ce que vous envoyez par chat aux cliniques et aux prestataires ou à l’assistance LSevin, y compris les fichiers joints."
+        },
+        {
+          "type": "p",
+          "text": "Réservations et demandes : le service qui vous intéresse, les dates souhaitées, les accompagnants et les informations similaires que vous saisissez lorsque vous vous renseignez sur un service, le réservez ou demandez à être rappelé pour une consultation gratuite."
+        },
+        {
+          "type": "p",
+          "text": "Commandes en boutique : votre nom, votre adresse e-mail, votre numéro de téléphone, votre adresse de livraison et les articles commandés."
+        },
+        {
+          "type": "p",
+          "text": "Paiements : lorsque vous payez en ligne, vous saisissez vos coordonnées bancaires sur la page de la passerelle de paiement, et non sur LSevin. Nous recevons le résultat du paiement, son montant et son numéro de référence. Si vous payez par virement bancaire, nous recevons l’image du reçu que vous téléversez."
+        },
+        {
+          "type": "h3",
+          "text": "b. Informations de santé que vous choisissez de partager"
+        },
+        {
+          "type": "p",
+          "text": "Vous n’avez pas besoin de nous fournir de dossier médical pour effectuer une réservation. Certaines fonctionnalités vous permettent de partager des informations de santé si vous le décidez : décrire vos symptômes et joindre des résultats d’analyses ou des photos lorsque vous réservez une consultation vidéo, remplir les rubriques santé de votre profil, ou envoyer des comptes rendus à un prestataire par chat."
+        },
+        {
+          "type": "p",
+          "text": "Lorsque vous utilisez ces fonctionnalités, les informations sont enregistrées dans votre compte afin que le médecin ou le prestataire que vous avez choisi puisse les consulter. Elles ne sont partagées qu’avec lui et avec le personnel de LSevin qui accompagne votre dossier. C’est vous qui décidez de ce que vous partagez."
+        },
+        {
+          "type": "h3",
+          "text": "c. Informations collectées automatiquement"
+        },
+        {
+          "type": "p",
+          "text": "Données de l’appareil et de l’application : identifiants de l’appareil, version de l’application et journaux de plantage ou de diagnostic, utilisés pour assurer la sécurité et le bon fonctionnement du service."
+        },
+        {
+          "type": "p",
+          "text": "Jetons de notification : utilisés pour vous envoyer les mises à jour de vos réservations et les notifications du chat."
+        },
+        {
+          "type": "p",
+          "text": "Localisation approximative : si vous l’autorisez, elle sert à afficher les prestataires proches de vous et à améliorer la recherche locale. Vous pouvez refuser ou retirer cette autorisation à tout moment dans les réglages de votre appareil."
+        },
+        {
+          "type": "p",
+          "text": "Pays pour l’affichage des prix : pour afficher les prix dans la bonne devise, nous déterminons votre pays à partir de l’indicatif pays du numéro de téléphone de votre compte. S’il n’est pas disponible, nous l’estimons à partir de votre adresse IP au moyen d’un service de géolocalisation IP, puis, en dernier recours, à partir de la langue du site que vous utilisez."
+        },
+        {
+          "type": "p",
+          "text": "Données d’utilisation : pages consultées et actions effectuées, utilisées pour améliorer le service."
+        },
+        {
+          "type": "h2",
+          "text": "2. Utilisation des informations"
+        },
+        {
+          "type": "p",
+          "text": "Pour créer et sécuriser votre compte et vous connecter par OTP. Pour vous mettre en relation avec des cliniques et des prestataires et pour gérer les réservations, les commandes, les paiements, les remboursements et les échanges dans l’application. Pour vous envoyer des confirmations de réservation, des mises à jour, des avis de livraison et des messages de l’assistance par notification, SMS ou e-mail. Pour afficher les prix dans votre devise. Pour maintenir, sécuriser et améliorer le service, et pour détecter et prévenir la fraude ou les abus. Pour respecter nos obligations légales."
+        },
+        {
+          "type": "quote",
+          "text": "Nous ne vendons pas vos données personnelles."
+        },
+        {
+          "type": "h2",
+          "text": "3. Partage des informations"
+        },
+        {
+          "type": "p",
+          "text": "Avec les cliniques et les prestataires : les informations nécessaires au traitement de votre demande ou de votre réservation, comme votre nom, vos coordonnées et les messages, détails de réservation ou informations de santé que vous choisissez de leur envoyer."
+        },
+        {
+          "type": "p",
+          "text": "Avec nos sous-traitants : les entreprises qui nous aident à faire fonctionner LSevin, comme l’hébergement cloud, les passerelles de paiement, l’envoi de SMS et de notifications push, les appels vidéo, la géolocalisation IP et l’analyse d’audience. Elles sont soumises à des obligations de confidentialité et de protection des données."
+        },
+        {
+          "type": "p",
+          "text": "Pour des raisons légales : lorsque la loi, la réglementation, une procédure judiciaire ou une demande des autorités publiques l’exige."
+        },
+        {
+          "type": "h2",
+          "text": "4. Sécurité des données"
+        },
+        {
+          "type": "p",
+          "text": "Toutes les données échangées entre votre appareil et nos serveurs sont chiffrées en transit (HTTPS/TLS). Nous appliquons des mesures de protection administratives, techniques et physiques raisonnables pour protéger vos informations."
+        },
+        {
+          "type": "h2",
+          "text": "5. Conservation des données"
+        },
+        {
+          "type": "p",
+          "text": "Nous conservons les informations personnelles tant que votre compte est actif ou aussi longtemps que nécessaire pour fournir le service, respecter nos obligations légales, régler les litiges et faire appliquer nos accords. Vous pouvez en demander la suppression à tout moment, comme décrit ci-dessous."
+        },
+        {
+          "type": "h2",
+          "text": "6. Vos droits et la suppression de votre compte ou de vos données"
+        },
+        {
+          "type": "p",
+          "text": "Comment faire la demande : écrivez à lsevin.turkiye@gmail.com depuis l’adresse e-mail ou le numéro de téléphone associé à votre compte. Indiquez en objet « Demande de suppression de compte » pour supprimer votre compte et ses données personnelles, ou « Demande de suppression de données » pour supprimer certaines données tout en conservant votre compte."
+        },
+        {
+          "type": "p",
+          "text": "Ce qui se passe ensuite : nous vérifions la demande, puis nous supprimons ou anonymisons votre profil, votre numéro de téléphone et l’historique de vos conversations dans nos systèmes actifs."
+        },
+        {
+          "type": "p",
+          "text": "Ce qui peut être conservé : les données que nous devons conserver pour des raisons légales, fiscales, de sécurité ou de prévention de la fraude, comme les justificatifs de paiement, conservées uniquement le temps nécessaire puis supprimées."
+        },
+        {
+          "type": "p",
+          "text": "Délai : les demandes sont traitées dans un délai de 30 jours."
+        },
+        {
+          "type": "p",
+          "text": "Selon votre lieu de résidence, vous pouvez également disposer d’un droit d’accès, de rectification ou de portabilité de vos données personnelles. Écrivez à la même adresse e-mail pour exercer ces droits."
+        },
+        {
+          "type": "h2",
+          "text": "7. Mineurs"
+        },
+        {
+          "type": "p",
+          "text": "LSevin est destiné aux utilisateurs âgés de 18 ans et plus et ne s’adresse pas aux enfants. Nous ne collectons pas sciemment d’informations personnelles concernant des enfants."
+        },
+        {
+          "type": "h2",
+          "text": "8. Modifications de cette politique"
+        },
+        {
+          "type": "p",
+          "text": "Nous pouvons mettre à jour cette politique de temps à autre. Toute modification importante est signalée par la mise à jour de la date de dernière mise à jour indiquée sur cette page."
+        },
+        {
+          "type": "h2",
+          "text": "9. Nous contacter"
+        },
+        {
+          "type": "p",
+          "text": "Pour toute question sur cette politique ou sur vos données : lsevin.turkiye@gmail.com."
+        }
+      ],
+      "faq": [
+        {
+          "q": "LSevin vend-il mes données ?",
+          "a": "Non. Nous ne partageons des données qu’avec les prestataires auprès desquels vous réservez, les entreprises qui nous aident à faire fonctionner le service et les autorités lorsque la loi l’exige."
+        },
+        {
+          "q": "LSevin conserve-t-il mon dossier médical ?",
+          "a": "Uniquement les informations de santé que vous choisissez de transmettre, par exemple dans une demande de consultation vidéo ou dans les rubriques santé de votre profil. Elles servent à ce que le médecin ou le prestataire que vous avez choisi puisse les consulter."
+        },
+        {
+          "q": "LSevin voit-il mon numéro de carte ?",
+          "a": "Non. Vous saisissez vos coordonnées bancaires sur la page de la passerelle de paiement. LSevin reçoit le résultat du paiement, son montant et son numéro de référence."
+        },
+        {
+          "q": "Comment supprimer mon compte ?",
+          "a": "Écrivez à lsevin.turkiye@gmail.com depuis l’adresse e-mail ou le numéro de téléphone de votre compte, avec pour objet « Demande de suppression de compte ». Nous traitons la demande dans un délai de 30 jours."
+        },
+        {
+          "q": "Pourquoi LSevin a-t-il besoin de connaître mon pays ?",
+          "a": "Pour afficher les prix dans la bonne devise. Nous utilisons l’indicatif pays du numéro de téléphone de votre compte ou, à défaut, une estimation à partir de votre adresse IP."
+        }
+      ]
+    },
+    "es-ES": {
+      "title": "Privacidad y protección de datos",
+      "metaDescription": "Qué datos personales recopila LSevin, para qué, con quién se comparten, cómo se protegen y cómo eliminar su cuenta o sus datos. Solicitudes atendidas en 30 días.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "LSevin («LSevin», «nosotros») gestiona el sitio web y la aplicación de LSevin, un marketplace en el que puede informarse, comparar y reservar servicios de viajes de salud y bienestar con clínicas y proveedores independientes, comunicarse con ellos mediante el chat de la aplicación y comprar productos en la tienda de LSevin. Esta política explica qué información recopilamos, cómo la utilizamos y qué opciones tiene usted."
+        },
+        {
+          "type": "h2",
+          "text": "1. Información que recopilamos"
+        },
+        {
+          "type": "h3",
+          "text": "a. Información que usted nos facilita"
+        },
+        {
+          "type": "p",
+          "text": "Cuenta: su número de teléfono, que se utiliza para iniciar sesión con una contraseña de un solo uso (OTP). No hay nombre de usuario ni contraseña aparte."
+        },
+        {
+          "type": "p",
+          "text": "Perfil: su nombre y cualquier otro dato de contacto que decida añadir, como una dirección de correo electrónico. Los pacientes internacionales también pueden añadir datos de viaje, como la información del pasaporte, cuando una reserva lo requiera."
+        },
+        {
+          "type": "p",
+          "text": "Mensajes: lo que envía por chat a clínicas y proveedores o al soporte de LSevin, incluidos los archivos que adjunte."
+        },
+        {
+          "type": "p",
+          "text": "Reservas y solicitudes: el servicio que le interesa, las fechas preferidas, los acompañantes y otros datos similares que introduce al consultar o reservar un servicio, o al solicitar una llamada de consulta gratuita."
+        },
+        {
+          "type": "p",
+          "text": "Pedidos de la tienda: su nombre, correo electrónico, número de teléfono y dirección de entrega, y los artículos que pide."
+        },
+        {
+          "type": "p",
+          "text": "Pagos: cuando paga en línea, introduce los datos de su tarjeta en la página de la pasarela de pago, no en LSevin. Nosotros recibimos el resultado del pago, su importe y su número de referencia. Si paga por transferencia bancaria, recibimos la imagen del comprobante que usted sube."
+        },
+        {
+          "type": "h3",
+          "text": "b. Información de salud que usted decide compartir"
+        },
+        {
+          "type": "p",
+          "text": "No necesita facilitarnos historiales médicos para hacer una reserva. Algunas funciones le permiten compartir información de salud si así lo decide: describir sus síntomas y adjuntar resultados de pruebas o fotos al reservar una videoconsulta, completar las secciones de salud de su perfil o enviar informes a un proveedor por chat."
+        },
+        {
+          "type": "p",
+          "text": "Cuando utiliza estas funciones, la información se guarda en su cuenta para que el médico o el proveedor que eligió pueda verla. Solo se comparte con ellos y con el personal de LSevin que da seguimiento a su caso. Usted decide qué compartir."
+        },
+        {
+          "type": "h3",
+          "text": "c. Información que se recopila automáticamente"
+        },
+        {
+          "type": "p",
+          "text": "Datos del dispositivo y de la aplicación: identificadores del dispositivo, versión de la aplicación y registros de fallos o de diagnóstico, que se utilizan para mantener el servicio seguro y en funcionamiento."
+        },
+        {
+          "type": "p",
+          "text": "Tokens de notificación: se utilizan para enviar actualizaciones de reservas y notificaciones del chat."
+        },
+        {
+          "type": "p",
+          "text": "Ubicación aproximada: si nos da permiso, se utiliza para mostrarle proveedores cercanos y mejorar la búsqueda local. Puede denegar o retirar este permiso en cualquier momento en los ajustes de su dispositivo."
+        },
+        {
+          "type": "p",
+          "text": "País para los precios: para mostrar los precios en la moneda correcta, determinamos su país a partir del prefijo de país del número de teléfono de su cuenta. Si no está disponible, lo estimamos a partir de su dirección IP mediante un servicio de geolocalización por IP y, en último lugar, a partir del idioma del sitio que utiliza."
+        },
+        {
+          "type": "p",
+          "text": "Datos de uso: páginas visitadas y acciones realizadas, que se utilizan para mejorar el servicio."
+        },
+        {
+          "type": "h2",
+          "text": "2. Cómo utilizamos la información"
+        },
+        {
+          "type": "p",
+          "text": "Para crear y proteger su cuenta e iniciar su sesión con OTP. Para ponerle en contacto con clínicas y proveedores y gestionar reservas, pedidos, pagos, reembolsos y la comunicación dentro de la aplicación. Para enviar confirmaciones de reserva, actualizaciones, avisos de entrega y mensajes de soporte por notificación, SMS o correo electrónico. Para mostrar los precios en su moneda. Para mantener, proteger y mejorar el servicio, y para detectar y prevenir el fraude o el uso indebido. Para cumplir obligaciones legales."
+        },
+        {
+          "type": "quote",
+          "text": "No vendemos sus datos personales."
+        },
+        {
+          "type": "h2",
+          "text": "3. Cómo compartimos la información"
+        },
+        {
+          "type": "p",
+          "text": "Con clínicas y proveedores: la información necesaria para atender su consulta o su reserva, como su nombre, sus datos de contacto y los mensajes, datos de la reserva o información de salud que usted decida enviarles."
+        },
+        {
+          "type": "p",
+          "text": "Con proveedores de servicios: empresas que nos ayudan a operar LSevin, como alojamiento en la nube, pasarelas de pago, envío de SMS y notificaciones push, videollamadas, geolocalización por IP y analítica. Trabajan sujetas a obligaciones de confidencialidad y protección de datos."
+        },
+        {
+          "type": "p",
+          "text": "Por motivos legales: cuando lo exija la ley, la normativa, un procedimiento judicial o una solicitud de las autoridades."
+        },
+        {
+          "type": "h2",
+          "text": "4. Seguridad de los datos"
+        },
+        {
+          "type": "p",
+          "text": "Todos los datos que se envían entre su dispositivo y nuestros servidores viajan cifrados (HTTPS/TLS). Aplicamos medidas administrativas, técnicas y físicas razonables para proteger su información."
+        },
+        {
+          "type": "h2",
+          "text": "5. Conservación de los datos"
+        },
+        {
+          "type": "p",
+          "text": "Conservamos la información personal mientras su cuenta esté activa o durante el tiempo necesario para prestar el servicio, cumplir obligaciones legales, resolver disputas y hacer cumplir nuestros acuerdos. Puede solicitar su eliminación en cualquier momento, tal como se describe a continuación."
+        },
+        {
+          "type": "h2",
+          "text": "6. Sus derechos y la eliminación de la cuenta o de los datos"
+        },
+        {
+          "type": "p",
+          "text": "Cómo solicitarlo: escriba a lsevin.turkiye@gmail.com desde la dirección de correo o con el número de teléfono asociados a su cuenta. Utilice el asunto Account deletion request para eliminar su cuenta y sus datos personales, o Data deletion request para eliminar datos concretos y conservar la cuenta."
+        },
+        {
+          "type": "p",
+          "text": "Qué ocurre: verificamos la solicitud y, a continuación, eliminamos o anonimizamos su perfil, su número de teléfono y su historial de chat de nuestros sistemas activos."
+        },
+        {
+          "type": "p",
+          "text": "Qué puede conservarse: los registros que debemos mantener por motivos legales, fiscales, de seguridad o de prevención del fraude, como los registros de pago, que se conservan solo el tiempo necesario y después se eliminan."
+        },
+        {
+          "type": "p",
+          "text": "Plazo: las solicitudes se tramitan en un plazo de 30 días."
+        },
+        {
+          "type": "p",
+          "text": "Según dónde resida, también puede tener derecho a acceder a sus datos personales, rectificarlos o exportarlos. Para ejercer estos derechos, escriba a la misma dirección de correo electrónico."
+        },
+        {
+          "type": "h2",
+          "text": "7. Menores"
+        },
+        {
+          "type": "p",
+          "text": "LSevin está destinado a usuarios mayores de 18 años y no se dirige a menores. No recopilamos a sabiendas información personal de menores."
+        },
+        {
+          "type": "h2",
+          "text": "8. Cambios en esta política"
+        },
+        {
+          "type": "p",
+          "text": "Podemos actualizar esta política periódicamente. Los cambios importantes se indican actualizando la fecha de Última actualización de esta página."
+        },
+        {
+          "type": "h2",
+          "text": "9. Contacto"
+        },
+        {
+          "type": "p",
+          "text": "Preguntas sobre esta política o sobre sus datos: lsevin.turkiye@gmail.com."
+        }
+      ],
+      "faq": [
+        {
+          "q": "¿LSevin vende mis datos?",
+          "a": "No. Solo compartimos datos con los proveedores con los que usted reserva, con las empresas que nos ayudan a operar el servicio y con las autoridades cuando la ley lo exige."
+        },
+        {
+          "q": "¿LSevin guarda mis historiales médicos?",
+          "a": "Solo la información de salud que usted decide enviar, por ejemplo en una solicitud de videoconsulta o en las secciones de salud de su perfil. Se utiliza para que el médico o el proveedor que eligió pueda verla."
+        },
+        {
+          "q": "¿LSevin ve el número de mi tarjeta?",
+          "a": "No. Usted introduce los datos de la tarjeta en la página de la pasarela de pago. LSevin recibe el resultado del pago, el importe y el número de referencia."
+        },
+        {
+          "q": "¿Cómo elimino mi cuenta?",
+          "a": "Escriba a lsevin.turkiye@gmail.com desde el correo o con el número de teléfono de su cuenta, con el asunto Account deletion request. La tramitamos en un plazo de 30 días."
+        },
+        {
+          "q": "¿Por qué necesita LSevin saber mi país?",
+          "a": "Para mostrar los precios en la moneda correcta. Utilizamos el prefijo de país del número de teléfono de su cuenta o, si no está disponible, una estimación a partir de su dirección IP."
+        }
+      ]
+    }
+  }
+}

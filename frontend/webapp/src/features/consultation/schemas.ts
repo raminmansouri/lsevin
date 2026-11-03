@@ -265,6 +265,46 @@ export const SaveConsultationSmsSettingsSchema = z.object({
   rateLimitPerHour: z.coerce.number().int().min(1).max(100),
 });
 
+/** Persian/Arabic digits and thousands separators, as admins type prices. */
+function normalizeAmount(value: unknown): unknown {
+  if (typeof value !== "string") return value;
+  const latin = value
+    .replace(/[\u06F0-\u06F9]/g, (d) => String(d.charCodeAt(0) - 0x06f0))
+    .replace(/[\u0660-\u0669]/g, (d) => String(d.charCodeAt(0) - 0x0660))
+    .replace(/[,\s\u066C\u060C]/g, "")
+    .trim();
+  return latin;
+}
+
+function toNumber(value: unknown): unknown {
+  const normalized = normalizeAmount(value);
+  if (typeof normalized !== "string") return normalized;
+  return normalized === "" ? Number.NaN : Number(normalized);
+}
+
+export const SaveVideoConsultationSettingsSchema = z.object({
+  enabled: z.boolean(),
+  durationMinutes: z.preprocess(toNumber, z.number().int().min(5).max(180)),
+  priceAmount: z.preprocess(toNumber, z.number().min(0).max(1_000_000_000_000)),
+  priceCurrency: z
+    .string()
+    .trim()
+    .toUpperCase()
+    .regex(/^[A-Z]{3}$/, { message: "invalidCurrency" }),
+  /**
+   * Empty means "no Toman price": Iranian visitors then see the base price.
+   * Not z.coerce, which would turn the empty field into 0 and show a free price.
+   */
+  priceToman: z.preprocess(
+    (value) => (normalizeAmount(value) === "" || value == null ? null : toNumber(value)),
+    z.number().min(0).max(1_000_000_000_000).nullable()
+  ),
+});
+
+export type SaveVideoConsultationSettingsInput = z.input<
+  typeof SaveVideoConsultationSettingsSchema
+>;
+
 export type SaveConsultationSmsSettingsInput = z.input<
   typeof SaveConsultationSmsSettingsSchema
 >;

@@ -27,17 +27,17 @@ const BARE_UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{
 // The query returns media paths relative to the files host (or a raw media id
 // when the library row is missing). Used as-is, the browser asked the web app
 // for them and every offer picture 404'd, so resolve them like Explore does.
-function offerImageUrl(value?: string | null): string {
+export function offerImageUrl(value?: string | null): string {
   const raw = String(value || "").trim();
   if (!raw || BARE_UUID_RE.test(raw)) return "";
   return resolveHomeMediaUrl(raw);
 }
 
-function serviceHref(providerServiceId: string) {
+export function serviceHref(providerServiceId: string) {
   return `${MOBILE_BASE_PATH}/service/${providerServiceId}`;
 }
 
-function bookingHref(providerServiceId: string) {
+export function bookingHref(providerServiceId: string) {
   return `${MOBILE_BASE_PATH}/booking?serviceId=${encodeURIComponent(providerServiceId)}`;
 }
 
@@ -63,7 +63,7 @@ type FilterFormValues = {
   languages: string[];
 };
 
-function buildOffersQuery(next: OffersFiltersInput) {
+export function buildOffersQuery(next: OffersFiltersInput) {
   const params = new URLSearchParams();
   if (next.q) params.set("q", next.q);
   if (next.categoryId && next.categoryId !== "all") params.set("categoryId", next.categoryId);
@@ -77,7 +77,7 @@ function buildOffersQuery(next: OffersFiltersInput) {
   return query ? `/n/app/mobile/offers?${query}` : "/n/app/mobile/offers";
 }
 
-function navigateSmooth(
+export function navigateSmooth(
   startTransition: React.TransitionStartFunction,
   router: ReturnType<typeof useRouter>,
   href: string,
@@ -92,11 +92,11 @@ function navigateSmooth(
 // catch-fallback here silently mislabeled those amounts with a "$" sign.
 // formatMoney is the finance module's canonical formatter and handles every
 // currency code in use without that crash.
-function formatPrice(value: number, currency: string = "USD", locale: string = "en-US") {
+export function formatPrice(value: number, currency: string = "USD", locale: string = "en-US") {
   return formatMoney({ amount: value, currencyCode: currency }, { locale });
 }
 
-function PendingOverlay() {
+export function PendingOverlay() {
   return (
     <div className="pointer-events-none absolute inset-0 z-30 bg-white/55 backdrop-blur-[1px]">
       <div className="px-5 py-4 space-y-3">

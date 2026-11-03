@@ -11,6 +11,14 @@ import { Link } from "@/i18n/navigation";
 import { requireAuthenticatedUserId } from "./auth";
 import { LinkFamilySection } from "./link-family-section";
 import { SelfDeclareSection } from "./self-declare-section";
+import { DesktopHealthRecord } from "@/features/web-desktop/health/DesktopHealthRecord";
+
+/** One linked patient with their clinical data, read once and shared by the mobile and desktop views. */
+export type HealthRecordEntry = Awaited<ReturnType<typeof listPatientAccessForAccount>>[number] & {
+  showClinicalDetail: boolean;
+  summary: Awaited<ReturnType<typeof getPatientClinicalSummary>> | null;
+  documents: Awaited<ReturnType<typeof listDocumentsForPatient>>;
+};
 
 export const dynamic = "force-dynamic";
 
@@ -30,9 +38,21 @@ export default async function MyHealthRecordPage() {
   const accountId = await requireAuthenticatedUserId();
   const links = accountId ? await listPatientAccessForAccount(accountId) : [];
   const linkRequests = accountId ? await listRequestsForAccount(accountId) : [];
+  // "limited" access shows identity only, never clinical detail -- the
+  // distinction spec V5.5/V5.2 asks authorization to respect.
+  const records: HealthRecordEntry[] = await Promise.all(
+    links.map(async (link) => {
+      const showClinicalDetail = link.accessRole !== "limited";
+      const [summary, documents] = showClinicalDetail
+        ? await Promise.all([getPatientClinicalSummary(link.patient.id), listDocumentsForPatient(link.patient.id)])
+        : [null, []];
+      return { ...link, showClinicalDetail, summary, documents };
+    })
+  );
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <>
+    <div className="min-h-screen bg-gray-50 xl:hidden">
       <div className="border-b border-gray-200 bg-white px-6 py-8">
         <h1 className="text-xl font-bold text-gray-900">{t("title")}</h1>
         <p className="mt-1 text-sm text-gray-500">{t("subtitle")}</p>
@@ -41,12 +61,14 @@ export default async function MyHealthRecordPage() {
       <div className="space-y-4 p-6">
         {links.length === 0 && <HealthRecordOnboarding t={t} />}
 
-        {links.map(({ patient, relationshipType, accessRole }) => (
+        {records.map(({ patient, relationshipType, showClinicalDetail, summary, documents }) => (
           <PatientCard
             key={patient.id}
             patient={patient}
             relationshipType={relationshipType}
-            accessRole={accessRole}
+            showClinicalDetail={showClinicalDetail}
+            summary={summary}
+            documents={documents}
             t={t}
           />
         ))}
@@ -54,6 +76,8 @@ export default async function MyHealthRecordPage() {
         <LinkFamilySection requests={linkRequests} />
       </div>
     </div>
+    <DesktopHealthRecord records={records} linkRequests={linkRequests} />
+    </>
   );
 }
 
@@ -104,24 +128,16 @@ function HealthRecordOnboarding({ t }: { t: TranslationType }) {
   );
 }
 
-async function PatientCard({
+function PatientCard({
   patient,
   relationshipType,
-  accessRole,
+  showClinicalDetail,
+  summary,
+  documents,
   t,
-}: {
-  patient: Awaited<ReturnType<typeof listPatientAccessForAccount>>[number]["patient"];
-  relationshipType: string;
-  accessRole: string;
+}: Pick<HealthRecordEntry, "patient" | "relationshipType" | "showClinicalDetail" | "summary" | "documents"> & {
   t: TranslationType;
 }) {
-  // "limited" access shows identity only, never clinical detail -- the
-  // distinction spec V5.5/V5.2 asks authorization to respect.
-  const showClinicalDetail = accessRole !== "limited";
-
-  const [summary, documents] = showClinicalDetail
-    ? await Promise.all([getPatientClinicalSummary(patient.id), listDocumentsForPatient(patient.id)])
-    : [null, []];
 
   return (
     <div className="rounded-2xl bg-white p-4">

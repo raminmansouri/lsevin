@@ -5,8 +5,10 @@ import { ActionState } from "@/lib/safe-action";
 import { VerifyOtpSchema } from "./schema";
 
 export interface OutputType {
-  accessToken: string;
-  refreshToken: string;
+  accessToken?: string;
+  refreshToken?: string;
+  /** Locale-prefixed page to land on instead of the requested one (set by role). */
+  destination?: string;
 }
 
 export type InputType = z.infer<typeof VerifyOtpSchema>;

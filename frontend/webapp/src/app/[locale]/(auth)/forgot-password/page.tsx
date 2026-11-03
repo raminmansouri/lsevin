@@ -9,6 +9,7 @@ import ForgotPasswordForm, {
 } from "@/features/auth/components/forgot-password/forgot-password-form";
 import AuthLinksContainer from "@/features/auth/components/shared/auth-links-container";
 import AuthPageHeader from "@/features/auth/components/shared/auth-page-header";
+import { getPhoneDefaultCountry } from "@/features/auth/lib/phone-country";
 import { Link } from "@/i18n/navigation";
 import { LocalePageProps, LocaleParams } from "@/types/next";
 
@@ -34,6 +35,7 @@ const ForgotPasswordPage = ({ params }: { params: Promise<LocaleParams> }) => {
       <LocaleBoundary params={params} tanslationNameSpace={TRANSLATION_KEY}>
         {async (t) => {
           const { locale } = await params;
+          const phoneCountry = await getPhoneDefaultCountry();
           const content = await getAuthPageContent(locale, "forgot-password", {
             title: t("page.title"),
             description: t("page.description"),
@@ -49,7 +51,7 @@ const ForgotPasswordPage = ({ params }: { params: Promise<LocaleParams> }) => {
                 imageAlt={content.alt}
               />
               <Suspense fallback={<ForgotPasswordFormSkeleton />}>
-                <ForgotPasswordForm />
+                <ForgotPasswordForm defaultCountry={phoneCountry} />
               </Suspense>
               <AuthLinksContainer>
                 <span className="text-xs">

@@ -11,10 +11,12 @@ import {
   CreateConsultationRequestSchema,
   DeleteConsultationRecipientSchema,
   SaveConsultationSmsSettingsSchema,
+  SaveVideoConsultationSettingsSchema,
   UpdateConsultationRequestSchema,
   UpsertConsultationRecipientSchema,
   type CreateConsultationRequestInput,
   type SaveConsultationSmsSettingsInput,
+  type SaveVideoConsultationSettingsInput,
   type UpdateConsultationRequestInput,
   type UpsertConsultationRecipientInput,
 } from "../schemas";
@@ -35,6 +37,7 @@ import {
   getConsultationRequestDetail,
   getConsultationSmsSettings,
   saveConsultationSmsSettings,
+  saveVideoConsultationSettings,
   updateConsultationRequest,
   upsertConsultationRecipient,
 } from "./repository";
@@ -303,6 +306,48 @@ export async function saveConsultationSmsSettingsAction(
     actorUserId: ctx.userId ?? null,
   });
 
+  revalidatePath(ADMIN_PATH);
+  return { ok: true, data: undefined };
+}
+
+export async function saveVideoConsultationSettingsAction(
+  input: SaveVideoConsultationSettingsInput
+): Promise<ConsultationActionResult> {
+  const ctx = await assertAdmin();
+  const t = await getTranslations(CONSULTATION_TRANSLATION_KEY);
+
+  const parsed = SaveVideoConsultationSettingsSchema.safeParse(input);
+  if (!parsed.success) {
+    return {
+      ok: false,
+      error: t("errors.invalidForm"),
+      fieldErrors: fieldErrorsFrom(parsed.error),
+    };
+  }
+
+  // z.preprocess types its output as optional; the schema has already required them.
+  const values = parsed.data;
+  try {
+    await saveVideoConsultationSettings({
+      enabled: values.enabled,
+      durationMinutes: Number(values.durationMinutes),
+      priceAmount: Number(values.priceAmount),
+      priceCurrency: values.priceCurrency,
+      priceToman: values.priceToman ?? null,
+      actorUserId: ctx.userId ?? null,
+    });
+  } catch (error) {
+    console.error("[consultation] saving video settings failed", error);
+    // The database's own message in development, so a failed save says why.
+    const detail =
+      process.env.NODE_ENV !== "production" && error instanceof Error
+        ? ` (${error.message})`
+        : "";
+    return { ok: false, error: t("errors.generic") + detail };
+  }
+
+  // The home card reads these through getVideoConsultationOfferAction, which is
+  // not cached, so nothing public needs revalidating.
   revalidatePath(ADMIN_PATH);
   return { ok: true, data: undefined };
 }

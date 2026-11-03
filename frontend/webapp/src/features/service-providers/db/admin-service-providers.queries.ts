@@ -121,6 +121,20 @@ export type AdminServiceProviderListItem = {
   lastModifiedDate: string | null;
 };
 
+export type AdminProviderAttributeOption = {
+  id: number;
+  label: string;
+  value: JsonTranslations;
+};
+
+export type AdminProviderAttributeDefinition = {
+  id: string;
+  label: string;
+  attributeTypeId: number;
+  isRequired: boolean;
+  options: AdminProviderAttributeOption[];
+};
+
 export type AdminProviderAttribute = {
   id: string;
   attributeDefinitionId: string;
@@ -338,6 +352,9 @@ export type AdminServiceProviderDetails = {
   createDate: string;
   lastModifiedDate: string | null;
   attributes: AdminProviderAttribute[];
+  /** Attribute definitions of this provider's type, with Select options, so the
+   * admin Attributes tab can render an input that matches each attribute type. */
+  attributeDefinitions: AdminProviderAttributeDefinition[];
   galleryItems: AdminProviderGalleryItem[];
   policies: AdminProviderPolicy[];
   certifications: AdminProviderCertification[];
@@ -824,6 +841,7 @@ export async function getAdminServiceProviderById(
 
     const [
       attributes,
+      attributeDefinitions,
       galleryItems,
       policies,
       certifications,
@@ -836,6 +854,7 @@ export async function getAdminServiceProviderById(
       recommendations,
     ] = await Promise.all([
       getProviderAttributes(locale, id),
+      getProviderAttributeDefinitions(locale, provider.providerTypeId),
       getProviderGalleryItems(id),
       getProviderPolicies(id),
       getProviderCertifications(id),
@@ -869,6 +888,7 @@ export async function getAdminServiceProviderById(
       languages: normalizeStringArray(provider.languages),
       specialties: normalizeStringArray(provider.specialties),
       attributes,
+      attributeDefinitions,
       galleryItems,
       policies,
       certifications,
@@ -884,6 +904,48 @@ export async function getAdminServiceProviderById(
     console.error("getAdminServiceProviderById failed", error);
     return fail("Could not load service provider details.");
   }
+}
+
+async function getProviderAttributeDefinitions(
+  locale: string,
+  providerTypeId: string | null | undefined,
+): Promise<AdminProviderAttributeDefinition[]> {
+  if (!providerTypeId) return [];
+  const rows = await sql<
+    (Omit<AdminProviderAttributeDefinition, "options"> & {
+      options: { id: number; label: string; value: unknown }[] | null;
+    })[]
+  >`
+    select
+      pad.id::text,
+      ${translated(sql`pad.name_translations`, locale)} as label,
+      pad.attribute_type_id as "attributeTypeId",
+      pad.is_required as "isRequired",
+      coalesce((
+        select jsonb_agg(
+          jsonb_build_object(
+            'id', o.id,
+            'label', ${translated(sql`o.display_name_translations`, locale)},
+            'value', ${safeJsonObject(sql`o.value_translations`)}
+          )
+          order by o.id
+        )
+        from category.provider_attribute_definition_domain_options o
+        where o.provider_attribute_definition_id = pad.id
+      ), '[]'::jsonb) as options
+    from category.provider_attribute_definitions pad
+    where pad.provider_type_id::text = ${providerTypeId}
+    order by label
+  `;
+  return rows.map((row) => ({
+    ...row,
+    attributeTypeId: Number(row.attributeTypeId),
+    options: (Array.isArray(row.options) ? row.options : []).map((option) => ({
+      id: Number(option.id),
+      label: String(option.label ?? ""),
+      value: normalizeTranslations(option.value),
+    })),
+  }));
 }
 
 async function getProviderAttributes(

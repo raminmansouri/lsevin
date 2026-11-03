@@ -5,6 +5,8 @@ import { useNavigate } from "@/hooks/use-navigate";
 import { useTranslations } from "next-intl";
 import { ChevronLeft, Heart, MapPin, Star } from "lucide-react";
 
+import { DesktopFavorites } from "@/features/web-desktop/profile/DesktopFavorites";
+
 import { removeFavoriteAction } from "./actions";
 import type { FavoriteCard, FavoritesPageData, FavoritesTabId } from "./types";
 import { resolveFavoriteHref } from "./utils";
@@ -69,7 +71,8 @@ export default function FavoritesPageClient({
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <>
+    <div className="min-h-screen bg-gray-50 xl:hidden">
       <div className="bg-white border-b border-gray-200 sticky top-0 z-10">
         <div className="px-6 py-4 flex items-center gap-4">
           <button
@@ -174,7 +177,7 @@ export default function FavoritesPageClient({
             <h3 className="text-lg font-bold text-gray-900 mb-2">{t("emptyTitle")}</h3>
             <p className="text-gray-600 mb-6">{t("emptyDescription")}</p>
             <button
-              onClick={() => navigate("/app/explore")}
+              onClick={() => navigate("/n/app/mobile/explore")}
               className="px-6 py-3 bg-[#083f30] text-white rounded-xl font-medium"
             >
               {t("exploreServices")}
@@ -183,5 +186,18 @@ export default function FavoritesPageClient({
         )}
       </div>
     </div>
+
+    <DesktopFavorites
+      tabs={tabs}
+      activeTab={activeTab}
+      onTab={setActiveTab}
+      items={filteredFavorites}
+      errorMessage={errorMessage}
+      pending={pendingFavoriteId}
+      onRemove={handleRemoveFavorite}
+      onOpen={handleCardClick}
+      onExplore={() => navigate("/n/app/mobile/explore")}
+    />
+    </>
   );
 }

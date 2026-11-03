@@ -1,4 +1,5 @@
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
+import { DesktopMyResults } from "@/features/web-desktop/health/DesktopMyResults";
 
 import {
   listDiagnosticReportsForPatient,
@@ -77,8 +78,11 @@ export default async function MyResultsPage() {
       entry.imagingStudies.length > 0
   );
 
+  const locale = await getLocale();
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <>
+    <div className="min-h-screen bg-gray-50 xl:hidden">
       <div className="border-b border-gray-200 bg-white px-6 py-8">
         <h1 className="text-xl font-bold text-gray-900">{t("title")}</h1>
         <p className="mt-1 text-sm text-gray-500">{t("subtitle")}</p>
@@ -109,6 +113,8 @@ export default async function MyResultsPage() {
         )}
       </div>
     </div>
+    <DesktopMyResults patientsWithResults={patientsWithResults} locale={locale} />
+    </>
   );
 }
 
@@ -201,7 +207,7 @@ function LabOrdersCard({ title, labOrders, tDocs }: { title: string; labOrders: 
   );
 }
 
-function ImagingCard({ title, studies, tDocs }: { title: string; studies: ImagingStudyRow[]; tDocs: (key: string) => string }) {
+export function ImagingCard({ title, studies, tDocs }: { title: string; studies: ImagingStudyRow[]; tDocs: (key: string) => string }) {
   return (
     <div className="rounded-2xl bg-white p-4">
       <p className="text-xs font-medium text-gray-500">{title}</p>

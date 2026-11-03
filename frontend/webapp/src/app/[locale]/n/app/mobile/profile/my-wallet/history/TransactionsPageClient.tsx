@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 
 import type { WalletHistoryPageData } from "../types";
+import { DesktopTransactionsLayout } from "@/features/web-desktop/wallet/DesktopTransactionsLayout";
 import {
   currencySymbol,
   formatAmount,
@@ -59,11 +60,15 @@ export default function TransactionsPageClient({ initialData }: TransactionsPage
     (value) => value !== "all"
   ).length;
 
+  // The detail page lives under my-wallet (the old /app/wallet path no longer exists).
+  const openTransaction = (id: string) => navigate(`/n/app/mobile/profile/my-wallet/transaction/${id}`);
+
   const summaryCurrency = initialData.defaultCurrency || "USD";
   const summaryNet = transactionNetAmount(filteredTransactions, summaryCurrency);
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-8">
+    <div className="min-h-screen bg-gray-50 pb-8 xl:bg-transparent xl:pb-0">
+      <div className="xl:hidden">
       <div className="bg-white border-b border-gray-200 sticky top-0 z-40">
         <div className="px-5 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -133,7 +138,7 @@ export default function TransactionsPageClient({ initialData }: TransactionsPage
           return (
             <button
               key={transaction.id}
-              onClick={() => navigate(`/app/wallet/transaction/${transaction.id}`)}
+              onClick={() => openTransaction(transaction.id)}
               className="w-full bg-white rounded-2xl p-4 border border-gray-200 hover:border-[#083f30] hover:shadow-md transition-all"
             >
               <div className="flex items-start gap-4">
@@ -196,6 +201,26 @@ export default function TransactionsPageClient({ initialData }: TransactionsPage
           </div>
         )}
       </div>
+
+      </div>
+
+      <DesktopTransactionsLayout
+        transactions={filteredTransactions}
+        summaryCurrency={summaryCurrency}
+        netText={`${summaryNet > 0 ? "+" : ""}${currencySymbol(summaryCurrency)}${Math.abs(summaryNet).toLocaleString(locale, {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        })}`}
+        type={selectedType}
+        status={selectedStatus}
+        period={selectedPeriod}
+        onType={setSelectedType}
+        onStatus={setSelectedStatus}
+        onPeriod={setSelectedPeriod}
+        onClear={clearFilters}
+        activeCount={activeFiltersCount}
+        onOpen={openTransaction}
+      />
 
       {showFilters && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-end justify-center p-0">

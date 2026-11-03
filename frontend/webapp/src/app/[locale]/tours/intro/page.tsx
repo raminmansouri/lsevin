@@ -1,5 +1,6 @@
 import { setRequestLocale } from "next-intl/server";
 
+import { PageFaq } from "@/features/site-content/components/faq-section";
 import { IntroScreen } from "@/features/tours/ui/customer/intro/intro-screen";
 
 /**
@@ -21,5 +22,12 @@ export default async function ToursIntroPage({
     typeof next === "string" && /^\/tours(\/[A-Za-z0-9/_?=&%.-]*)?$/.test(next)
       ? next
       : "/tours";
-  return <IntroScreen next={safeNext} />;
+  // /tours sends first-time visitors (and every crawler) here, so the tours FAQ
+  // (admin → Editorial) is shown below the intro as well as on the tours home.
+  return (
+    <>
+      <IntroScreen next={safeNext} />
+      <PageFaq target={{ scope: "app", entityKey: "tours" }} locale={locale} />
+    </>
+  );
 }

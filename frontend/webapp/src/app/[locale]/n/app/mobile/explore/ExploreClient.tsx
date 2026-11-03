@@ -73,7 +73,7 @@ type OptimisticUiFilters = {
 const MOBILE_BASE_PATH = "/n/app/mobile";
 const EXPLORE_PATH = `${MOBILE_BASE_PATH}/explore`;
 
-function buildMobilePath(path: string) {
+export function buildMobilePath(path: string) {
   return `${MOBILE_BASE_PATH}${path.startsWith("/") ? path : `/${path}`}`;
 }
 
@@ -101,15 +101,15 @@ function buildFilteredMobilePath(path: string, next: ExploreFiltersInput) {
   return query ? `${MOBILE_BASE_PATH}${normalizedPath}?${query}` : `${MOBILE_BASE_PATH}${normalizedPath}`;
 }
 
-function buildExploreQuery(next: ExploreFiltersInput) {
+export function buildExploreQuery(next: ExploreFiltersInput) {
   return buildFilteredMobilePath("/explore", next);
 }
 
-function buildMapDiscoveryQuery(next: ExploreFiltersInput) {
+export function buildMapDiscoveryQuery(next: ExploreFiltersInput) {
   return buildFilteredMobilePath("/map-discovery", next);
 }
 
-function buildSearchQuery(next: ExploreFiltersInput) {
+export function buildSearchQuery(next: ExploreFiltersInput) {
   return buildFilteredMobilePath("/search", next);
 }
 
@@ -118,7 +118,7 @@ function buildSearchQuery(next: ExploreFiltersInput) {
 // catch-fallback here silently mislabeled those amounts with a "$" sign.
 // formatMoney is the finance module's canonical formatter and handles every
 // currency code in use without that crash.
-function formatPrice(value: number | null, currency: string = "USD") {
+export function formatPrice(value: number | null, currency: string = "USD") {
   if (value == null) return null;
   return formatMoney({ amount: value, currencyCode: currency }, { locale: "en-US" });
 }
@@ -134,7 +134,7 @@ function firstMediaValue(value?: string | null): string {
     .find(Boolean) ?? "";
 }
 
-function mediaUrl(value?: string | null, fallback = "/placeholder-provider.svg"): string {
+export function mediaUrl(value?: string | null, fallback = "/placeholder-provider.svg"): string {
   const raw = firstMediaValue(value);
 
   // A bare media-library UUID should have been resolved by the server query.
@@ -164,7 +164,7 @@ function MaybeLexicalText({
   return <p className={className}>{value}</p>;
 }
 
-function navigateSmooth(
+export function navigateSmooth(
   startTransition: React.TransitionStartFunction,
   router: ReturnType<typeof useRouter>,
   href: string,
@@ -174,7 +174,7 @@ function navigateSmooth(
   });
 }
 
-function ExplorePendingOverlay() {
+export function ExplorePendingOverlay() {
   return (
     <div className="pointer-events-none absolute inset-0 z-30 bg-white/55 backdrop-blur-[1px]">
       <div className="px-5 py-6 space-y-6">

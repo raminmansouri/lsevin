@@ -15,6 +15,7 @@ import { getLocalizedValue, localeToHeader } from "@/features/shared/utils/local
 
 import { useProviderTypeDetails } from "../api/client/get-provider-type-details-query";
 import { PROVIDER_TYPE_TRANSLATION_KEY } from "../constants";
+import { resolveProviderTypeImageUrl } from "../lib/provider-type-image";
 import { ProviderAttributeDefinitionManager } from "./provider-attribute-definition-manager";
 
 interface ProviderTypeDetailsModalProps {
@@ -88,9 +89,9 @@ export function ProviderTypeDetailsModal({
             <TabsContent value="overview" className="space-y-4">
               <div className="grid grid-cols-1 gap-4 md:grid-cols-[220px_1fr]">
                 <div className="overflow-hidden rounded-2xl border bg-muted/30">
-                  {providerType.imagePreviewUrl || providerType.imageUrl ? (
+                  {resolveProviderTypeImageUrl(providerType) ? (
                     <img
-                      src={providerType.imagePreviewUrl || providerType.imageUrl}
+                      src={resolveProviderTypeImageUrl(providerType)}
                       alt={getLocalizedValue(providerType.name, localeHeader)}
                       className="h-44 w-full object-cover"
                     />

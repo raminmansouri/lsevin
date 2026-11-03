@@ -83,7 +83,7 @@ type UiFilters = {
   specialties: string[];
 };
 
-function buildNearbyQuery(next: NearbyFiltersInput, view: "map" | "list" = "map") {
+export function buildNearbyQuery(next: NearbyFiltersInput, view: "map" | "list" = "map") {
   const params = new URLSearchParams();
 
   // Every filter change and the location auto-detect rewrite this URL, so the
@@ -120,7 +120,7 @@ function buildNearbyQuery(next: NearbyFiltersInput, view: "map" | "list" = "map"
     : "/n/app/mobile/map-discovery";
 }
 
-function navigateSmooth(
+export function navigateSmooth(
   startTransition: TransitionStartFunction,
   router: ReturnType<typeof useRouter>,
   href: string,
@@ -130,13 +130,13 @@ function navigateSmooth(
   });
 }
 
-function PendingOverlay() {
+export function PendingOverlay() {
   return (
     <div className="pointer-events-none absolute inset-0 z-30 bg-white/45 backdrop-blur-[1px]" />
   );
 }
 
-function providerHref(providerId: string) {
+export function providerHref(providerId: string) {
   return `/n/app/mobile/provider/${providerId}`;
 }
 
@@ -149,7 +149,7 @@ function firstMediaValue(value?: string | null): string {
     .find(Boolean) ?? "";
 }
 
-function mediaUrl(value?: string | null, fallback = "/placeholder-provider.svg"): string {
+export function mediaUrl(value?: string | null, fallback = "/placeholder-provider.svg"): string {
   const raw = firstMediaValue(value);
 
   if (!raw || BARE_UUID_RE.test(raw)) return fallback;

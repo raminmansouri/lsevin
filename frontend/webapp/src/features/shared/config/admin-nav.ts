@@ -35,6 +35,7 @@ import {
   Landmark,
   Layers,
   LayoutDashboard,
+  FileText,
   LayoutTemplate,
   LifeBuoy,
   MapPin,
@@ -231,6 +232,7 @@ export const ADMIN_NAV: AdminNavEntry[] = [
     titleKey: "content",
     icon: LayoutTemplate,
     items: [
+      { titleKey: "editorial", href: "/admin/editorial", icon: FileText },
       { titleKey: "homeSections", href: "/admin/home-sections", icon: LayoutTemplate },
       { titleKey: "sponsoredSlider", href: "/admin/sponsored-slider", icon: GalleryHorizontal },
       { titleKey: "specialPackages", href: "/admin/special-packages", icon: PackageOpen },

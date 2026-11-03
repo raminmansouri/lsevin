@@ -25,6 +25,7 @@ import {
 } from "./actions";
 import type { PermissionStatusValue, PrivacySecurityPageData } from "./types";
 import { permissionBadgeLabel, permissionHelpText } from "./utils";
+import { DesktopPrivacySecurity } from "@/features/web-desktop/profile/DesktopPrivacySecurity";
 
 type Props = {
   initialData: PrivacySecurityPageData;
@@ -185,7 +186,26 @@ export default function PrivacySecurityPageClient({ initialData }: Props) {
     }
   }
 
+  // Named actions, shared by the mobile layout and the desktop one.
+  const submitPassword = () =>
+    runAction(async () => {
+      await changePassword({ currentPassword, newPassword, confirmPassword });
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+    }, t("messages.passwordUpdated"));
+  const toggleBiometric = (checked: boolean) => {
+    setBiometricEnabled(checked);
+    runAction(() => updateBiometricEnabled(checked), t("messages.biometricUpdated"));
+  };
+  const revokeSessionById = (id: string) => runAction(() => revokeSession(id), t("messages.sessionRevoked"));
+  const submitDeletion = () => runAction(() => requestAccountDeletion(deleteReason), t("messages.accountDeletionRequested"));
+  const locationAction = () => (locationPermissionStatus === "granted" ? refreshPermissions(true) : requestLocationPermission());
+  const notificationAction = () => (notificationPermissionStatus === "granted" ? refreshPermissions(true) : requestNotificationPermission());
+
   const sessionRows = initialData.activeSessions;
+
+  
 
   const securityNote = useMemo(() => {
     if (locationPermissionStatus === "denied" || notificationPermissionStatus === "denied") {
@@ -195,7 +215,8 @@ export default function PrivacySecurityPageClient({ initialData }: Props) {
   }, [locationPermissionStatus, notificationPermissionStatus]);
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-24">
+    <>
+    <div className="min-h-screen bg-gray-50 pb-24 xl:hidden">
       <div className="sticky top-0 z-40 border-b border-gray-200 bg-white/95 backdrop-blur">
         <div className="flex items-center gap-4 px-6 py-4">
           <a href="/n/app/mobile/profile/settings" className="flex h-10 w-10 items-center justify-center rounded-full text-gray-600 transition hover:bg-gray-100">
@@ -212,12 +233,8 @@ export default function PrivacySecurityPageClient({ initialData }: Props) {
             <InputRow label={t("currentPassword")} type={showCurrentPassword ? "text" : "password"} value={currentPassword} onChange={setCurrentPassword} placeholder={t("enterCurrentPassword")} autoComplete="current-password" icon={<Lock size={18} />} toggle={<button type="button" onClick={() => setShowCurrentPassword((v) => !v)} aria-label={showCurrentPassword ? t("hidePassword") : t("showPassword")}>{showCurrentPassword ? <EyeOff size={18} aria-hidden="true" /> : <Eye size={18} aria-hidden="true" />}</button>} />
             <InputRow label={t("newPassword")} type={showNewPassword ? "text" : "password"} value={newPassword} onChange={setNewPassword} placeholder={t("enterNewPassword")} autoComplete="new-password" icon={<Lock size={18} />} toggle={<button type="button" onClick={() => setShowNewPassword((v) => !v)} aria-label={showNewPassword ? t("hidePassword") : t("showPassword")}>{showNewPassword ? <EyeOff size={18} aria-hidden="true" /> : <Eye size={18} aria-hidden="true" />}</button>} />
             <InputRow label={t("confirmNewPassword")} type={showConfirmPassword ? "text" : "password"} value={confirmPassword} onChange={setConfirmPassword} placeholder={t("reenterNewPassword")} autoComplete="new-password" icon={<Lock size={18} />} toggle={<button type="button" onClick={() => setShowConfirmPassword((v) => !v)} aria-label={showConfirmPassword ? t("hidePassword") : t("showPassword")}>{showConfirmPassword ? <EyeOff size={18} aria-hidden="true" /> : <Eye size={18} aria-hidden="true" />}</button>} />
-            <button type="button" disabled={isPending} onClick={() => runAction(async () => {
-              await changePassword({ currentPassword, newPassword, confirmPassword });
-              setCurrentPassword("");
-              setNewPassword("");
-              setConfirmPassword("");
-            }, t("messages.passwordUpdated"))} className="h-12 w-full rounded-xl bg-[#083f30] font-semibold text-white transition hover:bg-[#0a5a44] disabled:bg-gray-300">{t("updatePassword")}</button>
+            <button type="button" disabled={isPending} onClick={submitPassword}
+            className="h-12 w-full rounded-xl bg-[#083f30] font-semibold text-white transition hover:bg-[#0a5a44] disabled:bg-gray-300">{t("updatePassword")}</button>
           </div>
         </section>
 
@@ -230,10 +247,7 @@ export default function PrivacySecurityPageClient({ initialData }: Props) {
                 <p className="text-sm text-gray-600">{t("biometricDescription")}</p>
               </div>
             </div>
-            <Toggle checked={biometricEnabled} onChange={(checked) => {
-              setBiometricEnabled(checked);
-              runAction(() => updateBiometricEnabled(checked), t("messages.biometricUpdated"));
-            }} />
+            <Toggle checked={biometricEnabled} onChange={toggleBiometric} />
           </div>
         </section>
 
@@ -259,7 +273,7 @@ export default function PrivacySecurityPageClient({ initialData }: Props) {
                       <p className="mt-1 text-xs text-gray-500">{session.lastActiveLabel}</p>
                     </div>
                   </div>
-                  {!session.isCurrent ? <button type="button" className="text-sm font-medium text-red-600" onClick={() => runAction(() => revokeSession(session.id), t("messages.sessionRevoked"))}>{t("revoke") }</button> : null}
+                  {!session.isCurrent ? <button type="button" className="text-sm font-medium text-red-600" onClick={() => revokeSessionById(session.id)}>{t("revoke") }</button> : null}
                 </div>
               ))
             )}
@@ -282,7 +296,7 @@ export default function PrivacySecurityPageClient({ initialData }: Props) {
               value={locationPermissionStatus}
               summary={permissionHelpText("location", locationPermissionStatus, t)}
               actionLabel={locationPermissionStatus === "granted" ? t("refresh") : locationPermissionStatus === "denied" ? t("checkAgain") : t("requestAccess")}
-              onAction={() => locationPermissionStatus === "granted" ? refreshPermissions(true) : requestLocationPermission()}
+              onAction={locationAction}
               isBusy={permissionLoading === "location" || permissionLoading === "refresh"}
               t={t}
             />
@@ -292,7 +306,7 @@ export default function PrivacySecurityPageClient({ initialData }: Props) {
               value={notificationPermissionStatus}
               summary={permissionHelpText("notification", notificationPermissionStatus, t)}
               actionLabel={notificationPermissionStatus === "granted" ? t("refresh") : notificationPermissionStatus === "denied" ? t("checkAgain") : t("requestAccess")}
-              onAction={() => notificationPermissionStatus === "granted" ? refreshPermissions(true) : requestNotificationPermission()}
+              onAction={notificationAction}
               isBusy={permissionLoading === "notification" || permissionLoading === "refresh"}
               t={t}
             />
@@ -310,13 +324,37 @@ export default function PrivacySecurityPageClient({ initialData }: Props) {
             </div>
           </div>
           <textarea value={deleteReason} onChange={(e) => setDeleteReason(e.target.value)} placeholder={t("optionalReason")} rows={3} className="w-full rounded-xl border-2 border-gray-300 px-4 py-3 focus:border-red-500 focus:outline-none" />
-          <button type="button" disabled={isPending || initialData.hasPendingDeletionRequest} onClick={() => runAction(() => requestAccountDeletion(deleteReason), t("messages.accountDeletionRequested"))} className="mt-4 h-12 w-full rounded-xl border-2 border-red-600 font-semibold text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:border-red-200 disabled:text-red-300">{initialData.hasPendingDeletionRequest ? t("deletionRequestOpen") : t("requestAccountDeletion")}</button>
+          <button type="button" disabled={isPending || initialData.hasPendingDeletionRequest} onClick={submitDeletion} className="mt-4 h-12 w-full rounded-xl border-2 border-red-600 font-semibold text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:border-red-200 disabled:text-red-300">{initialData.hasPendingDeletionRequest ? t("deletionRequestOpen") : t("requestAccountDeletion")}</button>
         </section>
 
         {error ? <div className="flex items-center gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"><ShieldAlert size={18} /><span>{error}</span></div> : null}
         {message ? <p className="text-sm text-green-700">{message}</p> : null}
       </div>
     </div>
+
+    <DesktopPrivacySecurity
+      isPending={isPending}
+      message={message}
+      error={error}
+      password={{ currentPassword, newPassword, confirmPassword, setCurrentPassword, setNewPassword, setConfirmPassword }}
+      onSubmitPassword={submitPassword}
+      biometricEnabled={biometricEnabled}
+      onToggleBiometric={toggleBiometric}
+      sessions={sessionRows}
+      onRevokeSession={revokeSessionById}
+      locationStatus={locationPermissionStatus}
+      notificationStatus={notificationPermissionStatus}
+      permissionLoading={permissionLoading}
+      onLocationAction={locationAction}
+      onNotificationAction={notificationAction}
+      onRefreshPermissions={() => void refreshPermissions(true)}
+      securityNote={securityNote}
+      deleteReason={deleteReason}
+      setDeleteReason={setDeleteReason}
+      onSubmitDeletion={submitDeletion}
+      hasPendingDeletion={initialData.hasPendingDeletionRequest}
+    />
+    </>
   );
 }
 

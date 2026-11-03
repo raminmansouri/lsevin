@@ -12,6 +12,7 @@ import { ServiceProvidersCategoriesSuspenseBoundary } from './components/service
 import HomeFeaturedServicesSuspenseBoundary from './components/service-providers';
 import HomeTrendingServicesSuspenseBoundary from './components/trending-services';
 import HomeTrustedProvidersSuspenseBoundary from './components/trusted-providers';
+import { HomeAssistantTeaser, HomeConsultationTeaser } from './components/home-teasers';
 import UserInfoSubBar from './components/user-info';
 import { type HomeHeroOffer } from '@/features/home/api/server/get-home-page';
 import {
@@ -32,8 +33,13 @@ import { HomeHeroCard } from '@/features/home/components/home-hero-card';
 import { resolveHomeMediaUrl } from '@/features/home/components/home-media';
 import { SponsoredMediaCarouselSection } from '@/features/home/components/sponsored-media-carousel-section';
 import { countActiveSpecialPackages } from '@/features/special-packages/server/repository';
-import { findGuide, guidePath } from '@/features/guides/registry';
 import { LANDING_CATEGORY_LIMIT } from "@/features/categories/constants";
+
+import { DesktopHome } from "@/features/web-desktop/home/DesktopHome";
+import { EnamadSeal } from "@/components/trust/enamad-seal";
+import { absoluteUrl } from "@/lib/seo/alternates";
+import { FaqSection } from "@/features/site-content/components/faq-section";
+import { SiteLinks } from "@/features/site-content/components/site-links";
 
 // Static / ISR — the landing page shell no longer reads the visitor's location
 // or profile on the server; see `Home` below.
@@ -337,7 +343,8 @@ async function Home({ params }: PageProps) {
   ]);
 
   return (
-    <div className="min-h-screen bg-white">
+    <>
+    <div className="min-h-screen bg-white xl:hidden">
       <PublicSiteSchema locale={locale} />
       {/* One stable, descriptive h1 in the static shell. The greeting row below is
           per visitor (guest title or the signed-in name), so it is not a heading. */}
@@ -369,6 +376,9 @@ async function Home({ params }: PageProps) {
 
       <SponsoredMediaCarouselSection locale={locale} placement="home_top" />
 
+      <HomeAssistantTeaser />
+      <HomeConsultationTeaser />
+
       <HomeHeroBanner offer={heroOffer} section={homeSections.hero_featured} labels={labels.hero} noDescription={labels.common.noDescription} />
 
       <section className="px-5 pb-8 lg:px-8">
@@ -397,7 +407,7 @@ async function Home({ params }: PageProps) {
         </div>
       </section>
 
-      <HomeGuidesSection locale={locale} />
+
 
       <section className="pb-8">
         <div className="mb-5 flex items-center justify-between px-5">
@@ -508,57 +518,100 @@ async function Home({ params }: PageProps) {
       <SponsoredMediaCarouselSection locale={locale} placement="home_bottom" />
 
 
+<SiteLinks locale={locale} />
 <div className="container" style={{  
   display:'flex',
   justifyContent:'center',
   alignItems:'center',
   marginBottom:'37px'}}>
     
-      {/* Enamad verifies the seal through the Referer, so no rel="noreferrer". */}
-      <a referrerPolicy='origin' target='_blank' rel='noopener'
-      href='https://trustseal.enamad.ir/?id=7764782&Code=XcQgNRMRzN92gDmZbf8t5GMh1mtctW9d'>
-        <img referrerPolicy='origin' src='https://trustseal.enamad.ir/logo.aspx?id=7764782&Code=XcQgNRMRzN92gDmZbf8t5GMh1mtctW9d'
-        alt={labels.common.trustSeal} style={{cursor:"pointer"}} {...{ code: 'XcQgNRMRzN92gDmZbf8t5GMh1mtctW9d' }} />
-      </a>
+      <EnamadSeal alt={labels.common.trustSeal} />
    </div>
     </div>
+    <DesktopHome
+      locale={locale}
+      categories={categories}
+      specialPackagesCount={specialPackagesCount}
+      heroOffer={heroOffer}
+      heroSection={homeSections.hero_featured}
+      featuredServices={featuredServices}
+      trendingServices={trendingServices}
+      nearbySection={homeSections.explore_nearby}
+      nearbyProviderCount={nearbyProviderCount}
+      cityCode={queryInput.cityCode}
+      trustedProviders={trustedProviders}
+      packagesSection={homeSections.premium_packages}
+      loyaltySection={homeSections.loyalty_club}
+      selectedCountryCode={queryInput.countryCode}
+      slots={{
+        sponsoredTop: <SponsoredMediaCarouselSection locale={locale} placement="home_top" />,
+        heroBanner: (
+          <HomeHeroBanner offer={heroOffer} section={homeSections.hero_featured} labels={labels.hero} noDescription={labels.common.noDescription} />
+        ),
+        featured: (
+          <HomeFeaturedServicesSuspenseBoundary
+            services={featuredServices}
+            locale={locale}
+            selectedCountryCode={queryInput.countryCode}
+            labels={{
+              emptyTitle: labels.featured.emptyTitle,
+              emptyDescription: labels.featured.emptyDescription,
+              discountOff: labels.featured.discountOff,
+              availableDestination: labels.featured.availableDestination,
+              noDescription: labels.common.noDescription,
+            }}
+          />
+        ),
+        nativeAd: <SponsoredMediaCarouselSection locale={locale} placement="home_native_ad" />,
+        trending: (
+          <HomeTrendingServicesSuspenseBoundary
+            services={trendingServices}
+            labels={{
+              emptyTitle: labels.trending.emptyTitle,
+              emptyDescription: labels.trending.emptyDescription,
+              bookings: labels.trending.bookings,
+            }}
+          />
+        ),
+        nearby: (
+          <ExploreNearbySection
+            section={homeSections.explore_nearby}
+            nearbyProviderCount={nearbyProviderCount}
+            countryCode={queryInput.countryCode}
+            cityCode={queryInput.cityCode}
+            latitude={nearbyLat}
+            longitude={nearbyLng}
+            locale={locale}
+            labels={labels.exploreNearby}
+          />
+        ),
+        trusted: (
+          <HomeTrustedProvidersSuspenseBoundary
+            providers={trustedProviders}
+            locale={locale}
+            labels={{
+              emptyTitle: labels.trusted.emptyTitle,
+              emptyDescription: labels.trusted.emptyDescription,
+              noDescription: labels.common.noDescription,
+            }}
+          />
+        ),
+        packages: (
+          <PremiumPackagesSection section={homeSections.premium_packages} labels={labels.premiumPackages} activePackagesCount={specialPackagesCount} />
+        ),
+        loyalty: <LoyaltyClubSection section={homeSections.loyalty_club} locale={locale} labels={labels.loyaltyClub} />,
+        sponsoredBottom: <SponsoredMediaCarouselSection locale={locale} placement="home_bottom" />,
+      }}
+    />
+    {/* One FAQ block for both layouts (a single FAQPage node per page). */}
+    <div className="mx-auto max-w-3xl px-4 pb-10 xl:py-16">
+      <FaqSection target={{ scope: "home" }} locale={locale} pageUrl={absoluteUrl(locale, "/n/app/mobile/home")} />
+    </div>
+    </>
   );
 }
 
-// Crawlable entry to the editorial guides, in the languages they are written in.
-function HomeGuidesSection({ locale }: { locale: string }) {
-  const hub = findGuide(locale, '');
-  if (!hub) return null;
-  // The hub lists every guide; the home block shows the first few, in hub order.
-  const guides = hub.guide.related
-    .map((slug) => findGuide(locale, slug))
-    .filter((item): item is NonNullable<typeof item> => Boolean(item))
-    .slice(0, 8);
-  return (
-    <section className="px-5 pb-8">
-      <div className="rounded-2xl bg-[#083f30]/[0.05] p-5 ring-1 ring-[#083f30]/10">
-        <h2 className="mb-1 text-lg font-bold text-gray-900">
-          <Link href={guidePath('')} className="hover:underline">
-            {hub.copy.h1}
-          </Link>
-        </h2>
-        <p className="mb-3 line-clamp-2 text-sm text-gray-600">{hub.copy.description}</p>
-        <ul className="flex flex-wrap gap-2">
-          {guides.map((item) => (
-            <li key={item.guide.slug}>
-              <Link
-                href={guidePath(item.guide.slug)}
-                className="inline-flex rounded-full bg-white px-3 py-1.5 text-sm font-semibold text-[#083f30] ring-1 ring-[#083f30]/15 hover:bg-[#083f30]/5"
-              >
-                {item.copy.navLabel}
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </div>
-    </section>
-  );
-}
+
 
 function HomeHeroBanner({
   offer,

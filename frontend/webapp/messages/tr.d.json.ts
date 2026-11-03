@@ -2,6 +2,65 @@
 // See: https://next-intl.dev/docs/workflows/typescript#messages-arguments
 
 declare const messages: {
+  "Assistant": {
+    "journey": {
+      "title": "Seyahat planınız",
+      "kinds": {
+        "arrival": "Varış",
+        "treatment": "Tedavi günü",
+        "recovery": "İyileşme",
+        "departure": "Dönüş"
+      },
+      "day": "{day, number}. gün",
+      "days": "{from, number}–{to, number}. günler",
+      "nights": "{count, number} gece",
+      "checkout": "Otelden çıkış",
+      "book": "Rezerve et",
+      "total": "Tahmini toplam",
+      "note": "Fiyatlar tahminidir ve rezervasyonda kesinleşir.",
+      "partial": "Bazı fiyatlar danışmadan sonra belirlenir ve toplama dahil değildir.",
+      "priceOnRequest": "Danışmadan sonra"
+    },
+    "launcher": {
+      "open": "Asistanı aç",
+      "close": "Kapat",
+      "expand": "Tam ekran",
+      "collapse": "Küçült"
+    },
+    "entry": {
+      "title": "LSevin akıllı asistan",
+      "subtitle": "Ne aradığınızı söyleyin, sizin için en iyi seçenekleri bulalım."
+    },
+    "chat": {
+      "title": "LSevin Asistanı",
+      "welcome": "Aradığınız hizmeti söyleyin, sizin için en iyi seçenekleri bulayım.",
+      "placeholder": "örn. Tahran'da saç ekimi",
+      "history": "Önceki sohbetler",
+      "closeHistory": "Önceki sohbetleri kapat",
+      "untitled": "Sohbet",
+      "newChat": "Yeni sohbet",
+      "send": "Gönder",
+      "thinking": "Aranıyor…",
+      "error": "Bir sorun oluştu. Tekrar deneyin.",
+      "disclaimer": "Asistan doktor değildir; tedavi kararları için bir uzmana danışın.",
+      "suggestions": {
+        "hair": "Saç ekimi",
+        "dental": "Diş tedavisi",
+        "nose": "Burun estetiği"
+      }
+    },
+    "card": {
+      "priceOnRequest": "Fiyat danışmadan sonra",
+      "perNight": "/ gece",
+      "viewService": "Görüntüle",
+      "types": {
+        "provider": "Klinik",
+        "specialist": "Doktor",
+        "hotel": "Otel",
+        "transfer": "Transfer"
+      }
+    }
+  },
   "BookingCart": {
     "title": "Kaydedilen rezervasyonlar",
     "hint": "Bunlar tahminlerdir, kesin rezervasyon değildir. Uygunluğu doğrulamak ve ödeme yapmak için her rezervasyonu inceleyin. Ürünler şu anda ayrı ödenir.",
@@ -566,7 +625,10 @@ declare const messages: {
       "description": "Rezervasyona bağlı ve manuel cüzdan defter kayıtları",
       "title": "Cüzdan işlemleri"
     },
-    "consultationRequests": "Danışmanlık talepleri"
+    "consultationRequests": "Danışmanlık talepleri",
+    "nav": {
+      "editorial": "Site içeriği"
+    }
   },
   "HomePage": {
     "title": "LSevin | İran'da Doktor, Klinik ve Sağlık Oteli Rezervasyonu",
@@ -1872,6 +1934,14 @@ declare const messages: {
       "deleteSuccess": "Kategori başarıyla silindi",
       "deleteError": "Kategori silinemedi",
       "deleteErrorLog": "Kategori silme hatası:"
+    },
+    "activeSwitch": {
+      "label": "Kategori aktif",
+      "description": "Kapatıldığında bu kategori ve tüm alt kategorileri sitenin tamamından kaldırılır. Hemen kaydedilir. \"Ana sayfada göster\" seçeneğinden ayrıdır.",
+      "activated": "Kategori etkinleştirildi.",
+      "deactivated": "Kategori devre dışı bırakıldı ve sitede gizlendi.",
+      "parentInactive": "Önce üst kategoriyi etkinleştirin.",
+      "failed": "Kategori durumu değiştirilemedi."
     }
   },
   "ServiceDefinition": {
@@ -2840,7 +2910,7 @@ declare const messages: {
     "loadMore": "Daha Fazla Yükle"
   },
   "HomeHero": {
-    "title": "İran'a tıbbi yolculuğunuz, tek bir yerde",
+    "title": "Sınır tanımayan sağlık ve güzellik, hepsi tek bir yerde",
     "subtitle": "Klinikleri karşılaştırın, konaklamanızı ayırtın, yakındaki spor salonlarını ve bakım merkezlerini bulun.",
     "searchPlaceholder": "Klinik, otel, spor salonu ara",
     "services": {
@@ -2873,6 +2943,9 @@ declare const messages: {
           "terms": "Kullanım koşulları",
           "privacy": "Gizlilik politikası"
         }
+      },
+      "policies": {
+        "title": "Politikalar"
       }
     }
   },
@@ -13125,6 +13198,30 @@ declare const messages: {
     "withdrawal_requests": "Para Çekme Talepleri"
   },
   "Consultation": {
+    "finder": {
+      "open": "Doktora danış",
+      "title": "Doktora danış",
+      "subtitle": "Doktorlarını görmek için size en uygun tıbbi alanı seçin.",
+      "doctorsSubtitle": "Bu alandaki doktorlara göz atın ve istediğinizi seçin.",
+      "all": "Tümü",
+      "back": "Geri",
+      "doctorCount": "{count, plural, other {# doktor}}",
+      "rating": "{rating, number} ({count, number} yorum)",
+      "experience": "{years, number} yıl deneyim",
+      "viewProfile": "Görüntüle",
+      "empty": "Bu alanda henüz doktor yok.",
+      "noCategories": "Henüz aktif doktoru olan alan yok.",
+      "retry": "Tekrar dene",
+      "errors": {
+        "loadFailed": "Yüklenemedi. Lütfen tekrar deneyin.",
+        "invalidCategory": "Bu alan bulunamadı."
+      }
+    },
+    "homeCard": {
+      "title": "Tedaviden önce bir doktora danışın",
+      "details": "{minutes, number} dk görüntülü görüşme · {price}",
+      "cta": "Başla"
+    },
     "step": {
       "label": "Ücretsiz danışmanlık",
       "title": "Ne rezerve edeceğinizden emin değil misiniz? Önce bir danışmanla konuşun.",
@@ -13203,6 +13300,16 @@ declare const messages: {
       "duplicatePhone": "Bu telefon numarası zaten listede."
     },
     "admin": {
+      "video": {
+        "title": "Doktorla görüntülü görüşme",
+        "description": "Görüntülü görüşmenin süresi ve ücreti; tüm doktorlar için aynıdır. Ana sayfa kartında tam olarak bu değerler gösterilir.",
+        "enabled": "Görüşme kartını ana sayfada göster",
+        "duration": "Süre (dakika)",
+        "price": "Temel ücret",
+        "currency": "Para birimi",
+        "priceToman": "Toman cinsinden ücret (isteğe bağlı)",
+        "priceTomanHint": "Ayarlandığında İranlı ziyaretçiler bunun yerine bu Toman ücretini görür."
+      },
       "title": "Danışmanlık talepleri",
       "description": "Rezervasyon akışından gelen ücretsiz danışmanlık geri arama talepleri.",
       "empty": "Henüz danışmanlık talebi yok.",
@@ -13307,6 +13414,292 @@ declare const messages: {
         "confirmDelete": "Bu alıcı kaldırılsın mı?",
         "empty": "Henüz alıcı yok — kimseye bildirim gitmiyor.",
         "cancel": "İptal"
+      },
+      "videoDoctors": {
+        "title": "Görüntülü danışma pratisyenleri",
+        "description": "Pratisyen hekimleri buraya kaydedin. Ana sayfa kartının açtığı sayfada yalnızca bu doktorlar görünür; uygulamanın diğer doktorlarından ayrıdır.",
+        "migrationMissing": "Danışma doktorları tablosu henüz yok. Önce pnpm migrate çalıştırın.",
+        "listTitle": "Kayıtlı doktorlar ({count, number})",
+        "empty": "Henüz doktor kaydedilmedi.",
+        "addTitle": "Yeni pratisyen kaydet",
+        "editTitle": "Doktoru düzenle",
+        "nameFa": "Ad soyad (Farsça)",
+        "nameEn": "Ad (İngilizce, isteğe bağlı)",
+        "nameRequired": "Doktorun Farsça adını girin.",
+        "councilNumber": "Tabip odası numarası",
+        "experience": "Deneyim yılı",
+        "bioFa": "Kısa tanıtım (Farsça)",
+        "bioEn": "Kısa tanıtım (İngilizce, isteğe bağlı)",
+        "photo": "Doktor fotoğrafı",
+        "photoPlaceholder": "Fotoğraf seç",
+        "active": "Hastalara göster",
+        "add": "Doktoru kaydet",
+        "save": "Değişiklikleri kaydet",
+        "cancelEdit": "İptal",
+        "added": "Doktor kaydedildi",
+        "updated": "Değişiklikler kaydedildi",
+        "edit": "Düzenle",
+        "remove": "Sil",
+        "removed": "Doktor silindi",
+        "confirmRemove": "Bu doktor silinsin mi?",
+        "moveUp": "Yukarı taşı",
+        "moveDown": "Aşağı taşı",
+        "accountTitle": "Doktor giriş hesabı",
+        "accountHint": "Doktor, uygulamanın normal giriş sayfasından bu telefon numarası ve şifreyle giriş yapar, ardından SMS ile bir kod alır. Bu telefon numarası veya e-postayla bir hesap zaten varsa o hesap bağlanır ve şifresi değişmez.",
+        "accountPhone": "Cep telefonu numarası",
+        "accountEmail": "E-posta",
+        "accountPassword": "Şifre (en az 6 karakter)",
+        "hasAccount": "Hesabı var",
+        "noAccount": "Hesabı yok",
+        "accountCreated": "Doktor kaydedildi ve giriş hesabı oluşturuldu",
+        "unlink": "Hesap bağlantısını kaldır",
+        "unlinked": "Hesap bağlantısı kaldırıldı",
+        "confirmUnlink": "Bu hesabın doktorla bağlantısı kaldırılsın mı? Hesabın kendisi silinmez.",
+        "errors": {
+          "invalidPhone": "Cep telefonu numarası geçerli değil.",
+          "emailRequired": "Yeni hesap oluşturmak için e-posta gerekli.",
+          "passwordTooShort": "Şifre en az 6 karakter olmalı.",
+          "registerFailed": "Hesap oluşturulamadı.",
+          "accountTaken": "Bu hesap zaten {name} ile bağlantılı.",
+          "savedWithoutAccount": "Doktor kaydedildi ancak giriş hesabı oluşturulamadı:"
+        }
+      }
+    },
+    "doctorsPage": {
+      "back": "Geri",
+      "title": "Görüntülü danışma",
+      "subtitle": "Pratisyen hekimlerimizden biriyle görüşün",
+      "offerTitle": "Tedavi öncesi görüntülü danışma",
+      "offerDetails": "{minutes, number} dk · {price}",
+      "experience": "{years, number} yıl deneyim",
+      "empty": "Henüz görüntülü danışma için doktor yok.",
+      "unavailable": "Görüntülü danışma şu anda kullanılamıyor.",
+      "loadFailed": "Yüklenemedi. Lütfen tekrar deneyin.",
+      "retry": "Tekrar dene",
+      "generalPractitioner": "Pratisyen hekim",
+      "councilNumber": "Tabip odası no. {number}",
+      "book": "Görüşme randevusu al"
+    },
+    "doctorPanel": {
+      "title": "Doktor paneli",
+      "greeting": "Hoş geldiniz",
+      "role": "Görüntülü danışma pratisyeni",
+      "signOut": "Çıkış yap",
+      "emptyTitle": "Henüz danışma yok",
+      "emptyBody": "Hastaların danışma talepleri yakında burada görünecek.",
+      "availability": "Müsaitlik",
+      "online": "Müsaitim",
+      "offline": "Müsait değilim",
+      "tabs": {
+        "upcoming": "Görüşmeler",
+        "history": "Geçmiş",
+        "hours": "Saatler"
+      },
+      "today": "Bugün",
+      "minutes": "{minutes, number} dk",
+      "age": "{age, number} yaşında",
+      "gender": {
+        "male": "Erkek",
+        "female": "Kadın",
+        "other": "Diğer"
+      },
+      "hasSummary": "Özet yazıldı",
+      "status": {
+        "awaiting_payment": "Ödeme bekleniyor",
+        "scheduled": "Planlandı",
+        "in_progress": "Görüşmede",
+        "completed": "Tamamlandı",
+        "cancelled": "İptal edildi",
+        "no_show": "Katılmadı"
+      },
+      "historySearch": "Hasta adı, not veya özette ara",
+      "historyEmpty": "Henüz görüşme yok.",
+      "historyNoResults": "Sonuç bulunamadı.",
+      "loadMore": "Daha fazla yükle",
+      "hoursHint": "Saatler Tahran saatine göredir. Hastalar yalnızca bu saatler içinde randevu alabilir.",
+      "weekdays": {
+        "0": "Cumartesi",
+        "1": "Pazar",
+        "2": "Pazartesi",
+        "3": "Salı",
+        "4": "Çarşamba",
+        "5": "Perşembe",
+        "6": "Cuma"
+      },
+      "addRange": "Aralık ekle",
+      "removeRange": "Aralığı kaldır",
+      "dayOff": "İzinli gün",
+      "from": "Başlangıç",
+      "to": "Bitiş",
+      "saveHours": "Saatleri kaydet",
+      "hoursSaved": "Saatler kaydedildi",
+      "sessionTitle": "Görüşme",
+      "backToPanel": "Panele dön",
+      "backToSession": "Görüşmeye dön",
+      "join": "Görüşmeye katıl",
+      "rejoin": "Görüşmeye geri dön",
+      "awaitingPaymentHint": "Hasta henüz ödeme yapmadı. Ödeme yapıldığında görüşme onaylanır.",
+      "patientTitle": "Hasta",
+      "patientNote": "Hastanın notu",
+      "noNote": "Not yazılmamış.",
+      "attachments": "Dosyalar ve fotoğraflar",
+      "noAttachments": "Ekli dosya yok.",
+      "summaryTitle": "Görüşme sonrası özet",
+      "summaryLocked": "Özeti, görüşmeye ilk kez katıldıktan sonra yazabilirsiniz. Kaydettiğinizde görüşme tamamlandı olarak işaretlenir.",
+      "summaryAdvice": "Öneriler",
+      "summaryNextSteps": "Sonraki adımlar",
+      "summarySuggestion": "Önerilen tedavi veya merkez",
+      "summarySuggestionHint": "İsteğe bağlı; hastaya gösterilir.",
+      "summarySave": "Özeti kaydet",
+      "summaryUpdate": "Özeti güncelle",
+      "summarySaved": "Özet kaydedildi",
+      "errors": {
+        "loadFailed": "Bir sorun oluştu. Lütfen tekrar deneyin.",
+        "notFound": "Bu görüşme bulunamadı.",
+        "notJoinable": "Bu görüşmeye katılma zamanı değil.",
+        "invalid": "Saatleri kontrol edin.",
+        "overlap": "Aynı gündeki aralıklar çakışamaz.",
+        "endBeforeStart": "Bitiş saati başlangıç saatinden sonra olmalı.",
+        "summaryEmpty": "Özetin en az bir bölümünü yazın.",
+        "summaryNotAllowed": "Bu görüşme için şu anda özet yazılamaz.",
+        "forbidden": "Erişim izniniz yok."
+      },
+      "callWindow": "Görüşme odası {from}–{to} arasında açık; istediğiniz kadar katılıp ayrılabilirsiniz.",
+      "callWindowClosed": "Görüşme odası kapandı ({from}–{to})."
+    },
+    "booking": {
+      "back": "Geri",
+      "title": "Görüntülü görüşme randevusu al",
+      "generalPractitioner": "Pratisyen hekim",
+      "offer": "{minutes, number} dk · {price}",
+      "pickTime": "Gün ve saat seçin",
+      "noSlots": "Bu doktorun önümüzdeki iki hafta içinde boş zamanı yok.",
+      "tehranTime": "Saatler Tahran saatine göredir.",
+      "aboutYou": "Hakkınızda",
+      "name": "Ad soyad",
+      "age": "Yaş",
+      "gender": "Cinsiyet",
+      "genders": {
+        "female": "Kadın",
+        "male": "Erkek"
+      },
+      "note": "Sorununuzu anlatın",
+      "noteHint": "Belirtiler, ne zaman başladıkları, kullandığınız ilaçlar.",
+      "files": "Dosyalar ve fotoğraflar (isteğe bağlı)",
+      "filesHint": "Tahlil sonuçları, fotoğraflar veya reçeteler; en fazla 10 dosya.",
+      "addFiles": "Dosya ekle",
+      "submit": "{time} için talep gönder",
+      "pickTimeFirst": "Önce bir saat seçin",
+      "sessionTitle": "Görüntülü görüşme",
+      "requestSent": "Talebiniz gönderildi",
+      "payNext": "Bu saat 15 dakika boyunca sizin için ayrıldı. Onaylamak için ödeme yapın.",
+      "when": "Zaman",
+      "length": "Süre",
+      "price": "Ücret",
+      "minutes": "{minutes, number} dk",
+      "callWindow": "Görüşme odası {from}–{to} arasında açık; istediğiniz kadar katılıp ayrılabilirsiniz.",
+      "yourNote": "Notunuz",
+      "errors": {
+        "signIn": "Randevu almak için lütfen giriş yapın.",
+        "unavailable": "Görüntülü görüşme şu anda kullanılamıyor.",
+        "notFound": "Bu doktor veya görüşme bulunamadı.",
+        "slotTaken": "Bu saat az önce alındı. Lütfen başka bir saat seçin.",
+        "invalid": "Lütfen işaretli alanları kontrol edin.",
+        "loadFailed": "Bir sorun oluştu. Lütfen tekrar deneyin.",
+        "pickTime": "Lütfen bir saat seçin.",
+        "name": "Adınızı ve soyadınızı girin.",
+        "age": "Yaş geçerli değil.",
+        "note": "Lütfen sorununuzu en az bir cümleyle anlatın.",
+        "notJoinable": "Bu görüşmeye katılma zamanı değil.",
+        "alreadyPaid": "Bu görüşmenin ödemesi zaten yapıldı.",
+        "expired": "Bu saatin ayırma süresi doldu. Lütfen yeniden randevu alın.",
+        "paymentUnavailable": "Çevrimiçi ödeme şu anda kullanılamıyor. Lütfen birazdan tekrar deneyin."
+      },
+      "joinCall": "Görüşmeye katıl",
+      "joinLater": "Katıl düğmesi, görüşme odası açıldığında etkinleşir.",
+      "joinAfterPayment": "Ödeme yaptıktan sonra katıl düğmesi burada görünür.",
+      "callWindowClosed": "Görüşme odası kapandı ({from}–{to}).",
+      "expired": "Bu talebin ödeme süresi doldu ve saat serbest bırakıldı. Lütfen yeniden randevu alın.",
+      "expiredBadge": "Süresi doldu",
+      "doctorSummary": "Doktorun özeti",
+      "summaryAdvice": "Öneriler",
+      "summaryNextSteps": "Sonraki adımlar",
+      "summarySuggestion": "Önerilen tedavi veya merkez",
+      "backToSession": "Görüşmeye dön",
+      "payNow": "{price} öde",
+      "paying": "Ödeme sayfasına yönlendiriliyor…",
+      "paymentResult": {
+        "paid": "Ödeme alındı. Görüşmeniz onaylandı.",
+        "cancelled": "Ödeme iptal edildi. Saat ayrılmış olduğu sürece yeniden ödeyebilirsiniz.",
+        "failed": "Ödeme onaylanamadı. Hesabınızdan para çekildiyse genellikle 72 saat içinde iade edilir.",
+        "refund": "Ödeme yapıldı ancak bu saat artık boş değildi. Ücret iade edilecek; lütfen destekle iletişime geçin."
+      },
+      "testPay": "Test ödemesi (yalnızca test için)",
+      "foreignVpnNote": "Bu hizmet şu anda yalnızca İran içinde kullanılabilir."
+    },
+    "call": {
+      "phase": {
+        "before": "Randevu saatine kalan",
+        "during": "Görüşmeden kalan",
+        "after": "Odanın kapanmasına kalan"
+      },
+      "leave": "Görüşmeden ayrıl",
+      "roomClosed": "Görüşme odasının süresi doldu.",
+      "videoPlaceholder": "Görüntülü görüşme bu sunucuda henüz kurulmadı. Sayaç ve katılma/ayrılma zaten çalışıyor.",
+      "unavailable": "Görüntülü görüşme şu anda kullanılamıyor. Biraz sonra tekrar deneyin, sorun sürerse destekle iletişime geçin.",
+      "connecting": "Bağlanıyor…",
+      "reconnecting": "Bağlantı koptu, yeniden bağlanıyor…",
+      "waitingFor": "{name} bekleniyor…",
+      "cameraOff": "{name} kamerasını kapattı",
+      "muteMic": "Mikrofonu kapat",
+      "unmuteMic": "Mikrofonu aç",
+      "cameraOffButton": "Kamerayı kapat",
+      "cameraOnButton": "Kamerayı aç",
+      "flipCamera": "Kamerayı çevir",
+      "notice": {
+        "permission": "Kamera veya mikrofon erişimi engellendi. Tarayıcı ayarlarından izin verip sayfayı yeniden açın.",
+        "device": "Kamera veya mikrofon bulunamadı ya da başka bir uygulama kullanıyor.",
+        "duplicate": "Bu görüşme başka bir sekmede veya cihazda açıldı.",
+        "failed": "Görüşme sunucusuna bağlanılamadı. İnternetinizi kontrol edip yeniden katılın.",
+        "unreachable": "Görüşme sunucusuna ulaşılamıyor. Mobil veri kullanıyorsanız Wi‑Fi veya başka bir operatörün SIM kartıyla deneyin."
+      },
+      "prejoin": {
+        "hint": "Katılmadan önce görüntünü ve sesini kontrol et.",
+        "cameraOff": "Kamera kapalı",
+        "micLevel": "Mikrofon seviyesi",
+        "camera": "Kamera",
+        "microphone": "Mikrofon",
+        "cameraName": "Kamera {n}",
+        "micName": "Mikrofon {n}",
+        "back": "Geri",
+        "join": "Görüşmeye katıl"
+      },
+      "audioOnly": "Yalnızca ses",
+      "videoBack": "Görüntüyü geri aç",
+      "audioOnlyActive": "Yalnızca ses: görüntü gönderilmiyor ve alınmıyor.",
+      "chat": "Sohbet",
+      "chatEmpty": "Mesaj yok. Ses kesilirse buraya yaz.",
+      "chatPlaceholder": "Mesaj yaz…",
+      "send": "Gönder",
+      "you": "Sen",
+      "patientInfo": "Hasta bilgileri",
+      "closePanel": "Kapat",
+      "closingSoon": "Görüşme odası {minutes, number} dk içinde kapanacak.",
+      "quality": {
+        "weakYou": "Bağlantın zayıf",
+        "weakPeer": "{name} kişisinin bağlantısı zayıf",
+        "lostPeer": "{name} kişisinin bağlantısı koptu"
+      }
+    },
+    "homeTeaser": {
+      "live": "Canlı görüntülü görüşme",
+      "title": "Doktorla görüntülü danışma",
+      "subtitle": "Bir uzmanla, nerede olursanız olun yüz yüze konuşun",
+      "cta": "Danışma talep et",
+      "perks": {
+        "secure": "Güvenli ve gizli",
+        "noInstall": "Uygulama kurmadan",
+        "verified": "Onaylı doktorlar"
       }
     }
   },
@@ -13623,6 +14016,100 @@ declare const messages: {
     "previous": "Önceki",
     "next": "Sonraki",
     "confirm": "Seçilen dosyaları kullan"
+  },
+  "SitePages": {
+    "faqTitle": "Sıkça sorulan sorular",
+    "updated": "Son güncelleme",
+    "home": "Ana Sayfa",
+    "more": "LSevin hakkında"
+  },
+  "AdminEditorial": {
+    "heading": "Site içeriği",
+    "intro": "Site sayfaları (Hakkımızda, İletişim, politikalar) ve sitenin her yerinde gösterilen SSS'ler, tüm dillerde.",
+    "tabs": {
+      "pages": "Site sayfaları",
+      "faqs": "SSS"
+    },
+    "pagesHelp": "Bir sayfa yayınlandığında sitede görünür. Çevirisi olmayan dillerde İngilizce sürüm gösterilir ve bu diller arama sonuçlarına dahil edilmez.",
+    "faqsHelp": "Her SSS tek bir sayfa türünde gösterilir. O türdeki tüm sayfalarda göstermek için belirli öğe alanını boş bırakın.",
+    "page": "Sayfa",
+    "languages": "Diller",
+    "status": "Durum",
+    "actions": "İşlemler",
+    "edit": "Düzenle",
+    "delete": "Sil",
+    "confirmDelete": "Bu SSS tüm dillerde silinsin mi? Bu işlem geri alınamaz.",
+    "deleted": "SSS silindi.",
+    "published": "Yayınlandı",
+    "publishedHelp": "Sitede ve arama sonuçlarında görünür.",
+    "draft": "Taslak",
+    "notCreated": "Oluşturulmadı",
+    "inFooter": "Altbilgide",
+    "showInFooter": "Altbilgide göster",
+    "showInFooterHelp": "Site altbilgisinde bu sayfaya bağlantı ver.",
+    "displayOrder": "Sıra",
+    "editPage": "Sayfayı düzenle",
+    "pageUrl": "Adres",
+    "title": "Başlık",
+    "summary": "Özet",
+    "summaryHelp": "Bir iki cümle. Arama sonuçlarında açıklama olarak kullanılır.",
+    "body": "Sayfa metni",
+    "bodyHelp": "Bölümler için başlık kullanın. Her dili ayrı yazın; makine çevirilerini kontrol etmeden yapıştırmayın.",
+    "heroImage": "Üst görsel",
+    "heroImageHelp": "İsteğe bağlı. Medya kitaplığından seçin.",
+    "pickImage": "Görsel seç",
+    "save": "Kaydet",
+    "saving": "Kaydediliyor...",
+    "saved": "Kaydedildi.",
+    "back": "Geri",
+    "viewPage": "Sayfayı görüntüle",
+    "newFaq": "Yeni SSS",
+    "editFaq": "SSS'yi düzenle",
+    "faqHelp": "Soruyu ve cevabı, görünmesini istediğiniz her dilde yazın. Yalnızca sorusu veya yalnızca cevabı olan bir dil kaydedilemez.",
+    "showOn": "Gösterileceği yer",
+    "section": "Bölüm",
+    "choose": "Seçin...",
+    "specificItem": "Belirli öğe (isteğe bağlı)",
+    "specificItemHelp": "Kendi SSS'si olan öğelerde yalnızca o SSS gösterilir; diğerlerinde genel SSS gösterilir.",
+    "allItems": "Bu türün tümü",
+    "currentItem": "Mevcut",
+    "question": "Soru",
+    "answer": "Cevap",
+    "active": "Aktif",
+    "inactive": "Gizli",
+    "all": "Tümü",
+    "noFaqs": "Burada henüz SSS yok.",
+    "scopes": {
+      "home": "Ana sayfa",
+      "explore": "Keşfet",
+      "search": "Arama",
+      "map": "Harita",
+      "categories": "Kategoriler sayfası",
+      "provider": "Hizmet sağlayıcı sayfaları",
+      "specialist": "Uzman sayfaları",
+      "service": "Hizmet sayfaları",
+      "category": "Bir kategori",
+      "provider_type": "Bir sağlayıcı türü",
+      "app": "Bölüm (mağaza, turlar, spor salonu...)",
+      "site_page": "Bir site sayfası"
+    },
+    "apps": {
+      "shop": "Mağaza",
+      "tours": "Turlar",
+      "gym": "Spor salonları ve fitness",
+      "transfers": "Havalimanı transferleri"
+    },
+    "pages": {
+      "about-us": "Hakkımızda",
+      "services": "Hizmetler",
+      "contact-us": "İletişim",
+      "licenses-certifications": "Lisanslar ve sertifikalar",
+      "pricing-fees": "Fiyatlar ve ücretler",
+      "shipping-delivery": "Kargo ve teslimat",
+      "returns-refunds": "İade ve geri ödeme",
+      "terms-conditions": "Şartlar ve koşullar",
+      "privacy-policy": "Gizlilik politikası"
+    }
   }
 };
 export default messages;

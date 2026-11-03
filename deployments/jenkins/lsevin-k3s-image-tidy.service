@@ -1,0 +1,8 @@
+[Unit]
+Description=Remove old application images from the Kubernetes image store
+
+[Service]
+Type=oneshot
+Nice=15
+IOSchedulingClass=idle
+ExecStart=/usr/local/sbin/lsevin-k3s-image-tidy

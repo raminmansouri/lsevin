@@ -5,6 +5,7 @@ import { listPatientAccessForAccount } from "@/features/patients/server/reposito
 
 import { requireAuthenticatedUserId } from "./auth";
 import { SharingPanel } from "./sharing-panel";
+import { DesktopMySharing } from "@/features/web-desktop/health/DesktopMySharing";
 
 export const dynamic = "force-dynamic";
 
@@ -34,7 +35,8 @@ export default async function MySharingPage() {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <>
+    <div className="min-h-screen bg-gray-50 xl:hidden">
       <div className="border-b border-gray-200 bg-white px-6 py-8">
         <h1 className="text-xl font-bold text-gray-900">{t("title")}</h1>
         <p className="mt-1 text-sm text-gray-500">{t("subtitle")}</p>
@@ -57,5 +59,7 @@ export default async function MySharingPage() {
         ))}
       </div>
     </div>
+    <DesktopMySharing patientsWithAccess={patientsWithAccess} />
+    </>
   );
 }

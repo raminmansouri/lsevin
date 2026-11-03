@@ -74,7 +74,7 @@ const DOMESTIC_CURRENCIES = new Set(["IRR", "IRT"]);
  * - Iranian viewer: no multiplier anywhere (undo it on foreign currencies).
  * - International viewer: multiplier everywhere (add it to Rial/Toman too).
  */
-function applyInternationalMultiplier<
+export function applyInternationalMultiplier<
   T extends { sourceAmount: number; targetAmount: number; targetCurrencyCode: string },
 >(options: T[], multiplier: number | undefined, isIranianViewer: boolean | null): T[] {
   const m = multiplier ?? 1;
@@ -160,7 +160,7 @@ function Chip({ children }: { children: ReactNode }) {
   return <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-700">{children}</span>;
 }
 
-function MediaPreview({ item, alt, className, sizes = "100vw" }: { item?: ServiceGalleryItem; alt: string; className: string; sizes?: string }) {
+export function MediaPreview({ item, alt, className, sizes = "100vw" }: { item?: ServiceGalleryItem; alt: string; className: string; sizes?: string }) {
   const src = resolveMediaUrl(item?.url);
 
   if (!src) {
@@ -289,7 +289,7 @@ function ProviderOfferingCard({ provider, currentProviderServiceId, locale }: { 
   );
 }
 
-function ProvidersForServiceSection({ providers, currentProviderServiceId, locale }: { providers: ServiceProviderOffering[]; currentProviderServiceId: string; locale: string }) {
+export function ProvidersForServiceSection({ providers, currentProviderServiceId, locale }: { providers: ServiceProviderOffering[]; currentProviderServiceId: string; locale: string }) {
   const t = useTranslations("ServicePage");
   const [showAllProviders, setShowAllProviders] = useState(false);
   const visibleProviders = showAllProviders ? providers : providers.slice(0, 4);
@@ -318,7 +318,7 @@ function ProvidersForServiceSection({ providers, currentProviderServiceId, local
   );
 }
 
-function ServiceAttributesSection({ attributes, currency, locale }: { attributes: ServiceAttribute[]; currency: string; locale: string }) {
+export function ServiceAttributesSection({ attributes, currency, locale }: { attributes: ServiceAttribute[]; currency: string; locale: string }) {
   const t = useTranslations("ServicePage");
   if (!attributes.length) return null;
   return (
@@ -360,7 +360,7 @@ function ServiceAttributesSection({ attributes, currency, locale }: { attributes
   );
 }
 
-function AddonsSection({ addOns, locale }: { addOns: ServiceAddon[]; locale: string }) {
+export function AddonsSection({ addOns, locale }: { addOns: ServiceAddon[]; locale: string }) {
   const t = useTranslations("ServicePage");
   if (!addOns.length) return null;
   return (
@@ -393,7 +393,7 @@ function AddonsSection({ addOns, locale }: { addOns: ServiceAddon[]; locale: str
   );
 }
 
-function OffersSection({ offers, locale }: { offers: ServiceOffer[]; locale: string }) {
+export function OffersSection({ offers, locale }: { offers: ServiceOffer[]; locale: string }) {
   const t = useTranslations("ServicePage");
   if (!offers.length) return null;
   return (
@@ -421,7 +421,7 @@ function OffersSection({ offers, locale }: { offers: ServiceOffer[]; locale: str
   );
 }
 
-function RequirementsSection({ uploadRequirements, domainRequirements }: { uploadRequirements: ServiceUploadRequirement[]; domainRequirements: ServiceDomainRequirement[] }) {
+export function RequirementsSection({ uploadRequirements, domainRequirements }: { uploadRequirements: ServiceUploadRequirement[]; domainRequirements: ServiceDomainRequirement[] }) {
   const t = useTranslations("ServicePage");
   if (!uploadRequirements.length && !domainRequirements.length) return null;
   return (
@@ -460,7 +460,7 @@ function RequirementsSection({ uploadRequirements, domainRequirements }: { uploa
   );
 }
 
-function ProviderProfileSection({ data }: { data: GetServicePageByIdResponse }) {
+export function ProviderProfileSection({ data }: { data: GetServicePageByIdResponse }) {
   const t = useTranslations("ServicePage");
   const provider = data.service.providerProfile;
   return (
@@ -499,7 +499,7 @@ function ProviderProfileSection({ data }: { data: GetServicePageByIdResponse }) 
   );
 }
 
-function SpecialistsSection({ specialists, locale }: { specialists: ServiceSpecialist[]; locale: string }) {
+export function SpecialistsSection({ specialists, locale }: { specialists: ServiceSpecialist[]; locale: string }) {
   const t = useTranslations("ServicePage");
   const navigate = useNavigate();
 
@@ -547,7 +547,7 @@ function SpecialistsSection({ specialists, locale }: { specialists: ServiceSpeci
   );
 }
 
-function PoliciesSection({ policies }: { policies: ProviderPolicy[] }) {
+export function PoliciesSection({ policies }: { policies: ProviderPolicy[] }) {
   const t = useTranslations("ServicePage");
   if (!policies.length) return null;
   return (

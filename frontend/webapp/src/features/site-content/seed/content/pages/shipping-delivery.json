@@ -1,0 +1,1436 @@
+{
+  "slug": "shipping-delivery",
+  "status": "draft",
+  "needsConfirmation": [
+    "Carriers the shop actually uses (the code stores a free-text carrier name per shipment; none is configured in code)",
+    "Countries and regions the shop delivers to at launch (delivery methods carry per-method country/region allow and deny lists set in admin)",
+    "Order processing time before dispatch (not defined in code)",
+    "The free-shipping threshold and its currency (calculateShipping in src/features/shop/lib/calculations.ts defaults to 75 in the cart currency; confirm the intended value before publishing any figure)",
+    "Whether international shipping of products is offered at all",
+    "Who bears the loss for parcels lost or damaged in transit, and the deadline for reporting a damaged or missing parcel",
+    "Whether cash on delivery is offered (no such payment method is in code)",
+    "Whether the shop is operated by LSevin itself or by third-party sellers (the code has warehouses and a single shop; seller identity not stated)"
+  ],
+  "sources": [
+    "src/features/shop/api/checkout.repository.ts (delivery options listed per active delivery method with fee and estimated min/max days; destination filtering; server-side checkout quote; payment methods: Zarinpal for IRR/IRT, another gateway for other currencies, manual bank transfer)",
+    "src/features/shop/lib/delivery-geo.ts (per-method include/exclude countries, region allow-list, surcharges and ETA overrides by destination)",
+    "src/features/shop/lib/calculations.ts (free delivery above a subtotal threshold; tax computed per tax class and shown as its own line)",
+    "src/features/shop/server/coupon.service.ts (free_shipping coupon type)",
+    "src/features/shop/server/admin-order.service.ts and shop-notifications.ts (shipments with carrier and tracking number; customer notified 'Order X has shipped. Tracking: N (carrier)' in fa/en/ar)",
+    "src/features/shop/api/order.repository.ts and components/OrderView.tsx (order page lists each shipment with carrier, tracking number, shipped and delivered dates)",
+    "src/features/shop/server/returns.service.ts (order statuses: pending, awaiting_payment, paid, processing, shipped, partially_shipped, completed, cancelled; cancellation allowed until fulfilment starts; guest order lookup by order number plus email)",
+    "src/features/finance/lib/server/currency-queries.ts (currency conversion quote held for a limited time at checkout, default 15 minutes)",
+    "src/app/[locale]/n/app/mobile/shop/addresses/page.tsx (saved addresses)",
+    "src/app/[locale]/(admin)/admin/shop/warehouses (stock held in warehouses; partial shipments possible)"
+  ],
+  "locales": {
+    "en-US": {
+      "title": "Shipping and Delivery Policy",
+      "metaDescription": "How LSevin shop orders are processed, shipped and tracked: delivery methods, costs and estimated times shown at checkout, partial shipments and order status.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "This policy covers physical products ordered from the LSevin shop. Bookings for clinics, hotels, tours, gyms and consultations are services and are not shipped; they are covered by the Returns and Refunds Policy and the Terms and Conditions."
+        },
+        {
+          "type": "h2",
+          "text": "Where we deliver"
+        },
+        {
+          "type": "p",
+          "text": "Each delivery method has its own service area. At checkout, after you enter or choose your delivery address, you only see the methods that serve that country and region. If no method appears for your address, the shop cannot deliver there at the moment."
+        },
+        {
+          "type": "p",
+          "text": "You can save addresses in your account and choose one at checkout. Check the address and phone number carefully, because the carrier uses them to reach you."
+        },
+        {
+          "type": "h2",
+          "text": "Delivery cost"
+        },
+        {
+          "type": "p",
+          "text": "The delivery fee depends on the method you choose and can include an addition for certain countries or regions. The exact fee is shown next to each method and in the order total before you pay."
+        },
+        {
+          "type": "p",
+          "text": "Delivery can be free in two cases. Orders above the shop's free-delivery threshold get free delivery automatically, and some coupons make delivery free when you apply them in the cart. When either applies, the delivery line in your total shows zero."
+        },
+        {
+          "type": "p",
+          "text": "If tax applies to your order, it is shown as a separate line before payment. The amounts you see at checkout are recorded on the order and do not change after you pay."
+        },
+        {
+          "type": "h2",
+          "text": "Estimated delivery time"
+        },
+        {
+          "type": "p",
+          "text": "Each delivery method shows an estimated delivery window in days, for example a minimum and a maximum number of days. The estimate can differ by destination. It is an estimate given by the delivery method and starts once the order ships."
+        },
+        {
+          "type": "h2",
+          "text": "Processing your order"
+        },
+        {
+          "type": "p",
+          "text": "Your order moves through these stages, and the current one is always visible on the order page."
+        },
+        {
+          "type": "p",
+          "text": "Pending or awaiting payment: the order is placed and waiting for payment to be confirmed. For a bank transfer, this lasts until the transfer is checked."
+        },
+        {
+          "type": "p",
+          "text": "Paid and processing: payment is confirmed and the order is being prepared. You can still cancel it at this stage."
+        },
+        {
+          "type": "p",
+          "text": "Shipped or partially shipped: the order, or part of it, has left the warehouse. Items stored in different warehouses can ship separately, so one order can have more than one shipment."
+        },
+        {
+          "type": "p",
+          "text": "Completed: every item has been delivered."
+        },
+        {
+          "type": "h2",
+          "text": "Tracking"
+        },
+        {
+          "type": "p",
+          "text": "When a shipment leaves, we send you a notification with the carrier's name and the tracking number. The same details appear on your order page, with the date each shipment was sent and delivered. Use the tracking number on the carrier's own service for day-to-day updates."
+        },
+        {
+          "type": "p",
+          "text": "If you ordered without signing in, find your order with the order number and the email address you used."
+        },
+        {
+          "type": "h2",
+          "text": "Paying for shop orders"
+        },
+        {
+          "type": "p",
+          "text": "Payment methods are shown at checkout and depend on the currency. Payments in Iranian rial go through the Zarinpal gateway. Bank transfer may also be offered. If your payment currency differs from the shop's currency, the converted amount is held for a limited time while you pay; after that, the checkout recalculates it."
+        },
+        {
+          "type": "h2",
+          "text": "Cancelling before shipment"
+        },
+        {
+          "type": "p",
+          "text": "You can cancel an order until it ships, from the order page. If you had already paid, the refund is handled by the shop team as described in the Returns and Refunds Policy. Once an order has shipped, use a return request instead."
+        },
+        {
+          "type": "h2",
+          "text": "Problems with delivery"
+        },
+        {
+          "type": "p",
+          "text": "If a parcel is late beyond the estimated window, arrives damaged or is missing items, contact LSevin support with the order number and photos of the parcel and its contents. Keep the packaging until the case is closed."
+        }
+      ],
+      "faq": [
+        {
+          "q": "How much does delivery cost?",
+          "a": "It depends on the delivery method and your address. The exact fee for each method is shown at checkout, before you pay."
+        },
+        {
+          "q": "How long will delivery take?",
+          "a": "Each method shows an estimated delivery window in days for your destination. The estimate starts once the order ships."
+        },
+        {
+          "q": "How do I track my order?",
+          "a": "When it ships you receive the carrier name and tracking number, and both appear on your order page."
+        },
+        {
+          "q": "Why did my order arrive in more than one parcel?",
+          "a": "Items held in different warehouses can ship separately. Each shipment has its own tracking number on the order page."
+        },
+        {
+          "q": "Can I change or cancel my order after paying?",
+          "a": "You can cancel until the order ships. If you paid, the refund is processed by the shop team. After shipment, request a return instead."
+        }
+      ]
+    },
+    "fa-IR": {
+      "title": "سیاست ارسال و تحویل",
+      "metaDescription": "نحوه پردازش، ارسال و رهگیری سفارش‌های فروشگاه السوین: روش‌های ارسال، هزینه و زمان تقریبی تحویل پیش از پرداخت، ارسال چندمرحله‌ای و وضعیت سفارش.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "این سیاست درباره کالاهایی است که از فروشگاه السوین سفارش می‌دهید. رزرو کلینیک، هتل، تور، باشگاه و مشاوره خدمت است و ارسال فیزیکی ندارد؛ شرایط آن‌ها در سیاست بازگشت کالا و وجه و قوانین و مقررات آمده است."
+        },
+        {
+          "type": "h2",
+          "text": "به کجا ارسال می‌کنیم"
+        },
+        {
+          "type": "p",
+          "text": "هر روش ارسال محدوده خدمت خودش را دارد. هنگام تسویه، پس از وارد کردن یا انتخاب نشانی، فقط روش‌هایی را می‌بینید که به آن کشور و منطقه ارسال دارند. اگر برای نشانی شما روشی نمایش داده نشد، فروشگاه فعلاً به آنجا ارسال ندارد."
+        },
+        {
+          "type": "p",
+          "text": "می‌توانید نشانی‌ها را در حساب خود ذخیره کنید و هنگام تسویه یکی را انتخاب کنید. نشانی و شماره تلفن را دقیق بررسی کنید، چون شرکت حمل از همین اطلاعات برای رسیدن به شما استفاده می‌کند."
+        },
+        {
+          "type": "h2",
+          "text": "هزینه ارسال"
+        },
+        {
+          "type": "p",
+          "text": "هزینه ارسال به روش انتخابی بستگی دارد و برای برخی کشورها یا مناطق ممکن است مبلغی به آن اضافه شود. هزینه دقیق کنار هر روش و در جمع سفارش، پیش از پرداخت نمایش داده می‌شود."
+        },
+        {
+          "type": "p",
+          "text": "ارسال در دو حالت رایگان است. سفارش‌هایی که از سقف ارسال رایگان فروشگاه بیشتر باشند خودکار ارسال رایگان می‌گیرند، و برخی کدهای تخفیف با اعمال در سبد خرید ارسال را رایگان می‌کنند. در این حالت‌ها ردیف هزینه ارسال در جمع سفارش صفر نشان داده می‌شود."
+        },
+        {
+          "type": "p",
+          "text": "اگر به سفارش شما مالیات تعلق بگیرد، پیش از پرداخت در ردیف جداگانه نمایش داده می‌شود. مبالغی که هنگام تسویه می‌بینید روی سفارش ثبت می‌شوند و پس از پرداخت تغییر نمی‌کنند."
+        },
+        {
+          "type": "h2",
+          "text": "زمان تقریبی تحویل"
+        },
+        {
+          "type": "p",
+          "text": "هر روش ارسال یک بازه تقریبی تحویل بر حسب روز نشان می‌دهد، یعنی کمترین و بیشترین تعداد روز. این بازه ممکن است بسته به مقصد فرق کند. این عدد تخمین روش ارسال است و از زمان ارسال سفارش شروع می‌شود."
+        },
+        {
+          "type": "h2",
+          "text": "مراحل پردازش سفارش"
+        },
+        {
+          "type": "p",
+          "text": "سفارش شما از این مراحل می‌گذرد و مرحله فعلی همیشه در صفحه سفارش دیده می‌شود."
+        },
+        {
+          "type": "p",
+          "text": "در انتظار یا در انتظار پرداخت: سفارش ثبت شده و منتظر تأیید پرداخت است. در واریز بانکی، این مرحله تا بررسی واریز ادامه دارد."
+        },
+        {
+          "type": "p",
+          "text": "پرداخت‌شده و در حال آماده‌سازی: پرداخت تأیید شده و سفارش در حال آماده شدن است. در این مرحله هنوز می‌توانید سفارش را لغو کنید."
+        },
+        {
+          "type": "p",
+          "text": "ارسال‌شده یا بخشی ارسال‌شده: سفارش یا بخشی از آن از انبار خارج شده است. کالاهایی که در انبارهای مختلف هستند ممکن است جدا ارسال شوند، پس یک سفارش می‌تواند چند مرسوله داشته باشد."
+        },
+        {
+          "type": "p",
+          "text": "تکمیل‌شده: همه کالاها تحویل شده‌اند."
+        },
+        {
+          "type": "h2",
+          "text": "رهگیری"
+        },
+        {
+          "type": "p",
+          "text": "وقتی مرسوله ارسال می‌شود، اعلانی با نام شرکت حمل و کد رهگیری برایتان می‌فرستیم. همین اطلاعات همراه تاریخ ارسال و تحویل هر مرسوله در صفحه سفارش هم هست. برای پیگیری روزبه‌روز، کد رهگیری را در سامانه خود شرکت حمل وارد کنید."
+        },
+        {
+          "type": "p",
+          "text": "اگر بدون ورود به حساب سفارش داده‌اید، سفارش را با شماره سفارش و ایمیلی که وارد کرده‌اید پیدا کنید."
+        },
+        {
+          "type": "h2",
+          "text": "پرداخت سفارش فروشگاه"
+        },
+        {
+          "type": "p",
+          "text": "روش‌های پرداخت هنگام تسویه نمایش داده می‌شوند و به واحد پول بستگی دارند. پرداخت ریالی از درگاه زرین‌پال انجام می‌شود و ممکن است واریز بانکی هم در دسترس باشد. اگر ارز پرداخت با ارز فروشگاه فرق داشته باشد، مبلغ تبدیل‌شده برای مدت محدودی ثابت می‌ماند تا پرداخت کنید و پس از آن دوباره محاسبه می‌شود."
+        },
+        {
+          "type": "h2",
+          "text": "لغو پیش از ارسال"
+        },
+        {
+          "type": "p",
+          "text": "تا پیش از ارسال، می‌توانید سفارش را از صفحه سفارش لغو کنید. اگر پرداخت کرده بودید، بازگشت وجه را تیم فروشگاه طبق سیاست بازگشت کالا و وجه انجام می‌دهد. پس از ارسال، به‌جای لغو درخواست مرجوعی ثبت کنید."
+        },
+        {
+          "type": "h2",
+          "text": "مشکل در تحویل"
+        },
+        {
+          "type": "p",
+          "text": "اگر مرسوله از بازه تقریبی دیرتر رسید، آسیب‌دیده بود یا کالایی کم داشت، با شماره سفارش و عکس بسته و محتوای آن به پشتیبانی السوین پیام دهید. تا بسته شدن پرونده، بسته‌بندی را نگه دارید."
+        }
+      ],
+      "faq": [
+        {
+          "q": "هزینه ارسال چقدر است؟",
+          "a": "به روش ارسال و نشانی شما بستگی دارد. هزینه دقیق هر روش پیش از پرداخت در صفحه تسویه نمایش داده می‌شود."
+        },
+        {
+          "q": "تحویل چقدر طول می‌کشد؟",
+          "a": "هر روش برای مقصد شما بازه تقریبی تحویل بر حسب روز نشان می‌دهد که از زمان ارسال سفارش شروع می‌شود."
+        },
+        {
+          "q": "سفارشم را چطور رهگیری کنم؟",
+          "a": "پس از ارسال، نام شرکت حمل و کد رهگیری را دریافت می‌کنید و هر دو در صفحه سفارش هم هستند."
+        },
+        {
+          "q": "چرا سفارشم در چند بسته رسید؟",
+          "a": "کالاهایی که در انبارهای مختلف هستند ممکن است جدا ارسال شوند. هر مرسوله کد رهگیری خودش را در صفحه سفارش دارد."
+        },
+        {
+          "q": "بعد از پرداخت می‌توانم سفارش را لغو کنم؟",
+          "a": "تا پیش از ارسال بله. اگر پرداخت کرده باشید، تیم فروشگاه بازگشت وجه را انجام می‌دهد. پس از ارسال، درخواست مرجوعی ثبت کنید."
+        }
+      ]
+    },
+    "ar-SA": {
+      "title": "سياسة الشحن والتوصيل",
+      "metaDescription": "كيف تُعالَج طلبات متجر لسوين وتُشحن وتُتتبَّع: طرق التوصيل، والتكلفة والمدة التقديرية قبل الدفع، والشحنات الجزئية، وحالات الطلب في حسابك.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "تنطبق هذه السياسة على المنتجات التي تطلبها من متجر لسوين. أما حجوزات العيادات والفنادق والجولات والنوادي والاستشارات فهي خدمات لا تُشحن، وتنظمها سياسة الإرجاع واسترداد الأموال والشروط والأحكام."
+        },
+        {
+          "type": "h2",
+          "text": "أين نوصّل"
+        },
+        {
+          "type": "p",
+          "text": "لكل طريقة توصيل نطاق خدمة خاص بها. عند إتمام الطلب، وبعد إدخال عنوانك أو اختياره، لا تظهر إلا الطرق التي تخدم تلك الدولة والمنطقة. وإذا لم تظهر أي طريقة لعنوانك، فالمتجر لا يوصّل إليه حالياً."
+        },
+        {
+          "type": "p",
+          "text": "يمكنك حفظ العناوين في حسابك واختيار أحدها عند إتمام الطلب. راجع العنوان ورقم الهاتف بعناية، لأن شركة الشحن تعتمد عليهما للوصول إليك."
+        },
+        {
+          "type": "h2",
+          "text": "تكلفة التوصيل"
+        },
+        {
+          "type": "p",
+          "text": "تعتمد رسوم التوصيل على الطريقة التي تختارها، وقد تُضاف إليها رسوم لبعض الدول أو المناطق. تظهر الرسوم الدقيقة بجانب كل طريقة وفي إجمالي الطلب قبل الدفع."
+        },
+        {
+          "type": "p",
+          "text": "يكون التوصيل مجانياً في حالتين: الطلبات التي تتجاوز حد التوصيل المجاني للمتجر تحصل عليه تلقائياً، وبعض القسائم تجعل التوصيل مجانياً عند تطبيقها في السلة. وفي الحالتين يظهر بند التوصيل في الإجمالي صفراً."
+        },
+        {
+          "type": "p",
+          "text": "إذا كانت على طلبك ضريبة، فإنها تظهر في بند مستقل قبل الدفع. وتُسجَّل المبالغ التي تراها عند إتمام الطلب على الطلب نفسه ولا تتغير بعد الدفع."
+        },
+        {
+          "type": "h2",
+          "text": "المدة التقديرية للتوصيل"
+        },
+        {
+          "type": "p",
+          "text": "تعرض كل طريقة توصيل مدة تقديرية بالأيام، أي حداً أدنى وحداً أقصى، وقد تختلف المدة حسب الوجهة. هذه المدة تقدير من طريقة التوصيل وتبدأ بعد شحن الطلب."
+        },
+        {
+          "type": "h2",
+          "text": "مراحل معالجة الطلب"
+        },
+        {
+          "type": "p",
+          "text": "يمر طلبك بالمراحل التالية، وتظهر المرحلة الحالية دائماً في صفحة الطلب."
+        },
+        {
+          "type": "p",
+          "text": "قيد الانتظار أو بانتظار الدفع: سُجّل الطلب وينتظر تأكيد الدفع. وفي التحويل البنكي تستمر هذه المرحلة حتى مراجعة التحويل."
+        },
+        {
+          "type": "p",
+          "text": "مدفوع وقيد التجهيز: تأكد الدفع ويجري تجهيز الطلب، وما زال بإمكانك إلغاؤه في هذه المرحلة."
+        },
+        {
+          "type": "p",
+          "text": "تم الشحن أو تم شحن جزء منه: خرج الطلب أو جزء منه من المستودع. قد تُشحن المنتجات الموجودة في مستودعات مختلفة كلٌّ على حدة، فيكون للطلب الواحد أكثر من شحنة."
+        },
+        {
+          "type": "p",
+          "text": "مكتمل: سُلّمت جميع المنتجات."
+        },
+        {
+          "type": "h2",
+          "text": "التتبع"
+        },
+        {
+          "type": "p",
+          "text": "عند خروج الشحنة نرسل إليك إشعاراً باسم شركة الشحن ورقم التتبع. وتظهر البيانات نفسها في صفحة الطلب مع تاريخ إرسال كل شحنة وتسليمها. استخدم رقم التتبع في خدمة شركة الشحن نفسها لمتابعة التحديثات اليومية."
+        },
+        {
+          "type": "p",
+          "text": "إذا طلبت دون تسجيل الدخول، فابحث عن طلبك برقم الطلب والبريد الإلكتروني الذي استخدمته."
+        },
+        {
+          "type": "h2",
+          "text": "الدفع لطلبات المتجر"
+        },
+        {
+          "type": "p",
+          "text": "تظهر طرق الدفع عند إتمام الطلب وتعتمد على العملة. تتم المدفوعات بالريال الإيراني عبر بوابة زرين‌بال، وقد يتوفر التحويل البنكي أيضاً. وإذا اختلفت عملة الدفع عن عملة المتجر، يبقى المبلغ المحوَّل ثابتاً لمدة محدودة ريثما تدفع، ثم يُعاد احتسابه."
+        },
+        {
+          "type": "h2",
+          "text": "الإلغاء قبل الشحن"
+        },
+        {
+          "type": "p",
+          "text": "يمكنك إلغاء الطلب من صفحته ما دام لم يُشحن. وإذا كنت قد دفعت، يتولى فريق المتجر رد المبلغ كما توضح سياسة الإرجاع واسترداد الأموال. وبعد الشحن، قدّم طلب إرجاع بدلاً من الإلغاء."
+        },
+        {
+          "type": "h2",
+          "text": "مشكلات التوصيل"
+        },
+        {
+          "type": "p",
+          "text": "إذا تأخرت الشحنة عن المدة التقديرية، أو وصلت تالفة، أو نقصت منها منتجات، فتواصل مع دعم لسوين برقم الطلب وصور للطرد ومحتوياته. واحتفظ بالتغليف حتى إغلاق الحالة."
+        }
+      ],
+      "faq": [
+        {
+          "q": "كم تبلغ تكلفة التوصيل؟",
+          "a": "تعتمد على طريقة التوصيل وعنوانك، وتظهر الرسوم الدقيقة لكل طريقة عند إتمام الطلب قبل الدفع."
+        },
+        {
+          "q": "كم يستغرق التوصيل؟",
+          "a": "تعرض كل طريقة مدة تقديرية بالأيام لوجهتك، وتبدأ المدة بعد شحن الطلب."
+        },
+        {
+          "q": "كيف أتتبع طلبي؟",
+          "a": "عند الشحن يصلك اسم شركة الشحن ورقم التتبع، ويظهران أيضاً في صفحة الطلب."
+        },
+        {
+          "q": "لماذا وصل طلبي في أكثر من طرد؟",
+          "a": "قد تُشحن المنتجات الموجودة في مستودعات مختلفة كلٌّ على حدة، ولكل شحنة رقم تتبع خاص بها في صفحة الطلب."
+        },
+        {
+          "q": "هل يمكنني إلغاء طلبي بعد الدفع؟",
+          "a": "نعم ما دام لم يُشحن، ويتولى فريق المتجر رد المبلغ إن كنت قد دفعت. وبعد الشحن قدّم طلب إرجاع."
+        }
+      ]
+    },
+    "tr-TR": {
+      "title": "Kargo ve Teslimat Politikası",
+      "metaDescription": "LSevin mağaza siparişleri nasıl hazırlanır, gönderilir ve takip edilir: teslimat yöntemleri, ödeme adımındaki ücret ve süreler, kısmi gönderiler, sipariş durumu.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Bu politika, LSevin mağazasından sipariş edilen fiziksel ürünleri kapsar. Klinik, otel, tur, spor salonu ve danışmanlık rezervasyonları birer hizmettir ve kargoyla gönderilmez; bunlar İade ve Geri Ödeme Politikası ile Kullanım Koşulları kapsamındadır."
+        },
+        {
+          "type": "h2",
+          "text": "Nereye teslimat yapıyoruz"
+        },
+        {
+          "type": "p",
+          "text": "Her teslimat yönteminin kendi hizmet bölgesi vardır. Ödeme adımında teslimat adresinizi girdikten veya seçtikten sonra yalnızca o ülkeye ve bölgeye hizmet veren yöntemleri görürsünüz. Adresiniz için hiçbir yöntem görünmüyorsa mağaza şu anda oraya teslimat yapamıyor demektir."
+        },
+        {
+          "type": "p",
+          "text": "Adreslerinizi hesabınıza kaydedip ödeme adımında birini seçebilirsiniz. Kargo firması size ulaşmak için adres ve telefon numaranızı kullandığından bunları dikkatlice kontrol edin."
+        },
+        {
+          "type": "h2",
+          "text": "Teslimat ücreti"
+        },
+        {
+          "type": "p",
+          "text": "Teslimat ücreti seçtiğiniz yönteme bağlıdır ve belirli ülkeler veya bölgeler için ek bir tutar içerebilir. Kesin ücret, ödeme yapmadan önce her yöntemin yanında ve sipariş toplamında gösterilir."
+        },
+        {
+          "type": "p",
+          "text": "Teslimat iki durumda ücretsiz olabilir. Mağazanın ücretsiz teslimat sınırını aşan siparişlerde teslimat otomatik olarak ücretsizdir; ayrıca bazı kuponlar sepette uygulandığında teslimatı ücretsiz yapar. Bunlardan biri geçerli olduğunda toplamınızdaki teslimat satırı sıfır gösterir."
+        },
+        {
+          "type": "p",
+          "text": "Siparişinize vergi uygulanıyorsa ödemeden önce ayrı bir satır olarak gösterilir. Ödeme adımında gördüğünüz tutarlar siparişe kaydedilir ve ödeme yaptıktan sonra değişmez."
+        },
+        {
+          "type": "h2",
+          "text": "Tahmini teslimat süresi"
+        },
+        {
+          "type": "p",
+          "text": "Her teslimat yöntemi gün cinsinden tahmini bir teslimat aralığı gösterir; örneğin en az ve en fazla gün sayısı. Tahmin varış noktasına göre değişebilir. Bu, teslimat yönteminin verdiği bir tahmindir ve sipariş kargoya verildiğinde başlar."
+        },
+        {
+          "type": "h2",
+          "text": "Siparişinizin hazırlanması"
+        },
+        {
+          "type": "p",
+          "text": "Siparişiniz aşağıdaki aşamalardan geçer ve mevcut aşama her zaman sipariş sayfasında görünür."
+        },
+        {
+          "type": "p",
+          "text": "Beklemede veya Ödeme bekleniyor: Sipariş verilmiştir ve ödemenin onaylanması beklenmektedir. Banka havalesinde bu aşama havale kontrol edilene kadar sürer."
+        },
+        {
+          "type": "p",
+          "text": "Ödendi ve İşleniyor: Ödeme onaylanmıştır ve sipariş hazırlanmaktadır. Bu aşamada siparişi hâlâ iptal edebilirsiniz."
+        },
+        {
+          "type": "p",
+          "text": "Kargoya verildi veya Kısmen kargoya verildi: Siparişin tamamı veya bir kısmı depodan çıkmıştır. Farklı depolarda bulunan ürünler ayrı ayrı gönderilebilir; bu nedenle bir siparişin birden fazla gönderisi olabilir."
+        },
+        {
+          "type": "p",
+          "text": "Tamamlandı: Tüm ürünler teslim edilmiştir."
+        },
+        {
+          "type": "h2",
+          "text": "Takip"
+        },
+        {
+          "type": "p",
+          "text": "Bir gönderi yola çıktığında size kargo firmasının adını ve takip numarasını içeren bir bildirim göndeririz. Aynı bilgiler, her gönderinin gönderildiği ve teslim edildiği tarihle birlikte sipariş sayfanızda da yer alır. Günlük güncellemeler için takip numarasını kargo firmasının kendi hizmetinde kullanın."
+        },
+        {
+          "type": "p",
+          "text": "Giriş yapmadan sipariş verdiyseniz siparişinizi sipariş numarası ve kullandığınız e-posta adresiyle bulabilirsiniz."
+        },
+        {
+          "type": "h2",
+          "text": "Mağaza siparişlerinin ödemesi"
+        },
+        {
+          "type": "p",
+          "text": "Ödeme yöntemleri ödeme adımında gösterilir ve para birimine bağlıdır. İran riyali ile yapılan ödemeler Zarinpal ödeme altyapısı üzerinden geçer. Banka havalesi seçeneği de sunulabilir. Ödeme para biriminiz mağazanın para biriminden farklıysa çevrilen tutar, ödeme yaparken sınırlı bir süre sabit tutulur; bu sürenin ardından ödeme adımında yeniden hesaplanır."
+        },
+        {
+          "type": "h2",
+          "text": "Kargodan önce iptal"
+        },
+        {
+          "type": "p",
+          "text": "Bir siparişi kargoya verilene kadar sipariş sayfasından iptal edebilirsiniz. Ödemeyi zaten yaptıysanız geri ödeme, İade ve Geri Ödeme Politikası'nda açıklandığı şekilde mağaza ekibi tarafından yapılır. Sipariş kargoya verildikten sonra bunun yerine iade talebi oluşturun."
+        },
+        {
+          "type": "h2",
+          "text": "Teslimatla ilgili sorunlar"
+        },
+        {
+          "type": "p",
+          "text": "Bir paket tahmini sürenin ötesinde gecikirse, hasarlı ulaşırsa veya eksik ürün içeriyorsa sipariş numarasıyla ve paketin ve içeriğinin fotoğraflarıyla LSevin desteğine başvurun. Talep kapanana kadar ambalajı saklayın."
+        }
+      ],
+      "faq": [
+        {
+          "q": "Teslimat ücreti ne kadar?",
+          "a": "Teslimat yöntemine ve adresinize bağlıdır. Her yöntemin kesin ücreti, ödeme yapmadan önce ödeme adımında gösterilir."
+        },
+        {
+          "q": "Teslimat ne kadar sürer?",
+          "a": "Her yöntem, varış noktanız için gün cinsinden tahmini bir teslimat aralığı gösterir. Tahmin, sipariş kargoya verildiğinde başlar."
+        },
+        {
+          "q": "Siparişimi nasıl takip ederim?",
+          "a": "Sipariş kargoya verildiğinde kargo firmasının adı ve takip numarası size iletilir; ikisi de sipariş sayfanızda görünür."
+        },
+        {
+          "q": "Siparişim neden birden fazla pakette geldi?",
+          "a": "Farklı depolarda bulunan ürünler ayrı ayrı gönderilebilir. Her gönderinin sipariş sayfasında kendi takip numarası vardır."
+        },
+        {
+          "q": "Ödeme yaptıktan sonra siparişimi değiştirebilir veya iptal edebilir miyim?",
+          "a": "Sipariş kargoya verilene kadar iptal edebilirsiniz. Ödeme yaptıysanız geri ödemeyi mağaza ekibi işleme alır. Kargoya verildikten sonra bunun yerine iade talebi oluşturun."
+        }
+      ]
+    },
+    "ku-KU": {
+      "title": "سیاسەتی ناردن و گەیاندن",
+      "metaDescription": "داواکارییەکانی فرۆشگای LSevin چۆن ئامادە دەکرێن، دەنێردرێن و بەدوایاندا دەچن: شێوازەکانی گەیاندن، تێچوون و کاتی خەمڵێنراو، ناردنی بەش بەش و دۆخی داواکاری.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "ئەم سیاسەتە ئەو کاڵا فیزیکییانە دەگرێتەوە کە لە فرۆشگای LSevin داوا دەکرێن. حجزی کلینیک، هوتێل، گەشت، جیم و ڕاوێژ خزمەتگوزارین و نانێردرێن؛ ئەوانە لە سیاسەتی گەڕاندنەوەی کاڵا و پارە و لە مەرج و ڕێساکاندا باس کراون."
+        },
+        {
+          "type": "h2",
+          "text": "بۆ کوێ دەگەیەنین"
+        },
+        {
+          "type": "p",
+          "text": "هەر شێوازێکی گەیاندن ناوچەی خزمەتگوزاریی تایبەتی خۆی هەیە. لە کاتی تەواوکردنی کڕیندا، دوای نووسین یان هەڵبژاردنی ناونیشانی گەیاندن، تەنها ئەو شێوازانە دەبینن کە ئەو وڵات و ناوچەیە دەگرنەوە. ئەگەر هیچ شێوازێک بۆ ناونیشانەکەتان دەرنەکەوت، فرۆشگا لە ئێستادا ناتوانێت بۆ ئەوێ بگەیەنێت."
+        },
+        {
+          "type": "p",
+          "text": "دەتوانن ناونیشانەکان لە هەژمارەکەتاندا پاشەکەوت بکەن و لە کاتی تەواوکردنی کڕیندا یەکێکیان هەڵبژێرن. ناونیشان و ژمارەی تەلەفۆنەکە بە وردی بپشکنن، چونکە کۆمپانیای گەیاندن بۆ گەیشتن پێتان بەکاریان دەهێنێت."
+        },
+        {
+          "type": "h2",
+          "text": "تێچووی گەیاندن"
+        },
+        {
+          "type": "p",
+          "text": "کرێی گەیاندن بەندە بەو شێوازەی هەڵیدەبژێرن و دەکرێت بۆ هەندێک وڵات یان ناوچە زیادکراوێکی تێدا بێت. کرێی ورد لە تەنیشت هەر شێوازێک و لە کۆی داواکارییەکەدا پێش پارەدان پیشان دەدرێت."
+        },
+        {
+          "type": "p",
+          "text": "گەیاندن لە دوو حاڵەتدا دەکرێت بەخۆڕایی بێت. ئەو داواکارییانەی لە سنووری گەیاندنی بەخۆڕایی فرۆشگا زیاترن خۆکارانە گەیاندنیان بەخۆڕاییە، و هەندێک کۆپۆن کاتێک لە سەبەتەدا جێبەجێیان دەکەن گەیاندن بەخۆڕایی دەکەن. لە هەر کام لەم دوو حاڵەتەدا، دێڕی گەیاندن لە کۆی گشتیدا سفر پیشان دەدات."
+        },
+        {
+          "type": "p",
+          "text": "ئەگەر باج بەسەر داواکارییەکەتاندا جێبەجێ بێت، پێش پارەدان وەک دێڕێکی جیا پیشان دەدرێت. ئەو بڕانەی لە کاتی تەواوکردنی کڕیندا دەیانبینن لەسەر داواکارییەکە تۆمار دەکرێن و دوای پارەدان ناگۆڕێن."
+        },
+        {
+          "type": "h2",
+          "text": "کاتی خەمڵێنراوی گەیاندن"
+        },
+        {
+          "type": "p",
+          "text": "هەر شێوازێکی گەیاندن ماوەیەکی خەمڵێنراوی گەیاندن بە ڕۆژ پیشان دەدات، بۆ نموونە کەمترین و زۆرترین ژمارەی ڕۆژ. خەمڵاندنەکە دەکرێت بەپێی شوێنی مەبەست جیاواز بێت. خەمڵاندنێکە کە شێوازی گەیاندنەکە دەیدات و لە کاتی ناردنی داواکارییەکەوە دەست پێ دەکات."
+        },
+        {
+          "type": "h2",
+          "text": "ئامادەکردنی داواکارییەکەتان"
+        },
+        {
+          "type": "p",
+          "text": "داواکارییەکەتان بەم قۆناغانەدا تێدەپەڕێت و قۆناغی ئێستا هەمیشە لە پەڕەی داواکارییەکەدا دیارە."
+        },
+        {
+          "type": "p",
+          "text": "چاوەڕوان یان چاوەڕێی پارەدان: داواکارییەکە تۆمار کراوە و چاوەڕێی پشتڕاستکردنەوەی پارەدانە. بۆ گواستنەوەی بانکی، ئەم قۆناغە تا پشکنینی گواستنەوەکە بەردەوام دەبێت."
+        },
+        {
+          "type": "p",
+          "text": "پارەدراو و لە جێبەجێکردندا: پارەدان پشتڕاست کراوەتەوە و داواکارییەکە ئامادە دەکرێت. لەم قۆناغەشدا هێشتا دەتوانن هەڵیبوەشێننەوە."
+        },
+        {
+          "type": "p",
+          "text": "نێردراو یان بەشێکی نێردراو: داواکارییەکە، یان بەشێکی، لە کۆگا دەرچووە. ئەو کاڵایانەی لە کۆگای جیاوازدا هەڵگیراون دەکرێت بە جیا بنێردرێن، بۆیە یەک داواکاری دەتوانێت زیاتر لە یەک بارنامەی هەبێت."
+        },
+        {
+          "type": "p",
+          "text": "تەواوبوو: هەموو کاڵاکان گەیەندراون."
+        },
+        {
+          "type": "h2",
+          "text": "بەدواداچوون"
+        },
+        {
+          "type": "p",
+          "text": "کاتێک بارێک دەنێردرێت، ئاگادارکردنەوەیەکتان بۆ دەنێرین کە ناوی کۆمپانیای گەیاندن و ژمارەی بەدواداچوونی تێدایە. هەمان زانیاری لە پەڕەی داواکارییەکەتاندا دەردەکەوێت، لەگەڵ بەرواری ناردن و گەیاندنی هەر بارێک. بۆ نوێکارییە ڕۆژانەکان، ژمارەی بەدواداچوونەکە لە خزمەتگوزاریی خودی کۆمپانیای گەیاندندا بەکاربهێنن."
+        },
+        {
+          "type": "p",
+          "text": "ئەگەر بەبێ چوونەژوورەوە داواکارییەکەتان کردووە، بە ژمارەی داواکاری و ئەو ئیمەیڵەی بەکارتان هێناوە داواکارییەکەتان بدۆزنەوە."
+        },
+        {
+          "type": "h2",
+          "text": "پارەدان بۆ داواکارییەکانی فرۆشگا"
+        },
+        {
+          "type": "p",
+          "text": "شێوازەکانی پارەدان لە کاتی تەواوکردنی کڕیندا پیشان دەدرێن و بەندن بە دراوەکە. پارەدان بە ڕیاڵی ئێرانی لە ڕێگەی دەروازەی زەڕینپاڵەوە دەکرێت. لەوانەیە گواستنەوەی بانکیش پێشکەش بکرێت. ئەگەر دراوی پارەدانەکەتان لە دراوی فرۆشگا جیاواز بێت، بڕە گۆڕدراوەکە بۆ ماوەیەکی سنووردار لە کاتی پارەداندا جێگیر دەمێنێتەوە؛ دوای ئەوە، پەڕەی پارەدان دووبارە هەژماری دەکاتەوە."
+        },
+        {
+          "type": "h2",
+          "text": "هەڵوەشاندنەوە پێش ناردن"
+        },
+        {
+          "type": "p",
+          "text": "دەتوانن تا ئەو کاتەی داواکارییەک دەنێردرێت، لە پەڕەی داواکارییەکەوە هەڵیبوەشێننەوە. ئەگەر پێشتر پارەتان داوە، گەڕاندنەوەی پارەکە لەلایەن تیمی فرۆشگاوە بەو شێوەیەی لە سیاسەتی گەڕاندنەوەی کاڵا و پارەدا هاتووە جێبەجێ دەکرێت. کاتێک داواکارییەک نێردرا، لە جیاتی ئەوە داوای گەڕاندنەوەی کاڵا بکەن."
+        },
+        {
+          "type": "h2",
+          "text": "کێشەکانی گەیاندن"
+        },
+        {
+          "type": "p",
+          "text": "ئەگەر بارێک لە ماوەی خەمڵێنراو زیاتر دواکەوت، تێکشکاو گەیشت یان هەندێک کاڵای تێدا نەبوو، بە ژمارەی داواکاری و وێنەی بارەکە و ناوەڕۆکەکەیەوە پەیوەندی بە پشتگیریی LSevinەوە بکەن. تا دۆسیەکە دادەخرێت، بەستەبەندییەکە بهێڵنەوە."
+        }
+      ],
+      "faq": [
+        {
+          "q": "گەیاندن چەندی تێدەچێت؟",
+          "a": "بەندە بە شێوازی گەیاندن و ناونیشانەکەتان. کرێی وردی هەر شێوازێک لە کاتی تەواوکردنی کڕیندا و پێش پارەدان پیشان دەدرێت."
+        },
+        {
+          "q": "گەیاندن چەندی پێدەچێت؟",
+          "a": "هەر شێوازێک ماوەیەکی خەمڵێنراوی گەیاندن بە ڕۆژ بۆ شوێنی مەبەستەکەتان پیشان دەدات. خەمڵاندنەکە لە کاتی ناردنی داواکارییەکەوە دەست پێ دەکات."
+        },
+        {
+          "q": "چۆن بەدواداچوون بۆ داواکارییەکەم بکەم؟",
+          "a": "کاتێک نێردرا، ناوی کۆمپانیای گەیاندن و ژمارەی بەدواداچوون وەردەگرن، و هەردووکیان لە پەڕەی داواکارییەکەتاندا دەردەکەون."
+        },
+        {
+          "q": "بۆچی داواکارییەکەم لە زیاتر لە یەک باردا گەیشت؟",
+          "a": "ئەو کاڵایانەی لە کۆگای جیاوازدا هەڵگیراون دەکرێت بە جیا بنێردرێن. هەر بارێک ژمارەی بەدواداچوونی تایبەتی خۆی لە پەڕەی داواکارییەکەدا هەیە."
+        },
+        {
+          "q": "دوای پارەدان دەتوانم داواکارییەکەم بگۆڕم یان هەڵیبوەشێنمەوە؟",
+          "a": "دەتوانن تا ئەو کاتەی داواکارییەکە دەنێردرێت هەڵیبوەشێننەوە. ئەگەر پارەتان داوە، تیمی فرۆشگا پارەکە دەگەڕێنێتەوە. دوای ناردن، لە جیاتی ئەوە داوای گەڕاندنەوەی کاڵا بکەن."
+        }
+      ]
+    },
+    "ru-RU": {
+      "title": "Политика доставки",
+      "metaDescription": "Как обрабатываются, отправляются и отслеживаются заказы магазина LSevin: способы доставки, стоимость и сроки при оформлении, частичные отправки и статус заказа.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Эта политика распространяется на физические товары, заказанные в магазине LSevin. Бронирования клиник, отелей, туров, спортзалов и консультаций — это услуги, и они не доставляются; на них распространяются Политика возврата товаров и средств и Условия использования."
+        },
+        {
+          "type": "h2",
+          "text": "Куда мы доставляем"
+        },
+        {
+          "type": "p",
+          "text": "У каждого способа доставки своя зона обслуживания. При оформлении заказа, после того как Вы введёте или выберете адрес доставки, отображаются только способы, которые обслуживают эту страну и регион. Если для Вашего адреса не отображается ни один способ, магазин пока не может туда доставить."
+        },
+        {
+          "type": "p",
+          "text": "Адреса можно сохранить в аккаунте и выбрать при оформлении заказа. Внимательно проверьте адрес и номер телефона: по ним с Вами свяжется перевозчик."
+        },
+        {
+          "type": "h2",
+          "text": "Стоимость доставки"
+        },
+        {
+          "type": "p",
+          "text": "Стоимость доставки зависит от выбранного способа и может включать надбавку для некоторых стран или регионов. Точная стоимость указана рядом с каждым способом и в итоговой сумме заказа до оплаты."
+        },
+        {
+          "type": "p",
+          "text": "Доставка может быть бесплатной в двух случаях. Заказы на сумму выше порога бесплатной доставки магазина доставляются бесплатно автоматически, а некоторые купоны делают доставку бесплатной, если применить их в корзине. В обоих случаях в строке доставки в итоговой сумме указан ноль."
+        },
+        {
+          "type": "p",
+          "text": "Если к заказу применяется налог, он показывается отдельной строкой до оплаты. Суммы, которые Вы видите при оформлении, фиксируются в заказе и после оплаты не меняются."
+        },
+        {
+          "type": "h2",
+          "text": "Ориентировочный срок доставки"
+        },
+        {
+          "type": "p",
+          "text": "Для каждого способа доставки указан ориентировочный срок в днях, например минимальное и максимальное число дней. Срок может зависеть от места назначения. Это оценка, которую даёт способ доставки, и отсчёт начинается с момента отправки заказа."
+        },
+        {
+          "type": "h2",
+          "text": "Обработка заказа"
+        },
+        {
+          "type": "p",
+          "text": "Заказ проходит следующие этапы, а текущий этап всегда виден на странице заказа."
+        },
+        {
+          "type": "p",
+          "text": "Ожидает или ожидает оплаты: заказ оформлен и ожидает подтверждения оплаты. При банковском переводе этот этап длится до проверки перевода."
+        },
+        {
+          "type": "p",
+          "text": "Оплачен и в обработке: оплата подтверждена, заказ готовится к отправке. На этом этапе его ещё можно отменить."
+        },
+        {
+          "type": "p",
+          "text": "Отправлен или частично отправлен: заказ или его часть покинули склад. Товары с разных складов могут отправляться отдельно, поэтому у одного заказа может быть несколько отправлений."
+        },
+        {
+          "type": "p",
+          "text": "Завершён: все товары доставлены."
+        },
+        {
+          "type": "h2",
+          "text": "Отслеживание"
+        },
+        {
+          "type": "p",
+          "text": "Когда отправление передаётся перевозчику, мы присылаем уведомление с названием перевозчика и трек-номером. Те же сведения появляются на странице заказа вместе с датами отправки и доставки каждого отправления. Для ежедневных обновлений используйте трек-номер в сервисе самого перевозчика."
+        },
+        {
+          "type": "p",
+          "text": "Если Вы оформили заказ без входа в аккаунт, найдите его по номеру заказа и адресу электронной почты, который Вы указали."
+        },
+        {
+          "type": "h2",
+          "text": "Оплата заказов в магазине"
+        },
+        {
+          "type": "p",
+          "text": "Способы оплаты показываются при оформлении заказа и зависят от валюты. Платежи в иранских риалах проходят через платёжный шлюз Zarinpal. Также может быть доступен банковский перевод. Если валюта оплаты отличается от валюты магазина, пересчитанная сумма фиксируется на ограниченное время, пока Вы оплачиваете; по истечении этого времени сумма пересчитывается."
+        },
+        {
+          "type": "h2",
+          "text": "Отмена до отправки"
+        },
+        {
+          "type": "p",
+          "text": "Заказ можно отменить на странице заказа до его отправки. Если Вы уже оплатили заказ, возврат средств оформляет команда магазина, как описано в Политике возврата товаров и средств. После отправки заказа вместо отмены оформите запрос на возврат товара."
+        },
+        {
+          "type": "h2",
+          "text": "Проблемы с доставкой"
+        },
+        {
+          "type": "p",
+          "text": "Если посылка задерживается дольше ориентировочного срока, пришла повреждённой или в ней не хватает товаров, обратитесь в поддержку LSevin, указав номер заказа и приложив фотографии посылки и её содержимого. Сохраните упаковку до закрытия обращения."
+        }
+      ],
+      "faq": [
+        {
+          "q": "Сколько стоит доставка?",
+          "a": "Это зависит от способа доставки и Вашего адреса. Точная стоимость для каждого способа показывается при оформлении заказа, до оплаты."
+        },
+        {
+          "q": "Сколько времени займёт доставка?",
+          "a": "Для каждого способа указан ориентировочный срок доставки в днях до Вашего места назначения. Отсчёт начинается с момента отправки заказа."
+        },
+        {
+          "q": "Как отследить заказ?",
+          "a": "После отправки Вы получите название перевозчика и трек-номер; они также отображаются на странице заказа."
+        },
+        {
+          "q": "Почему заказ пришёл несколькими посылками?",
+          "a": "Товары с разных складов могут отправляться отдельно. У каждого отправления свой трек-номер на странице заказа."
+        },
+        {
+          "q": "Можно ли изменить или отменить заказ после оплаты?",
+          "a": "Отменить заказ можно до его отправки. Если Вы уже оплатили, возврат средств оформляет команда магазина. После отправки оформите запрос на возврат товара."
+        }
+      ]
+    },
+    "tg-TJ": {
+      "title": "Сиёсати фиристодан ва расонидан",
+      "metaDescription": "Фармоишҳои мағозаи LSevin чӣ тавр коркард, фиристода ва пайгирӣ мешаванд: усулҳои расонидан, нарх ва мӯҳлати тахминӣ, фиристодани қисман ва ҳолати фармоиш.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Ин сиёсат ба маҳсулоти моддие, ки аз мағозаи LSevin фармоиш дода мешаванд, дахл дорад. Бронҳои клиника, меҳмонхона, тур, варзишгоҳ ва машварат хидмат мебошанд ва фиристода намешаванд; онҳо дар Сиёсати бозгардонии мол ва маблағ ва дар Шартҳо ва қоидаҳо шарҳ дода шудаанд."
+        },
+        {
+          "type": "h2",
+          "text": "Мо ба куҷо мерасонем"
+        },
+        {
+          "type": "p",
+          "text": "Ҳар усули расонидан минтақаи хизматрасонии худро дорад. Ҳангоми ба расмият даровардани фармоиш, пас аз ворид ё интихоб кардани суроғаи расонидан, шумо танҳо усулҳоеро мебинед, ки ба ҳамон кишвар ва минтақа хизмат мерасонанд. Агар барои суроғаи шумо ягон усул нишон дода нашавад, мағоза ҳоло ба он ҷо расонида наметавонад."
+        },
+        {
+          "type": "p",
+          "text": "Шумо метавонед суроғаҳоро дар ҳисоби худ нигоҳ доред ва ҳангоми фармоиш яке аз онҳоро интихоб кунед. Суроға ва рақами телефонро бодиққат санҷед, зеро ширкати расонанда бо онҳо ба шумо мерасад."
+        },
+        {
+          "type": "h2",
+          "text": "Нархи расонидан"
+        },
+        {
+          "type": "p",
+          "text": "Ҳаққи расонидан аз усули интихобкардаи шумо вобаста аст ва метавонад барои баъзе кишварҳо ё минтақаҳо иловапулӣ дошта бошад. Ҳаққи дақиқ дар канори ҳар усул ва дар маблағи умумии фармоиш пеш аз пардохт нишон дода мешавад."
+        },
+        {
+          "type": "p",
+          "text": "Расонидан дар ду ҳолат метавонад ройгон бошад. Фармоишҳое, ки аз ҳадди расонидани ройгони мағоза зиёданд, худкор ройгон расонида мешаванд ва баъзе купонҳо ҳангоми истифода дар сабад расониданро ройгон мегардонанд. Дар ҳар ду ҳолат сатри расонидан дар маблағи умумӣ сифрро нишон медиҳад."
+        },
+        {
+          "type": "p",
+          "text": "Агар ба фармоиши шумо андоз татбиқ шавад, он пеш аз пардохт ҳамчун сатри алоҳида нишон дода мешавад. Маблағҳое, ки ҳангоми пардохт мебинед, дар фармоиш сабт мешаванд ва пас аз пардохт тағйир намеёбанд."
+        },
+        {
+          "type": "h2",
+          "text": "Мӯҳлати тахминии расонидан"
+        },
+        {
+          "type": "p",
+          "text": "Ҳар усули расонидан мӯҳлати тахминии расониданро бо рӯз нишон медиҳад, масалан шумораи камтарин ва бештарини рӯзҳо. Ин тахмин вобаста ба макони таъинот метавонад фарқ кунад. Онро усули расонидан медиҳад ва ҳисоби он аз лаҳзаи фиристодани фармоиш оғоз мешавад."
+        },
+        {
+          "type": "h2",
+          "text": "Коркарди фармоиши шумо"
+        },
+        {
+          "type": "p",
+          "text": "Фармоиши шумо аз марҳилаҳои зерин мегузарад ва марҳилаи ҷорӣ ҳамеша дар саҳифаи фармоиш дида мешавад."
+        },
+        {
+          "type": "p",
+          "text": "Дар интизорӣ ё интизори пардохт: фармоиш сабт шудааст ва интизори тасдиқи пардохт аст. Ҳангоми интиқоли бонкӣ ин марҳила то санҷидани интиқол давом мекунад."
+        },
+        {
+          "type": "p",
+          "text": "Пардохтшуда ва дар коркард: пардохт тасдиқ шудааст ва фармоиш омода карда мешавад. Дар ин марҳила шумо ҳанӯз метавонед онро бекор кунед."
+        },
+        {
+          "type": "p",
+          "text": "Фиристодашуда ё қисман фиристодашуда: фармоиш ё як қисми он аз анбор баромадааст. Молҳое, ки дар анборҳои гуногун нигоҳ дошта мешаванд, метавонанд алоҳида фиристода шаванд, бинобар ин як фармоиш метавонад зиёда аз як бор фиристода шавад."
+        },
+        {
+          "type": "p",
+          "text": "Анҷомёфта: ҳамаи молҳо расонида шудаанд."
+        },
+        {
+          "type": "h2",
+          "text": "Пайгирӣ"
+        },
+        {
+          "type": "p",
+          "text": "Вақте ки бор фиристода мешавад, мо ба шумо огоҳиномае бо номи ширкати расонанда ва рақами пайгирӣ мефиристем. Ҳамин маълумот дар саҳифаи фармоиши шумо бо санаи фиристодан ва расонидани ҳар бор нишон дода мешавад. Барои навигариҳои ҳаррӯза рақами пайгириро дар хидмати худи ширкати расонанда истифода баред."
+        },
+        {
+          "type": "p",
+          "text": "Агар бе воридшавӣ фармоиш дода бошед, фармоиши худро бо рақами фармоиш ва почтаи электронии истифодакардаатон ёбед."
+        },
+        {
+          "type": "h2",
+          "text": "Пардохт барои фармоишҳои мағоза"
+        },
+        {
+          "type": "p",
+          "text": "Усулҳои пардохт ҳангоми ба расмият даровардани фармоиш нишон дода мешаванд ва аз асъор вобастаанд. Пардохтҳо бо риёли Эрон тавассути дарвозаи Zarinpal мегузаранд. Интиқоли бонкӣ низ метавонад пешниҳод шавад. Агар асъори пардохти шумо аз асъори мағоза фарқ кунад, маблағи табдилшуда ҳангоми пардохт барои муддати маҳдуд собит нигоҳ дошта мешавад; пас аз он система маблағро аз нав ҳисоб мекунад."
+        },
+        {
+          "type": "h2",
+          "text": "Бекоркунӣ пеш аз фиристодан"
+        },
+        {
+          "type": "p",
+          "text": "Шумо метавонед фармоишро то фиристода шуданаш аз саҳифаи фармоиш бекор кунед. Агар аллакай пардохт карда бошед, бозгардонии маблағро гурӯҳи мағоза тибқи Сиёсати бозгардонии мол ва маблағ анҷом медиҳад. Пас аз фиристодани фармоиш ба ҷои бекоркунӣ дархости баргардонидан диҳед."
+        },
+        {
+          "type": "h2",
+          "text": "Мушкилот бо расонидан"
+        },
+        {
+          "type": "p",
+          "text": "Агар бор аз мӯҳлати тахминӣ дертар расад, вайрон расад ё баъзе молҳо дар он набошанд, бо рақами фармоиш ва суратҳои бор ва дохили он ба дастгирии LSevin муроҷиат кунед. Бастабандиро то баста шудани парванда нигоҳ доред."
+        }
+      ],
+      "faq": [
+        {
+          "q": "Расонидан чӣ қадар арзиш дорад?",
+          "a": "Ин аз усули расонидан ва суроғаи шумо вобаста аст. Ҳаққи дақиқи ҳар усул ҳангоми ба расмият даровардани фармоиш, пеш аз пардохт, нишон дода мешавад."
+        },
+        {
+          "q": "Расонидан чанд вақт мегирад?",
+          "a": "Ҳар усул барои макони таъиноти шумо мӯҳлати тахминии расониданро бо рӯз нишон медиҳад. Ҳисоби мӯҳлат аз лаҳзаи фиристодани фармоиш оғоз мешавад."
+        },
+        {
+          "q": "Фармоиши худро чӣ тавр пайгирӣ кунам?",
+          "a": "Ҳангоми фиристодан шумо номи ширкати расонанда ва рақами пайгириро мегиред ва ҳар ду дар саҳифаи фармоиши шумо нишон дода мешаванд."
+        },
+        {
+          "q": "Чаро фармоиши ман дар якчанд баста расид?",
+          "a": "Молҳое, ки дар анборҳои гуногун нигоҳ дошта мешаванд, метавонанд алоҳида фиристода шаванд. Ҳар бор дар саҳифаи фармоиш рақами пайгирии худро дорад."
+        },
+        {
+          "q": "Оё пас аз пардохт фармоишро тағйир ё бекор карда метавонам?",
+          "a": "То фиристода шудани фармоиш онро бекор карда метавонед. Агар пардохт карда бошед, бозгардонии маблағро гурӯҳи мағоза коркард мекунад. Пас аз фиристодан ба ҷои ин дархости баргардонидан диҳед."
+        }
+      ]
+    },
+    "zh-CN": {
+      "title": "发货与配送政策",
+      "metaDescription": "LSevin商店订单如何处理、发货和跟踪：结算时显示的配送方式、费用和预计送达时间，分批发货以及订单状态。",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "本政策适用于在LSevin商店订购的实物商品。诊所、酒店、旅游团、健身房和咨询类预约属于服务，不涉及发货，相关规定请参阅《退货与退款政策》和《条款与条件》。"
+        },
+        {
+          "type": "h2",
+          "text": "配送范围"
+        },
+        {
+          "type": "p",
+          "text": "每种配送方式都有各自的服务区域。结算时，在您填写或选择收货地址后，只会显示可配送至该国家和地区的配送方式。如果您的地址下没有任何可选方式，说明商店目前无法配送到该地址。"
+        },
+        {
+          "type": "p",
+          "text": "您可以在账户中保存地址，并在结算时选择。请仔细核对地址和电话号码，承运商会通过这些信息与您联系。"
+        },
+        {
+          "type": "h2",
+          "text": "配送费用"
+        },
+        {
+          "type": "p",
+          "text": "配送费取决于您选择的配送方式，部分国家或地区可能另有附加费。确切费用会在付款前显示在每种配送方式旁边以及订单总额中。"
+        },
+        {
+          "type": "p",
+          "text": "以下两种情况可以免运费：订单金额超过商店的免运费门槛时自动免运费；部分优惠券在购物车中使用后也可免运费。符合任一情况时，总额中的配送费一行会显示为零。"
+        },
+        {
+          "type": "p",
+          "text": "如果您的订单需缴税，税费会在付款前单独列为一行。结算时显示的金额会记录在订单中，付款后不会变动。"
+        },
+        {
+          "type": "h2",
+          "text": "预计送达时间"
+        },
+        {
+          "type": "p",
+          "text": "每种配送方式都会显示以天为单位的预计送达时间范围，例如最少和最多天数。不同目的地的预计时间可能不同。这一时间由配送方式给出，仅供参考，从订单发货后开始计算。"
+        },
+        {
+          "type": "h2",
+          "text": "订单处理"
+        },
+        {
+          "type": "p",
+          "text": "您的订单会依次经过以下阶段，当前阶段始终显示在订单页面上。"
+        },
+        {
+          "type": "p",
+          "text": "待处理或待付款：订单已提交，等待付款确认。如为银行转账，此阶段会持续到转账核查完成。"
+        },
+        {
+          "type": "p",
+          "text": "已付款及处理中：付款已确认，订单正在备货。此阶段您仍可取消订单。"
+        },
+        {
+          "type": "p",
+          "text": "已发货或部分发货：订单或其中部分商品已离开仓库。存放在不同仓库的商品可能分开发货，因此一个订单可能有多个包裹。"
+        },
+        {
+          "type": "p",
+          "text": "已完成：所有商品均已送达。"
+        },
+        {
+          "type": "h2",
+          "text": "物流跟踪"
+        },
+        {
+          "type": "p",
+          "text": "包裹发出时，我们会向您发送通知，告知承运商名称和物流单号。这些信息也会显示在订单页面上，同时显示每个包裹的发货日期和送达日期。如需了解每天的物流动态，请在承运商自己的服务渠道中查询物流单号。"
+        },
+        {
+          "type": "p",
+          "text": "如果您是在未登录状态下下单，请使用订单号和下单时填写的邮箱地址查找订单。"
+        },
+        {
+          "type": "h2",
+          "text": "商店订单付款"
+        },
+        {
+          "type": "p",
+          "text": "支付方式会在结算时显示，具体取决于币种。伊朗里亚尔付款通过Zarinpal支付网关完成，也可能提供银行转账。如果您的付款币种与商店的标价币种不同，换算后的金额会在您付款期间保留一段有限的时间；超时后，结算页面会重新计算。"
+        },
+        {
+          "type": "h2",
+          "text": "发货前取消"
+        },
+        {
+          "type": "p",
+          "text": "在订单发货前，您都可以在订单页面取消订单。如果您已付款，退款将由商店团队按照《退货与退款政策》处理。订单发货后，请改为提交退货申请。"
+        },
+        {
+          "type": "h2",
+          "text": "配送问题"
+        },
+        {
+          "type": "p",
+          "text": "如果包裹超出预计送达时间仍未送达、到货时已损坏或缺少商品，请联系LSevin客服，并提供订单号以及包裹和内装物品的照片。在问题处理完毕前，请保留包装。"
+        }
+      ],
+      "faq": [
+        {
+          "q": "配送费是多少？",
+          "a": "取决于配送方式和您的地址。每种配送方式的确切费用会在结算时、付款前显示。"
+        },
+        {
+          "q": "配送需要多长时间？",
+          "a": "每种配送方式都会针对您的目的地显示以天为单位的预计送达时间范围，从订单发货后开始计算。"
+        },
+        {
+          "q": "如何跟踪我的订单？",
+          "a": "订单发货后，您会收到承运商名称和物流单号，这两项信息也会显示在订单页面上。"
+        },
+        {
+          "q": "为什么我的订单分成了好几个包裹？",
+          "a": "存放在不同仓库的商品可能分开发货。每个包裹在订单页面上都有各自的物流单号。"
+        },
+        {
+          "q": "付款后还能修改或取消订单吗？",
+          "a": "在订单发货前都可以取消。如果已付款，退款由商店团队处理。发货后请改为申请退货。"
+        }
+      ]
+    },
+    "de-DE": {
+      "title": "Versand und Lieferung",
+      "metaDescription": "So werden Bestellungen im LSevin Shop bearbeitet, versendet und verfolgt: Versandarten, Kosten und Lieferzeiten an der Kasse, Teillieferungen und Bestellstatus.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Diese Richtlinie gilt für physische Produkte, die im LSevin Shop bestellt werden. Buchungen von Kliniken, Hotels, Touren, Fitnessstudios und Beratungen sind Dienstleistungen und werden nicht versendet; für sie gelten die Richtlinie zu Rückgabe und Erstattung und die Allgemeinen Geschäftsbedingungen."
+        },
+        {
+          "type": "h2",
+          "text": "Wohin wir liefern"
+        },
+        {
+          "type": "p",
+          "text": "Jede Versandart hat ihr eigenes Liefergebiet. An der Kasse sehen Sie, nachdem Sie Ihre Lieferadresse eingegeben oder ausgewählt haben, nur die Versandarten, die dieses Land und diese Region bedienen. Erscheint für Ihre Adresse keine Versandart, kann der Shop derzeit nicht dorthin liefern."
+        },
+        {
+          "type": "p",
+          "text": "Sie können Adressen in Ihrem Konto speichern und an der Kasse auswählen. Prüfen Sie Adresse und Telefonnummer sorgfältig, denn der Versanddienstleister erreicht Sie darüber."
+        },
+        {
+          "type": "h2",
+          "text": "Versandkosten"
+        },
+        {
+          "type": "p",
+          "text": "Die Versandkosten hängen von der gewählten Versandart ab und können für bestimmte Länder oder Regionen einen Zuschlag enthalten. Die genauen Kosten werden neben jeder Versandart und im Gesamtbetrag der Bestellung angezeigt, bevor Sie bezahlen."
+        },
+        {
+          "type": "p",
+          "text": "In zwei Fällen kann der Versand kostenlos sein. Bestellungen über dem Mindestbestellwert des Shops für kostenlosen Versand werden automatisch kostenlos geliefert, und manche Gutscheine machen den Versand kostenlos, wenn Sie sie im Warenkorb einlösen. In beiden Fällen zeigt die Versandzeile in Ihrem Gesamtbetrag null an."
+        },
+        {
+          "type": "p",
+          "text": "Fallen für Ihre Bestellung Steuern an, werden sie vor der Zahlung als eigene Zeile angezeigt. Die Beträge, die Sie an der Kasse sehen, werden in der Bestellung festgehalten und ändern sich nach der Zahlung nicht."
+        },
+        {
+          "type": "h2",
+          "text": "Voraussichtliche Lieferzeit"
+        },
+        {
+          "type": "p",
+          "text": "Jede Versandart zeigt ein voraussichtliches Lieferfenster in Tagen an, zum Beispiel eine Mindest- und eine Höchstzahl von Tagen. Die Schätzung kann je nach Zielort unterschiedlich ausfallen. Sie stammt von der jeweiligen Versandart und beginnt, sobald die Bestellung versendet wird."
+        },
+        {
+          "type": "h2",
+          "text": "Bearbeitung Ihrer Bestellung"
+        },
+        {
+          "type": "p",
+          "text": "Ihre Bestellung durchläuft die folgenden Phasen, und die aktuelle Phase ist auf der Bestellseite immer sichtbar."
+        },
+        {
+          "type": "p",
+          "text": "Ausstehend oder Zahlung ausstehend: Die Bestellung ist aufgegeben und wartet auf die Bestätigung der Zahlung. Bei einer Banküberweisung dauert das, bis die Überweisung geprüft ist."
+        },
+        {
+          "type": "p",
+          "text": "Bezahlt und in Bearbeitung: Die Zahlung ist bestätigt, und die Bestellung wird vorbereitet. In dieser Phase können Sie sie noch stornieren."
+        },
+        {
+          "type": "p",
+          "text": "Versendet oder teilweise versendet: Die Bestellung oder ein Teil davon hat das Lager verlassen. Artikel aus verschiedenen Lagern können getrennt versendet werden, sodass eine Bestellung mehr als eine Sendung umfassen kann."
+        },
+        {
+          "type": "p",
+          "text": "Abgeschlossen: Alle Artikel wurden zugestellt."
+        },
+        {
+          "type": "h2",
+          "text": "Sendungsverfolgung"
+        },
+        {
+          "type": "p",
+          "text": "Wenn eine Sendung unterwegs ist, erhalten Sie eine Benachrichtigung mit dem Namen des Versanddienstleisters und der Sendungsnummer. Dieselben Angaben erscheinen auf Ihrer Bestellseite, zusammen mit dem Versand- und Zustelldatum jeder Sendung. Für laufende Aktualisierungen verwenden Sie die Sendungsnummer beim Dienst des Versanddienstleisters."
+        },
+        {
+          "type": "p",
+          "text": "Wenn Sie ohne Anmeldung bestellt haben, finden Sie Ihre Bestellung mit der Bestellnummer und der verwendeten E-Mail-Adresse."
+        },
+        {
+          "type": "h2",
+          "text": "Bezahlen von Shop-Bestellungen"
+        },
+        {
+          "type": "p",
+          "text": "Die Zahlungsmethoden werden an der Kasse angezeigt und hängen von der Währung ab. Zahlungen in iranischen Rial laufen über das Zahlungsgateway Zarinpal. Möglicherweise wird auch Banküberweisung angeboten. Weicht Ihre Zahlungswährung von der Währung des Shops ab, wird der umgerechnete Betrag für begrenzte Zeit festgehalten, während Sie bezahlen; danach berechnet die Kasse ihn neu."
+        },
+        {
+          "type": "h2",
+          "text": "Stornierung vor dem Versand"
+        },
+        {
+          "type": "p",
+          "text": "Bis zum Versand können Sie eine Bestellung auf der Bestellseite stornieren. Wenn Sie bereits bezahlt hatten, bearbeitet das Shop-Team die Erstattung wie in der Richtlinie zu Rückgabe und Erstattung beschrieben. Nach dem Versand stellen Sie stattdessen einen Rückgabeantrag."
+        },
+        {
+          "type": "h2",
+          "text": "Probleme bei der Lieferung"
+        },
+        {
+          "type": "p",
+          "text": "Wenn ein Paket über das voraussichtliche Lieferfenster hinaus verspätet ist, beschädigt ankommt oder Artikel fehlen, wenden Sie sich mit der Bestellnummer und Fotos des Pakets und seines Inhalts an den LSevin Support. Bewahren Sie die Verpackung auf, bis der Fall abgeschlossen ist."
+        }
+      ],
+      "faq": [
+        {
+          "q": "Was kostet der Versand?",
+          "a": "Das hängt von der Versandart und Ihrer Adresse ab. Die genauen Kosten jeder Versandart werden an der Kasse angezeigt, bevor Sie bezahlen."
+        },
+        {
+          "q": "Wie lange dauert die Lieferung?",
+          "a": "Jede Versandart zeigt ein voraussichtliches Lieferfenster in Tagen für Ihren Zielort an. Die Schätzung beginnt, sobald die Bestellung versendet wird."
+        },
+        {
+          "q": "Wie verfolge ich meine Bestellung?",
+          "a": "Beim Versand erhalten Sie den Namen des Versanddienstleisters und die Sendungsnummer; beides erscheint auch auf Ihrer Bestellseite."
+        },
+        {
+          "q": "Warum kam meine Bestellung in mehreren Paketen?",
+          "a": "Artikel aus verschiedenen Lagern können getrennt versendet werden. Jede Sendung hat auf der Bestellseite ihre eigene Sendungsnummer."
+        },
+        {
+          "q": "Kann ich meine Bestellung nach der Zahlung ändern oder stornieren?",
+          "a": "Sie können stornieren, bis die Bestellung versendet wird. Wenn Sie bezahlt haben, bearbeitet das Shop-Team die Erstattung. Nach dem Versand stellen Sie stattdessen einen Rückgabeantrag."
+        }
+      ]
+    },
+    "fr-FR": {
+      "title": "Politique d’expédition et de livraison",
+      "metaDescription": "Traitement, expédition et suivi des commandes de la boutique LSevin : modes de livraison, frais et délais estimés affichés au paiement, envois partiels et statuts.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Cette politique concerne les produits physiques commandés dans la boutique LSevin. Les réservations de cliniques, d’hôtels, de circuits, de salles de sport et de consultations sont des services qui ne font pas l’objet d’une expédition ; elles relèvent de la Politique de retours et de remboursements et des Conditions générales."
+        },
+        {
+          "type": "h2",
+          "text": "Zones de livraison"
+        },
+        {
+          "type": "p",
+          "text": "Chaque mode de livraison dispose de sa propre zone de desserte. Au moment du paiement, après avoir saisi ou choisi votre adresse de livraison, seuls les modes qui desservent ce pays et cette région vous sont proposés. Si aucun mode ne s’affiche pour votre adresse, la boutique ne peut pas y livrer pour le moment."
+        },
+        {
+          "type": "p",
+          "text": "Vous pouvez enregistrer des adresses dans votre compte et en choisir une au moment du paiement. Vérifiez soigneusement l’adresse et le numéro de téléphone, car le transporteur les utilise pour vous joindre."
+        },
+        {
+          "type": "h2",
+          "text": "Frais de livraison"
+        },
+        {
+          "type": "p",
+          "text": "Les frais de livraison dépendent du mode choisi et peuvent comprendre un supplément pour certains pays ou certaines régions. Le montant exact s’affiche à côté de chaque mode et dans le total de la commande avant le paiement."
+        },
+        {
+          "type": "p",
+          "text": "La livraison peut être gratuite dans deux cas. Les commandes dépassant le seuil de livraison gratuite de la boutique en bénéficient automatiquement, et certains codes promo rendent la livraison gratuite lorsque vous les appliquez dans le panier. Dans l’un ou l’autre cas, la ligne de livraison de votre total affiche zéro."
+        },
+        {
+          "type": "p",
+          "text": "Si des taxes s’appliquent à votre commande, elles apparaissent sur une ligne distincte avant le paiement. Les montants affichés au moment du paiement sont enregistrés sur la commande et ne changent pas après le paiement."
+        },
+        {
+          "type": "h2",
+          "text": "Délai de livraison estimé"
+        },
+        {
+          "type": "p",
+          "text": "Chaque mode de livraison indique un délai de livraison estimé en jours, par exemple un nombre minimal et maximal de jours. L’estimation peut varier selon la destination. Il s’agit d’une estimation fournie par le mode de livraison, qui court à partir de l’expédition de la commande."
+        },
+        {
+          "type": "h2",
+          "text": "Traitement de votre commande"
+        },
+        {
+          "type": "p",
+          "text": "Votre commande passe par les étapes suivantes, et l’étape en cours est toujours visible sur la page de la commande."
+        },
+        {
+          "type": "p",
+          "text": "En attente ou en attente de paiement : la commande est passée et attend la confirmation du paiement. Pour un virement bancaire, cette étape dure jusqu’à la vérification du virement."
+        },
+        {
+          "type": "p",
+          "text": "Payée et en cours de traitement : le paiement est confirmé et la commande est en préparation. Vous pouvez encore l’annuler à ce stade."
+        },
+        {
+          "type": "p",
+          "text": "Expédiée ou partiellement expédiée : la commande, ou une partie de celle-ci, a quitté l’entrepôt. Les articles stockés dans des entrepôts différents peuvent être expédiés séparément : une même commande peut donc donner lieu à plusieurs envois."
+        },
+        {
+          "type": "p",
+          "text": "Terminée : tous les articles ont été livrés."
+        },
+        {
+          "type": "h2",
+          "text": "Suivi"
+        },
+        {
+          "type": "p",
+          "text": "Lorsqu’un envoi part, nous vous envoyons une notification avec le nom du transporteur et le numéro de suivi. Ces informations figurent aussi sur la page de votre commande, avec la date d’expédition et de livraison de chaque envoi. Utilisez le numéro de suivi sur le service du transporteur pour suivre l’acheminement au jour le jour."
+        },
+        {
+          "type": "p",
+          "text": "Si vous avez commandé sans vous connecter, retrouvez votre commande à l’aide du numéro de commande et de l’adresse e-mail utilisée."
+        },
+        {
+          "type": "h2",
+          "text": "Paiement des commandes en boutique"
+        },
+        {
+          "type": "p",
+          "text": "Les moyens de paiement s’affichent au moment du paiement et dépendent de la devise. Les paiements en rials iraniens passent par la passerelle Zarinpal. Le virement bancaire peut aussi être proposé. Si la devise de paiement diffère de celle de la boutique, le montant converti est garanti pendant une durée limitée le temps du paiement ; passé ce délai, il est recalculé."
+        },
+        {
+          "type": "h2",
+          "text": "Annulation avant expédition"
+        },
+        {
+          "type": "p",
+          "text": "Vous pouvez annuler une commande depuis la page de la commande tant qu’elle n’a pas été expédiée. Si vous aviez déjà payé, le remboursement est traité par l’équipe de la boutique comme décrit dans la Politique de retours et de remboursements. Une fois la commande expédiée, faites plutôt une demande de retour."
+        },
+        {
+          "type": "h2",
+          "text": "Problèmes de livraison"
+        },
+        {
+          "type": "p",
+          "text": "Si un colis arrive après le délai estimé, est endommagé ou incomplet, contactez l’assistance LSevin en indiquant le numéro de commande et en joignant des photos du colis et de son contenu. Conservez l’emballage jusqu’à la clôture du dossier."
+        }
+      ],
+      "faq": [
+        {
+          "q": "Combien coûte la livraison ?",
+          "a": "Cela dépend du mode de livraison et de votre adresse. Le montant exact de chaque mode s’affiche au moment du paiement, avant que vous payiez."
+        },
+        {
+          "q": "Combien de temps prend la livraison ?",
+          "a": "Chaque mode indique un délai de livraison estimé en jours pour votre destination. Ce délai court à partir de l’expédition de la commande."
+        },
+        {
+          "q": "Comment suivre ma commande ?",
+          "a": "Lors de l’expédition, vous recevez le nom du transporteur et le numéro de suivi, qui figurent aussi sur la page de votre commande."
+        },
+        {
+          "q": "Pourquoi ma commande est-elle arrivée en plusieurs colis ?",
+          "a": "Les articles stockés dans des entrepôts différents peuvent être expédiés séparément. Chaque envoi dispose de son propre numéro de suivi sur la page de la commande."
+        },
+        {
+          "q": "Puis-je modifier ou annuler ma commande après l’avoir payée ?",
+          "a": "Vous pouvez l’annuler tant qu’elle n’a pas été expédiée. Si vous avez payé, le remboursement est traité par l’équipe de la boutique. Après l’expédition, faites plutôt une demande de retour."
+        }
+      ]
+    },
+    "es-ES": {
+      "title": "Política de envíos y entregas",
+      "metaDescription": "Cómo se tramitan, envían y siguen los pedidos de la tienda de LSevin: métodos de envío, costes y plazos estimados al pagar, envíos parciales y estado del pedido.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Esta política se aplica a los productos físicos que se piden en la tienda de LSevin. Las reservas de clínicas, hoteles, tours, gimnasios y consultas son servicios y no se envían; se rigen por la Política de devoluciones y reembolsos y por los Términos y condiciones."
+        },
+        {
+          "type": "h2",
+          "text": "Dónde entregamos"
+        },
+        {
+          "type": "p",
+          "text": "Cada método de envío tiene su propia zona de servicio. Al finalizar la compra, después de introducir o elegir su dirección de entrega, solo verá los métodos que dan servicio a ese país y esa región. Si no aparece ningún método para su dirección, la tienda no puede entregar allí por el momento."
+        },
+        {
+          "type": "p",
+          "text": "Puede guardar direcciones en su cuenta y elegir una al finalizar la compra. Revise con atención la dirección y el número de teléfono, porque el transportista los utiliza para localizarle."
+        },
+        {
+          "type": "h2",
+          "text": "Coste de envío"
+        },
+        {
+          "type": "p",
+          "text": "El coste de envío depende del método que elija y puede incluir un recargo para determinados países o regiones. El importe exacto aparece junto a cada método y en el total del pedido antes de pagar."
+        },
+        {
+          "type": "p",
+          "text": "El envío puede ser gratuito en dos casos. Los pedidos que superan el umbral de envío gratuito de la tienda tienen envío gratuito automáticamente, y algunos cupones hacen que el envío sea gratuito al aplicarlos en el carrito. Cuando se da alguno de estos casos, la línea de envío de su total aparece a cero."
+        },
+        {
+          "type": "p",
+          "text": "Si su pedido está sujeto a impuestos, estos se muestran en una línea aparte antes del pago. Los importes que ve al finalizar la compra quedan registrados en el pedido y no cambian después de pagar."
+        },
+        {
+          "type": "h2",
+          "text": "Plazo de entrega estimado"
+        },
+        {
+          "type": "p",
+          "text": "Cada método de envío muestra un plazo de entrega estimado en días, por ejemplo un número mínimo y máximo de días. La estimación puede variar según el destino. Es una estimación del método de envío y empieza a contar cuando el pedido se envía."
+        },
+        {
+          "type": "h2",
+          "text": "Tramitación de su pedido"
+        },
+        {
+          "type": "p",
+          "text": "Su pedido pasa por estas etapas, y la etapa actual siempre se puede ver en la página del pedido."
+        },
+        {
+          "type": "p",
+          "text": "Pendiente o a la espera de pago: el pedido se ha realizado y está a la espera de que se confirme el pago. Si paga por transferencia bancaria, esta etapa dura hasta que se revisa la transferencia."
+        },
+        {
+          "type": "p",
+          "text": "Pagado y en preparación: el pago se ha confirmado y el pedido se está preparando. En esta etapa todavía puede cancelarlo."
+        },
+        {
+          "type": "p",
+          "text": "Enviado o enviado parcialmente: el pedido, o parte de él, ha salido del almacén. Los artículos que están en almacenes distintos pueden enviarse por separado, por lo que un mismo pedido puede tener más de un envío."
+        },
+        {
+          "type": "p",
+          "text": "Completado: se han entregado todos los artículos."
+        },
+        {
+          "type": "h2",
+          "text": "Seguimiento"
+        },
+        {
+          "type": "p",
+          "text": "Cuando sale un envío, le enviamos una notificación con el nombre del transportista y el número de seguimiento. Los mismos datos aparecen en la página de su pedido, junto con la fecha de envío y de entrega de cada envío. Para ver las novedades del día a día, utilice el número de seguimiento en el servicio del propio transportista."
+        },
+        {
+          "type": "p",
+          "text": "Si hizo el pedido sin iniciar sesión, puede encontrarlo con el número de pedido y la dirección de correo electrónico que utilizó."
+        },
+        {
+          "type": "h2",
+          "text": "Pago de los pedidos de la tienda"
+        },
+        {
+          "type": "p",
+          "text": "Los métodos de pago se muestran al finalizar la compra y dependen de la moneda. Los pagos en riales iraníes se realizan a través de la pasarela Zarinpal. También puede ofrecerse la transferencia bancaria. Si la moneda de pago es distinta de la moneda de la tienda, el importe convertido se mantiene durante un tiempo limitado mientras paga; pasado ese tiempo, el proceso de pago lo recalcula."
+        },
+        {
+          "type": "h2",
+          "text": "Cancelación antes del envío"
+        },
+        {
+          "type": "p",
+          "text": "Puede cancelar un pedido desde la página del pedido hasta que se envíe. Si ya lo había pagado, el equipo de la tienda gestiona el reembolso tal como se describe en la Política de devoluciones y reembolsos. Una vez enviado el pedido, presente en su lugar una solicitud de devolución."
+        },
+        {
+          "type": "h2",
+          "text": "Problemas con la entrega"
+        },
+        {
+          "type": "p",
+          "text": "Si un paquete se retrasa más allá del plazo estimado, llega dañado o le faltan artículos, contacte con el soporte de LSevin indicando el número de pedido y adjuntando fotos del paquete y de su contenido. Conserve el embalaje hasta que se cierre el caso."
+        }
+      ],
+      "faq": [
+        {
+          "q": "¿Cuánto cuesta el envío?",
+          "a": "Depende del método de envío y de su dirección. El importe exacto de cada método se muestra al finalizar la compra, antes de pagar."
+        },
+        {
+          "q": "¿Cuánto tardará la entrega?",
+          "a": "Cada método muestra un plazo de entrega estimado en días para su destino. La estimación empieza a contar cuando el pedido se envía."
+        },
+        {
+          "q": "¿Cómo hago el seguimiento de mi pedido?",
+          "a": "Cuando se envía, recibe el nombre del transportista y el número de seguimiento, y ambos aparecen en la página de su pedido."
+        },
+        {
+          "q": "¿Por qué mi pedido llegó en más de un paquete?",
+          "a": "Los artículos que están en almacenes distintos pueden enviarse por separado. Cada envío tiene su propio número de seguimiento en la página del pedido."
+        },
+        {
+          "q": "¿Puedo modificar o cancelar mi pedido después de pagar?",
+          "a": "Puede cancelarlo hasta que se envíe. Si ya pagó, el equipo de la tienda tramita el reembolso. Después del envío, solicite una devolución."
+        }
+      ]
+    }
+  }
+}

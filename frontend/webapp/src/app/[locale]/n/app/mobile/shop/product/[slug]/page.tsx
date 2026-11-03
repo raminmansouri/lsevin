@@ -22,6 +22,8 @@ import { ConsultationCtaButton } from "@/features/consultation/components/consul
 
 import { ProductSpecs } from "@/features/shop/components/ProductSpecs";
 
+import { DesktopProductPage } from "@/features/web-desktop/shop/DesktopProductPage";
+
 // Customer currency is resolved per request; product data remains cached.
 export const dynamic = "force-dynamic";
 
@@ -67,7 +69,8 @@ export default async function ProductDetailPage({
   ].filter((url): url is string => Boolean(url && url.trim()));
 
   return (
-    <div className="min-h-screen bg-neutral-50 pb-56">
+    <>
+    <div className="min-h-screen bg-neutral-50 pb-56 xl:hidden">
       {/* Offer mirrors the price block below (same amount and currency). */}
       <JsonLd
         data={graph(
@@ -257,5 +260,7 @@ export default async function ProductDetailPage({
         </Link>
       </div>
     </div>
+    <DesktopProductPage product={product} locale={locale} />
+    </>
   );
 }

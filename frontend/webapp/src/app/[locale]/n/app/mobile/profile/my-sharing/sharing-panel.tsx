@@ -38,19 +38,11 @@ function grantStatus(grant: ShareGrantRow): "active" | "expired" | "revoked" {
  * statuses, data scopes) is duplicated under MobileProfile.mySharing.* for
  * that reason, not by choice.
  */
-export function SharingPanel({
-  patientId,
-  consents,
-  shareGrants,
-}: {
-  patientId: string;
-  consents: PatientConsentRow[];
-  shareGrants: ShareGrantRow[];
-}) {
+/** Withdraw / revoke, shared by the mobile and desktop panels. */
+function useSharingActions(patientId: string) {
   const t = useTranslations("MobileProfile.mySharing") as TranslationType;
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
-  const [createOpen, setCreateOpen] = useState(false);
 
   const withdraw = (id: string) => {
     startTransition(async () => {
@@ -74,6 +66,21 @@ export function SharingPanel({
       toast.error(result.error || t("errors.generic"));
     });
   };
+
+  return { t, isPending, withdraw, revoke };
+}
+
+export function SharingPanel({
+  patientId,
+  consents,
+  shareGrants,
+}: {
+  patientId: string;
+  consents: PatientConsentRow[];
+  shareGrants: ShareGrantRow[];
+}) {
+  const { t, isPending, withdraw, revoke } = useSharingActions(patientId);
+  const [createOpen, setCreateOpen] = useState(false);
 
   return (
     <div className="space-y-3">
@@ -153,7 +160,138 @@ export function SharingPanel({
   );
 }
 
-function CreateShareGrantForm({ patientId, onDone, t }: { patientId: string; onDone: () => void; t: TranslationType }) {
+const STATUS_TONE: Record<string, string> = {
+  active: "bg-[#e7f4ee] text-[#0f5a45]",
+};
+const toneFor = (status: string) => STATUS_TONE[status] ?? "bg-[#f6f1e6] text-[#8c6b2c]";
+
+/** Desktop panel (>= 1280px): the same consents, links and actions, as two cream-and-green cards. */
+export function DesktopSharingPanel({
+  patientId,
+  consents,
+  shareGrants,
+}: {
+  patientId: string;
+  consents: PatientConsentRow[];
+  shareGrants: ShareGrantRow[];
+}) {
+  const { t, isPending, withdraw, revoke } = useSharingActions(patientId);
+  const [createOpen, setCreateOpen] = useState(false);
+
+  return (
+    <div className="grid grid-cols-2 items-start gap-6">
+      {/* Consents */}
+      <section className="rounded-[26px] bg-white p-7 ring-1 ring-[#e7dcc4]">
+        <h3 className="mb-5 flex items-center gap-3 text-lg font-black text-[#0e1a16]">
+          <span className="grid h-10 w-10 place-items-center rounded-full bg-[#083f30] text-[#eacb7f]">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+            </svg>
+          </span>
+          {t("consents")}
+        </h3>
+        {consents.length === 0 ? <p className="text-sm text-[#a8a08e]">{t("noConsents")}</p> : null}
+        <ul className="divide-y divide-[#f1ead9]">
+          {consents.map((consent) => (
+            <li key={consent.id} className="flex items-start justify-between gap-4 py-4">
+              <div className="min-w-0">
+                <p className="font-bold text-[#0e1a16]">{t(`consentTypes.${consent.consentType}`)}</p>
+                {consent.purpose ? <p className="mt-0.5 text-sm text-[#6b6150]">{consent.purpose}</p> : null}
+              </div>
+              <div className="flex shrink-0 items-center gap-2">
+                <span className={`rounded-full px-3 py-1 text-xs font-bold ${toneFor(consent.consentStatus)}`}>
+                  {t(`consentStatuses.${consent.consentStatus}`)}
+                </span>
+                {consent.consentStatus === "active" ? (
+                  <button
+                    type="button"
+                    disabled={isPending}
+                    onClick={() => withdraw(consent.id)}
+                    className="rounded-full px-3 py-1 text-xs font-bold text-[#b2453a] ring-1 ring-[#f1c7c0] transition hover:bg-[#fdf1ef] disabled:opacity-50"
+                  >
+                    {t("withdraw")}
+                  </button>
+                ) : null}
+              </div>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      {/* Share links */}
+      <section className="rounded-[26px] bg-white p-7 ring-1 ring-[#e7dcc4]">
+        <div className="mb-5 flex items-center justify-between gap-4">
+          <h3 className="flex items-center gap-3 text-lg font-black text-[#0e1a16]">
+            <span className="grid h-10 w-10 place-items-center rounded-full bg-[#083f30] text-[#eacb7f]">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+              </svg>
+            </span>
+            {t("shareLinks")}
+          </h3>
+          <button
+            type="button"
+            onClick={() => setCreateOpen((open) => !open)}
+            className={`rounded-full px-4 py-2 text-sm font-bold transition ${
+              createOpen ? "text-[#6b6150] ring-1 ring-[#e7dcc4]" : "bg-[#083f30] text-[#eacb7f] hover:bg-[#0f5a45]"
+            }`}
+          >
+            {createOpen ? t("cancel") : t("newShareLink")}
+          </button>
+        </div>
+
+        {createOpen ? (
+          <div className="mb-4 rounded-[20px] bg-[#fbf6ea] p-5 ring-1 ring-[#eadfc6]">
+            <CreateShareGrantForm patientId={patientId} onDone={() => setCreateOpen(false)} t={t} tone="desktop" />
+          </div>
+        ) : null}
+
+        {shareGrants.length === 0 ? <p className="text-sm text-[#a8a08e]">{t("noShareLinks")}</p> : null}
+        <ul className="divide-y divide-[#f1ead9]">
+          {shareGrants.map((grant) => {
+            const status = grantStatus(grant);
+            return (
+              <li key={grant.id} className="flex items-start justify-between gap-4 py-4">
+                <div className="min-w-0">
+                  <p className="font-bold text-[#0e1a16]">{grant.recipientName || t("unnamedRecipient")}</p>
+                  <p className="mt-0.5 text-xs text-[#8a8170]">
+                    {t("expires")}: {formatDate(grant.expiresAt)} · {t("views")}: {grant.accessCount}
+                  </p>
+                </div>
+                <div className="flex shrink-0 items-center gap-2">
+                  <span className={`rounded-full px-3 py-1 text-xs font-bold ${toneFor(status)}`}>{t(`grantStatuses.${status}`)}</span>
+                  {status === "active" ? (
+                    <button
+                      type="button"
+                      disabled={isPending}
+                      onClick={() => revoke(grant.id)}
+                      className="rounded-full px-3 py-1 text-xs font-bold text-[#b2453a] ring-1 ring-[#f1c7c0] transition hover:bg-[#fdf1ef] disabled:opacity-50"
+                    >
+                      {t("revoke")}
+                    </button>
+                  ) : null}
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      </section>
+    </div>
+  );
+}
+
+function CreateShareGrantForm({
+  patientId,
+  onDone,
+  t,
+  tone = "mobile",
+}: {
+  patientId: string;
+  onDone: () => void;
+  t: TranslationType;
+  tone?: "mobile" | "desktop";
+}) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [recipientName, setRecipientName] = useState("");
@@ -255,7 +393,9 @@ function CreateShareGrantForm({ patientId, onDone, t }: { patientId: string; onD
         type="button"
         onClick={save}
         disabled={isPending || scope.length === 0}
-        className="w-full rounded-lg bg-blue-600 py-2 text-sm font-medium text-white disabled:opacity-50"
+        className={`w-full text-sm disabled:opacity-50 ${
+          tone === "desktop" ? "rounded-full bg-[#083f30] py-3 font-bold text-[#eacb7f]" : "rounded-lg bg-blue-600 py-2 font-medium text-white"
+        }`}
       >
         {t("generateLink")}
       </button>

@@ -29,6 +29,7 @@ import { useRouter } from "@/i18n/navigation";
 
 import { createCategoryAction } from "../actions/create-category";
 import { updateCategoryAction } from "../actions/update-category";
+import { CategoryActiveSwitch } from "./category-active-switch";
 
 import { useCategoriesBySearchCacheManagement } from "../api/client";
 import { CATEGORY_TRANSLATION_KEY } from "../constants";
@@ -149,6 +150,13 @@ export function CategoryForm({ category }: CategoryFormProps) {
                     )}
                   />
                 )}
+
+                {isEdit && category?.categoryId ? (
+                  <CategoryActiveSwitch
+                    categoryId={category.categoryId}
+                    initialActive={category.isActive}
+                  />
+                ) : null}
 
                 {/* Name Field */}
                 <FormField

@@ -16,6 +16,8 @@ export interface CategoryListItem {
   displayInHomePage?: boolean;
   /** Landing/category-page priority (category.display_order): 1 first; 0 = none. */
   displayOrder?: number;
+  /** The category's site-wide on/off switch (category.is_active). */
+  isActive?: boolean;
 }
 
 // Detail Response Type (all translations)

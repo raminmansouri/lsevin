@@ -1,0 +1,1659 @@
+{
+  "slug": "pricing-fees",
+  "status": "draft",
+  "needsConfirmation": [
+    "Disclosure of the international price coefficient: international visitors are charged the converted base price multiplied by a per-provider coefficient (global default 3 in src/features/finance/server/pricing-settings.repository.ts). The page says international prices can be higher but does not state the figure; legal and business must approve this wording",
+    "That LSevin adds no separate customer booking or platform fee (the ledger in src/accounting/server/legacy-bridge.ts splits the platform fee out of the amount paid; a legacy booking screen shows a 'platform fee' line). Confirm before publishing",
+    "Source and update frequency of exchange rates (rates are entered in admin; frequency not defined)",
+    "Whether non-rial online payments are offered (checkout code prefers a non-Zarinpal gateway for non-IRR currencies; confirm which gateway is enabled in production and whether it should be named)",
+    "Whether wallet balances can be converted between currencies or withdrawn",
+    "Whether VAT or other taxes apply to bookings or shop orders (shop tax classes are currently all 0 percent in code)"
+  ],
+  "sources": [
+    "src/features/finance/lib/server/viewer-pricing.ts (Iranian visitors priced in IRR with no multiplier, provider Toman price wins if set; others priced in the currency of their phone country, USD for guests, times the provider's international multiplier)",
+    "src/features/finance/lib/server/iranian-visitor.ts (visitor country: phone country code, then IP, then locale)",
+    "src/features/finance/lib/server/toman-price.ts (provider's own Toman price for Iranian visitors)",
+    "src/features/finance/server/pricing-settings.repository.ts (per-provider international_price_multiplier with an admin-editable global default)",
+    "src/features/finance/components/admin/exchange-rate-form.tsx and currency-form.tsx (exchange rates and currencies managed in admin)",
+    "src/features/finance/lib/server/currency-queries.ts (FX quote with expiry, default 15 minutes)",
+    "src/features/booking-pro/utils/pay-in-place-plans.ts (20/50/80 percent now with 5/2/1 percent addition, calculated on the increased bill; worked example)",
+    "src/app/[locale]/n/app/mobile/bookings/[id]/invoice/page.tsx and src/features/booking-pro/lib/invoice-breakdown.test.ts (invoice itemises main service, discount and pay-in-place addition)",
+    "src/features/commercial/lib/server/payment-policy-engine.ts (collection modes: free, full, fixed, percent deposit, provider collects)",
+    "src/accounting/server/legacy-bridge.ts (platform fee percent split from the amount paid into platform income; provider receives the rest)",
+    "src/features/wallet/actions.ts (wallet currencies IRR, IRT, USD, EUR, GBP, AED; card or bank top-up; maximum per top-up)",
+    "src/features/wallet/types.ts (credits: top-up, refund, cashback, referral bonus)",
+    "src/features/shop/lib/calculations.ts and api/checkout.repository.ts (delivery fee, tax line, coupons, server-side quote)",
+    "src/features/guides/content/dental.ts, facts.ts, from-gulf.ts (LSevin does not publish fixed treatment prices; written quote after consultation; non-Iranian cards do not work in Iran per GOV.UK)",
+    "messages/en.json Consultation.homeCard (video consultation length and price shown)"
+  ],
+  "locales": {
+    "en-US": {
+      "title": "Pricing and Fees Policy",
+      "metaDescription": "How prices are shown on LSevin: rial and toman, other currencies, international pricing, what an invoice includes, deposits, pay-in-place plans and the wallet.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "This policy explains how LSevin shows prices, which currency you see, what is included in the amount you pay and which additions can apply. The rule behind all of it: the total shown before you confirm a booking or an order is the amount you pay."
+        },
+        {
+          "type": "h2",
+          "text": "Who sets the price"
+        },
+        {
+          "type": "p",
+          "text": "Providers set the prices for their services. LSevin displays them, converts them into your currency and collects payment where payment is made through LSevin."
+        },
+        {
+          "type": "p",
+          "text": "Treatment is often priced per patient. For many procedures LSevin does not publish a fixed price; after the consultation and a review of your reports you receive a written quote."
+        },
+        {
+          "type": "h2",
+          "text": "Which currency you see"
+        },
+        {
+          "type": "p",
+          "text": "Visitors in Iran see prices in Iranian rial, or in toman where the provider has set its own toman price. One toman equals ten rial."
+        },
+        {
+          "type": "p",
+          "text": "Visitors from other countries see prices in the currency of the country linked to their phone number. Visitors who are not signed in see US dollars."
+        },
+        {
+          "type": "p",
+          "text": "To decide which applies, LSevin first uses the country code of your account phone number. If that is not available, it estimates your country from your IP address, and finally from the site language."
+        },
+        {
+          "type": "h2",
+          "text": "International pricing"
+        },
+        {
+          "type": "p",
+          "text": "Prices for international visitors are calculated separately from prices for visitors in Iran. They start from the provider's base price, are converted into your currency and are adjusted by a pricing coefficient set for that provider. International prices can therefore be higher than the rial price shown to visitors inside Iran."
+        },
+        {
+          "type": "p",
+          "text": "Exchange rates are maintained by LSevin. When you pay in a currency other than the one the price is set in, the converted amount is held for a limited time at checkout. If that time runs out, the amount is recalculated before you pay."
+        },
+        {
+          "type": "h2",
+          "text": "What the amount includes"
+        },
+        {
+          "type": "p",
+          "text": "The service page describes what the price covers. Your invoice lists each part on its own line: the main service, any add-ons such as a hotel, transfers or in-hotel care, discounts, and any pay-in-place addition. Shop orders also show the delivery fee and any tax as separate lines."
+        },
+        {
+          "type": "p",
+          "text": "LSevin does not add a separate booking fee to the total. Where LSevin earns a commission, it is settled with the provider out of the amount you pay."
+        },
+        {
+          "type": "h2",
+          "text": "When you pay"
+        },
+        {
+          "type": "p",
+          "text": "Each service sets how payment is collected. Full payment: you pay the whole amount online when you book. Deposit: you pay a fixed amount or a percentage now and the rest later. Pay at the place: the provider collects payment when you arrive. Free booking: no payment is taken in advance."
+        },
+        {
+          "type": "h2",
+          "text": "Pay-in-place plans"
+        },
+        {
+          "type": "p",
+          "text": "Where offered, you can pay part of the bill now and the rest at the place. The less you pay now, the more is added to the bill."
+        },
+        {
+          "type": "p",
+          "text": "Pay 20 percent now: 5 percent is added to the bill."
+        },
+        {
+          "type": "p",
+          "text": "Pay 50 percent now: 2 percent is added to the bill."
+        },
+        {
+          "type": "p",
+          "text": "Pay 80 percent now: 1 percent is added to the bill."
+        },
+        {
+          "type": "p",
+          "text": "The share due now is calculated on the increased bill. On a bill of 100 with the 20 percent plan, the new bill is 105, you pay 21 now and 84 at the place. The part due now is paid from your wallet or by online payment, and the addition appears as its own line on your invoice."
+        },
+        {
+          "type": "h2",
+          "text": "Paying and the wallet"
+        },
+        {
+          "type": "p",
+          "text": "Online payments in rial go through the Zarinpal gateway. Cards issued outside Iran do not work in Iran, so international patients should agree the payment method and currency before travelling."
+        },
+        {
+          "type": "p",
+          "text": "Your LSevin wallet can hold balances in Iranian rial, toman, US dollars, euros, pounds sterling and UAE dirhams. Top up by online card payment or by bank transfer with a receipt upload; transfers are checked before the balance is available. Each top-up has a maximum amount per currency. Refunds, and rewards such as cashback or referral bonuses where offered, are credited to the wallet."
+        },
+        {
+          "type": "h2",
+          "text": "Discounts and coupons"
+        },
+        {
+          "type": "p",
+          "text": "Offers and coupons are applied before payment and shown as a discount line. Shop coupons can take a fixed amount or a percentage off, or make delivery free."
+        },
+        {
+          "type": "h2",
+          "text": "Price changes"
+        },
+        {
+          "type": "p",
+          "text": "Providers can change their prices at any time, and exchange rates move. A change does not affect a booking or order you have already paid for."
+        }
+      ],
+      "faq": [
+        {
+          "q": "Why is the price different from what my friend in Iran sees?",
+          "a": "Visitors in Iran see rial or toman prices. Visitors abroad see a separately calculated international price in their own currency, which can be higher."
+        },
+        {
+          "q": "Does LSevin charge a booking fee?",
+          "a": "LSevin does not add a separate booking fee to your total. Where LSevin earns a commission, it comes out of the amount paid to the provider."
+        },
+        {
+          "q": "How does the pay-in-place plan work?",
+          "a": "You pay 20, 50 or 80 percent now and the rest at the place. The plans add 5, 2 or 1 percent to the bill, and the breakdown is shown before you confirm."
+        },
+        {
+          "q": "Which currencies can my wallet hold?",
+          "a": "Iranian rial, toman, US dollars, euros, pounds sterling and UAE dirhams."
+        },
+        {
+          "q": "Can the price change after I pay?",
+          "a": "No. Price or exchange-rate changes do not affect a booking or order you have already paid for."
+        },
+        {
+          "q": "Why is there no fixed price for my treatment?",
+          "a": "Treatment prices depend on your case, doctor and facility. After the consultation and a review of your reports, you receive a written quote."
+        }
+      ]
+    },
+    "fa-IR": {
+      "title": "سیاست قیمت‌گذاری و هزینه‌ها",
+      "metaDescription": "قیمت‌ها در السوین چطور نمایش داده می‌شوند: ریال و تومان، ارزهای دیگر، قیمت بین‌الملل، اقلام صورت‌حساب، پیش‌پرداخت، طرح‌های پرداخت در محل و کیف پول.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "این سیاست توضیح می‌دهد السوین قیمت‌ها را چطور نمایش می‌دهد، قیمت را به چه ارزی می‌بینید، مبلغ پرداختی شامل چه چیزهایی است و چه افزایش‌هایی ممکن است اعمال شود. قاعده اصلی ساده است: مبلغ کلی که پیش از تأیید رزرو یا سفارش می‌بینید همان مبلغی است که می‌پردازید."
+        },
+        {
+          "type": "h2",
+          "text": "قیمت را چه کسی تعیین می‌کند"
+        },
+        {
+          "type": "p",
+          "text": "قیمت خدمات را ارائه‌دهندگان تعیین می‌کنند. السوین آن را نمایش می‌دهد، به ارز شما تبدیل می‌کند و هر جا پرداخت از طریق السوین انجام شود، مبلغ را دریافت می‌کند."
+        },
+        {
+          "type": "p",
+          "text": "قیمت درمان معمولاً برای هر بیمار جداگانه تعیین می‌شود. السوین برای بسیاری از درمان‌ها قیمت ثابت منتشر نمی‌کند و پس از مشاوره و بررسی مدارک، پیش‌فاکتور مکتوب برایتان می‌فرستد."
+        },
+        {
+          "type": "h2",
+          "text": "قیمت را به چه ارزی می‌بینید"
+        },
+        {
+          "type": "p",
+          "text": "بازدیدکنندگان داخل ایران قیمت را به ریال می‌بینند، یا به تومان اگر ارائه‌دهنده قیمت تومانی خودش را ثبت کرده باشد. هر تومان برابر ده ریال است."
+        },
+        {
+          "type": "p",
+          "text": "بازدیدکنندگان کشورهای دیگر قیمت را به ارز کشوری می‌بینند که شماره تلفنشان به آن تعلق دارد. بازدیدکنندگانی که وارد حساب نشده‌اند قیمت را به دلار آمریکا می‌بینند."
+        },
+        {
+          "type": "p",
+          "text": "برای تشخیص این موضوع، السوین اول از پیش‌شماره کشوری شماره تلفن حساب شما استفاده می‌کند. اگر این اطلاعات نباشد، کشور را از روی نشانی IP و در آخر از زبان سایت تخمین می‌زند."
+        },
+        {
+          "type": "h2",
+          "text": "قیمت بین‌الملل"
+        },
+        {
+          "type": "p",
+          "text": "قیمت برای بازدیدکنندگان بین‌الملل جدا از قیمت بازدیدکنندگان داخل ایران محاسبه می‌شود. این قیمت از قیمت پایه ارائه‌دهنده شروع می‌شود، به ارز شما تبدیل می‌شود و با ضریب قیمت‌گذاری‌ای که برای همان ارائه‌دهنده تعیین شده تنظیم می‌شود. بنابراین قیمت بین‌الملل ممکن است از قیمت ریالی‌ای که به بازدیدکنندگان داخل ایران نشان داده می‌شود بیشتر باشد."
+        },
+        {
+          "type": "p",
+          "text": "نرخ‌های تبدیل ارز را السوین نگه‌داری می‌کند. اگر به ارزی غیر از ارز قیمت پایه بپردازید، مبلغ تبدیل‌شده هنگام پرداخت برای مدت محدودی ثابت می‌ماند و اگر این مدت تمام شود، پیش از پرداخت دوباره محاسبه می‌شود."
+        },
+        {
+          "type": "h2",
+          "text": "مبلغ شامل چه چیزهایی است"
+        },
+        {
+          "type": "p",
+          "text": "صفحه خدمت توضیح می‌دهد قیمت شامل چه مواردی است. در صورت‌حساب، هر بخش در یک ردیف جدا می‌آید: خدمت اصلی، خدمات جانبی مثل هتل، ترانسفر یا مراقبت در هتل، تخفیف‌ها و افزایش طرح پرداخت در محل. در سفارش‌های فروشگاه، هزینه ارسال و مالیات هم در ردیف جداگانه نمایش داده می‌شود."
+        },
+        {
+          "type": "p",
+          "text": "السوین کارمزد رزرو جداگانه‌ای به مبلغ کل اضافه نمی‌کند. هر جا السوین کمیسیون داشته باشد، آن را از محل مبلغ پرداختی شما با ارائه‌دهنده تسویه می‌کند."
+        },
+        {
+          "type": "h2",
+          "text": "چه زمانی می‌پردازید"
+        },
+        {
+          "type": "p",
+          "text": "هر خدمت روش دریافت مبلغ را خودش تعیین می‌کند. پرداخت کامل: کل مبلغ را هنگام رزرو آنلاین می‌پردازید. پیش‌پرداخت: مبلغ ثابت یا درصدی را الان و باقی را بعداً می‌پردازید. پرداخت در محل: ارائه‌دهنده هنگام مراجعه مبلغ را دریافت می‌کند. رزرو رایگان: از پیش مبلغی دریافت نمی‌شود."
+        },
+        {
+          "type": "h2",
+          "text": "طرح‌های پرداخت در محل"
+        },
+        {
+          "type": "p",
+          "text": "هر جا این طرح فعال باشد، می‌توانید بخشی از صورت‌حساب را الان و باقی را در محل بپردازید. هرچه سهم پرداخت فعلی کمتر باشد، افزایش صورت‌حساب بیشتر است."
+        },
+        {
+          "type": "p",
+          "text": "پرداخت ۲۰ درصد در ابتدا: ۵ درصد به صورت‌حساب اضافه می‌شود."
+        },
+        {
+          "type": "p",
+          "text": "پرداخت ۵۰ درصد در ابتدا: ۲ درصد به صورت‌حساب اضافه می‌شود."
+        },
+        {
+          "type": "p",
+          "text": "پرداخت ۸۰ درصد در ابتدا: ۱ درصد به صورت‌حساب اضافه می‌شود."
+        },
+        {
+          "type": "p",
+          "text": "سهم قابل پرداخت فعلی از صورت‌حساب افزایش‌یافته محاسبه می‌شود. در صورت‌حسابی به مبلغ ۱۰۰ با طرح ۲۰ درصد، صورت‌حساب جدید ۱۰۵ می‌شود، ۲۱ را الان و ۸۴ را در محل می‌پردازید. سهم فعلی از کیف پول یا با پرداخت آنلاین پرداخت می‌شود و مبلغ افزایش در ردیف جداگانه صورت‌حساب می‌آید."
+        },
+        {
+          "type": "h2",
+          "text": "پرداخت و کیف پول"
+        },
+        {
+          "type": "p",
+          "text": "پرداخت آنلاین ریالی از درگاه زرین‌پال انجام می‌شود. کارت‌های صادرشده خارج از ایران در ایران کار نمی‌کنند، پس بیماران بین‌الملل باید روش و ارز پرداخت را پیش از سفر هماهنگ کنند."
+        },
+        {
+          "type": "p",
+          "text": "کیف پول السوین می‌تواند موجودی به ریال، تومان، دلار آمریکا، یورو، پوند انگلیس و درهم امارات داشته باشد. با پرداخت آنلاین کارتی یا واریز بانکی همراه با بارگذاری رسید آن را شارژ کنید؛ واریزها پیش از قابل استفاده شدن موجودی بررسی می‌شوند. هر بار شارژ برای هر ارز سقف مشخصی دارد. وجوه بازگشتی و پاداش‌هایی مثل بازگشت نقدی یا پاداش معرفی دوستان، هر جا ارائه شود، به کیف پول واریز می‌شود."
+        },
+        {
+          "type": "h2",
+          "text": "تخفیف و کد تخفیف"
+        },
+        {
+          "type": "p",
+          "text": "پیشنهادها و کدهای تخفیف پیش از پرداخت اعمال می‌شوند و در ردیف تخفیف نمایش داده می‌شوند. کدهای تخفیف فروشگاه می‌توانند مبلغ ثابت یا درصدی کم کنند یا ارسال را رایگان کنند."
+        },
+        {
+          "type": "h2",
+          "text": "تغییر قیمت"
+        },
+        {
+          "type": "p",
+          "text": "ارائه‌دهندگان می‌توانند هر زمان قیمت خود را تغییر دهند و نرخ ارز هم تغییر می‌کند. این تغییرات روی رزرو یا سفارشی که پرداخت کرده‌اید اثری ندارد."
+        }
+      ],
+      "faq": [
+        {
+          "q": "چرا قیمتی که من می‌بینم با قیمتی که دوستم در ایران می‌بیند فرق دارد؟",
+          "a": "بازدیدکنندگان داخل ایران قیمت ریالی یا تومانی می‌بینند. بازدیدکنندگان خارج از ایران قیمت بین‌الملل را که جداگانه محاسبه می‌شود به ارز خود می‌بینند و این قیمت ممکن است بیشتر باشد."
+        },
+        {
+          "q": "آیا السوین کارمزد رزرو می‌گیرد؟",
+          "a": "السوین کارمزد جداگانه‌ای به مبلغ کل اضافه نمی‌کند. هر جا کمیسیونی باشد، از محل مبلغ پرداختی به ارائه‌دهنده کسر می‌شود."
+        },
+        {
+          "q": "طرح پرداخت در محل چطور کار می‌کند؟",
+          "a": "۲۰، ۵۰ یا ۸۰ درصد را الان و باقی را در محل می‌پردازید. این طرح‌ها ۵، ۲ یا ۱ درصد به صورت‌حساب اضافه می‌کنند و جزئیات پیش از تأیید نمایش داده می‌شود."
+        },
+        {
+          "q": "کیف پول من به چه ارزهایی موجودی دارد؟",
+          "a": "ریال، تومان، دلار آمریکا، یورو، پوند انگلیس و درهم امارات."
+        },
+        {
+          "q": "آیا قیمت بعد از پرداخت تغییر می‌کند؟",
+          "a": "خیر. تغییر قیمت یا نرخ ارز روی رزرو یا سفارشی که پرداخت کرده‌اید اثری ندارد."
+        },
+        {
+          "q": "چرا برای درمان من قیمت ثابت وجود ندارد؟",
+          "a": "قیمت درمان به شرایط شما، پزشک و مرکز درمانی بستگی دارد. پس از مشاوره و بررسی مدارک، پیش‌فاکتور مکتوب دریافت می‌کنید."
+        }
+      ]
+    },
+    "ar-SA": {
+      "title": "سياسة الأسعار والرسوم",
+      "metaDescription": "كيف تُعرض الأسعار على لسوين: الريال والتومان والعملات الأخرى، والتسعير الدولي، وبنود الفاتورة، والدفعة المقدمة، وخطط الدفع في المكان، والمحفظة.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "توضح هذه السياسة كيف تعرض لسوين الأسعار، وبأي عملة تراها، وما الذي يشمله المبلغ الذي تدفعه، وما الإضافات التي قد تنطبق. والقاعدة الأساسية بسيطة: المبلغ الإجمالي الذي تراه قبل تأكيد الحجز أو الطلب هو المبلغ الذي تدفعه."
+        },
+        {
+          "type": "h2",
+          "text": "من يحدد السعر"
+        },
+        {
+          "type": "p",
+          "text": "يحدد مقدمو الخدمات أسعار خدماتهم. تعرضها لسوين وتحوّلها إلى عملتك وتحصّل المبلغ حيث يتم الدفع عبرها."
+        },
+        {
+          "type": "p",
+          "text": "كثيراً ما يُسعَّر العلاج لكل مريض على حدة، فلا تنشر لسوين سعراً ثابتاً لكثير من الإجراءات، وبعد الاستشارة ومراجعة تقاريرك يصلك عرض سعر مكتوب."
+        },
+        {
+          "type": "h2",
+          "text": "بأي عملة ترى السعر"
+        },
+        {
+          "type": "p",
+          "text": "يرى الزوار داخل إيران الأسعار بالريال الإيراني، أو بالتومان إذا حدد مقدم الخدمة سعره بالتومان. والتومان الواحد يساوي عشرة ريالات."
+        },
+        {
+          "type": "p",
+          "text": "ويرى الزوار من الدول الأخرى الأسعار بعملة الدولة التي يتبع لها رقم هاتفهم، أما الزوار غير المسجلين فيرونها بالدولار الأمريكي."
+        },
+        {
+          "type": "p",
+          "text": "ولتحديد ذلك تعتمد لسوين أولاً على رمز الدولة في رقم هاتف حسابك، فإن لم يتوفر تقدّر دولتك من عنوان IP، وأخيراً من لغة الموقع."
+        },
+        {
+          "type": "h2",
+          "text": "التسعير الدولي"
+        },
+        {
+          "type": "p",
+          "text": "تُحسب أسعار الزوار الدوليين بشكل منفصل عن أسعار الزوار داخل إيران، إذ تبدأ من السعر الأساسي لمقدم الخدمة، ثم تُحوَّل إلى عملتك، وتُعدَّل بمعامل تسعير محدد لذلك المقدم. لذلك قد يكون السعر الدولي أعلى من السعر بالريال المعروض للزوار داخل إيران."
+        },
+        {
+          "type": "p",
+          "text": "تتولى لسوين تحديث أسعار الصرف. وإذا دفعت بعملة غير عملة السعر الأساسي، يبقى المبلغ المحوَّل ثابتاً لمدة محدودة عند الدفع، فإذا انتهت المدة يُعاد احتسابه قبل أن تدفع."
+        },
+        {
+          "type": "h2",
+          "text": "ما الذي يشمله المبلغ"
+        },
+        {
+          "type": "p",
+          "text": "توضح صفحة الخدمة ما يشمله السعر. وتعرض فاتورتك كل جزء في بند مستقل: الخدمة الأساسية، والإضافات مثل الفندق أو التنقلات أو الرعاية في الفندق، والخصومات، وأي زيادة لخطة الدفع في المكان. وفي طلبات المتجر تظهر رسوم التوصيل وأي ضريبة في بنود مستقلة."
+        },
+        {
+          "type": "p",
+          "text": "لا تضيف لسوين رسوم حجز منفصلة إلى الإجمالي. وحيث تحصل لسوين على عمولة، تُسوّى مع مقدم الخدمة من المبلغ الذي تدفعه."
+        },
+        {
+          "type": "h2",
+          "text": "متى تدفع"
+        },
+        {
+          "type": "p",
+          "text": "تحدد كل خدمة طريقة تحصيل المبلغ. الدفع الكامل: تدفع المبلغ كله إلكترونياً عند الحجز. الدفعة المقدمة: تدفع مبلغاً ثابتاً أو نسبة الآن والباقي لاحقاً. الدفع في المكان: يحصّل مقدم الخدمة المبلغ عند وصولك. الحجز المجاني: لا يُحصَّل أي مبلغ مسبقاً."
+        },
+        {
+          "type": "h2",
+          "text": "خطط الدفع في المكان"
+        },
+        {
+          "type": "p",
+          "text": "حيث تتوفر هذه الخطط، يمكنك دفع جزء من الفاتورة الآن والباقي في المكان. وكلما قلّ ما تدفعه الآن زادت الإضافة إلى الفاتورة."
+        },
+        {
+          "type": "p",
+          "text": "دفع 20 بالمئة الآن: تُضاف 5 بالمئة إلى الفاتورة."
+        },
+        {
+          "type": "p",
+          "text": "دفع 50 بالمئة الآن: تُضاف 2 بالمئة إلى الفاتورة."
+        },
+        {
+          "type": "p",
+          "text": "دفع 80 بالمئة الآن: تُضاف 1 بالمئة إلى الفاتورة."
+        },
+        {
+          "type": "p",
+          "text": "تُحسب الحصة المستحقة الآن من الفاتورة بعد الزيادة. ففي فاتورة قيمتها 100 مع خطة 20 بالمئة تصبح الفاتورة 105، تدفع منها 21 الآن و84 في المكان. وتُدفع الحصة الحالية من المحفظة أو بالدفع الإلكتروني، وتظهر الزيادة في بند مستقل في فاتورتك."
+        },
+        {
+          "type": "h2",
+          "text": "الدفع والمحفظة"
+        },
+        {
+          "type": "p",
+          "text": "تتم المدفوعات الإلكترونية بالريال عبر بوابة زرين‌بال. ولا تعمل البطاقات الصادرة خارج إيران داخلها، لذلك ينبغي للمرضى الدوليين الاتفاق على طريقة الدفع وعملته قبل السفر."
+        },
+        {
+          "type": "p",
+          "text": "يمكن أن تحتفظ محفظة لسوين بأرصدة بالريال الإيراني والتومان والدولار الأمريكي واليورو والجنيه الإسترليني والدرهم الإماراتي. اشحنها بالدفع الإلكتروني بالبطاقة أو بتحويل بنكي مع رفع الإيصال، وتُراجَع التحويلات قبل إتاحة الرصيد. ولكل عملية شحن حد أقصى بحسب العملة. وتُضاف إلى المحفظة المبالغ المستردة، والمكافآت مثل الاسترداد النقدي أو مكافأة الإحالة حيث تتوفر."
+        },
+        {
+          "type": "h2",
+          "text": "الخصومات والقسائم"
+        },
+        {
+          "type": "p",
+          "text": "تُطبَّق العروض والقسائم قبل الدفع وتظهر في بند الخصم. ويمكن أن تخصم قسائم المتجر مبلغاً ثابتاً أو نسبة، أو تجعل التوصيل مجانياً."
+        },
+        {
+          "type": "h2",
+          "text": "تغيّر الأسعار"
+        },
+        {
+          "type": "p",
+          "text": "يمكن لمقدمي الخدمات تغيير أسعارهم في أي وقت، كما تتغير أسعار الصرف. ولا يؤثر أي تغيير في حجز أو طلب سبق أن دفعت ثمنه."
+        }
+      ],
+      "faq": [
+        {
+          "q": "لماذا يختلف السعر عما يراه صديقي في إيران؟",
+          "a": "يرى الزوار داخل إيران الأسعار بالريال أو التومان، بينما يرى الزوار من الخارج سعراً دولياً يُحسب بشكل منفصل وبعملتهم، وقد يكون أعلى."
+        },
+        {
+          "q": "هل تفرض لسوين رسوم حجز؟",
+          "a": "لا تضيف لسوين رسوم حجز منفصلة إلى الإجمالي. وحيث توجد عمولة، فإنها تُقتطع من المبلغ المدفوع لمقدم الخدمة."
+        },
+        {
+          "q": "كيف تعمل خطة الدفع في المكان؟",
+          "a": "تدفع 20 أو 50 أو 80 بالمئة الآن والباقي في المكان، وتضيف الخطط 5 أو 2 أو 1 بالمئة إلى الفاتورة، وتظهر التفاصيل قبل التأكيد."
+        },
+        {
+          "q": "بأي عملات يمكن أن تحتفظ محفظتي؟",
+          "a": "بالريال الإيراني والتومان والدولار الأمريكي واليورو والجنيه الإسترليني والدرهم الإماراتي."
+        },
+        {
+          "q": "هل يمكن أن يتغير السعر بعد الدفع؟",
+          "a": "لا. تغيّر الأسعار أو أسعار الصرف لا يؤثر في حجز أو طلب دفعت ثمنه."
+        },
+        {
+          "q": "لماذا لا يوجد سعر ثابت لعلاجي؟",
+          "a": "يعتمد سعر العلاج على حالتك والطبيب والمنشأة، وبعد الاستشارة ومراجعة تقاريرك يصلك عرض سعر مكتوب."
+        }
+      ]
+    },
+    "tr-TR": {
+      "title": "Fiyatlandırma ve Ücret Politikası",
+      "metaDescription": "LSevin'de fiyatlar nasıl gösterilir: riyal ve tümen, diğer para birimleri, uluslararası fiyatlandırma, fatura kalemleri, kapora, yerinde ödeme planları ve cüzdan.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Bu politika, LSevin'in fiyatları nasıl gösterdiğini, hangi para birimini gördüğünüzü, ödediğiniz tutara nelerin dahil olduğunu ve hangi eklemelerin uygulanabileceğini açıklar. Hepsinin temelindeki kural şudur: Bir rezervasyonu veya siparişi onaylamadan önce gösterilen toplam tutar, ödeyeceğiniz tutardır."
+        },
+        {
+          "type": "h2",
+          "text": "Fiyatı kim belirler"
+        },
+        {
+          "type": "p",
+          "text": "Hizmetlerin fiyatlarını sağlayıcılar belirler. LSevin bu fiyatları gösterir, sizin para biriminize çevirir ve ödemenin LSevin üzerinden yapıldığı durumlarda tahsil eder."
+        },
+        {
+          "type": "p",
+          "text": "Tedavi genellikle hastaya göre fiyatlandırılır. Birçok işlem için LSevin sabit bir fiyat yayımlamaz; danışmanlık ve raporlarınızın incelenmesinin ardından size yazılı bir fiyat teklifi iletilir."
+        },
+        {
+          "type": "h2",
+          "text": "Hangi para birimini görürsünüz"
+        },
+        {
+          "type": "p",
+          "text": "İran'daki ziyaretçiler fiyatları İran riyali olarak görür; sağlayıcı kendi tümen fiyatını belirlemişse tümen olarak görür. Bir tümen on riyale eşittir."
+        },
+        {
+          "type": "p",
+          "text": "Diğer ülkelerden gelen ziyaretçiler fiyatları telefon numaralarının bağlı olduğu ülkenin para biriminde görür. Giriş yapmamış ziyaretçiler ABD doları görür."
+        },
+        {
+          "type": "p",
+          "text": "Hangisinin geçerli olacağına karar vermek için LSevin önce hesabınızdaki telefon numarasının ülke kodunu kullanır. Bu yoksa ülkenizi IP adresinizden, en son olarak da site dilinden tahmin eder."
+        },
+        {
+          "type": "h2",
+          "text": "Uluslararası fiyatlandırma"
+        },
+        {
+          "type": "p",
+          "text": "Uluslararası ziyaretçilere yönelik fiyatlar, İran'daki ziyaretçilerin fiyatlarından ayrı hesaplanır. Sağlayıcının taban fiyatından başlar, sizin para biriminize çevrilir ve o sağlayıcı için belirlenmiş bir fiyatlandırma katsayısıyla ayarlanır. Bu nedenle uluslararası fiyatlar, İran'daki ziyaretçilere gösterilen riyal fiyattan yüksek olabilir."
+        },
+        {
+          "type": "p",
+          "text": "Döviz kurlarını LSevin günceller. Fiyatın belirlendiği para biriminden farklı bir para birimiyle ödeme yaptığınızda, çevrilen tutar ödeme adımında sınırlı bir süre sabit tutulur. Bu süre dolarsa tutar, ödeme yapmadan önce yeniden hesaplanır."
+        },
+        {
+          "type": "h2",
+          "text": "Tutara neler dahildir"
+        },
+        {
+          "type": "p",
+          "text": "Hizmet sayfası fiyatın neleri kapsadığını açıklar. Faturanızda her kalem ayrı bir satırda yer alır: ana hizmet, otel, transfer veya otelde bakım gibi ek hizmetler, indirimler ve varsa yerinde ödeme farkı. Mağaza siparişlerinde teslimat ücreti ve varsa vergi de ayrı satırlarda gösterilir."
+        },
+        {
+          "type": "p",
+          "text": "LSevin toplam tutara ayrı bir rezervasyon ücreti eklemez. LSevin'in komisyon aldığı durumlarda bu komisyon, ödediğiniz tutardan sağlayıcıyla mahsup edilir."
+        },
+        {
+          "type": "h2",
+          "text": "Ne zaman ödersiniz"
+        },
+        {
+          "type": "p",
+          "text": "Ödemenin nasıl alınacağını her hizmet kendisi belirler. Tam ödeme: Rezervasyon sırasında tutarın tamamını online ödersiniz. Kapora: Şimdi sabit bir tutar veya bir yüzde ödersiniz, kalanını daha sonra. Yerinde ödeme: Sağlayıcı ödemeyi siz geldiğinizde alır. Ücretsiz rezervasyon: Önceden ödeme alınmaz."
+        },
+        {
+          "type": "h2",
+          "text": "Yerinde ödeme planları"
+        },
+        {
+          "type": "p",
+          "text": "Sunulduğu durumlarda faturanın bir kısmını şimdi, kalanını yerinde ödeyebilirsiniz. Şimdi ne kadar az öderseniz faturaya o kadar fazla ekleme yapılır."
+        },
+        {
+          "type": "p",
+          "text": "Şimdi yüzde 20 ödeyin: Faturaya yüzde 5 eklenir."
+        },
+        {
+          "type": "p",
+          "text": "Şimdi yüzde 50 ödeyin: Faturaya yüzde 2 eklenir."
+        },
+        {
+          "type": "p",
+          "text": "Şimdi yüzde 80 ödeyin: Faturaya yüzde 1 eklenir."
+        },
+        {
+          "type": "p",
+          "text": "Şimdi ödenecek pay, artırılmış fatura üzerinden hesaplanır. Yüzde 20 planıyla 100 tutarındaki bir faturada yeni fatura 105 olur; şimdi 21, yerinde 84 ödersiniz. Şimdi ödenecek kısım cüzdanınızdan veya online ödemeyle ödenir ve ekleme faturanızda ayrı bir satır olarak görünür."
+        },
+        {
+          "type": "h2",
+          "text": "Ödeme ve cüzdan"
+        },
+        {
+          "type": "p",
+          "text": "Riyal ile yapılan online ödemeler Zarinpal ödeme altyapısı üzerinden geçer. İran dışında çıkarılmış kartlar İran'da çalışmaz; bu nedenle uluslararası hastaların ödeme yöntemi ve para birimi konusunda yola çıkmadan önce anlaşması gerekir."
+        },
+        {
+          "type": "p",
+          "text": "LSevin cüzdanınızda İran riyali, tümen, ABD doları, euro, İngiliz sterlini ve BAE dirhemi cinsinden bakiye tutabilirsiniz. Bakiye yüklemesini online kart ödemesiyle veya dekont yükleyerek banka havalesiyle yapabilirsiniz; havaleler bakiye kullanıma açılmadan önce kontrol edilir. Her yükleme için para birimi başına bir üst tutar sınırı vardır. İadeler ve sunulduğu durumlarda nakit iade (cashback) veya davet bonusu gibi ödüller cüzdana aktarılır."
+        },
+        {
+          "type": "h2",
+          "text": "İndirimler ve kuponlar"
+        },
+        {
+          "type": "p",
+          "text": "Fırsatlar ve kuponlar ödemeden önce uygulanır ve bir indirim satırı olarak gösterilir. Mağaza kuponları sabit bir tutar veya yüzde indirim sağlayabilir ya da teslimatı ücretsiz yapabilir."
+        },
+        {
+          "type": "h2",
+          "text": "Fiyat değişiklikleri"
+        },
+        {
+          "type": "p",
+          "text": "Sağlayıcılar fiyatlarını istedikleri zaman değiştirebilir ve döviz kurları da değişir. Bir değişiklik, ödemesini zaten yaptığınız bir rezervasyonu veya siparişi etkilemez."
+        }
+      ],
+      "faq": [
+        {
+          "q": "Fiyat neden İran'daki arkadaşımın gördüğünden farklı?",
+          "a": "İran'daki ziyaretçiler riyal veya tümen fiyatları görür. Yurt dışındaki ziyaretçiler ise kendi para birimlerinde, ayrı hesaplanan ve daha yüksek olabilen bir uluslararası fiyat görür."
+        },
+        {
+          "q": "LSevin rezervasyon ücreti alıyor mu?",
+          "a": "LSevin toplam tutarınıza ayrı bir rezervasyon ücreti eklemez. LSevin'in komisyon aldığı durumlarda bu komisyon, sağlayıcıya ödenen tutardan karşılanır."
+        },
+        {
+          "q": "Yerinde ödeme planı nasıl işler?",
+          "a": "Şimdi yüzde 20, 50 veya 80 ödersiniz, kalanını yerinde. Planlar faturaya sırasıyla yüzde 5, 2 veya 1 ekler ve tutar dökümü onaylamadan önce gösterilir."
+        },
+        {
+          "q": "Cüzdanımda hangi para birimleri tutulabilir?",
+          "a": "İran riyali, tümen, ABD doları, euro, İngiliz sterlini ve BAE dirhemi."
+        },
+        {
+          "q": "Ödeme yaptıktan sonra fiyat değişebilir mi?",
+          "a": "Hayır. Fiyat veya döviz kuru değişiklikleri, ödemesini zaten yaptığınız bir rezervasyonu veya siparişi etkilemez."
+        },
+        {
+          "q": "Tedavim için neden sabit bir fiyat yok?",
+          "a": "Tedavi fiyatları durumunuza, doktora ve kuruluşa bağlıdır. Danışmanlık ve raporlarınızın incelenmesinin ardından size yazılı bir fiyat teklifi iletilir."
+        }
+      ]
+    },
+    "ku-KU": {
+      "title": "سیاسەتی نرخ و کرێکان",
+      "metaDescription": "نرخەکان لە LSevin چۆن پیشان دەدرێن: ڕیاڵ و تمەن، دراوەکانی تر، نرخی نێودەوڵەتی، ناوەڕۆکی پسووڵە، پێشەکی، پلانەکانی پارەدان لە شوێن و جزدان.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "ئەم سیاسەتە ڕوونی دەکاتەوە کە LSevin چۆن نرخەکان پیشان دەدات، کام دراو دەبینن، ئەو بڕەی دەیدەن چی لەخۆ دەگرێت و چ زیادکراوێک دەکرێت بێتە سەری. بنەمای هەموویان ئەمەیە: ئەو کۆیەی پێش پشتڕاستکردنەوەی حجز یان داواکاری پیشان دەدرێت، هەمان ئەو بڕەیە کە دەیدەن."
+        },
+        {
+          "type": "h2",
+          "text": "کێ نرخ دیاری دەکات"
+        },
+        {
+          "type": "p",
+          "text": "دابینکەران نرخی خزمەتەکانیان دیاری دەکەن. LSevin نرخەکان پیشان دەدات، دەیانگۆڕێت بۆ دراوەکەی ئێوە و لەو شوێنانەی پارەدان لە ڕێگەی LSevinەوە دەکرێت پارەکە وەردەگرێت."
+        },
+        {
+          "type": "p",
+          "text": "نرخی چارەسەر زۆرجار بەپێی هەر نەخۆشێک دیاری دەکرێت. بۆ زۆرێک لە پرۆسە پزیشکییەکان LSevin نرخێکی جێگیر بڵاو ناکاتەوە؛ دوای ڕاوێژکاری و پێداچوونەوە بە ڕاپۆرتەکانتان، نرخنامەیەکی نووسراو وەردەگرن."
+        },
+        {
+          "type": "h2",
+          "text": "کام دراو دەبینن"
+        },
+        {
+          "type": "p",
+          "text": "سەردانکەرانی ناو ئێران نرخەکان بە ڕیاڵی ئێرانی دەبینن، یان بە تمەن لەو شوێنانەی دابینکەر نرخی تمەنیی خۆی داناوە. هەر تمەنێک دە ڕیاڵە."
+        },
+        {
+          "type": "p",
+          "text": "سەردانکەرانی وڵاتانی دیکە نرخەکان بە دراوی ئەو وڵاتە دەبینن کە ژمارەی تەلەفۆنەکەیانی پێوە بەستراوە. ئەو سەردانکەرانەی نەچوونەتە ژوورەوە نرخەکان بە دۆلاری ئەمریکی دەبینن."
+        },
+        {
+          "type": "p",
+          "text": "بۆ دیاریکردنی ئەمە، LSevin سەرەتا کۆدی وڵاتی ژمارەی تەلەفۆنی هەژمارەکەتان بەکاردەهێنێت. ئەگەر ئەوە بەردەست نەبوو، وڵاتەکەتان لە ناونیشانی IPەکەتانەوە دەخەمڵێنێت، و لە کۆتاییدا لە زمانی ماڵپەڕەکەوە."
+        },
+        {
+          "type": "h2",
+          "text": "نرخی نێودەوڵەتی"
+        },
+        {
+          "type": "p",
+          "text": "نرخ بۆ سەردانکەرانی نێودەوڵەتی جیا لە نرخی سەردانکەرانی ناو ئێران هەژمار دەکرێت. لە نرخی بنەڕەتیی دابینکەرەوە دەست پێ دەکات، دەگۆڕدرێت بۆ دراوەکەی ئێوە و بە ڕێژەیەکی نرخدانان کە بۆ ئەو دابینکەرە دانراوە ڕێک دەخرێت. بۆیە نرخی نێودەوڵەتی دەکرێت لەو نرخە ڕیاڵییە بەرزتر بێت کە بە سەردانکەرانی ناو ئێران پیشان دەدرێت."
+        },
+        {
+          "type": "p",
+          "text": "نرخی ئاڵوگۆڕی دراو لەلایەن LSevinەوە بەڕێوە دەبرێت. کاتێک بە دراوێک پارە دەدەن جیا لەوەی نرخەکەی پێ دانراوە، بڕە گۆڕدراوەکە بۆ ماوەیەکی سنووردار لە کاتی پارەداندا جێگیر دەمێنێتەوە. ئەگەر ئەو ماوەیە تەواو بوو، پێش پارەدان بڕەکە دووبارە هەژمار دەکرێتەوە."
+        },
+        {
+          "type": "h2",
+          "text": "بڕەکە چی لەخۆ دەگرێت"
+        },
+        {
+          "type": "p",
+          "text": "پەڕەی خزمەتەکە ڕوونی دەکاتەوە نرخەکە چی دەگرێتەوە. پسووڵەکەتان هەر بەشێک لە دێڕێکی جیادا دەنووسێت: خزمەتی سەرەکی، هەر خزمەتێکی زیادە وەک هوتێل، گواستنەوە یان چاودێری لە هوتێلدا، داشکاندنەکان و هەر زیادکراوێکی پارەدان لە شوێن. داواکارییەکانی فرۆشگاش کرێی گەیاندن و هەر باجێک وەک دێڕی جیا پیشان دەدەن."
+        },
+        {
+          "type": "p",
+          "text": "LSevin هیچ کرێیەکی جیای حجز ناخاتە سەر کۆی گشتی. لەو شوێنانەی LSevin کۆمیسیۆن وەردەگرێت، لە بڕی پارەدانەکەتان لەگەڵ دابینکەردا یەکلا دەکرێتەوە."
+        },
+        {
+          "type": "h2",
+          "text": "کەی پارە دەدەن"
+        },
+        {
+          "type": "p",
+          "text": "هەر خزمەتێک دیاری دەکات پارە چۆن وەردەگیرێت. پارەدانی تەواو: لە کاتی حجزدا هەموو بڕەکە بە ئۆنلاین دەدەن. پێشەکی: ئێستا بڕێکی جێگیر یان ڕێژەیەک دەدەن و ئەوی دیکە دواتر. پارەدان لە شوێن: دابینکەر کاتێک دەگەن پارەکە وەردەگرێت. حجزی بەخۆڕایی: هیچ پارەیەک پێشوەختە وەرناگیرێت."
+        },
+        {
+          "type": "h2",
+          "text": "پلانەکانی پارەدان لە شوێن"
+        },
+        {
+          "type": "p",
+          "text": "لەو شوێنانەی ئەم بژاردەیە هەیە، دەتوانن بەشێک لە حیسابەکە ئێستا بدەن و ئەوی دیکە لە شوێنەکە. هەتا ئێستا کەمتر بدەن، زیاتر دەخرێتە سەر حیسابەکە."
+        },
+        {
+          "type": "p",
+          "text": "20 لە سەدی ئێستا بدەن: 5 لە سەد دەخرێتە سەر حیسابەکە."
+        },
+        {
+          "type": "p",
+          "text": "50 لە سەدی ئێستا بدەن: 2 لە سەد دەخرێتە سەر حیسابەکە."
+        },
+        {
+          "type": "p",
+          "text": "80 لە سەدی ئێستا بدەن: 1 لە سەد دەخرێتە سەر حیسابەکە."
+        },
+        {
+          "type": "p",
+          "text": "ئەو بەشەی ئێستا دەدرێت لەسەر حیسابە زیادکراوەکە هەژمار دەکرێت. بۆ حیسابێکی 100 بە پلانی 20 لە سەد، حیسابە نوێیەکە دەبێتە 105، ئێستا 21 دەدەن و 84 لە شوێنەکە. بەشی ئێستا لە جزدانەکەتانەوە یان بە پارەدانی ئۆنلاین دەدرێت، و زیادکراوەکە وەک دێڕێکی جیا لە پسووڵەکەتاندا دەردەکەوێت."
+        },
+        {
+          "type": "h2",
+          "text": "پارەدان و جزدان"
+        },
+        {
+          "type": "p",
+          "text": "پارەدانی ئۆنلاین بە ڕیاڵ لە ڕێگەی دەروازەی زەڕینپاڵەوە دەکرێت. ئەو کارتانەی لە دەرەوەی ئێران دەرچوون لە ئێران کار ناکەن، بۆیە نەخۆشانی نێودەوڵەتی باشترە پێش گەشتکردن لەسەر شێوازی پارەدان و دراوەکە ڕێک بکەون."
+        },
+        {
+          "type": "p",
+          "text": "جزدانی LSevinەکەتان دەتوانێت باڵانس بە ڕیاڵی ئێرانی، تمەن، دۆلاری ئەمریکی، یۆرۆ، پاوەندی ستێرلینی و دیرهەمی ئیماراتی هەڵبگرێت. جزدانەکە بە پارەدانی ئۆنلاینی کارت یان بە گواستنەوەی بانکی و بارکردنی فیشەکە پڕ بکەنەوە؛ گواستنەوەکان پێش بەردەستبوونی باڵانسەکە دەپشکنرێن. هەر پڕکردنەوەیەک سنوورێکی زۆرترینی بۆ هەر دراوێک هەیە. پارەی گەڕاوە، و ئەو خەڵاتانەی وەک کاشباک یان پاداشتی ناساندن لەو شوێنانەی پێشکەش دەکرێن، دەخرێنە ناو جزدانەکەوە."
+        },
+        {
+          "type": "h2",
+          "text": "داشکاندن و کۆپۆن"
+        },
+        {
+          "type": "p",
+          "text": "ئۆفەر و کۆپۆنەکان پێش پارەدان جێبەجێ دەکرێن و وەک دێڕی داشکاندن پیشان دەدرێن. کۆپۆنەکانی فرۆشگا دەتوانن بڕێکی جێگیر یان ڕێژەیەک کەم بکەنەوە، یان گەیاندن بەخۆڕایی بکەن."
+        },
+        {
+          "type": "h2",
+          "text": "گۆڕانی نرخ"
+        },
+        {
+          "type": "p",
+          "text": "دابینکەران دەتوانن هەر کاتێک نرخەکانیان بگۆڕن و نرخی ئاڵوگۆڕی دراویش دەگۆڕێت. هیچ گۆڕانێک کاریگەری لەسەر ئەو حجز یان داواکارییە نییە کە پێشتر پارەکەیتان داوە."
+        }
+      ],
+      "faq": [
+        {
+          "q": "بۆچی نرخەکە لەوەی هاوڕێکەم لە ئێران دەیبینێت جیاوازە؟",
+          "a": "سەردانکەرانی ناو ئێران نرخ بە ڕیاڵ یان تمەن دەبینن. سەردانکەرانی دەرەوە نرخێکی نێودەوڵەتی دەبینن کە بە جیا و بە دراوی خۆیان هەژمار کراوە و دەکرێت بەرزتر بێت."
+        },
+        {
+          "q": "ئایا LSevin کرێی حجز وەردەگرێت؟",
+          "a": "LSevin هیچ کرێیەکی جیای حجز ناخاتە سەر کۆی گشتییەکەتان. لەو شوێنانەی LSevin کۆمیسیۆن وەردەگرێت، لەو بڕە دەبڕدرێت کە بە دابینکەر دەدرێت."
+        },
+        {
+          "q": "پلانی پارەدان لە شوێن چۆن کار دەکات؟",
+          "a": "ئێستا 20، 50 یان 80 لە سەد دەدەن و ئەوی دیکە لە شوێنەکە. ئەم پلانانە بە ڕیزبەندی 5، 2 یان 1 لە سەد دەخەنە سەر حیسابەکە، و وردەکارییەکەی پێش پشتڕاستکردنەوە پیشان دەدرێت."
+        },
+        {
+          "q": "جزدانەکەم دەتوانێت کام دراوانە هەڵبگرێت؟",
+          "a": "ڕیاڵی ئێرانی، تمەن، دۆلاری ئەمریکی، یۆرۆ، پاوەندی ستێرلینی و دیرهەمی ئیماراتی."
+        },
+        {
+          "q": "ئایا نرخەکە دوای پارەدان دەگۆڕێت؟",
+          "a": "نەخێر. گۆڕانی نرخ یان نرخی ئاڵوگۆڕ کاریگەری لەسەر ئەو حجز یان داواکارییە نییە کە پێشتر پارەکەیتان داوە."
+        },
+        {
+          "q": "بۆچی چارەسەرەکەم نرخێکی جێگیری نییە؟",
+          "a": "نرخی چارەسەر بەپێی حاڵەتەکەتان، پزیشک و دامەزراوەکە دەگۆڕێت. دوای ڕاوێژکاری و پێداچوونەوە بە ڕاپۆرتەکانتان، نرخنامەیەکی نووسراو وەردەگرن."
+        }
+      ]
+    },
+    "ru-RU": {
+      "title": "Политика цен и сборов",
+      "metaDescription": "Как LSevin показывает цены: риалы и туманы, другие валюты, международные цены, состав счёта, предоплата, планы с оплатой на месте и кошелёк.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Эта политика объясняет, как LSevin показывает цены, какую валюту Вы видите, что входит в оплачиваемую сумму и какие надбавки могут применяться. Главное правило: итоговая сумма, показанная перед подтверждением бронирования или заказа, и есть сумма к оплате."
+        },
+        {
+          "type": "h2",
+          "text": "Кто устанавливает цену"
+        },
+        {
+          "type": "p",
+          "text": "Цены на свои услуги устанавливают поставщики. LSevin показывает их, пересчитывает в Вашу валюту и принимает оплату, если она проводится через LSevin."
+        },
+        {
+          "type": "p",
+          "text": "Стоимость лечения часто рассчитывается индивидуально для каждого пациента. Для многих процедур LSevin не публикует фиксированную цену: после консультации и изучения Ваших медицинских документов Вы получаете письменное ценовое предложение."
+        },
+        {
+          "type": "h2",
+          "text": "Какую валюту Вы видите"
+        },
+        {
+          "type": "p",
+          "text": "Посетители из Ирана видят цены в иранских риалах или в туманах, если поставщик установил собственную цену в туманах. Один туман равен десяти риалам."
+        },
+        {
+          "type": "p",
+          "text": "Посетители из других стран видят цены в валюте страны, к которой привязан их номер телефона. Посетители, не вошедшие в аккаунт, видят цены в долларах США."
+        },
+        {
+          "type": "p",
+          "text": "Чтобы определить валюту, LSevin сначала использует код страны номера телефона в Вашем аккаунте. Если он недоступен, страна определяется по IP-адресу, а в последнюю очередь по языку сайта."
+        },
+        {
+          "type": "h2",
+          "text": "Международные цены"
+        },
+        {
+          "type": "p",
+          "text": "Цены для иностранных посетителей рассчитываются отдельно от цен для посетителей из Ирана. За основу берётся базовая цена поставщика, которая пересчитывается в Вашу валюту и корректируется ценовым коэффициентом, установленным для этого поставщика. Поэтому международные цены могут быть выше цены в риалах, которую видят посетители внутри Ирана."
+        },
+        {
+          "type": "p",
+          "text": "Обменные курсы ведёт LSevin. Если Вы платите в валюте, отличной от валюты цены, пересчитанная сумма фиксируется при оформлении на ограниченное время. Если это время истекло, сумма пересчитывается перед оплатой."
+        },
+        {
+          "type": "h2",
+          "text": "Что входит в сумму"
+        },
+        {
+          "type": "p",
+          "text": "На странице услуги описано, что входит в цену. В счёте каждая часть указана отдельной строкой: основная услуга, дополнительные услуги, например отель, трансферы или уход в отеле, скидки и надбавка за оплату на месте, если она есть. В заказах магазина стоимость доставки и налог, если он применяется, также указаны отдельными строками."
+        },
+        {
+          "type": "p",
+          "text": "LSevin не добавляет к итоговой сумме отдельный сбор за бронирование. Если LSevin получает комиссию, она удерживается в расчётах с поставщиком из оплаченной Вами суммы."
+        },
+        {
+          "type": "h2",
+          "text": "Когда Вы платите"
+        },
+        {
+          "type": "p",
+          "text": "Для каждой услуги задан свой порядок оплаты. Полная оплата: всю сумму Вы оплачиваете онлайн при бронировании. Предоплата: сейчас Вы вносите фиксированную сумму или процент, а остаток позже. Оплата на месте: поставщик принимает оплату по Вашему прибытии. Бесплатное бронирование: предоплата не взимается."
+        },
+        {
+          "type": "h2",
+          "text": "Планы с оплатой на месте"
+        },
+        {
+          "type": "p",
+          "text": "Там, где это предусмотрено, можно оплатить часть счёта сейчас, а остаток на месте. Чем меньше Вы платите сейчас, тем больше надбавка к счёту."
+        },
+        {
+          "type": "p",
+          "text": "Оплата 20 процентов сейчас: к счёту добавляется 5 процентов."
+        },
+        {
+          "type": "p",
+          "text": "Оплата 50 процентов сейчас: к счёту добавляется 2 процента."
+        },
+        {
+          "type": "p",
+          "text": "Оплата 80 процентов сейчас: к счёту добавляется 1 процент."
+        },
+        {
+          "type": "p",
+          "text": "Сумма к оплате сейчас рассчитывается от увеличенного счёта. Например, при счёте 100 и плане 20 процентов новый счёт составит 105: 21 Вы платите сейчас и 84 на месте. Часть, которую нужно внести сейчас, оплачивается с кошелька или онлайн, а надбавка указывается в счёте отдельной строкой."
+        },
+        {
+          "type": "h2",
+          "text": "Оплата и кошелёк"
+        },
+        {
+          "type": "p",
+          "text": "Онлайн-платежи в риалах проходят через платёжный шлюз Zarinpal. Карты, выпущенные за пределами Ирана, в Иране не работают, поэтому иностранным пациентам следует согласовать способ оплаты и валюту до поездки."
+        },
+        {
+          "type": "p",
+          "text": "В кошельке LSevin можно хранить средства в иранских риалах, туманах, долларах США, евро, фунтах стерлингов и дирхамах ОАЭ. Пополнить его можно онлайн-оплатой картой или банковским переводом с загрузкой квитанции; переводы проверяются, прежде чем средства станут доступны. Для каждой валюты установлена максимальная сумма одного пополнения. Возвраты средств, а также вознаграждения, например кешбэк или бонусы за приглашение друзей, если они предусмотрены, зачисляются на кошелёк."
+        },
+        {
+          "type": "h2",
+          "text": "Скидки и купоны"
+        },
+        {
+          "type": "p",
+          "text": "Акции и купоны применяются до оплаты и отображаются отдельной строкой скидки. Купоны магазина могут уменьшать сумму на фиксированную величину или на процент либо делать доставку бесплатной."
+        },
+        {
+          "type": "h2",
+          "text": "Изменение цен"
+        },
+        {
+          "type": "p",
+          "text": "Поставщики могут менять цены в любое время, а обменные курсы колеблются. Такие изменения не затрагивают уже оплаченные бронирования и заказы."
+        }
+      ],
+      "faq": [
+        {
+          "q": "Почему цена отличается от той, что видит мой знакомый в Иране?",
+          "a": "Посетители из Ирана видят цены в риалах или туманах. Посетители из-за рубежа видят отдельно рассчитанную международную цену в своей валюте, и она может быть выше."
+        },
+        {
+          "q": "Взимает ли LSevin сбор за бронирование?",
+          "a": "LSevin не добавляет к итоговой сумме отдельный сбор за бронирование. Если LSevin получает комиссию, она удерживается из суммы, которая перечисляется поставщику."
+        },
+        {
+          "q": "Как работает план с оплатой на месте?",
+          "a": "Вы платите 20, 50 или 80 процентов сейчас, а остаток на месте. Эти планы добавляют к счёту 5, 2 или 1 процент соответственно, а разбивка суммы показывается до подтверждения."
+        },
+        {
+          "q": "В каких валютах можно хранить средства в кошельке?",
+          "a": "В иранских риалах, туманах, долларах США, евро, фунтах стерлингов и дирхамах ОАЭ."
+        },
+        {
+          "q": "Может ли цена измениться после оплаты?",
+          "a": "Нет. Изменения цен или обменных курсов не затрагивают уже оплаченные бронирования и заказы."
+        },
+        {
+          "q": "Почему для моего лечения нет фиксированной цены?",
+          "a": "Стоимость лечения зависит от Вашего случая, врача и учреждения. После консультации и изучения Ваших медицинских документов Вы получите письменное ценовое предложение."
+        }
+      ]
+    },
+    "tg-TJ": {
+      "title": "Сиёсати нархҳо ва пардохтҳо",
+      "metaDescription": "Нархҳо дар LSevin чӣ тавр нишон дода мешаванд: риёл ва туман, асъорҳои дигар, нархҳои байналмилалӣ, таркиби ҳисобнома, пешпардохт, пардохт дар ҷой ва ҳамён.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Ин сиёсат шарҳ медиҳад, ки LSevin нархҳоро чӣ тавр нишон медиҳад, шумо кадом асъорро мебинед, ба маблағи пардохтшаванда чӣ дохил мешавад ва кадом иловаҳо имконпазиранд. Қоидаи асосӣ чунин аст: маблағи умумие, ки пеш аз тасдиқи брон ё фармоиш нишон дода мешавад, ҳамон маблағест, ки шумо мепардозед."
+        },
+        {
+          "type": "h2",
+          "text": "Нархро кӣ муайян мекунад"
+        },
+        {
+          "type": "p",
+          "text": "Нархи хидматҳоро хидматрасонҳо муайян мекунанд. LSevin онҳоро нишон медиҳад, ба асъори шумо табдил медиҳад ва дар ҳолати пардохт тавассути LSevin маблағро мегирад."
+        },
+        {
+          "type": "p",
+          "text": "Нархи табобат аксар вақт барои ҳар бемор алоҳида муайян мешавад. Барои бисёр амалиётҳо LSevin нархи собит нашр намекунад; пас аз машварат ва баррасии ҳуҷҷатҳои тиббии шумо нархномаи хаттӣ мегиред."
+        },
+        {
+          "type": "h2",
+          "text": "Шумо кадом асъорро мебинед"
+        },
+        {
+          "type": "p",
+          "text": "Меҳмонони дохили Эрон нархҳоро бо риёли Эрон мебинанд ё бо туман, агар хидматрасон нархи худро бо туман муайян карда бошад. Як туман ба даҳ риёл баробар аст."
+        },
+        {
+          "type": "p",
+          "text": "Меҳмонони кишварҳои дигар нархҳоро бо асъори кишваре мебинанд, ки рақами телефонашон ба он тааллуқ дорад. Меҳмононе, ки ворид нашудаанд, нархҳоро бо доллари ИМА мебинанд."
+        },
+        {
+          "type": "p",
+          "text": "Барои муайян кардани ин, LSevin аввал рамзи кишвари рақами телефони ҳисоби шуморо истифода мебарад. Агар он дастрас набошад, кишвари шуморо аз рӯи суроғаи IP ва дар охир аз рӯи забони сайт муайян мекунад."
+        },
+        {
+          "type": "h2",
+          "text": "Нархҳои байналмилалӣ"
+        },
+        {
+          "type": "p",
+          "text": "Нархҳо барои меҳмонони хориҷӣ аз нархҳо барои меҳмонони дохили Эрон алоҳида ҳисоб карда мешаванд. Онҳо аз нархи асосии хидматрасон сар мешаванд, ба асъори шумо табдил дода мешаванд ва бо зариби нархгузорие, ки барои ҳамон хидматрасон муқаррар шудааст, ислоҳ мешаванд. Бинобар ин нархҳои байналмилалӣ метавонанд аз нархи риёлие, ки ба меҳмонони дохили Эрон нишон дода мешавад, баландтар бошанд."
+        },
+        {
+          "type": "p",
+          "text": "Қурби асъорро LSevin нигоҳ медорад. Вақте ки шумо бо асъоре ғайр аз асъори нарх пардохт мекунед, маблағи табдилшуда ҳангоми пардохт барои муддати маҳдуд собит нигоҳ дошта мешавад. Агар ин муддат гузарад, маблағ пеш аз пардохт аз нав ҳисоб карда мешавад."
+        },
+        {
+          "type": "h2",
+          "text": "Ба маблағ чӣ дохил мешавад"
+        },
+        {
+          "type": "p",
+          "text": "Дар саҳифаи хидмат навишта шудааст, ки нарх чиро фаро мегирад. Дар ҳисобномаи шумо ҳар қисм дар сатри алоҳида меояд: хидмати асосӣ, ҳар гуна иловаҳо, масалан меҳмонхона, интиқол ё нигоҳубин дар меҳмонхона, тахфифҳо ва иловапулии пардохт дар ҷой. Дар фармоишҳои мағоза ҳаққи расонидан ва андоз, агар бошад, низ дар сатрҳои алоҳида нишон дода мешаванд."
+        },
+        {
+          "type": "p",
+          "text": "LSevin ба маблағи умумӣ ҳаққи алоҳидаи брон илова намекунад. Дар ҳолате ки LSevin комиссия мегирад, он бо хидматрасон аз ҳисоби маблағи пардохткардаи шумо ҳисоббаробар карда мешавад."
+        },
+        {
+          "type": "h2",
+          "text": "Кай пардохт мекунед"
+        },
+        {
+          "type": "p",
+          "text": "Ҳар хидмат тарзи гирифтани пардохтро худаш муайян мекунад. Пардохти пурра: ҳангоми брон тамоми маблағро онлайн мепардозед. Пешпардохт: ҳозир маблағи собит ё фоизеро мепардозед ва боқимондаро баъдтар. Пардохт дар ҷой: хидматрасон ҳангоми омадани шумо маблағро мегирад. Брони ройгон: пешакӣ ҳеҷ маблағ гирифта намешавад."
+        },
+        {
+          "type": "h2",
+          "text": "Нақшаҳои пардохт дар ҷой"
+        },
+        {
+          "type": "p",
+          "text": "Дар ҷое ки пешниҳод шудааст, шумо метавонед як қисми ҳисобро ҳозир ва боқимондаро дар ҷой пардохт кунед. Ҳар қадар ҳозир камтар пардохт кунед, ҳамон қадар ба ҳисоб бештар илова мешавад."
+        },
+        {
+          "type": "p",
+          "text": "Ҳозир 20 фоиз пардохт кунед: ба ҳисоб 5 фоиз илова мешавад."
+        },
+        {
+          "type": "p",
+          "text": "Ҳозир 50 фоиз пардохт кунед: ба ҳисоб 2 фоиз илова мешавад."
+        },
+        {
+          "type": "p",
+          "text": "Ҳозир 80 фоиз пардохт кунед: ба ҳисоб 1 фоиз илова мешавад."
+        },
+        {
+          "type": "p",
+          "text": "Қисми ҳозир пардохтшаванда аз ҳисоби афзудашуда ҳисоб карда мешавад. Агар ҳисоб 100 бошад ва нақшаи 20 фоизаро интихоб кунед, ҳисоби нав 105 мешавад: 21-ро ҳозир ва 84-ро дар ҷой мепардозед. Қисми ҳозир аз ҳамён ё бо пардохти онлайн пардохт мешавад ва иловапулӣ дар ҳисобнома сатри алоҳида дорад."
+        },
+        {
+          "type": "h2",
+          "text": "Пардохт ва ҳамён"
+        },
+        {
+          "type": "p",
+          "text": "Пардохтҳои онлайн бо риёл тавассути дарвозаи Zarinpal мегузаранд. Кортҳое, ки берун аз Эрон дода шудаанд, дар Эрон кор намекунанд, бинобар ин беморони хориҷӣ бояд усул ва асъори пардохтро пеш аз сафар мувофиқа кунанд."
+        },
+        {
+          "type": "p",
+          "text": "Ҳамёни LSevin метавонад маблағро бо риёли Эрон, туман, доллари ИМА, евро, фунти стерлинг ва дирҳами АМА нигоҳ дорад. Ҳамёнро бо пардохти онлайн бо корт ё бо интиқоли бонкӣ ва боркунии квитансия пур кунед; интиқолҳо пеш аз дастрас шудани маблағ санҷида мешаванд. Ҳар пуркунӣ барои ҳар асъор ҳадди ниҳоӣ дорад. Маблағҳои баргардонидашуда ва мукофотҳо, масалан кэшбэк ё бонуси даъват, дар ҷое ки пешниҳод мешаванд, ба ҳамён ворид мегарданд."
+        },
+        {
+          "type": "h2",
+          "text": "Тахфифҳо ва купонҳо"
+        },
+        {
+          "type": "p",
+          "text": "Пешниҳодҳо ва купонҳо пеш аз пардохт татбиқ мешаванд ва ҳамчун сатри тахфиф нишон дода мешаванд. Купонҳои мағоза метавонанд маблағи собит ё фоизеро кам кунанд ё расониданро ройгон гардонанд."
+        },
+        {
+          "type": "h2",
+          "text": "Тағйири нархҳо"
+        },
+        {
+          "type": "p",
+          "text": "Хидматрасонҳо метавонанд нархҳои худро дар ҳар вақт тағйир диҳанд ва қурби асъор низ тағйир меёбад. Тағйирот ба брон ё фармоише, ки аллакай пардохт кардаед, таъсир намерасонад."
+        }
+      ],
+      "faq": [
+        {
+          "q": "Чаро нарх аз он чи дӯстам дар Эрон мебинад, фарқ мекунад?",
+          "a": "Меҳмонони дохили Эрон нархҳоро бо риёл ё туман мебинанд. Меҳмонони хориҷӣ нархи байналмилалии алоҳида ҳисобшударо бо асъори худ мебинанд, ки метавонад баландтар бошад."
+        },
+        {
+          "q": "Оё LSevin ҳаққи брон мегирад?",
+          "a": "LSevin ба маблағи умумии шумо ҳаққи алоҳидаи брон илова намекунад. Дар ҳолате ки LSevin комиссия мегирад, он аз маблағе, ки ба хидматрасон пардохт мешавад, гирифта мешавад."
+        },
+        {
+          "q": "Нақшаи пардохт дар ҷой чӣ тавр кор мекунад?",
+          "a": "Шумо 20, 50 ё 80 фоизро ҳозир ва боқимондаро дар ҷой мепардозед. Ин нақшаҳо ба ҳисоб мутаносибан 5, 2 ё 1 фоиз илова мекунанд ва тафсилот пеш аз тасдиқ нишон дода мешавад."
+        },
+        {
+          "q": "Ҳамёни ман кадом асъорҳоро нигоҳ дошта метавонад?",
+          "a": "Риёли Эрон, туман, доллари ИМА, евро, фунти стерлинг ва дирҳами АМА."
+        },
+        {
+          "q": "Оё нарх пас аз пардохти ман тағйир ёфта метавонад?",
+          "a": "Не. Тағйири нарх ё қурби асъор ба брон ё фармоише, ки аллакай пардохт кардаед, таъсир намерасонад."
+        },
+        {
+          "q": "Чаро барои табобати ман нархи собит нест?",
+          "a": "Нархи табобат аз ҳолати шумо, духтур ва муассиса вобаста аст. Пас аз машварат ва баррасии ҳуҷҷатҳои тиббии шумо нархномаи хаттӣ мегиред."
+        }
+      ]
+    },
+    "zh-CN": {
+      "title": "价格与费用政策",
+      "metaDescription": "LSevin如何显示价格：里亚尔与托曼、其他货币、国际价格、账单包含的内容、定金、到店付款方案以及钱包。",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "本政策说明LSevin如何显示价格、您会看到哪种货币、实付金额包含哪些内容，以及可能产生哪些附加费用。所有规则的核心是：确认预约或订单前显示的总金额，就是您需要支付的金额。"
+        },
+        {
+          "type": "h2",
+          "text": "价格由谁制定"
+        },
+        {
+          "type": "p",
+          "text": "服务价格由服务商制定。LSevin负责展示价格、将其换算为您的货币，并在通过LSevin付款的情况下代收款项。"
+        },
+        {
+          "type": "p",
+          "text": "治疗费用通常按患者个人情况定价。对于许多治疗项目，LSevin不公布固定价格；在咨询并审阅您的检查报告后，您会收到一份书面报价。"
+        },
+        {
+          "type": "h2",
+          "text": "您看到的货币"
+        },
+        {
+          "type": "p",
+          "text": "伊朗境内的访客看到的是伊朗里亚尔价格；如果服务商自行设置了托曼价格，则显示托曼。1托曼等于10里亚尔。"
+        },
+        {
+          "type": "p",
+          "text": "其他国家的访客看到的是与其手机号码所属国家对应的货币价格。未登录的访客看到的是美元价格。"
+        },
+        {
+          "type": "p",
+          "text": "为确定适用哪种货币，LSevin首先使用您账户手机号码的国家代码；如果无法获取，则根据您的IP地址推测所在国家，最后再根据网站语言判断。"
+        },
+        {
+          "type": "h2",
+          "text": "国际价格"
+        },
+        {
+          "type": "p",
+          "text": "面向国际访客的价格与面向伊朗境内访客的价格分开计算：以服务商的基础价格为起点，换算为您的货币，再按为该服务商设定的定价系数进行调整。因此，国际价格可能高于向伊朗境内访客显示的里亚尔价格。"
+        },
+        {
+          "type": "p",
+          "text": "汇率由LSevin维护。当您使用与标价货币不同的货币付款时，换算后的金额会在结算时保留一段有限的时间。超时后，付款前会重新计算金额。"
+        },
+        {
+          "type": "h2",
+          "text": "金额包含的内容"
+        },
+        {
+          "type": "p",
+          "text": "服务页面会说明价格所涵盖的内容。您的账单会将每一部分单独列为一行：主要服务、酒店、接送或酒店内护理等附加服务、折扣，以及到店付款的附加费用。商店订单还会单独列出配送费和税费（如有）。"
+        },
+        {
+          "type": "p",
+          "text": "LSevin不会在总金额中另外加收预约费。如果LSevin收取佣金，佣金会从您支付的金额中与服务商结算。"
+        },
+        {
+          "type": "h2",
+          "text": "何时付款"
+        },
+        {
+          "type": "p",
+          "text": "每项服务都会设定收款方式。全额支付：预约时在线支付全部金额。定金：现在支付固定金额或一定比例，其余款项稍后支付。到店付款：到达时由服务商收款。免费预约：无需预先付款。"
+        },
+        {
+          "type": "h2",
+          "text": "到店付款方案"
+        },
+        {
+          "type": "p",
+          "text": "在提供此方案的情况下，您可以现在支付部分账单，其余款项到店支付。现在支付的比例越低，账单增加的金额就越多。"
+        },
+        {
+          "type": "p",
+          "text": "现在支付20%：账单增加5%。"
+        },
+        {
+          "type": "p",
+          "text": "现在支付50%：账单增加2%。"
+        },
+        {
+          "type": "p",
+          "text": "现在支付80%：账单增加1%。"
+        },
+        {
+          "type": "p",
+          "text": "现在应付的部分按增加后的账单计算。以100的账单选择20%方案为例：新的账单金额为105，现在支付21，到店支付84。现在应付的部分可通过钱包或在线支付完成，增加的金额会作为单独一行显示在账单上。"
+        },
+        {
+          "type": "h2",
+          "text": "付款与钱包"
+        },
+        {
+          "type": "p",
+          "text": "以里亚尔进行的在线支付通过Zarinpal支付网关完成。伊朗境外发行的银行卡在伊朗无法使用，因此国际患者应在出行前商定付款方式和币种。"
+        },
+        {
+          "type": "p",
+          "text": "您的LSevin钱包可持有伊朗里亚尔、托曼、美元、欧元、英镑和阿联酋迪拉姆余额。充值方式包括在线银行卡支付，或银行转账并上传凭证；转账需经核查后余额才可使用。每种货币的单次充值都有金额上限。退款，以及返现、推荐奖励等奖励（如有提供），都会存入钱包。"
+        },
+        {
+          "type": "h2",
+          "text": "折扣与优惠券"
+        },
+        {
+          "type": "p",
+          "text": "优惠活动和优惠券在付款前生效，并以折扣行的形式显示。商店优惠券可以减免固定金额或按比例打折，也可以免除配送费。"
+        },
+        {
+          "type": "h2",
+          "text": "价格变动"
+        },
+        {
+          "type": "p",
+          "text": "服务商可随时调整价格，汇率也会变动。这些变化不会影响您已付款的预约或订单。"
+        }
+      ],
+      "faq": [
+        {
+          "q": "为什么我看到的价格和在伊朗的朋友看到的不一样？",
+          "a": "伊朗境内的访客看到的是里亚尔或托曼价格。境外访客看到的是以本国货币显示、单独计算的国际价格，可能会更高。"
+        },
+        {
+          "q": "LSevin收取预约费吗？",
+          "a": "LSevin不会在总金额中另外加收预约费。如果LSevin收取佣金，佣金从支付给服务商的金额中扣除。"
+        },
+        {
+          "q": "到店付款方案怎么用？",
+          "a": "现在支付20%、50%或80%，其余款项到店支付。这几种方案分别使账单增加5%、2%或1%，费用明细会在您确认前显示。"
+        },
+        {
+          "q": "我的钱包可以持有哪些货币？",
+          "a": "伊朗里亚尔、托曼、美元、欧元、英镑和阿联酋迪拉姆。"
+        },
+        {
+          "q": "付款后价格还会变吗？",
+          "a": "不会。价格或汇率的变化不会影响您已付款的预约或订单。"
+        },
+        {
+          "q": "为什么我的治疗没有固定价格？",
+          "a": "治疗费用取决于您的病情、医生和医疗机构。在咨询并审阅您的检查报告后，您会收到一份书面报价。"
+        }
+      ]
+    },
+    "de-DE": {
+      "title": "Preise und Gebühren",
+      "metaDescription": "So zeigt LSevin Preise an: Rial und Toman, andere Währungen, internationale Preise, Rechnungsposten, Anzahlungen, Teilzahlung vor Ort und das Wallet.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Diese Richtlinie erklärt, wie LSevin Preise anzeigt, welche Währung Sie sehen, was im zu zahlenden Betrag enthalten ist und welche Zuschläge anfallen können. Der Grundsatz dahinter: Der Gesamtbetrag, der angezeigt wird, bevor Sie eine Buchung oder Bestellung bestätigen, ist der Betrag, den Sie zahlen."
+        },
+        {
+          "type": "h2",
+          "text": "Wer den Preis festlegt"
+        },
+        {
+          "type": "p",
+          "text": "Die Anbieter legen die Preise für ihre Leistungen fest. LSevin zeigt sie an, rechnet sie in Ihre Währung um und zieht die Zahlung ein, wenn über LSevin bezahlt wird."
+        },
+        {
+          "type": "p",
+          "text": "Behandlungen werden häufig pro Patient berechnet. Für viele Eingriffe veröffentlicht LSevin keinen Festpreis; nach der Beratung und einer Durchsicht Ihrer Befunde erhalten Sie ein schriftliches Angebot."
+        },
+        {
+          "type": "h2",
+          "text": "Welche Währung Sie sehen"
+        },
+        {
+          "type": "p",
+          "text": "Besucher im Iran sehen Preise in iranischen Rial oder in Toman, wenn der Anbieter einen eigenen Toman-Preis festgelegt hat. Ein Toman entspricht zehn Rial."
+        },
+        {
+          "type": "p",
+          "text": "Besucher aus anderen Ländern sehen Preise in der Währung des Landes, das mit ihrer Telefonnummer verknüpft ist. Besucher, die nicht angemeldet sind, sehen US-Dollar."
+        },
+        {
+          "type": "p",
+          "text": "Um festzustellen, was gilt, verwendet LSevin zuerst die Ländervorwahl der Telefonnummer Ihres Kontos. Ist sie nicht verfügbar, wird Ihr Land anhand Ihrer IP-Adresse geschätzt und zuletzt anhand der Sprache der Website."
+        },
+        {
+          "type": "h2",
+          "text": "Internationale Preise"
+        },
+        {
+          "type": "p",
+          "text": "Preise für internationale Besucher werden getrennt von den Preisen für Besucher im Iran berechnet. Sie gehen vom Grundpreis des Anbieters aus, werden in Ihre Währung umgerechnet und mit einem für diesen Anbieter festgelegten Preisfaktor angepasst. Internationale Preise können daher höher sein als der Rial-Preis, den Besucher im Iran sehen."
+        },
+        {
+          "type": "p",
+          "text": "Die Wechselkurse werden von LSevin gepflegt. Wenn Sie in einer anderen Währung zahlen als der, in der der Preis festgelegt ist, wird der umgerechnete Betrag an der Kasse für begrenzte Zeit festgehalten. Läuft diese Zeit ab, wird der Betrag vor der Zahlung neu berechnet."
+        },
+        {
+          "type": "h2",
+          "text": "Was der Betrag umfasst"
+        },
+        {
+          "type": "p",
+          "text": "Die Leistungsseite beschreibt, was der Preis abdeckt. Ihre Rechnung führt jeden Bestandteil in einer eigenen Zeile auf: die Hauptleistung, Zusatzleistungen wie Hotel, Transfers oder Betreuung im Hotel, Rabatte und einen etwaigen Zuschlag für die Zahlung vor Ort. Shop-Bestellungen zeigen außerdem die Versandkosten und gegebenenfalls Steuern als eigene Zeilen."
+        },
+        {
+          "type": "p",
+          "text": "LSevin schlägt keine separate Buchungsgebühr auf den Gesamtbetrag auf. Wo LSevin eine Provision erhält, wird sie mit dem Anbieter aus dem von Ihnen gezahlten Betrag verrechnet."
+        },
+        {
+          "type": "h2",
+          "text": "Wann Sie bezahlen"
+        },
+        {
+          "type": "p",
+          "text": "Jede Leistung legt fest, wie die Zahlung erfolgt. Vollzahlung: Sie zahlen den gesamten Betrag bei der Buchung online. Anzahlung: Sie zahlen jetzt einen festen Betrag oder einen Prozentsatz und den Rest später. Zahlung vor Ort: Der Anbieter kassiert bei Ihrer Ankunft. Kostenlose Buchung: Es wird keine Vorauszahlung erhoben."
+        },
+        {
+          "type": "h2",
+          "text": "Teilzahlung mit Restzahlung vor Ort"
+        },
+        {
+          "type": "p",
+          "text": "Wo angeboten, können Sie einen Teil der Rechnung jetzt und den Rest vor Ort bezahlen. Je weniger Sie jetzt zahlen, desto höher ist der Zuschlag auf die Rechnung."
+        },
+        {
+          "type": "p",
+          "text": "20 Prozent jetzt zahlen: Auf die Rechnung werden 5 Prozent aufgeschlagen."
+        },
+        {
+          "type": "p",
+          "text": "50 Prozent jetzt zahlen: Auf die Rechnung werden 2 Prozent aufgeschlagen."
+        },
+        {
+          "type": "p",
+          "text": "80 Prozent jetzt zahlen: Auf die Rechnung wird 1 Prozent aufgeschlagen."
+        },
+        {
+          "type": "p",
+          "text": "Der jetzt fällige Anteil wird auf die erhöhte Rechnung berechnet. Bei einer Rechnung über 100 und dem 20-Prozent-Plan beträgt die neue Rechnung 105; Sie zahlen jetzt 21 und 84 vor Ort. Der jetzt fällige Teil wird aus Ihrem Wallet oder per Online-Zahlung beglichen, und der Zuschlag erscheint als eigene Zeile auf Ihrer Rechnung."
+        },
+        {
+          "type": "h2",
+          "text": "Bezahlen und das Wallet"
+        },
+        {
+          "type": "p",
+          "text": "Online-Zahlungen in Rial laufen über das Zahlungsgateway Zarinpal. Karten, die außerhalb des Iran ausgegeben wurden, funktionieren im Iran nicht; internationale Patienten sollten Zahlungsmethode und Währung daher vor der Reise abstimmen."
+        },
+        {
+          "type": "p",
+          "text": "Ihr LSevin Wallet kann Guthaben in iranischen Rial, Toman, US-Dollar, Euro, Pfund Sterling und VAE-Dirham führen. Sie laden es per Online-Kartenzahlung oder per Banküberweisung mit hochgeladenem Beleg auf; Überweisungen werden geprüft, bevor das Guthaben verfügbar ist. Für jede Aufladung gilt ein Höchstbetrag je Währung. Erstattungen und, wo angeboten, Prämien wie Cashback oder Empfehlungsboni werden dem Wallet gutgeschrieben."
+        },
+        {
+          "type": "h2",
+          "text": "Rabatte und Gutscheine"
+        },
+        {
+          "type": "p",
+          "text": "Angebote und Gutscheine werden vor der Zahlung angewendet und als Rabattzeile angezeigt. Shop-Gutscheine können einen festen Betrag oder einen Prozentsatz abziehen oder den Versand kostenlos machen."
+        },
+        {
+          "type": "h2",
+          "text": "Preisänderungen"
+        },
+        {
+          "type": "p",
+          "text": "Anbieter können ihre Preise jederzeit ändern, und Wechselkurse schwanken. Eine Änderung wirkt sich nicht auf eine Buchung oder Bestellung aus, die Sie bereits bezahlt haben."
+        }
+      ],
+      "faq": [
+        {
+          "q": "Warum unterscheidet sich der Preis von dem, was mein Bekannter im Iran sieht?",
+          "a": "Besucher im Iran sehen Preise in Rial oder Toman. Besucher im Ausland sehen einen gesondert berechneten internationalen Preis in ihrer eigenen Währung, der höher sein kann."
+        },
+        {
+          "q": "Erhebt LSevin eine Buchungsgebühr?",
+          "a": "LSevin schlägt keine separate Buchungsgebühr auf Ihren Gesamtbetrag auf. Wo LSevin eine Provision erhält, wird sie aus dem an den Anbieter gezahlten Betrag beglichen."
+        },
+        {
+          "q": "Wie funktioniert die Teilzahlung mit Restzahlung vor Ort?",
+          "a": "Sie zahlen jetzt 20, 50 oder 80 Prozent und den Rest vor Ort. Die Pläne schlagen 5, 2 bzw. 1 Prozent auf die Rechnung auf, und die Aufschlüsselung wird angezeigt, bevor Sie bestätigen."
+        },
+        {
+          "q": "Welche Währungen kann mein Wallet führen?",
+          "a": "Iranische Rial, Toman, US-Dollar, Euro, Pfund Sterling und VAE-Dirham."
+        },
+        {
+          "q": "Kann sich der Preis nach der Zahlung noch ändern?",
+          "a": "Nein. Änderungen von Preisen oder Wechselkursen wirken sich nicht auf eine Buchung oder Bestellung aus, die Sie bereits bezahlt haben."
+        },
+        {
+          "q": "Warum gibt es für meine Behandlung keinen Festpreis?",
+          "a": "Behandlungspreise hängen von Ihrem Fall, dem Arzt und der Einrichtung ab. Nach der Beratung und einer Durchsicht Ihrer Befunde erhalten Sie ein schriftliches Angebot."
+        }
+      ]
+    },
+    "fr-FR": {
+      "title": "Politique de prix et de frais",
+      "metaDescription": "Comment LSevin affiche les prix : rials et tomans, autres devises, tarifs internationaux, contenu de la facture, acomptes, paiement sur place et portefeuille.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Cette politique explique comment LSevin affiche les prix, quelle devise vous voyez, ce que comprend le montant que vous payez et quels suppléments peuvent s’appliquer. Une règle s’applique à l’ensemble : le total affiché avant que vous confirmiez une réservation ou une commande est le montant que vous payez."
+        },
+        {
+          "type": "h2",
+          "text": "Qui fixe le prix"
+        },
+        {
+          "type": "p",
+          "text": "Les prestataires fixent les prix de leurs services. LSevin les affiche, les convertit dans votre devise et encaisse le paiement lorsque celui-ci passe par LSevin."
+        },
+        {
+          "type": "p",
+          "text": "Le prix d’un traitement est souvent établi pour chaque patient. Pour de nombreux actes, LSevin ne publie pas de prix fixe : après la consultation et l’examen de vos comptes rendus, vous recevez un devis écrit."
+        },
+        {
+          "type": "h2",
+          "text": "Quelle devise vous voyez"
+        },
+        {
+          "type": "p",
+          "text": "Les visiteurs en Iran voient les prix en rials iraniens, ou en tomans lorsque le prestataire a fixé son propre prix en tomans. Un toman équivaut à dix rials."
+        },
+        {
+          "type": "p",
+          "text": "Les visiteurs d’autres pays voient les prix dans la devise du pays associé à leur numéro de téléphone. Les visiteurs non connectés voient les prix en dollars américains."
+        },
+        {
+          "type": "p",
+          "text": "Pour déterminer la devise applicable, LSevin utilise d’abord l’indicatif pays du numéro de téléphone de votre compte. S’il n’est pas disponible, LSevin estime votre pays à partir de votre adresse IP, puis, en dernier recours, à partir de la langue du site."
+        },
+        {
+          "type": "h2",
+          "text": "Tarifs internationaux"
+        },
+        {
+          "type": "p",
+          "text": "Les prix destinés aux visiteurs internationaux sont calculés séparément de ceux proposés aux visiteurs en Iran. Ils partent du prix de base du prestataire, sont convertis dans votre devise puis ajustés selon un coefficient tarifaire défini pour ce prestataire. Les prix internationaux peuvent donc être plus élevés que le prix en rials affiché aux visiteurs en Iran."
+        },
+        {
+          "type": "p",
+          "text": "Les taux de change sont tenus à jour par LSevin. Lorsque vous payez dans une devise différente de celle dans laquelle le prix est fixé, le montant converti est garanti pendant une durée limitée lors du paiement. Une fois ce délai écoulé, le montant est recalculé avant que vous payiez."
+        },
+        {
+          "type": "h2",
+          "text": "Ce que comprend le montant"
+        },
+        {
+          "type": "p",
+          "text": "La page du service décrit ce que couvre le prix. Votre facture détaille chaque élément sur une ligne distincte : le service principal, les éventuelles options comme un hôtel, des transferts ou des soins à l’hôtel, les remises et l’éventuel supplément lié au paiement sur place. Les commandes en boutique indiquent aussi les frais de livraison et les éventuelles taxes sur des lignes séparées."
+        },
+        {
+          "type": "p",
+          "text": "LSevin n’ajoute pas de frais de réservation distincts au total. Lorsque LSevin perçoit une commission, celle-ci est réglée avec le prestataire sur le montant que vous payez."
+        },
+        {
+          "type": "h2",
+          "text": "Quand vous payez"
+        },
+        {
+          "type": "p",
+          "text": "Chaque service définit son mode d’encaissement. Paiement intégral : vous réglez la totalité en ligne au moment de réserver. Acompte : vous payez maintenant un montant fixe ou un pourcentage, et le reste plus tard. Paiement sur place : le prestataire encaisse le paiement à votre arrivée. Réservation gratuite : aucun paiement n’est demandé à l’avance."
+        },
+        {
+          "type": "h2",
+          "text": "Formules de paiement sur place"
+        },
+        {
+          "type": "p",
+          "text": "Lorsque cette option est proposée, vous pouvez payer une partie de la facture maintenant et le reste sur place. Moins vous payez maintenant, plus le supplément ajouté à la facture est élevé."
+        },
+        {
+          "type": "p",
+          "text": "Payer 20 % maintenant : 5 % sont ajoutés à la facture."
+        },
+        {
+          "type": "p",
+          "text": "Payer 50 % maintenant : 2 % sont ajoutés à la facture."
+        },
+        {
+          "type": "p",
+          "text": "Payer 80 % maintenant : 1 % est ajouté à la facture."
+        },
+        {
+          "type": "p",
+          "text": "La part à régler maintenant est calculée sur la facture majorée. Pour une facture de 100 avec la formule à 20 %, la nouvelle facture s’élève à 105 : vous payez 21 maintenant et 84 sur place. La part due maintenant se règle depuis votre portefeuille ou par paiement en ligne, et le supplément apparaît sur une ligne distincte de votre facture."
+        },
+        {
+          "type": "h2",
+          "text": "Paiement et portefeuille"
+        },
+        {
+          "type": "p",
+          "text": "Les paiements en ligne en rials passent par la passerelle Zarinpal. Les cartes émises hors d’Iran ne fonctionnent pas en Iran : les patients internationaux doivent donc convenir du moyen de paiement et de la devise avant leur départ."
+        },
+        {
+          "type": "p",
+          "text": "Votre portefeuille LSevin peut contenir des soldes en rials iraniens, en tomans, en dollars américains, en euros, en livres sterling et en dirhams des Émirats arabes unis. Rechargez-le par paiement en ligne par carte ou par virement bancaire en téléversant le reçu ; les virements sont vérifiés avant que le solde soit disponible. Chaque recharge est plafonnée à un montant maximal par devise. Les remboursements, ainsi que les récompenses comme le cashback ou les bonus de parrainage lorsqu’ils sont proposés, sont crédités sur le portefeuille."
+        },
+        {
+          "type": "h2",
+          "text": "Remises et codes promo"
+        },
+        {
+          "type": "p",
+          "text": "Les offres et les codes promo sont appliqués avant le paiement et apparaissent sur une ligne de remise. Les codes promo de la boutique peuvent déduire un montant fixe ou un pourcentage, ou rendre la livraison gratuite."
+        },
+        {
+          "type": "h2",
+          "text": "Évolution des prix"
+        },
+        {
+          "type": "p",
+          "text": "Les prestataires peuvent modifier leurs prix à tout moment, et les taux de change évoluent. Une modification n’affecte pas une réservation ou une commande que vous avez déjà payée."
+        }
+      ],
+      "faq": [
+        {
+          "q": "Pourquoi le prix diffère-t-il de celui que voit mon ami en Iran ?",
+          "a": "Les visiteurs en Iran voient des prix en rials ou en tomans. Les visiteurs à l’étranger voient un prix international calculé séparément, dans leur propre devise, qui peut être plus élevé."
+        },
+        {
+          "q": "LSevin facture-t-il des frais de réservation ?",
+          "a": "LSevin n’ajoute pas de frais de réservation distincts à votre total. Lorsque LSevin perçoit une commission, elle est prélevée sur le montant versé au prestataire."
+        },
+        {
+          "q": "Comment fonctionne la formule de paiement sur place ?",
+          "a": "Vous payez 20, 50 ou 80 % maintenant et le reste sur place. Ces formules ajoutent respectivement 5, 2 ou 1 % à la facture, et le détail s’affiche avant que vous confirmiez."
+        },
+        {
+          "q": "Quelles devises mon portefeuille peut-il contenir ?",
+          "a": "Le rial iranien, le toman, le dollar américain, l’euro, la livre sterling et le dirham des Émirats arabes unis."
+        },
+        {
+          "q": "Le prix peut-il changer après mon paiement ?",
+          "a": "Non. Les variations de prix ou de taux de change n’affectent pas une réservation ou une commande que vous avez déjà payée."
+        },
+        {
+          "q": "Pourquoi n’y a-t-il pas de prix fixe pour mon traitement ?",
+          "a": "Le prix d’un traitement dépend de votre situation, du médecin et de l’établissement. Après la consultation et l’examen de vos comptes rendus, vous recevez un devis écrit."
+        }
+      ]
+    },
+    "es-ES": {
+      "title": "Política de precios y tarifas",
+      "metaDescription": "Cómo muestra LSevin los precios: riales y tomanes, otras monedas, precios internacionales, contenido de la factura, depósitos, planes de pago en el lugar y el monedero.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Esta política explica cómo muestra LSevin los precios, en qué moneda los verá, qué incluye el importe que paga y qué recargos pueden aplicarse. La regla que lo rige todo: el total que se muestra antes de confirmar una reserva o un pedido es el importe que usted paga."
+        },
+        {
+          "type": "h2",
+          "text": "Quién fija el precio"
+        },
+        {
+          "type": "p",
+          "text": "Los proveedores fijan los precios de sus servicios. LSevin los muestra, los convierte a su moneda y cobra el pago cuando este se realiza a través de LSevin."
+        },
+        {
+          "type": "p",
+          "text": "El tratamiento suele presupuestarse para cada paciente. Para muchos procedimientos LSevin no publica un precio fijo; tras la consulta y la revisión de sus informes, usted recibe un presupuesto por escrito."
+        },
+        {
+          "type": "h2",
+          "text": "En qué moneda verá los precios"
+        },
+        {
+          "type": "p",
+          "text": "Los visitantes en Irán ven los precios en riales iraníes, o en tomanes cuando el proveedor ha fijado su propio precio en tomanes. Un toman equivale a diez riales."
+        },
+        {
+          "type": "p",
+          "text": "Los visitantes de otros países ven los precios en la moneda del país asociado a su número de teléfono. Los visitantes que no han iniciado sesión ven dólares estadounidenses."
+        },
+        {
+          "type": "p",
+          "text": "Para decidir cuál se aplica, LSevin utiliza primero el prefijo de país del número de teléfono de su cuenta. Si no está disponible, estima su país a partir de su dirección IP y, en último lugar, a partir del idioma del sitio."
+        },
+        {
+          "type": "h2",
+          "text": "Precios internacionales"
+        },
+        {
+          "type": "p",
+          "text": "Los precios para visitantes internacionales se calculan por separado de los precios para visitantes en Irán. Parten del precio base del proveedor, se convierten a su moneda y se ajustan con un coeficiente de precios definido para ese proveedor. Por eso, los precios internacionales pueden ser más altos que el precio en riales que ven los visitantes dentro de Irán."
+        },
+        {
+          "type": "p",
+          "text": "LSevin gestiona los tipos de cambio. Cuando paga en una moneda distinta de aquella en la que está fijado el precio, el importe convertido se mantiene durante un tiempo limitado en el proceso de pago. Si ese tiempo se agota, el importe se recalcula antes de que pague."
+        },
+        {
+          "type": "h2",
+          "text": "Qué incluye el importe"
+        },
+        {
+          "type": "p",
+          "text": "La página del servicio describe qué cubre el precio. Su factura detalla cada concepto en una línea propia: el servicio principal, los complementos como hotel, traslados o atención en el hotel, los descuentos y cualquier recargo por pago en el lugar. Los pedidos de la tienda muestran además el coste de envío y los impuestos, si los hay, en líneas separadas."
+        },
+        {
+          "type": "p",
+          "text": "LSevin no añade al total una tarifa de reserva aparte. Cuando LSevin percibe una comisión, esta se liquida con el proveedor a partir del importe que usted paga."
+        },
+        {
+          "type": "h2",
+          "text": "Cuándo paga"
+        },
+        {
+          "type": "p",
+          "text": "Cada servicio establece cómo se cobra el pago. Pago completo: paga el importe total en línea al reservar. Depósito: paga ahora un importe fijo o un porcentaje y el resto más adelante. Pago en el lugar: el proveedor cobra cuando usted llega. Reserva gratuita: no se cobra nada por adelantado."
+        },
+        {
+          "type": "h2",
+          "text": "Planes de pago en el lugar"
+        },
+        {
+          "type": "p",
+          "text": "Cuando se ofrece esta opción, puede pagar ahora una parte de la cuenta y el resto en el lugar. Cuanto menos pague ahora, mayor es el recargo que se añade a la cuenta."
+        },
+        {
+          "type": "p",
+          "text": "Pague el 20 por ciento ahora: se añade un 5 por ciento a la cuenta."
+        },
+        {
+          "type": "p",
+          "text": "Pague el 50 por ciento ahora: se añade un 2 por ciento a la cuenta."
+        },
+        {
+          "type": "p",
+          "text": "Pague el 80 por ciento ahora: se añade un 1 por ciento a la cuenta."
+        },
+        {
+          "type": "p",
+          "text": "La parte que se paga ahora se calcula sobre la cuenta ya incrementada. En una cuenta de 100 con el plan del 20 por ciento, la nueva cuenta es de 105: paga 21 ahora y 84 en el lugar. La parte que se paga ahora se abona con su monedero o mediante pago en línea, y el recargo aparece en una línea propia de su factura."
+        },
+        {
+          "type": "h2",
+          "text": "Pagos y monedero"
+        },
+        {
+          "type": "p",
+          "text": "Los pagos en línea en riales se realizan a través de la pasarela Zarinpal. Las tarjetas emitidas fuera de Irán no funcionan en Irán, por lo que los pacientes internacionales deben acordar el método de pago y la moneda antes de viajar."
+        },
+        {
+          "type": "p",
+          "text": "Su monedero de LSevin puede tener saldo en riales iraníes, tomanes, dólares estadounidenses, euros, libras esterlinas y dírhams de los EAU. Puede recargarlo con pago en línea con tarjeta o por transferencia bancaria subiendo el comprobante; las transferencias se revisan antes de que el saldo esté disponible. Cada recarga tiene un importe máximo por moneda. Los reembolsos y, cuando se ofrecen, recompensas como el cashback o los bonos por invitación se abonan en el monedero."
+        },
+        {
+          "type": "h2",
+          "text": "Descuentos y cupones"
+        },
+        {
+          "type": "p",
+          "text": "Las ofertas y los cupones se aplican antes del pago y se muestran como una línea de descuento. Los cupones de la tienda pueden descontar un importe fijo o un porcentaje, o hacer que el envío sea gratuito."
+        },
+        {
+          "type": "h2",
+          "text": "Cambios de precio"
+        },
+        {
+          "type": "p",
+          "text": "Los proveedores pueden cambiar sus precios en cualquier momento, y los tipos de cambio varían. Un cambio no afecta a una reserva o un pedido que ya haya pagado."
+        }
+      ],
+      "faq": [
+        {
+          "q": "¿Por qué el precio es distinto del que ve un amigo mío en Irán?",
+          "a": "Los visitantes en Irán ven precios en riales o tomanes. Los visitantes en el extranjero ven un precio internacional calculado por separado en su propia moneda, que puede ser más alto."
+        },
+        {
+          "q": "¿LSevin cobra una tarifa de reserva?",
+          "a": "LSevin no añade a su total una tarifa de reserva aparte. Cuando LSevin percibe una comisión, esta sale del importe que se paga al proveedor."
+        },
+        {
+          "q": "¿Cómo funciona el plan de pago en el lugar?",
+          "a": "Paga ahora el 20, el 50 o el 80 por ciento y el resto en el lugar. Los planes añaden a la cuenta un 5, un 2 o un 1 por ciento, respectivamente, y el desglose se muestra antes de confirmar."
+        },
+        {
+          "q": "¿En qué monedas puede tener saldo mi monedero?",
+          "a": "Riales iraníes, tomanes, dólares estadounidenses, euros, libras esterlinas y dírhams de los EAU."
+        },
+        {
+          "q": "¿Puede cambiar el precio después de pagar?",
+          "a": "No. Los cambios de precio o de tipo de cambio no afectan a una reserva o un pedido que ya haya pagado."
+        },
+        {
+          "q": "¿Por qué no hay un precio fijo para mi tratamiento?",
+          "a": "El precio del tratamiento depende de su caso, del médico y del centro. Tras la consulta y la revisión de sus informes, recibirá un presupuesto por escrito."
+        }
+      ]
+    }
+  }
+}
