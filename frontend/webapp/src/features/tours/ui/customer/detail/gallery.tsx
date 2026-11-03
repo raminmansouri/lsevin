@@ -6,6 +6,7 @@ import { useLocale, useTranslations } from "next-intl";
 
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
+import { resolveMediaUrl } from "@/features/service-providers/lib/media-url";
 
 import { directionOf } from "../../../domain/content";
 import type { TourDetail } from "../../../server/platform/catalog";
@@ -146,7 +147,7 @@ export function Gallery({ media, title, overlay }: { media: Media[]; title: stri
             </div>
             <figure className="relative flex min-h-0 flex-1 flex-col items-center justify-center">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={current.url} alt={current.alt ?? title} className="max-h-full max-w-full object-contain" />
+              <img src={resolveMediaUrl(current.url)} alt={current.alt ?? title} className="max-h-full max-w-full object-contain" />
               {current.caption ? (
                 <figcaption className="w-full bg-black/60 px-4 py-3 text-center text-sm" data-testid="lightbox-caption">
                   {current.caption}

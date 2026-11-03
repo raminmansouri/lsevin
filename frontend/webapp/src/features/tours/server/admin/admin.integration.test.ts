@@ -10,6 +10,8 @@
  * keeps inventory consistent; dispute approval hierarchy; CSV escaping; a
  * commission change never alters past bookings; mass cancellation notices.
  */
+import { randomUUID } from "node:crypto";
+
 import postgres from "postgres";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 
@@ -146,6 +148,30 @@ suite("tours admin panel (real database)", () => {
       () => reports.bookingsCsv(u, reports.parseRange({})), () => preview.previewTour(u, { tourId: u.userId! }),
     ];
     for (const call of calls) await expect(call()).rejects.toMatchObject({ kind: "authorization", code: "admin_required" });
+  });
+
+  it("media-library paths are stored as picked (not one site's resolved URL) and unsafe references are refused (2026-11-03 regression)", async () => {
+    const admin = adminActor((await seedUser(sql)).id);
+    const libraryPath = `Categories/services/${randomUUID()}.webp`;
+    const slug = `media-${randomUUID().slice(0, 8)}`;
+    const saved = await catalogAdmin.upsertDestination(admin, {
+      slug, names: { "fa-IR": "مقصد آزمایشی" }, coverUrl: libraryPath, coverAlts: { "fa-IR": "تصویر" }, timezone: "Asia/Tehran",
+    });
+    const [row] = await sql<{ cover_url: string }[]>`select cover_url from tour.destinations where id = ${saved.id}`;
+    expect(row.cover_url).toBe(libraryPath);
+
+    const owner = await seedUser(sql);
+    const p = await seedProvider(sql, owner.id);
+    const t = await seedTour(sql, { providerId: p.id, images: 0 });
+    await authoring.addMedia(admin, t.id, { url: libraryPath, alt: { "fa-IR": "تصویر" } });
+    const media = await sql<{ url: string }[]>`select url from tour.media where tour_id = ${t.id}`;
+    expect(media.map((m) => m.url)).toEqual([libraryPath]);
+
+    for (const bad of ["javascript:alert(1)", "../secret.jpg", "//evil.example/x.jpg"]) {
+      await expect(catalogAdmin.upsertDestination(admin, { slug: `${slug}-x`, names: { "fa-IR": "x" }, coverUrl: bad, coverAlts: { "fa-IR": "x" } }))
+        .rejects.toMatchObject({ kind: "validation", code: "invalid_media_url" });
+      await expect(authoring.addMedia(admin, t.id, { url: bad })).rejects.toMatchObject({ kind: "validation", code: "invalid_media_url" });
+    }
   });
 
   it("settings: validation rejects invalid combinations; a valid save persists, is audited and invalidates the cache", async () => {

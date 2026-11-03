@@ -31,7 +31,9 @@
       "search": "جست‌وجو…",
       "noMatches": "موردی پیدا نشد",
       "choose": "انتخاب کنید…",
-      "sourceLanguage": "زبان خود تور"
+      "sourceLanguage": "زبان خود تور",
+      "unsavedChanges": "تغییرات ذخیره نشده",
+      "leaveUnsaved": "تغییرات ذخیره‌نشده دارید. بدون ذخیره خارج می‌شوید؟"
     },
     "calendarField": {
       "placeholder": "سال-ماه-روز",
