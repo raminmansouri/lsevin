@@ -2,6 +2,7 @@ import Image from "next/image";
 import { useTranslations } from "next-intl";
 
 import type { FooterPageLink, SitePageSlug } from "@/features/site-content/types";
+import { EnamadSeal } from "@/components/trust/enamad-seal";
 import { Link } from "@/i18n/navigation";
 
 import { BackToTop, Reveal } from "./motion";
@@ -64,6 +65,13 @@ export function DesktopFooter({ pages = [] }: { pages?: FooterPageLink[] }) {
             <Image src="/brand/lsevin-wordmark.png" alt="L SEVIN" width={104} height={29} />
           </Link>
           <p className="max-w-sm text-base leading-8 text-white/75">{t("tagline")}</p>
+          {/* Inside the brand column, not as a fifth grid item: the grid has four columns, and an
+              extra item wrapped onto its own row (why the seal was taken out on 10-29). */}
+          <EnamadSeal
+            alt={t("enamadAlt")}
+            className="block w-fit rounded-2xl bg-white p-2 transition hover:-translate-y-0.5"
+            imgClassName="h-[96px] w-auto"
+          />
         </Reveal>
 
         {columns.map((column, index) => (

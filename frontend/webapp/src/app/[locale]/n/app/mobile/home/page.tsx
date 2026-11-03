@@ -36,6 +36,7 @@ import { countActiveSpecialPackages } from '@/features/special-packages/server/r
 import { LANDING_CATEGORY_LIMIT } from "@/features/categories/constants";
 
 import { DesktopHome } from "@/features/web-desktop/home/DesktopHome";
+import { EnamadSeal } from "@/components/trust/enamad-seal";
 import { absoluteUrl } from "@/lib/seo/alternates";
 import { FaqSection } from "@/features/site-content/components/faq-section";
 import { SiteLinks } from "@/features/site-content/components/site-links";
@@ -524,12 +525,7 @@ async function Home({ params }: PageProps) {
   alignItems:'center',
   marginBottom:'37px'}}>
     
-      {/* Enamad verifies the seal through the Referer, so no rel="noreferrer". */}
-      <a referrerPolicy='origin' target='_blank' rel='noopener'
-      href='https://trustseal.enamad.ir/?id=7764782&Code=XcQgNRMRzN92gDmZbf8t5GMh1mtctW9d'>
-        <img referrerPolicy='origin' src='https://trustseal.enamad.ir/logo.aspx?id=7764782&Code=XcQgNRMRzN92gDmZbf8t5GMh1mtctW9d'
-        alt={labels.common.trustSeal} style={{cursor:"pointer"}} {...{ code: 'XcQgNRMRzN92gDmZbf8t5GMh1mtctW9d' }} />
-      </a>
+      <EnamadSeal alt={labels.common.trustSeal} />
    </div>
     </div>
     <DesktopHome
