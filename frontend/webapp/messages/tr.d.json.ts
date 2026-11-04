@@ -13723,7 +13723,7 @@ declare const messages: {
         "pending_review": "İnceleniyor",
         "approved": "Ödendi",
         "rejected": "Reddedildi",
-        "due": "Vadesi geçmiş",
+        "due": "Ödenecek",
         "reviewNoteLabel": "Neden"
       },
       "errors": {
