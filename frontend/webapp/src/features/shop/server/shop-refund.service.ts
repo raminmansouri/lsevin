@@ -106,8 +106,18 @@ export async function recordManualRefund(input: {
 
     if (input.restock && fullyRefunded) {
       // return stock to on-hand for a full refund (SHP-INV-004 / SHP-V03-008)
-      const items = await tx<any[]>`select product_id, variant_id, quantity from shop.order_items where order_id = ${input.orderId}::uuid`;
+      const items = await tx<any[]>`
+        select oi.product_id, oi.variant_id, oi.quantity, oi.offer_id::text as offer_id,
+          (oi.offer_id is not null and o.stock_quantity is not null) as seller_stock
+        from shop.order_items oi left join shop.offers o on o.id = oi.offer_id
+        where oi.order_id = ${input.orderId}::uuid
+      `;
       for (const it of items) {
+        // A refunded seller-stock item goes back to that seller's offer.
+        if (it.seller_stock) {
+          await tx`update shop.offers set stock_quantity = stock_quantity + ${it.quantity}, last_modified_date = now() where id = ${it.offer_id}::uuid`;
+          continue;
+        }
         const [inv] = await tx<{ id: string }[]>`
           select i.id::text as id from shop.inventory i
           where (${it.variant_id}::uuid is not null and i.variant_id = ${it.variant_id}::uuid)

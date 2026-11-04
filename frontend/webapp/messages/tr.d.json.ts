@@ -6103,7 +6103,23 @@ declare const messages: {
     "returnSubmitted": "İade talebiniz alındı — kısa süre içinde inceleyeceğiz.",
     "returnsHeading": "İadeler",
     "returnStatusLabel": "Durum",
-    "qty": "Adet"
+    "qty": "Adet",
+    "sellers": "{count} satıcı",
+    "sellerOffers": {
+      "soldBy": "Sold by {name}",
+      "title": "Sellers of this product ({count})",
+      "best": "Best offer",
+      "shipsIn": "Ships in {days} business days",
+      "shipsToday": "Ships today",
+      "outOfStock": "Out of stock",
+      "add": "Add",
+      "others": "{count} other sellers"
+    },
+    "sellerPage": {
+      "products": "{count} products",
+      "yearsOnSite": "{count}+ years on L Sevin",
+      "newSeller": "New on L Sevin"
+    }
   },
   "Categories": {
     "actions": {
@@ -13723,7 +13739,7 @@ declare const messages: {
         "pending_review": "İnceleniyor",
         "approved": "Ödendi",
         "rejected": "Reddedildi",
-        "due": "Vadesi geçmiş",
+        "due": "Ödenecek",
         "reviewNoteLabel": "Neden"
       },
       "errors": {

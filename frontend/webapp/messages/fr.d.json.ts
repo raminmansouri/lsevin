@@ -13761,7 +13761,23 @@ declare const messages: {
     "returnSubmitted": "Demande de retour envoyée. Nous l’examinerons rapidement.",
     "returnsHeading": "Retours",
     "returnStatusLabel": "Statut",
-    "qty": "Qté"
+    "qty": "Qté",
+    "sellerOffers": {
+      "soldBy": "Sold by {name}",
+      "title": "Sellers of this product ({count})",
+      "best": "Best offer",
+      "shipsIn": "Ships in {days} business days",
+      "shipsToday": "Ships today",
+      "outOfStock": "Out of stock",
+      "add": "Add",
+      "others": "{count} other sellers"
+    },
+    "sellerPage": {
+      "products": "{count} products",
+      "yearsOnSite": "{count}+ years on L Sevin",
+      "newSeller": "New on L Sevin"
+    },
+    "sellers": "{count} sellers"
   },
   "ShopMedia": {
     "hint": "La première image est l’image principale. Enregistrez pour appliquer les modifications.",

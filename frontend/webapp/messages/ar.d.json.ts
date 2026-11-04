@@ -14347,7 +14347,23 @@ declare const messages: {
     "returnSubmitted": "تم إرسال طلب الإرجاع — سنراجعه قريباً.",
     "returnsHeading": "المرتجعات",
     "returnStatusLabel": "الحالة",
-    "qty": "الكمية"
+    "qty": "الكمية",
+    "sellers": "{count} بائعين",
+    "sellerOffers": {
+      "soldBy": "البائع: {name}",
+      "title": "بائعو هذا المنتج ({count})",
+      "best": "أفضل عرض",
+      "shipsIn": "الشحن خلال {days} أيام عمل",
+      "shipsToday": "الشحن اليوم",
+      "outOfStock": "غير متوفر",
+      "add": "إضافة",
+      "others": "{count} بائعين آخرين"
+    },
+    "sellerPage": {
+      "products": "{count} منتج",
+      "yearsOnSite": "+{count} سنة على السوين",
+      "newSeller": "بائع جديد على السوين"
+    }
   },
   "ShopAdmin": {
     "nav": {
@@ -14369,7 +14385,8 @@ declare const messages: {
       "backToDashboard": "← لوحة التحكم",
       "backToProducts": "← المنتجات",
       "backToCategories": "← الفئات",
-      "warehouses": "المستودعات"
+      "warehouses": "المستودعات",
+      "sellers": "Sellers"
     },
     "common": {
       "save": "حفظ",
@@ -14441,7 +14458,9 @@ declare const messages: {
       "colReview": "المراجعة",
       "colTotal": "الإجمالي",
       "colPlaced": "وقت الإنشاء",
-      "noneMatch": "لا توجد طلبات مطابقة."
+      "noneMatch": "لا توجد طلبات مطابقة.",
+      "anySeller": "Any seller",
+      "sellers": "{count} sellers"
     },
     "orderDetail": {
       "items": "العناصر",
@@ -14910,6 +14929,67 @@ declare const messages: {
         "hidden": "مخفي",
         "all": "الكل"
       }
+    },
+    "sellers": {
+      "title": "Sellers",
+      "add": "Add seller",
+      "nameEn": "Name (English)",
+      "nameFa": "Name (Persian)",
+      "nameAr": "Name (Arabic)",
+      "slug": "Slug",
+      "phone": "Phone",
+      "email": "Email",
+      "warrantyEn": "Warranty (English)",
+      "warrantyFa": "Warranty (Persian)",
+      "warrantyAr": "Warranty (Arabic)",
+      "warrantyHint": "This seller's default warranty text; each offer can set its own.",
+      "logo": "Logo",
+      "save": "Save seller",
+      "archive": "Delete",
+      "noSellers": "No sellers yet.",
+      "colSeller": "Seller",
+      "colOffers": "Active offers",
+      "colStatus": "Status",
+      "default": "Default",
+      "defaultHint": "The default seller is always active.",
+      "descEn": "Description (English)",
+      "descFa": "Description (Persian)",
+      "descAr": "Description (Arabic)",
+      "deleteBlocked": "This seller still has active products; move or remove them first."
+    },
+    "offers": {
+      "title": "Sellers of this product",
+      "hint": "Title, images and specs belong to the product; each seller only has its own price, stock and terms.",
+      "price": "Price",
+      "compareAt": "Compare-at price",
+      "stock": "Stock",
+      "handlingDays": "Ships in (days)",
+      "none": "No seller offers this product yet.",
+      "add": "Add seller",
+      "pickSeller": "Pick a seller",
+      "pickVariant": "Pick a variant",
+      "sellerSku": "Seller SKU",
+      "warrantyFa": "Warranty (Persian)",
+      "warrantyEn": "Warranty (English)",
+      "addNote": "Empty stock means stock is read from the shop's current inventory. A seller can have one offer per item.",
+      "priceHistory": "Price history ({count})"
+    },
+    "similar": {
+      "title": "This product may already exist",
+      "hint": "If it's the same product, add the seller to it instead of creating a duplicate.",
+      "addSeller": "Add seller to this product",
+      "sellers": "{count} sellers"
+    },
+    "sellerOffers": {
+      "title": "{name}'s products",
+      "editSeller": "Edit seller",
+      "back": "← Sellers",
+      "colProduct": "Product",
+      "colTerms": "Price, stock and shipping",
+      "lowStock": "Running out",
+      "none": "This seller has no products yet.",
+      "manage": "{count} products",
+      "lowStockCount": "{count} low stock"
     }
   },
   "Patients": {

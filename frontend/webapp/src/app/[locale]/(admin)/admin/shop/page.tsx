@@ -24,6 +24,7 @@ const NAV: Array<[navKey: string, href: string]> = [
   ["products", "/admin/shop/products"],
   ["categories", "/admin/shop/categories"],
   ["brands", "/admin/shop/brands"],
+  ["sellers", "/admin/shop/sellers"],
   ["attributes", "/admin/shop/attributes"],
   ["coupons", "/admin/shop/coupons"],
   ["inventory", "/admin/shop/inventory"],

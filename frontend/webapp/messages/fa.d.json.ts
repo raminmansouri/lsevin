@@ -16192,7 +16192,23 @@ declare const messages: {
     "returnSubmitted": "درخواست مرجوعی ثبت شد — به‌زودی بررسی می‌کنیم.",
     "returnsHeading": "مرجوعی‌ها",
     "returnStatusLabel": "وضعیت",
-    "qty": "تعداد"
+    "qty": "تعداد",
+    "sellers": "{count} فروشنده",
+    "sellerOffers": {
+      "soldBy": "فروشنده: {name}",
+      "title": "فروشندگان این کالا ({count})",
+      "best": "بهترین پیشنهاد",
+      "shipsIn": "ارسال تا {days} روز کاری",
+      "shipsToday": "ارسال امروز",
+      "outOfStock": "ناموجود",
+      "add": "افزودن",
+      "others": "{count} فروشندهٔ دیگر"
+    },
+    "sellerPage": {
+      "products": "{count} کالا",
+      "yearsOnSite": "+{count} سال در السوین",
+      "newSeller": "فروشندهٔ تازه در السوین"
+    }
   },
   "ShopAdmin": {
     "acmeHealth": "acme-health",
@@ -16215,7 +16231,8 @@ declare const messages: {
       "backToDashboard": "← داشبورد",
       "backToProducts": "← محصولات",
       "backToCategories": "← دسته‌بندی‌ها",
-      "warehouses": "انبارها"
+      "warehouses": "انبارها",
+      "sellers": "فروشندگان"
     },
     "common": {
       "save": "ذخیره",
@@ -16287,7 +16304,9 @@ declare const messages: {
       "colReview": "بازبینی",
       "colTotal": "مبلغ کل",
       "colPlaced": "زمان ثبت",
-      "noneMatch": "سفارشی مطابقت ندارد."
+      "noneMatch": "سفارشی مطابقت ندارد.",
+      "anySeller": "همهٔ فروشنده‌ها",
+      "sellers": "{count} فروشنده"
     },
     "orderDetail": {
       "items": "اقلام",
@@ -16756,6 +16775,67 @@ declare const messages: {
         "hidden": "پنهان",
         "all": "همه"
       }
+    },
+    "sellers": {
+      "title": "فروشندگان",
+      "add": "افزودن فروشنده",
+      "nameEn": "نام (انگلیسی)",
+      "nameFa": "نام (فارسی)",
+      "nameAr": "نام (عربی)",
+      "slug": "نامک",
+      "phone": "تلفن",
+      "email": "ایمیل",
+      "warrantyEn": "گارانتی (انگلیسی)",
+      "warrantyFa": "گارانتی (فارسی)",
+      "warrantyAr": "گارانتی (عربی)",
+      "warrantyHint": "متن پیش‌فرض گارانتی این فروشنده؛ هر پیشنهاد می‌تواند گارانتی خودش را داشته باشد.",
+      "logo": "لوگو",
+      "save": "ذخیرهٔ فروشنده",
+      "archive": "حذف",
+      "noSellers": "هنوز فروشنده‌ای نیست.",
+      "colSeller": "فروشنده",
+      "colOffers": "پیشنهادهای فعال",
+      "colStatus": "وضعیت",
+      "default": "پیش‌فرض",
+      "defaultHint": "فروشندهٔ پیش‌فرض همیشه فعال است.",
+      "descEn": "توضیحات (انگلیسی)",
+      "descFa": "توضیحات (فارسی)",
+      "descAr": "توضیحات (عربی)",
+      "deleteBlocked": "این فروشنده هنوز کالای فعال دارد؛ اول کالاهایش را به فروشندهٔ دیگری بدهید یا حذف کنید."
+    },
+    "offers": {
+      "title": "فروشندگان این کالا",
+      "hint": "عنوان، عکس و مشخصات مال خود کالاست؛ هر فروشنده فقط قیمت، موجودی و شرایط خودش را دارد.",
+      "price": "قیمت",
+      "compareAt": "قیمت قبل از تخفیف",
+      "stock": "موجودی",
+      "handlingDays": "ارسال (روز)",
+      "none": "هنوز فروشنده‌ای برای این کالا نیست.",
+      "add": "افزودن فروشنده",
+      "pickSeller": "انتخاب فروشنده",
+      "pickVariant": "انتخاب نوع کالا",
+      "sellerSku": "کد کالای فروشنده",
+      "warrantyFa": "گارانتی (فارسی)",
+      "warrantyEn": "گارانتی (انگلیسی)",
+      "addNote": "موجودی خالی یعنی موجودی از انبار فعلی فروشگاه خوانده می‌شود. هر فروشنده برای هر کالا فقط یک پیشنهاد دارد.",
+      "priceHistory": "تاریخچهٔ قیمت ({count})"
+    },
+    "similar": {
+      "title": "این کالا شاید از قبل وجود دارد",
+      "hint": "اگر همان کالاست، به‌جای ساختن کالای تکراری، فروشنده را به همان کالا اضافه کنید.",
+      "addSeller": "افزودن فروشنده به این کالا",
+      "sellers": "{count} فروشنده"
+    },
+    "sellerOffers": {
+      "title": "کالاهای {name}",
+      "editSeller": "ویرایش فروشنده",
+      "back": "← فروشندگان",
+      "colProduct": "کالا",
+      "colTerms": "قیمت، موجودی و ارسال",
+      "lowStock": "موجودی رو به اتمام",
+      "none": "این فروشنده هنوز کالایی ندارد.",
+      "manage": "{count} کالا",
+      "lowStockCount": "{count} موجودی کم"
     }
   },
   "Patients": {
