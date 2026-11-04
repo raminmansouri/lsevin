@@ -372,6 +372,7 @@ export async function upsertSeller(input: {
   slug: string;
   nameTranslations: Record<string, string>;
   warrantyTranslations: Record<string, string>;
+  descriptionTranslations?: Record<string, string>;
   logoUrl?: string | null;
   phone?: string | null;
   email?: string | null;
@@ -381,7 +382,8 @@ export async function upsertSeller(input: {
   if (input.id) {
     await sql`
       update shop.sellers set slug = ${input.slug}, name_translations = ${j(input.nameTranslations)},
-        warranty_translations = ${j(input.warrantyTranslations)}, logo_url = ${input.logoUrl ?? null},
+        warranty_translations = ${j(input.warrantyTranslations)},
+        description_translations = ${j(input.descriptionTranslations ?? {})}, logo_url = ${input.logoUrl ?? null},
         phone = ${input.phone ?? null}, email = ${input.email ?? null},
         is_active = case when is_default then true else ${input.isActive} end,
         last_modified_date = now()
@@ -390,8 +392,8 @@ export async function upsertSeller(input: {
     return input.id;
   }
   const [row] = await sql<{ id: string }[]>`
-    insert into shop.sellers (slug, name_translations, warranty_translations, logo_url, phone, email, is_active)
-    values (${input.slug}, ${j(input.nameTranslations)}, ${j(input.warrantyTranslations)}, ${input.logoUrl ?? null},
+    insert into shop.sellers (slug, name_translations, warranty_translations, description_translations, logo_url, phone, email, is_active)
+    values (${input.slug}, ${j(input.nameTranslations)}, ${j(input.warrantyTranslations)}, ${j(input.descriptionTranslations ?? {})}, ${input.logoUrl ?? null},
       ${input.phone ?? null}, ${input.email ?? null}, ${input.isActive})
     returning id::text as id
   `;

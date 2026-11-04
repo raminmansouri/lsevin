@@ -67,6 +67,7 @@ export type AdminOrderFilters = {
   status?: string;
   paymentStatus?: string;
   fulfillmentStatus?: string;
+  seller?: string;
 };
 
 export async function listAdminOrders(filters: AdminOrderFilters = {}) {
@@ -76,12 +77,16 @@ export async function listAdminOrders(filters: AdminOrderFilters = {}) {
     select
       o.id::text as id, o.order_number, o.email, o.status, o.payment_status, o.fulfillment_status,
       o.review_status, o.grand_total::float as grand_total, o.currency, o.placed_at::text as placed_at,
-      coalesce((select sum(quantity) from shop.order_items oi where oi.order_id = o.id), 0)::int as item_count
+      coalesce((select sum(quantity) from shop.order_items oi where oi.order_id = o.id), 0)::int as item_count,
+      (select count(distinct oi.seller_id) from shop.order_items oi where oi.order_id = o.id)::int as seller_count
     from shop.orders o
     where (${like}::text is null or o.order_number ilike ${like} or o.email ilike ${like})
       and (${filters.status ?? null}::text is null or o.status::text = ${filters.status ?? null})
       and (${filters.paymentStatus ?? null}::text is null or o.payment_status::text = ${filters.paymentStatus ?? null})
       and (${filters.fulfillmentStatus ?? null}::text is null or o.fulfillment_status::text = ${filters.fulfillmentStatus ?? null})
+      and (${filters.seller ?? null}::text is null or exists (
+        select 1 from shop.order_items oi join shop.sellers s on s.id = oi.seller_id
+        where oi.order_id = o.id and s.slug = ${filters.seller ?? null}))
     order by o.placed_at desc
     limit 200
   `;
@@ -109,8 +114,11 @@ export async function getAdminOrder(orderId: string) {
         common.get_translation_t(product_name_snapshot, 'en', 'en') as name,
         nullif(common.get_translation_t(variant_name_snapshot, 'en', 'en'), '') as variant_name,
         unit_price_snapshot::float as unit_price, line_total_snapshot::float as line_total,
-        source_currency, source_unit_price::float as source_unit_price, fulfillment_status, image_url_snapshot as image_url
-      from shop.order_items where order_id = ${orderId}::uuid order by create_date asc
+        source_currency, source_unit_price::float as source_unit_price, fulfillment_status, image_url_snapshot as image_url,
+        seller_id::text as seller_id,
+        -- The seller's name as it was at checkout, so a renamed or archived seller still reads right.
+        nullif(common.get_translation_t(seller_name_snapshot, 'fa', 'en'), '') as seller_name
+      from shop.order_items where order_id = ${orderId}::uuid order by seller_id nulls first, create_date asc
     `,
     sql<any[]>`
       select address_type, full_name, phone_number, country, city, state_region, address_line_1, address_line_2, postal_code, company
@@ -259,9 +267,11 @@ export async function listSellersAdmin() {
   await assertShopAdmin();
   return sql<any[]>`
     select s.id::text as id, s.slug, s.is_active, s.is_default, s.logo_url, s.phone, s.email,
-      s.name_translations, s.warranty_translations,
+      s.name_translations, s.warranty_translations, s.description_translations,
       common.get_translation_t(s.name_translations, 'fa', 'en') as name,
-      (count(o.id) filter (where o.deleted_at is null and o.is_active))::int as offer_count
+      (count(o.id) filter (where o.deleted_at is null and o.is_active))::int as offer_count,
+      -- Offers that keep their own stock and are nearly out (3 or fewer).
+      (count(o.id) filter (where o.deleted_at is null and o.is_active and o.stock_quantity is not null and o.stock_quantity <= 3))::int as low_stock_count
     from shop.sellers s
     left join shop.offers o on o.seller_id = s.id
     where s.deleted_at is null
@@ -281,7 +291,12 @@ export async function listProductOffersAdmin(productId: string) {
     select o.id::text as id, o.variant_id::text as variant_id, o.seller_id::text as seller_id, o.seller_sku,
       o.currency, o.price, o.compare_at_price, o.stock_quantity, o.handling_days, o.warranty_translations, o.is_active,
       common.get_translation_t(s.name_translations, 'fa', 'en') as seller_name, s.is_default as seller_is_default,
-      common.get_translation_t(v.title_translations, 'fa', 'en') as variant_title, v.sku as variant_sku
+      common.get_translation_t(v.title_translations, 'fa', 'en') as variant_title, v.sku as variant_sku,
+      -- The last 10 price changes, newest first.
+      (select coalesce(json_agg(h), '[]'::json) from (
+         select price::float as price, compare_at_price::float as compare_at_price, recorded_at::text as recorded_at
+         from shop.offer_price_history where offer_id = o.id order by recorded_at desc limit 10
+      ) h) as history
     from shop.offers o
     join shop.sellers s on s.id = o.seller_id
     left join shop.product_variants v on v.id = o.variant_id
@@ -289,6 +304,27 @@ export async function listProductOffersAdmin(productId: string) {
     order by v.sku nulls first, o.price asc
   `;
 }
+
+
+
+/** Every live offer of one seller, nearly-out-of-stock first: the seller's products page in admin. */
+export async function listSellerOffersAdmin(sellerId: string) {
+  await assertShopAdmin();
+  return sql<any[]>`
+    select o.id::text as id, o.product_id::text as product_id, o.variant_id::text as variant_id,
+      common.get_translation_t(p.name_translations, 'fa', 'en') as product_name,
+      common.get_translation_t(v.title_translations, 'fa', 'en') as variant_title,
+      o.currency, o.price, o.compare_at_price, o.stock_quantity, o.handling_days, o.is_active,
+      (o.stock_quantity is not null and o.stock_quantity <= 3) as low_stock
+    from shop.offers o
+    join shop.products p on p.id = o.product_id and p.deleted_at is null
+    left join shop.product_variants v on v.id = o.variant_id
+    where o.seller_id = ${sellerId}::uuid and o.deleted_at is null
+    order by (o.stock_quantity is not null and o.stock_quantity <= 3) desc, product_name asc
+  `;
+}
+
+
 
 /** Active sellers for the "add seller" picker. */
 export async function listSellersForPicker() {

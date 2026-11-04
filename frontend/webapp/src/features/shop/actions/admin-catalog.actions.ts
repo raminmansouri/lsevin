@@ -543,6 +543,7 @@ const sellerSchema = z.object({
   slug: z.string().trim().min(1).max(180),
   nameTranslations: localized,
   warrantyTranslations: localized,
+  descriptionTranslations: localized.optional(),
   logoUrl: z.string().trim().optional().nullable(),
   phone: z.string().trim().max(40).optional().nullable(),
   email: z.string().trim().max(160).optional().nullable(),
@@ -591,6 +592,8 @@ const offerFormSchema = z.object({
 const revalidateProduct = () => {
   revalidateShopCatalog();
   revalidatePath("/[locale]/admin/shop/products/[id]", "page");
+  revalidatePath("/[locale]/admin/shop/sellers/[id]", "page");
+  revalidatePath("/[locale]/admin/shop/sellers", "page");
 };
 export async function upsertOfferForm(formData: FormData) {
   const p = offerFormSchema.parse({

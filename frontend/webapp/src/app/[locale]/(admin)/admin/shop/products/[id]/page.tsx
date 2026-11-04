@@ -133,11 +133,35 @@ export default async function AdminProductEditPage({ params }: { params: Promise
                     <label className="text-[11px] text-gray-500">{t("offers.handlingDays")}
                       <input name="handlingDays" type="number" min="0" defaultValue={o.handling_days ?? ""} className={input} />
                     </label>
+                    <label className="text-[11px] text-gray-500 sm:col-span-2">{t("offers.sellerSku")}
+                      <input name="sellerSku" defaultValue={o.seller_sku ?? ""} dir="ltr" className={input} />
+                    </label>
+                    <label className="text-[11px] text-gray-500 sm:col-span-2">{t("offers.warrantyFa")}
+                      <input name="warrantyFa" defaultValue={o.warranty_translations?.fa ?? ""} dir="rtl" className={input} />
+                    </label>
+                    <label className="text-[11px] text-gray-500 sm:col-span-2">{t("offers.warrantyEn")}
+                      <input name="warrantyEn" defaultValue={o.warranty_translations?.en ?? ""} dir="ltr" className={input} />
+                    </label>
                     <div className="flex items-center justify-between gap-2">
                       <label className="flex items-center gap-1 text-xs"><input type="checkbox" name="isActive" defaultChecked={o.is_active} /> {t("common.activeShort")}</label>
                       <PendingSubmitButton className="rounded bg-[#083f30] px-3 py-1.5 text-xs font-semibold text-white">{t("common.save")}</PendingSubmitButton>
                     </div>
                   </form>
+                  {(o.history ?? []).length ? (
+                    <details className="mt-2">
+                      <summary className="cursor-pointer text-[11px] font-medium text-gray-500">
+                        {t("offers.priceHistory", { count: o.history.length })}
+                      </summary>
+                      <ul className="mt-1 space-y-0.5 text-[11px] text-gray-600">
+                        {o.history.map((h: any, i: number) => (
+                          <li key={`${h.recorded_at}-${i}`} className="flex justify-between gap-3">
+                            <span>{new Date(h.recorded_at).toLocaleString(locale)}</span>
+                            <span className="font-mono">{formatMoney({ amount: Number(h.price), currencyCode: o.currency }, { locale, showCode: true })}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </details>
+                  ) : null}
                 </li>
               ))}
               {!offers.length ? <li className="text-xs text-gray-400">{t("offers.none")}</li> : null}
@@ -161,10 +185,11 @@ export default async function AdminProductEditPage({ params }: { params: Promise
                     <input name="sellerSku" placeholder={t("offers.sellerSku")} className={input} />
                   )}
                 </div>
-                <div className="grid grid-cols-3 gap-2">
-                  <input name="price" type="number" step="0.01" min="0" required placeholder={t("offers.price")} className={input} />
-                  <input name="compareAtPrice" type="number" step="0.01" min="0" placeholder={t("offers.compareAt")} className={input} />
-                  <input name="currency" defaultValue={product.base_currency} className={input} />
+                {/* An offer is always priced in its product's currency (the database enforces it). */}
+                <input type="hidden" name="currency" value={product.base_currency} />
+                <div className="grid grid-cols-2 gap-2">
+                  <input name="price" type="number" step="0.01" min="0" required placeholder={`${t("offers.price")} (${product.base_currency})`} className={input} />
+                  <input name="compareAtPrice" type="number" step="0.01" min="0" placeholder={`${t("offers.compareAt")} (${product.base_currency})`} className={input} />
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                   <input name="stockQuantity" type="number" min="0" placeholder={t("offers.stock")} className={input} />

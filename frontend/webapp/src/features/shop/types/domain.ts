@@ -120,6 +120,8 @@ export interface ProductDetail extends ProductCard {
 
 export interface CartItem {
   id: UUID; productId: UUID; variantId: UUID | null; slug: string; name: string; variantTitle: string | null; imageUrl: string | null;
+  /** The seller this line buys from (null for lines added before the marketplace). */
+  sellerName?: string | null;
   attributes: Record<string, string>; quantity: number;
   /** resolved display unit price + line total in `currency` */
   unitPrice: number; lineTotal: number; compareAtPrice: number | null; currency: string;

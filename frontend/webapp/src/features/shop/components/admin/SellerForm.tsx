@@ -27,6 +27,7 @@ type SellerRow = {
   email: string | null;
   name_translations: Record<string, string>;
   warranty_translations: Record<string, string>;
+  description_translations?: Record<string, string>;
 };
 
 export function SellerForm({ seller }: { seller?: SellerRow }) {
@@ -45,6 +46,9 @@ export function SellerForm({ seller }: { seller?: SellerRow }) {
       warrantyEn: seller?.warranty_translations?.en ?? "",
       warrantyFa: seller?.warranty_translations?.fa ?? "",
       warrantyAr: seller?.warranty_translations?.ar ?? "",
+      descEn: seller?.description_translations?.en ?? "",
+      descFa: seller?.description_translations?.fa ?? "",
+      descAr: seller?.description_translations?.ar ?? "",
       logoUrl: seller?.logo_url ?? "",
       phone: seller?.phone ?? "",
       email: seller?.email ?? "",
@@ -60,6 +64,7 @@ export function SellerForm({ seller }: { seller?: SellerRow }) {
           slug: values.slug,
           nameTranslations: { en: values.nameEn, fa: values.nameFa, ar: values.nameAr },
           warrantyTranslations: { en: values.warrantyEn, fa: values.warrantyFa, ar: values.warrantyAr },
+          descriptionTranslations: { en: values.descEn, fa: values.descFa, ar: values.descAr },
           logoUrl: values.logoUrl || undefined,
           phone: values.phone || undefined,
           email: values.email || undefined,
@@ -79,6 +84,25 @@ export function SellerForm({ seller }: { seller?: SellerRow }) {
       <FormItem>
         <FormLabel>{label}</FormLabel>
         <FormControl><Input {...field} value={String(field.value ?? "")} type={type} dir={dir} disabled={isPending} /></FormControl>
+        <FormMessage />
+      </FormItem>
+    )} />
+  );
+
+  const area = (name: keyof SellerFormInput, label: string, dir: "ltr" | "rtl") => (
+    <FormField control={form.control} name={name} render={({ field }) => (
+      <FormItem>
+        <FormLabel>{label}</FormLabel>
+        <FormControl>
+          <textarea
+            {...field}
+            value={String(field.value ?? "")}
+            dir={dir}
+            rows={3}
+            disabled={isPending}
+            className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+          />
+        </FormControl>
         <FormMessage />
       </FormItem>
     )} />
@@ -113,6 +137,12 @@ export function SellerForm({ seller }: { seller?: SellerRow }) {
                 {text("warrantyAr", t("sellers.warrantyAr"), "rtl")}
               </div>
               <p className="text-xs text-gray-500">{t("sellers.warrantyHint")}</p>
+            </div>
+
+            <div className="grid gap-3 md:grid-cols-3">
+              {area("descEn", t("sellers.descEn"), "ltr")}
+              {area("descFa", t("sellers.descFa"), "rtl")}
+              {area("descAr", t("sellers.descAr"), "rtl")}
             </div>
 
             <FormField control={form.control} name="logoUrl" render={({ field }) => (

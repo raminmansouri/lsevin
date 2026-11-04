@@ -15,6 +15,8 @@ import {
   reviewOrderForm,
 } from "@/features/shop/actions/admin.actions";
 
+import { Fragment } from "react";
+
 export const dynamic = "force-dynamic";
 
 const input = "h-9 w-full rounded border border-gray-300 px-2 text-sm";
@@ -54,19 +56,32 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
           <Card title={d("items")}>
             <table className="w-full text-sm">
               <tbody className="divide-y divide-gray-100">
-                {order.items.map((it: any) => (
-                  <tr key={it.id}>
-                    <td className="py-2">
-                      {it.name}
-                      {it.variant_name ? <span className="text-gray-500"> · {it.variant_name}</span> : null}
-                      <div className="text-xs text-gray-400">
-                        {it.sku ?? "—"} · {it.source_currency} {Number(it.source_unit_price).toFixed(2)}
-                      </div>
-                    </td>
-                    <td className="py-2 text-center">×{it.quantity}</td>
-                    <td className="py-2 text-right">{order.currency} {Number(it.line_total).toFixed(2)}</td>
-                  </tr>
-                ))}
+                {(() => {
+                  const multiSeller = new Set(order.items.map((i: any) => i.seller_id)).size > 1;
+                  return order.items.map((it: any, index: number) => (
+                    <Fragment key={it.id}>
+                      {multiSeller && (index === 0 || order.items[index - 1].seller_id !== it.seller_id) ? (
+                        <tr>
+                          <td colSpan={3} className="bg-[#083f30]/5 px-2 pb-1 pt-3 text-xs font-bold text-[#083f30]">
+                            🏪 {it.seller_name ?? "—"}
+                          </td>
+                        </tr>
+                      ) : null}
+                      <tr>
+                        <td className="py-2">
+                          {it.name}
+                          {it.variant_name ? <span className="text-gray-500"> · {it.variant_name}</span> : null}
+                          <div className="text-xs text-gray-400">
+                            {it.sku ?? "—"} · {it.source_currency} {Number(it.source_unit_price).toFixed(2)}
+                            {it.seller_name && !multiSeller ? <span className="text-[#083f30]"> · 🏪 {it.seller_name}</span> : null}
+                          </div>
+                        </td>
+                        <td className="py-2 text-center">×{it.quantity}</td>
+                        <td className="py-2 text-right">{order.currency} {Number(it.line_total).toFixed(2)}</td>
+                      </tr>
+                    </Fragment>
+                  ));
+                })()}
               </tbody>
             </table>
             <dl className="mt-3 space-y-1 border-t pt-3 text-sm">

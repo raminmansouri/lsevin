@@ -47,7 +47,16 @@ export default async function AdminSellersPage({ searchParams }: { searchParams:
                     {s.is_default ? <span className="ms-2 rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-semibold text-amber-800">{t("sellers.default")}</span> : null}
                     <div className="font-mono text-xs text-gray-400">{s.slug}</div>
                   </td>
-                  <td className="px-4 py-3">{s.offer_count}</td>
+                  <td className="px-4 py-3">
+                    <Link href={`/admin/shop/sellers/${s.id}`} className="font-medium text-[#083f30] hover:underline">
+                      {t("sellerOffers.manage", { count: s.offer_count })}
+                    </Link>
+                    {s.low_stock_count > 0 ? (
+                      <span className="ms-2 rounded-full bg-red-100 px-2 py-0.5 text-[11px] font-semibold text-red-700">
+                        {t("sellerOffers.lowStockCount", { count: s.low_stock_count })}
+                      </span>
+                    ) : null}
+                  </td>
                   <td className="px-4 py-3">
                     <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${s.is_active ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-600"}`}>
                       {s.is_active ? t("common.activeShort") : t("common.inactiveShort")}

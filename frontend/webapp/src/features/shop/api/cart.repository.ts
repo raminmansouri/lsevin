@@ -92,6 +92,7 @@ type RawCartLine = {
   slug: string;
   name: string;
   variantTitle: string | null;
+  sellerName: string | null;
   imageUrl: string | null;
   quantity: number;
   sourceUnitPrice: number;
@@ -214,6 +215,7 @@ export async function getCartView(opts?: {
       slug: l.slug,
       name: l.name,
       variantTitle: l.variantTitle || null,
+      sellerName: l.sellerName || null,
       imageUrl: l.imageUrl,
       attributes: {},
       quantity: l.quantity,

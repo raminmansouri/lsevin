@@ -14458,7 +14458,9 @@ declare const messages: {
       "colReview": "المراجعة",
       "colTotal": "الإجمالي",
       "colPlaced": "وقت الإنشاء",
-      "noneMatch": "لا توجد طلبات مطابقة."
+      "noneMatch": "لا توجد طلبات مطابقة.",
+      "anySeller": "Any seller",
+      "sellers": "{count} sellers"
     },
     "orderDetail": {
       "items": "العناصر",
@@ -14949,7 +14951,10 @@ declare const messages: {
       "colOffers": "Active offers",
       "colStatus": "Status",
       "default": "Default",
-      "defaultHint": "The default seller is always active."
+      "defaultHint": "The default seller is always active.",
+      "descEn": "Description (English)",
+      "descFa": "Description (Persian)",
+      "descAr": "Description (Arabic)"
     },
     "offers": {
       "title": "Sellers of this product",
@@ -14965,13 +14970,25 @@ declare const messages: {
       "sellerSku": "Seller SKU",
       "warrantyFa": "Warranty (Persian)",
       "warrantyEn": "Warranty (English)",
-      "addNote": "Empty stock means stock is read from the shop's current inventory. A seller can have one offer per item."
+      "addNote": "Empty stock means stock is read from the shop's current inventory. A seller can have one offer per item.",
+      "priceHistory": "Price history ({count})"
     },
     "similar": {
       "title": "This product may already exist",
       "hint": "If it's the same product, add the seller to it instead of creating a duplicate.",
       "addSeller": "Add seller to this product",
       "sellers": "{count} sellers"
+    },
+    "sellerOffers": {
+      "title": "{name}'s products",
+      "editSeller": "Edit seller",
+      "back": "← Sellers",
+      "colProduct": "Product",
+      "colTerms": "Price, stock and shipping",
+      "lowStock": "Running out",
+      "none": "This seller has no products yet.",
+      "manage": "{count} products",
+      "lowStockCount": "{count} low stock"
     }
   },
   "Patients": {
