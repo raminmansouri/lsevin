@@ -118,7 +118,7 @@ test("AT-25: denied location permission — discovery and booking still work", a
   await expect(page.getByTestId("nearby-status")).toBeVisible({ timeout: 15_000 });
   await expect(page.getByTestId("tour-card")).toHaveCount(1);
   await page.getByTestId("tour-card-link").first().click();
-  await expect(page.getByTestId("itinerary")).toBeVisible();
+  await expect(page.getByTestId("itinerary").filter({ visible: true })).toBeVisible();
   await page.goto(bookUrl("en", c.tours[0].slug, c.tours[0].departureIds[0]));
   await expect(page.getByTestId("quote-total")).toBeVisible();
   await page.getByTestId("continue").click();

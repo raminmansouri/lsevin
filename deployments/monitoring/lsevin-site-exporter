@@ -104,7 +104,7 @@ def collect_sync():
            "union all select 'unreplicated', count(*) from pg_stat_user_tables s where s.schemaname not in ('public', 'information_schema') and s.schemaname !~ '^pg_' and s.relname !~ '^sym_' and s.n_live_tup > 0 "
            "and exists (select 1 from pg_constraint c where c.conrelid = s.relid and c.contype = 'p') "
            "and not exists (select 1 from sym_trigger t where t.source_schema_name = s.schemaname and t.source_table_name = s.relname) "
-           "and s.relname !~ '^(recent_searches|recent_views|weather_cache|panel_login_attempts|panel_sessions|rate_limit_hits|phone_login_codes|refresh_tokens|location_geonames_refs|sessions)$'")
+           "and s.relname !~ '^(recent_searches|recent_views|weather_cache|panel_login_attempts|panel_sessions|rate_limit_hits|phone_login_codes|refresh_tokens|location_geonames_refs|sessions|knowledge_chunks)$'")
     out = run([KUBECTL, "-n", NS, "exec", pod, "--", "psql", "-U", "lsevin", "-d", "lsevin", "-At", "-F", "|", "-c", sql], 40)
     v = {}
     for l in out.splitlines():

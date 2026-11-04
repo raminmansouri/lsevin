@@ -3236,6 +3236,9 @@
           "terms": "Terms of service",
           "privacy": "Privacy policy"
         }
+      },
+      "policies": {
+        "title": "Policies"
       }
     }
   },
@@ -5618,7 +5621,8 @@
       "toursPlatformTranslations": "5. Tour translations",
       "toursPlatformReports": "Tour reports",
       "toursPlatformSettings": "1. Tours settings",
-      "toursPlatformTaxonomy": "2. Categories & tags"
+      "toursPlatformTaxonomy": "2. Categories & tags",
+      "editorial": "Editorial"
     }
   },
   "HomePage": {
@@ -17798,6 +17802,100 @@
       "BOOKING_DRAFT_NOT_EDITABLE": "This booking can no longer be edited.",
       "VALIDATION_ERROR": "Some of the details are not valid.",
       "generic": "Could not save. Please try again."
+    }
+  },
+  "SitePages": {
+    "faqTitle": "Frequently asked questions",
+    "updated": "Last updated",
+    "home": "Home",
+    "more": "About LSevin"
+  },
+  "AdminEditorial": {
+    "heading": "Editorial",
+    "intro": "Site pages (About, Contact, policies) and the FAQs shown across the site, in every language.",
+    "tabs": {
+      "pages": "Site pages",
+      "faqs": "FAQs"
+    },
+    "pagesHelp": "A page appears on the site once it is published. Languages without a translation show the English version and are kept out of search results.",
+    "faqsHelp": "Each FAQ shows on one kind of page. Leave the specific item empty to show it on every page of that kind.",
+    "page": "Page",
+    "languages": "Languages",
+    "status": "Status",
+    "actions": "Actions",
+    "edit": "Edit",
+    "delete": "Delete",
+    "confirmDelete": "Delete this FAQ in every language? This cannot be undone.",
+    "deleted": "FAQ deleted.",
+    "published": "Published",
+    "publishedHelp": "Visible on the site and in search results.",
+    "draft": "Draft",
+    "notCreated": "Not created",
+    "inFooter": "In footer",
+    "showInFooter": "Show in footer",
+    "showInFooterHelp": "Link to this page from the site footer.",
+    "displayOrder": "Order",
+    "editPage": "Edit page",
+    "pageUrl": "Address",
+    "title": "Title",
+    "summary": "Summary",
+    "summaryHelp": "One or two sentences. Used as the search result description.",
+    "body": "Page text",
+    "bodyHelp": "Use headings for sections. Write each language separately; do not paste machine translations unchecked.",
+    "heroImage": "Header image",
+    "heroImageHelp": "Optional. Choose from the media library.",
+    "pickImage": "Choose image",
+    "save": "Save",
+    "saving": "Saving...",
+    "saved": "Saved.",
+    "back": "Back",
+    "viewPage": "View page",
+    "newFaq": "New FAQ",
+    "editFaq": "Edit FAQ",
+    "faqHelp": "Write the question and the answer in each language you want it to appear in. A language with only a question or only an answer cannot be saved.",
+    "showOn": "Show on",
+    "section": "Section",
+    "choose": "Choose...",
+    "specificItem": "Specific item (optional)",
+    "specificItemHelp": "Items with their own FAQ show only that FAQ; all others show the general one.",
+    "allItems": "All of this kind",
+    "currentItem": "Current",
+    "question": "Question",
+    "answer": "Answer",
+    "active": "Active",
+    "inactive": "Hidden",
+    "all": "All",
+    "noFaqs": "No FAQs here yet.",
+    "scopes": {
+      "home": "Home page",
+      "explore": "Explore",
+      "search": "Search",
+      "map": "Map",
+      "categories": "Categories page",
+      "provider": "Provider pages",
+      "specialist": "Specialist pages",
+      "service": "Service pages",
+      "category": "A category",
+      "provider_type": "A provider type",
+      "app": "Section (shop, tours, gym...)",
+      "site_page": "A site page"
+    },
+    "apps": {
+      "shop": "Shop",
+      "tours": "Tours",
+      "gym": "Gyms and fitness",
+      "transfers": "Airport transfers"
+    },
+    "pages": {
+      "about-us": "About us",
+      "services": "Services",
+      "contact-us": "Contact us",
+      "licenses-certifications": "Licenses and certifications",
+      "pricing-fees": "Pricing and fees",
+      "shipping-delivery": "Shipping and delivery",
+      "returns-refunds": "Returns and refunds",
+      "terms-conditions": "Terms and conditions",
+      "privacy-policy": "Privacy policy"
     }
   }
 }

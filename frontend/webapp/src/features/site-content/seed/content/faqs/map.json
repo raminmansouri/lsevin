@@ -1,0 +1,207 @@
+{
+  "scope": "map",
+  "entityKey": null,
+  "sources": [
+    "src/app/[locale]/n/app/mobile/map-discovery/NearbyClient.tsx requestCurrentLocation: navigator.geolocation on 'Use my location'",
+    "src/app/[locale]/n/app/mobile/map-discovery/nearby.data.ts: DEFAULT_DISTANCE_KM = 20, UNLIMITED_DISTANCE_KM drops the radius cap",
+    "src/app/[locale]/n/app/mobile/map-discovery/NearbyMap.tsx: Neshan inside Iran, Mapbox internationally",
+    "messages/en.json MapDiscovery.filters.* (location, distance 1 km / Unlimited, specialties, languages, price range, currency, minimum rating, verified only) + distanceHint",
+    "messages/en.json MapDiscovery.expandedNote / noResults: nearest available shown sorted by distance when nothing in area",
+    "messages/en.json MapDiscovery.showMap / showList; src/app/[locale]/n/app/mobile/map-discovery/page.tsx view=list",
+    "src/app/[locale]/n/app/mobile/provider/[id]/provider-detail-view.tsx: 'Get directions' opens Google Maps directions"
+  ],
+  "items": [
+    {
+      "locales": {
+        "en-US": {
+          "q": "How does Map Discovery find providers near me?",
+          "a": "Tap “Use my location”. Your browser asks for permission, then the map centres on you and shows providers within 20 km by default. If you'd rather not share your location, open “Advanced Filters” and pick a country and city instead. Inside Iran the map is drawn with Neshan, and elsewhere with Mapbox."
+        },
+        "fa-IR": {
+          "q": "«کشف روی نقشه» چطور ارائه‌دهندگان نزدیک من را پیدا می‌کند؟",
+          "a": "روی «استفاده از موقعیت من» بزنید. مرورگر از شما اجازه می‌گیرد و بعد نقشه روی محل شما متمرکز می‌شود و به‌طور پیش‌فرض ارائه‌دهندگان تا شعاع ۲۰ کیلومتر را نشان می‌دهد. اگر نمی‌خواهید موقعیتتان را به اشتراک بگذارید، «فیلترهای پیشرفته» را باز کنید و کشور و شهر را دستی انتخاب کنید. نقشه داخل ایران با «نشان» و در کشورهای دیگر با Mapbox نمایش داده می‌شود."
+        },
+        "ar-SA": {
+          "q": "كيف تعثر خريطة الاكتشاف على مقدمي الخدمة القريبين مني؟",
+          "a": "اضغط «استخدام موقعي». سيطلب المتصفح إذنك، ثم تتمركز الخريطة على موقعك وتعرض افتراضيًا مقدمي الخدمة ضمن 20 كم. وإذا كنت لا تريد مشاركة موقعك، افتح «فلاتر متقدمة» واختر الدولة والمدينة يدويًا. تُعرض الخريطة داخل إيران عبر خرائط «نشان»، وخارجها عبر Mapbox."
+        },
+        "tr-TR": {
+          "q": "Haritada Keşfet yakınımdaki sağlayıcıları nasıl bulur?",
+          "a": "“Konumumu kullan”a dokunun. Tarayıcınız izin ister; ardından harita sizi merkeze alır ve varsayılan olarak 20 km içindeki sağlayıcıları gösterir. Konumunuzu paylaşmak istemiyorsanız bunun yerine “Gelişmiş Filtreler”i açıp bir ülke ve şehir seçin. Harita İran içinde Neshan, diğer yerlerde Mapbox ile çizilir."
+        },
+        "ku-KU": {
+          "q": "«دۆزینەوە لەسەر نەخشە» چۆن دابینکەرانی نزیکم دەدۆزێتەوە؟",
+          "a": "کرتە لەسەر «شوێنەکەم بەکاربهێنە» بکەن. وێبگەڕەکەتان داوای ڕێگەپێدان دەکات، پاشان نەخشەکە لەسەر شوێنەکەتان ناوەند دەبێت و بە شێوەی بنەڕەتی دابینکەرانی ناو 20 کیلۆمەتر پیشان دەدات. ئەگەر حەز ناکەن شوێنەکەتان هاوبەش بکەن، «فلتەرە پێشکەوتووەکان» بکەنەوە و لە جیاتی ئەوە وڵات و شارێک هەڵبژێرن. لەناو ئێران نەخشەکە بە Neshan و لە شوێنەکانی تر بە Mapbox دەکێشرێت."
+        },
+        "ru-RU": {
+          "q": "Как «Поиск на карте» находит поставщиков рядом со мной?",
+          "a": "Нажмите «Использовать моё местоположение». Браузер запросит разрешение, после чего карта отцентрируется на Вашем местоположении и по умолчанию покажет поставщиков в радиусе 20 км. Если Вы не хотите делиться местоположением, откройте «Расширенные фильтры» и выберите страну и город. В Иране карта отображается с помощью Neshan, в других странах — с помощью Mapbox."
+        },
+        "tg-TJ": {
+          "q": "«Кашф бо харита» хидматрасонҳои наздики маро чӣ тавр меёбад?",
+          "a": "«Макони маро истифода баред»-ро пахш кунед. Браузери шумо иҷозат мепурсад, баъд харита дар атрофи шумо марказонида мешавад ва ба таври пешфарз хидматрасонҳоро дар радиуси 20 км нишон медиҳад. Агар нахоҳед ҷойгиршавии худро нишон диҳед, «Филтрҳои пешрафта»-ро кушоед ва ба ҷои ин кишвар ва шаҳрро интихоб кунед. Дар дохили Эрон харита бо Neshan ва дар ҷойҳои дигар бо Mapbox кашида мешавад."
+        },
+        "zh-CN": {
+          "q": "“地图探索”如何找到我附近的服务商？",
+          "a": "点击“使用我的位置”。浏览器会请求授权，随后地图会以您的位置为中心，默认显示20公里范围内的服务商。如果您不想共享位置，可以打开“高级筛选”，改为选择国家和城市。在伊朗境内，地图由Neshan提供；在其他地区，则由Mapbox提供。"
+        },
+        "de-DE": {
+          "q": "Wie findet die Kartensuche Anbieter in meiner Nähe?",
+          "a": "Tippen Sie auf „Meinen Standort verwenden“. Ihr Browser fragt nach der Erlaubnis; anschließend zentriert sich die Karte auf Ihren Standort und zeigt standardmäßig Anbieter im Umkreis von 20 km. Wenn Sie Ihren Standort lieber nicht teilen möchten, öffnen Sie „Erweiterte Filter“ und wählen Sie stattdessen ein Land und eine Stadt. Im Iran wird die Karte mit Neshan dargestellt, an anderen Orten mit Mapbox."
+        },
+        "fr-FR": {
+          "q": "Comment la Découverte sur la carte trouve-t-elle les prestataires près de moi ?",
+          "a": "Touchez « Utiliser ma position ». Votre navigateur vous demande l’autorisation, puis la carte se centre sur vous et affiche par défaut les prestataires situés dans un rayon de 20 km. Si vous préférez ne pas partager votre position, ouvrez « Filtres avancés » et choisissez plutôt un pays et une ville. En Iran, la carte est fournie par Neshan, et ailleurs par Mapbox."
+        },
+        "es-ES": {
+          "q": "¿Cómo encuentra Explorar el mapa proveedores cerca de mí?",
+          "a": "Toque «Usar mi ubicación». Su navegador le pedirá permiso; después, el mapa se centra en su posición y muestra, de forma predeterminada, los proveedores en un radio de 20 km. Si prefiere no compartir su ubicación, abra «Filtros avanzados» y elija un país y una ciudad. Dentro de Irán el mapa se muestra con Neshan, y en el resto del mundo con Mapbox."
+        }
+      }
+    },
+    {
+      "locales": {
+        "en-US": {
+          "q": "How do I change the distance and other map filters?",
+          "a": "Open “Advanced Filters”. The “Distance” slider starts at 1 km, and its far end, “Unlimited”, removes the radius altogether. You can also filter by specialties, languages spoken, price range and currency, minimum rating and “Verified Providers Only”. Tap “Apply Filters”. The hint under the filter button always shows the distance currently in use."
+        },
+        "fa-IR": {
+          "q": "چطور فاصله و بقیهٔ فیلترهای نقشه را تغییر دهم؟",
+          "a": "«فیلترهای پیشرفته» را باز کنید. نوار «فاصله» از ۱ کیلومتر شروع می‌شود و انتهای آن، «نامحدود»، محدودیت شعاع را کاملاً برمی‌دارد. می‌توانید بر اساس «تخصص‌ها»، «زبان‌های قابل مکالمه»، «بازه قیمت» و واحد پول، «حداقل امتیاز» و «فقط ارائه‌دهندگان تأییدشده» هم فیلتر کنید و بعد «اعمال فیلترها» را بزنید. متن زیر دکمهٔ فیلتر همیشه فاصلهٔ فعلی را نشان می‌دهد."
+        },
+        "ar-SA": {
+          "q": "كيف أغيّر المسافة وفلاتر الخريطة الأخرى؟",
+          "a": "افتح «فلاتر متقدمة». يبدأ شريط «المسافة» من 1 كم، وطرفه الأقصى «غير محدود» يلغي حدود النطاق تمامًا. ويمكنك أيضًا التصفية حسب «التخصصات» واللغات المحكية ونطاق السعر والعملة والحد الأدنى للتقييم وعرض المزوّدين الموثّقين فقط، ثم اضغط «تطبيق الفلاتر». ويعرض السطر الموجود أسفل زر الفلاتر المسافة المستخدمة حاليًا."
+        },
+        "tr-TR": {
+          "q": "Mesafeyi ve diğer harita filtrelerini nasıl değiştiririm?",
+          "a": "“Gelişmiş Filtreler”i açın. “Mesafe” kaydırıcısı 1 km'den başlar; en uçtaki “Sınırsız” değeri yarıçap sınırını tamamen kaldırır. Uzmanlık alanlarına, konuşulan dillere, fiyat aralığı ve para birimine, en düşük puana ve “Sadece Doğrulanmış Sağlayıcılar” seçeneğine göre de filtreleyebilirsiniz. “Filtreleri Uygula”ya dokunun. Filtre düğmesinin altındaki ipucu her zaman kullanılan mesafeyi gösterir."
+        },
+        "ku-KU": {
+          "q": "چۆن دووری و فلتەرەکانی تری نەخشە بگۆڕم؟",
+          "a": "«فلتەرە پێشکەوتووەکان» بکەنەوە. خلیسکێنەری «دووری» لە 1 کیلۆمەترەوە دەست پێ دەکات، و کۆتاییەکەی، «بێ سنوور»، سنووری نیوەتیرەکە بە تەواوی لادەبات. هەروەها دەتوانن بەپێی پسپۆڕی، ئەو زمانانەی قسەیان پێ دەکرێت، مەودای نرخ و دراو، کەمترین هەڵسەنگاندن و «تەنها دابینکەرە پشتڕاستکراوەکان» فلتەر بکەن. کرتە لەسەر «جێبەجێکردنی فلتەرەکان» بکەن. ڕێنماییەکەی ژێر دوگمەی فلتەر هەمیشە ئەو دوورییە پیشان دەدات کە ئێستا بەکاردێت."
+        },
+        "ru-RU": {
+          "q": "Как изменить расстояние и другие фильтры карты?",
+          "a": "Откройте «Расширенные фильтры». Ползунок «Расстояние» начинается с 1 км, а крайнее положение «Без ограничений» полностью снимает ограничение по радиусу. Также можно фильтровать по специальностям, языкам общения, диапазону цен и валюте, минимальному рейтингу и включить «Только проверенные специалисты». Нажмите «Применить фильтры». Подсказка под кнопкой фильтров всегда показывает расстояние, которое используется сейчас."
+        },
+        "tg-TJ": {
+          "q": "Масофа ва дигар филтрҳои харитаро чӣ тавр тағйир диҳам?",
+          "a": "«Филтрҳои пешрафта»-ро кушоед. Лағжандаи «Масофа» аз 1 км сар мешавад ва нуқтаи охири он, «Бемаҳдудият», радиусро пурра бекор мекунад. Инчунин метавонед аз рӯи тахассус, забонҳои муошират, диапазони нарх ва асъор, баҳои ҳадди ақал ва «Танҳо хидматрасонҳои тасдиқшуда» филтр кунед. «Татбиқи филтрҳо»-ро пахш кунед. Ишораи зери тугмаи филтр ҳамеша масофаи ҳозира истифодашавандаро нишон медиҳад."
+        },
+        "zh-CN": {
+          "q": "如何修改距离和其他地图筛选条件？",
+          "a": "打开“高级筛选”。“距离”滑块从1公里起，拉到最右端的“不限”即可完全取消范围限制。您还可以按专长、服务语言、价格区间和货币、最低评分以及“仅看认证服务商”进行筛选。点击“应用筛选”即可。筛选按钮下方的提示会始终显示当前使用的距离。"
+        },
+        "de-DE": {
+          "q": "Wie ändere ich die Entfernung und andere Kartenfilter?",
+          "a": "Öffnen Sie „Erweiterte Filter“. Der Schieberegler „Entfernung“ beginnt bei 1 km, und sein äußerstes Ende, „Unbegrenzt“, hebt den Umkreis ganz auf. Sie können außerdem nach Fachgebieten, gesprochenen Sprachen, Preisspanne und Währung, Mindestbewertung und „Nur verifizierte Anbieter“ filtern. Tippen Sie auf „Filter anwenden“. Der Hinweis unter der Filterschaltfläche zeigt immer die aktuell verwendete Entfernung."
+        },
+        "fr-FR": {
+          "q": "Comment modifier la distance et les autres filtres de la carte ?",
+          "a": "Ouvrez « Filtres avancés ». Le curseur « Distance » commence à 1 km, et sa position extrême, « Illimité », supprime toute limite de rayon. Vous pouvez aussi filtrer par spécialités, langues parlées, fourchette de prix et devise, note minimale et « Prestataires vérifiés uniquement ». Touchez « Appliquer les filtres ». L’indication sous le bouton des filtres affiche toujours la distance actuellement appliquée."
+        },
+        "es-ES": {
+          "q": "¿Cómo cambio la distancia y otros filtros del mapa?",
+          "a": "Abra «Filtros avanzados». El control deslizante «Distancia» empieza en 1 km, y su extremo, «Sin límite», elimina el radio por completo. También puede filtrar por especialidades, idiomas, rango de precios y moneda, valoración mínima y «Solo proveedores verificados». Toque «Aplicar filtros». La indicación que aparece bajo el botón de filtros muestra siempre la distancia que se está aplicando."
+        }
+      }
+    },
+    {
+      "locales": {
+        "en-US": {
+          "q": "Why does the map show providers outside the area I chose?",
+          "a": "When nothing matches inside your selected area, Map Discovery shows the nearest available services instead, sorted by distance, and a note above the results tells you so. If you see “No services found. Try widening your filters.”, increase the distance or remove a filter. Only providers that have added their location to LSevin can appear on the map."
+        },
+        "fa-IR": {
+          "q": "چرا نقشه ارائه‌دهندگانی خارج از محدودهٔ انتخابی من نشان می‌دهد؟",
+          "a": "وقتی در محدودهٔ انتخابی شما موردی پیدا نشود، «کشف روی نقشه» نزدیک‌ترین خدمات موجود را بر اساس فاصله نشان می‌دهد و یادداشتی بالای نتایج همین را توضیح می‌دهد. اگر پیام «خدمتی پیدا نشد. فیلترها را بازتر کنید.» را دیدید، فاصله را بیشتر کنید یا یکی از فیلترها را بردارید. فقط ارائه‌دهندگانی روی نقشه دیده می‌شوند که موقعیت خود را در السوین ثبت کرده‌اند."
+        },
+        "ar-SA": {
+          "q": "لماذا تعرض الخريطة مقدمي خدمة خارج المنطقة التي اخترتها؟",
+          "a": "عندما لا توجد نتائج داخل المنطقة المحددة، تعرض خريطة الاكتشاف أقرب الخدمات المتاحة مرتبة حسب المسافة، وتظهر ملاحظة أعلى النتائج توضح ذلك. وإذا ظهرت رسالة «لم يتم العثور على خدمات. جرّب توسيع عوامل التصفية.» فزد المسافة أو أزل أحد الفلاتر. لا يظهر على الخريطة إلا مقدمو الخدمة الذين أضافوا موقعهم إلى لسوين."
+        },
+        "tr-TR": {
+          "q": "Harita neden seçtiğim alanın dışındaki sağlayıcıları gösteriyor?",
+          "a": "Seçtiğiniz alanda eşleşen bir sonuç olmadığında Haritada Keşfet bunun yerine en yakın mevcut hizmetleri mesafeye göre sıralayarak gösterir; sonuçların üzerindeki bir not da bunu belirtir. “Hizmet bulunamadı. Filtrelerinizi genişletmeyi deneyin.” mesajını görürseniz mesafeyi artırın veya bir filtreyi kaldırın. Haritada yalnızca konumunu LSevin'e eklemiş sağlayıcılar görünebilir."
+        },
+        "ku-KU": {
+          "q": "بۆچی نەخشەکە دابینکەری دەرەوەی ئەو ناوچەیەی هەڵمبژاردووە پیشان دەدات؟",
+          "a": "کاتێک هیچ شتێک لەناو ناوچە هەڵبژێردراوەکەتاندا نەگونجێت، «دۆزینەوە لەسەر نەخشە» لە جیاتی ئەوە نزیکترین خزمەتە بەردەستەکان بەپێی دووری ڕیز دەکات و پیشانیان دەدات، و تێبینییەک لە سەرووی ئەنجامەکانەوە ئەمەتان پێ دەڵێت. ئەگەر «هیچ خزمەتگوزارییەک نەدۆزرایەوە. فلتەرەکانت فراوانتر بکە.» دەبینن، دووری زیاد بکەن یان فلتەرێک لاببەن. تەنها ئەو دابینکەرانەی شوێنی خۆیان خستووەتە سەر LSevin دەتوانن لەسەر نەخشە دەربکەون."
+        },
+        "ru-RU": {
+          "q": "Почему карта показывает поставщиков за пределами выбранной области?",
+          "a": "Если в выбранной области ничего не найдено, «Поиск на карте» показывает ближайшие доступные услуги, отсортированные по расстоянию, и над результатами появляется соответствующее пояснение. Если Вы видите сообщение «Услуги не найдены. Попробуйте расширить фильтры.», увеличьте расстояние или уберите один из фильтров. На карте могут отображаться только поставщики, которые указали своё местоположение на LSevin."
+        },
+        "tg-TJ": {
+          "q": "Чаро харита хидматрасонҳоро берун аз минтақаи интихобкардаам нишон медиҳад?",
+          "a": "Вақте ки дар дохили минтақаи интихобшуда ягон мувофиқат нест, «Кашф бо харита» ба ҷои он наздиктарин хидматҳои дастрасро аз рӯи масофа мураттаб карда нишон медиҳад ва ёддошти болои натиҷаҳо дар ин бора хабар медиҳад. Агар «Ягон хидмат ёфт нашуд. Филтрҳоро васеътар кунед.»-ро бинед, масофаро зиёд кунед ё як филтрро бардоред. Дар харита танҳо хидматрасонҳое пайдо мешаванд, ки ҷойгиршавии худро ба LSevin илова кардаанд."
+        },
+        "zh-CN": {
+          "q": "为什么地图上会显示我所选区域以外的服务商？",
+          "a": "当所选区域内没有匹配结果时，“地图探索”会改为按距离显示最近的可用服务，结果上方会有提示说明。如果看到“未找到服务，试试放宽筛选条件。”，请扩大距离或移除某个筛选条件。只有已在LSevin上添加位置信息的服务商才会显示在地图上。"
+        },
+        "de-DE": {
+          "q": "Warum zeigt die Karte Anbieter außerhalb des gewählten Gebiets?",
+          "a": "Wenn innerhalb des gewählten Gebiets nichts passt, zeigt die Kartensuche stattdessen die nächstgelegenen verfügbaren Leistungen, sortiert nach Entfernung, und ein Hinweis über den Ergebnissen weist darauf hin. Wenn Sie „Keine Leistungen gefunden. Erweitern Sie Ihre Filter.“ sehen, vergrößern Sie die Entfernung oder entfernen Sie einen Filter. Auf der Karte erscheinen nur Anbieter, die ihren Standort bei LSevin hinterlegt haben."
+        },
+        "fr-FR": {
+          "q": "Pourquoi la carte affiche-t-elle des prestataires hors de la zone choisie ?",
+          "a": "Lorsqu’aucun résultat ne correspond dans la zone sélectionnée, la Découverte sur la carte affiche à la place les services disponibles les plus proches, triés par distance, et une note au-dessus des résultats vous le signale. Si vous voyez « Aucun service trouvé. Essayez d’élargir vos filtres. », augmentez la distance ou retirez un filtre. Seuls les prestataires qui ont ajouté leur emplacement sur LSevin peuvent apparaître sur la carte."
+        },
+        "es-ES": {
+          "q": "¿Por qué el mapa muestra proveedores fuera de la zona que elegí?",
+          "a": "Cuando no hay coincidencias dentro de la zona seleccionada, Explorar el mapa muestra en su lugar los servicios disponibles más cercanos, ordenados por distancia, y un aviso encima de los resultados se lo indica. Si ve «No se encontraron servicios. Prueba a ampliar los filtros.», aumente la distancia o quite algún filtro. En el mapa solo pueden aparecer los proveedores que han añadido su ubicación en LSevin."
+        }
+      }
+    },
+    {
+      "locales": {
+        "en-US": {
+          "q": "Can I see results as a list and get directions to a provider?",
+          "a": "Yes. Switch between “Map” and “List” at the top of the results. Tap a provider to open its page; the “Location on map” section there has a “Get directions” button that opens the route in Google Maps. Opening a provider from the map keeps your filters, so you can go back and compare others."
+        },
+        "fa-IR": {
+          "q": "آیا می‌توانم نتایج را به‌صورت فهرست ببینم و تا ارائه‌دهنده مسیریابی کنم؟",
+          "a": "بله. بالای نتایج بین «نقشه» و «لیست» جابه‌جا شوید. با زدن روی هر ارائه‌دهنده صفحهٔ او باز می‌شود و در بخش «موقعیت روی نقشه» دکمهٔ «مسیریابی» هست که مسیر را در Google Maps باز می‌کند. با بازگشت از صفحهٔ ارائه‌دهنده، فیلترهای شما سر جایشان می‌مانند و می‌توانید گزینه‌های دیگر را هم مقایسه کنید."
+        },
+        "ar-SA": {
+          "q": "هل يمكنني عرض النتائج كقائمة والحصول على اتجاهات الوصول إلى مقدم الخدمة؟",
+          "a": "نعم. بدّل بين «الخريطة» و«القائمة» أعلى النتائج. اضغط على أي مقدم خدمة لفتح صفحته، وستجد في قسم «الموقع على الخريطة» زر «احصل على الاتجاهات» الذي يفتح المسار في خرائط Google. وعند العودة من صفحة مقدم الخدمة تبقى فلاترك كما هي لتقارن بخيارات أخرى."
+        },
+        "tr-TR": {
+          "q": "Sonuçları liste olarak görebilir ve bir sağlayıcıya yol tarifi alabilir miyim?",
+          "a": "Evet. Sonuçların üstünde “Harita” ve “Liste” arasında geçiş yapın. Sayfasını açmak için bir sağlayıcıya dokunun; oradaki “Haritada konum” bölümünde, rotayı Google Haritalar'da açan bir “Yol tarifi al” düğmesi bulunur. Bir sağlayıcıyı haritadan açtığınızda filtreleriniz korunur; böylece geri dönüp diğerleriyle karşılaştırabilirsiniz."
+        },
+        "ku-KU": {
+          "q": "دەتوانم ئەنجامەکان وەک لیست ببینم و ڕێگای گەیشتن بە دابینکەرێک وەربگرم؟",
+          "a": "بەڵێ. لە سەرەوەی ئەنجامەکان لە نێوان «نەخشە» و «لیست»دا بگۆڕن. کرتە لەسەر دابینکەرێک بکەن بۆ کردنەوەی پەڕەکەی؛ بەشی «شوێن لەسەر نەخشە» لەوێ دوگمەیەکی «ڕێگا وەربگرە»ی هەیە کە ڕێگاکە لە Google Maps دەکاتەوە. کردنەوەی دابینکەر لە نەخشەوە فلتەرەکانتان دەپارێزێت، بۆیە دەتوانن بگەڕێنەوە و ئەوانی تر بەراورد بکەن."
+        },
+        "ru-RU": {
+          "q": "Можно ли посмотреть результаты списком и проложить маршрут до поставщика?",
+          "a": "Да. Переключайтесь между режимами «Карта» и «Список» вверху результатов. Нажмите на поставщика, чтобы открыть его страницу; в разделе «Расположение на карте» есть кнопка «Проложить маршрут», которая открывает маршрут в Google Maps. Если открыть поставщика с карты, фильтры сохраняются, поэтому можно вернуться и сравнить других."
+        },
+        "tg-TJ": {
+          "q": "Оё натиҷаҳоро ҳамчун рӯйхат дида ва роҳи расидан ба хидматрасонро гирифта метавонам?",
+          "a": "Бале. Дар болои натиҷаҳо байни «Харита» ва «Рӯйхат» гузаред. Хидматрасонро пахш кунед, то саҳифаи он кушода шавад; дар бахши «Ҷойгиршавӣ дар харита» тугмаи «Масир гирифтан» ҳаст, ки масирро дар Google Maps мекушояд. Вақте ки хидматрасонро аз харита мекушоед, филтрҳои шумо нигоҳ дошта мешаванд, бинобар ин метавонед баргашта дигаронро муқоиса кунед."
+        },
+        "zh-CN": {
+          "q": "可以以列表形式查看结果，并获取前往服务商的路线吗？",
+          "a": "可以。在结果顶部的“地图”和“列表”之间切换即可。点击某个服务商可打开其页面，页面中的“地图位置”部分有一个“获取路线”按钮，会在Google地图中打开路线。从地图打开服务商时会保留您的筛选条件，方便您返回比较其他服务商。"
+        },
+        "de-DE": {
+          "q": "Kann ich die Ergebnisse als Liste sehen und mir den Weg zu einem Anbieter anzeigen lassen?",
+          "a": "Ja. Wechseln Sie oben in den Ergebnissen zwischen „Karte“ und „Liste“. Tippen Sie auf einen Anbieter, um seine Seite zu öffnen; im Abschnitt „Standort auf der Karte“ gibt es dort die Schaltfläche „Route anzeigen“, die die Route in Google Maps öffnet. Wenn Sie einen Anbieter von der Karte aus öffnen, bleiben Ihre Filter erhalten, sodass Sie zurückgehen und andere vergleichen können."
+        },
+        "fr-FR": {
+          "q": "Puis-je afficher les résultats sous forme de liste et obtenir l’itinéraire vers un prestataire ?",
+          "a": "Oui. Basculez entre « Carte » et « Liste » en haut des résultats. Touchez un prestataire pour ouvrir sa page : la section « Emplacement sur la carte » comporte un bouton « Itinéraire » qui ouvre le trajet dans Google Maps. Lorsque vous ouvrez un prestataire depuis la carte, vos filtres sont conservés : vous pouvez donc revenir en arrière et en comparer d’autres."
+        },
+        "es-ES": {
+          "q": "¿Puedo ver los resultados en una lista y obtener indicaciones para llegar a un proveedor?",
+          "a": "Sí. Cambie entre «Mapa» y «Lista» en la parte superior de los resultados. Toque un proveedor para abrir su página; allí, la sección «Ubicación en el mapa» tiene un botón «Cómo llegar» que abre la ruta en Google Maps. Si abre un proveedor desde el mapa, sus filtros se mantienen, de modo que puede volver y comparar otros."
+        }
+      }
+    }
+  ]
+}

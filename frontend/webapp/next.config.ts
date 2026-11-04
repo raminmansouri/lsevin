@@ -73,6 +73,12 @@ const nextConfig: NextConfig = {
   },
   output: "standalone",
 
+  // No in-memory ISR/data cache. A heap profile of the live pod on server B (2026-11-02) showed the memory that kept growing was
+  // Next's own response cache (handleRevalidate -> set, plus the retained render results): every locale x service page the
+  // crawlers (ClaudeBot, Amazonbot, Googlebot ...) fetched stayed in the Node process, the pod reached its 2Gi limit every
+  // 25-40 minutes and was OOM-killed, which served Bad Gateway while it restarted. Entries are still cached, on disk.
+  cacheMaxMemorySize: 0,
+
   // Next compresses with gzip by default. Caddy sits in front of it with
   // `encode zstd gzip` (deployments/docker/Caddyfile.server) but will not
   // re-compress a response that already carries a Content-Encoding, so every

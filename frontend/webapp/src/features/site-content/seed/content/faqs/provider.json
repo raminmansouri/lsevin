@@ -1,0 +1,308 @@
+{
+  "scope": "provider",
+  "entityKey": null,
+  "sources": [
+    "src/app/[locale]/n/app/mobile/provider/[id]/provider-detail-view.tsx: tabs Overview/Services/Specialists/Reviews; action bar 'View services' scrolls to Services; empty.services when none published",
+    "src/app/[locale]/n/app/mobile/service/[id]/service-page.tsx: Book Now -> booking wizard; src/lib/auth/routes.ts: booking requires sign-in",
+    "src/features/service-providers/components/details/provider-action-bar.tsx: phone button (Contact) navigates to /n/app/mobile/support; ConsultationCtaButton 'Free consultation before booking'",
+    "src/app/[locale]/n/app/mobile/provider/[id]/provider-detail-view.tsx: Contact section tel:/mailto: when listed; Location on map + Get directions (Google Maps)",
+    "src/app/[locale]/n/app/mobile/provider/[id]/provider-detail-view.tsx sections.languages / sections.policies: shown only when the provider lists them",
+    "messages/en.json ServicePage.policies.title 'Provider policies'; Booking.paidAmountsMayBeRefundableDependingOnTheProvider",
+    "src/booking/actions/cancel-booking + src/app/[locale]/n/app/mobile/bookings/[id]/page.tsx: customer cancels from booking details",
+    "src/features/refunds/server/repository.ts approveRefundToWallet: approved booking refunds are credited to the customer wallet",
+    "src/features/booking-pro/components/BookingWizard.tsx useLsevin + ChildAddonBookingCard.tsx scope 'city' default: add-on hotels in the provider's city first, widen to country",
+    "messages/en.json Booking.stay (check-in/check-out, nights) + BookingItinerary.atMyStay: service location at my stay",
+    "src/app/[locale]/n/app/mobile/provider/[id]/provider-detail-view.tsx: reviews from customers with a booking publish at once, others await moderation; errors.signInToReview; reviews.sort newest/helpful/buyers",
+    "messages/en.json Home.trusted.subtitle 'Verified by our quality team' + ProviderPage.badges.verified"
+  ],
+  "items": [
+    {
+      "locales": {
+        "en-US": {
+          "q": "How do I book with this provider?",
+          "a": "Tap “View services” or open the “Services” tab, choose a service and tap “Book Now” on its page. The booking then asks for a time and, if the service needs one, a specialist, and ends at “Review & Pay”. You need to be signed in. If the provider hasn't published any services yet, the tab says “No active services” and booking isn't available."
+        },
+        "fa-IR": {
+          "q": "چطور از این ارائه‌دهنده نوبت یا رزرو بگیرم؟",
+          "a": "روی «مشاهده خدمات» بزنید یا زبانهٔ «خدمات» را باز کنید، خدمت موردنظر را انتخاب کنید و در صفحهٔ آن «رزرو کنید» را بزنید. پس از آن زمان و در صورت نیاز متخصص را انتخاب می‌کنید و رزرو در مرحلهٔ «بررسی و پرداخت» تمام می‌شود. برای رزرو باید وارد حساب خود شوید. اگر ارائه‌دهنده هنوز خدمتی منتشر نکرده باشد، در این زبانه «خدمت فعالی وجود ندارد» نمایش داده می‌شود و رزرو ممکن نیست."
+        },
+        "ar-SA": {
+          "q": "كيف أحجز لدى مقدم الخدمة هذا؟",
+          "a": "اضغط «عرض الخدمات» أو افتح تبويب «الخدمات»، واختر الخدمة ثم اضغط «احجز الآن» في صفحتها. بعد ذلك تختار الموعد والأخصائي إذا تطلبت الخدمة ذلك، وينتهي الحجز بخطوة «المراجعة والدفع». يلزم تسجيل الدخول للحجز. وإذا لم ينشر مقدم الخدمة أي خدمات بعد، يظهر في التبويب «لا توجد خدمات نشطة» ولا يمكن الحجز."
+        },
+        "tr-TR": {
+          "q": "Bu sağlayıcıda nasıl rezervasyon yaparım?",
+          "a": "“Hizmetleri gör”e dokunun veya “Hizmetler” sekmesini açın, bir hizmet seçin ve sayfasında “Hemen Randevu Al”a dokunun. Rezervasyon ardından bir saat ve hizmet gerektiriyorsa bir uzman seçmenizi ister ve “İncele ve Öde” adımıyla tamamlanır. Giriş yapmış olmanız gerekir. Sağlayıcı henüz hiçbir hizmet yayımlamadıysa sekmede “Aktif hizmet yok” yazar ve rezervasyon yapılamaz."
+        },
+        "ku-KU": {
+          "q": "چۆن لای ئەم دابینکەرە حجز بکەم؟",
+          "a": "کرتە لەسەر «بینینی خزمەتەکان» بکەن یان تابی «خزمەتەکان» بکەنەوە، خزمەتێک هەڵبژێرن و لە پەڕەکەیدا کرتە لەسەر «ئێستا حجز بکە» بکەن. پاشان حجزەکە داوای کاتێک دەکات و، ئەگەر خزمەتەکە پێویستی پێی بێت، پسپۆڕێک، و لە «پێداچوونەوە و پارەدان» کۆتایی دێت. پێویستە چووبنە ژوورەوە. ئەگەر دابینکەر هێشتا هیچ خزمەتێکی بڵاو نەکردبێتەوە، تابەکە «هیچ خزمەتێکی چالاک نییە» پیشان دەدات و حجزکردن بەردەست نییە."
+        },
+        "ru-RU": {
+          "q": "Как забронировать услугу у этого поставщика?",
+          "a": "Нажмите «Смотреть услуги» или откройте вкладку «Услуги», выберите услугу и нажмите «Записаться» на её странице. Далее нужно выбрать время и, если этого требует услуга, специалиста; последний шаг — «Проверка и оплата». Для этого нужно войти в аккаунт. Если поставщик ещё не опубликовал ни одной услуги, на вкладке написано «Нет активных услуг», и бронирование недоступно."
+        },
+        "tg-TJ": {
+          "q": "Чӣ тавр бо ин хидматрасон брон кунам?",
+          "a": "«Дидани хидматҳо»-ро пахш кунед ё бахши «Хидматҳо»-ро кушоед, хидматро интихоб кунед ва дар саҳифаи он «Ҳозир брон кунед»-ро пахш кунед. Баъд брон вақт ва, агар хидмат талаб кунад, мутахассисро мепурсад ва бо «Санҷиш ва пардохт» анҷом меёбад. Шумо бояд ворид шуда бошед. Агар хидматрасон ҳанӯз ягон хидмат нашр накарда бошад, дар ин бахш «Хидмати фаъол нест» навишта мешавад ва брон дастрас нест."
+        },
+        "zh-CN": {
+          "q": "如何预约这家服务商？",
+          "a": "点击“查看服务”或打开“服务”标签页，选择一项服务，然后在服务页面点击“立即预约”。接下来会要求您选择时间，如服务需要还要选择专家，最后进入“核对与支付”。您需要先登录。如果该服务商尚未发布任何服务，标签页会显示“暂无在售服务”，此时无法预约。"
+        },
+        "de-DE": {
+          "q": "Wie buche ich bei diesem Anbieter?",
+          "a": "Tippen Sie auf „Leistungen ansehen“ oder öffnen Sie den Tab „Leistungen“, wählen Sie eine Leistung und tippen Sie auf deren Seite auf „Jetzt buchen“. Die Buchung fragt dann nach einer Uhrzeit und, falls die Leistung es erfordert, nach einem Spezialisten und endet bei „Prüfen & Bezahlen“. Sie müssen angemeldet sein. Hat der Anbieter noch keine Leistungen veröffentlicht, zeigt der Tab „Keine aktiven Leistungen“, und eine Buchung ist nicht möglich."
+        },
+        "fr-FR": {
+          "q": "Comment réserver auprès de ce prestataire ?",
+          "a": "Touchez « Voir les services » ou ouvrez l’onglet « Services », choisissez un service et touchez « Réserver » sur sa page. La réservation vous demande ensuite un horaire et, si le service l’exige, un spécialiste, puis se termine à l’étape « Vérification et paiement ». Vous devez être connecté. Si le prestataire n’a encore publié aucun service, l’onglet indique « Aucun service actif » et la réservation n’est pas disponible."
+        },
+        "es-ES": {
+          "q": "¿Cómo reservo con este proveedor?",
+          "a": "Toque «Ver servicios» o abra la pestaña «Servicios», elija un servicio y toque «Reservar ahora» en su página. La reserva le pedirá una hora y, si el servicio lo requiere, un especialista, y terminará en «Revisar y pagar». Debe haber iniciado sesión. Si el proveedor todavía no ha publicado ningún servicio, la pestaña indica «Sin servicios activos» y no es posible reservar."
+        }
+      }
+    },
+    {
+      "locales": {
+        "en-US": {
+          "q": "How can I ask this provider a question before booking?",
+          "a": "Tap the phone button at the bottom of the page to reach LSevin support, or tap “Free consultation before booking” and an LSevin advisor will call you back. If the provider has listed a phone number or email, you'll find it in the “Contact” section. “Location on map” has a “Get directions” button if you want to see where it is first."
+        },
+        "fa-IR": {
+          "q": "چطور پیش از رزرو از این ارائه‌دهنده سؤال بپرسم؟",
+          "a": "دکمهٔ تلفن پایین صفحه را بزنید تا به پشتیبانی السوین وصل شوید، یا «مشاوره قبل از رزرو» را بزنید تا کارشناس السوین با شما تماس بگیرد. اگر ارائه‌دهنده شماره تلفن یا ایمیل ثبت کرده باشد، آن را در بخش «تماس» می‌بینید. اگر می‌خواهید اول محل را ببینید، در بخش «موقعیت روی نقشه» دکمهٔ «مسیریابی» هست."
+        },
+        "ar-SA": {
+          "q": "كيف أطرح سؤالًا على مقدم الخدمة قبل الحجز؟",
+          "a": "اضغط زر الهاتف أسفل الصفحة للوصول إلى دعم لسوين، أو اضغط «استشارة مجانية قبل الحجز» وسيتصل بك أحد مستشاري لسوين. وإذا أدرج مقدم الخدمة رقم هاتف أو بريدًا إلكترونيًا، فستجده في قسم «التواصل». وإذا أردت معرفة المكان أولًا، ففي قسم «الموقع على الخريطة» زر «احصل على الاتجاهات»."
+        },
+        "tr-TR": {
+          "q": "Rezervasyondan önce bu sağlayıcıya nasıl soru sorabilirim?",
+          "a": "LSevin desteğine ulaşmak için sayfanın altındaki telefon düğmesine dokunun ya da “Randevudan önce ücretsiz danışmanlık”a dokunun; bir LSevin danışmanı sizi geri arar. Sağlayıcı bir telefon numarası veya e-posta adresi eklemişse bunu “İletişim” bölümünde bulabilirsiniz. Önce nerede olduğunu görmek isterseniz “Haritada konum” bölümünde bir “Yol tarifi al” düğmesi vardır."
+        },
+        "ku-KU": {
+          "q": "چۆن پێش حجزکردن پرسیارێک لەم دابینکەرە بکەم؟",
+          "a": "کرتە لەسەر دوگمەی تەلەفۆن لە خوارەوەی پەڕەکە بکەن بۆ گەیشتن بە پشتگیریی LSevin، یان کرتە لەسەر «ڕاوێژکاریی بەخۆڕایی پێش کاتبەندی» بکەن و ڕاوێژکارێکی LSevin پەیوەندیتان پێوە دەکاتەوە. ئەگەر دابینکەر ژمارەی تەلەفۆن یان ئیمەیڵی داناوە، لە بەشی «پەیوەندی»دا دەیدۆزنەوە. ئەگەر دەتانەوێت سەرەتا ببینن لە کوێیە، «شوێن لەسەر نەخشە» دوگمەیەکی «ڕێگا وەربگرە»ی هەیە."
+        },
+        "ru-RU": {
+          "q": "Как задать вопрос этому поставщику до бронирования?",
+          "a": "Нажмите кнопку с телефоном внизу страницы, чтобы связаться с поддержкой LSevin, или нажмите «Бесплатная консультация перед записью», и консультант LSevin Вам перезвонит. Если поставщик указал номер телефона или адрес электронной почты, они есть в разделе «Контакты». Если сначала хотите посмотреть, где находится поставщик, в разделе «Расположение на карте» есть кнопка «Проложить маршрут»."
+        },
+        "tg-TJ": {
+          "q": "Пеш аз брон чӣ тавр аз ин хидматрасон савол диҳам?",
+          "a": "Барои тамос бо дастгирии LSevin тугмаи телефонро дар поёни саҳифа пахш кунед ё «Машварати ройгон пеш аз қабул»-ро пахш кунед ва мушовири LSevin ба шумо занг мезанад. Агар хидматрасон рақами телефон ё почтаи электронӣ гузошта бошад, онро дар бахши «Тамос» меёбед. Агар хоҳед аввал бинед, ки он дар куҷост, дар «Ҷойгиршавӣ дар харита» тугмаи «Масир гирифтан» ҳаст."
+        },
+        "zh-CN": {
+          "q": "预约前如何向这家服务商咨询问题？",
+          "a": "点击页面底部的电话按钮联系LSevin客服，或点击“预约前免费咨询”，LSevin顾问会给您回电。如果服务商填写了电话号码或邮箱，可以在“联系方式”部分找到。如果想先了解具体位置，“地图位置”部分有“获取路线”按钮。"
+        },
+        "de-DE": {
+          "q": "Wie kann ich diesem Anbieter vor der Buchung eine Frage stellen?",
+          "a": "Tippen Sie auf die Telefonschaltfläche unten auf der Seite, um den LSevin Support zu erreichen, oder tippen Sie auf „Kostenlose Beratung vor der Buchung“, und ein LSevin Berater ruft Sie zurück. Hat der Anbieter eine Telefonnummer oder E-Mail-Adresse angegeben, finden Sie sie im Abschnitt „Kontakt“. Unter „Standort auf der Karte“ gibt es die Schaltfläche „Route anzeigen“, falls Sie zuerst sehen möchten, wo der Anbieter liegt."
+        },
+        "fr-FR": {
+          "q": "Comment poser une question à ce prestataire avant de réserver ?",
+          "a": "Touchez le bouton téléphone en bas de la page pour joindre l’assistance LSevin, ou touchez « Consultation gratuite avant réservation » et un conseiller LSevin vous rappellera. Si le prestataire a indiqué un numéro de téléphone ou une adresse e-mail, vous les trouverez dans la section « Coordonnées ». La section « Emplacement sur la carte » comporte un bouton « Itinéraire » si vous souhaitez d’abord voir où il se trouve."
+        },
+        "es-ES": {
+          "q": "¿Cómo puedo hacerle una pregunta a este proveedor antes de reservar?",
+          "a": "Toque el botón del teléfono en la parte inferior de la página para comunicarse con el soporte de LSevin, o toque «Consulta gratuita antes de reservar» y un asesor de LSevin le devolverá la llamada. Si el proveedor ha indicado un teléfono o un correo electrónico, los encontrará en la sección «Contacto». Si antes quiere ver dónde está, la sección «Ubicación en el mapa» tiene un botón «Cómo llegar»."
+        }
+      }
+    },
+    {
+      "locales": {
+        "en-US": {
+          "q": "What languages do the staff here speak?",
+          "a": "If the provider has listed them, the languages appear in the “Languages” section of this page. Specialists working here may list their own languages on their profiles, which you can open from the “Specialists” tab. If you need an interpreter, ask LSevin to arrange extra support services when you book, and add translation in the add-ons step where it's offered."
+        },
+        "fa-IR": {
+          "q": "کارکنان اینجا به چه زبان‌هایی صحبت می‌کنند؟",
+          "a": "اگر ارائه‌دهنده زبان‌ها را ثبت کرده باشد، آن‌ها را در بخش «زبان‌ها» در همین صفحه می‌بینید. متخصصانی که اینجا کار می‌کنند ممکن است زبان‌های خود را در پروفایلشان آورده باشند که از زبانهٔ «متخصصان» باز می‌شود. اگر به مترجم نیاز دارید، هنگام رزرو هماهنگی خدمات پشتیبانی تکمیلی توسط السوین را انتخاب کنید و در مرحلهٔ «خدمات جانبی»، در صورت وجود، ترجمه را اضافه کنید."
+        },
+        "ar-SA": {
+          "q": "ما اللغات التي يتحدثها الفريق هنا؟",
+          "a": "إذا أدرجها مقدم الخدمة، فستظهر اللغات في قسم «اللغات» في هذه الصفحة. وقد يذكر الأخصائيون العاملون هنا لغاتهم في ملفاتهم التي تفتحها من تبويب «الأخصائيون». وإذا احتجت إلى مترجم، فاختر عند الحجز أن ترتّب لسوين خدمات الدعم الإضافية، ثم أضف الترجمة في خطوة «الإضافات» إن كانت متاحة."
+        },
+        "tr-TR": {
+          "q": "Buradaki çalışanlar hangi dilleri konuşuyor?",
+          "a": "Sağlayıcı bu bilgiyi eklemişse diller bu sayfanın “Diller” bölümünde görünür. Burada çalışan uzmanlar kendi dillerini profillerinde belirtebilir; profillere “Uzmanlar” sekmesinden ulaşabilirsiniz. Tercümana ihtiyacınız varsa rezervasyon sırasında LSevin'den ek destek hizmetleri ayarlamasını isteyin ve sunulduğu durumlarda ek hizmetler adımında tercümanlık ekleyin."
+        },
+        "ku-KU": {
+          "q": "کارمەندانی ئێرە بە چ زمانێک قسە دەکەن؟",
+          "a": "ئەگەر دابینکەر تۆماری کردبن، زمانەکان لە بەشی «زمانەکان»ی ئەم پەڕەیەدا دەردەکەون. ئەو پسپۆڕانەی لێرە کار دەکەن لەوانەیە زمانەکانی خۆیان لە پرۆفایلەکانیاندا نووسیبێت، کە لە تابی «پسپۆڕان»ەوە دەیانکەنەوە. ئەگەر پێویستتان بە وەرگێڕە، لە کاتی حجزکردندا داوا لە LSevin بکەن خزمەتگوزاریی پشتیوانیی زیادە ڕێک بخات، و لە هەنگاوی خزمەتە زیادەکاندا، لەو شوێنانەی پێشکەش دەکرێت، وەرگێڕان زیاد بکەن."
+        },
+        "ru-RU": {
+          "q": "На каких языках говорят сотрудники?",
+          "a": "Если поставщик указал языки, они отображаются в разделе «Языки» на этой странице. Специалисты, которые здесь работают, могут указать свои языки в профилях; открыть их можно на вкладке «Специалисты». Если Вам нужен переводчик, при бронировании попросите LSevin организовать дополнительные услуги поддержки и добавьте перевод на шаге дополнительных услуг, если он там предлагается."
+        },
+        "tg-TJ": {
+          "q": "Кормандони ин ҷо бо кадом забонҳо гап мезананд?",
+          "a": "Агар хидматрасон онҳоро зикр карда бошад, забонҳо дар бахши «Забонҳо»-и ҳамин саҳифа нишон дода мешаванд. Мутахассисоне, ки дар ин ҷо кор мекунанд, метавонанд забонҳои худро дар профилҳояшон нишон диҳанд, ки онҳоро аз бахши «Мутахассисон» кушодан мумкин аст. Агар ба тарҷумон ниёз дошта бошед, ҳангоми брон аз LSevin ташкили хидматҳои иловагии дастгириро дархост кунед ва дар қадами иловаҳо, дар ҷое ки пешниҳод шудааст, тарҷумаро илова намоед."
+        },
+        "zh-CN": {
+          "q": "这里的工作人员会说哪些语言？",
+          "a": "如果服务商已填写，语言会显示在本页的“服务语言”部分。在这里执业的专家也可能在各自的资料中列出自己使用的语言，您可以从“专家”标签页打开查看。如果需要口译，请在预约时请LSevin安排额外的支持服务，并在附加项步骤中添加翻译服务（如有提供）。"
+        },
+        "de-DE": {
+          "q": "Welche Sprachen spricht das Personal hier?",
+          "a": "Sofern der Anbieter sie angegeben hat, stehen die Sprachen im Abschnitt „Sprachen“ dieser Seite. Spezialisten, die hier arbeiten, können ihre eigenen Sprachen in ihren Profilen angeben, die Sie über den Tab „Spezialisten“ öffnen. Wenn Sie einen Dolmetscher brauchen, bitten Sie LSevin bei der Buchung, zusätzliche Unterstützungsleistungen zu organisieren, und fügen Sie im Schritt für Zusatzleistungen eine Übersetzung hinzu, sofern sie angeboten wird."
+        },
+        "fr-FR": {
+          "q": "Quelles langues parle le personnel ?",
+          "a": "Si le prestataire les a renseignées, les langues figurent dans la section « Langues » de cette page. Les spécialistes qui y exercent peuvent indiquer leurs propres langues sur leur profil, accessible depuis l’onglet « Spécialistes ». Si vous avez besoin d’un interprète, demandez à LSevin d’organiser des services d’assistance supplémentaires lors de la réservation, puis ajoutez une prestation de traduction à l’étape des options lorsqu’elle est proposée."
+        },
+        "es-ES": {
+          "q": "¿Qué idiomas habla el personal de este centro?",
+          "a": "Si el proveedor los ha indicado, los idiomas aparecen en la sección «Idiomas» de esta página. Los especialistas que trabajan aquí pueden indicar sus propios idiomas en sus perfiles, que puede abrir desde la pestaña «Especialistas». Si necesita un intérprete, pida a LSevin que organice servicios de apoyo adicionales al reservar y añada la traducción en el paso de extras, donde esté disponible."
+        }
+      }
+    },
+    {
+      "locales": {
+        "en-US": {
+          "q": "What is this provider's cancellation policy?",
+          "a": "The provider's own rules are in the “Policies” section of this page, and on each service page under “Provider policies”. Read them before you book. To cancel, open the booking in “My bookings” and tap “Cancel booking”. Whether a paid amount is refunded depends on the provider's policy, and an approved refund is credited to your LSevin wallet."
+        },
+        "fa-IR": {
+          "q": "سیاست لغو این ارائه‌دهنده چیست؟",
+          "a": "قوانین خود ارائه‌دهنده در بخش «سیاست‌ها» در همین صفحه و در صفحهٔ هر خدمت زیر «سیاست‌های ارائه‌دهنده» آمده است؛ پیش از رزرو آن‌ها را بخوانید. برای لغو، رزرو را در «رزروهای من» باز کنید و «لغو رزرو» را بزنید. بازگشت مبلغ پرداخت‌شده به سیاست ارائه‌دهنده بستگی دارد و بازپرداخت تأییدشده به کیف پول السوین شما واریز می‌شود."
+        },
+        "ar-SA": {
+          "q": "ما سياسة الإلغاء لدى مقدم الخدمة هذا؟",
+          "a": "تجد قواعد مقدم الخدمة نفسه في قسم «السياسات» في هذه الصفحة، وفي صفحة كل خدمة تحت «سياسات مقدم الخدمة»، فاقرأها قبل الحجز. للإلغاء افتح الحجز في «حجوزاتي» واضغط «إلغاء الحجز». ويعتمد استرداد المبلغ المدفوع على سياسة مقدم الخدمة، ويُضاف الاسترداد المعتمد إلى محفظتك في لسوين."
+        },
+        "tr-TR": {
+          "q": "Bu sağlayıcının iptal politikası nedir?",
+          "a": "Sağlayıcının kendi kuralları bu sayfanın “Politikalar” bölümünde ve her hizmet sayfasındaki “Sağlayıcı politikaları” başlığı altında yer alır. Rezervasyon yapmadan önce bunları okuyun. İptal etmek için rezervasyonu “Rezervasyonlarım” bölümünde açın ve “Rezervasyonu iptal et”e dokunun. Ödenen bir tutarın iade edilip edilmeyeceği sağlayıcının politikasına bağlıdır; onaylanan geri ödeme LSevin cüzdanınıza aktarılır."
+        },
+        "ku-KU": {
+          "q": "سیاسەتی هەڵوەشاندنەوەی ئەم دابینکەرە چییە؟",
+          "a": "یاساکانی خودی دابینکەر لە بەشی «سیاسەتەکان»ی ئەم پەڕەیەدان، و لە پەڕەی هەر خزمەتێکیشدا لە ژێر «سیاسەتەکانی دابینکەر». پێش حجزکردن بیانخوێننەوە. بۆ هەڵوەشاندنەوە، حجزەکە لە «حجزەکانم» بکەنەوە و کرتە لەسەر «هەڵوەشاندنەوەی حجز» بکەن. ئەوەی ئایا بڕی دراو دەگەڕێندرێتەوە یان نا بەندە بە سیاسەتی دابینکەر، و پارەی پەسەندکراو دەخرێتە ناو جزدانی LSevinەکەتانەوە."
+        },
+        "ru-RU": {
+          "q": "Какая у этого поставщика политика отмены?",
+          "a": "Собственные правила поставщика указаны в разделе «Правила» на этой странице, а также на странице каждой услуги в блоке «Правила поставщика». Ознакомьтесь с ними до бронирования. Чтобы отменить бронирование, откройте его в разделе «Мои бронирования» и нажмите «Отменить бронирование». Вернут ли оплаченную сумму, зависит от политики поставщика, а одобренный возврат зачисляется на Ваш кошелёк LSevin."
+        },
+        "tg-TJ": {
+          "q": "Қоидаҳои бекоркунии ин хидматрасон кадомҳоянд?",
+          "a": "Қоидаҳои худи хидматрасон дар бахши «Қоидаҳо»-и ҳамин саҳифа ва дар саҳифаи ҳар хидмат дар зери «Қоидаҳои хидматрасон» оварда шудаанд. Пеш аз брон онҳоро хонед. Барои бекор кардан бронро дар «Бронҳои ман» кушоед ва «Бекор кардани брон»-ро пахш кунед. Баргардонидани маблағи пардохтшуда аз қоидаҳои хидматрасон вобаста аст ва маблағи тасдиқшуда ба ҳамёни LSevin-и шумо гузаронида мешавад."
+        },
+        "zh-CN": {
+          "q": "这家服务商的取消政策是什么？",
+          "a": "服务商自己的规定位于本页的“服务条款”部分，以及每个服务页面的“服务商政策”下。请在预约前仔细阅读。如需取消，请在“我的预约”中打开该预约，点击“取消预约”。已付款项能否退还取决于服务商的政策，获批的退款会存入您的LSevin钱包。"
+        },
+        "de-DE": {
+          "q": "Welche Stornierungsrichtlinie hat dieser Anbieter?",
+          "a": "Die eigenen Regeln des Anbieters finden Sie im Abschnitt „Richtlinien“ dieser Seite und auf jeder Leistungsseite unter „Anbieterrichtlinien“. Lesen Sie sie vor der Buchung. Zum Stornieren öffnen Sie die Buchung unter „Meine Buchungen“ und tippen auf „Buchung stornieren“. Ob ein gezahlter Betrag erstattet wird, hängt von der Richtlinie des Anbieters ab; eine genehmigte Erstattung wird Ihrem LSevin Wallet gutgeschrieben."
+        },
+        "fr-FR": {
+          "q": "Quelles sont les conditions d’annulation de ce prestataire ?",
+          "a": "Les règles propres au prestataire figurent dans la section « Politiques » de cette page, ainsi que sur chaque page de service sous « Conditions du prestataire ». Lisez-les avant de réserver. Pour annuler, ouvrez la réservation dans « Mes réservations » et touchez « Annuler la réservation ». Le remboursement d’une somme payée dépend des conditions du prestataire, et un remboursement accepté est crédité sur votre portefeuille LSevin."
+        },
+        "es-ES": {
+          "q": "¿Cuál es la política de cancelación de este proveedor?",
+          "a": "Las normas del propio proveedor figuran en la sección «Políticas» de esta página y, en la página de cada servicio, en «Políticas del proveedor». Léalas antes de reservar. Para cancelar, abra la reserva en «Mis reservas» y toque «Cancelar reserva». Que se reembolse o no un importe pagado depende de la política del proveedor, y los reembolsos aprobados se abonan en su monedero de LSevin."
+        }
+      }
+    },
+    {
+      "locales": {
+        "en-US": {
+          "q": "Can I book a hotel near this clinic or hospital?",
+          "a": "Yes. When you book a treatment here, tick the option for LSevin to arrange extra support services. In the add-ons step you can add a hotel stay with check-in and check-out dates and the number of adults; hotels in this provider's city are listed first, and you can widen the list to the whole country. For a service delivered where you're staying, choose “At my stay” as its location."
+        },
+        "fa-IR": {
+          "q": "آیا می‌توانم هتلی نزدیک این کلینیک یا بیمارستان رزرو کنم؟",
+          "a": "بله. هنگام رزرو درمان در اینجا، گزینهٔ هماهنگی خدمات پشتیبانی تکمیلی توسط السوین را تیک بزنید. در مرحلهٔ «خدمات جانبی» می‌توانید اقامت در هتل را با تاریخ ورود و خروج و تعداد بزرگسالان اضافه کنید؛ هتل‌های شهر همین ارائه‌دهنده اول نمایش داده می‌شوند و می‌توانید فهرست را به کل کشور گسترش دهید. برای خدمتی که در محل اقامتتان انجام می‌شود، محل ارائه خدمت را «در محل اقامت من» بگذارید."
+        },
+        "ar-SA": {
+          "q": "هل يمكنني حجز فندق قريب من هذه العيادة أو المستشفى؟",
+          "a": "نعم. عند حجز علاج هنا، فعّل خيار أن ترتّب لسوين خدمات الدعم الإضافية. في خطوة «الإضافات» يمكنك إضافة إقامة فندقية مع تاريخي الوصول والمغادرة وعدد البالغين، وتُعرض فنادق مدينة مقدم الخدمة هذا أولًا، ويمكنك توسيع القائمة لتشمل الدولة كلها. وإذا كانت الخدمة ستُقدَّم في مكان إقامتك، فاختر مكان إقامتك موقعًا لها."
+        },
+        "tr-TR": {
+          "q": "Bu kliniğe veya hastaneye yakın bir otel ayırtabilir miyim?",
+          "a": "Evet. Burada bir tedavi ayırttığınızda LSevin'in ek destek hizmetleri ayarlaması seçeneğini işaretleyin. Ek hizmetler adımında giriş ve çıkış tarihleri ile yetişkin sayısını belirterek otel konaklaması ekleyebilirsiniz; bu sağlayıcının şehrindeki oteller önce listelenir ve listeyi tüm ülkeyi kapsayacak şekilde genişletebilirsiniz. Kaldığınız yerde verilecek bir hizmet için konum olarak “Konakladığım yerde” seçeneğini seçin."
+        },
+        "ku-KU": {
+          "q": "دەتوانم هوتێلێکی نزیک ئەم کلینیک یان نەخۆشخانەیە حجز بکەم؟",
+          "a": "بەڵێ. کاتێک چارەسەرێک لێرە حجز دەکەن، ئەو بژاردەیە دیاری بکەن کە LSevin خزمەتگوزاریی پشتیوانیی زیادە ڕێک بخات. لە هەنگاوی خزمەتە زیادەکاندا دەتوانن مانەوە لە هوتێل لەگەڵ بەرواری هاتن و ڕۆیشتن و ژمارەی گەورەساڵان زیاد بکەن؛ هوتێلەکانی شاری ئەم دابینکەرە یەکەم جار پیشان دەدرێن، و دەتوانن لیستەکە بۆ هەموو وڵات فراوان بکەن. بۆ خزمەتێک کە لە شوێنی مانەوەتاندا پێشکەش دەکرێت، «لە شوێنی مانەوەم» وەک شوێنەکەی هەڵبژێرن."
+        },
+        "ru-RU": {
+          "q": "Можно ли забронировать отель рядом с этой клиникой или больницей?",
+          "a": "Да. При бронировании лечения здесь отметьте пункт, чтобы LSevin организовал дополнительные услуги поддержки. На шаге дополнительных услуг можно добавить проживание в отеле с датами заезда и выезда и количеством взрослых; отели в городе этого поставщика показываются первыми, а список можно расширить на всю страну. Для услуги, которая оказывается по месту Вашего проживания, выберите в качестве места «По месту проживания»."
+        },
+        "tg-TJ": {
+          "q": "Оё метавонам меҳмонхонаи наздики ин клиника ё беморхонаро брон кунам?",
+          "a": "Бале. Вақте ки дар ин ҷо табобат брон мекунед, гузинаеро қайд кунед, ки LSevin хидматҳои иловагии дастгирӣ ташкил кунад. Дар қадами иловаҳо метавонед иқомат дар меҳмонхонаро бо санаҳои воридшавӣ ва баромадан ва шумораи калонсолон илова кунед; меҳмонхонаҳои шаҳри ин хидматрасон аввал нишон дода мешаванд ва рӯйхатро то тамоми кишвар васеъ кардан мумкин аст. Барои хидмате, ки дар ҷои иқомати шумо анҷом мешавад, ҳамчун макон «Дар ҷои иқомати ман»-ро интихоб кунед."
+        },
+        "zh-CN": {
+          "q": "可以预订这家诊所或医院附近的酒店吗？",
+          "a": "可以。在这里预约治疗时，勾选由LSevin安排额外支持服务的选项。在附加项步骤中，您可以添加酒店住宿，并填写入住和退房日期以及成人人数；该服务商所在城市的酒店会优先列出，您也可以将范围扩大到全国。如果某项服务是在您的住处提供的，请将其地点选为“在我的住处”。"
+        },
+        "de-DE": {
+          "q": "Kann ich ein Hotel in der Nähe dieser Klinik oder dieses Krankenhauses buchen?",
+          "a": "Ja. Wenn Sie hier eine Behandlung buchen, setzen Sie das Häkchen bei der Option, dass LSevin zusätzliche Unterstützungsleistungen organisieren soll. Im Schritt für Zusatzleistungen können Sie einen Hotelaufenthalt mit An- und Abreisedatum und der Zahl der Erwachsenen hinzufügen; Hotels in der Stadt dieses Anbieters werden zuerst aufgeführt, und Sie können die Liste auf das ganze Land erweitern. Für eine Leistung, die an Ihrem Aufenthaltsort erbracht wird, wählen Sie als Ort „In meiner Unterkunft“."
+        },
+        "fr-FR": {
+          "q": "Puis-je réserver un hôtel près de cette clinique ou de cet hôpital ?",
+          "a": "Oui. Lorsque vous réservez un traitement ici, cochez l’option demandant à LSevin d’organiser des services d’assistance supplémentaires. À l’étape des options, vous pouvez ajouter un séjour à l’hôtel avec les dates d’arrivée et de départ et le nombre d’adultes ; les hôtels situés dans la ville de ce prestataire s’affichent en premier, et vous pouvez élargir la liste à tout le pays. Pour un service assuré sur votre lieu d’hébergement, choisissez « Sur mon lieu de séjour » comme lieu."
+        },
+        "es-ES": {
+          "q": "¿Puedo reservar un hotel cerca de esta clínica u hospital?",
+          "a": "Sí. Al reservar un tratamiento aquí, marque la opción para que LSevin organice servicios de apoyo adicionales. En el paso de extras puede añadir una estancia de hotel con fechas de entrada y salida y el número de adultos; los hoteles de la ciudad de este proveedor aparecen primero, y puede ampliar la lista a todo el país. Para un servicio que se presta donde usted se aloja, elija «En mi alojamiento» como lugar."
+        }
+      }
+    },
+    {
+      "locales": {
+        "en-US": {
+          "q": "How do reviews on this page work?",
+          "a": "Reviews are in the “Reviews” tab, where you can sort by newest, most helpful or booked customers. To add one, tap “Write a review”; you need to be signed in with a completed profile. A review from someone who has a booking here is published straight away, while others wait for approval first. The “Verified” badge means the LSevin quality team has verified this provider."
+        },
+        "fa-IR": {
+          "q": "نظرهای این صفحه چگونه ثبت و نمایش داده می‌شوند؟",
+          "a": "نظرها در زبانهٔ «نظرها» هستند و می‌توانید آن‌ها را بر اساس جدیدترین، مفیدترین یا مشتریان رزروکننده مرتب کنید. برای ثبت نظر «ثبت نظر» را بزنید؛ باید وارد حساب شده و پروفایل خود را تکمیل کرده باشید. نظر کسی که اینجا رزرو داشته بلافاصله منتشر می‌شود و بقیهٔ نظرها پس از تأیید نمایش داده می‌شوند. برچسب «تأییدشده» یعنی تیم کنترل کیفیت السوین این ارائه‌دهنده را تأیید کرده است."
+        },
+        "ar-SA": {
+          "q": "كيف تعمل التقييمات في هذه الصفحة؟",
+          "a": "تجد التقييمات في تبويب «التقييمات»، ويمكنك ترتيبها حسب الأحدث أو الأكثر إفادة أو العملاء الذين حجزوا. لإضافة تقييم اضغط «اكتب تقييماً»، ويلزم أن تكون مسجّل الدخول وأن تُكمل ملفك الشخصي. يُنشر تقييم من لديه حجز هنا فورًا، بينما تنتظر التقييمات الأخرى الموافقة أولًا. ويعني وسم «موثّق» أن فريق الجودة في لسوين وثّق مقدم الخدمة هذا."
+        },
+        "tr-TR": {
+          "q": "Bu sayfadaki değerlendirmeler nasıl işliyor?",
+          "a": "Değerlendirmeler “Değerlendirmeler” sekmesindedir; burada “En yeni”, “En faydalı” veya “Rezervasyon yapanlar” şeklinde sıralayabilirsiniz. Değerlendirme eklemek için “Değerlendirme yaz”a dokunun; profilinizi tamamlamış olarak giriş yapmanız gerekir. Burada rezervasyonu olan birinin değerlendirmesi hemen yayımlanır, diğerleri ise önce onay bekler. “Doğrulanmış” rozeti, LSevin kalite ekibinin bu sağlayıcıyı doğruladığı anlamına gelir."
+        },
+        "ku-KU": {
+          "q": "بۆچوونەکانی ئەم پەڕەیە چۆن کار دەکەن؟",
+          "a": "بۆچوونەکان لە تابی «بۆچوونەکان»دان، کە دەتوانن بەپێی نوێترین، بەسوودترین یان کڕیارانی خاوەن حجز ڕیزیان بکەن. بۆ زیادکردنی بۆچوونێک، کرتە لەسەر «بۆچوونێک بنووسە» بکەن؛ پێویستە بە پرۆفایلێکی تەواوەوە چووبنە ژوورەوە. بۆچوونی کەسێک کە لێرە حجزی هەیە یەکسەر بڵاو دەکرێتەوە، بەڵام ئەوانی تر سەرەتا چاوەڕێی پەسەندکردن دەکەن. نیشانەی «پشتڕاستکراو» واتای ئەوەیە کە تیمی کوالیتیی LSevin ئەم دابینکەرەی پشتڕاست کردووەتەوە."
+        },
+        "ru-RU": {
+          "q": "Как работают отзывы на этой странице?",
+          "a": "Отзывы находятся на вкладке «Отзывы», где их можно отсортировать: сначала новые, самые полезные или от клиентов с бронированием. Чтобы оставить отзыв, нажмите «Написать отзыв»; для этого нужно войти в аккаунт с заполненным профилем. Отзыв от человека, у которого есть бронирование у этого поставщика, публикуется сразу, а остальные сначала проходят модерацию. Отметка «Проверено» означает, что команда контроля качества LSevin проверила этого поставщика."
+        },
+        "tg-TJ": {
+          "q": "Шарҳҳо дар ин саҳифа чӣ тавр кор мекунанд?",
+          "a": "Шарҳҳо дар бахши «Шарҳҳо» ҷойгиранд ва онҳоро аз рӯи навтарин, муфидтарин ё мизоҷони брон кардаро мураттаб кардан мумкин аст. Барои илова кардани шарҳ «Навиштани шарҳ»-ро пахш кунед; шумо бояд бо профили пуркардашуда ворид шуда бошед. Шарҳи касе, ки дар ин ҷо брон дорад, фавран нашр мешавад, шарҳҳои дигарон аввал интизори тасдиқ мемонанд. Нишони «Тасдиқшуда» маънои онро дорад, ки гурӯҳи сифати LSevin ин хидматрасонро тасдиқ кардааст."
+        },
+        "zh-CN": {
+          "q": "本页的评价是如何运作的？",
+          "a": "评价位于“评价”标签页，您可以按最新、最有帮助或已预约客户排序。如需发表评价，请点击“写评价”；您需要登录并完善个人资料。在这里有过预约的用户发表的评价会立即发布，其他评价则需先经过审核。“已认证”标识表示该服务商已通过LSevin质量团队的认证。"
+        },
+        "de-DE": {
+          "q": "Wie funktionieren die Bewertungen auf dieser Seite?",
+          "a": "Die Bewertungen finden Sie im Tab „Bewertungen“, wo Sie nach neuesten, hilfreichsten oder nach Bewertungen von Kunden mit Buchung sortieren können. Um selbst eine zu verfassen, tippen Sie auf „Bewertung schreiben“; Sie müssen angemeldet sein und ein vollständiges Profil haben. Eine Bewertung von jemandem mit einer Buchung hier wird sofort veröffentlicht, andere werden zuerst geprüft. Das Abzeichen „Verifiziert“ bedeutet, dass das Qualitätsteam von LSevin diesen Anbieter überprüft hat."
+        },
+        "fr-FR": {
+          "q": "Comment fonctionnent les avis sur cette page ?",
+          "a": "Les avis se trouvent dans l’onglet « Avis », où vous pouvez les trier par date, par utilité ou pour n’afficher que les clients ayant réservé. Pour en ajouter un, touchez « Rédiger un avis » ; vous devez être connecté avec un profil complet. L’avis d’une personne ayant une réservation chez ce prestataire est publié immédiatement, tandis que les autres sont d’abord soumis à validation. Le badge « Vérifié » signifie que l’équipe qualité de LSevin a vérifié ce prestataire."
+        },
+        "es-ES": {
+          "q": "¿Cómo funcionan las reseñas de esta página?",
+          "a": "Las reseñas están en la pestaña «Reseñas», donde puede ordenarlas por más recientes, más útiles o clientes con reserva. Para añadir una, toque «Escribir una reseña»; debe haber iniciado sesión y tener el perfil completo. La reseña de alguien que tiene una reserva aquí se publica de inmediato, mientras que las demás quedan a la espera de aprobación. La insignia «Verificado» significa que el equipo de calidad de LSevin ha verificado a este proveedor."
+        }
+      }
+    }
+  ]
+}

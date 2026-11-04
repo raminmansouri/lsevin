@@ -1,0 +1,310 @@
+{
+  "scope": "home",
+  "entityKey": null,
+  "sources": [
+    "messages/en.json HomePage.description: specialists, clinics, medical hotels near hospitals, in-hotel care, free consultation",
+    "messages/en.json Home.premiumPackages.description: packages bundle services with accommodation, transfers and aftercare when available for the destination",
+    "src/middleware.ts + src/lib/auth/routes.ts protectedSegments: guests browse freely; booking, bookings, checkout, wallet need sign-in",
+    "src/features/booking-pro/components/BookingWizard.tsx STEP_ORDER [1,2,6,3,4,7,5]: Service, Schedule, Free consultation, Add-ons, Files, Products, Review & Pay; add-ons and files only when useLsevin is ticked",
+    "src/app/api/booking-pro/draft/route.ts + Booking.continuePendingBooking: booking is a per-user saved draft that can be resumed",
+    "messages/en.json Booking.iWantLSevinToArrangeExtraSupportServicesFor / chooseThisIfYouWantHelpWithRelatedServices: hotel, transfer, insurance, concierge, translation add-ons",
+    "src/features/booking-pro/components/ChildAddonBookingCard.tsx scope default 'city' + Booking.addonScope: add-on providers listed in the treatment city first, can widen to country",
+    "messages/en.json Consultation.step / cta / form / errors.signInRequired: free advisor call-back, does not change booking, sign-in required",
+    "messages/en.json Consultation.homeTeaser + doctorsPage.offerDetails: paid video consultation with length and price shown",
+    "messages/en.json Booking.builtinPaymentMethods (wallet, bank_receipt, pay_on_delivery) + payInPlace.intro + payWithGateway: payment methods",
+    "src/app/[locale]/n/app/mobile/bookings/[id]/page.tsx: gateway redirect then paymentVerifiedSuccessfully/paymentVerificationFailed on return",
+    "src/app/[locale]/n/app/mobile/home/page.tsx: Enamad trust seal rendered on the home page",
+    "src/i18n/routing.ts locales (11) + src/i18n/locale-by-country.ts: only fa, ar, en fully translated; others partial and fall back to English",
+    "src/app/[locale]/n/app/mobile/provider/[id]/provider-detail-view.tsx sections.languages: provider languages shown when listed"
+  ],
+  "items": [
+    {
+      "locales": {
+        "en-US": {
+          "q": "What is LSevin and what can I book on it?",
+          "a": "LSevin is a booking platform for health and wellness services in Iran. You can find and book clinics, hospitals and specialists, hotels, tours and gym services, buy from the online shop, and request a free consultation. Some destinations also have “Special Packages” that bundle a service with accommodation, transfers or aftercare. You can browse without an account and sign in when you book or pay."
+        },
+        "fa-IR": {
+          "q": "السوین چیست و چه چیزهایی را می‌توان در آن رزرو کرد؟",
+          "a": "السوین سامانهٔ رزرو خدمات سلامت و رفاه در ایران است. در آن می‌توانید کلینیک، بیمارستان و پزشک متخصص، هتل، تور و خدمات باشگاه ورزشی را پیدا و رزرو کنید، از فروشگاه آنلاین خرید کنید و درخواست مشاورهٔ رایگان بدهید. برای برخی مقصدها «پکیج‌های ویژه» هم هست که خدمت را همراه با اقامت، ترانسفر یا مراقبت پس از درمان عرضه می‌کند. بدون حساب کاربری هم می‌توانید سایت را ببینید و فقط هنگام رزرو یا پرداخت وارد می‌شوید."
+        },
+        "ar-SA": {
+          "q": "ما هي لسوين وماذا يمكنني أن أحجز عبرها؟",
+          "a": "لسوين منصة لحجز خدمات الصحة والعافية في إيران. يمكنك من خلالها العثور على العيادات والمستشفيات والأطباء المختصين والفنادق والجولات وخدمات النوادي الرياضية وحجزها، والشراء من المتجر الإلكتروني، وطلب استشارة مجانية. وفي بعض الوجهات تتوفر «الباقات المميزة» التي تجمع الخدمة مع الإقامة أو التنقلات أو الرعاية بعد العلاج. يمكنك التصفح دون حساب، ولا يلزم تسجيل الدخول إلا عند الحجز أو الدفع."
+        },
+        "tr-TR": {
+          "q": "LSevin nedir ve neleri ayırtabilirim?",
+          "a": "LSevin, İran'daki sağlık ve sağlıklı yaşam hizmetleri için bir rezervasyon platformudur. Klinik, hastane ve uzman doktorları, otelleri, turları ve spor salonu hizmetlerini bulup ayırtabilir, online mağazadan alışveriş yapabilir ve ücretsiz danışmanlık isteyebilirsiniz. Bazı destinasyonlarda bir hizmeti konaklama, transfer veya tedavi sonrası bakımla bir araya getiren “Özel Paketler” de bulunur. Hesap açmadan göz atabilir, rezervasyon veya ödeme yaparken giriş yapabilirsiniz."
+        },
+        "ku-KU": {
+          "q": "LSevin چییە و چی تێدا حجز دەکرێت؟",
+          "a": "LSevin پلاتفۆرمێکی حجزە بۆ خزمەتگوزارییەکانی تەندروستی و ئاسوودەیی لە ئێران. دەتوانن کلینیک، نەخۆشخانە و پسپۆڕ، هوتێل، گەشت و خزمەتەکانی جیم بدۆزنەوە و حجزیان بکەن، لە فرۆشگای ئۆنلاین بکڕن و داوای ڕاوێژکاریی بەخۆڕایی بکەن. هەندێک شوێنی مەبەست «پاکێجە تایبەتەکان»یشیان هەیە کە خزمەتێک لەگەڵ شوێنی مانەوە، گواستنەوە یان چاودێریی دوای چارەسەر کۆ دەکەنەوە. دەتوانن بەبێ هەژمار بگەڕێن و لە کاتی حجز یان پارەداندا بچنە ژوورەوە."
+        },
+        "ru-RU": {
+          "q": "Что такое LSevin и что на нём можно забронировать?",
+          "a": "LSevin — платформа бронирования медицинских и оздоровительных услуг в Иране. Здесь можно найти и забронировать клиники, больницы и врачей, отели, туры и услуги спортзалов, сделать покупки в интернет-магазине и оставить заявку на бесплатную консультацию. Для некоторых направлений есть «Специальные пакеты», которые объединяют услугу с проживанием, трансферами или последующим уходом. Просматривать сайт можно без аккаунта, а войти нужно при бронировании или оплате."
+        },
+        "tg-TJ": {
+          "q": "LSevin чист ва дар он чиро брон кардан мумкин аст?",
+          "a": "LSevin платформаи брони хидматҳои тандурустӣ ва солимӣ дар Эрон аст. Шумо метавонед клиника, беморхона ва мутахассисон, меҳмонхона, тур ва хидматҳои варзишгоҳро ёфта брон кунед, аз мағозаи онлайн харид намоед ва машварати ройгон дархост кунед. Дар баъзе самтҳо «Бастаҳои махсус» низ ҳастанд, ки хидматро бо иқомат, интиқол ё нигоҳубини баъдӣ якҷо мекунанд. Сайтро бе ҳисоб дидан мумкин аст ва ҳангоми брон ё пардохт ворид мешавед."
+        },
+        "zh-CN": {
+          "q": "LSevin是什么？可以预约哪些服务？",
+          "a": "LSevin是一个面向伊朗医疗与健康养生服务的预约平台。您可以查找并预约诊所、医院和专家、酒店、旅游团和健身房服务，在网上商店购物，还可以申请免费咨询。部分目的地还提供“特惠套餐”，将服务与住宿、接送或术后护理打包在一起。无需账户即可浏览，预约或付款时再登录即可。"
+        },
+        "de-DE": {
+          "q": "Was ist LSevin und was kann ich dort buchen?",
+          "a": "LSevin ist eine Buchungsplattform für Gesundheits- und Wellnessleistungen im Iran. Sie können Kliniken, Krankenhäuser und Fachärzte, Hotels, Touren und Fitnessstudio-Leistungen finden und buchen, im Online-Shop einkaufen und eine kostenlose Beratung anfordern. Für manche Reiseziele gibt es außerdem „Sonderpakete“, die eine Leistung mit Unterkunft, Transfers oder Nachsorge kombinieren. Sie können ohne Konto stöbern und melden sich an, wenn Sie buchen oder bezahlen."
+        },
+        "fr-FR": {
+          "q": "Qu’est-ce que LSevin et que puis-je y réserver ?",
+          "a": "LSevin est une plateforme de réservation de services de santé et de bien-être en Iran. Vous pouvez y trouver et réserver des cliniques, des hôpitaux et des spécialistes, des hôtels, des circuits et des services de salle de sport, acheter dans la boutique en ligne et demander une consultation gratuite. Certaines destinations proposent aussi des « Forfaits spéciaux » qui associent un service à un hébergement, des transferts ou un suivi post-traitement. Vous pouvez naviguer sans compte et vous connecter au moment de réserver ou de payer."
+        },
+        "es-ES": {
+          "q": "¿Qué es LSevin y qué puedo reservar?",
+          "a": "LSevin es una plataforma de reservas de servicios de salud y bienestar en Irán. Puede encontrar y reservar clínicas, hospitales y especialistas, hoteles, tours y servicios de gimnasio, comprar en la tienda en línea y solicitar una consulta gratuita. Algunos destinos también ofrecen «Paquetes especiales», que combinan un servicio con alojamiento, traslados o cuidados posteriores. Puede navegar sin cuenta e iniciar sesión cuando vaya a reservar o pagar."
+        }
+      }
+    },
+    {
+      "locales": {
+        "en-US": {
+          "q": "How does booking a treatment on LSevin work?",
+          "a": "Open a service, specialist or provider and tap “Book Now”. The booking runs in steps: “Service” (provider, service and, where needed, specialist), “Schedule” (date and time), an optional “Free consultation”, then “Review & Pay”. You need to be signed in. Your progress is saved as a draft, so if you leave, you can pick it up later with “Continue pending booking”."
+        },
+        "fa-IR": {
+          "q": "رزرو درمان در السوین چگونه انجام می‌شود؟",
+          "a": "صفحهٔ خدمت، متخصص یا ارائه‌دهنده را باز کنید و «رزرو کنید» را بزنید. رزرو چند مرحله دارد: «خدمت» (انتخاب ارائه‌دهنده، خدمت و در صورت نیاز متخصص)، «زمان‌بندی» (تاریخ و ساعت)، «مشاوره رایگان» که اختیاری است، و در پایان «بررسی و پرداخت». برای رزرو باید وارد حساب خود شوید. پیشرفت شما به‌صورت پیش‌نویس ذخیره می‌شود و اگر صفحه را ترک کنید، بعداً با «ادامه رزرو ناتمام» از همان‌جا ادامه می‌دهید."
+        },
+        "ar-SA": {
+          "q": "كيف يتم حجز علاج عبر لسوين؟",
+          "a": "افتح صفحة الخدمة أو الأخصائي أو مقدم الخدمة واضغط «احجز الآن». يمر الحجز بعدة خطوات: «الخدمة» (اختيار مقدم الخدمة والخدمة والأخصائي عند الحاجة)، ثم «الجدولة» (التاريخ والوقت)، ثم «استشارة مجانية» وهي اختيارية، وأخيرًا «المراجعة والدفع». يلزم تسجيل الدخول للحجز. تُحفظ خطواتك كمسودة، فإذا غادرت الصفحة يمكنك استكمال الحجز لاحقًا من حيث توقفت."
+        },
+        "tr-TR": {
+          "q": "LSevin'de tedavi rezervasyonu nasıl yapılır?",
+          "a": "Bir hizmeti, uzmanı veya sağlayıcıyı açın ve “Hemen Randevu Al”a dokunun. Rezervasyon adım adım ilerler: “Hizmet” (sağlayıcı, hizmet ve gerektiğinde uzman), “Program” (tarih ve saat), isteğe bağlı “Ücretsiz danışmanlık” ve ardından “İncele ve Öde”. Giriş yapmış olmanız gerekir. İlerlemeniz taslak olarak kaydedilir; sayfadan ayrılırsanız daha sonra “Bekleyen rezervasyona devam et” ile kaldığınız yerden sürdürebilirsiniz."
+        },
+        "ku-KU": {
+          "q": "حجزکردنی چارەسەر لە LSevin چۆن کار دەکات؟",
+          "a": "خزمەتێک، پسپۆڕێک یان دابینکەرێک بکەنەوە و کرتە لەسەر «ئێستا حجز بکە» بکەن. حجزکردن بە چەند هەنگاوێک دەڕوات: «خزمەت» (دابینکەر، خزمەت و لە کاتی پێویستدا پسپۆڕ)، «خشتەی کات» (بەروار و کات)، هەنگاوی ئارەزوومەندانەی «ڕاوێژکاریی بەخۆڕایی»، پاشان «پێداچوونەوە و پارەدان». پێویستە چووبنە ژوورەوە. پێشکەوتنەکەتان وەک ڕەشنووس پاشەکەوت دەکرێت، بۆیە ئەگەر چوونە دەرەوە، دەتوانن دواتر بە «بەردەوامبوون لە حجزی چاوەڕوان» درێژەی پێ بدەن."
+        },
+        "ru-RU": {
+          "q": "Как забронировать лечение на LSevin?",
+          "a": "Откройте услугу, страницу врача или поставщика и нажмите «Записаться». Бронирование проходит по шагам: «Услуга» (поставщик, услуга и при необходимости специалист), «Расписание» (дата и время), необязательный шаг «Бесплатная консультация», затем «Проверка и оплата». Для этого нужно войти в аккаунт. Ваш прогресс сохраняется как черновик, поэтому, если Вы уйдёте со страницы, позже можно продолжить с помощью кнопки «Продолжить незавершённое бронирование»."
+        },
+        "tg-TJ": {
+          "q": "Брони табобат дар LSevin чӣ тавр сурат мегирад?",
+          "a": "Хидмат, мутахассис ё хидматрасонро кушоед ва «Ҳозир брон кунед»-ро пахш кунед. Брон аз чанд қадам иборат аст: «Хидмат» (хидматрасон, хидмат ва дар ҳолати зарурӣ мутахассис), «Ҷадвал» (сана ва вақт), «Машварати ройгон»-и ихтиёрӣ ва баъд «Санҷиш ва пардохт». Шумо бояд ворид шуда бошед. Пешрафти шумо ҳамчун лоиҳа нигоҳ дошта мешавад, бинобар ин агар баромада равед, баъдтар бо «Идомаи брони нотамом» идома дода метавонед."
+        },
+        "zh-CN": {
+          "q": "在LSevin上预约治疗的流程是怎样的？",
+          "a": "打开某项服务、某位专家或某个服务商，点击“立即预约”。预约分步骤进行：“服务”（服务商、服务以及需要时选择的专家）、“日程”（日期和时间）、可选的“免费咨询”，最后是“核对与支付”。您需要先登录。您的进度会保存为草稿，如果中途离开，之后可以通过“继续未完成的预约”接着完成。"
+        },
+        "de-DE": {
+          "q": "Wie läuft die Buchung einer Behandlung auf LSevin ab?",
+          "a": "Öffnen Sie eine Leistung, einen Spezialisten oder einen Anbieter und tippen Sie auf „Jetzt buchen“. Die Buchung verläuft in Schritten: „Leistung“ (Anbieter, Leistung und, falls nötig, Spezialist), „Termin“ (Datum und Uhrzeit), optional „Kostenlose Beratung“ und dann „Prüfen & Bezahlen“. Sie müssen angemeldet sein. Ihr Fortschritt wird als Entwurf gespeichert; wenn Sie die Buchung verlassen, können Sie sie später mit „Offene Buchung fortsetzen“ wieder aufnehmen."
+        },
+        "fr-FR": {
+          "q": "Comment se déroule la réservation d’un traitement sur LSevin ?",
+          "a": "Ouvrez un service, un spécialiste ou un prestataire et touchez « Réserver ». La réservation se fait par étapes : « Service » (prestataire, service et, si nécessaire, spécialiste), « Planning » (date et heure), une étape facultative « Consultation gratuite », puis « Vérification et paiement ». Vous devez être connecté. Votre progression est enregistrée comme brouillon : si vous quittez la page, vous pouvez la retrouver plus tard avec « Reprendre la réservation en cours »."
+        },
+        "es-ES": {
+          "q": "¿Cómo funciona la reserva de un tratamiento en LSevin?",
+          "a": "Abra un servicio, un especialista o un proveedor y toque «Reservar ahora». La reserva avanza por pasos: «Servicio» (proveedor, servicio y, si es necesario, especialista), «Agenda» (fecha y hora), una «Consulta gratuita» opcional y, por último, «Revisar y pagar». Debe haber iniciado sesión. Su progreso se guarda como borrador, así que si sale, puede retomarlo más tarde con «Continuar la reserva pendiente»."
+        }
+      }
+    },
+    {
+      "locales": {
+        "en-US": {
+          "q": "Can LSevin arrange a hotel, transfer or translator around my treatment?",
+          "a": "Yes, if you ask for it. At the “Schedule” step, tick “I want LSevin to arrange extra support services for this booking.” Two more steps then appear: “Add-ons”, where you add services such as a hotel stay, transfer or translation to your trip day by day, and “Files”, for documents the service requires. Add-on providers in your treatment city are listed first, and you can widen the list to the whole country."
+        },
+        "fa-IR": {
+          "q": "آیا السوین می‌تواند هتل، ترانسفر یا مترجم را هم کنار درمان هماهنگ کند؟",
+          "a": "بله، اگر خودتان درخواست کنید. در مرحلهٔ «زمان‌بندی» گزینهٔ هماهنگی خدمات پشتیبانی تکمیلی توسط السوین را تیک بزنید. با این کار دو مرحلهٔ دیگر اضافه می‌شود: «خدمات جانبی» که در آن خدماتی مثل اقامت در هتل، ترانسفر یا ترجمه را روزبه‌روز به برنامهٔ سفرتان اضافه می‌کنید، و «فایل‌ها» برای مدارکی که خدمت لازم دارد. ارائه‌دهندگان این خدمات ابتدا در شهر محل درمان شما نمایش داده می‌شوند و می‌توانید فهرست را به کل کشور گسترش دهید."
+        },
+        "ar-SA": {
+          "q": "هل يمكن أن ترتّب لسوين الفندق أو التنقلات أو المترجم إلى جانب العلاج؟",
+          "a": "نعم، إذا طلبت ذلك. في خطوة «الجدولة» فعّل خيار أن ترتّب لسوين خدمات الدعم الإضافية لهذا الحجز. ستظهر عندها خطوتان إضافيتان: «الإضافات» حيث تضيف إلى برنامج رحلتك يومًا بيوم خدمات مثل الإقامة الفندقية أو التنقل أو الترجمة، و«الملفات» لرفع المستندات التي تطلبها الخدمة. يُعرض مقدمو هذه الخدمات أولًا في مدينة علاجك، ويمكنك توسيع القائمة لتشمل الدولة كلها."
+        },
+        "tr-TR": {
+          "q": "LSevin tedavimle birlikte otel, transfer veya tercüman ayarlayabilir mi?",
+          "a": "Evet, talep ederseniz. “Program” adımında “LSevin'in bu rezervasyon için ek destek hizmetleri ayarlamasını istiyorum.” kutusunu işaretleyin. Bunun ardından iki adım daha çıkar: otel konaklaması, transfer veya tercümanlık gibi hizmetleri seyahatinize gün gün ekleyebileceğiniz “Ek Hizmetler” ve hizmetin gerektirdiği belgeler için “Dosyalar”. Tedavi şehrinizdeki ek hizmet sağlayıcılar önce listelenir; listeyi tüm ülkeyi kapsayacak şekilde genişletebilirsiniz."
+        },
+        "ku-KU": {
+          "q": "ئایا LSevin دەتوانێت لە دەوری چارەسەرەکەم هوتێل، گواستنەوە یان وەرگێڕ ڕێک بخات؟",
+          "a": "بەڵێ، ئەگەر داوای بکەن. لە هەنگاوی «خشتەی کات»دا، «دەمەوێت LSevin خزمەتگوزاریی پشتیوانیی زیادە بۆ ئەم حجزە ڕێک بخات.» دیاری بکەن. پاشان دوو هەنگاوی تر دەردەکەون: «زیادکراوەکان»، کە تێیدا خزمەتی وەک مانەوە لە هوتێل، گواستنەوە یان وەرگێڕان ڕۆژ بە ڕۆژ دەخەنە سەر گەشتەکەتان، و «فایلەکان» بۆ ئەو بەڵگەنامانەی خزمەتەکە پێویستی پێیانە. دابینکەرانی خزمەتی زیادە لە شاری چارەسەرەکەتان یەکەم جار پیشان دەدرێن، و دەتوانن لیستەکە بۆ هەموو وڵات فراوان بکەن."
+        },
+        "ru-RU": {
+          "q": "Может ли LSevin организовать отель, трансфер или переводчика на время лечения?",
+          "a": "Да, если Вы об этом попросите. На шаге «Расписание» отметьте пункт «Я хочу, чтобы LSevin организовал дополнительные услуги поддержки для этого бронирования.» После этого появятся ещё два шага: «Доп. услуги», где можно по дням добавить к поездке проживание в отеле, трансфер или перевод, и «Файлы» для документов, которые требуются для услуги. Поставщики дополнительных услуг в городе Вашего лечения показываются первыми, а список можно расширить на всю страну."
+        },
+        "tg-TJ": {
+          "q": "Оё LSevin дар атрофи табобати ман меҳмонхона, интиқол ё тарҷумон ташкил карда метавонад?",
+          "a": "Бале, агар дархост кунед. Дар қадами «Ҷадвал» гузинаи «Мехоҳам LSevin барои ин брон хидматҳои иловагии дастгирӣ ташкил кунад.»-ро қайд кунед. Баъд ду қадами дигар пайдо мешаванд: «Иловаҳо», ки дар он хидматҳоеро, масалан иқомат дар меҳмонхона, интиқол ё тарҷума, рӯз ба рӯз ба сафари худ илова мекунед, ва «Файлҳо» барои ҳуҷҷатҳое, ки хидмат талаб мекунад. Хидматрасонҳои иловагии шаҳри табобати шумо аввал нишон дода мешаванд ва шумо метавонед рӯйхатро то тамоми кишвар васеъ кунед."
+        },
+        "zh-CN": {
+          "q": "LSevin能围绕我的治疗安排酒店、接送或翻译吗？",
+          "a": "可以，只要您提出需求。在“日程”步骤中，勾选“我希望LSevin为本次预约安排额外的支持服务。”之后会多出两个步骤：“附加项”，您可以按天为行程添加酒店住宿、接送或翻译等服务；“文件”，用于上传该服务所需的材料。治疗所在城市的附加服务商会优先列出，您也可以将范围扩大到全国。"
+        },
+        "de-DE": {
+          "q": "Kann LSevin rund um meine Behandlung Hotel, Transfer oder Dolmetscher organisieren?",
+          "a": "Ja, wenn Sie es wünschen. Setzen Sie im Schritt „Termin“ das Häkchen bei „LSevin soll zusätzliche Unterstützungsleistungen für diese Buchung organisieren.“ Danach erscheinen zwei weitere Schritte: „Zusatzleistungen“, in dem Sie Ihrer Reise Tag für Tag Leistungen wie Hotelaufenthalt, Transfer oder Übersetzung hinzufügen, und „Dateien“ für Dokumente, die die Leistung erfordert. Anbieter von Zusatzleistungen in Ihrer Behandlungsstadt werden zuerst aufgeführt, und Sie können die Liste auf das ganze Land erweitern."
+        },
+        "fr-FR": {
+          "q": "LSevin peut-il organiser un hôtel, un transfert ou un traducteur autour de mon traitement ?",
+          "a": "Oui, si vous le demandez. À l’étape « Planning », cochez « Je souhaite que LSevin organise des services d’assistance supplémentaires pour cette réservation ». Deux étapes supplémentaires apparaissent alors : « Options », où vous ajoutez jour par jour des services comme un séjour à l’hôtel, un transfert ou une traduction, et « Fichiers », pour les documents exigés par le service. Les prestataires d’options situés dans la ville de votre traitement s’affichent en premier, et vous pouvez élargir la liste à tout le pays."
+        },
+        "es-ES": {
+          "q": "¿Puede LSevin organizar un hotel, un traslado o un intérprete para mi tratamiento?",
+          "a": "Sí, si lo solicita. En el paso «Agenda», marque «Quiero que LSevin organice servicios de apoyo adicionales para esta reserva.». Aparecerán dos pasos más: «Extras», donde añade día a día servicios como estancia en hotel, traslado o traducción a su viaje, y «Archivos», para los documentos que requiere el servicio. Los proveedores de extras de la ciudad de su tratamiento aparecen primero, y puede ampliar la lista a todo el país."
+        }
+      }
+    },
+    {
+      "locales": {
+        "en-US": {
+          "q": "Is there a free consultation before I book?",
+          "a": "Yes. Tap “Free consultation before booking” on a provider, specialist or service page, or use the “Free consultation” step during booking. Leave your name, phone number and what you need help with, and an LSevin advisor calls you back. It is free and does not change your booking. You need to be signed in to send the request. Separately, the home page offers a paid video consultation with a doctor; its length and price are shown before you book."
+        },
+        "fa-IR": {
+          "q": "آیا پیش از رزرو امکان مشاورهٔ رایگان وجود دارد؟",
+          "a": "بله. در صفحهٔ ارائه‌دهنده، متخصص یا خدمت دکمهٔ «مشاوره قبل از رزرو» را بزنید یا در جریان رزرو از مرحلهٔ «مشاوره رایگان» استفاده کنید. نام، شمارهٔ تماس و موضوعی را که در آن کمک می‌خواهید وارد کنید تا کارشناسان السوین با شما تماس بگیرند. این مشاوره رایگان است و روی رزرو شما اثری ندارد. برای ارسال درخواست باید وارد حساب خود شوید. جدا از این، در صفحهٔ اصلی «مشاورهٔ تصویری با پزشک» هم هست که مدت و هزینه‌اش پیش از رزرو نمایش داده می‌شود."
+        },
+        "ar-SA": {
+          "q": "هل توجد استشارة مجانية قبل الحجز؟",
+          "a": "نعم. اضغط «استشارة مجانية قبل الحجز» في صفحة مقدم الخدمة أو الأخصائي أو الخدمة، أو استخدم خطوة «استشارة مجانية» أثناء الحجز. اترك اسمك ورقم هاتفك وما تحتاج المساعدة فيه، وسيتصل بك أحد مستشاري لسوين. الاستشارة مجانية ولا تؤثر على حجزك، ويلزم تسجيل الدخول لإرسال الطلب. وإلى جانب ذلك تعرض الصفحة الرئيسية «استشارة بالفيديو مع طبيب» مدفوعة، وتظهر مدتها وسعرها قبل الحجز."
+        },
+        "tr-TR": {
+          "q": "Rezervasyondan önce ücretsiz danışmanlık var mı?",
+          "a": "Evet. Bir sağlayıcı, uzman veya hizmet sayfasında “Randevudan önce ücretsiz danışmanlık”a dokunun ya da rezervasyon sırasında “Ücretsiz danışmanlık” adımını kullanın. Adınızı, telefon numaranızı ve hangi konuda yardıma ihtiyacınız olduğunu bırakın; bir LSevin danışmanı sizi geri arar. Ücretsizdir ve rezervasyonunuzu değiştirmez. Talebi göndermek için giriş yapmış olmanız gerekir. Bundan ayrı olarak ana sayfada bir doktorla ücretli görüntülü danışma da sunulur; süresi ve fiyatı rezervasyondan önce gösterilir."
+        },
+        "ku-KU": {
+          "q": "ئایا پێش حجزکردن ڕاوێژکاریی بەخۆڕایی هەیە؟",
+          "a": "بەڵێ. لە پەڕەی دابینکەر، پسپۆڕ یان خزمەتێکدا کرتە لەسەر «ڕاوێژکاریی بەخۆڕایی پێش کاتبەندی» بکەن، یان لە کاتی حجزکردندا هەنگاوی «ڕاوێژکاریی بەخۆڕایی» بەکاربهێنن. ناو، ژمارەی تەلەفۆن و ئەوەی یارمەتیتان تێدا پێویستە بنووسن، و ڕاوێژکارێکی LSevin پەیوەندیتان پێوە دەکاتەوە. بەخۆڕاییە و حجزەکەتان ناگۆڕێت. بۆ ناردنی داواکارییەکە پێویستە چووبنە ژوورەوە. جیا لەمە، پەڕەی سەرەکی ڕاوێژی ڤیدیۆیی بەپارە لەگەڵ پزیشک پێشکەش دەکات؛ ماوە و نرخەکەی پێش حجزکردن پیشان دەدرێت."
+        },
+        "ru-RU": {
+          "q": "Есть ли бесплатная консультация перед бронированием?",
+          "a": "Да. Нажмите «Бесплатная консультация перед записью» на странице поставщика, врача или услуги либо воспользуйтесь шагом «Бесплатная консультация» при бронировании. Укажите имя, номер телефона и то, с чем Вам нужна помощь, и консультант LSevin Вам перезвонит. Это бесплатно и не меняет Ваше бронирование. Чтобы отправить заявку, нужно войти в аккаунт. Кроме того, на главной странице доступна платная видеоконсультация с врачом; её продолжительность и стоимость указываются до бронирования."
+        },
+        "tg-TJ": {
+          "q": "Оё пеш аз брон машварати ройгон ҳаст?",
+          "a": "Бале. Дар саҳифаи хидматрасон, мутахассис ё хидмат «Машварати ройгон пеш аз қабул»-ро пахш кунед ё ҳангоми брон қадами «Машварати ройгон»-ро истифода баред. Ном, рақами телефон ва он чиро, ки дар он ба кӯмак ниёз доред, нависед ва мушовири LSevin ба шумо занг мезанад. Ин ройгон аст ва ба брони шумо таъсир намерасонад. Барои фиристодани дархост бояд ворид шуда бошед. Ба таври алоҳида, дар саҳифаи асосӣ машварати видеоии пулакӣ бо духтур пешниҳод мешавад; давомнокӣ ва нархи он пеш аз брон нишон дода мешаванд."
+        },
+        "zh-CN": {
+          "q": "预约前可以免费咨询吗？",
+          "a": "可以。在服务商、专家或服务页面点击“预约前免费咨询”，或在预约过程中使用“免费咨询”步骤。留下您的姓名、电话号码以及需要帮助的事项，LSevin顾问会给您回电。咨询免费，也不会影响您的预约。提交申请前需要先登录。另外，首页还提供与医生进行的付费视频问诊，时长和价格会在预约前显示。"
+        },
+        "de-DE": {
+          "q": "Gibt es vor der Buchung eine kostenlose Beratung?",
+          "a": "Ja. Tippen Sie auf einer Anbieter-, Spezialisten- oder Leistungsseite auf „Kostenlose Beratung vor der Buchung“ oder nutzen Sie während der Buchung den Schritt „Kostenlose Beratung“. Hinterlassen Sie Ihren Namen, Ihre Telefonnummer und wobei Sie Hilfe brauchen, und ein LSevin Berater ruft Sie zurück. Die Beratung ist kostenlos und ändert nichts an Ihrer Buchung. Um die Anfrage zu senden, müssen Sie angemeldet sein. Unabhängig davon bietet die Startseite eine kostenpflichtige Videosprechstunde mit einem Arzt an; Dauer und Preis werden vor der Buchung angezeigt."
+        },
+        "fr-FR": {
+          "q": "Existe-t-il une consultation gratuite avant la réservation ?",
+          "a": "Oui. Touchez « Consultation gratuite avant réservation » sur la page d’un prestataire, d’un spécialiste ou d’un service, ou utilisez l’étape « Consultation gratuite » pendant la réservation. Laissez votre nom, votre numéro de téléphone et l’objet de votre demande : un conseiller LSevin vous rappelle. C’est gratuit et cela ne modifie pas votre réservation. Vous devez être connecté pour envoyer la demande. Par ailleurs, la page d’accueil propose une consultation vidéo payante avec un médecin ; sa durée et son prix s’affichent avant la réservation."
+        },
+        "es-ES": {
+          "q": "¿Hay una consulta gratuita antes de reservar?",
+          "a": "Sí. Toque «Consulta gratuita antes de reservar» en la página de un proveedor, especialista o servicio, o utilice el paso «Consulta gratuita» durante la reserva. Deje su nombre, su número de teléfono y aquello con lo que necesita ayuda, y un asesor de LSevin le devolverá la llamada. Es gratuita y no modifica su reserva. Para enviar la solicitud debe haber iniciado sesión. Aparte de esto, la página de inicio ofrece una videoconsulta de pago con un médico; su duración y su precio se muestran antes de reservar."
+        }
+      }
+    },
+    {
+      "locales": {
+        "en-US": {
+          "q": "How can I pay, and is online payment safe?",
+          "a": "The methods you see at “Review & Pay” depend on the service and your account. They can include online payment through a payment gateway, your LSevin wallet, a bank transfer receipt, or “Pay in place”, where you pay part now and the rest at the provider. For online payment you are sent to the gateway's own page and then back to LSevin, which verifies the payment before confirming it. The site carries the Enamad e-trust seal."
+        },
+        "fa-IR": {
+          "q": "چطور می‌توانم پرداخت کنم و آیا پرداخت آنلاین امن است؟",
+          "a": "روش‌هایی که در مرحلهٔ «بررسی و پرداخت» می‌بینید به خدمت و حساب کاربری شما بستگی دارد و می‌تواند شامل پرداخت آنلاین از طریق درگاه، «کیف پول السوین»، «پرداخت با فیش واریزی» یا «پرداخت در محل» باشد؛ در روش آخر بخشی از مبلغ را اکنون و بقیه را نزد ارائه‌دهنده می‌پردازید. در پرداخت آنلاین به صفحهٔ خود درگاه منتقل می‌شوید و بعد به السوین برمی‌گردید و پرداخت پیش از تأیید بررسی می‌شود. سایت نماد اعتماد الکترونیکی (اینماد) دارد."
+        },
+        "ar-SA": {
+          "q": "كيف أدفع، وهل الدفع الإلكتروني آمن؟",
+          "a": "تعتمد طرق الدفع التي تظهر في خطوة «المراجعة والدفع» على الخدمة وعلى حسابك، وقد تشمل الدفع الإلكتروني عبر بوابة دفع، أو محفظة لسوين، أو «إيصال تحويل مصرفي»، أو «الدفع في المكان» حيث تدفع جزءًا الآن والباقي لدى مقدم الخدمة. في الدفع الإلكتروني تنتقل إلى صفحة بوابة الدفع نفسها ثم تعود إلى لسوين، ويتم التحقق من الدفع قبل تأكيده. ويحمل الموقع رمز الثقة الإلكترونية الإيراني (إي‌نماد)."
+        },
+        "tr-TR": {
+          "q": "Nasıl ödeme yapabilirim ve online ödeme güvenli mi?",
+          "a": "“İncele ve Öde” adımında gördüğünüz yöntemler hizmete ve hesabınıza bağlıdır. Bunlar arasında bir ödeme altyapısı üzerinden online ödeme, LSevin cüzdanınız, banka havalesi dekontu veya bir kısmını şimdi, kalanını sağlayıcıda ödediğiniz “Yerinde ödeme” olabilir. Online ödemede ödeme altyapısının kendi sayfasına yönlendirilir, ardından LSevin'e geri dönersiniz; LSevin ödemeyi onaylamadan önce doğrular. Sitede Enamad elektronik güven mührü bulunur."
+        },
+        "ku-KU": {
+          "q": "چۆن پارە بدەم، و ئایا پارەدانی ئۆنلاین سەلامەتە؟",
+          "a": "ئەو شێوازانەی لە «پێداچوونەوە و پارەدان»دا دەیانبینن بەندن بە خزمەتەکە و هەژمارەکەتان. دەکرێت پارەدانی ئۆنلاین لە ڕێگەی دەروازەی پارەدانەوە، جزدانی LSevinەکەتان، فیشی گواستنەوەی بانکی، یان «پارەدان لە شوێن» لەخۆ بگرن، کە تێیدا بەشێکی ئێستا دەدەن و ئەوی دیکە لای دابینکەر. بۆ پارەدانی ئۆنلاین دەنێردرێنە پەڕەی خودی دەروازەکە و پاشان دەگەڕێنەوە بۆ LSevin، کە پێش پشتڕاستکردنەوەی پارەدانەکە دڵنیا دەبێتەوە لێی. ماڵپەڕەکە نیشانەی متمانەی ئەلیکترۆنیی ئینمادی هەیە."
+        },
+        "ru-RU": {
+          "q": "Как можно оплатить и безопасна ли онлайн-оплата?",
+          "a": "Способы оплаты на шаге «Проверка и оплата» зависят от услуги и Вашего аккаунта. Среди них могут быть онлайн-оплата через платёжный шлюз, кошелёк LSevin, квитанция банковского перевода или «Оплата на месте», когда часть суммы Вы платите сейчас, а остаток поставщику. При онлайн-оплате Вы переходите на страницу самого платёжного шлюза, а затем возвращаетесь на LSevin, который проверяет платёж, прежде чем подтвердить его. На сайте размещён электронный знак доверия Enamad."
+        },
+        "tg-TJ": {
+          "q": "Чӣ тавр пардохт кунам ва оё пардохти онлайн бехатар аст?",
+          "a": "Усулҳое, ки дар «Санҷиш ва пардохт» мебинед, аз хидмат ва ҳисоби шумо вобастаанд. Онҳо метавонанд пардохти онлайн тавассути дарвозаи пардохт, ҳамёни LSevin, квитансияи интиқоли бонкӣ ё «Пардохт дар ҷой»-ро дар бар гиранд, ки дар он як қисмро ҳозир ва боқимондаро ба хидматрасон мепардозед. Ҳангоми пардохти онлайн шумо ба саҳифаи худи дарвоза равона мешавед ва баъд ба LSevin бармегардед, ки пардохтро пеш аз тасдиқ месанҷад. Сайт мӯҳри эътимоди электронии Enamad дорад."
+        },
+        "zh-CN": {
+          "q": "可以用哪些方式付款？在线支付安全吗？",
+          "a": "“核对与支付”中显示的支付方式取决于服务和您的账户，可能包括通过支付网关在线支付、LSevin钱包、银行转账凭证，或“现场付款”，即现在支付一部分、其余款项向服务商支付。在线支付时，您会被跳转到支付网关自己的页面，然后返回LSevin，LSevin核验付款后才会确认。本网站带有Enamad电子信任标识。"
+        },
+        "de-DE": {
+          "q": "Wie kann ich bezahlen, und ist die Online-Zahlung sicher?",
+          "a": "Welche Methoden Sie unter „Prüfen & Bezahlen“ sehen, hängt von der Leistung und Ihrem Konto ab. Möglich sind Online-Zahlung über ein Zahlungsgateway, Ihr LSevin Wallet, ein Beleg über eine Banküberweisung oder „Zahlung vor Ort“, bei der Sie einen Teil jetzt und den Rest beim Anbieter zahlen. Bei der Online-Zahlung werden Sie auf die Seite des Zahlungsgateways und anschließend zurück zu LSevin geleitet; LSevin prüft die Zahlung, bevor sie bestätigt wird. Die Website trägt das elektronische Vertrauenssiegel Enamad."
+        },
+        "fr-FR": {
+          "q": "Comment puis-je payer, et le paiement en ligne est-il sûr ?",
+          "a": "Les moyens proposés à l’étape « Vérification et paiement » dépendent du service et de votre compte. Il peut s’agir du paiement en ligne via une passerelle de paiement, de votre portefeuille LSevin, d’un reçu de virement bancaire ou du « Paiement sur place », où vous réglez une partie maintenant et le reste auprès du prestataire. Pour un paiement en ligne, vous êtes redirigé vers la page de la passerelle, puis de nouveau vers LSevin, qui vérifie le paiement avant de le confirmer. Le site affiche le sceau de confiance électronique Enamad."
+        },
+        "es-ES": {
+          "q": "¿Cómo puedo pagar? ¿El pago en línea es seguro?",
+          "a": "Los métodos que verá en «Revisar y pagar» dependen del servicio y de su cuenta. Pueden incluir el pago en línea a través de una pasarela de pago, su monedero de LSevin, un comprobante de transferencia bancaria o «Pago en el lugar», con el que paga una parte ahora y el resto en el centro del proveedor. Para el pago en línea, se le dirige a la página de la propia pasarela y después de vuelta a LSevin, que verifica el pago antes de confirmarlo. El sitio cuenta con el sello electrónico de confianza Enamad."
+        }
+      }
+    },
+    {
+      "locales": {
+        "en-US": {
+          "q": "Which languages is LSevin available in, and who is it for?",
+          "a": "LSevin is fully available in Persian, Arabic and English, and you can switch from the language menu. Other languages such as Turkish, Kurdish and Russian are listed too, but they are only partly translated, so some text appears in English. The platform serves patients in Iran and visitors from abroad planning treatment there. Provider pages show the languages their staff speak when the provider has listed them."
+        },
+        "fa-IR": {
+          "q": "السوین به چه زبان‌هایی در دسترس است و برای چه کسانی است؟",
+          "a": "السوین به‌طور کامل به فارسی، عربی و انگلیسی در دسترس است و از منوی زبان می‌توانید زبان را تغییر دهید. زبان‌های دیگری مثل ترکی، کردی و روسی هم در فهرست هستند، اما ترجمهٔ آن‌ها کامل نیست و بخشی از متن‌ها به انگلیسی نمایش داده می‌شود. این سامانه برای بیماران داخل ایران و مسافرانی است که از کشورهای دیگر برای درمان به ایران می‌آیند. اگر ارائه‌دهنده زبان‌های کارکنانش را ثبت کرده باشد، آن‌ها را در بخش «زبان‌ها» در صفحهٔ او می‌بینید."
+        },
+        "ar-SA": {
+          "q": "بأي اللغات تتوفر لسوين، ولمن هي موجهة؟",
+          "a": "تتوفر لسوين بالكامل بالفارسية والعربية والإنجليزية، ويمكنك تغيير اللغة من قائمة اللغات. وتظهر في القائمة لغات أخرى مثل التركية والكردية والروسية، لكن ترجمتها غير مكتملة فيظهر بعض النص بالإنجليزية. تخدم المنصة المرضى داخل إيران والزوار القادمين من الخارج لتخطيط علاجهم فيها. وإذا أدرج مقدم الخدمة اللغات التي يتحدثها فريقه، فستجدها في قسم «اللغات» في صفحته."
+        },
+        "tr-TR": {
+          "q": "LSevin hangi dillerde kullanılabilir ve kimler için?",
+          "a": "LSevin Farsça, Arapça ve İngilizce olarak eksiksiz kullanılabilir; dil menüsünden geçiş yapabilirsiniz. Türkçe, Kürtçe ve Rusça gibi diğer diller de listelenir, ancak bunlar yalnızca kısmen çevrilmiştir; bu nedenle bazı metinler İngilizce görünür. Platform, İran'daki hastalara ve orada tedavi planlayan yurt dışındaki ziyaretçilere hizmet verir. Sağlayıcı sayfaları, sağlayıcı bu bilgiyi eklemişse çalışanlarının konuştuğu dilleri gösterir."
+        },
+        "ku-KU": {
+          "q": "LSevin بە چ زمانێک بەردەستە، و بۆ کێیە؟",
+          "a": "LSevin بە تەواوی بە فارسی، عەرەبی و ئینگلیزی بەردەستە و دەتوانن لە لیستی زمانەکانەوە زمان بگۆڕن. زمانەکانی تری وەک تورکی، کوردی و ڕووسیش لە لیستەکەدان، بەڵام تەنها بەشێکیان وەرگێڕدراوە، بۆیە هەندێک دەق بە ئینگلیزی دەردەکەوێت. پلاتفۆرمەکە خزمەت بە نەخۆشانی ناو ئێران و ئەو سەردانکەرانەی دەرەوە دەکات کە پلانی چارەسەر لەوێ دادەنێن. پەڕەکانی دابینکەر ئەو زمانانە پیشان دەدەن کە کارمەندەکانیان قسەی پێ دەکەن، کاتێک دابینکەر تۆماری کردبن."
+        },
+        "ru-RU": {
+          "q": "На каких языках доступен LSevin и для кого он предназначен?",
+          "a": "LSevin полностью доступен на персидском, арабском и английском языках; переключить язык можно в языковом меню. В списке есть и другие языки, например турецкий, курдский и русский, но они переведены лишь частично, поэтому часть текста отображается на английском. Платформа работает для пациентов в Иране и для иностранных посетителей, которые планируют лечение в Иране. Если поставщик указал языки, на которых говорят его сотрудники, они отображаются на его странице."
+        },
+        "tg-TJ": {
+          "q": "LSevin бо кадом забонҳо дастрас аст ва барои кист?",
+          "a": "LSevin пурра бо забонҳои форсӣ, арабӣ ва англисӣ дастрас аст ва забонро аз менюи забонҳо иваз кардан мумкин аст. Забонҳои дигар, масалан туркӣ, курдӣ ва русӣ, низ дар рӯйхат ҳастанд, вале онҳо қисман тарҷума шудаанд, бинобар ин баъзе матнҳо бо забони англисӣ нишон дода мешаванд. Платформа ба беморони дохили Эрон ва меҳмонони хориҷие, ки табобат дар Эронро ба нақша мегиранд, хизмат мерасонад. Дар саҳифаҳои хидматрасонҳо забонҳое, ки кормандон бо онҳо гап мезананд, нишон дода мешаванд, агар хидматрасон онҳоро зикр карда бошад."
+        },
+        "zh-CN": {
+          "q": "LSevin支持哪些语言？面向哪些用户？",
+          "a": "LSevin完整支持波斯语、阿拉伯语和英语，您可以通过语言菜单切换。土耳其语、库尔德语、俄语等其他语言也在列表中，但仅部分翻译，因此有些文字会以英语显示。平台服务于伊朗境内的患者，以及计划前往伊朗就医的境外访客。如果服务商已填写，其页面会显示工作人员使用的语言。"
+        },
+        "de-DE": {
+          "q": "In welchen Sprachen ist LSevin verfügbar, und für wen ist es gedacht?",
+          "a": "LSevin ist vollständig auf Persisch, Arabisch und Englisch verfügbar, und Sie können die Sprache über das Sprachmenü wechseln. Weitere Sprachen wie Türkisch, Kurdisch und Russisch sind ebenfalls aufgeführt, aber nur teilweise übersetzt, sodass manche Texte auf Englisch erscheinen. Die Plattform richtet sich an Patienten im Iran und an Besucher aus dem Ausland, die dort eine Behandlung planen. Anbieterseiten zeigen die Sprachen, die das Personal spricht, sofern der Anbieter sie angegeben hat."
+        },
+        "fr-FR": {
+          "q": "En quelles langues LSevin est-il disponible, et à qui s’adresse-t-il ?",
+          "a": "LSevin est entièrement disponible en persan, en arabe et en anglais, et vous pouvez changer de langue depuis le menu des langues. D’autres langues, comme le turc, le kurde et le russe, sont également proposées, mais elles ne sont que partiellement traduites : certains textes s’affichent donc en anglais. La plateforme s’adresse aux patients en Iran et aux visiteurs étrangers qui y préparent un traitement. Les pages des prestataires indiquent les langues parlées par leur personnel lorsque le prestataire les a renseignées."
+        },
+        "es-ES": {
+          "q": "¿En qué idiomas está disponible LSevin y a quién está dirigido?",
+          "a": "LSevin está disponible por completo en persa, árabe e inglés, y puede cambiar de idioma desde el menú de idiomas. También aparecen otros idiomas, como turco, kurdo y ruso, pero solo están traducidos en parte, por lo que algunos textos se muestran en inglés. La plataforma atiende a pacientes en Irán y a visitantes del extranjero que planean recibir tratamiento allí. Las páginas de proveedores muestran los idiomas que habla su personal cuando el proveedor los ha indicado."
+        }
+      }
+    }
+  ]
+}

@@ -5,6 +5,9 @@ const PUBLIC_APP_HOSTS = new Set([
   "appmain.lsevin.com",
   "lsevincare.com",
   "www.lsevincare.com",
+  // Primary brand domain once the app is served there (docs/seo/lsevin-com-migration.md).
+  "lsevin.com",
+  "www.lsevin.com",
   "lsevin.ir",
   "www.lsevin.ir",
 ]);

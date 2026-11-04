@@ -3,6 +3,7 @@ import "server-only";
 import db from "@/config/database/db";
 
 import { isValidTimeZone, localToInstant } from "../../domain/calendar";
+import { isMediaRef } from "../../domain/media";
 import { audit } from "../platform/booking";
 import { fail, mapDbError } from "../platform/errors";
 import type { Actor } from "../platform/roles";
@@ -21,7 +22,7 @@ type Tx = typeof db;
 const TERM_KINDS = ["category", "tag", "transport_mode", "difficulty", "amenity", "inclusion", "badge", "suitability", "age_rule"] as const;
 const CODE_RE = /^[a-z0-9][a-z0-9_-]{0,62}$/;
 const SLUG_RE = /^[a-z0-9][a-z0-9-]{0,80}$/;
-const URL_RE = /^(https:\/\/|\/)[^\s<>"']{1,1000}$/;
+
 /** Per-language cap for destination descriptions, sized for serialized rich text (Lexical JSON). */
 const DESCRIPTION_MAX = 40_000;
 
@@ -127,7 +128,7 @@ export async function upsertDestination(actor: Actor, input: DestinationInput) {
   const country = input.countryCode ? String(input.countryCode).trim().toUpperCase() : null;
   if (country && !/^[A-Z]{2}$/.test(country)) throw fail.validation("invalid_country");
   const cover = input.coverUrl?.trim() || null;
-  if (cover && !URL_RE.test(cover)) throw fail.validation("invalid_media_url");
+  if (cover && !isMediaRef(cover)) throw fail.validation("invalid_media_url");
   const alts = translationsMap(input.coverAlts, 300);
   if (cover && Object.keys(alts).length === 0) throw fail.validation("cover_alt_required");
   const from = windowInstant(input.publishFrom, input.calendar, tz);
@@ -199,7 +200,7 @@ export async function upsertModule(actor: Actor, input: ModuleInput) {
   const titles = translationsMap(input.titles, 200);
   if (Object.keys(titles).length === 0) throw fail.validation("title_required");
   const image = input.imageUrl?.trim() || null;
-  if (image && !URL_RE.test(image)) throw fail.validation("invalid_media_url");
+  if (image && !isMediaRef(image)) throw fail.validation("invalid_media_url");
   const rules: Record<string, unknown> = {};
   for (const [k, v] of Object.entries(input.rules ?? {})) {
     if (!RULE_KEYS.has(k)) throw fail.validation("invalid_rule", { rule: k });

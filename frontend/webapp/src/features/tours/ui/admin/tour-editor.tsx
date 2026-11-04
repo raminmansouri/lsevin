@@ -16,7 +16,7 @@ import { PolicyTab } from "./editor-policy";
 import { PricingTab } from "./editor-pricing";
 import { ScheduleTab } from "./editor-schedule";
 import { localeName } from "./inputs";
-import { StatusBadge } from "./primitives";
+import { confirmLeave, StatusBadge } from "./primitives";
 import { TOUR_EDITOR_TABS, TOURS_PLATFORM_BASE, type TourEditorTab } from "./paths";
 
 
@@ -35,12 +35,17 @@ export function TourEditor({ bundle, tab, targetLocale, lookups }: { bundle: Tou
   const core = bundle.core;
   const title = bundle.content.find((c) => c.entity_type === "tour" && c.field_key === "title" && c.locale === core.source_locale);
   const base = `${TOURS_PLATFORM_BASE}/tours/${core.id}`;
+  const tc = useTranslations("TourAdmin.common");
+  // Switching tabs or going back drops edits not yet saved with their section's Save button.
+  const guardLeave = (e: React.MouseEvent) => {
+    if (!confirmLeave(tc("leaveUnsaved"))) e.preventDefault();
+  };
   const errors = bundle.requirements.filter((r) => r.severity === "error").length;
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="space-y-1">
-          <Link href={`${TOURS_PLATFORM_BASE}/tours`} className="text-muted-foreground text-sm hover:underline">← {t("backToList")}</Link>
+          <Link href={`${TOURS_PLATFORM_BASE}/tours`} onClick={guardLeave} className="text-muted-foreground text-sm hover:underline">← {t("backToList")}</Link>
           <h1 className="text-xl font-semibold" data-testid="tour-title">{title?.draft_value ?? title?.published_value ?? core.slug}</h1>
           <div className="flex flex-wrap items-center gap-2 text-sm">
             <StatusBadge status={core.status} label={ts(`tourStatus.${core.status}`)} />
@@ -67,6 +72,7 @@ export function TourEditor({ bundle, tab, targetLocale, lookups }: { bundle: Tou
             <li key={k}>
               <Link
                 href={`${base}?tab=${k}`}
+                onClick={guardLeave}
                 aria-current={tab === k ? "page" : undefined}
                 className={cn("inline-flex h-9 items-center border-b-2 px-3 text-sm", tab === k ? "border-primary font-medium" : "text-muted-foreground border-transparent")}
               >

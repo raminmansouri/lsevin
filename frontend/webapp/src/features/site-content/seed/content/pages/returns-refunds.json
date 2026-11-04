@@ -1,0 +1,1657 @@
+{
+  "slug": "returns-refunds",
+  "status": "draft",
+  "needsConfirmation": [
+    "Return window for shop products (no number of days is enforced in code; returns are accepted for shipped, partially shipped or completed orders)",
+    "Product categories that cannot be returned, for example opened hygiene or health products",
+    "Who pays return shipping, and whether the original delivery fee is refunded",
+    "How long the shop team takes to issue a shop refund and to which method (the code records an approved manual refund; the payment gateway adapter has no automatic refund)",
+    "Target time for reviewing a booking refund request",
+    "Whether a wallet balance created by a refund can be withdrawn to a bank card, and on what terms (withdrawal exists in the ledger with per-currency limits, but no customer flow is confirmed)",
+    "Whether the pay-in-place addition (1, 2 or 5 percent) is refunded when a booking is cancelled",
+    "The legacy booking screens show fixed texts such as 'free cancellation up to 24 hours before your appointment' and 'free cancellation up to 14 days before treatment'; confirm these are not a platform-wide policy (this page says the provider's published policy applies)",
+    "Statutory consumer rights that apply under Iranian e-commerce rules, if the business wants them stated",
+    "There is no customer-facing button that opens a booking refund request (requestRefundAction and /api/booking-pro/refunds/request exist but no UI calls them); the page tells customers to ask support, except tours where cancelling raises the request automatically. Confirm, or add the button and update the text"
+  ],
+  "sources": [
+    "src/features/shop/server/returns.service.ts (cancellation allowed while order is pending, awaiting_payment, paid or processing; paid cancelled orders are not auto-refunded and carry refund_pending; returns need a shipped, partially_shipped or completed order; per-item returnable quantity; reason required; admin approves or rejects with a mandatory reason; received returns restocked)",
+    "src/features/shop/server/shop-refund.service.ts (shop refunds are approved manual refunds; cannot exceed captured minus already refunded)",
+    "src/features/refunds/server/repository.ts (booking refund request needs a captured payment; one open request per booking; admin approves to wallet credit, full or partial; booking marked Refunded or PartiallyRefunded; reject path)",
+    "src/booking/server/my-bookings.repository.ts (customer can cancel a booking that is not already cancelled or completed; hotel nights released)",
+    "src/features/tours/domain/cancellation.ts and server/platform/booking.ts (refund percent from the policy version accepted at booking, by hours before departure; 0 after departure; 100 percent when the operator cancels; refund handed to the platform refund workflow)",
+    "src/features/tours/server/ops/departures.ts (operator-cancelled departures notify customers with refundPercent 100)",
+    "src/app/[locale]/n/app/mobile/provider/[id]/provider-detail-view.tsx and service/[id]/service-page.tsx (provider policies shown on provider and service pages)",
+    "messages/en.json Consultation.errors (video consultation paid but slot taken: customer is refunded; unconfirmed payments usually return within 72 hours)",
+    "src/features/wallet/types.ts (refund transactions credited to the wallet)"
+  ],
+  "locales": {
+    "en-US": {
+      "title": "Returns and Refunds Policy",
+      "metaDescription": "How to cancel LSevin bookings and shop orders, return products, and get refunds: provider policies, tour rules, wallet credits and what happens at each step.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "This policy explains how cancellations, returns and refunds work on LSevin. It has two parts: bookings for services (clinics, hotels, tours, gyms and consultations) and physical products from the LSevin shop. The provider's own policy, shown on its page before you book, sets how much of a booking is refundable."
+        },
+        {
+          "type": "h2",
+          "text": "Part 1: Bookings"
+        },
+        {
+          "type": "h3",
+          "text": "Which policy applies"
+        },
+        {
+          "type": "p",
+          "text": "Each provider can publish policies on its profile and service pages, such as its cancellation terms. Read them before you book. The refundable amount for a booking is worked out from the policy of the provider you booked with."
+        },
+        {
+          "type": "h3",
+          "text": "Cancelling a booking"
+        },
+        {
+          "type": "p",
+          "text": "Open My bookings, choose the booking and cancel it. You can cancel any booking that is not already cancelled or completed. Cancelling a hotel booking releases the nights so others can book them."
+        },
+        {
+          "type": "p",
+          "text": "Cancelling a booking and getting money back are two separate steps. If you paid for the booking, open a support conversation after you cancel and ask for a refund, quoting the booking number. Tour bookings are the exception: cancelling a paid tour raises the refund request for you."
+        },
+        {
+          "type": "h3",
+          "text": "How a booking refund is processed"
+        },
+        {
+          "type": "p",
+          "text": "Request: a refund request can be opened when the booking has a confirmed payment. Each booking can have one open refund request at a time, so asking again returns the request already in progress."
+        },
+        {
+          "type": "p",
+          "text": "Review: the LSevin team reviews the request against the provider's policy and what you paid. The request is approved in full, approved in part, or rejected."
+        },
+        {
+          "type": "p",
+          "text": "Payment: approved refunds are credited to your LSevin wallet in the booking's currency. The booking then shows as refunded or partially refunded, and the credit appears in your wallet history. You can use the balance for your next booking."
+        },
+        {
+          "type": "h3",
+          "text": "Tours"
+        },
+        {
+          "type": "p",
+          "text": "Each tour has a cancellation policy with refund steps based on how many hours before departure you cancel, for example a full refund up to a certain point and a partial refund after it. Your booking keeps the policy version you accepted when you booked, even if the operator changes it later."
+        },
+        {
+          "type": "p",
+          "text": "When you cancel a tour, LSevin shows the refund amount before you confirm. Cancelling after departure time does not qualify for a refund under the policy. Some tours also set what is refunded if you do not show up."
+        },
+        {
+          "type": "p",
+          "text": "If the operator cancels a departure, every booking on it is refunded in full and you are notified."
+        },
+        {
+          "type": "h3",
+          "text": "Video consultations"
+        },
+        {
+          "type": "p",
+          "text": "If your payment for a video consultation goes through but the time you chose was taken in the meantime, you are refunded. Contact support if you do not see the refund."
+        },
+        {
+          "type": "h3",
+          "text": "Payments that did not complete"
+        },
+        {
+          "type": "p",
+          "text": "If the gateway could not confirm your payment, nothing was booked. Money taken from your bank account in that case usually returns within 72 hours through your bank, not through LSevin. If it has not returned after that, contact support with the payment reference."
+        },
+        {
+          "type": "h2",
+          "text": "Part 2: Shop orders"
+        },
+        {
+          "type": "h3",
+          "text": "Cancelling an order"
+        },
+        {
+          "type": "p",
+          "text": "You can cancel a shop order from the order page until it ships, which covers the pending, awaiting payment, paid and processing stages. Unpaid orders are simply closed. For paid orders the refund is not automatic. The order is marked as waiting for a refund and the shop team processes it."
+        },
+        {
+          "type": "h3",
+          "text": "Returning products"
+        },
+        {
+          "type": "p",
+          "text": "Once an order has shipped, partly or fully, you can request a return from the order page. Choose the items and the quantity of each, and give a reason. You can only return up to the quantity you received, less anything already returned."
+        },
+        {
+          "type": "p",
+          "text": "The shop team reviews each return request. If it is rejected, the reason is recorded and shown to you. If it is approved, send the items back as instructed. When the items arrive, the return is marked received and the refund is processed."
+        },
+        {
+          "type": "h3",
+          "text": "Shop refunds"
+        },
+        {
+          "type": "p",
+          "text": "The shop team records each refund against your order. A refund can never be more than the amount you paid, less any amount already refunded on that order."
+        },
+        {
+          "type": "h2",
+          "text": "Need help?"
+        },
+        {
+          "type": "p",
+          "text": "Open a support conversation in your account with your booking or order number. For bookings, include the reason for cancelling and any message from the provider."
+        }
+      ],
+      "faq": [
+        {
+          "q": "Does cancelling a booking refund me automatically?",
+          "a": "No. Cancel the booking first, then ask support for a refund with the booking number. The LSevin team reviews the request against the provider's policy. For tours, cancelling a paid booking raises the refund request automatically."
+        },
+        {
+          "q": "Where does my booking refund go?",
+          "a": "Approved booking refunds are credited to your LSevin wallet in the booking's currency, and you can use the balance for later bookings."
+        },
+        {
+          "q": "How much of a tour do I get back if I cancel?",
+          "a": "It depends on how many hours before departure you cancel, under the policy version you accepted at booking. The amount is shown before you confirm the cancellation."
+        },
+        {
+          "q": "The tour operator cancelled my trip. What happens?",
+          "a": "You are notified and your payment for that departure is refunded in full."
+        },
+        {
+          "q": "Can I cancel a shop order after paying?",
+          "a": "Yes, until it ships. The order is then marked for refund and the shop team processes it. After shipping, request a return."
+        },
+        {
+          "q": "Can I return only some items from an order?",
+          "a": "Yes. Choose the items and quantities you want to return in the return request."
+        }
+      ]
+    },
+    "fa-IR": {
+      "title": "سیاست بازگشت کالا و وجه",
+      "metaDescription": "لغو رزرو و سفارش فروشگاه، مرجوع کردن کالا و دریافت وجه در السوین: قوانین ارائه‌دهنده، قوانین لغو تور، بازگشت وجه به کیف پول و مراحل هر کدام.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "این سیاست توضیح می‌دهد لغو، مرجوعی و بازگشت وجه در السوین چطور انجام می‌شود. دو بخش دارد: رزرو خدمات (کلینیک، هتل، تور، باشگاه و مشاوره) و کالاهای فروشگاه السوین. میزان قابل بازگشت هر رزرو را قانون خود ارائه‌دهنده تعیین می‌کند که پیش از رزرو در صفحه او نمایش داده می‌شود."
+        },
+        {
+          "type": "h2",
+          "text": "بخش اول: رزروها"
+        },
+        {
+          "type": "h3",
+          "text": "کدام قانون اعمال می‌شود"
+        },
+        {
+          "type": "p",
+          "text": "هر ارائه‌دهنده می‌تواند قوانین خود، مثل شرایط لغو، را در پروفایل و صفحه خدماتش منتشر کند. پیش از رزرو آن‌ها را بخوانید. مبلغ قابل بازگشت هر رزرو بر اساس قانون همان ارائه‌دهنده‌ای محاسبه می‌شود که رزرو کرده‌اید."
+        },
+        {
+          "type": "h3",
+          "text": "لغو رزرو"
+        },
+        {
+          "type": "p",
+          "text": "بخش رزروهای من را باز کنید، رزرو را انتخاب و لغو کنید. هر رزروی را که قبلاً لغو یا تکمیل نشده باشد می‌توانید لغو کنید. با لغو رزرو هتل، شب‌های رزرو آزاد می‌شوند تا دیگران بتوانند رزرو کنند."
+        },
+        {
+          "type": "p",
+          "text": "لغو رزرو و بازگشت وجه دو مرحله جدا هستند. اگر برای رزرو پرداخت کرده‌اید، پس از لغو گفت‌وگوی پشتیبانی باز کنید و با ذکر شماره رزرو بازگشت وجه را درخواست کنید. رزرو تور استثناست: با لغو تور پرداخت‌شده، درخواست بازگشت وجه خودکار ثبت می‌شود."
+        },
+        {
+          "type": "h3",
+          "text": "رسیدگی به بازگشت وجه رزرو"
+        },
+        {
+          "type": "p",
+          "text": "درخواست: وقتی پرداخت رزرو تأیید شده باشد، درخواست بازگشت وجه ثبت می‌شود. برای هر رزرو در هر زمان فقط یک درخواست باز وجود دارد و درخواست دوباره همان درخواست در جریان را برمی‌گرداند."
+        },
+        {
+          "type": "p",
+          "text": "بررسی: تیم السوین درخواست را با قانون ارائه‌دهنده و مبلغ پرداختی شما مقایسه می‌کند. درخواست به‌طور کامل یا بخشی پذیرفته یا رد می‌شود."
+        },
+        {
+          "type": "p",
+          "text": "پرداخت: مبلغ پذیرفته‌شده به همان ارز رزرو به کیف پول السوین شما برمی‌گردد. وضعیت رزرو به بازگشت‌داده‌شده یا بخشی بازگشت‌داده‌شده تغییر می‌کند و مبلغ در تاریخچه کیف پول دیده می‌شود. می‌توانید از این موجودی برای رزرو بعدی استفاده کنید."
+        },
+        {
+          "type": "h3",
+          "text": "تورها"
+        },
+        {
+          "type": "p",
+          "text": "هر تور قانون لغوی دارد که درصد بازگشت وجه را بر اساس تعداد ساعت‌های باقی‌مانده تا حرکت تعیین می‌کند، مثلاً بازگشت کامل تا زمان مشخصی و بازگشت بخشی پس از آن. رزرو شما همان نسخه‌ای از قانون را نگه می‌دارد که هنگام رزرو پذیرفته‌اید، حتی اگر برگزارکننده بعداً آن را تغییر دهد."
+        },
+        {
+          "type": "p",
+          "text": "هنگام لغو تور، السوین مبلغ بازگشتی را پیش از تأیید به شما نشان می‌دهد. لغو پس از زمان حرکت طبق قانون مشمول بازگشت وجه نیست. برخی تورها برای حاضر نشدن در زمان حرکت هم مبلغ بازگشتی مشخصی تعیین کرده‌اند."
+        },
+        {
+          "type": "p",
+          "text": "اگر برگزارکننده حرکتی را لغو کند، مبلغ همه رزروهای آن حرکت کامل بازگردانده می‌شود و به شما اطلاع داده می‌شود."
+        },
+        {
+          "type": "h3",
+          "text": "مشاوره تصویری"
+        },
+        {
+          "type": "p",
+          "text": "اگر پرداخت مشاوره تصویری انجام شود ولی در همین فاصله زمان انتخابی شما پر شده باشد، مبلغ به شما بازگردانده می‌شود. اگر بازگشت مبلغ را ندیدید، با پشتیبانی تماس بگیرید."
+        },
+        {
+          "type": "h3",
+          "text": "پرداخت‌های ناتمام"
+        },
+        {
+          "type": "p",
+          "text": "اگر درگاه نتوانسته باشد پرداخت را تأیید کند، رزروی ثبت نشده است. مبلغی که در این حالت از حساب بانکی شما کم شده معمولاً ظرف ۷۲ ساعت از طریق بانک شما برمی‌گردد و این بازگشت از سوی السوین انجام نمی‌شود. اگر پس از این مدت برنگشت، با شماره پیگیری پرداخت به پشتیبانی پیام دهید."
+        },
+        {
+          "type": "h2",
+          "text": "بخش دوم: سفارش‌های فروشگاه"
+        },
+        {
+          "type": "h3",
+          "text": "لغو سفارش"
+        },
+        {
+          "type": "p",
+          "text": "تا پیش از ارسال، یعنی در مراحل در انتظار، در انتظار پرداخت، پرداخت‌شده و در حال آماده‌سازی، می‌توانید سفارش را از صفحه سفارش لغو کنید. سفارش پرداخت‌نشده فقط بسته می‌شود. در سفارش پرداخت‌شده بازگشت وجه خودکار نیست؛ سفارش در وضعیت در انتظار بازگشت وجه قرار می‌گیرد و تیم فروشگاه آن را انجام می‌دهد."
+        },
+        {
+          "type": "h3",
+          "text": "مرجوع کردن کالا"
+        },
+        {
+          "type": "p",
+          "text": "پس از ارسال کامل یا بخشی سفارش، می‌توانید از صفحه سفارش درخواست مرجوعی ثبت کنید. کالاها و تعداد هر کدام را انتخاب کنید و دلیل را بنویسید. حداکثر به تعدادی که دریافت کرده‌اید، منهای مواردی که قبلاً مرجوع شده، می‌توانید مرجوع کنید."
+        },
+        {
+          "type": "p",
+          "text": "تیم فروشگاه هر درخواست مرجوعی را بررسی می‌کند. اگر رد شود، دلیل آن ثبت و به شما نشان داده می‌شود. اگر پذیرفته شود، کالاها را طبق راهنمایی ارسال کنید. پس از رسیدن کالاها، مرجوعی دریافت‌شده ثبت و بازگشت وجه انجام می‌شود."
+        },
+        {
+          "type": "h3",
+          "text": "بازگشت وجه فروشگاه"
+        },
+        {
+          "type": "p",
+          "text": "تیم فروشگاه هر بازگشت وجه را روی سفارش شما ثبت می‌کند. مبلغ بازگشتی هرگز از مبلغ پرداختی شما، منهای مبالغی که قبلاً برای همان سفارش بازگردانده شده، بیشتر نمی‌شود."
+        },
+        {
+          "type": "h2",
+          "text": "کمک لازم دارید؟"
+        },
+        {
+          "type": "p",
+          "text": "در حساب خود گفت‌وگوی پشتیبانی باز کنید و شماره رزرو یا سفارش را بنویسید. برای رزروها، دلیل لغو و هر پیامی که از ارائه‌دهنده گرفته‌اید را هم بفرستید."
+        }
+      ],
+      "faq": [
+        {
+          "q": "آیا با لغو رزرو، پول خودکار برمی‌گردد؟",
+          "a": "خیر. اول رزرو را لغو کنید و سپس با شماره رزرو از پشتیبانی بازگشت وجه را بخواهید. تیم السوین درخواست را بر اساس قانون ارائه‌دهنده بررسی می‌کند. در تور، با لغو رزرو پرداخت‌شده درخواست بازگشت وجه خودکار ثبت می‌شود."
+        },
+        {
+          "q": "وجه بازگشتی رزرو به کجا واریز می‌شود؟",
+          "a": "مبلغ پذیرفته‌شده به همان ارز رزرو به کیف پول السوین شما برمی‌گردد و می‌توانید از آن برای رزروهای بعدی استفاده کنید."
+        },
+        {
+          "q": "اگر تور را لغو کنم چقدر برمی‌گردد؟",
+          "a": "بستگی دارد چند ساعت پیش از حرکت لغو کنید و طبق نسخه‌ای از قانون محاسبه می‌شود که هنگام رزرو پذیرفته‌اید. مبلغ پیش از تأیید لغو نمایش داده می‌شود."
+        },
+        {
+          "q": "برگزارکننده تور سفر را لغو کرد. چه می‌شود؟",
+          "a": "به شما اطلاع داده می‌شود و مبلغ پرداختی برای آن حرکت کامل بازگردانده می‌شود."
+        },
+        {
+          "q": "بعد از پرداخت می‌توانم سفارش فروشگاه را لغو کنم؟",
+          "a": "بله، تا پیش از ارسال. سفارش در وضعیت در انتظار بازگشت وجه قرار می‌گیرد و تیم فروشگاه آن را انجام می‌دهد. پس از ارسال، درخواست مرجوعی ثبت کنید."
+        },
+        {
+          "q": "می‌توانم فقط بعضی کالاهای سفارش را مرجوع کنم؟",
+          "a": "بله. در درخواست مرجوعی کالاها و تعداد مورد نظر را انتخاب کنید."
+        }
+      ]
+    },
+    "ar-SA": {
+      "title": "سياسة الإرجاع واسترداد الأموال",
+      "metaDescription": "كيف تلغي حجوزات لسوين وطلبات المتجر وتُرجع المنتجات وتسترد أموالك: سياسات مقدمي الخدمات، وقواعد الجولات، والرصيد في المحفظة، وما يحدث في كل خطوة.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "توضح هذه السياسة كيف يتم الإلغاء والإرجاع واسترداد الأموال على لسوين، وهي من جزأين: حجوزات الخدمات (العيادات والفنادق والجولات والنوادي والاستشارات) والمنتجات من متجر لسوين. ويحدد مقدار المبلغ القابل للاسترداد في أي حجز سياسةُ مقدم الخدمة نفسه المعروضة في صفحته قبل الحجز."
+        },
+        {
+          "type": "h2",
+          "text": "الجزء الأول: الحجوزات"
+        },
+        {
+          "type": "h3",
+          "text": "أي سياسة تنطبق"
+        },
+        {
+          "type": "p",
+          "text": "يستطيع كل مقدم خدمة نشر سياساته، مثل شروط الإلغاء، في ملفه وصفحات خدماته. اقرأها قبل الحجز، إذ يُحسب المبلغ القابل للاسترداد وفق سياسة مقدم الخدمة الذي حجزت لديه."
+        },
+        {
+          "type": "h3",
+          "text": "إلغاء الحجز"
+        },
+        {
+          "type": "p",
+          "text": "افتح قسم حجوزاتي واختر الحجز ثم ألغه. يمكنك إلغاء أي حجز لم يُلغَ أو يكتمل من قبل. وعند إلغاء حجز فندق تُتاح لياليه لغيرك من جديد."
+        },
+        {
+          "type": "p",
+          "text": "الإلغاء واسترداد المال خطوتان منفصلتان. إذا كنت قد دفعت للحجز، فافتح محادثة دعم بعد الإلغاء واطلب الاسترداد مع ذكر رقم الحجز. وتُستثنى الجولات، إذ يُسجَّل طلب الاسترداد تلقائياً عند إلغاء جولة مدفوعة."
+        },
+        {
+          "type": "h3",
+          "text": "كيف يُعالج استرداد مبلغ الحجز"
+        },
+        {
+          "type": "p",
+          "text": "الطلب: يُفتح طلب الاسترداد عندما يكون للحجز دفع مؤكد. ولكل حجز طلب استرداد مفتوح واحد في الوقت نفسه، وأي طلب جديد يعيد الطلب القائم."
+        },
+        {
+          "type": "p",
+          "text": "المراجعة: يراجع فريق لسوين الطلب وفق سياسة مقدم الخدمة والمبلغ الذي دفعته، فيُقبل كلياً أو جزئياً أو يُرفض."
+        },
+        {
+          "type": "p",
+          "text": "الدفع: تُضاف المبالغ المقبولة إلى محفظتك في لسوين بعملة الحجز، ويظهر الحجز مسترداً أو مسترداً جزئياً، ويظهر المبلغ في سجل المحفظة. ويمكنك استخدام الرصيد في حجزك التالي."
+        },
+        {
+          "type": "h3",
+          "text": "الجولات"
+        },
+        {
+          "type": "p",
+          "text": "لكل جولة سياسة إلغاء تحدد نسبة الاسترداد حسب عدد الساعات المتبقية قبل الانطلاق، كاسترداد كامل حتى موعد معين واسترداد جزئي بعده. ويحتفظ حجزك بنسخة السياسة التي قبلتها عند الحجز حتى لو غيّرها المنظم لاحقاً."
+        },
+        {
+          "type": "p",
+          "text": "عند إلغاء الجولة تعرض لك لسوين مبلغ الاسترداد قبل التأكيد. والإلغاء بعد موعد الانطلاق لا يستحق استرداداً وفق السياسة. وتحدد بعض الجولات أيضاً ما يُسترد في حال عدم الحضور."
+        },
+        {
+          "type": "p",
+          "text": "إذا ألغى المنظم رحلة، تُسترد مبالغ جميع حجوزاتها كاملة ويصلك إشعار بذلك."
+        },
+        {
+          "type": "h3",
+          "text": "الاستشارات المرئية"
+        },
+        {
+          "type": "p",
+          "text": "إذا تم دفع الاستشارة المرئية لكن الموعد الذي اخترته حُجز في هذه الأثناء، يُعاد إليك المبلغ. وتواصل مع الدعم إذا لم تجد المبلغ المسترد."
+        },
+        {
+          "type": "h3",
+          "text": "المدفوعات غير المكتملة"
+        },
+        {
+          "type": "p",
+          "text": "إذا لم تستطع البوابة تأكيد الدفع فلم يُسجَّل أي حجز. والمبلغ الذي خُصم من حسابك البنكي في هذه الحالة يعود عادة خلال 72 ساعة عن طريق بنكك وليس عن طريق لسوين. وإذا لم يعد بعد ذلك، راسل الدعم مع الرقم المرجعي للدفع."
+        },
+        {
+          "type": "h2",
+          "text": "الجزء الثاني: طلبات المتجر"
+        },
+        {
+          "type": "h3",
+          "text": "إلغاء الطلب"
+        },
+        {
+          "type": "p",
+          "text": "يمكنك إلغاء طلب المتجر من صفحة الطلب ما دام لم يُشحن، أي في مراحل الانتظار وانتظار الدفع والدفع والتجهيز. يُغلق الطلب غير المدفوع ببساطة، أما الطلب المدفوع فلا يُسترد مبلغه تلقائياً، بل يُعلَّم بأنه بانتظار الاسترداد ويتولاه فريق المتجر."
+        },
+        {
+          "type": "h3",
+          "text": "إرجاع المنتجات"
+        },
+        {
+          "type": "p",
+          "text": "بعد شحن الطلب كلياً أو جزئياً، يمكنك تقديم طلب إرجاع من صفحة الطلب. اختر المنتجات وكمية كل منها واكتب السبب. ولا يمكنك إرجاع أكثر من الكمية التي استلمتها بعد خصم ما أُرجع سابقاً."
+        },
+        {
+          "type": "p",
+          "text": "يراجع فريق المتجر كل طلب إرجاع. إذا رُفض، يُسجَّل السبب ويُعرض عليك. وإذا قُبل، أرسل المنتجات وفق التعليمات. وعند وصولها يُسجَّل الإرجاع مستلماً ويُعالج الاسترداد."
+        },
+        {
+          "type": "h3",
+          "text": "استرداد مبالغ المتجر"
+        },
+        {
+          "type": "p",
+          "text": "يسجل فريق المتجر كل استرداد على طلبك، ولا يتجاوز المبلغ المسترد أبداً ما دفعته مطروحاً منه ما سبق رده على الطلب نفسه."
+        },
+        {
+          "type": "h2",
+          "text": "هل تحتاج إلى مساعدة؟"
+        },
+        {
+          "type": "p",
+          "text": "افتح محادثة دعم في حسابك واذكر رقم الحجز أو الطلب. وفي الحجوزات، اذكر سبب الإلغاء وأي رسالة تلقيتها من مقدم الخدمة."
+        }
+      ],
+      "faq": [
+        {
+          "q": "هل يُسترد المبلغ تلقائياً عند إلغاء الحجز؟",
+          "a": "لا. ألغِ الحجز أولاً ثم اطلب الاسترداد من الدعم مع رقم الحجز، ويراجعه فريق لسوين وفق سياسة مقدم الخدمة. وفي الجولات يُسجَّل طلب الاسترداد تلقائياً عند إلغاء حجز مدفوع."
+        },
+        {
+          "q": "أين يذهب المبلغ المسترد من الحجز؟",
+          "a": "تُضاف المبالغ المقبولة إلى محفظتك في لسوين بعملة الحجز، ويمكنك استخدامها في حجوزات لاحقة."
+        },
+        {
+          "q": "كم أسترد إذا ألغيت الجولة؟",
+          "a": "يعتمد ذلك على عدد الساعات قبل الانطلاق ونسخة السياسة التي قبلتها عند الحجز، ويظهر المبلغ قبل تأكيد الإلغاء."
+        },
+        {
+          "q": "ألغى منظم الجولة رحلتي، فماذا يحدث؟",
+          "a": "يصلك إشعار ويُعاد إليك المبلغ المدفوع لتلك الرحلة كاملاً."
+        },
+        {
+          "q": "هل يمكنني إلغاء طلب المتجر بعد الدفع؟",
+          "a": "نعم ما دام لم يُشحن، فيُعلَّم الطلب للاسترداد ويتولاه فريق المتجر. وبعد الشحن قدّم طلب إرجاع."
+        },
+        {
+          "q": "هل يمكنني إرجاع بعض منتجات الطلب فقط؟",
+          "a": "نعم. اختر في طلب الإرجاع المنتجات والكميات التي تريد إرجاعها."
+        }
+      ]
+    },
+    "tr-TR": {
+      "title": "İade ve Geri Ödeme Politikası",
+      "metaDescription": "LSevin rezervasyonlarını ve mağaza siparişlerini iptal etme, ürün iadesi ve geri ödeme: sağlayıcı politikaları, tur kuralları, cüzdana aktarım ve her adımda ne olduğu.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Bu politika, LSevin'de iptallerin, iadelerin ve geri ödemelerin nasıl işlediğini açıklar. İki bölümden oluşur: hizmet rezervasyonları (klinikler, oteller, turlar, spor salonları ve danışmanlıklar) ve LSevin mağazasındaki fiziksel ürünler. Bir rezervasyonun ne kadarının iade edilebileceğini, rezervasyondan önce sayfasında gösterilen sağlayıcının kendi politikası belirler."
+        },
+        {
+          "type": "h2",
+          "text": "1. Bölüm: Rezervasyonlar"
+        },
+        {
+          "type": "h3",
+          "text": "Hangi politika geçerlidir"
+        },
+        {
+          "type": "p",
+          "text": "Her sağlayıcı, profilinde ve hizmet sayfalarında iptal koşulları gibi politikalar yayımlayabilir. Rezervasyon yapmadan önce bunları okuyun. Bir rezervasyonun iade edilebilir tutarı, rezervasyon yaptığınız sağlayıcının politikasına göre hesaplanır."
+        },
+        {
+          "type": "h3",
+          "text": "Rezervasyon iptali"
+        },
+        {
+          "type": "p",
+          "text": "Rezervasyonlarım bölümünü açın, rezervasyonu seçin ve iptal edin. Daha önce iptal edilmemiş veya tamamlanmamış her rezervasyonu iptal edebilirsiniz. Bir otel rezervasyonunu iptal ettiğinizde geceler serbest kalır ve başkaları tarafından ayırtılabilir."
+        },
+        {
+          "type": "p",
+          "text": "Rezervasyonu iptal etmek ve paranızı geri almak iki ayrı adımdır. Rezervasyon için ödeme yaptıysanız, iptalden sonra bir destek görüşmesi açın ve rezervasyon numarasını belirterek geri ödeme isteyin. Tur rezervasyonları bunun istisnasıdır: Ödemesi yapılmış bir turu iptal ettiğinizde geri ödeme talebi sizin için otomatik olarak oluşturulur."
+        },
+        {
+          "type": "h3",
+          "text": "Rezervasyon geri ödemesi nasıl işlenir"
+        },
+        {
+          "type": "p",
+          "text": "Talep: Rezervasyonun onaylanmış bir ödemesi olduğunda geri ödeme talebi açılabilir. Her rezervasyonun aynı anda yalnızca bir açık geri ödeme talebi olabilir; yeniden talep ettiğinizde devam etmekte olan talep karşınıza gelir."
+        },
+        {
+          "type": "p",
+          "text": "İnceleme: LSevin ekibi talebi sağlayıcının politikasına ve ödediğiniz tutara göre inceler. Talep tamamen onaylanır, kısmen onaylanır veya reddedilir."
+        },
+        {
+          "type": "p",
+          "text": "Ödeme: Onaylanan geri ödemeler, rezervasyonun para biriminde LSevin cüzdanınıza aktarılır. Rezervasyon ardından iade edildi veya kısmen iade edildi olarak görünür ve tutar cüzdan geçmişinizde yer alır. Bakiyeyi bir sonraki rezervasyonunuzda kullanabilirsiniz."
+        },
+        {
+          "type": "h3",
+          "text": "Turlar"
+        },
+        {
+          "type": "p",
+          "text": "Her turun, kalkıştan kaç saat önce iptal ettiğinize göre kademelenen geri ödeme adımları içeren bir iptal politikası vardır; örneğin belirli bir zamana kadar tam iade, sonrasında kısmi iade. Operatör politikayı daha sonra değiştirse bile rezervasyonunuz, rezervasyon sırasında kabul ettiğiniz politika sürümünü korur."
+        },
+        {
+          "type": "p",
+          "text": "Bir turu iptal ettiğinizde LSevin, onaylamanızdan önce geri ödeme tutarını gösterir. Kalkış saatinden sonra yapılan iptaller, politika gereği geri ödemeye hak kazanmaz. Bazı turlar, katılmamanız durumunda neyin iade edileceğini de belirler."
+        },
+        {
+          "type": "p",
+          "text": "Operatör bir kalkışı iptal ederse o kalkıştaki tüm rezervasyonlar tamamen iade edilir ve size bildirim gönderilir."
+        },
+        {
+          "type": "h3",
+          "text": "Görüntülü danışmalar"
+        },
+        {
+          "type": "p",
+          "text": "Görüntülü danışma için ödemeniz gerçekleşir ancak seçtiğiniz saat bu arada dolmuşsa ücretiniz iade edilir. İadeyi göremiyorsanız desteğe başvurun."
+        },
+        {
+          "type": "h3",
+          "text": "Tamamlanmayan ödemeler"
+        },
+        {
+          "type": "p",
+          "text": "Ödeme altyapısı ödemenizi onaylayamadıysa herhangi bir rezervasyon yapılmamıştır. Bu durumda banka hesabınızdan çekilen para genellikle 72 saat içinde LSevin üzerinden değil, bankanız aracılığıyla geri gelir. Bu sürenin sonunda geri gelmediyse ödeme referansıyla desteğe başvurun."
+        },
+        {
+          "type": "h2",
+          "text": "2. Bölüm: Mağaza siparişleri"
+        },
+        {
+          "type": "h3",
+          "text": "Sipariş iptali"
+        },
+        {
+          "type": "p",
+          "text": "Bir mağaza siparişini kargoya verilene kadar sipariş sayfasından iptal edebilirsiniz; bu süre Beklemede, Ödeme bekleniyor, Ödendi ve İşleniyor aşamalarını kapsar. Ödenmemiş siparişler doğrudan kapatılır. Ödenmiş siparişlerde geri ödeme otomatik değildir. Sipariş geri ödeme bekliyor olarak işaretlenir ve işlemi mağaza ekibi yapar."
+        },
+        {
+          "type": "h3",
+          "text": "Ürün iadesi"
+        },
+        {
+          "type": "p",
+          "text": "Sipariş kısmen veya tamamen kargoya verildikten sonra sipariş sayfasından iade talebi oluşturabilirsiniz. Ürünleri ve her birinin adedini seçin, bir neden belirtin. Yalnızca teslim aldığınız adetten daha önce iade ettikleriniz düşüldükten sonra kalan miktar kadar iade edebilirsiniz."
+        },
+        {
+          "type": "p",
+          "text": "Mağaza ekibi her iade talebini inceler. Talep reddedilirse nedeni kaydedilir ve size gösterilir. Onaylanırsa ürünleri verilen talimatlara göre geri gönderin. Ürünler ulaştığında iade teslim alındı olarak işaretlenir ve geri ödeme işleme alınır."
+        },
+        {
+          "type": "h3",
+          "text": "Mağaza geri ödemeleri"
+        },
+        {
+          "type": "p",
+          "text": "Mağaza ekibi her geri ödemeyi siparişinize kaydeder. Bir geri ödeme hiçbir zaman, ödediğiniz tutardan o sipariş için daha önce iade edilen tutar düşüldükten sonra kalan miktarı aşamaz."
+        },
+        {
+          "type": "h2",
+          "text": "Yardıma mı ihtiyacınız var?"
+        },
+        {
+          "type": "p",
+          "text": "Hesabınızda rezervasyon veya sipariş numaranızla bir destek görüşmesi açın. Rezervasyonlar için iptal nedenini ve varsa sağlayıcıdan gelen mesajı ekleyin."
+        }
+      ],
+      "faq": [
+        {
+          "q": "Rezervasyonu iptal etmek otomatik olarak geri ödeme sağlar mı?",
+          "a": "Hayır. Önce rezervasyonu iptal edin, ardından rezervasyon numarasıyla destekten geri ödeme isteyin. LSevin ekibi talebi sağlayıcının politikasına göre inceler. Turlarda, ödemesi yapılmış bir rezervasyonu iptal ettiğinizde geri ödeme talebi otomatik olarak oluşturulur."
+        },
+        {
+          "q": "Rezervasyon geri ödemem nereye yapılır?",
+          "a": "Onaylanan rezervasyon geri ödemeleri, rezervasyonun para biriminde LSevin cüzdanınıza aktarılır; bakiyeyi sonraki rezervasyonlarınızda kullanabilirsiniz."
+        },
+        {
+          "q": "Bir turu iptal edersem ne kadarını geri alırım?",
+          "a": "Bu, rezervasyon sırasında kabul ettiğiniz politika sürümüne göre kalkıştan kaç saat önce iptal ettiğinize bağlıdır. Tutar, iptali onaylamadan önce gösterilir."
+        },
+        {
+          "q": "Tur operatörü seyahatimi iptal etti. Ne olacak?",
+          "a": "Size bildirim gönderilir ve o kalkış için yaptığınız ödeme tamamen iade edilir."
+        },
+        {
+          "q": "Ödeme yaptıktan sonra bir mağaza siparişini iptal edebilir miyim?",
+          "a": "Evet, kargoya verilene kadar. Sipariş bu durumda geri ödeme için işaretlenir ve işlemi mağaza ekibi yapar. Kargoya verildikten sonra iade talebi oluşturun."
+        },
+        {
+          "q": "Bir siparişteki ürünlerin yalnızca bir kısmını iade edebilir miyim?",
+          "a": "Evet. İade talebinde iade etmek istediğiniz ürünleri ve adetleri seçin."
+        }
+      ]
+    },
+    "ku-KU": {
+      "title": "سیاسەتی گەڕاندنەوەی کاڵا و پارە",
+      "metaDescription": "چۆن حجز و داواکارییەکانی فرۆشگای LSevin هەڵبوەشێننەوە، کاڵا بگەڕێننەوە و پارەکەتان وەربگرنەوە: سیاسەتی دابینکەر، یاساکانی گەشت، جزدان و هەر هەنگاوێک.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "ئەم سیاسەتە ڕوونی دەکاتەوە هەڵوەشاندنەوە، گەڕاندنەوەی کاڵا و گەڕاندنەوەی پارە لە LSevin چۆن کار دەکەن. دوو بەشی هەیە: حجزی خزمەتگوزارییەکان (کلینیک، هوتێل، گەشت، جیم و ڕاوێژ) و کاڵا فیزیکییەکانی فرۆشگای LSevin. سیاسەتی خودی دابینکەر، کە پێش حجزکردن لە پەڕەکەیدا پیشان دەدرێت، دیاری دەکات چەندی حجزێک دەگەڕێندرێتەوە."
+        },
+        {
+          "type": "h2",
+          "text": "بەشی 1: حجزەکان"
+        },
+        {
+          "type": "h3",
+          "text": "کام سیاسەت جێبەجێ دەکرێت"
+        },
+        {
+          "type": "p",
+          "text": "هەر دابینکەرێک دەتوانێت لە پرۆفایل و پەڕەکانی خزمەتەکەیدا سیاسەت بڵاو بکاتەوە، وەک مەرجەکانی هەڵوەشاندنەوە. پێش حجزکردن بیانخوێننەوە. ئەو بڕەی بۆ حجزێک دەگەڕێندرێتەوە بەپێی سیاسەتی ئەو دابینکەرە هەژمار دەکرێت کە حجزتان لەلای کردووە."
+        },
+        {
+          "type": "h3",
+          "text": "هەڵوەشاندنەوەی حجز"
+        },
+        {
+          "type": "p",
+          "text": "«حجزەکانم» بکەنەوە، حجزەکە هەڵبژێرن و هەڵیبوەشێننەوە. دەتوانن هەر حجزێک هەڵبوەشێننەوە کە پێشتر هەڵنەوەشێنرابێتەوە یان تەواو نەبووبێت. هەڵوەشاندنەوەی حجزی هوتێل شەوەکان ئازاد دەکات بۆ ئەوەی کەسانی تر بتوانن حجزیان بکەن."
+        },
+        {
+          "type": "p",
+          "text": "هەڵوەشاندنەوەی حجز و وەرگرتنەوەی پارە دوو هەنگاوی جیاوازن. ئەگەر پارەی حجزەکەتان داوە، دوای هەڵوەشاندنەوە گفتوگۆیەکی پشتگیری بکەنەوە و بە ئاماژەدان بە ژمارەی حجزەکە داوای گەڕاندنەوەی پارە بکەن. حجزی گەشت لەم یاسایە بەدەرە: هەڵوەشاندنەوەی گەشتێکی پارەدراو خۆی داواکاریی گەڕاندنەوەی پارەتان بۆ دروست دەکات."
+        },
+        {
+          "type": "h3",
+          "text": "گەڕاندنەوەی پارەی حجز چۆن جێبەجێ دەکرێت"
+        },
+        {
+          "type": "p",
+          "text": "داواکاری: داواکاریی گەڕاندنەوەی پارە کاتێک دەکرێتەوە کە حجزەکە پارەدانێکی پشتڕاستکراوەی هەبێت. هەر حجزێک لە یەک کاتدا تەنها یەک داواکاریی کراوەی گەڕاندنەوەی پارەی دەبێت، بۆیە ئەگەر دووبارە داوا بکەنەوە، هەمان ئەو داواکارییە پیشان دەدرێتەوە کە لە جێبەجێکردندایە."
+        },
+        {
+          "type": "p",
+          "text": "پێداچوونەوە: تیمی LSevin داواکارییەکە بەپێی سیاسەتی دابینکەر و ئەو بڕەی داوتانە هەڵدەسەنگێنێت. داواکارییەکە یان بە تەواوی پەسەند دەکرێت، یان بە بەشێکی، یان ڕەت دەکرێتەوە."
+        },
+        {
+          "type": "p",
+          "text": "پارەدان: پارەی پەسەندکراو بە دراوی حجزەکە دەخرێتە ناو جزدانی LSevinەکەتانەوە. پاشان حجزەکە وەک «پارە گەڕێنراوەتەوە» یان «بەشێکی پارە گەڕێنراوەتەوە» پیشان دەدرێت و بڕەکە لە مێژووی جزدانەکەتاندا دەردەکەوێت. دەتوانن باڵانسەکە بۆ حجزی داهاتووتان بەکاربهێنن."
+        },
+        {
+          "type": "h3",
+          "text": "گەشتەکان"
+        },
+        {
+          "type": "p",
+          "text": "هەر گەشتێک سیاسەتێکی هەڵوەشاندنەوەی هەیە کە قۆناغەکانی گەڕاندنەوەی پارە بەپێی ئەوە دیاری دەکات چەند کاتژمێر پێش کاتی بەڕێکەوتن هەڵیدەوەشێننەوە، بۆ نموونە گەڕاندنەوەی تەواوی پارە تا کاتێکی دیاریکراو و گەڕاندنەوەی بەشێکی دوای ئەوە. حجزەکەتان ئەو وەشانەی سیاسەتەکە دەپارێزێت کە لە کاتی حجزدا پەسەندتان کردووە، تەنانەت ئەگەر ڕێکخەری گەشتەکە دواتر بیگۆڕێت."
+        },
+        {
+          "type": "p",
+          "text": "کاتێک گەشتێک هەڵدەوەشێننەوە، LSevin پێش پشتڕاستکردنەوە بڕی گەڕاوەکە پیشان دەدات. هەڵوەشاندنەوە دوای کاتی بەڕێکەوتن بەپێی سیاسەتەکە هیچ پارەیەکی ناگەڕێتەوە. هەندێک گەشت ئەوەش دیاری دەکەن کە ئەگەر ئامادە نەبن چی دەگەڕێندرێتەوە."
+        },
+        {
+          "type": "p",
+          "text": "ئەگەر ڕێکخەری گەشت کاتێکی بەڕێکەوتن هەڵبوەشێنێتەوە، پارەی هەموو حجزەکانی ئەو کاتە بە تەواوی دەگەڕێندرێتەوە و ئاگادار دەکرێنەوە."
+        },
+        {
+          "type": "h3",
+          "text": "ڕاوێژی ڤیدیۆیی"
+        },
+        {
+          "type": "p",
+          "text": "ئەگەر پارەدانتان بۆ ڕاوێژی ڤیدیۆیی سەرکەوتوو بوو بەڵام لەو ماوەیەدا کاتە هەڵبژێردراوەکەتان گیرابوو، پارەکەتان دەگەڕێندرێتەوە. ئەگەر گەڕاندنەوەکە نابینن، پەیوەندی بە پشتگیرییەوە بکەن."
+        },
+        {
+          "type": "h3",
+          "text": "ئەو پارەدانانەی تەواو نەبوون"
+        },
+        {
+          "type": "p",
+          "text": "ئەگەر دەروازەی پارەدان نەیتوانی پارەدانەکەتان پشتڕاست بکاتەوە، هیچ حجزێک نەکراوە. لەم حاڵەتەدا ئەو پارەیەی لە هەژماری بانکییەکەتان بڕدراوە زۆربەی جار لە ماوەی 72 کاتژمێردا لە ڕێگەی بانکەکەتانەوە دەگەڕێتەوە، نەک لە ڕێگەی LSevinەوە. ئەگەر دوای ئەو ماوەیە نەگەڕایەوە، بە ژمارەی بەدواداچوونی پارەدانەکەوە پەیوەندی بە پشتگیرییەوە بکەن."
+        },
+        {
+          "type": "h2",
+          "text": "بەشی 2: داواکارییەکانی فرۆشگا"
+        },
+        {
+          "type": "h3",
+          "text": "هەڵوەشاندنەوەی داواکاری"
+        },
+        {
+          "type": "p",
+          "text": "دەتوانن داواکارییەکی فرۆشگا لە پەڕەی داواکارییەکەوە هەڵبوەشێننەوە تا ئەو کاتەی دەنێردرێت، واتە لە قۆناغەکانی چاوەڕوان، چاوەڕێی پارەدان، پارەدراو و لە جێبەجێکردندا. داواکارییە پارەنەدراوەکان تەنها دادەخرێن. بۆ داواکارییە پارەدراوەکان گەڕاندنەوەی پارە خۆکار نییە؛ داواکارییەکە وەک چاوەڕێی گەڕاندنەوەی پارە نیشان دەکرێت و تیمی فرۆشگا جێبەجێی دەکات."
+        },
+        {
+          "type": "h3",
+          "text": "گەڕاندنەوەی کاڵا"
+        },
+        {
+          "type": "p",
+          "text": "کاتێک داواکارییەک بە بەشێکی یان بە تەواوی نێردرا، دەتوانن لە پەڕەی داواکارییەکەوە داوای گەڕاندنەوەی کاڵا بکەن. کاڵاکان و ژمارەی هەر یەکەیان هەڵبژێرن و هۆکارێک بنووسن. تەنها دەتوانن تا ئەو ژمارەیە بگەڕێننەوە کە وەرتانگرتووە، کەمتر لەوەی پێشتر گەڕێندراوەتەوە."
+        },
+        {
+          "type": "p",
+          "text": "تیمی فرۆشگا هەر داواکارییەکی گەڕاندنەوە هەڵدەسەنگێنێت. ئەگەر ڕەت کرایەوە، هۆکارەکەی تۆمار دەکرێت و پیشانتان دەدرێت. ئەگەر پەسەند کرا، کاڵاکان بەپێی ڕێنماییەکان بنێرنەوە. کاتێک کاڵاکان گەیشتن، گەڕاندنەوەکە وەک وەرگیراو نیشان دەکرێت و پارەکە دەگەڕێندرێتەوە."
+        },
+        {
+          "type": "h3",
+          "text": "گەڕاندنەوەی پارەی فرۆشگا"
+        },
+        {
+          "type": "p",
+          "text": "تیمی فرۆشگا هەر گەڕاندنەوەیەکی پارە لەسەر داواکارییەکەتان تۆمار دەکات. بڕی گەڕاوە هەرگیز ناتوانێت لەو بڕە زیاتر بێت کە داوتانە، کەمتر لەوەی پێشتر لەسەر هەمان داواکاری گەڕێندراوەتەوە."
+        },
+        {
+          "type": "h2",
+          "text": "یارمەتیتان پێویستە؟"
+        },
+        {
+          "type": "p",
+          "text": "لە هەژمارەکەتاندا گفتوگۆیەکی پشتگیری بکەنەوە و ژمارەی حجز یان داواکارییەکەتان بنووسن. بۆ حجزەکان، هۆکاری هەڵوەشاندنەوە و هەر پەیامێک کە لە دابینکەرەوە هاتووە زیاد بکەن."
+        }
+      ],
+      "faq": [
+        {
+          "q": "ئایا هەڵوەشاندنەوەی حجز خۆکارانە پارەکەم دەگەڕێنێتەوە؟",
+          "a": "نەخێر. سەرەتا حجزەکە هەڵبوەشێننەوە، پاشان بە ژمارەی حجزەکەوە داوای گەڕاندنەوەی پارە لە پشتگیری بکەن. تیمی LSevin داواکارییەکە بەپێی سیاسەتی دابینکەر هەڵدەسەنگێنێت. بۆ گەشتەکان، هەڵوەشاندنەوەی حجزێکی پارەدراو خۆکارانە داواکاریی گەڕاندنەوەی پارە دروست دەکات."
+        },
+        {
+          "q": "پارەی گەڕاوەی حجزەکەم دەچێتە کوێ؟",
+          "a": "پارەی پەسەندکراوی حجز بە دراوی حجزەکە دەخرێتە ناو جزدانی LSevinەکەتانەوە و دەتوانن باڵانسەکە بۆ حجزەکانی داهاتوو بەکاربهێنن."
+        },
+        {
+          "q": "ئەگەر گەشتێک هەڵبوەشێنمەوە چەندم بۆ دەگەڕێتەوە؟",
+          "a": "بەندە بەوەی چەند کاتژمێر پێش کاتی بەڕێکەوتن هەڵیدەوەشێننەوە، بەپێی ئەو وەشانەی سیاسەتەکە کە لە کاتی حجزدا پەسەندتان کردووە. بڕەکە پێش پشتڕاستکردنەوەی هەڵوەشاندنەوە پیشان دەدرێت."
+        },
+        {
+          "q": "ڕێکخەری گەشت گەشتەکەمی هەڵوەشاندەوە. چی ڕوو دەدات؟",
+          "a": "ئاگادار دەکرێنەوە و ئەو پارەیەی بۆ ئەو کاتەی گەشت داوتانە بە تەواوی دەگەڕێندرێتەوە."
+        },
+        {
+          "q": "دوای پارەدان دەتوانم داواکارییەکی فرۆشگا هەڵبوەشێنمەوە؟",
+          "a": "بەڵێ، تا ئەو کاتەی دەنێردرێت. پاشان داواکارییەکە بۆ گەڕاندنەوەی پارە نیشان دەکرێت و تیمی فرۆشگا جێبەجێی دەکات. دوای ناردن، داوای گەڕاندنەوەی کاڵا بکەن."
+        },
+        {
+          "q": "دەتوانم تەنها هەندێک لە کاڵاکانی داواکارییەک بگەڕێنمەوە؟",
+          "a": "بەڵێ. لە داواکاریی گەڕاندنەوەدا ئەو کاڵا و ژمارانە هەڵبژێرن کە دەتانەوێت بیانگەڕێننەوە."
+        }
+      ]
+    },
+    "ru-RU": {
+      "title": "Политика возврата товаров и средств",
+      "metaDescription": "Как отменить бронирование или заказ в LSevin, вернуть товар и получить деньги: правила поставщиков и туров, зачисление на кошелёк и что происходит на каждом этапе.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "В этой политике описано, как на LSevin работают отмены, возвраты товаров и возвраты средств. Она состоит из двух частей: бронирования услуг (клиники, отели, туры, спортзалы и консультации) и физические товары из магазина LSevin. Какая часть стоимости бронирования подлежит возврату, определяет собственная политика поставщика, которая указана на его странице до бронирования."
+        },
+        {
+          "type": "h2",
+          "text": "Часть 1. Бронирования"
+        },
+        {
+          "type": "h3",
+          "text": "Какая политика применяется"
+        },
+        {
+          "type": "p",
+          "text": "Каждый поставщик может публиковать свои правила в профиле и на страницах услуг, например условия отмены. Ознакомьтесь с ними до бронирования. Сумма возврата по бронированию рассчитывается по политике того поставщика, у которого Вы бронировали."
+        },
+        {
+          "type": "h3",
+          "text": "Отмена бронирования"
+        },
+        {
+          "type": "p",
+          "text": "Откройте раздел «Мои бронирования», выберите бронирование и отмените его. Отменить можно любое бронирование, которое ещё не отменено и не завершено. При отмене бронирования отеля ночи освобождаются, и их могут забронировать другие."
+        },
+        {
+          "type": "p",
+          "text": "Отмена бронирования и возврат денег — два отдельных шага. Если бронирование было оплачено, после отмены откройте обращение в поддержку и попросите вернуть средства, указав номер бронирования. Исключение составляют туры: при отмене оплаченного тура запрос на возврат создаётся автоматически."
+        },
+        {
+          "type": "h3",
+          "text": "Как обрабатывается возврат по бронированию"
+        },
+        {
+          "type": "p",
+          "text": "Запрос: запрос на возврат можно открыть, если по бронированию есть подтверждённый платёж. Для одного бронирования одновременно может быть открыт только один запрос на возврат, поэтому при повторном обращении Вы увидите уже рассматриваемый запрос."
+        },
+        {
+          "type": "p",
+          "text": "Рассмотрение: команда LSevin проверяет запрос с учётом политики поставщика и оплаченной Вами суммы. Запрос одобряется полностью, одобряется частично или отклоняется."
+        },
+        {
+          "type": "p",
+          "text": "Выплата: одобренные возвраты зачисляются на Ваш кошелёк LSevin в валюте бронирования. После этого бронирование отображается как возвращённое полностью или частично, а зачисление появляется в истории кошелька. Этот баланс можно использовать для следующего бронирования."
+        },
+        {
+          "type": "h3",
+          "text": "Туры"
+        },
+        {
+          "type": "p",
+          "text": "У каждого тура есть политика отмены со ступенями возврата, которые зависят от того, за сколько часов до отправления Вы отменяете поездку: например, полный возврат до определённого момента и частичный после него. Для Вашего бронирования действует та версия политики, которую Вы приняли при бронировании, даже если оператор позже её изменит."
+        },
+        {
+          "type": "p",
+          "text": "При отмене тура LSevin показывает сумму возврата до того, как Вы подтвердите отмену. Отмена после времени отправления по условиям политики не даёт права на возврат. В некоторых турах также указано, что возвращается, если Вы не явились."
+        },
+        {
+          "type": "p",
+          "text": "Если оператор отменяет отправление, все бронирования на него возвращаются в полном объёме, и Вы получаете уведомление."
+        },
+        {
+          "type": "h3",
+          "text": "Видеоконсультации"
+        },
+        {
+          "type": "p",
+          "text": "Если оплата видеоконсультации прошла, но выбранное Вами время за это время успели занять, Вам вернут деньги. Если Вы не видите возврата, обратитесь в поддержку."
+        },
+        {
+          "type": "h3",
+          "text": "Незавершённые платежи"
+        },
+        {
+          "type": "p",
+          "text": "Если платёжный шлюз не смог подтвердить оплату, ничего не было забронировано. Деньги, списанные в этом случае с банковского счёта, обычно возвращаются в течение 72 часов через Ваш банк, а не через LSevin. Если по истечении этого срока средства не вернулись, обратитесь в поддержку и укажите номер операции."
+        },
+        {
+          "type": "h2",
+          "text": "Часть 2. Заказы в магазине"
+        },
+        {
+          "type": "h3",
+          "text": "Отмена заказа"
+        },
+        {
+          "type": "p",
+          "text": "Заказ в магазине можно отменить на странице заказа до его отправки, то есть на этапах «ожидает», «ожидает оплаты», «оплачен» и «в обработке». Неоплаченные заказы просто закрываются. По оплаченным заказам возврат не происходит автоматически: заказ помечается как ожидающий возврата средств, и его обрабатывает команда магазина."
+        },
+        {
+          "type": "h3",
+          "text": "Возврат товаров"
+        },
+        {
+          "type": "p",
+          "text": "После того как заказ отправлен частично или полностью, Вы можете запросить возврат на странице заказа. Выберите товары и количество каждого из них и укажите причину. Вернуть можно не больше полученного количества за вычетом уже возвращённого."
+        },
+        {
+          "type": "p",
+          "text": "Команда магазина рассматривает каждый запрос на возврат. Если запрос отклонён, причина фиксируется и показывается Вам. Если запрос одобрен, отправьте товары обратно согласно инструкциям. Когда товары поступят, возврат отмечается как полученный, и деньги возвращаются."
+        },
+        {
+          "type": "h3",
+          "text": "Возврат средств за заказы в магазине"
+        },
+        {
+          "type": "p",
+          "text": "Команда магазина фиксирует каждый возврат средств по Вашему заказу. Сумма возврата не может превышать оплаченную Вами сумму за вычетом уже возвращённого по этому заказу."
+        },
+        {
+          "type": "h2",
+          "text": "Нужна помощь?"
+        },
+        {
+          "type": "p",
+          "text": "Откройте обращение в поддержку в своём аккаунте и укажите номер бронирования или заказа. Для бронирований укажите причину отмены и приложите сообщения от поставщика, если они есть."
+        }
+      ],
+      "faq": [
+        {
+          "q": "Возвращаются ли деньги автоматически при отмене бронирования?",
+          "a": "Нет. Сначала отмените бронирование, затем попросите поддержку вернуть средства, указав номер бронирования. Команда LSevin рассматривает запрос с учётом политики поставщика. Для туров при отмене оплаченного бронирования запрос на возврат создаётся автоматически."
+        },
+        {
+          "q": "Куда поступает возврат по бронированию?",
+          "a": "Одобренные возвраты по бронированиям зачисляются на Ваш кошелёк LSevin в валюте бронирования, и этот баланс можно использовать для следующих бронирований."
+        },
+        {
+          "q": "Сколько денег за тур вернут при отмене?",
+          "a": "Это зависит от того, за сколько часов до отправления Вы отменяете тур, согласно версии политики, принятой при бронировании. Сумма показывается до подтверждения отмены."
+        },
+        {
+          "q": "Туроператор отменил мою поездку. Что дальше?",
+          "a": "Вы получите уведомление, а оплата за это отправление будет возвращена в полном объёме."
+        },
+        {
+          "q": "Можно ли отменить заказ в магазине после оплаты?",
+          "a": "Да, до его отправки. Затем заказ помечается для возврата средств, и его обрабатывает команда магазина. После отправки оформите возврат товара."
+        },
+        {
+          "q": "Можно ли вернуть только часть товаров из заказа?",
+          "a": "Да. В запросе на возврат выберите нужные товары и их количество."
+        }
+      ]
+    },
+    "tg-TJ": {
+      "title": "Сиёсати бозгардонии мол ва маблағ",
+      "metaDescription": "Чӣ тавр бронҳо ва фармоишҳои мағозаи LSevin-ро бекор кунед, молро баргардонед ва маблағ гиред: қоидаҳои хидматрасон, қоидаҳои тур, ҳамён ва ҳар марҳилаи раванд.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Ин сиёсат шарҳ медиҳад, ки бекоркунӣ, бозгардонии мол ва бозгардонии маблағ дар LSevin чӣ тавр сурат мегиранд. Он аз ду қисм иборат аст: бронҳои хидматҳо (клиникаҳо, меҳмонхонаҳо, турҳо, варзишгоҳҳо ва машваратҳо) ва маҳсулоти моддии мағозаи LSevin. Қоидаҳои худи хидматрасон, ки пеш аз брон дар саҳифаи он нишон дода мешаванд, муайян мекунанд, ки чӣ қадар аз маблағи брон баргардонида мешавад."
+        },
+        {
+          "type": "h2",
+          "text": "Қисми 1: Бронҳо"
+        },
+        {
+          "type": "h3",
+          "text": "Кадом қоидаҳо татбиқ мешаванд"
+        },
+        {
+          "type": "p",
+          "text": "Ҳар хидматрасон метавонад дар саҳифаҳои профил ва хидматҳои худ қоидаҳо, масалан шартҳои бекоркуниро нашр кунад. Пеш аз брон онҳоро хонед. Маблағи баргардонидашавандаи брон аз рӯи қоидаҳои хидматрасоне, ки бо он брон кардаед, ҳисоб карда мешавад."
+        },
+        {
+          "type": "h3",
+          "text": "Бекор кардани брон"
+        },
+        {
+          "type": "p",
+          "text": "«Бронҳои ман»-ро кушоед, бронро интихоб кунед ва онро бекор кунед. Шумо метавонед ҳар броне, ки ҳанӯз бекор ё анҷом нашудааст, бекор кунед. Бекор кардани брони меҳмонхона шабҳоро озод мекунад, то дигарон онҳоро брон кунанд."
+        },
+        {
+          "type": "p",
+          "text": "Бекор кардани брон ва баргардонидани маблағ ду қадами алоҳидаанд. Агар барои брон пардохт карда бошед, пас аз бекоркунӣ сӯҳбати дастгирӣ кушоед ва бо нишон додани рақами брон бозгардонии маблағро дархост кунед. Бронҳои тур истисноянд: бекор кардани тури пардохтшуда дархости бозгардонии маблағро худкор месозад."
+        },
+        {
+          "type": "h3",
+          "text": "Бозгардонии маблағи брон чӣ тавр коркард мешавад"
+        },
+        {
+          "type": "p",
+          "text": "Дархост: дархости бозгардонии маблағро метавон вақте кушод, ки пардохти брон тасдиқ шуда бошад. Ҳар брон дар як вақт метавонад танҳо як дархости кушодаи бозгардонӣ дошта бошад, бинобар ин дархости такрорӣ ҳамон дархостеро, ки дар ҷараён аст, бармегардонад."
+        },
+        {
+          "type": "p",
+          "text": "Баррасӣ: гурӯҳи LSevin дархостро бо қоидаҳои хидматрасон ва маблағи пардохткардаи шумо муқоиса карда баррасӣ мекунад. Дархост пурра тасдиқ, қисман тасдиқ ё рад карда мешавад."
+        },
+        {
+          "type": "p",
+          "text": "Пардохт: маблағҳои тасдиқшуда бо асъори брон ба ҳамёни LSevin-и шумо гузаронида мешаванд. Баъд брон ҳамчун баргардонидашуда ё қисман баргардонидашуда нишон дода мешавад ва маблағ дар таърихи ҳамён пайдо мешавад. Ин маблағро метавонед барои брони навбатӣ истифода баред."
+        },
+        {
+          "type": "h3",
+          "text": "Турҳо"
+        },
+        {
+          "type": "p",
+          "text": "Ҳар тур қоидаҳои бекоркунӣ дорад, ки дараҷаҳои бозгардонии маблағро вобаста ба он ки чанд соат пеш аз ҳаракат бекор мекунед, муайян мекунанд, масалан бозгардонии пурра то лаҳзаи муайян ва бозгардонии қисман баъд аз он. Брони шумо версияи қоидаҳоеро нигоҳ медорад, ки ҳангоми брон қабул кардаед, ҳатто агар ташкилкунанда онро баъдтар тағйир диҳад."
+        },
+        {
+          "type": "p",
+          "text": "Ҳангоми бекор кардани тур LSevin пеш аз тасдиқ маблағи баргардонидашавандаро нишон медиҳад. Бекоркунӣ пас аз вақти ҳаракат тибқи қоидаҳо ҳуқуқи бозгардонии маблағро намедиҳад. Баъзе турҳо инчунин муайян мекунанд, ки агар шумо ҳозир нашавед, чӣ баргардонида мешавад."
+        },
+        {
+          "type": "p",
+          "text": "Агар ташкилкунанда сафарро бекор кунад, маблағи ҳамаи бронҳои он пурра баргардонида мешавад ва ба шумо хабар дода мешавад."
+        },
+        {
+          "type": "h3",
+          "text": "Машваратҳои видеоӣ"
+        },
+        {
+          "type": "p",
+          "text": "Агар пардохти шумо барои машварати видеоӣ гузарад, вале вақти интихобкардаатон дар ин миён банд шуда бошад, маблағ ба шумо баргардонида мешавад. Агар маблағи баргардонидашударо набинед, ба дастгирӣ муроҷиат кунед."
+        },
+        {
+          "type": "h3",
+          "text": "Пардохтҳое, ки анҷом наёфтанд"
+        },
+        {
+          "type": "p",
+          "text": "Агар дарвозаи пардохт пардохти шуморо тасдиқ карда натавонист, ҳеҷ чиз брон нашудааст. Маблағе, ки дар ин ҳолат аз ҳисоби бонкии шумо гирифта шудааст, одатан дар давоми 72 соат тавассути бонки шумо бармегардад, на тавассути LSevin. Агар пас аз ин муддат барнагашта бошад, бо рақами пайгирии пардохт ба дастгирӣ муроҷиат кунед."
+        },
+        {
+          "type": "h2",
+          "text": "Қисми 2: Фармоишҳои мағоза"
+        },
+        {
+          "type": "h3",
+          "text": "Бекор кардани фармоиш"
+        },
+        {
+          "type": "p",
+          "text": "Фармоиши мағозаро метавонед аз саҳифаи фармоиш то фиристода шуданаш бекор кунед, яъне дар марҳилаҳои дар интизорӣ, интизори пардохт, пардохтшуда ва дар коркард. Фармоишҳои пардохтнашуда танҳо баста мешаванд. Барои фармоишҳои пардохтшуда маблағ худкор баргардонида намешавад. Фармоиш ҳамчун интизори бозгардонии маблағ қайд мешавад ва гурӯҳи мағоза онро коркард мекунад."
+        },
+        {
+          "type": "h3",
+          "text": "Баргардонидани маҳсулот"
+        },
+        {
+          "type": "p",
+          "text": "Вақте ки фармоиш қисман ё пурра фиристода шуд, шумо метавонед аз саҳифаи фармоиш баргардониданро дархост кунед. Молҳо ва миқдори ҳар якеро интихоб кунед ва сабабро нависед. Шумо метавонед танҳо то миқдори гирифтаатон, ба истиснои он чи аллакай баргардонида шудааст, баргардонед."
+        },
+        {
+          "type": "p",
+          "text": "Гурӯҳи мағоза ҳар дархости баргардониданро баррасӣ мекунад. Агар рад шавад, сабаб сабт мешавад ва ба шумо нишон дода мешавад. Агар тасдиқ шавад, молҳоро тибқи дастур баргардонед. Вақте ки молҳо мерасанд, баргардонидан ҳамчун гирифташуда қайд мешавад ва бозгардонии маблағ коркард мегардад."
+        },
+        {
+          "type": "h3",
+          "text": "Бозгардонии маблағ дар мағоза"
+        },
+        {
+          "type": "p",
+          "text": "Гурӯҳи мағоза ҳар бозгардонии маблағро дар фармоиши шумо сабт мекунад. Маблағи баргардонидашуда ҳеҷ гоҳ аз маблағи пардохткардаи шумо, ба истиснои он чи аллакай дар ҳамин фармоиш баргардонида шудааст, зиёд буда наметавонад."
+        },
+        {
+          "type": "h2",
+          "text": "Кӯмак лозим аст?"
+        },
+        {
+          "type": "p",
+          "text": "Дар ҳисоби худ бо рақами брон ё фармоиш сӯҳбати дастгирӣ кушоед. Барои бронҳо сабаби бекоркунӣ ва ҳар паёми хидматрасонро низ нависед."
+        }
+      ],
+      "faq": [
+        {
+          "q": "Оё бо бекор кардани брон маблағ худкор баргардонида мешавад?",
+          "a": "Не. Аввал бронро бекор кунед, баъд бо рақами брон аз дастгирӣ бозгардонии маблағро дархост кунед. Гурӯҳи LSevin дархостро бо қоидаҳои хидматрасон муқоиса карда баррасӣ мекунад. Дар турҳо бекор кардани брони пардохтшуда дархости бозгардониро худкор месозад."
+        },
+        {
+          "q": "Маблағи баргардонидашудаи брон ба куҷо меравад?",
+          "a": "Маблағҳои тасдиқшудаи брон бо асъори брон ба ҳамёни LSevin-и шумо гузаронида мешаванд ва шумо метавонед онро барои бронҳои оянда истифода баред."
+        },
+        {
+          "q": "Агар турро бекор кунам, чӣ қадар маблағ бармегардад?",
+          "a": "Ин аз он вобаста аст, ки чанд соат пеш аз ҳаракат бекор мекунед, тибқи версияи қоидаҳое, ки ҳангоми брон қабул кардаед. Маблағ пеш аз тасдиқи бекоркунӣ нишон дода мешавад."
+        },
+        {
+          "q": "Ташкилкунандаи тур сафари маро бекор кард. Чӣ мешавад?",
+          "a": "Ба шумо хабар дода мешавад ва маблағи пардохткардаатон барои ҳамон сафар пурра баргардонида мешавад."
+        },
+        {
+          "q": "Оё пас аз пардохт фармоиши мағозаро бекор карда метавонам?",
+          "a": "Бале, то фиристода шуданаш. Баъд фармоиш барои бозгардонии маблағ қайд мешавад ва гурӯҳи мағоза онро коркард мекунад. Пас аз фиристодан баргардониданро дархост кунед."
+        },
+        {
+          "q": "Оё метавонам танҳо баъзе молҳои фармоишро баргардонам?",
+          "a": "Бале. Дар дархости баргардонидан молҳо ва миқдореро, ки мехоҳед баргардонед, интихоб кунед."
+        }
+      ]
+    },
+    "zh-CN": {
+      "title": "退货与退款政策",
+      "metaDescription": "如何取消LSevin的预约和商店订单、退回商品并获得退款：服务商政策、旅游团规则、钱包退款以及每一步的处理方式。",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "本政策说明LSevin上的取消、退货和退款如何处理，分为两部分：服务类预约（诊所、酒店、旅游团、健身房和咨询），以及LSevin商店的实物商品。预约可退还多少金额，由服务商自己的政策决定，该政策会在您预约前显示在服务商页面上。"
+        },
+        {
+          "type": "h2",
+          "text": "第一部分：预约"
+        },
+        {
+          "type": "h3",
+          "text": "适用哪项政策"
+        },
+        {
+          "type": "p",
+          "text": "每个服务商都可以在其资料页和服务页面上发布政策，例如取消条款。请在预约前仔细阅读。预约的可退金额根据您所预约服务商的政策计算。"
+        },
+        {
+          "type": "h3",
+          "text": "取消预约"
+        },
+        {
+          "type": "p",
+          "text": "打开“我的预约”，选择相应预约并取消即可。任何尚未取消或尚未完成的预约都可以取消。取消酒店预约后，相应的住宿夜晚会被释放，供其他人预订。"
+        },
+        {
+          "type": "p",
+          "text": "取消预约和申请退款是两个独立的步骤。如果您已为该预约付款，请在取消后发起客服对话申请退款，并注明预约编号。旅游团预约例外：取消已付款的旅游团预约时，系统会自动为您提交退款申请。"
+        },
+        {
+          "type": "h3",
+          "text": "预约退款的处理流程"
+        },
+        {
+          "type": "p",
+          "text": "申请：预约有已确认的付款时，即可提交退款申请。每个预约同一时间只能有一个处理中的退款申请，重复申请时会返回正在处理的那一个。"
+        },
+        {
+          "type": "p",
+          "text": "审核：LSevin团队会对照服务商政策和您的付款情况审核申请。审核结果为全额批准、部分批准或拒绝。"
+        },
+        {
+          "type": "p",
+          "text": "退款：获批的退款会按预约所用货币存入您的LSevin钱包。随后预约会显示为“已退款”或“部分退款”，钱包记录中也会出现这笔款项。您可以用这笔余额支付下一次预约。"
+        },
+        {
+          "type": "h3",
+          "text": "旅游团"
+        },
+        {
+          "type": "p",
+          "text": "每个旅游团都有取消政策，按您在出发前多少小时取消来设定不同的退款档位，例如在某个时间点之前取消可全额退款，之后取消则部分退款。即使旅游运营方之后修改了政策，您的预约仍沿用您预约时所接受的政策版本。"
+        },
+        {
+          "type": "p",
+          "text": "取消旅游团时，LSevin会在您确认前显示退款金额。根据政策，出发时间过后取消不予退款。部分旅游团还规定了未按时到场时的退款方式。"
+        },
+        {
+          "type": "p",
+          "text": "如果运营方取消某个团期，该团期的所有预约都会全额退款，并会通知您。"
+        },
+        {
+          "type": "h3",
+          "text": "视频问诊"
+        },
+        {
+          "type": "p",
+          "text": "如果您的视频问诊付款已成功，但您选择的时段在此期间已被他人预约，您将获得退款。如果没有看到退款，请联系客服。"
+        },
+        {
+          "type": "h3",
+          "text": "未完成的付款"
+        },
+        {
+          "type": "p",
+          "text": "如果支付网关无法确认您的付款，则不会生成任何预约。在这种情况下，从您银行账户扣除的款项通常会在72小时内由您的银行退回，而非通过LSevin退回。超过这一时间仍未到账，请联系客服并提供付款参考号。"
+        },
+        {
+          "type": "h2",
+          "text": "第二部分：商店订单"
+        },
+        {
+          "type": "h3",
+          "text": "取消订单"
+        },
+        {
+          "type": "p",
+          "text": "在发货之前，您都可以在订单页面取消商店订单，即订单处于待处理、待付款、已付款和处理中这几个阶段时。未付款的订单会直接关闭。已付款订单的退款不会自动进行：订单会被标记为等待退款，由商店团队处理。"
+        },
+        {
+          "type": "h3",
+          "text": "退回商品"
+        },
+        {
+          "type": "p",
+          "text": "订单部分或全部发货后，您可以在订单页面申请退货。请选择要退回的商品及各自数量，并说明原因。可退数量不得超过您实际收到的数量减去已退回的数量。"
+        },
+        {
+          "type": "p",
+          "text": "商店团队会逐一审核退货申请。如被拒绝，原因会被记录并向您显示。如获批准，请按说明寄回商品。商品寄到后，退货会被标记为已收货，随后处理退款。"
+        },
+        {
+          "type": "h3",
+          "text": "商店退款"
+        },
+        {
+          "type": "p",
+          "text": "商店团队会将每笔退款记录在您的订单下。退款金额不会超过您的实付金额减去该订单已退款的金额。"
+        },
+        {
+          "type": "h2",
+          "text": "需要帮助？"
+        },
+        {
+          "type": "p",
+          "text": "请在账户中发起客服对话，并提供您的预约编号或订单号。如涉及预约，请说明取消原因，并附上服务商发给您的相关消息。"
+        }
+      ],
+      "faq": [
+        {
+          "q": "取消预约后会自动退款吗？",
+          "a": "不会。请先取消预约，然后凭预约编号向客服申请退款。LSevin团队会对照服务商政策审核申请。旅游团例外：取消已付款的旅游团预约时，系统会自动提交退款申请。"
+        },
+        {
+          "q": "预约退款会退到哪里？",
+          "a": "获批的预约退款会按预约所用货币存入您的LSevin钱包，您可以用这笔余额支付之后的预约。"
+        },
+        {
+          "q": "取消旅游团能退回多少钱？",
+          "a": "这取决于您在出发前多少小时取消，并以您预约时接受的政策版本为准。退款金额会在您确认取消前显示。"
+        },
+        {
+          "q": "旅游运营方取消了我的行程，会怎么处理？",
+          "a": "您会收到通知，您为该团期支付的款项将全额退还。"
+        },
+        {
+          "q": "商店订单付款后还能取消吗？",
+          "a": "可以，在发货之前都能取消。取消后订单会被标记为待退款，由商店团队处理。发货后请改为申请退货。"
+        },
+        {
+          "q": "可以只退回订单中的部分商品吗？",
+          "a": "可以。在退货申请中选择要退回的商品和数量即可。"
+        }
+      ]
+    },
+    "de-DE": {
+      "title": "Rückgabe und Erstattung",
+      "metaDescription": "So stornieren Sie Buchungen und Shop-Bestellungen bei LSevin, senden Produkte zurück und erhalten Erstattungen: Anbieterrichtlinien, Tourregeln und Wallet-Gutschriften.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Diese Richtlinie erklärt, wie Stornierungen, Rückgaben und Erstattungen bei LSevin funktionieren. Sie besteht aus zwei Teilen: Buchungen von Leistungen (Kliniken, Hotels, Touren, Fitnessstudios und Beratungen) und physische Produkte aus dem LSevin Shop. Wie viel einer Buchung erstattet werden kann, bestimmt die eigene Richtlinie des Anbieters, die vor der Buchung auf seiner Seite angezeigt wird."
+        },
+        {
+          "type": "h2",
+          "text": "Teil 1: Buchungen"
+        },
+        {
+          "type": "h3",
+          "text": "Welche Richtlinie gilt"
+        },
+        {
+          "type": "p",
+          "text": "Jeder Anbieter kann auf seinem Profil und seinen Leistungsseiten Richtlinien veröffentlichen, etwa seine Stornierungsbedingungen. Lesen Sie sie vor der Buchung. Der erstattungsfähige Betrag einer Buchung wird anhand der Richtlinie des Anbieters ermittelt, bei dem Sie gebucht haben."
+        },
+        {
+          "type": "h3",
+          "text": "Eine Buchung stornieren"
+        },
+        {
+          "type": "p",
+          "text": "Öffnen Sie „Meine Buchungen“, wählen Sie die Buchung aus und stornieren Sie sie. Sie können jede Buchung stornieren, die nicht bereits storniert oder abgeschlossen ist. Wenn Sie eine Hotelbuchung stornieren, werden die Nächte wieder freigegeben, sodass andere sie buchen können."
+        },
+        {
+          "type": "p",
+          "text": "Eine Buchung zu stornieren und Geld zurückzuerhalten sind zwei getrennte Schritte. Wenn Sie die Buchung bezahlt haben, eröffnen Sie nach der Stornierung ein Support-Gespräch und beantragen Sie unter Angabe der Buchungsnummer eine Erstattung. Ausgenommen sind Tourbuchungen: Wenn Sie eine bezahlte Tour stornieren, wird der Erstattungsantrag automatisch für Sie gestellt."
+        },
+        {
+          "type": "h3",
+          "text": "Wie eine Erstattung für eine Buchung bearbeitet wird"
+        },
+        {
+          "type": "p",
+          "text": "Antrag: Ein Erstattungsantrag kann gestellt werden, wenn für die Buchung eine bestätigte Zahlung vorliegt. Pro Buchung kann jeweils nur ein Erstattungsantrag offen sein; eine erneute Anfrage führt daher zu dem Antrag, der bereits bearbeitet wird."
+        },
+        {
+          "type": "p",
+          "text": "Prüfung: Das LSevin Team prüft den Antrag anhand der Richtlinie des Anbieters und des von Ihnen gezahlten Betrags. Der Antrag wird vollständig genehmigt, teilweise genehmigt oder abgelehnt."
+        },
+        {
+          "type": "p",
+          "text": "Auszahlung: Genehmigte Erstattungen werden Ihrem LSevin Wallet in der Währung der Buchung gutgeschrieben. Die Buchung wird dann als erstattet oder teilweise erstattet angezeigt, und die Gutschrift erscheint in Ihrem Wallet-Verlauf. Sie können das Guthaben für Ihre nächste Buchung verwenden."
+        },
+        {
+          "type": "h3",
+          "text": "Touren"
+        },
+        {
+          "type": "p",
+          "text": "Jede Tour hat eine Stornierungsrichtlinie mit Erstattungsstufen, die davon abhängen, wie viele Stunden vor der Abfahrt Sie stornieren, zum Beispiel eine volle Erstattung bis zu einem bestimmten Zeitpunkt und danach eine teilweise Erstattung. Für Ihre Buchung gilt die Version der Richtlinie, die Sie bei der Buchung akzeptiert haben, auch wenn der Veranstalter sie später ändert."
+        },
+        {
+          "type": "p",
+          "text": "Wenn Sie eine Tour stornieren, zeigt LSevin den Erstattungsbetrag an, bevor Sie bestätigen. Eine Stornierung nach dem Abfahrtszeitpunkt berechtigt nach der Richtlinie nicht zu einer Erstattung. Manche Touren legen außerdem fest, was erstattet wird, wenn Sie nicht erscheinen."
+        },
+        {
+          "type": "p",
+          "text": "Sagt der Veranstalter einen Termin ab, wird jede Buchung für diesen Termin vollständig erstattet, und Sie werden benachrichtigt."
+        },
+        {
+          "type": "h3",
+          "text": "Videosprechstunden"
+        },
+        {
+          "type": "p",
+          "text": "Wenn Ihre Zahlung für eine Videosprechstunde durchgeht, der gewählte Termin aber in der Zwischenzeit vergeben wurde, erhalten Sie eine Erstattung. Wenden Sie sich an den Support, wenn Sie die Erstattung nicht sehen."
+        },
+        {
+          "type": "h3",
+          "text": "Nicht abgeschlossene Zahlungen"
+        },
+        {
+          "type": "p",
+          "text": "Konnte das Zahlungsgateway Ihre Zahlung nicht bestätigen, wurde nichts gebucht. Geld, das in diesem Fall von Ihrem Bankkonto abgebucht wurde, kommt in der Regel innerhalb von 72 Stunden über Ihre Bank zurück, nicht über LSevin. Ist es danach noch nicht zurück, wenden Sie sich mit der Zahlungsreferenz an den Support."
+        },
+        {
+          "type": "h2",
+          "text": "Teil 2: Shop-Bestellungen"
+        },
+        {
+          "type": "h3",
+          "text": "Eine Bestellung stornieren"
+        },
+        {
+          "type": "p",
+          "text": "Sie können eine Shop-Bestellung auf der Bestellseite stornieren, bis sie versendet wird. Das umfasst die Phasen ausstehend, Zahlung ausstehend, bezahlt und in Bearbeitung. Unbezahlte Bestellungen werden einfach geschlossen. Bei bezahlten Bestellungen erfolgt die Erstattung nicht automatisch. Die Bestellung wird als „Erstattung ausstehend“ markiert, und das Shop-Team bearbeitet sie."
+        },
+        {
+          "type": "h3",
+          "text": "Produkte zurücksenden"
+        },
+        {
+          "type": "p",
+          "text": "Sobald eine Bestellung ganz oder teilweise versendet wurde, können Sie auf der Bestellseite eine Rückgabe beantragen. Wählen Sie die Artikel und jeweils die Menge aus und geben Sie einen Grund an. Sie können höchstens die erhaltene Menge zurückgeben, abzüglich bereits zurückgegebener Artikel."
+        },
+        {
+          "type": "p",
+          "text": "Das Shop-Team prüft jeden Rückgabeantrag. Wird er abgelehnt, wird der Grund festgehalten und Ihnen angezeigt. Wird er genehmigt, senden Sie die Artikel gemäß den Anweisungen zurück. Wenn die Artikel eingetroffen sind, wird die Rückgabe als erhalten markiert und die Erstattung bearbeitet."
+        },
+        {
+          "type": "h3",
+          "text": "Erstattungen im Shop"
+        },
+        {
+          "type": "p",
+          "text": "Das Shop-Team erfasst jede Erstattung zu Ihrer Bestellung. Eine Erstattung kann nie höher sein als der von Ihnen gezahlte Betrag, abzüglich bereits für diese Bestellung erstatteter Beträge."
+        },
+        {
+          "type": "h2",
+          "text": "Brauchen Sie Hilfe?"
+        },
+        {
+          "type": "p",
+          "text": "Eröffnen Sie in Ihrem Konto ein Support-Gespräch und geben Sie Ihre Buchungs- oder Bestellnummer an. Nennen Sie bei Buchungen den Grund der Stornierung und gegebenenfalls eine Nachricht des Anbieters."
+        }
+      ],
+      "faq": [
+        {
+          "q": "Erhalte ich bei der Stornierung einer Buchung automatisch eine Erstattung?",
+          "a": "Nein. Stornieren Sie zuerst die Buchung und beantragen Sie dann beim Support eine Erstattung unter Angabe der Buchungsnummer. Das LSevin Team prüft den Antrag anhand der Richtlinie des Anbieters. Bei Touren wird mit der Stornierung einer bezahlten Buchung automatisch ein Erstattungsantrag gestellt."
+        },
+        {
+          "q": "Wohin geht die Erstattung für meine Buchung?",
+          "a": "Genehmigte Erstattungen für Buchungen werden Ihrem LSevin Wallet in der Währung der Buchung gutgeschrieben, und Sie können das Guthaben für spätere Buchungen verwenden."
+        },
+        {
+          "q": "Wie viel erhalte ich zurück, wenn ich eine Tour storniere?",
+          "a": "Das hängt davon ab, wie viele Stunden vor der Abfahrt Sie stornieren, gemäß der Version der Richtlinie, die Sie bei der Buchung akzeptiert haben. Der Betrag wird angezeigt, bevor Sie die Stornierung bestätigen."
+        },
+        {
+          "q": "Der Veranstalter hat meine Tour abgesagt. Was passiert jetzt?",
+          "a": "Sie werden benachrichtigt, und Ihre Zahlung für diesen Termin wird vollständig erstattet."
+        },
+        {
+          "q": "Kann ich eine Shop-Bestellung nach der Zahlung stornieren?",
+          "a": "Ja, bis sie versendet wird. Die Bestellung wird dann zur Erstattung markiert, und das Shop-Team bearbeitet sie. Nach dem Versand beantragen Sie eine Rückgabe."
+        },
+        {
+          "q": "Kann ich nur einige Artikel einer Bestellung zurückgeben?",
+          "a": "Ja. Wählen Sie im Rückgabeantrag die Artikel und Mengen aus, die Sie zurückgeben möchten."
+        }
+      ]
+    },
+    "fr-FR": {
+      "title": "Politique de retours et de remboursements",
+      "metaDescription": "Annuler une réservation ou une commande LSevin, retourner un produit et être remboursé : conditions des prestataires, règles des circuits, crédits sur le portefeuille.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Cette politique explique le fonctionnement des annulations, des retours et des remboursements sur LSevin. Elle comporte deux parties : les réservations de services (cliniques, hôtels, circuits, salles de sport et consultations) et les produits physiques de la boutique LSevin. La part remboursable d’une réservation est fixée par les conditions propres au prestataire, affichées sur sa page avant la réservation."
+        },
+        {
+          "type": "h2",
+          "text": "Partie 1 : Réservations"
+        },
+        {
+          "type": "h3",
+          "text": "Quelles conditions s’appliquent"
+        },
+        {
+          "type": "p",
+          "text": "Chaque prestataire peut publier ses conditions sur son profil et sur ses pages de services, notamment ses conditions d’annulation. Lisez-les avant de réserver. Le montant remboursable d’une réservation est calculé selon les conditions du prestataire auprès duquel vous avez réservé."
+        },
+        {
+          "type": "h3",
+          "text": "Annuler une réservation"
+        },
+        {
+          "type": "p",
+          "text": "Ouvrez Mes réservations, sélectionnez la réservation et annulez-la. Vous pouvez annuler toute réservation qui n’est pas déjà annulée ou terminée. L’annulation d’une réservation d’hôtel libère les nuits, qui peuvent alors être réservées par d’autres clients."
+        },
+        {
+          "type": "p",
+          "text": "Annuler une réservation et obtenir un remboursement sont deux étapes distinctes. Si vous avez payé la réservation, ouvrez une conversation avec l’assistance après l’annulation et demandez un remboursement en indiquant le numéro de réservation. Les circuits font exception : l’annulation d’un circuit payé crée automatiquement la demande de remboursement."
+        },
+        {
+          "type": "h3",
+          "text": "Traitement du remboursement d’une réservation"
+        },
+        {
+          "type": "p",
+          "text": "Demande : une demande de remboursement peut être ouverte lorsque la réservation dispose d’un paiement confirmé. Chaque réservation ne peut avoir qu’une seule demande de remboursement ouverte à la fois : une nouvelle demande vous renvoie donc vers celle déjà en cours."
+        },
+        {
+          "type": "p",
+          "text": "Examen : l’équipe LSevin examine la demande au regard des conditions du prestataire et du montant que vous avez payé. La demande est acceptée en totalité, acceptée en partie ou refusée."
+        },
+        {
+          "type": "p",
+          "text": "Versement : les remboursements acceptés sont crédités sur votre portefeuille LSevin dans la devise de la réservation. La réservation apparaît alors comme remboursée ou partiellement remboursée, et le crédit figure dans l’historique de votre portefeuille. Vous pouvez utiliser ce solde pour votre prochaine réservation."
+        },
+        {
+          "type": "h3",
+          "text": "Circuits"
+        },
+        {
+          "type": "p",
+          "text": "Chaque circuit dispose de conditions d’annulation avec des paliers de remboursement qui dépendent du nombre d’heures avant le départ auquel vous annulez, par exemple un remboursement intégral jusqu’à un certain moment, puis un remboursement partiel. Votre réservation conserve la version des conditions que vous avez acceptée lors de la réservation, même si l’organisateur les modifie par la suite."
+        },
+        {
+          "type": "p",
+          "text": "Lorsque vous annulez un circuit, LSevin affiche le montant du remboursement avant que vous confirmiez. Une annulation après l’heure de départ ne donne droit à aucun remboursement selon ces conditions. Certains circuits précisent aussi ce qui est remboursé en cas de non-présentation."
+        },
+        {
+          "type": "p",
+          "text": "Si l’organisateur annule un départ, toutes les réservations concernées sont intégralement remboursées et vous en êtes informé."
+        },
+        {
+          "type": "h3",
+          "text": "Consultations vidéo"
+        },
+        {
+          "type": "p",
+          "text": "Si votre paiement pour une consultation vidéo aboutit alors que le créneau choisi a été pris entre-temps, vous êtes remboursé. Contactez l’assistance si vous ne voyez pas le remboursement."
+        },
+        {
+          "type": "h3",
+          "text": "Paiements non aboutis"
+        },
+        {
+          "type": "p",
+          "text": "Si la passerelle n’a pas pu confirmer votre paiement, aucune réservation n’a été effectuée. Dans ce cas, la somme débitée de votre compte bancaire est généralement restituée sous 72 heures par votre banque, et non par LSevin. Si ce n’est pas le cas passé ce délai, contactez l’assistance en indiquant la référence du paiement."
+        },
+        {
+          "type": "h2",
+          "text": "Partie 2 : Commandes en boutique"
+        },
+        {
+          "type": "h3",
+          "text": "Annuler une commande"
+        },
+        {
+          "type": "p",
+          "text": "Vous pouvez annuler une commande en boutique depuis la page de la commande tant qu’elle n’a pas été expédiée, c’est-à-dire aux étapes en attente, en attente de paiement, payée et en cours de traitement. Les commandes non payées sont simplement clôturées. Pour les commandes payées, le remboursement n’est pas automatique : la commande est marquée comme en attente de remboursement et l’équipe de la boutique le traite."
+        },
+        {
+          "type": "h3",
+          "text": "Retourner des produits"
+        },
+        {
+          "type": "p",
+          "text": "Une fois la commande expédiée, en partie ou en totalité, vous pouvez demander un retour depuis la page de la commande. Choisissez les articles et la quantité de chacun, puis indiquez un motif. Vous ne pouvez retourner que la quantité reçue, déduction faite des articles déjà retournés."
+        },
+        {
+          "type": "p",
+          "text": "L’équipe de la boutique examine chaque demande de retour. Si la demande est refusée, le motif est enregistré et vous est communiqué. Si elle est acceptée, renvoyez les articles selon les instructions. À réception des articles, le retour est marqué comme reçu et le remboursement est traité."
+        },
+        {
+          "type": "h3",
+          "text": "Remboursements de la boutique"
+        },
+        {
+          "type": "p",
+          "text": "L’équipe de la boutique enregistre chaque remboursement sur votre commande. Un remboursement ne peut jamais dépasser le montant que vous avez payé, déduction faite des sommes déjà remboursées sur cette commande."
+        },
+        {
+          "type": "h2",
+          "text": "Besoin d’aide ?"
+        },
+        {
+          "type": "p",
+          "text": "Ouvrez une conversation avec l’assistance depuis votre compte en indiquant votre numéro de réservation ou de commande. Pour une réservation, précisez le motif de l’annulation et joignez tout message du prestataire."
+        }
+      ],
+      "faq": [
+        {
+          "q": "L’annulation d’une réservation entraîne-t-elle un remboursement automatique ?",
+          "a": "Non. Annulez d’abord la réservation, puis demandez un remboursement à l’assistance en indiquant le numéro de réservation. L’équipe LSevin examine la demande au regard des conditions du prestataire. Pour les circuits, l’annulation d’une réservation payée crée automatiquement la demande de remboursement."
+        },
+        {
+          "q": "Où est versé le remboursement de ma réservation ?",
+          "a": "Les remboursements de réservation acceptés sont crédités sur votre portefeuille LSevin dans la devise de la réservation, et vous pouvez utiliser ce solde pour vos prochaines réservations."
+        },
+        {
+          "q": "Quelle part d’un circuit m’est remboursée si j’annule ?",
+          "a": "Cela dépend du nombre d’heures avant le départ auquel vous annulez, selon la version des conditions que vous avez acceptée lors de la réservation. Le montant s’affiche avant que vous confirmiez l’annulation."
+        },
+        {
+          "q": "L’organisateur a annulé mon circuit. Que se passe-t-il ?",
+          "a": "Vous en êtes informé et votre paiement pour ce départ vous est intégralement remboursé."
+        },
+        {
+          "q": "Puis-je annuler une commande en boutique après l’avoir payée ?",
+          "a": "Oui, tant qu’elle n’a pas été expédiée. La commande est alors marquée pour remboursement et l’équipe de la boutique le traite. Après l’expédition, faites une demande de retour."
+        },
+        {
+          "q": "Puis-je retourner seulement certains articles d’une commande ?",
+          "a": "Oui. Choisissez dans la demande de retour les articles et les quantités que vous souhaitez retourner."
+        }
+      ]
+    },
+    "es-ES": {
+      "title": "Política de devoluciones y reembolsos",
+      "metaDescription": "Cómo cancelar reservas y pedidos de la tienda de LSevin, devolver productos y obtener reembolsos: políticas del proveedor, tours, saldo en el monedero y cada paso.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Esta política explica cómo funcionan las cancelaciones, las devoluciones y los reembolsos en LSevin. Tiene dos partes: las reservas de servicios (clínicas, hoteles, tours, gimnasios y consultas) y los productos físicos de la tienda de LSevin. La política del propio proveedor, que se muestra en su página antes de reservar, determina qué parte de una reserva es reembolsable."
+        },
+        {
+          "type": "h2",
+          "text": "Parte 1: Reservas"
+        },
+        {
+          "type": "h3",
+          "text": "Qué política se aplica"
+        },
+        {
+          "type": "p",
+          "text": "Cada proveedor puede publicar sus políticas en su perfil y en las páginas de sus servicios, como sus condiciones de cancelación. Léalas antes de reservar. El importe reembolsable de una reserva se calcula según la política del proveedor con el que reservó."
+        },
+        {
+          "type": "h3",
+          "text": "Cancelar una reserva"
+        },
+        {
+          "type": "p",
+          "text": "Abra Mis reservas, elija la reserva y cancélela. Puede cancelar cualquier reserva que no esté ya cancelada o completada. Al cancelar una reserva de hotel, las noches quedan libres para que otras personas puedan reservarlas."
+        },
+        {
+          "type": "p",
+          "text": "Cancelar una reserva y recuperar el dinero son dos pasos distintos. Si pagó la reserva, después de cancelarla abra una conversación con soporte y solicite el reembolso indicando el número de reserva. Las reservas de tours son la excepción: al cancelar un tour pagado, la solicitud de reembolso se genera automáticamente."
+        },
+        {
+          "type": "h3",
+          "text": "Cómo se tramita el reembolso de una reserva"
+        },
+        {
+          "type": "p",
+          "text": "Solicitud: se puede abrir una solicitud de reembolso cuando la reserva tiene un pago confirmado. Cada reserva solo puede tener una solicitud de reembolso abierta a la vez, de modo que si la solicita de nuevo, verá la que ya está en curso."
+        },
+        {
+          "type": "p",
+          "text": "Revisión: el equipo de LSevin revisa la solicitud teniendo en cuenta la política del proveedor y lo que usted pagó. La solicitud se aprueba total o parcialmente, o se rechaza."
+        },
+        {
+          "type": "p",
+          "text": "Abono: los reembolsos aprobados se abonan en su monedero de LSevin en la moneda de la reserva. La reserva pasa a figurar como reembolsada o parcialmente reembolsada, y el abono aparece en el historial de su monedero. Puede usar el saldo en su próxima reserva."
+        },
+        {
+          "type": "h3",
+          "text": "Tours"
+        },
+        {
+          "type": "p",
+          "text": "Cada tour tiene una política de cancelación con tramos de reembolso según cuántas horas antes de la salida cancele; por ejemplo, reembolso total hasta un momento determinado y reembolso parcial a partir de entonces. Su reserva conserva la versión de la política que aceptó al reservar, aunque el operador la cambie después."
+        },
+        {
+          "type": "p",
+          "text": "Cuando cancela un tour, LSevin le muestra el importe del reembolso antes de que confirme. Según la política, las cancelaciones posteriores a la hora de salida no dan derecho a reembolso. Algunos tours también establecen qué se reembolsa si usted no se presenta."
+        },
+        {
+          "type": "p",
+          "text": "Si el operador cancela una salida, todas las reservas de esa salida se reembolsan íntegramente y se le notifica."
+        },
+        {
+          "type": "h3",
+          "text": "Videoconsultas"
+        },
+        {
+          "type": "p",
+          "text": "Si el pago de una videoconsulta se completa pero, mientras tanto, otra persona ha reservado el horario que eligió, se le reembolsa. Contacte con soporte si no ve el reembolso."
+        },
+        {
+          "type": "h3",
+          "text": "Pagos que no se completaron"
+        },
+        {
+          "type": "p",
+          "text": "Si la pasarela no pudo confirmar su pago, no se reservó nada. En ese caso, el dinero que se haya cargado en su cuenta bancaria suele devolverse en un plazo de 72 horas a través de su banco, no de LSevin. Si pasado ese tiempo no se ha devuelto, contacte con soporte e indique la referencia del pago."
+        },
+        {
+          "type": "h2",
+          "text": "Parte 2: Pedidos de la tienda"
+        },
+        {
+          "type": "h3",
+          "text": "Cancelar un pedido"
+        },
+        {
+          "type": "p",
+          "text": "Puede cancelar un pedido de la tienda desde la página del pedido hasta que se envíe, es decir, mientras esté pendiente, a la espera de pago, pagado o en preparación. Los pedidos sin pagar simplemente se cierran. En los pedidos pagados, el reembolso no es automático: el pedido queda marcado a la espera de reembolso y el equipo de la tienda lo tramita."
+        },
+        {
+          "type": "h3",
+          "text": "Devolver productos"
+        },
+        {
+          "type": "p",
+          "text": "Una vez que el pedido se ha enviado, total o parcialmente, puede solicitar una devolución desde la página del pedido. Elija los artículos y la cantidad de cada uno, e indique el motivo. Solo puede devolver hasta la cantidad que recibió, descontando lo que ya haya devuelto."
+        },
+        {
+          "type": "p",
+          "text": "El equipo de la tienda revisa cada solicitud de devolución. Si se rechaza, el motivo queda registrado y se le muestra. Si se aprueba, envíe los artículos siguiendo las instrucciones. Cuando lleguen, la devolución se marca como recibida y se tramita el reembolso."
+        },
+        {
+          "type": "h3",
+          "text": "Reembolsos de la tienda"
+        },
+        {
+          "type": "p",
+          "text": "El equipo de la tienda registra cada reembolso en su pedido. Un reembolso nunca puede superar el importe que usted pagó, descontado lo que ya se haya reembolsado en ese pedido."
+        },
+        {
+          "type": "h2",
+          "text": "¿Necesita ayuda?"
+        },
+        {
+          "type": "p",
+          "text": "Abra una conversación con soporte en su cuenta e indique el número de su reserva o pedido. En el caso de las reservas, incluya el motivo de la cancelación y cualquier mensaje del proveedor."
+        }
+      ],
+      "faq": [
+        {
+          "q": "¿Al cancelar una reserva se me reembolsa automáticamente?",
+          "a": "No. Primero cancele la reserva y después solicite el reembolso a soporte indicando el número de reserva. El equipo de LSevin revisa la solicitud según la política del proveedor. En los tours, al cancelar una reserva pagada la solicitud de reembolso se genera automáticamente."
+        },
+        {
+          "q": "¿Adónde va el reembolso de mi reserva?",
+          "a": "Los reembolsos de reservas aprobados se abonan en su monedero de LSevin en la moneda de la reserva, y puede usar el saldo en reservas posteriores."
+        },
+        {
+          "q": "¿Cuánto me devuelven si cancelo un tour?",
+          "a": "Depende de cuántas horas antes de la salida cancele, según la versión de la política que aceptó al reservar. El importe se muestra antes de confirmar la cancelación."
+        },
+        {
+          "q": "El operador ha cancelado mi tour. ¿Qué ocurre?",
+          "a": "Se le notifica y el pago de esa salida se le reembolsa íntegramente."
+        },
+        {
+          "q": "¿Puedo cancelar un pedido de la tienda después de pagarlo?",
+          "a": "Sí, hasta que se envíe. El pedido queda entonces marcado para reembolso y el equipo de la tienda lo tramita. Después del envío, solicite una devolución."
+        },
+        {
+          "q": "¿Puedo devolver solo algunos artículos de un pedido?",
+          "a": "Sí. En la solicitud de devolución, elija los artículos y las cantidades que desea devolver."
+        }
+      ]
+    }
+  }
+}

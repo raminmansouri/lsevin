@@ -1,0 +1,208 @@
+{
+  "scope": "search",
+  "entityKey": null,
+  "sources": [
+    "messages/en.json MobileSearch.tips.*: search by service name, condition, specialty, provider or specialist; add country or city; use shorter keywords",
+    "messages/en.json MobileSearch.continueToFullResults / searchQuery: full results page covers services, providers and specialists",
+    "src/features/service-providers/components/search/mobile-search-page-client.tsx: Enter or the search line opens results",
+    "messages/en.json MobileSearch.advancedFilters, priceRange, distance, minimumRating, verifiedProvidersOnly, languagesSpoken, specialties, mapDiscovery",
+    "src/app/[locale]/n/app/mobile/search-results/search-results-view.tsx + SearchResults.sort.*: Most Relevant, Highest Rated, Price low/high, Most Popular",
+    "messages/en.json SearchResults.noResultsFound / tryAdjustingFilters / newSearch",
+    "src/app/[locale]/n/app/mobile/search/page.tsx: Trending and Popular Categories rails, recent searches loaded on the client",
+    "messages/en.json MobileSearch.recentSearches / clearAll / removeSearch / trendingNow / bookingsCount / popularCategories"
+  ],
+  "items": [
+    {
+      "locales": {
+        "en-US": {
+          "q": "What can I type into LSevin search?",
+          "a": "Search by service name, condition, specialty, provider or specialist, for example a treatment or a clinic's name. Adding a country or city gives more specific results, and a shorter keyword helps when you aren't sure of the exact service name. Suggestions appear as you type. Press Enter or tap the “Search” line to open the full results, which cover services, providers and specialists."
+        },
+        "fa-IR": {
+          "q": "در جست‌وجوی السوین چه چیزی می‌توانم وارد کنم؟",
+          "a": "می‌توانید نام خدمت، بیماری، تخصص، ارائه‌دهنده یا متخصص را جست‌وجو کنید؛ مثلاً نام یک درمان یا نام کلینیک. اگر کشور یا شهر را هم اضافه کنید نتایج دقیق‌تر می‌شود و وقتی نام دقیق خدمت را نمی‌دانید، کلمهٔ کوتاه‌تر کمک می‌کند. هنگام تایپ، پیشنهادها نمایش داده می‌شوند. با زدن Enter یا گزینهٔ «جستجو» به صفحهٔ کامل نتایج می‌روید که خدمات، ارائه‌دهندگان و متخصص‌ها را نشان می‌دهد."
+        },
+        "ar-SA": {
+          "q": "ماذا يمكنني أن أكتب في بحث لسوين؟",
+          "a": "ابحث باسم الخدمة أو الحالة الصحية أو التخصص أو مقدم الخدمة أو الأخصائي، مثل اسم علاج أو اسم عيادة. إضافة الدولة أو المدينة تعطيك نتائج أدق، والكلمة الأقصر تساعدك إذا لم تكن متأكدًا من الاسم الدقيق للخدمة. تظهر الاقتراحات أثناء الكتابة، واضغط Enter أو سطر «بحث» لفتح صفحة النتائج الكاملة التي تضم الخدمات ومقدمي الخدمة والأخصائيين."
+        },
+        "tr-TR": {
+          "q": "LSevin aramasına neler yazabilirim?",
+          "a": "Hizmet adı, rahatsızlık, uzmanlık alanı, sağlayıcı veya uzman adıyla arama yapabilirsiniz; örneğin bir tedavi ya da bir kliniğin adı. Bir ülke veya şehir eklemek daha belirli sonuçlar verir; hizmetin tam adından emin değilseniz daha kısa bir anahtar kelime işe yarar. Siz yazarken öneriler çıkar. Hizmetleri, sağlayıcıları ve uzmanları kapsayan tüm sonuçları açmak için Enter tuşuna basın veya “Ara” satırına dokunun."
+        },
+        "ku-KU": {
+          "q": "لە گەڕانی LSevin دا چی بنووسم؟",
+          "a": "بە ناوی خزمەت، نەخۆشی، پسپۆڕی، دابینکەر یان پسپۆڕ بگەڕێن، بۆ نموونە چارەسەرێک یان ناوی کلینیکێک. زیادکردنی وڵات یان شارێک ئەنجامی وردتر دەدات، و وشەیەکی کورتتر یارمەتیدەرە کاتێک دڵنیا نین لە ناوی تەواوی خزمەتەکە. لە کاتی نووسیندا پێشنیار دەردەکەون. Enter دابگرن یان کرتە لەسەر دێڕی «گەڕان» بکەن بۆ کردنەوەی هەموو ئەنجامەکان، کە خزمەت، دابینکەر و پسپۆڕان دەگرنەوە."
+        },
+        "ru-RU": {
+          "q": "Что можно вводить в поиске LSevin?",
+          "a": "Ищите по названию услуги, заболеванию, специальности, поставщику или врачу, например по виду лечения или названию клиники. Если добавить страну или город, результаты будут точнее, а более короткий запрос помогает, когда Вы не уверены в точном названии услуги. Подсказки появляются по мере ввода. Нажмите Enter или строку «Поиск», чтобы открыть полные результаты, включающие услуги, поставщиков и специалистов."
+        },
+        "tg-TJ": {
+          "q": "Дар ҷустуҷӯи LSevin чӣ навиштан мумкин аст?",
+          "a": "Аз рӯи номи хидмат, беморӣ, тахассус, хидматрасон ё мутахассис ҷустуҷӯ кунед, масалан номи табобат ё клиника. Илова кардани кишвар ё шаҳр натиҷаҳои дақиқтар медиҳад ва калимаи кӯтоҳтар вақте кӯмак мекунад, ки номи дақиқи хидматро намедонед. Ҳангоми навиштан пешниҳодҳо пайдо мешаванд. Барои кушодани натиҷаҳои пурра, ки хидматҳо, хидматрасонҳо ва мутахассисонро фаро мегиранд, Enter-ро пахш кунед ё сатри «Ҷустуҷӯ»-ро пахш намоед."
+        },
+        "zh-CN": {
+          "q": "在LSevin搜索框中可以输入什么？",
+          "a": "可以按服务名称、病症、专科、服务商或专家搜索，例如某项治疗或某家诊所的名称。加上国家或城市可以得到更精准的结果；如果不确定服务的准确名称，使用较短的关键词会更有帮助。输入时会出现搜索建议。按回车键或点击“搜索”一行即可打开完整结果，结果涵盖服务、服务商和专家。"
+        },
+        "de-DE": {
+          "q": "Was kann ich in die LSevin Suche eingeben?",
+          "a": "Suchen Sie nach dem Namen einer Leistung, einer Erkrankung, einem Fachgebiet, einem Anbieter oder einem Spezialisten, zum Beispiel nach einer Behandlung oder dem Namen einer Klinik. Mit einem Land oder einer Stadt erhalten Sie genauere Ergebnisse, und ein kürzerer Suchbegriff hilft, wenn Sie den genauen Namen der Leistung nicht kennen. Während der Eingabe erscheinen Vorschläge. Drücken Sie die Eingabetaste oder tippen Sie auf die Zeile „Suchen“, um die vollständigen Ergebnisse zu öffnen, die Leistungen, Anbieter und Spezialisten umfassen."
+        },
+        "fr-FR": {
+          "q": "Que puis-je saisir dans la recherche LSevin ?",
+          "a": "Recherchez par nom de service, pathologie, spécialité, prestataire ou spécialiste, par exemple un traitement ou le nom d’une clinique. Ajouter un pays ou une ville donne des résultats plus précis, et un mot-clé plus court vous aide si vous ne connaissez pas le nom exact du service. Des suggestions apparaissent pendant la saisie. Appuyez sur Entrée ou touchez la ligne « Rechercher » pour ouvrir tous les résultats, qui couvrent les services, les prestataires et les spécialistes."
+        },
+        "es-ES": {
+          "q": "¿Qué puedo escribir en el buscador de LSevin?",
+          "a": "Puede buscar por nombre de servicio, afección, especialidad, proveedor o especialista, por ejemplo un tratamiento o el nombre de una clínica. Si añade un país o una ciudad, obtendrá resultados más precisos, y una palabra clave más corta ayuda cuando no conoce el nombre exacto del servicio. Las sugerencias aparecen mientras escribe. Pulse Intro o toque la línea «Buscar» para abrir todos los resultados, que incluyen servicios, proveedores y especialistas."
+        }
+      }
+    },
+    {
+      "locales": {
+        "en-US": {
+          "q": "How do I narrow down my search results?",
+          "a": "On the results page, tap “Filters”. You can set a price range, a distance, a minimum rating, “Verified Providers Only”, the languages spoken and specialties. You can also sort by “Most Relevant”, “Highest Rated”, “Price: Low to High”, “Price: High to Low” or “Most Popular”. To see providers by location instead of a list, open “Map Discovery”."
+        },
+        "fa-IR": {
+          "q": "چطور نتایج جست‌وجو را محدودتر کنم؟",
+          "a": "در صفحهٔ نتایج روی «فیلترها» بزنید. می‌توانید «بازه قیمت»، «فاصله»، «حداقل امتیاز»، گزینهٔ «فقط ارائه‌دهندگان تأییدشده»، زبان‌های قابل ارائه و «تخصص‌ها» را تنظیم کنید. ترتیب نتایج را هم می‌توانید روی «مرتبط‌ترین»، «بالاترین امتیاز»، «قیمت: کم به زیاد»، «قیمت: زیاد به کم» یا «محبوب‌ترین» بگذارید. برای دیدن ارائه‌دهندگان بر اساس موقعیت به‌جای فهرست، «جستجو روی نقشه» را باز کنید."
+        },
+        "ar-SA": {
+          "q": "كيف أضيّق نتائج البحث؟",
+          "a": "اضغط «الفلاتر» في صفحة النتائج. يمكنك تحديد نطاق السعر والمسافة والحد الأدنى للتقييم وعرض المزوّدين الموثّقين فقط واللغات المحكية والتخصصات. ويمكنك أيضًا ترتيب النتائج حسب «الأكثر صلة» أو «الأعلى تقييماً» أو «السعر: منخفض إلى عالٍ» أو «السعر: عالٍ إلى منخفض» أو الأكثر شيوعًا. ولعرض مقدمي الخدمة حسب الموقع بدل القائمة، افتح البحث على الخريطة."
+        },
+        "tr-TR": {
+          "q": "Arama sonuçlarımı nasıl daraltırım?",
+          "a": "Sonuçlar sayfasında “Filtreler”e dokunun. Fiyat aralığı, mesafe, en düşük puan, “Sadece Doğrulanmış Sağlayıcılar”, konuşulan diller ve uzmanlık alanları belirleyebilirsiniz. Ayrıca “En Uygun”, “En Yüksek Puanlı”, “Fiyat: Düşükten Yükseğe”, “Fiyat: Yüksekten Düşüğe” veya “En Popüler” şeklinde sıralayabilirsiniz. Sağlayıcıları liste yerine konuma göre görmek için “Haritada Keşfet”i açın."
+        },
+        "ku-KU": {
+          "q": "چۆن ئەنجامەکانی گەڕانەکەم سنووردار بکەم؟",
+          "a": "لە پەڕەی ئەنجامەکاندا کرتە لەسەر «فلتەرەکان» بکەن. دەتوانن مەودای نرخ، دووری، کەمترین هەڵسەنگاندن، «تەنها دابینکەرە پشتڕاستکراوەکان»، ئەو زمانانەی قسەیان پێ دەکرێت و پسپۆڕییەکان دیاری بکەن. هەروەها دەتوانن بەپێی «پەیوەندیدارترین»، «بەرزترین هەڵسەنگاندن»، «نرخ: لە نزمەوە بۆ بەرز»، «نرخ: لە بەرزەوە بۆ نزم» یان «بەناوبانگترین» ڕیزیان بکەن. بۆ بینینی دابینکەران بەپێی شوێن لە جیاتی لیست، «دۆزینەوە لەسەر نەخشە» بکەنەوە."
+        },
+        "ru-RU": {
+          "q": "Как сузить результаты поиска?",
+          "a": "На странице результатов нажмите «Фильтры». Можно задать диапазон цен, расстояние, минимальный рейтинг, включить «Только проверенные специалисты», выбрать языки общения и специальности. Также можно сортировать «По релевантности», «Высокий рейтинг», «Цена: по возрастанию», «Цена: по убыванию» или «По популярности». Чтобы видеть поставщиков на карте, а не списком, откройте «Поиск на карте»."
+        },
+        "tg-TJ": {
+          "q": "Натиҷаҳои ҷустуҷӯро чӣ тавр маҳдуд кунам?",
+          "a": "Дар саҳифаи натиҷаҳо «Филтрҳо»-ро пахш кунед. Шумо метавонед диапазони нарх, масофа, баҳои ҳадди ақал, «Танҳо хидматрасонҳои тасдиқшуда», забонҳои муошират ва тахассусҳоро интихоб кунед. Инчунин метавонед аз рӯи «Мувофиқтарин», «Баҳои баландтарин», «Нарх: аз паст ба баланд», «Нарх: аз баланд ба паст» ё «Машҳуртарин» мураттаб кунед. Барои дидани хидматрасонҳо аз рӯи ҷойгиршавӣ ба ҷои рӯйхат «Кашф бо харита»-ро кушоед."
+        },
+        "zh-CN": {
+          "q": "如何缩小搜索结果范围？",
+          "a": "在结果页面点击“筛选”。您可以设置价格区间、距离、最低评分、“仅看已认证服务商”、服务语言和专长。还可以按“最相关”、“评分最高”、“价格从低到高”、“价格从高到低”或“最受欢迎”排序。如需按位置而非列表查看服务商，请打开“地图探索”。"
+        },
+        "de-DE": {
+          "q": "Wie grenze ich meine Suchergebnisse ein?",
+          "a": "Tippen Sie auf der Ergebnisseite auf „Filter“. Sie können eine Preisspanne, eine Entfernung, eine Mindestbewertung, „Nur verifizierte Anbieter“, die gesprochenen Sprachen und Fachgebiete festlegen. Außerdem können Sie nach „Relevanteste“, „Beste Bewertung“, „Preis: aufsteigend“, „Preis: absteigend“ oder „Beliebteste“ sortieren. Um Anbieter nach Standort statt als Liste zu sehen, öffnen Sie die „Kartensuche“."
+        },
+        "fr-FR": {
+          "q": "Comment affiner mes résultats de recherche ?",
+          "a": "Sur la page des résultats, touchez « Filtres ». Vous pouvez définir une fourchette de prix, une distance, une note minimale, « Prestataires vérifiés uniquement », les langues parlées et les spécialités. Vous pouvez aussi trier par « Les plus pertinents », « Les mieux notés », « Prix : du plus bas au plus élevé », « Prix : du plus élevé au plus bas » ou « Les plus populaires ». Pour voir les prestataires selon leur emplacement plutôt que sous forme de liste, ouvrez « Découverte sur la carte »."
+        },
+        "es-ES": {
+          "q": "¿Cómo acoto los resultados de búsqueda?",
+          "a": "En la página de resultados, toque «Filtros». Puede indicar un rango de precios, una distancia, una valoración mínima, «Solo proveedores verificados», los idiomas y las especialidades. También puede ordenar por «Más relevantes», «Mejor valorados», «Precio: de menor a mayor», «Precio: de mayor a menor» o «Más populares». Para ver los proveedores según su ubicación en lugar de en una lista, abra «Explorar el mapa»."
+        }
+      }
+    },
+    {
+      "locales": {
+        "en-US": {
+          "q": "What should I do if search shows “No results found”?",
+          "a": "Usually the filters or the wording are too narrow. Remove a filter, try a shorter or more general word, or search for the specialty rather than a procedure or brand name, then tap “New Search”. You can also browse “All categories”. If you still can't find what you need, contact LSevin support from the app and describe the treatment you are looking for."
+        },
+        "fa-IR": {
+          "q": "اگر جست‌وجو «نتیجه‌ای پیدا نشد» نشان داد چه کنم؟",
+          "a": "معمولاً فیلترها یا عبارت جست‌وجو بیش از حد محدود است. یکی از فیلترها را بردارید، کلمه‌ای کوتاه‌تر یا کلی‌تر امتحان کنید یا به‌جای نام یک روش یا برند، نام تخصص را جست‌وجو کنید و بعد «جستجوی جدید» را بزنید. می‌توانید «همه دسته‌ها» را هم مرور کنید. اگر باز هم چیزی پیدا نکردید، از داخل برنامه با پشتیبانی السوین تماس بگیرید و درمانی را که دنبالش هستید توضیح دهید."
+        },
+        "ar-SA": {
+          "q": "ماذا أفعل إذا ظهرت عبارة «لم يتم العثور على نتائج»؟",
+          "a": "غالبًا ما تكون الفلاتر أو عبارة البحث ضيقة أكثر من اللازم. أزل أحد الفلاتر، أو جرّب كلمة أقصر أو أعم، أو ابحث باسم التخصص بدل اسم الإجراء أو العلامة التجارية، ثم ابدأ بحثًا جديدًا. ويمكنك أيضًا تصفح جميع الفئات. وإذا لم تجد ما تحتاجه، تواصل مع دعم لسوين من داخل التطبيق واشرح العلاج الذي تبحث عنه."
+        },
+        "tr-TR": {
+          "q": "Arama “Sonuç bulunamadı” gösterirse ne yapmalıyım?",
+          "a": "Genellikle filtreler veya kullanılan ifade fazla dardır. Bir filtreyi kaldırın, daha kısa ya da daha genel bir kelime deneyin veya bir işlem ya da marka adı yerine uzmanlık alanını aratın, ardından “Yeni Arama”ya dokunun. “Tüm kategoriler” bölümüne de göz atabilirsiniz. Aradığınızı hâlâ bulamıyorsanız uygulamadan LSevin desteğine ulaşın ve aradığınız tedaviyi anlatın."
+        },
+        "ku-KU": {
+          "q": "ئەگەر گەڕان «هیچ ئەنجامێک نەدۆزرایەوە» پیشان بدات چی بکەم؟",
+          "a": "زۆربەی جار فلتەرەکان یان وشەکان زۆر تەسکن. فلتەرێک لاببەن، وشەیەکی کورتتر یان گشتیتر تاقی بکەنەوە، یان لە جیاتی ناوی پرۆسە یان مارکەیەک بە پسپۆڕییەکە بگەڕێن، پاشان کرتە لەسەر «گەڕانی نوێ» بکەن. دەتوانن «هەموو هاوپۆلەکان»یش ببینن. ئەگەر هێشتا ئەوەی پێویستتانە نەتاندۆزییەوە، لە ئەپەکەوە پەیوەندی بە پشتگیریی LSevinەوە بکەن و ئەو چارەسەرەی بەدوایدا دەگەڕێن باس بکەن."
+        },
+        "ru-RU": {
+          "q": "Что делать, если поиск показывает «Ничего не найдено»?",
+          "a": "Обычно это значит, что фильтры или формулировка запроса слишком узкие. Уберите один из фильтров, попробуйте более короткое или общее слово либо ищите по специальности, а не по названию процедуры или бренда, затем нажмите «Новый поиск». Можно также просмотреть «Все категории». Если Вы так и не нашли нужное, свяжитесь с поддержкой LSevin в приложении и опишите, какое лечение Вы ищете."
+        },
+        "tg-TJ": {
+          "q": "Агар ҷустуҷӯ «Натиҷа ёфт нашуд»-ро нишон диҳад, чӣ кор кунам?",
+          "a": "Одатан филтрҳо ё калимаҳо хеле танганд. Як филтрро бардоред, калимаи кӯтоҳтар ё умумитарро санҷед ё ба ҷои номи амалиёт ё бренд тахассусро ҷустуҷӯ кунед, баъд «Ҷустуҷӯи нав»-ро пахш кунед. Инчунин метавонед «Ҳамаи категорияҳо»-ро бинед. Агар боз ҳам чизи лозимиро наёбед, аз барнома ба дастгирии LSevin муроҷиат кунед ва табобати ҷустуҷӯкардаатонро тавсиф диҳед."
+        },
+        "zh-CN": {
+          "q": "搜索显示“未找到结果”时该怎么办？",
+          "a": "通常是筛选条件或关键词过于具体。请移除某个筛选条件，换用更短或更宽泛的词，或者搜索专科而不是具体的治疗项目或品牌名称，然后点击“重新搜索”。您也可以浏览“全部分类”。如果仍找不到所需内容，请在应用中联系LSevin客服，描述您要找的治疗项目。"
+        },
+        "de-DE": {
+          "q": "Was tue ich, wenn die Suche „Keine Ergebnisse gefunden“ anzeigt?",
+          "a": "Meist sind die Filter oder die Suchbegriffe zu eng gefasst. Entfernen Sie einen Filter, versuchen Sie ein kürzeres oder allgemeineres Wort oder suchen Sie nach dem Fachgebiet statt nach einem Eingriff oder Markennamen, und tippen Sie dann auf „Neue Suche“. Sie können auch „Alle Kategorien“ durchsuchen. Wenn Sie dann immer noch nicht finden, was Sie brauchen, wenden Sie sich in der App an den LSevin Support und beschreiben Sie die Behandlung, die Sie suchen."
+        },
+        "fr-FR": {
+          "q": "Que faire si la recherche affiche « Aucun résultat trouvé » ?",
+          "a": "En général, les filtres ou les termes utilisés sont trop restrictifs. Retirez un filtre, essayez un mot plus court ou plus général, ou recherchez la spécialité plutôt qu’un acte ou un nom de marque, puis touchez « Nouvelle recherche ». Vous pouvez aussi parcourir « Toutes les catégories ». Si vous ne trouvez toujours pas ce dont vous avez besoin, contactez l’assistance LSevin depuis l’application en décrivant le traitement que vous recherchez."
+        },
+        "es-ES": {
+          "q": "¿Qué hago si la búsqueda muestra «No se encontraron resultados»?",
+          "a": "Normalmente los filtros o los términos son demasiado restrictivos. Quite un filtro, pruebe una palabra más corta o más general, o busque la especialidad en lugar de un procedimiento o una marca, y después toque «Nueva búsqueda». También puede explorar «Todas las categorías». Si aun así no encuentra lo que necesita, contacte con el soporte de LSevin desde la aplicación y describa el tratamiento que busca."
+        }
+      }
+    },
+    {
+      "locales": {
+        "en-US": {
+          "q": "What are “Recent Searches” and “Trending Now” on the search screen?",
+          "a": "“Recent Searches” keeps the terms you searched before, so you can repeat one with a tap. Remove a single term with its remove button, or tap “Clear All” to empty the list. “Trending Now” shows popular services with their number of bookings, and “Popular Categories” links straight to busy categories with their service counts."
+        },
+        "fa-IR": {
+          "q": "«جستجوهای اخیر» و «جستجوهای پرطرفدار» در صفحهٔ جست‌وجو چیست؟",
+          "a": "«جستجوهای اخیر» عبارت‌هایی را که قبلاً جست‌وجو کرده‌اید نگه می‌دارد تا با یک ضربه دوباره جست‌وجو کنید. هر عبارت را می‌توانید جداگانه حذف کنید یا با «پاک کردن همه» کل فهرست را خالی کنید. «جستجوهای پرطرفدار» خدمات محبوب را همراه با تعداد رزروشان نشان می‌دهد و «دسته‌بندی‌های محبوب» شما را مستقیم به دسته‌های پرمراجعه با تعداد خدماتشان می‌برد."
+        },
+        "ar-SA": {
+          "q": "ما هي «عمليات البحث الأخيرة» والعناصر الرائجة في شاشة البحث؟",
+          "a": "تحتفظ «عمليات البحث الأخيرة» بالكلمات التي بحثت عنها سابقًا لتكرار البحث بضغطة واحدة، ويمكنك حذف كلمة واحدة أو الضغط على «مسح الكل» لإفراغ القائمة. ويعرض قسم الرائج الآن الخدمات الشائعة مع عدد حجوزاتها، بينما تنقلك الفئات الشائعة مباشرة إلى الفئات الأكثر طلبًا مع عدد خدماتها."
+        },
+        "tr-TR": {
+          "q": "Arama ekranındaki “Son Aramalar” ve “Şu An Popüler” nedir?",
+          "a": "“Son Aramalar”, daha önce aradığınız terimleri saklar; böylece birini tek dokunuşla tekrarlayabilirsiniz. Tek bir terimi yanındaki kaldırma düğmesiyle silebilir ya da listeyi boşaltmak için “Tümünü Temizle”ye dokunabilirsiniz. “Şu An Popüler”, popüler hizmetleri rezervasyon sayılarıyla birlikte gösterir; “Popüler Kategoriler” ise yoğun kategorilere hizmet sayılarıyla birlikte doğrudan bağlantı verir."
+        },
+        "ku-KU": {
+          "q": "«گەڕانە دواییەکان» و «ئێستا باوە» لە شاشەی گەڕاندا چین؟",
+          "a": "«گەڕانە دواییەکان» ئەو وشانە دەپارێزێت کە پێشتر بەدوایاندا گەڕاون، بۆ ئەوەی بە یەک کرتە دووبارەیان بکەنەوە. وشەیەک بە دوگمەی لابردنەکەی لاببەن، یان کرتە لەسەر «پاکردنەوەی هەموو» بکەن بۆ بەتاڵکردنی لیستەکە. «ئێستا باوە» خزمەتە بەناوبانگەکان لەگەڵ ژمارەی حجزەکانیان پیشان دەدات، و «هاوپۆلە بەناوبانگەکان» ڕاستەوخۆ بۆ هاوپۆلە پڕسەردانەکان لەگەڵ ژمارەی خزمەتەکانیان دەتانبات."
+        },
+        "ru-RU": {
+          "q": "Что такое «Недавние запросы» и «Популярное сейчас» на экране поиска?",
+          "a": "В блоке «Недавние запросы» сохраняются Ваши прошлые запросы, чтобы повторить любой из них одним нажатием. Отдельный запрос можно удалить кнопкой удаления рядом с ним, а весь список очистить кнопкой «Сбросить все». «Популярное сейчас» показывает востребованные услуги с числом бронирований, а «Популярные категории» ведут прямо в популярные категории с количеством услуг в них."
+        },
+        "tg-TJ": {
+          "q": "«Ҷустуҷӯҳои охирин» ва «Ҳоло машҳур» дар экрани ҷустуҷӯ чист?",
+          "a": "«Ҷустуҷӯҳои охирин» калимаҳоеро, ки қаблан ҷустуҷӯ кардаед, нигоҳ медорад, то онҳоро бо як пахш такрор кунед. Як калимаро бо тугмаи нест кардани он бардоред ё барои холӣ кардани рӯйхат «Тоза кардани ҳама»-ро пахш кунед. «Ҳоло машҳур» хидматҳои маъмулро бо шумораи бронҳояшон нишон медиҳад ва «Категорияҳои маъмул» бевосита ба категорияҳои серталаб бо шумораи хидматҳояшон мебарад."
+        },
+        "zh-CN": {
+          "q": "搜索界面上的“最近搜索”和“当下热门”是什么？",
+          "a": "“最近搜索”会保留您之前搜索过的词，点一下即可再次搜索。可以通过删除按钮移除单个搜索词，或点击“清空全部”清空列表。“当下热门”显示热门服务及其预约次数，“热门分类”则直接链接到热门分类，并显示各分类的服务数量。"
+        },
+        "de-DE": {
+          "q": "Was sind „Letzte Suchen“ und „Gerade im Trend“ auf dem Suchbildschirm?",
+          "a": "„Letzte Suchen“ speichert Ihre früheren Suchbegriffe, sodass Sie eine Suche mit einem Tippen wiederholen können. Entfernen Sie einen einzelnen Begriff über seine Entfernen-Schaltfläche, oder tippen Sie auf „Alle löschen“, um die Liste zu leeren. „Gerade im Trend“ zeigt beliebte Leistungen mit ihrer Anzahl an Buchungen, und „Beliebte Kategorien“ führt direkt zu stark gefragten Kategorien mit der Anzahl ihrer Leistungen."
+        },
+        "fr-FR": {
+          "q": "Que sont « Recherches récentes » et « Tendances du moment » sur l’écran de recherche ?",
+          "a": "« Recherches récentes » conserve les termes que vous avez déjà recherchés, pour que vous puissiez relancer une recherche d’un simple geste. Supprimez un terme avec son bouton de suppression, ou touchez « Tout effacer » pour vider la liste. « Tendances du moment » présente les services populaires avec leur nombre de réservations, et « Catégories populaires » renvoie directement vers les catégories les plus fréquentées, avec leur nombre de services."
+        },
+        "es-ES": {
+          "q": "¿Qué son «Búsquedas recientes» y «Tendencias» en la pantalla de búsqueda?",
+          "a": "«Búsquedas recientes» guarda los términos que ha buscado antes, para que pueda repetir uno con un toque. Elimine un término concreto con su botón de quitar o toque «Borrar todo» para vaciar la lista. «Tendencias» muestra servicios populares con su número de reservas, y «Categorías populares» enlaza directamente con las categorías más visitadas y el número de servicios de cada una."
+        }
+      }
+    }
+  ]
+}

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
+import { resolveMediaUrl } from "@/features/service-providers/lib/media-url";
 
 import { addMediaAction, moderateMediaAction, removeMediaAction, reorderMediaAction } from "../../server/admin/actions";
 import type { TourBundle } from "../../server/admin/queries";
@@ -37,7 +38,7 @@ export function MediaTab({ bundle }: { bundle: TourBundle }) {
           {media.map((m, i) => (
             <li key={m.id} className="space-y-2 rounded-md border p-3" data-media-id={m.id} data-moderation={m.moderation_status}>
               {/* eslint-disable-next-line @next/next/no-img-element -- moderation must show the exact uploaded file, unoptimized */}
-              {m.kind === "image" ? <img src={m.thumbnail_url ?? m.url} alt={pickLabel(m.alt_translations, uiLocale)} className="aspect-video w-full rounded object-cover" loading="lazy" /> : (
+              {m.kind === "image" ? <img src={resolveMediaUrl(m.thumbnail_url ?? m.url)} alt={pickLabel(m.alt_translations, uiLocale)} className="aspect-video w-full rounded object-cover" loading="lazy" /> : (
                 <a href={m.url} className="block truncate text-sm underline" dir="ltr">{m.url}</a>
               )}
               <div className="flex flex-wrap items-center gap-2 text-xs">

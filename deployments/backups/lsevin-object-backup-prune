@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+# lsevin-object-backup-prune - expires old SeaweedFS object snapshots in /var/backups/lsevin/object-storage.
+#
+# The seaweedfs-object-backup CronJob also prunes, but with `find -mtime +14` on the snapshot directories. On server B the
+# directory mtimes of every snapshot were reset to 2026-10-21 (something re-touched the tree), so nothing was ever old enough
+# and 21 full copies (13 GB, ~630 MB each) piled up on a disk that Kubernetes starts evicting pods from at ~85-90 %.
+# The age is therefore taken from the snapshot NAME (<UTC stamp>Z), which cannot be changed by touching files.
+#
+# Safety: a snapshot is only removed when it is older than RETENTION_DAYS *and* at least KEEP_MIN newer snapshots exist that are
+# complete (they contain sha256.txt, which the CronJob writes last, after the copy was verified). So a run of failed backups can
+# never leave the host without a usable snapshot. DRY_RUN=1 only prints. Run daily from lsevin-object-backup-prune.timer.
+set -uo pipefail
+ROOT=${ROOT:-/var/backups/lsevin/object-storage}
+RETENTION_DAYS=${RETENTION_DAYS:-14}
+KEEP_MIN=${KEEP_MIN:-3}
+DRY_RUN=${DRY_RUN:-0}
+LOG=${LOG:-/var/log/lsevin-object-backup-prune.log}
+log() { printf '%s %s\n' "$(date -u +%FT%TZ)" "$*" | tee -a "$LOG" >&2; }
+
+[ -d "$ROOT" ] || { log "$ROOT does not exist; nothing to do"; exit 0; }
+cutoff=$(date -u -d "$RETENTION_DAYS days ago" +%Y%m%dT%H%M%SZ)
+before=$(df --output=pcent / | tail -1 | tr -dc 0-9)
+
+# complete snapshots, newest first
+mapfile -t complete < <(cd "$ROOT" && for d in ????????T??????Z; do [ -f "$d/sha256.txt" ] && echo "$d"; done | sort -r)
+[ "${#complete[@]}" -ge "$KEEP_MIN" ] || { log "only ${#complete[@]} complete snapshots (< $KEEP_MIN); nothing removed"; exit 0; }
+
+removed=0
+for d in $(cd "$ROOT" && ls -1d ????????T??????Z 2>/dev/null | sort); do
+  [[ "$d" < "$cutoff" ]] || continue
+  # count complete snapshots that are newer than this one
+  newer=0; for c in "${complete[@]}"; do [[ "$c" > "$d" ]] && newer=$((newer + 1)); done
+  [ "$newer" -ge "$KEEP_MIN" ] || { log "kept $d (only $newer newer complete snapshots)"; continue; }
+  if [ "$DRY_RUN" = 1 ]; then log "would remove $d"; else rm -rf -- "${ROOT:?}/$d" && { log "removed $d"; removed=$((removed + 1)); }; fi
+done
+log "done: removed $removed snapshot(s) older than $RETENTION_DAYS days (cutoff $cutoff, ${#complete[@]} complete kept or newer); disk ${before}% -> $(df --output=pcent / | tail -1 | tr -dc 0-9)%"

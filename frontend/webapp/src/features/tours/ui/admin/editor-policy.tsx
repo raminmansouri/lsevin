@@ -10,7 +10,7 @@ import { createPolicyVersionAction } from "../../server/admin/actions";
 import type { TourBundle } from "../../server/admin/queries";
 
 import { localeName, useAdminDates } from "./inputs";
-import { Field, LangText, NativeSelect, Section, StatusBadge, TranslationsInput, useAdminAction } from "./primitives";
+import { Field, LangText, NativeSelect, SaveBar, Section, StatusBadge, TranslationsInput, useAdminAction, useUnsavedChanges } from "./primitives";
 
 type Texts = Record<string, { cancellation?: string; rules?: string; outdated?: boolean }>;
 type TextKey = "cancellation" | "rules";
@@ -42,6 +42,11 @@ export function PolicyTab({ bundle }: { bundle: TourBundle }) {
   const [weather, setWeather] = useState<string>(latest?.weather_policy ?? "reschedule_or_refund");
   const [texts, setTexts] = useState<Texts>(latestTexts);
   const [dirty, setDirty] = useState<Set<string>>(new Set());
+  // Everything the next version would contain; differs from the saved one until "Create version" succeeds.
+  const snapshot = JSON.stringify({ rules, noShow, late, weather, texts });
+  const [savedSnapshot, setSavedSnapshot] = useState(snapshot);
+  const unsaved = snapshot !== savedSnapshot;
+  useUnsavedChanges(unsaved);
   const locales = Array.from(new Set([src, ...bundle.locales]));
   const mapOf = (key: TextKey): Record<string, string> => {
     const out: Record<string, string> = {};
@@ -70,12 +75,13 @@ export function PolicyTab({ bundle }: { bundle: TourBundle }) {
       cancellationRules: rules.map((r) => ({ hoursBefore: Number(r.hoursBefore), refundPercent: Number(r.refundPercent) })),
       noShowRefundPercent: Number(noShow || 0), lateArrivalMinutes: late ? Number(late) : null,
       weatherPolicy: weather as never, texts: sent,
-    }), { success: t("created"), onSuccess: () => setDirty(new Set()) });
+    }), { success: t("created"), onSuccess: () => { setDirty(new Set()); setSavedSnapshot(snapshot); } });
   };
   return (
     <div className="space-y-4">
       <Section id="policy-new" title={t("newTitle")} description={t("newHint")}
-        actions={<Button type="button" size="sm" disabled={pending} data-testid="create-policy" onClick={submit}>{t("create")}</Button>}>
+        actions={<Button type="button" size="sm" disabled={pending} data-testid="create-policy" onClick={submit}>{t("create")}</Button>}
+        footer={<SaveBar dirty={unsaved} pending={pending} onSave={submit} label={t("create")} testId="create-policy-bottom" />}>
         <div className="space-y-2">
           <p className="text-sm font-medium">{t("rules")}</p>
           {rules.map((r, i) => (

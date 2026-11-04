@@ -201,7 +201,7 @@ export function DesktopCategoryBrowser({
               ))}
             </nav>
 
-            <h1 className="lsd-gold-text text-[64px] font-black leading-[1.1]">{current ? current.name : t("allCategories")}</h1>
+            <div role="heading" aria-level={1} className="lsd-gold-text text-[64px] font-black leading-[1.1]">{current ? current.name : t("allCategories")}</div>
             {description ? <p className="line-clamp-2 max-w-2xl text-lg leading-8 text-white/75">{description}</p> : null}
 
             <div className="flex flex-wrap items-center gap-4 pt-2">

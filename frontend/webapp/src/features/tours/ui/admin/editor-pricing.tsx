@@ -11,7 +11,7 @@ import { saveAddonsAction, saveOptionsAction } from "../../server/admin/actions"
 import type { TourBundle } from "../../server/admin/queries";
 
 import { currencyLabel, MoneyInput, OptionSelect, useLanguageOptions } from "./inputs";
-import { Field, NativeSelect, Section, TranslationsInput, useAdminAction } from "./primitives";
+import { Field, NativeSelect, SaveBar, Section, TranslationsInput, useAdminAction, useUnsavedChanges } from "./primitives";
 
 type Labels = Record<string, string>;
 type OptionDraft = {
@@ -59,6 +59,12 @@ export function PricingTab({ bundle }: { bundle: TourBundle }) {
   })));
   const [options, setOptions] = useState<OptionDraft[]>(initialOptions);
   const [addons, setAddons] = useState<AddonDraft[]>(initialAddons);
+  // Last saved state per section; edits differ from it until that section's Save succeeds.
+  const [savedOptions, setSavedOptions] = useState(initialOptions);
+  const [savedAddons, setSavedAddons] = useState(initialAddons);
+  const optionsDirty = JSON.stringify(options) !== JSON.stringify(savedOptions);
+  const addonsDirty = JSON.stringify(addons) !== JSON.stringify(savedAddons);
+  useUnsavedChanges(optionsDirty || addonsDirty);
   const up = (i: number, patch: Partial<OptionDraft>) => setOptions(options.map((o, j) => (j === i ? { ...o, ...patch } : o)));
   const upA = (i: number, patch: Partial<AddonDraft>) => setAddons(addons.map((a, j) => (j === i ? { ...a, ...patch } : a)));
   const languageOptions = (current: string) => (current && !languages.some((l) => l.value === current) ? [...languages, { value: current, label: current }] : languages);
@@ -71,18 +77,19 @@ export function PricingTab({ bundle }: { bundle: TourBundle }) {
       label: o.labels[src]?.trim() || undefined,
       labels: changedLabels(o.labels, initialOptions.find((x) => x.code === o.code)?.labels, src),
       tiers: Object.entries(o.tiers).filter(([, v]) => String(v ?? "").trim() !== "").map(([travelerClass, amount]) => ({ travelerClass, amount: Number(amount) })),
-    }))));
+    }))), { onSuccess: () => setSavedOptions(options) });
   const saveAddons = () =>
     run(() => saveAddonsAction(core.id, src, addons.map((a) => ({
       code: a.code.trim(), pricing: a.pricing, amount: Number(a.amount), maxQty: Number(a.maxQty || 1), isActive: a.isActive,
       label: a.labels[src]?.trim() || undefined,
       labels: changedLabels(a.labels, initialAddons.find((x) => x.code === a.code)?.labels, src),
-    }))));
+    }))), { onSuccess: () => setSavedAddons(addons) });
 
   return (
     <div className="space-y-4">
       <Section id="options" title={t("options", { currency: currencyLabel(currency, locale) })} description={t("optionsHint")}
-        actions={<Button type="button" size="sm" disabled={pending} data-testid="save-options" onClick={saveOptions}>{t("save")}</Button>}>
+        actions={<Button type="button" size="sm" disabled={pending} data-testid="save-options" onClick={saveOptions}>{t("save")}</Button>}
+        footer={<SaveBar dirty={optionsDirty} pending={pending} onSave={saveOptions} label={t("save")} testId="save-options-bottom" />}>
         {options.map((o, i) => (
           <fieldset key={i} className="space-y-2 rounded-md border p-3">
             <legend className="px-1 text-sm font-medium">{o.code || t("newOption")}</legend>
@@ -120,7 +127,8 @@ export function PricingTab({ bundle }: { bundle: TourBundle }) {
       </Section>
 
       <Section id="addons" title={t("addons")}
-        actions={<Button type="button" size="sm" disabled={pending} onClick={saveAddons}>{t("save")}</Button>}>
+        actions={<Button type="button" size="sm" disabled={pending} onClick={saveAddons}>{t("save")}</Button>}
+        footer={<SaveBar dirty={addonsDirty} pending={pending} onSave={saveAddons} label={t("save")} testId="save-addons-bottom" />}>
         {addons.map((a, i) => (
           <div key={i} className="space-y-2 rounded-md border p-3">
             <div className="grid gap-2 md:grid-cols-5">

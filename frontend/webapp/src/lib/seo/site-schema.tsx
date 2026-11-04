@@ -5,7 +5,7 @@ import { JsonLd } from "./json-ld";
 // Spellings people actually search for: the Persian brand, the Arabic
 // transliteration, the Latin forms and the domain. Never add claims here
 // (ratings, accreditation, founders) that the site does not publish.
-const BRAND_ALTERNATES = ["السوین", "لسوين", "Lsevin", "L Sevin", "LSevin Care", "lsevincare.com"];
+const BRAND_ALTERNATES = ["السوین", "لسوين", "Lsevin", "L Sevin", "LSevin Care", "lsevin.com", "lsevincare.com"];
 
 /** Factual platform identity only; never invent medical credentials or ratings. */
 export function PublicSiteSchema({ locale }: { locale: string }) {

@@ -4,11 +4,16 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { getCategoryBrowserGroups } from "@/features/service-providers/actions/categories/get-category-browser-groups";
 import { CategoryBrowserClient } from "@/features/service-providers/components/categories/category-browser-client";
 import { SponsoredPlacementSlot } from "@/features/sponsered-slider/components/sponsored-placement-slot";
+import { absoluteUrl } from "@/lib/seo/alternates";
+import { breadcrumbList, graph } from "@/lib/seo/entity-schema";
+import { JsonLd } from "@/lib/seo/json-ld";
 import { buildPublicMetadata } from "@/lib/seo/metadata";
+import { seoOrigin } from "@/lib/seo/origin";
 import { getTourSettings } from "@/features/tours/server/platform/settings";
 
 import { DesktopCategoryBrowser } from "@/features/web-desktop/categories/DesktopCategoryBrowser";
 import { DesktopSponsoredSection } from "@/features/web-desktop/home/DesktopSponsoredSection";
+import { PageFaq } from "@/features/site-content/components/faq-section";
 
 
 export async function generateMetadata({
@@ -36,10 +41,19 @@ export const dynamic = "force-dynamic";
 
 export default async function CategoryBrowserPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string }>;
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const { locale } = await params;
+  // ?parent=<id> opens a category's subcategories: show that category's FAQ.
+  const rawParent = (await searchParams)?.parent;
+  const parentCandidate = Array.isArray(rawParent) ? rawParent[0] : rawParent;
+  const parentId =
+    parentCandidate && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu.test(parentCandidate)
+      ? parentCandidate
+      : null;
   setRequestLocale(locale);
 
   // A database hiccup shows an empty tree for that one request only: the page
@@ -55,8 +69,46 @@ export default async function CategoryBrowserPage({
     .then((s) => s.tourismCategoryId)
     .catch(() => null);
 
+  const pageT = await getTranslations({ locale, namespace: "CategoryBrowser" });
+  const brand = (await getTranslations({ locale, namespace: "LocaleLayout" }))("title");
+  const pageUrl = absoluteUrl(locale, "/n/app/mobile/categories");
+  // Top-level names only: the facts this page shows, no counts or claims.
+  const topCategories = data.groups
+    .flatMap((group) => group.categories)
+    .filter((category) => !category.parentId && category.name)
+    .slice(0, 50);
+
   return (
     <Suspense fallback={null}>
+      <JsonLd
+        data={graph(
+          {
+            "@type": "CollectionPage",
+            "@id": `${pageUrl}#webpage`,
+            url: pageUrl,
+            name: pageT("allCategories"),
+            inLanguage: locale,
+            isPartOf: { "@id": `${seoOrigin()}/#website` },
+            ...(topCategories.length
+              ? {
+                  mainEntity: {
+                    "@type": "ItemList",
+                    numberOfItems: topCategories.length,
+                    itemListElement: topCategories.map((category, index) => ({
+                      "@type": "ListItem",
+                      position: index + 1,
+                      name: category.name,
+                    })),
+                  },
+                }
+              : {}),
+          },
+          breadcrumbList([
+            { name: brand, url: absoluteUrl(locale, "/n/app/mobile/home") },
+            { name: pageT("allCategories"), url: pageUrl },
+          ])
+        )}
+      />
       <div className="xl:hidden">
         <CategoryBrowserClient
           categoryGroups={data.groups}
@@ -75,6 +127,11 @@ export default async function CategoryBrowserPage({
       <div className="lsd hidden pb-14 xl:block">
         <DesktopSponsoredSection locale={locale} placement="categories" />
       </div>
+      <PageFaq
+        target={parentId ? { scope: "category", entityId: parentId } : { scope: "categories" }}
+        locale={locale}
+        pageUrl={parentId ? undefined : pageUrl}
+      />
     </Suspense>
   );
 }

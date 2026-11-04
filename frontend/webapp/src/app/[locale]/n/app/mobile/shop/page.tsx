@@ -1,6 +1,10 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
+import { absoluteUrl } from "@/lib/seo/alternates";
+import { breadcrumbList, graph } from "@/lib/seo/entity-schema";
+import { JsonLd } from "@/lib/seo/json-ld";
 import { buildPublicMetadata } from "@/lib/seo/metadata";
+import { seoOrigin } from "@/lib/seo/origin";
 import {
   getShopDefaultCurrencyCached,
 } from "@/features/shop/api/catalog.repository.cached";
@@ -12,6 +16,7 @@ import { RecentlyViewedRail } from "@/features/shop/components/RecentlyViewedRai
 import { SponsoredPlacementSlot } from "@/features/sponsered-slider/components/sponsored-placement-slot";
 
 import { DesktopShopHome } from "@/features/web-desktop/shop/DesktopShopHome";
+import { PageFaq } from "@/features/site-content/components/faq-section";
 
 /** Request-specific currency comes from the layout; catalog data remains cached. */
 export const dynamic = "force-dynamic";
@@ -66,9 +71,31 @@ export default async function ShopHomePage({ params }: { params: Promise<{ local
     { items: [], total: 0, page: 1, pageSize: 20 },
   );
 
+  const shopUrl = absoluteUrl(locale, "/n/app/mobile/shop");
+  const brand = (await getTranslations({ locale, namespace: "LocaleLayout" }))("title");
+
   return (
     <>
+    <JsonLd
+      data={graph(
+        {
+          "@type": "CollectionPage",
+          "@id": `${shopUrl}#webpage`,
+          url: shopUrl,
+          name: t("title"),
+          inLanguage: locale,
+          isPartOf: { "@id": `${seoOrigin()}/#website` },
+        },
+        breadcrumbList([
+          { name: brand, url: absoluteUrl(locale, "/n/app/mobile/home") },
+          { name: t("title"), url: shopUrl },
+        ])
+      )}
+    />
     <div className="min-h-screen bg-neutral-50 pb-24 xl:hidden">
+      {/* The header shows the brand bar, not a heading; the mobile view (the one
+          Google indexes) still needs the page's h1. */}
+      <h1 className="sr-only">{t("title")}</h1>
       <ShopHeader currency={home.currency} selectableCurrencies={home.selectableCurrencies} />
 
       <div className="space-y-1 bg-white pb-2">
@@ -91,6 +118,7 @@ export default async function ShopHomePage({ params }: { params: Promise<{ local
       </section>
     </div>
     <DesktopShopHome locale={locale} sections={home.sections} feed={feed.items} />
+    <PageFaq target={{ scope: "app", entityKey: "shop" }} locale={locale} pageUrl={shopUrl} />
     </>
   );
 }

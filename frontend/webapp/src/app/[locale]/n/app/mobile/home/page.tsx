@@ -36,6 +36,10 @@ import { countActiveSpecialPackages } from '@/features/special-packages/server/r
 import { LANDING_CATEGORY_LIMIT } from "@/features/categories/constants";
 
 import { DesktopHome } from "@/features/web-desktop/home/DesktopHome";
+import { EnamadSeal } from "@/components/trust/enamad-seal";
+import { absoluteUrl } from "@/lib/seo/alternates";
+import { FaqSection } from "@/features/site-content/components/faq-section";
+import { SiteLinks } from "@/features/site-content/components/site-links";
 
 // Static / ISR — the landing page shell no longer reads the visitor's location
 // or profile on the server; see `Home` below.
@@ -514,18 +518,14 @@ async function Home({ params }: PageProps) {
       <SponsoredMediaCarouselSection locale={locale} placement="home_bottom" />
 
 
+<SiteLinks locale={locale} />
 <div className="container" style={{  
   display:'flex',
   justifyContent:'center',
   alignItems:'center',
   marginBottom:'37px'}}>
     
-      {/* Enamad verifies the seal through the Referer, so no rel="noreferrer". */}
-      <a referrerPolicy='origin' target='_blank' rel='noopener'
-      href='https://trustseal.enamad.ir/?id=7764782&Code=XcQgNRMRzN92gDmZbf8t5GMh1mtctW9d'>
-        <img referrerPolicy='origin' src='https://trustseal.enamad.ir/logo.aspx?id=7764782&Code=XcQgNRMRzN92gDmZbf8t5GMh1mtctW9d'
-        alt={labels.common.trustSeal} style={{cursor:"pointer"}} {...{ code: 'XcQgNRMRzN92gDmZbf8t5GMh1mtctW9d' }} />
-      </a>
+      <EnamadSeal alt={labels.common.trustSeal} />
    </div>
     </div>
     <DesktopHome
@@ -603,6 +603,10 @@ async function Home({ params }: PageProps) {
         sponsoredBottom: <SponsoredMediaCarouselSection locale={locale} placement="home_bottom" />,
       }}
     />
+    {/* One FAQ block for both layouts (a single FAQPage node per page). */}
+    <div className="mx-auto max-w-3xl px-4 pb-10 xl:py-16">
+      <FaqSection target={{ scope: "home" }} locale={locale} pageUrl={absoluteUrl(locale, "/n/app/mobile/home")} />
+    </div>
     </>
   );
 }
