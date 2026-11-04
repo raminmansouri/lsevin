@@ -13784,7 +13784,23 @@
     "returnSubmitted": "Дархости баргардонидан фиристода шуд — мо онро ба зудӣ баррасӣ мекунем.",
     "returnsHeading": "Баргардониданҳо",
     "returnStatusLabel": "Ҳолат",
-    "qty": "Миқдор"
+    "qty": "Миқдор",
+    "sellerOffers": {
+      "soldBy": "Sold by {name}",
+      "title": "Sellers of this product ({count})",
+      "best": "Best offer",
+      "shipsIn": "Ships in {days} business days",
+      "shipsToday": "Ships today",
+      "outOfStock": "Out of stock",
+      "add": "Add",
+      "others": "{count} other sellers"
+    },
+    "sellerPage": {
+      "products": "{count} products",
+      "yearsOnSite": "{count}+ years on L Sevin",
+      "newSeller": "New on L Sevin"
+    },
+    "sellers": "{count} sellers"
   },
   "Footer": {
     "columns": {

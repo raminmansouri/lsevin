@@ -360,6 +360,126 @@ export async function deleteBrand(input: { id: string }): Promise<void> {
   await sql`update shop.brands set deleted_at = now(), is_active = false where id = ${input.id}::uuid`;
 }
 
+
+
+
+// ======================================================================
+// Sellers (marketplace): who sells an offer. The default seller holds the
+// offers backfilled from the old single-seller catalogue, so it stays active.
+// ======================================================================
+export async function upsertSeller(input: {
+  id?: string;
+  slug: string;
+  nameTranslations: Record<string, string>;
+  warrantyTranslations: Record<string, string>;
+  descriptionTranslations?: Record<string, string>;
+  logoUrl?: string | null;
+  phone?: string | null;
+  email?: string | null;
+  isActive: boolean;
+}): Promise<string> {
+  await assertShopPermission(SHOP_PERMISSIONS.catalogManage);
+  if (input.id) {
+    await sql`
+      update shop.sellers set slug = ${input.slug}, name_translations = ${j(input.nameTranslations)},
+        warranty_translations = ${j(input.warrantyTranslations)},
+        description_translations = ${j(input.descriptionTranslations ?? {})}, logo_url = ${input.logoUrl ?? null},
+        phone = ${input.phone ?? null}, email = ${input.email ?? null},
+        is_active = case when is_default then true else ${input.isActive} end,
+        last_modified_date = now()
+      where id = ${input.id}::uuid and deleted_at is null
+    `;
+    return input.id;
+  }
+  const [row] = await sql<{ id: string }[]>`
+    insert into shop.sellers (slug, name_translations, warranty_translations, description_translations, logo_url, phone, email, is_active)
+    values (${input.slug}, ${j(input.nameTranslations)}, ${j(input.warrantyTranslations)}, ${j(input.descriptionTranslations ?? {})}, ${input.logoUrl ?? null},
+      ${input.phone ?? null}, ${input.email ?? null}, ${input.isActive})
+    returning id::text as id
+  `;
+  return row.id;
+}
+
+export async function deleteSeller(input: { id: string }): Promise<void> {
+  await assertShopPermission(SHOP_PERMISSIONS.catalogManage);
+  const [row] = await sql<{ is_default: boolean }[]>`select is_default from shop.sellers where id = ${input.id}::uuid`;
+  if (row?.is_default) throw new Error("The default seller cannot be archived.");
+  await sql`update shop.sellers set deleted_at = now(), is_active = false where id = ${input.id}::uuid and not is_default`;
+}
+
+
+
+
+// ======================================================================
+// Offers: one seller's price, stock and terms for one sellable item.
+// ======================================================================
+export async function upsertOffer(input: {
+  id?: string;
+  productId: string;
+  variantId?: string | null;
+  sellerId?: string;
+  sellerSku?: string | null;
+  currency: string;
+  price: number;
+  compareAtPrice?: number | null;
+  stockQuantity?: number | null;
+  handlingDays?: number | null;
+  /** Undefined keeps the stored warranty (the inline row edit doesn't send it). */
+  warrantyTranslations?: Record<string, string>;
+  isActive: boolean;
+}): Promise<string> {
+  await assertShopPermission(SHOP_PERMISSIONS.catalogManage);
+
+  if (input.id) {
+    await sql`
+      update shop.offers set
+        currency = ${input.currency}, price = ${input.price},
+        compare_at_price = ${input.compareAtPrice ?? null},
+        stock_quantity = ${input.stockQuantity ?? null},
+        handling_days = ${input.handlingDays ?? null},
+        seller_sku = coalesce(${input.sellerSku ?? null}, seller_sku),
+        warranty_translations = coalesce(${input.warrantyTranslations ? j(input.warrantyTranslations) : null}::jsonb, warranty_translations),
+        is_active = ${input.isActive}, last_modified_date = now()
+      where id = ${input.id}::uuid and product_id = ${input.productId}::uuid and deleted_at is null
+    `;
+    return input.id;
+  }
+
+  if (!input.sellerId) throw new Error("Pick a seller.");
+  if (input.variantId) {
+    const [v] = await sql`
+      select 1 from shop.product_variants
+      where id = ${input.variantId}::uuid and product_id = ${input.productId}::uuid and deleted_at is null
+    `;
+    if (!v) throw new Error("This variant does not belong to the product.");
+  }
+  try {
+    const [row] = await sql<{ id: string }[]>`
+      insert into shop.offers (product_id, variant_id, seller_id, seller_sku, currency, price, compare_at_price,
+        stock_quantity, handling_days, warranty_translations, is_active)
+      values (${input.productId}::uuid, ${input.variantId ?? null}, ${input.sellerId}::uuid, ${input.sellerSku ?? null},
+        ${input.currency}, ${input.price}, ${input.compareAtPrice ?? null}, ${input.stockQuantity ?? null},
+        ${input.handlingDays ?? null}, ${j(input.warrantyTranslations ?? {})}, ${input.isActive})
+      returning id::text as id
+    `;
+    return row.id;
+  } catch (error) {
+    if ((error as { code?: string })?.code === "23505") throw new Error("This seller already has an offer for this item.");
+    throw error;
+  }
+}
+
+export async function deleteOffer(input: { id: string; productId: string }): Promise<void> {
+  await assertShopPermission(SHOP_PERMISSIONS.catalogManage);
+  await sql`
+    update shop.offers set deleted_at = now(), is_active = false, last_modified_date = now()
+    where id = ${input.id}::uuid and product_id = ${input.productId}::uuid
+  `;
+}
+
+
+
+
 // ======================================================================
 // Home merchandising (SHP-ADM-018, SHP-API-028, SHP-DB-003)
 // ======================================================================

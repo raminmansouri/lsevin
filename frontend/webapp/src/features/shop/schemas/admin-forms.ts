@@ -26,6 +26,30 @@ export const brandFormSchema = z.object({
 });
 export type BrandFormInput = z.infer<typeof brandFormSchema>;
 
+
+
+// -- Seller (marketplace) ------------------------------------------------------
+export const sellerFormSchema = z.object({
+  id: shopId.optional(),
+  nameEn: str.min(1).max(160),
+  nameFa: str.max(160).default(""),
+  nameAr: str.max(160).default(""),
+  slug: str.min(2).max(180).regex(kebabRe, "kebab-case only"),
+  warrantyEn: str.max(300).default(""),
+  warrantyFa: str.max(300).default(""),
+  warrantyAr: str.max(300).default(""),
+  descEn: str.max(2000).default(""),
+  descFa: str.max(2000).default(""),
+  descAr: str.max(2000).default(""),
+  logoUrl: str.default(""),
+  phone: str.max(40).default(""),
+  email: str.max(160).default(""),
+  isActive: z.coerce.boolean().default(true),
+});
+export type SellerFormInput = z.infer<typeof sellerFormSchema>;
+
+
+
 // -- Category ----------------------------------------------------------------
 export const categoryFormSchema = z.object({
   id: shopId.optional(),

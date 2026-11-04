@@ -13761,7 +13761,23 @@ declare const messages: {
     "returnSubmitted": "Rückgabeantrag gesendet – wir prüfen ihn in Kürze.",
     "returnsHeading": "Rückgaben",
     "returnStatusLabel": "Status",
-    "qty": "Menge"
+    "qty": "Menge",
+    "sellerOffers": {
+      "soldBy": "Sold by {name}",
+      "title": "Sellers of this product ({count})",
+      "best": "Best offer",
+      "shipsIn": "Ships in {days} business days",
+      "shipsToday": "Ships today",
+      "outOfStock": "Out of stock",
+      "add": "Add",
+      "others": "{count} other sellers"
+    },
+    "sellerPage": {
+      "products": "{count} products",
+      "yearsOnSite": "{count}+ years on L Sevin",
+      "newSeller": "New on L Sevin"
+    },
+    "sellers": "{count} sellers"
   },
   "ShopMedia": {
     "hint": "Das erste Bild ist das Hauptbild. Änderungen bitte speichern.",

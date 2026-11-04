@@ -13904,7 +13904,23 @@
     "returnSubmitted": "Запрос на возврат отправлен — мы скоро его рассмотрим.",
     "returnsHeading": "Возвраты",
     "returnStatusLabel": "Статус",
-    "qty": "Кол-во"
+    "qty": "Кол-во",
+    "sellerOffers": {
+      "soldBy": "Sold by {name}",
+      "title": "Sellers of this product ({count})",
+      "best": "Best offer",
+      "shipsIn": "Ships in {days} business days",
+      "shipsToday": "Ships today",
+      "outOfStock": "Out of stock",
+      "add": "Add",
+      "others": "{count} other sellers"
+    },
+    "sellerPage": {
+      "products": "{count} products",
+      "yearsOnSite": "{count}+ years on L Sevin",
+      "newSeller": "New on L Sevin"
+    },
+    "sellers": "Продавцов: {count}"
   },
   "SitePages": {
     "faqTitle": "Часто задаваемые вопросы",

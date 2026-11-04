@@ -168,12 +168,19 @@ export async function receiveReturn(input: { id: string; restock: boolean }) {
     if (rr.status !== "approved") throw new Error(`Return must be approved first (status: ${rr.status}).`);
 
     const items = await tx<any[]>`
-      select ri.quantity, oi.product_id, oi.variant_id
+      select ri.quantity, oi.product_id, oi.variant_id, oi.offer_id::text as offer_id,
+        (oi.offer_id is not null and o.stock_quantity is not null) as seller_stock
       from shop.return_items ri join shop.order_items oi on oi.id = ri.order_item_id
+      left join shop.offers o on o.id = oi.offer_id
       where ri.return_request_id = ${input.id}::uuid
     `;
     if (input.restock) {
       for (const it of items) {
+        // A returned seller-stock item goes back to that seller's offer.
+        if (it.seller_stock) {
+          await tx`update shop.offers set stock_quantity = stock_quantity + ${it.quantity}, last_modified_date = now() where id = ${it.offer_id}::uuid`;
+          continue;
+        }
         const [inv] = await tx<{ id: string }[]>`
           select i.id::text as id from shop.inventory i
           where (${it.variant_id}::uuid is not null and i.variant_id = ${it.variant_id}::uuid)

@@ -406,20 +406,25 @@ export async function placeOrder(
         p.name_translations as "nameTr",
         common.get_translation_t(v.title_translations, ${lang}, 'en') as "variantEn",
         v.title_translations as "variantTr", v.sku,
-        coalesce(v.price, p.base_price)::float as "sourceUnitPrice",
-        coalesce(v.currency, p.base_currency) as "sourceCurrency",
-        coalesce(v.compare_at_price, p.compare_at_price)::float as "sourceCompareAt",
-        coalesce(v.allow_backorder, p.allow_backorder) as "allowBackorder",
+        ci.offer_id::text as "offerId", o.seller_id::text as "sellerId", s.name_translations as "sellerNameTr",
+        o.stock_quantity as "offerStock",
+        coalesce(o.price, v.price, p.base_price)::float as "sourceUnitPrice",
+        coalesce(o.currency, v.currency, p.base_currency) as "sourceCurrency",
+        (case when o.id is not null then o.compare_at_price else coalesce(v.compare_at_price, p.compare_at_price) end)::float as "sourceCompareAt",
+        (coalesce(o.allow_backorder, false) or coalesce(v.allow_backorder, p.allow_backorder)) as "allowBackorder",
         coalesce(v.is_preorder, p.is_preorder) as "isPreorder",
         coalesce(v.preorder_limit, p.preorder_limit) as "preorderLimit",
         coalesce(v.preorder_release_at, p.preorder_release_at)::text as "preorderReleaseAt",
-        (p.status = 'active' and p.deleted_at is null) as "productActive",
+        (p.status = 'active' and p.deleted_at is null
+          and (ci.offer_id is null or (o.id is not null and o.deleted_at is null and o.is_active and s.is_active and s.deleted_at is null))) as "productActive",
         coalesce((
           select url from shop.product_media where product_id = p.id order by is_primary desc, display_order asc limit 1
         ), null) as "imageUrl"
       from shop.cart_items ci
       join shop.products p on p.id = ci.product_id
       left join shop.product_variants v on v.id = ci.variant_id
+      left join shop.offers o on o.id = ci.offer_id
+      left join shop.sellers s on s.id = o.seller_id
       where ci.cart_id = ${input.cartId}::uuid and ci.saved_for_later = false
       order by ci.create_date asc
     `;
@@ -450,6 +455,17 @@ export async function placeOrder(
         continue;
       }
       if (l.allowBackorder) continue;
+      // An offer that keeps its own stock (a marketplace seller) is drawn down here, atomically;
+      // the shop inventory below is for offers without their own stock (the default seller).
+      if (l.offerStock != null) {
+        const taken = await tx<{ id: string }[]>`
+          update shop.offers set stock_quantity = stock_quantity - ${l.quantity}, last_modified_date = now()
+          where id = ${l.offerId}::uuid and stock_quantity >= ${l.quantity}
+          returning id::text as id
+        `;
+        if (!taken[0]) throw new Error(`Not enough stock for "${l.nameEn}".`);
+        continue;
+      }
       const reserved = await tx<{ id: string }[]>`
         update shop.inventory
         set reserved = reserved + ${l.quantity}, last_modified_date = now()
@@ -538,17 +554,19 @@ export async function placeOrder(
           order_id, product_id, variant_id, sku, quantity, currency,
           unit_price_snapshot, compare_at_price_snapshot, discount_total_snapshot, tax_total_snapshot, line_total_snapshot,
           product_name_snapshot, variant_name_snapshot, attributes_snapshot, image_url_snapshot,
-          source_currency, source_unit_price, display_currency, fx_applied_rate, is_preorder
+          source_currency, source_unit_price, display_currency, fx_applied_rate, is_preorder,
+          offer_id, seller_id, seller_name_snapshot
         ) values (
           ${order.id}::uuid, ${l.productId}::uuid, ${l.variantId ?? null}::uuid, ${l.sku ?? null}, ${l.quantity}, ${quote.currency},
           ${unit}, ${p.compareAtPrice && !p.compareAtPrice.unavailable ? p.compareAtPrice.amount : null}, 0, 0, ${lineTotal},
           ${l.nameTr ?? sql.json({ en: l.nameEn })}, ${l.variantTr ?? sql.json({})}, ${sql.json({})}, ${l.imageUrl ?? null},
-          ${l.sourceCurrency}, ${Number(l.sourceUnitPrice)}, ${quote.currency}, ${p.price.appliedRate}, ${Boolean(l.isPreorder)}
+          ${l.sourceCurrency}, ${Number(l.sourceUnitPrice)}, ${quote.currency}, ${p.price.appliedRate}, ${Boolean(l.isPreorder)},
+          ${l.offerId ?? null}::uuid, ${l.sellerId ?? null}::uuid, ${l.sellerNameTr ?? sql.json({})}
         )
       `;
       // trace reservation to the order (SHP-INV / SHP-V03-002) — preorder lines
       // hold no physical stock, so there is nothing to trace.
-      if (!l.isPreorder) {
+      if (!l.isPreorder && l.offerStock == null) {
         await tx`
           insert into shop.inventory_movements (inventory_id, movement_type, quantity, reference_type, reference_id, note)
           select i.id, 'reservation', ${l.quantity}, 'shop.order', ${order.id}::uuid, ${"reserved at checkout " + orderNumber}

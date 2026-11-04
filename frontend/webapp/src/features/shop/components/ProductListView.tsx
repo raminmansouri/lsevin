@@ -24,7 +24,7 @@ export async function ProductListView({
   locale: string;
   basePath: string;
   searchParams: SearchParams;
-  fixed?: { category?: string; q?: string };
+  fixed?: { category?: string; q?: string; seller?: string };
   heading?: string;
   /** Brand facet for the filter bar (SHP-V02-005). Omit to hide the brand row. */
   brands?: Array<{ slug: string; name: string; productCount: number }>;
@@ -49,6 +49,7 @@ export async function ProductListView({
     {
       q,
       category: fixed?.category,
+      seller: fixed?.seller,
       brand,
       sort,
       page,

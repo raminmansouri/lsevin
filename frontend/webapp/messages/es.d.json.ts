@@ -13764,7 +13764,23 @@ declare const messages: {
     "returnSubmitted": "Solicitud de devolución enviada. La revisaremos en breve.",
     "returnsHeading": "Devoluciones",
     "returnStatusLabel": "Estado",
-    "qty": "Cant."
+    "qty": "Cant.",
+    "sellerOffers": {
+      "soldBy": "Sold by {name}",
+      "title": "Sellers of this product ({count})",
+      "best": "Best offer",
+      "shipsIn": "Ships in {days} business days",
+      "shipsToday": "Ships today",
+      "outOfStock": "Out of stock",
+      "add": "Add",
+      "others": "{count} other sellers"
+    },
+    "sellerPage": {
+      "products": "{count} products",
+      "yearsOnSite": "{count}+ years on L Sevin",
+      "newSeller": "New on L Sevin"
+    },
+    "sellers": "{count} sellers"
   },
   "ShopMedia": {
     "hint": "La primera imagen es la principal. Guarda para aplicar los cambios.",
