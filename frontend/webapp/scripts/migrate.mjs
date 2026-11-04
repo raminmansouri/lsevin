@@ -87,6 +87,16 @@ async function ensureRegistry(sql) {
   `;
 }
 
+// Both sites insert and SymmetricDS copies rows both ways, so each site keeps its
+// auto-numbers in its own range (0088_align_sequences_per_site.sql). Runs on every
+// deploy: tables added since, or rows replicated ahead of a sequence, are fixed here.
+async function alignSequences(sql) {
+  const [{ fn }] = await sql`select to_regprocedure('public.lsevin_align_sequences()') is not null as fn`;
+  if (!fn) return;
+  const [{ changed }] = await sql`select public.lsevin_align_sequences() as changed`;
+  console.log(`sequences aligned for this site: ${changed} moved`);
+}
+
 async function main() {
   const migrations = loadMigrations();
   if (!migrations.length) {
@@ -160,6 +170,7 @@ async function main() {
 
     if (!pending.length) {
       console.log(`Up to date — ${migrations.length} migration(s) already applied.`);
+      if (!isDryRun) await alignSequences(sql);
       return;
     }
 
@@ -200,13 +211,7 @@ async function main() {
         console.log(`  done in ${Date.now() - startedAt}ms`);
       }
 
-      // New tables get sequences starting at 1 on both sites; keep them in this site's
-      // range so replicated rows never collide (0088_align_sequences_per_site.sql).
-      const [{ fn }] = await sql`select to_regprocedure('public.lsevin_align_sequences()') is not null as fn`;
-      if (fn) {
-        const [{ changed }] = await sql`select public.lsevin_align_sequences() as changed`;
-        console.log(`\nsequences aligned for this site: ${changed} moved`);
-      }
+      await alignSequences(sql);
     } finally {
       await sql`select pg_advisory_unlock(${ADVISORY_LOCK_ID})`;
     }
