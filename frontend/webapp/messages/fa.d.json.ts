@@ -16207,7 +16207,10 @@ declare const messages: {
     "sellerPage": {
       "products": "{count} کالا",
       "yearsOnSite": "+{count} سال در السوین",
-      "newSeller": "فروشندهٔ تازه در السوین"
+      "newSeller": "فروشندهٔ تازه در السوین",
+      "eyebrow": "بوتیک",
+      "productsLabel": "کالاها",
+      "warrantyTitle": "ضمانت فروشنده"
     }
   },
   "ShopAdmin": {

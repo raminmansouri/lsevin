@@ -14362,7 +14362,10 @@ declare const messages: {
     "sellerPage": {
       "products": "{count} منتج",
       "yearsOnSite": "+{count} سنة على السوين",
-      "newSeller": "بائع جديد على السوين"
+      "newSeller": "بائع جديد على السوين",
+      "eyebrow": "بوتيك",
+      "productsLabel": "المنتجات",
+      "warrantyTitle": "ضمان البائع"
     }
   },
   "ShopAdmin": {

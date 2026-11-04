@@ -13778,7 +13778,10 @@ declare const messages: {
     "sellerPage": {
       "products": "{count} products",
       "yearsOnSite": "{count}+ years on L Sevin",
-      "newSeller": "New on L Sevin"
+      "newSeller": "New on L Sevin",
+      "eyebrow": "BOUTIQUE",
+      "productsLabel": "PRODUCTS",
+      "warrantyTitle": "Seller's guarantee"
     },
     "sellers": "{count} sellers"
   },

@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { Package, ShieldCheck, Sparkles, Store } from "lucide-react";
+import { ShieldCheck, Store } from "lucide-react";
 
 import { getCartView } from "@/features/shop/api/cart.repository";
 import { getShopSellerBySlug } from "@/features/shop/api/catalog.repository";
@@ -37,6 +37,7 @@ export default async function ShopSellerPage({
   const labels = {
     products: t("products", { count: seller.productCount }),
     tenure: years >= 1 ? t("yearsOnSite", { count: years }) : t("newSeller"),
+    warrantyTitle: t("warrantyTitle"),
   };
 
   return (
@@ -49,38 +50,34 @@ export default async function ShopSellerPage({
         back="/n/app/mobile/shop"
       />
 
-      {/* Mobile header */}
+      {/* Mobile header: one slim deep-green card */}
       <section className="px-4 pt-4 xl:hidden">
-        <div className="overflow-hidden rounded-3xl bg-white ring-1 ring-neutral-200">
-          <div className="h-16 bg-gradient-to-br from-[#0f5a45] via-[#083f30] to-[#062a20]" />
-          <div className="-mt-8 px-4 pb-4">
-            <span className="grid h-16 w-16 place-items-center overflow-hidden rounded-full bg-[#083f30] text-xl font-black text-[#eacb7f] ring-4 ring-white">
-              {seller.logoUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={seller.logoUrl} alt="" className="h-full w-full object-cover" />
-              ) : (
-                seller.name.charAt(0) || <Store size={22} />
-              )}
-            </span>
-            <h1 className="mt-2 text-lg font-black text-neutral-900">{seller.name}</h1>
-            <div className="mt-2 flex flex-wrap gap-2 text-xs">
-              <span className="flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 font-semibold text-[#0f5a45]">
-                <Package size={13} />
-                {labels.products}
-              </span>
-              <span className="flex items-center gap-1 rounded-full bg-amber-50 px-2.5 py-1 font-semibold text-amber-800">
-                <Sparkles size={13} />
-                {labels.tenure}
-              </span>
+        <div className="relative overflow-hidden rounded-3xl bg-[#062a20] p-4 text-white">
+          <div className="pointer-events-none absolute -end-12 -top-16 h-40 w-40 rounded-full bg-[radial-gradient(circle,rgba(234,203,127,0.2),transparent_65%)]" />
+          <div className="relative flex items-center gap-3">
+            <div className="h-14 w-14 shrink-0 rounded-full border border-[#eacb7f]/50 p-1">
+              <div className="grid h-full w-full place-items-center overflow-hidden rounded-full bg-gradient-to-b from-[#0f5a45] to-[#083f30]">
+                {seller.logoUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={seller.logoUrl} alt="" className="h-full w-full object-cover" />
+                ) : (
+                  <Store size={22} className="text-[#eacb7f]" />
+                )}
+              </div>
             </div>
-            {seller.description ? <p className="mt-3 text-sm leading-6 text-neutral-600">{seller.description}</p> : null}
-            {seller.warranty ? (
-              <p className="mt-3 flex items-start gap-2 rounded-xl bg-neutral-50 p-3 text-xs leading-5 text-neutral-700">
-                <ShieldCheck size={15} className="mt-0.5 shrink-0 text-[#0f5a45]" />
-                {seller.warranty}
-              </p>
-            ) : null}
+            <div className="min-w-0 flex-1">
+              <p className="text-[10px] font-bold tracking-[0.15em] text-[#eacb7f]">{labels.tenure}</p>
+              <h1 className="truncate text-lg font-black text-[#eacb7f]">{seller.name}</h1>
+              <p className="text-xs text-white/70">{labels.products}</p>
+            </div>
           </div>
+          {seller.description ? <p className="relative mt-3 line-clamp-2 text-xs leading-5 text-white/65">{seller.description}</p> : null}
+          {seller.warranty ? (
+            <p className="relative mt-3 flex items-start gap-2 rounded-xl bg-white/5 px-3 py-2 text-[11px] leading-5 text-white/75 ring-1 ring-[#eacb7f]/20">
+              <ShieldCheck size={14} className="mt-0.5 shrink-0 text-[#eacb7f]" />
+              {seller.warranty}
+            </p>
+          ) : null}
         </div>
       </section>
 
