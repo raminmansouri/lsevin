@@ -174,6 +174,34 @@ suite("tours admin panel (real database)", () => {
     }
   });
 
+  it("audit rows replicated from the other site ahead of this site's sequence do not break admin saves (2026-11-04 regression)", async () => {
+    const admin = adminActor((await seedUser(sql)).id);
+    const slug = `seq-${randomUUID().slice(0, 8)}`;
+    const dest = await catalogAdmin.upsertDestination(admin, { slug, names: { "fa-IR": "مقصد" }, timezone: "Asia/Tehran" });
+    // What SymmetricDS left on B: rows copied from A that already use the next numbers of B's sequence.
+    const [{ next }] = await sql<{ next: string }[]>`select nextval('tour.audit_log_id_seq')::text as next`;
+    for (let i = 0; i < 3; i++) {
+      await sql`insert into tour.audit_log (id, actor_scope, entity_type, entity_id, action, detail)
+                values (${Number(next) + i}, 'admin', 'destination', ${dest.id}::uuid, 'replicated', '{}'::jsonb)`;
+    }
+    await sql`select setval('tour.audit_log_id_seq', ${Number(next)}::bigint)`;
+    const edit = () => catalogAdmin.upsertDestination(admin, { id: dest.id, slug, names: { "fa-IR": "مقصد ویرایش‌شده" }, timezone: "Asia/Tehran" });
+    // Reproduces the production failure ("این مورد قبلاً وجود دارد").
+    await expect(edit()).rejects.toMatchObject({ kind: "conflict", code: "duplicate" });
+
+    // The migration runner aligns sequences after every migration batch.
+    await sql`select public.lsevin_align_sequences()`;
+    await edit();
+    await edit();
+    const [row] = await sql<{ name: string }[]>`select name_translations->>'fa-IR' as name from tour.destinations where id = ${dest.id}::uuid`;
+    expect(row.name).toBe("مقصد ویرایش‌شده");
+    const [{ n }] = await sql<{ n: number }[]>`select count(*)::int as n from tour.audit_log where entity_id = ${dest.id}::uuid and action = 'updated'`;
+    expect(n).toBe(2);
+    // Running it again changes nothing (it never moves a sequence backwards).
+    const [{ changed }] = await sql<{ changed: number }[]>`select public.lsevin_align_sequences() as changed`;
+    expect(changed).toBe(0);
+  });
+
   it("settings: validation rejects invalid combinations; a valid save persists, is audited and invalidates the cache", async () => {
     const current = await settingsMod.getTourSettings({ fresh: true });
     const bad: [Record<string, unknown>, string][] = [

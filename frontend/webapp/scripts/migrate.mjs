@@ -199,6 +199,14 @@ async function main() {
 
         console.log(`  done in ${Date.now() - startedAt}ms`);
       }
+
+      // New tables get sequences starting at 1 on both sites; keep them in this site's
+      // range so replicated rows never collide (0088_align_sequences_per_site.sql).
+      const [{ fn }] = await sql`select to_regprocedure('public.lsevin_align_sequences()') is not null as fn`;
+      if (fn) {
+        const [{ changed }] = await sql`select public.lsevin_align_sequences() as changed`;
+        console.log(`\nsequences aligned for this site: ${changed} moved`);
+      }
     } finally {
       await sql`select pg_advisory_unlock(${ADVISORY_LOCK_ID})`;
     }
