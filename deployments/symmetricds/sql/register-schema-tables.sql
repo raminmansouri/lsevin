@@ -31,7 +31,9 @@ from sym_trigger_router r cross join _tbl tbl where r.trigger_id='tour__departur
 insert into sym_conflict
 select (jsonb_populate_record(null::sym_conflict, to_jsonb(c) || jsonb_build_object(
    'conflict_id',:'schema'||'_'||u.table_name||(case when c.source_node_group_id='client' then '_c' else '_s' end),
-   'target_schema_name',:'schema','target_table_name',u.table_name,'create_time',now(),'last_update_time',now()))).*
+   'target_schema_name',:'schema','target_table_name',u.table_name,
+   -- the template (tour.departures) detects by last_modified_date; these tables carry updated_at (that is what _upd selects on)
+   'detect_expression','updated_at','create_time',now(),'last_update_time',now()))).*
 from sym_conflict c cross join _upd u
 where c.target_schema_name='tour' and c.target_table_name='departures';
 
