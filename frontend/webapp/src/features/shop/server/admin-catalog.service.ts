@@ -402,9 +402,18 @@ export async function upsertSeller(input: {
 
 export async function deleteSeller(input: { id: string }): Promise<void> {
   await assertShopPermission(SHOP_PERMISSIONS.catalogManage);
-  const [row] = await sql<{ is_default: boolean }[]>`select is_default from shop.sellers where id = ${input.id}::uuid`;
-  if (row?.is_default) throw new Error("The default seller cannot be archived.");
-  await sql`update shop.sellers set deleted_at = now(), is_active = false where id = ${input.id}::uuid and not is_default`;
+  const [row] = await sql<{ live: number }[]>`
+    select count(*)::int as live from shop.offers
+    where seller_id = ${input.id}::uuid and deleted_at is null and is_active
+  `;
+  if ((row?.live ?? 0) > 0) {
+    throw new Error("This seller still has active products. Move them to another seller or remove them first.");
+  }
+  await sql`
+    update shop.sellers
+       set deleted_at = now(), is_active = false, is_default = false, last_modified_date = now()
+     where id = ${input.id}::uuid
+  `;
 }
 
 

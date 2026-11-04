@@ -63,7 +63,9 @@ export default async function AdminSellersPage({ searchParams }: { searchParams:
                     </span>
                   </td>
                   <td className="px-4 py-3 text-right">
-                    {s.is_default ? null : (
+                    {s.offer_count > 0 ? (
+                      <span className="text-xs text-gray-400" title={t("sellers.deleteBlocked")}>{t("sellers.archive")}</span>
+                    ) : (
                       <ShopDeleteButton
                         action={deleteSellerAction.bind(null, { id: s.id })}
                         title={`${t("sellers.archive")} — ${s.name}`}

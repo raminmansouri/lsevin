@@ -16769,7 +16769,7 @@ declare const messages: {
       "warrantyHint": "This seller's default warranty text; each offer can set its own.",
       "logo": "Logo",
       "save": "Save seller",
-      "archive": "Archive",
+      "archive": "Delete",
       "noSellers": "No sellers yet.",
       "colSeller": "Seller",
       "colOffers": "Active offers",
@@ -16778,7 +16778,8 @@ declare const messages: {
       "defaultHint": "The default seller is always active.",
       "descEn": "Description (English)",
       "descFa": "Description (Persian)",
-      "descAr": "Description (Arabic)"
+      "descAr": "Description (Arabic)",
+      "deleteBlocked": "This seller still has active products; move or remove them first."
     },
     "offers": {
       "title": "Sellers of this product",
