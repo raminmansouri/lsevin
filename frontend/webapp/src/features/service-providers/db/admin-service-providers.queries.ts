@@ -215,6 +215,8 @@ export type AdminProviderStaff = {
   profileImageUrl: string | null;
   notes: JsonTranslations;
   isActive: boolean;
+  /** Position on the provider's page (1 = first); 0 = no position set. */
+  displayOrder: number;
 };
 
 export type AdminProviderCommentReply = {
@@ -1127,11 +1129,15 @@ async function getProviderStaff(
       nullif(${translated(sql`s.title_translations`, locale)}, '') as "staffTitle",
       s.profile_image_url as "profileImageUrl",
       ${safeJsonObject(sql`psf.notes_translations`)} as notes,
-      psf.is_active as "isActive"
+      psf.is_active as "isActive",
+      psf.display_order as "displayOrder"
     from category.provider_staffs psf
     join category.staff s on s.id = psf.staff_id
     where psf.service_provider_id = ${serviceProviderId}
-    order by psf.is_active desc, "staffName"
+    -- Same order as the provider's page: placed specialists (1, 2, …) first, then the rest.
+    order by psf.is_active desc,
+      case when psf.display_order > 0 then 0 else 1 end, psf.display_order,
+      "staffName"
   `;
   return rows.map((row) => ({
     ...row,

@@ -1519,7 +1519,10 @@
     "yearToDate": "Аз аввали сол",
     "yes": "Ҳа",
     "youHaveUnsavedChangesDonTForgetToSaveYourSettings": "Шумо тағйироти нигоҳдошванашуда доред. Нигоҳ доштани танзимотро фаромӯш накунед.",
-    "zipCode": "Индекси почта"
+    "zipCode": "Индекси почта",
+    "staffOrder": "Order",
+    "staffOrderHint": "1 = first on the provider's page; 0 = no position",
+    "staffOrderSaved": "Order saved"
   },
   "AvailabilityAdmin": {
     "confirm": {

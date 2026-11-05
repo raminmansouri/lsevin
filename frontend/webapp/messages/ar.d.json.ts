@@ -2663,7 +2663,10 @@ declare const messages: {
     },
     "internationalPriceMultiplier": "معامل السعر الدولي",
     "internationalPriceMultiplierPlaceholder": "مثلاً ٣",
-    "internationalPriceMultiplierHint": "السعر الدولي = السعر المحوّل × هذا المعامل. اتركه فارغًا لاستخدام القيمة الافتراضية."
+    "internationalPriceMultiplierHint": "السعر الدولي = السعر المحوّل × هذا المعامل. اتركه فارغًا لاستخدام القيمة الافتراضية.",
+    "staffOrder": "Order",
+    "staffOrderHint": "1 = first on the provider's page; 0 = no position",
+    "staffOrderSaved": "Order saved"
   },
   "HomeHero": {
     "title": "الصحة والجمال بلا حدود، كل شيء في مكان واحد",

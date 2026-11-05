@@ -1740,7 +1740,10 @@
     "yearToDate": "年初至今",
     "yes": "是",
     "youHaveUnsavedChangesDonTForgetToSaveYourSettings": "您有未保存的更改，别忘了保存设置。",
-    "zipCode": "邮政编码"
+    "zipCode": "邮政编码",
+    "staffOrder": "Order",
+    "staffOrderHint": "1 = first on the provider's page; 0 = no position",
+    "staffOrderSaved": "Order saved"
   },
   "AdminLazySelect": {
     "emptyText": "未找到选项。",

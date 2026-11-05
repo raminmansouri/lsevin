@@ -2308,7 +2308,10 @@ declare const messages: {
     "renderedOn": "نمایش در",
     "duplicateProvider": "ایجاد نسخه مشابه",
     "serviceProviderDuplicated": "نسخه مشابه ارائه‌دهنده ساخته شد",
-    "duplicateServiceProviderConfirm": "از «{name}» یک نسخه مشابه ساخته شود؟"
+    "duplicateServiceProviderConfirm": "از «{name}» یک نسخه مشابه ساخته شود؟",
+    "staffOrder": "ترتیب",
+    "staffOrderHint": "۱ = اول در صفحهٔ مرکز؛ ۰ = بدون ترتیب",
+    "staffOrderSaved": "ترتیب ذخیره شد"
   },
   "HomeHero": {
     "title": "سلامت و زیبایی بی‌مرز، همه‌چیز در یک جا",

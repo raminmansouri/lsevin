@@ -4542,7 +4542,10 @@ declare const messages: {
     "yearToDate": "Acumulado del año",
     "yes": "Sí",
     "youHaveUnsavedChangesDonTForgetToSaveYourSettings": "Tienes cambios sin guardar. No olvides guardar la configuración.",
-    "zipCode": "Código postal"
+    "zipCode": "Código postal",
+    "staffOrder": "Order",
+    "staffOrderHint": "1 = first on the provider's page; 0 = no position",
+    "staffOrderSaved": "Order saved"
   },
   "AdminLazySelect": {
     "emptyText": "No se encontraron opciones.",

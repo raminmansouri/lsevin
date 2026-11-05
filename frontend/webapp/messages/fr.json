@@ -4536,7 +4536,10 @@
     "yearToDate": "Depuis le début de l'année",
     "yes": "Oui",
     "youHaveUnsavedChangesDonTForgetToSaveYourSettings": "Vous avez des modifications non enregistrées. N'oubliez pas d'enregistrer vos paramètres.",
-    "zipCode": "Code postal"
+    "zipCode": "Code postal",
+    "staffOrder": "Order",
+    "staffOrderHint": "1 = first on the provider's page; 0 = no position",
+    "staffOrderSaved": "Order saved"
   },
   "AdminLazySelect": {
     "emptyText": "Aucune option trouvée.",

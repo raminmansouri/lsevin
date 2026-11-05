@@ -4646,7 +4646,10 @@ declare const messages: {
     "yearToDate": "Yıl başından bugüne",
     "yes": "Evet",
     "youHaveUnsavedChangesDonTForgetToSaveYourSettings": "Kaydedilmemiş değişiklikleriniz var. Ayarlarınızı kaydetmeyi unutmayın.",
-    "zipCode": "Posta Kodu"
+    "zipCode": "Posta Kodu",
+    "staffOrder": "Order",
+    "staffOrderHint": "1 = first on the provider's page; 0 = no position",
+    "staffOrderSaved": "Order saved"
   },
   "AdminLazySelect": {
     "emptyText": "Seçenek bulunamadı.",

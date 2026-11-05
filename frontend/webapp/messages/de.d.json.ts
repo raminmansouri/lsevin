@@ -4539,7 +4539,10 @@ declare const messages: {
     "primaryButtonURL": "URL der primären Schaltfläche",
     "primaryColor": "Primärfarbe",
     "priority": "Priorität",
-    "processed": "Verarbeitet"
+    "processed": "Verarbeitet",
+    "staffOrder": "Order",
+    "staffOrderHint": "1 = first on the provider's page; 0 = no position",
+    "staffOrderSaved": "Order saved"
   },
   "AdminLazySelect": {
     "emptyText": "Keine Optionen gefunden.",

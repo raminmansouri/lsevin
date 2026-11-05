@@ -3200,7 +3200,10 @@
     "placementNotMounted": "No page renders this placement yet",
     "allPlacements": "All placements",
     "slidesPerPlacement": "Slides are shown only on the placement selected here.",
-    "renderedOn": "Rendered on"
+    "renderedOn": "Rendered on",
+    "staffOrder": "Order",
+    "staffOrderHint": "1 = first on the provider's page; 0 = no position",
+    "staffOrderSaved": "Order saved"
   },
   "HomeHero": {
     "title": "Health and beauty without borders, all in one place",

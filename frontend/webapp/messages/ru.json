@@ -1802,7 +1802,10 @@
     "yearToDate": "С начала года",
     "yes": "Да",
     "youHaveUnsavedChangesDonTForgetToSaveYourSettings": "У вас есть несохранённые изменения. Не забудьте сохранить настройки.",
-    "zipCode": "Почтовый индекс"
+    "zipCode": "Почтовый индекс",
+    "staffOrder": "Order",
+    "staffOrderHint": "1 = first on the provider's page; 0 = no position",
+    "staffOrderSaved": "Order saved"
   },
   "AdminLazySelect": {
     "emptyText": "Ничего не найдено.",

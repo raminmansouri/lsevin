@@ -971,6 +971,38 @@ export const deleteProviderServiceAction = createAuthenticatedSafeAction(
   { adminRequired: true },
 );
 
+
+
+/** Sets only a linked specialist's position on the provider's page (1 = first, 0 = none). */
+export const setProviderStaffOrderAction = createAuthenticatedSafeAction(
+  z.object({
+    serviceProviderId: uuidSchema,
+    id: uuidSchema,
+    displayOrder: z.coerce.number().int().min(0).max(999),
+  }),
+  async (input) => {
+    try {
+      await sql`
+        update category.provider_staffs
+           set display_order = ${input.displayOrder}, last_modified_date = now()
+         where id = ${input.id}::uuid and service_provider_id = ${input.serviceProviderId}::uuid
+      `;
+      revalidateAdminServiceProvider(input.serviceProviderId);
+      return { data: input.id, error: undefined };
+    } catch (error: any) {
+      return {
+        data: undefined,
+        error: problem("Could not save the specialist order.", 500, error?.message),
+        payload: input,
+      };
+    }
+  },
+  { adminRequired: true },
+);
+
+
+
+
 const providerStaffSchema = z.object({
   serviceProviderId: uuidSchema,
   id: optionalUuidSchema,

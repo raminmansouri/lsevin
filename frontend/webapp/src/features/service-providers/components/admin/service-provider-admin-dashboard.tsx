@@ -86,6 +86,7 @@ import {
   saveProviderRecommendationAction,
   saveProviderServiceAction,
   saveProviderStaffAction,
+  setProviderStaffOrderAction,
   updateProviderCommentModerationAction,
   updateProviderCommentReplyModerationAction,
   updateProviderRequestStatusAction,
@@ -2360,6 +2361,13 @@ function StaffManager({ provider, lookups, locale }: Props) {
     onSuccess: () => toast.success(tAdmin("staffUnlinked")),
     onError: ActionErrorToast,
   });
+  // Position of each linked specialist on the provider's page, edited in place.
+  const [orders, setOrders] = useState<Record<string, string>>({});
+  const setOrder = useAction(setProviderStaffOrderAction, {
+    startTransition,
+    onSuccess: () => toast.success(tAdmin("staffOrderSaved")),
+    onError: ActionErrorToast,
+  });
 
   return (
     <RelationCard
@@ -2419,15 +2427,44 @@ function StaffManager({ provider, lookups, locale }: Props) {
                   {item.isActive ? "Active" : "Inactive"}
                 </div>
               </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() =>
-                  del.execute({ serviceProviderId: provider.id, id: item.id })
-                }
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
+              <div className="flex shrink-0 items-center gap-2">
+                <label className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                  {tAdmin("staffOrder")}
+                  <Input
+                    type="number"
+                    min={0}
+                    max={999}
+                    className="h-8 w-16"
+                    title={tAdmin("staffOrderHint")}
+                    value={orders[item.id] ?? String(item.displayOrder ?? 0)}
+                    onChange={(e) => setOrders((prev) => ({ ...prev, [item.id]: e.target.value }))}
+                    disabled={isPending}
+                  />
+                </label>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={isPending || orders[item.id] === undefined}
+                  onClick={() =>
+                    setOrder.execute({
+                      serviceProviderId: provider.id,
+                      id: item.id,
+                      displayOrder: Number(orders[item.id] || 0),
+                    })
+                  }
+                >
+                  {tAdmin("save")}
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() =>
+                    del.execute({ serviceProviderId: provider.id, id: item.id })
+                  }
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
           ))
         ) : (
