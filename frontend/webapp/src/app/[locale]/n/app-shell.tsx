@@ -4,6 +4,7 @@ import MobileAppBar from "@/components/mobile-app-bar";
 import Shell from "@/components/shell";
 import LocaleSwitcher from "@/components/locale/locale-switcher";
 import { AssistantLauncher } from "@/features/assistant/components/assistant-launcher";
+import { AssistantNudge } from "@/features/assistant/components/assistant-nudge";
 import NotificationsBar from "@/features/shared/components/Notifications/notifications-bar";
 import { getFooterPages } from "@/features/site-content/server/repository";
 import { DesktopFooter } from "@/features/web-desktop/components/DesktopFooter";
@@ -55,6 +56,7 @@ export async function AppShell({ locale, children }: { locale: string; children:
         </div>
       </Shell>
       <AssistantLauncher />
+      <AssistantNudge />
     </NextIntlClientProvider>
   );
 }

@@ -59,6 +59,11 @@ declare const messages: {
         "hotel": "Otel",
         "transfer": "Transfer"
       }
+    },
+    "nudge": {
+      "title": "Çevrimiçi destek",
+      "body": "Size nasıl yardımcı olabilirim?",
+      "close": "Kapat"
     }
   },
   "BookingCart": {

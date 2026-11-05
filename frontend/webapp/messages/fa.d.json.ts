@@ -59,6 +59,11 @@ declare const messages: {
         "hotel": "هتل",
         "transfer": "ترانسفر"
       }
+    },
+    "nudge": {
+      "title": "پشتیبانی آنلاین",
+      "body": "چطور می‌تونم کمکتون کنم؟",
+      "close": "بستن"
     }
   },
   "ShopMedia": {

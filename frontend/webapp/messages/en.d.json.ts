@@ -59,6 +59,11 @@ declare const messages: {
         "hotel": "Hotel",
         "transfer": "Transfer"
       }
+    },
+    "nudge": {
+      "title": "Online support",
+      "body": "How can I help you?",
+      "close": "Close"
     }
   },
   "ShopMedia": {
