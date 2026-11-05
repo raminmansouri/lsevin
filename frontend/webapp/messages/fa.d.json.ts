@@ -4738,7 +4738,8 @@ declare const messages: {
       "toursPlatformReports": "گزارش‌های تور",
       "toursPlatformSettings": "۱. تنظیمات تورها",
       "toursPlatformTaxonomy": "۲. دسته‌ها و برچسب‌ها",
-      "editorial": "محتوای سایت"
+      "editorial": "محتوای سایت",
+      "assistant": "دستیار هوشمند"
     }
   },
   "HomePage": {
@@ -17952,6 +17953,50 @@ declare const messages: {
       "returns-refunds": "مرجوعی و بازپرداخت",
       "terms-conditions": "شرایط و قوانین",
       "privacy-policy": "حریم خصوصی"
+    }
+  },
+  "AdminAssistant": {
+    "title": "دستیار هوشمند",
+    "stats": {
+      "messages": "پیام‌های امروز",
+      "conversations": "گفتگوهای امروز",
+      "users": "کاربران",
+      "guests": "مهمان‌ها"
+    },
+    "settings": {
+      "title": "تنظیمات و محدودیت‌ها",
+      "hint": "عدد ۰ یعنی بدون محدودیت. تغییرات فوراً اعمال می‌شوند.",
+      "guests": "مهمان",
+      "users": "کاربر واردشده",
+      "daily": "پیام در روز",
+      "perChat": "پیام در هر گفتگو",
+      "maxChars": "حداکثر طول پیام (کاراکتر)",
+      "saveGuestChats": "گفتگوهای مهمان‌ها هم ذخیره شوند",
+      "save": "ذخیره"
+    },
+    "list": {
+      "title": "گفتگوها",
+      "search": "جستجو در عنوان و متن پیام‌ها…",
+      "all": "همه",
+      "users": "کاربران",
+      "guests": "مهمان‌ها",
+      "filter": "فیلتر",
+      "colTitle": "اولین سؤال",
+      "colWho": "کاربر",
+      "colMessages": "پیام‌ها",
+      "colLocale": "زبان",
+      "colUpdated": "آخرین پیام",
+      "untitled": "(بدون عنوان)",
+      "user": "کاربر",
+      "guest": "مهمان",
+      "none": "گفتگویی پیدا نشد.",
+      "prev": "← قبلی",
+      "next": "بعدی →"
+    },
+    "detail": {
+      "back": "← همهٔ گفتگوها",
+      "user": "کاربر",
+      "assistant": "دستیار"
     }
   }
 };

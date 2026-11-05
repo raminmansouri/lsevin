@@ -13937,6 +13937,50 @@ declare const messages: {
       "terms-conditions": "Términos y condiciones",
       "privacy-policy": "Política de privacidad"
     }
+  },
+  "AdminAssistant": {
+    "title": "AI assistant",
+    "stats": {
+      "messages": "Messages today",
+      "conversations": "Chats today",
+      "users": "Users",
+      "guests": "Guests"
+    },
+    "settings": {
+      "title": "Settings and limits",
+      "hint": "0 means no limit. Changes apply at once.",
+      "guests": "Guest",
+      "users": "Signed-in user",
+      "daily": "Messages per day",
+      "perChat": "Messages per chat",
+      "maxChars": "Max message length (characters)",
+      "saveGuestChats": "Save guests' chats too",
+      "save": "Save"
+    },
+    "list": {
+      "title": "Chats",
+      "search": "Search titles and message text…",
+      "all": "All",
+      "users": "Users",
+      "guests": "Guests",
+      "filter": "Filter",
+      "colTitle": "First question",
+      "colWho": "User",
+      "colMessages": "Messages",
+      "colLocale": "Language",
+      "colUpdated": "Last message",
+      "untitled": "(untitled)",
+      "user": "User",
+      "guest": "Guest",
+      "none": "No chats found.",
+      "prev": "← Previous",
+      "next": "Next →"
+    },
+    "detail": {
+      "back": "← All chats",
+      "user": "User",
+      "assistant": "Assistant"
+    }
   }
 };
 export default messages;
