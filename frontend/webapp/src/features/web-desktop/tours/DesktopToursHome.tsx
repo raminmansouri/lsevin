@@ -85,9 +85,9 @@ export function DesktopToursHome({
           <div className="absolute inset-x-0 bottom-0 px-14 pb-24">
             <Reveal className="max-w-3xl space-y-4">
               <span className="text-[10px] font-bold tracking-[0.5em] text-[#eacb7f]">L SEVIN JOURNEYS</span>
-              <h1 className="lsd-gold-text text-[56px] font-black leading-[1.1]">
+              <div role="heading" aria-level={1} className="lsd-gold-text text-[56px] font-black leading-[1.1]">
                 {hero?.title ? <LocalizedText text={hero.title} badge={false} /> : t("home.heroTitle")}
-              </h1>
+              </div>
               <p className="max-w-xl text-lg leading-8 text-white/80">
                 {hero?.subtitle ? <LocalizedText text={hero.subtitle} badge={false} /> : t("home.heroSubtitle")}
               </p>

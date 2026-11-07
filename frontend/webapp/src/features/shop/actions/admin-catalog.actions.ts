@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
+import { findSimilarProductsAdmin } from "../api/admin.repository";
 
 import { revalidateShopCatalog } from "../lib/cache";
 import { productGallerySchema } from "../schemas/gallery";
@@ -17,6 +18,8 @@ import {
   deleteCategory,
   deleteCoupon,
   deleteHomeSection,
+  deleteOffer,
+  deleteSeller,
   deleteVariant,
   removeCategoryServiceLink,
   removeHomeSectionItem,
@@ -32,6 +35,8 @@ import {
   upsertCategory,
   upsertCoupon,
   upsertHomeSection,
+  upsertOffer,
+  upsertSeller,
   upsertVariant,
 } from "../server/admin-catalog.service";
 
@@ -528,6 +533,100 @@ export async function deleteBrandAction(input: { id: string }) {
   return { ok: true as const };
 }
 
+
+
+// ======================================================================
+// Sellers (marketplace)
+// ======================================================================
+const sellerSchema = z.object({
+  id: shopId.optional(),
+  slug: z.string().trim().min(1).max(180),
+  nameTranslations: localized,
+  warrantyTranslations: localized,
+  descriptionTranslations: localized.optional(),
+  logoUrl: z.string().trim().optional().nullable(),
+  phone: z.string().trim().max(40).optional().nullable(),
+  email: z.string().trim().max(160).optional().nullable(),
+  isActive: z.coerce.boolean().default(true),
+});
+export async function upsertSellerAction(input: unknown) {
+  const p = sellerSchema.parse(input);
+  const id = await upsertSeller(p);
+  revalidateShopCatalog();
+  revalidatePath("/[locale]/admin/shop/sellers", "page");
+  return { ok: true as const, id };
+}
+export async function deleteSellerAction(input: { id: string }) {
+  await deleteSeller({ id: shopId.parse(input.id) });
+  revalidateShopCatalog();
+  revalidatePath("/[locale]/admin/shop/sellers", "page");
+  return { ok: true as const };
+}
+
+
+
+
+// ======================================================================
+// Offers (product edit page)
+// ======================================================================
+// Empty inputs mean "not set", never 0.
+const optional = (formData: FormData, key: string) => {
+  const value = formData.get(key);
+  return value === null || String(value).trim() === "" ? undefined : String(value).trim();
+};
+const offerFormSchema = z.object({
+  id: shopId.optional(),
+  productId: shopId,
+  variantId: shopId.optional(),
+  sellerId: shopId.optional(),
+  sellerSku: z.string().max(120).optional(),
+  currency: z.string().min(3).max(15),
+  price: z.coerce.number().min(0),
+  compareAtPrice: z.coerce.number().min(0).optional(),
+  stockQuantity: z.coerce.number().int().min(0).optional(),
+  handlingDays: z.coerce.number().int().min(0).max(90).optional(),
+  warrantyFa: z.string().max(300).optional(),
+  warrantyEn: z.string().max(300).optional(),
+  isActive: z.boolean(),
+});
+const revalidateProduct = () => {
+  revalidateShopCatalog();
+  revalidatePath("/[locale]/admin/shop/products/[id]", "page");
+  revalidatePath("/[locale]/admin/shop/sellers/[id]", "page");
+  revalidatePath("/[locale]/admin/shop/sellers", "page");
+};
+export async function upsertOfferForm(formData: FormData) {
+  const p = offerFormSchema.parse({
+    id: optional(formData, "id"),
+    productId: optional(formData, "productId"),
+    variantId: optional(formData, "variantId"),
+    sellerId: optional(formData, "sellerId"),
+    sellerSku: optional(formData, "sellerSku"),
+    currency: optional(formData, "currency"),
+    price: optional(formData, "price"),
+    compareAtPrice: optional(formData, "compareAtPrice"),
+    stockQuantity: optional(formData, "stockQuantity"),
+    handlingDays: optional(formData, "handlingDays"),
+    warrantyFa: optional(formData, "warrantyFa"),
+    warrantyEn: optional(formData, "warrantyEn"),
+    isActive: formData.get("isActive") === "on",
+  });
+  const hasWarranty = formData.has("warrantyFa") || formData.has("warrantyEn");
+  await upsertOffer({
+    ...p,
+    warrantyTranslations: hasWarranty ? { fa: p.warrantyFa ?? "", en: p.warrantyEn ?? "" } : undefined,
+  });
+  revalidateProduct();
+}
+export async function deleteOfferForm(formData: FormData) {
+  await deleteOffer({ id: shopId.parse(formData.get("id")), productId: shopId.parse(formData.get("productId")) });
+  revalidateProduct();
+}
+
+
+
+
+
 // ======================================================================
 // Home merchandising
 // ======================================================================
@@ -626,4 +725,13 @@ export async function removeHomeSectionItemForm(formData: FormData) {
   revalidateShopCatalog();
   revalidatePath("/[locale]/admin/shop/merchandising", "page");
   revalidatePath("/n/app/mobile/shop");
+}
+
+
+// ======================================================================
+// "This product may already exist" (new-product form)
+// ======================================================================
+export async function findSimilarProductsAction(input: unknown) {
+  const { names } = z.object({ names: z.array(z.string().trim().max(200)).max(3) }).parse(input);
+  return findSimilarProductsAdmin(names);
 }

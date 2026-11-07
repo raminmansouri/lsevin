@@ -3,6 +3,7 @@ import { unstable_cache } from "next/cache";
 
 import sql from "@/config/database/db";
 import { allGuides, guideLocales, guidePath } from "@/features/guides/registry";
+import { getPublishedSitePageIndex } from "@/features/site-content/server/repository";
 import { routing } from "@/i18n/routing";
 import { absoluteUrl, languageAlternates, type SeoLocale } from "@/lib/seo/alternates";
 import {
@@ -110,7 +111,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     catalog = [];
   }
 
+  // Editorial pages (admin → Editorial) list only their translated locales; first
+  // so a published /privacy-policy replaces the built-in all-locale entry.
+  const sitePages = (await getPublishedSitePageIndex()).map((page) => ({
+    path: `/${page.slug}`,
+    locales: page.locales,
+    ...(page.updatedAt ? { lastModified: page.updatedAt } : {}),
+  }));
+
   const entries: (CatalogEntry & { lastModified?: string })[] = [
+    ...sitePages,
     ...STATIC_PATHS,
     ...guideEntries(),
     ...catalog,

@@ -6,7 +6,7 @@ This is a proposal for review, not a production backfill. The URL task list requ
 
 - Source: 1 November 2026 compressed PostgreSQL backup from the Lsevin server at `213.176.121.235`; SHA-256 `019aea20f92c8f5d4628816f2546b6fc472c74137e73502225391e32330854fb` matched after copying to F:.
 - The source server runs PostgreSQL 17.10. The backup restored without error to an isolated PostgreSQL 18.6 cluster in WSL. This validates the data shape and migration SQL, but the version differs from the source and the application was not started against it.
-- The clone had 164 recorded migrations, including all three `0084` migrations. Migration `0085_public_url_slugs.sql` was applied with `psql -v ON_ERROR_STOP=1`, outside the application migration runner. All five nullable columns and five partial unique indexes exist afterward.
+- The clone had 164 recorded migrations, including all three `0084` migrations. Migration `0091_public_url_slugs.sql` was applied with `psql -v ON_ERROR_STOP=1`, outside the application migration runner. All five nullable columns and five partial unique indexes exist afterward.
 - Existing rows remained at 186 providers, 12 provider types, 3,065 provider services, 304 staff, and 3 special packages; every new slug is null. A duplicate provider slug was rejected by the unique index in a transaction that did not persist.
 
 ## Proposed mapping
@@ -34,7 +34,7 @@ The branch is **not ready for release** until these steps pass.
 
 ## Approved mapping and staging result (2 November 2026)
 
-The owner approved the proposed CSV without edits. The exact ID-to-slug mapping is now in immutable migration `0086_public_url_slug_backfill.sql`; no production backfill was run. On the isolated production-derived clone, `0085` followed by `0086` populated 186/186 providers, 12/12 types, 3,065/3,065 services, 304/304 staff, and 3/3 packages. Each entity's slug count equals its distinct-slug count. Re-running `0086` changed zero rows. A persistent mapping integrity test is in `tests/public-slug-migration.test.mjs`.
+The owner approved the proposed CSV without edits. The exact ID-to-slug mapping is now in immutable migration `0092_public_url_slug_backfill.sql`; no production backfill was run. On the isolated production-derived clone, `0085` followed by `0086` populated 186/186 providers, 12/12 types, 3,065/3,065 services, 304/304 staff, and 3/3 packages. Each entity's slug count equals its distinct-slug count. Re-running `0086` changed zero rows. A persistent mapping integrity test is in `tests/public-slug-migration.test.mjs`.
 
 Google Search Central's [URL guidance](https://developers.google.com/search/docs/crawling-indexing/url-structure) recommends descriptive words, the audience's language or transliteration, lowercase normalization, and hyphens. Its [site-move guidance](https://developers.google.com/search/docs/crawling-indexing/site-move-with-url-changes) calls for server-side permanent redirects, self-canonical new pages, updated internal links and sitemaps, and avoiding redirect chains. These are criteria for the subsequent route cutover. Search ranking position is not guaranteed by any URL format.
 

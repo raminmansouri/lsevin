@@ -212,7 +212,7 @@ canonical هر صفحه جدید با `alternatesFor(locale, <مسیر جدید>
 
 - Added support and package-checkout private robots metadata; added matching private mobile paths to robots.txt. Home remains indexable, and search remains crawlable with `noindex,follow`.
 - Added canonical metadata for offers, featured services, package listing, and package detail; added eligible Persian paths to the sitemap. Other locales remain reachable with `noindex,follow` until their main content is reviewed.
-- `0085_public_url_slugs.sql` adds nullable, unique slug columns to providers, provider types, provider services, staff, and special packages. It does not populate slugs or change public routes.
+- `0091_public_url_slugs.sql` adds nullable, unique slug columns to providers, provider types, provider services, staff, and special packages. It does not populate slugs or change public routes.
 - An isolated copy of the earlier SEO fixture accepted the migration: all five columns are nullable, all five unique indexes exist, and a duplicate provider slug was rejected. That fixture has no package rows and does not establish the current production migration state.
 - The final route migration, internal-link changes, redirects, deployment, and production verification remain open.
 - Verification on the exact branch commit: SEO unit suite 121/121 passed; a production-mode build on F: exited successfully after compiling and generating 2,313 static pages. That build used a non-production database endpoint and logged connection failures, so it is not a runtime or data-integrity pass.

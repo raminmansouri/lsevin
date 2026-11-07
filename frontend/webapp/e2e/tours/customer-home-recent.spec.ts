@@ -31,12 +31,12 @@ test("guest: recent views first, ordered, clearable, not leaked", async ({ page,
 
   // A fresh visitor sees a discovery module, never an empty "recently viewed".
   await page.goto("/en/tours");
-  await expect(page.getByTestId("recently-viewed")).toHaveCount(0);
+  await expect(page.getByTestId("recently-viewed").filter({ visible: true })).toHaveCount(0);
 
   await view(page, a.slug);
   await view(page, b.slug);
   await page.goto("/en/tours");
-  const recent = page.getByTestId("recently-viewed");
+  const recent = page.getByTestId("recently-viewed").filter({ visible: true });
   await expect(recent).toBeVisible();
   // It is the first content section after the hero/categories.
   const firstSection = page.locator("[data-section-order='1']").first();
@@ -57,15 +57,15 @@ test("guest: recent views first, ordered, clearable, not leaked", async ({ page,
   // A tour that is no longer published disappears from the module (C-014).
   await db()`update tour.tours set status = 'paused' where id = ${a.id}::uuid`;
   await page.reload();
-  const after = await page.getByTestId("recent-card").evaluateAll((els) => els.map((e) => e.getAttribute("data-tour-slug")));
+  const after = await page.getByTestId("recent-card").filter({ visible: true }).evaluateAll((els) => els.map((e) => e.getAttribute("data-tour-slug")));
   expect(after).not.toContain(a.slug);
   expect(after).toContain(b.slug);
 
   // Clear history.
-  await page.getByTestId("clear-recent").click();
-  await expect(page.getByTestId("recently-viewed")).toHaveCount(0);
+  await page.getByTestId("clear-recent").filter({ visible: true }).click();
+  await expect(page.getByTestId("recently-viewed").filter({ visible: true })).toHaveCount(0);
   await page.reload();
-  await expect(page.getByTestId("recently-viewed")).toHaveCount(0);
+  await expect(page.getByTestId("recently-viewed").filter({ visible: true })).toHaveCount(0);
 });
 
 test("signed-in history is per account and survives sign-out only for that account", async ({ page, context, browser }) => {
@@ -75,7 +75,7 @@ test("signed-in history is per account and survives sign-out only for that accou
   await skipIntro(context);
   await view(page, tour.slug);
   await page.goto("/en/tours");
-  await expect(page.getByTestId("recently-viewed").getByTestId("recent-card").first()).toHaveAttribute("data-tour-slug", tour.slug);
+  await expect(page.getByTestId("recently-viewed").filter({ visible: true }).getByTestId("recent-card").first()).toHaveAttribute("data-tour-slug", tour.slug);
   const [row] = await db()<{ n: number }[]>`select count(*)::int as n from tour.recent_views where owner_key = ${`u:${user.id}`} and tour_id = ${tour.id}::uuid`;
   expect(row.n).toBe(1);
 

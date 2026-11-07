@@ -4,28 +4,38 @@ Scope: `lsevincare.com`; Persian search is the first priority. A first-page Goog
 
 ## Live release verified on 29 October
 
-- [x] The visitor-serving origin returns HTTP 200 for sampled home, categories, provider, service, specialist, shop product, and guide URLs. Sampled pages use self canonicals on `lsevincare.com` and render JSON-LD.
-- [x] Persian categories render a Persian title and H1. Home renders Organization and WebSite JSON-LD. The live categories page still has some English interface strings; this branch corrects them.
-- [x] `/sitemap.xml` returns HTTP 200 with 10,317 unique locations and no `appmain.lsevin.com` host in the complete XML. The sitemap includes unsupported language variants of category and shop landings; this branch removes those entries.
-- [x] The public origin runs the previously deployed SEO candidate. Production migration `0084_translation_empty_fast_path.sql` is recorded. Jenkins main-production build 392 succeeded.
+- [x] **PASS 2026-10-28** — live since `ba3a38cd` (Jenkins after #390 failure and the `99a03678` release). `seoOrigin()` maps the production app origin to lsevincare.com when the build lacks the variable, because B's hand-synced Jenkins job does not pass it. DevOps follow-up: add `NEXT_PUBLIC_SEO_URL` to that job template (tracker T30).
+  Original item: Publish an **exact, verified** candidate that sets `NEXT_PUBLIC_SEO_URL=https://lsevincare.com` at build and runtime. Live `/fa/n/app/mobile/home` still declares `https://appmain.lsevin.com/fa/n/app/mobile/home` as canonical; its hreflang URLs also use `appmain.lsevin.com`.
+- [ ] **PARTIAL 2026-10-29** — `pnpm seo:probe https://lsevincare.com`: HTTP 200, canonical == sitemap `<loc>`, hreflang self + reciprocal on every sampled page type and locale. Open: two `<h1>` per page since the desktop redesign; fixed on `feat/seo-geo-lsevincare` (`6261fbf8`, `b4fc4558`), deploy pending (tracker T38).
+  Original item: After deployment, verify canonical, reciprocal hreflang, and HTTP 200 on home, categories, provider, service, staff, shop, and guides in every published locale. Verify the canonical is the same host and URL as the corresponding sitemap `<loc>`.
+- [x] **PASS 2026-10-29** — 10,259 URLs, all on lsevincare.com; only indexable locale versions (untranslated ones are noindex and excluded); legacy `/service-providers` and `/type` removed (308 to current pages). Probe: sampled sitemap URLs are 200, indexable and self-canonical.
+  Original item: Verify `/sitemap.xml` contains only canonical, indexable, active URLs and no `appmain.lsevin.com` URLs. Live sitemap returned HTTP 200 and about 3.6 MB, but its first `<loc>` and alternates pointed to `appmain.lsevin.com`. The candidate has sitemap tests; the live deployment has not passed them.
+- [ ] **BLOCKED (owner)** — needs the site owner's Google account: verify lsevincare.com (DNS TXT in Cloudflare), submit `https://lsevincare.com/sitemap.xml`. Bing and Yandex likewise (tracker T20–T22).
+  Original item: Check the Search Console property for `lsevincare.com`, submit the corrected sitemap **after** deployment, and inspect Google-selected canonicals and indexing exclusions. Search Console access has not been connected or verified.
 
 ## Current branch: indexation and page quality
 
-- [ ] Release this branch from current `Lsevin-New`; verify the deployed commit, sitemap, robots, canonical, and reciprocal hreflang after publication.
-- [ ] Index category landings only in Persian and English, and shop landing/products/categories only in Persian until the other locales contain substantive localized copy. Keep other language routes accessible with `noindex,follow`. **Implemented in this branch; production verification pending.**
-- [ ] Localize category interface strings and add factual CollectionPage JSON-LD to eligible category landings. **Implemented in this branch; browser verification pending.**
-- [ ] Inspect each indexable locale's visible content, title, description, H1, breadcrumbs, structured data, and internal links. Extend genuine translations before adding a locale to sitemap/hreflang.
-- [ ] Validate rendered structured data with Google's Rich Results Test. Do not invent ratings, credentials, or medical claims.
-- [ ] Improve provider and clinical trust signals: verified identity, qualifications, contact details, authorship, review dates, and cited sources, subject to qualified clinical review.
-- [ ] Map search intent to home, category, provider, service, specialist, and guide pages using real query and conversion data.
+- [x] **PASS 2026-10-29** — live fa categories: title `همه دسته‌ها | السوین`, localized description, self canonical; JSON-LD added on the branch (deploy pending).
+  Original item: Publish the candidate's localized categories metadata and inspect rendered initial HTML. Live Persian categories returned title `ال سوین | Categories`, English description `Browse all active LSevin service categories.`, English H1 `Categories`, and no canonical link. This is a confirmed production defect.
+- [x] **PASS 2026-10-29** — per-entity locale eligibility: a locale is indexed only when the entity's text exists in it (probe: untranslated `en` service page is `noindex`, absent from hreflang and sitemap). Titles and descriptions localized in 11 locales; guides only in fa/ar/en.
+  Original item: Check each indexable locale for translated main content, title, description, H1, breadcrumbs, and structured data. Do not index thin translated shells or list locale versions in hreflang when the body has no real translation.
+- [ ] **PARTIAL 2026-10-29** — JSON-LD parses and is structurally valid on all sampled pages (probe), no ratings or medical claims. Google's Rich Results Test itself is not scripted (manual check after deploy). Categories/shop/consultation schema on the branch, deploy pending.
+  Original item: Inspect rendered JSON-LD in a browser and validate with Google's Rich Results Test. The sampled live home and categories pages rendered zero `application/ld+json` scripts; the candidate adds factual organization/entity schema. Do not add unsupported medical claims or review ratings.
+- [ ] **BLOCKED (data)** — needs Search Console query/page/country data (item above). Initial keyword map: research brief in tracker T13/T24/T35 and the 15 guides.
+  Original item: Map one primary search intent to each home, category, provider, service, staff, and guide page. Use actual Search Console query, page, country, device, click, impression, and conversion data before prioritizing keywords.
+- [ ] **PARTIAL** — guides carry review dates and cited sources; no ratings. Open: named medical reviewer with council number (tracker T14) and verified provider credentials (content team).
+  Original item: Strengthen healthcare trust signals: verified provider identity, qualifications, contact details, author/reviewer credentials, review dates, and cited sources for medical guidance. Get qualified review of clinical text before publication.
 
 ## Search Console and measurement
 
-- [ ] Create, connect, and verify the `lsevincare.com` Search Console domain property. The owner confirmed on 29 October that it has not been added to Search Console. After verification, submit the published sitemap and inspect indexing exclusions, Google-selected canonicals, clicks, impressions, queries, countries, and devices.
-- [ ] Meet and verify visitor-visible 30 ms TTFB by geography, route, and cache status. A five-sample-per-route public GET benchmark on 29 October found home p50/p95 681/841 ms, categories 769/17,100 ms, explore 693/727 ms, search 808/2,005 ms, sitemap 1,236/1,344 ms (one failed request), and robots 451/679 ms. New-connection TLS alone had a roughly 268–332 ms median by route. See [the raw measurements](verification/seo-performance/2026-10-29-public.json). This small sample establishes a failure, not a population percentile.
-- [ ] Re-measure categories after this branch is deployed. Its translation lookup, category query, and tour settings lookup now start concurrently, removing avoidable serialized server work. This does not address the measured TLS/network latency or prove a 30 ms response.
-- [ ] Keep authenticated booking, availability, payments, and user data out of shared public HTML caches; test refresh, direct navigation, history, invalidation, and locale isolation.
-- [ ] For further database work, inspect representative query plans and test a migration upgrade from the actual previous production migration state. Do not edit released migrations.
+- [ ] **PARTIAL 2026-11-02** — branch `63cc09c6`: SEO unit tests 132/132 (host); earlier release candidates passed the Jenkins-equivalent build from `git archive`, Playwright SEO 27/27, typecheck = baseline (611). Blocked now: Docker Desktop down, so the clean build + Playwright run of the latest merge has not run. No staging environment exists (production-safe read-only smoke instead).
+  Original item: Run the candidate's production build, full typecheck/lint, SEO unit tests, real-database migration/query tests, persistent Playwright suite, and staging smoke tests. Current candidate has no successful complete release-gate record.
+- [ ] **PARTIAL 2026-10-29** — from this workstation only: p50 297 ms / p95 1047 ms over 34 public pages (`pnpm seo:probe`). Not measured by visitor location; Cloudflare does not cache HTML yet (tracker T16).
+  Original item: Measure cold and warm visitor-visible TTFB, p50/p95, cache-hit rate, and errors by location. The previous three-sample public baseline exceeded 30 ms on every sampled route; it does not establish a population percentile or prove a fix.
+- [x] **PASS (perf branch)** — migration 0084 tested on a 0083-state copy and replays in an isolated DB (`tests/catalog-performance.test.mjs`); released 2026-10-28.
+  Original item: Use representative read-only query plans and an isolated upgrade from the actual prior migration state before applying database optimization. No production SEO/performance migration has been applied from this branch.
+- [x] **PASS 2026-10-29** — probe: bookings/profile/favorites redirect guests or are `private, no-store` and `noindex`; search is `noindex`; only anonymous public pages send `s-maxage`.
+  Original item: Keep authenticated booking, favorites, payments, and availability out of shared public HTML caches. Test direct navigation, refresh, browser history, cache invalidation, and locale isolation.
 
 ## Release gates for this branch
 
@@ -34,4 +44,8 @@ Scope: `lsevincare.com`; Persian search is the first priority. A first-page Goog
 - [ ] Stage the exact candidate, check startup, logs, migrations if any, health, key routes, and browser workflows.
 - [ ] Verify the same checks on the visitor-serving production deployment after publication.
 
-This is a working checklist. Unchecked items are open; a build or source inspection alone does not close them. Current branch release status: **NOT READY FOR RELEASE**.
+The SEO candidate is pushed to `feat/seo-geo-lsevincare`. Its latest inspected commit was `9ce1c61f`. Its `pnpm test:seo` could not run in this worktree because `vitest` is absent from the incomplete local dependency installation. Earlier isolated tests are documented in [SEO-PERFORMANCE-2026-10-25.md](SEO-PERFORMANCE-2026-10-25.md), but they do not replace a final-build browser/staging gate.
+
+Status as of 2026-11-02: see each item. Live release: lsevincare.com canonical domain since 2026-10-28.
+
+Publication status at the time of writing (2026-10-27): **NOT READY FOR RELEASE** until the candidate passes those gates and the deployed pages are rechecked. The provider-portal branch is a separate deployment and is also not confirmed live.

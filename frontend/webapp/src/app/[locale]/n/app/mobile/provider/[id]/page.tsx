@@ -16,6 +16,7 @@ import { SponsoredPlacementSlot } from "@/features/sponsered-slider/components/s
 import { ProviderDetailView } from "./provider-detail-view";
 import { DesktopSponsoredSection } from "@/features/web-desktop/home/DesktopSponsoredSection";
 import { DesktopProviderView } from "@/features/web-desktop/provider/DesktopProviderView";
+import { PageFaq } from "@/features/site-content/components/faq-section";
 
 type RouteParams = { locale: string; id: string };
 type PageProps = {
@@ -60,6 +61,9 @@ export async function generateMetadata({ params }: PageProps) {
     eligibleLocales: await getIndexableLocales("provider", id),
   });
 }
+
+// Same match the favourites tabs use for gyms (profile/favorites/queries.ts).
+const GYM_PROVIDER_TYPE = /(gym|fitness|club|sport|باشگاه|ورزش)/iu;
 
 export default async function ProviderDetailPage({ params }: PageProps) {
   const { locale, id: identifier } = await params;
@@ -120,6 +124,16 @@ export default async function ProviderDetailPage({ params }: PageProps) {
       <div className="lsd hidden pb-14 pt-4 xl:block">
         <DesktopSponsoredSection locale={locale} placement="provider_detail" />
       </div>
+      <PageFaq
+        target={
+          // Gyms and fitness clubs: the provider's own FAQ, else the gym FAQ (admin → Editorial).
+          GYM_PROVIDER_TYPE.test(String(provider.providerType ?? ""))
+            ? [{ scope: "provider", entityId: provider.id, exact: true }, { scope: "app", entityKey: "gym" }, { scope: "provider" }]
+            : { scope: "provider", entityId: provider.id }
+        }
+        locale={locale}
+        pageUrl={providerUrl(locale, provider.id)}
+      />
     </>
   );
 }

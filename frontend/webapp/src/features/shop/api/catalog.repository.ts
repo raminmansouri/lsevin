@@ -7,11 +7,6 @@ import { resolveDisplayCurrency, resolvePrices, resolvePrice } from "../lib/pric
 import { sql } from "../lib/db";
 import { joinSql, sortProductsSql } from "../lib/query-helpers";
 
-/**
- * Storefront read model. Every price that leaves this module is already
- * resolved into the request's display currency by `../lib/pricing`
- * (SHP-V01-025, SHP-CHK-013, SHP-API-006). Raw `base_price` never reaches the client.
- */
 
 type RawProductRow = {
   id: string;
@@ -33,11 +28,13 @@ type RawProductRow = {
   isNewArrival: boolean;
   hasStock: boolean;
   allowBackorder: boolean;
+  sellerCount: number;
   totalCount?: number;
 };
 
-/** Wishlisted product ids for the current customer (empty for guests). Inlined
- *  here rather than imported to avoid a cycle with wishlist.repository. */
+
+
+
 async function loadWishlistIds(): Promise<Set<string>> {
   const ctx = await getShopContext();
   if (!ctx.customerId) return new Set();
@@ -96,6 +93,7 @@ async function priceCards(rows: RawProductRow[], displayCurrency: string, wishli
       hasDiscount,
       hasStock: r.hasStock,
       isPreorder: !r.hasStock && r.allowBackorder,
+      sellerCount: Number(r.sellerCount) || 1,
       wishlistActive: wishlistIds ? wishlistIds.has(r.id) : false,
     };
   });
@@ -170,6 +168,7 @@ export async function searchProducts(
   if (filters.brand)
     conditions.push(sql`exists (select 1 from shop.brands b where b.id = p.brand_id and b.slug = ${filters.brand})`);
   if (filters.featuredOnly) conditions.push(sql`p.is_featured = true`);
+  if (filters.seller) conditions.push(sql`price_summary.min_price is not null`);
   if (filters.discountedOnly)
     conditions.push(sql`p.compare_at_price is not null and p.compare_at_price > coalesce(price_summary.min_price, p.base_price)`);
   if (filters.slugs && filters.slugs.length) conditions.push(sql`p.slug = any(${filters.slugs})`);
@@ -179,9 +178,18 @@ export async function searchProducts(
     const like = `%${filters.q}%`;
     conditions.push(sql`(
       p.search_vector @@ websearch_to_tsquery('simple', ${filters.q})
-      or common.get_translation_t(p.name_translations, ${lang}, 'en') ilike ${like}
-      or common.get_translation_t(p.short_description_translations, ${lang}, 'en') ilike ${like}
-      or exists (select 1 from shop.brands b where b.id = p.brand_id and common.get_translation_t(b.name_translations, ${lang}, 'en') ilike ${like})
+      -- Match the name, short description and brand in every language, so a product is
+      -- found whichever language the visitor types in (not only the site's current one).
+      or exists (
+        select 1 from jsonb_each_text(case when jsonb_typeof(p.name_translations) = 'object' then p.name_translations else '{}'::jsonb end) t
+        where t.value ilike ${like})
+      or exists (
+        select 1 from jsonb_each_text(case when jsonb_typeof(p.short_description_translations) = 'object' then p.short_description_translations else '{}'::jsonb end) t
+        where t.value ilike ${like})
+      or exists (
+        select 1 from shop.brands b,
+          jsonb_each_text(case when jsonb_typeof(b.name_translations) = 'object' then b.name_translations else '{}'::jsonb end) t
+        where b.id = p.brand_id and t.value ilike ${like})
     )`);
   }
   const whereSql = sql`where ${joinSql(conditions, sql` and `)}`;
@@ -218,11 +226,27 @@ export async function searchProducts(
       p.is_new_arrival as "isNewArrival",
       p.allow_backorder as "allowBackorder",
       coalesce(price_summary.has_stock, false) as "hasStock",
+      coalesce(price_summary.seller_count, 1)::int as "sellerCount",
       count(*) over()::int as total_count
     from shop.products p
     left join shop.brands b on b.id = p.brand_id
     left join shop.categories c on c.id = p.primary_category_id
-    left join shop.v_product_price_summary price_summary on price_summary.product_id = p.id
+    ${filters.seller
+      ? sql`left join lateral (
+          -- On a seller's page, cards show that seller's own price and stock.
+          select min(o.price) as min_price, max(o.price) as max_price,
+            coalesce(
+              bool_or(o.stock_quantity > 0 or o.allow_backorder) filter (where o.stock_quantity is not null),
+              (select v.has_stock from shop.v_product_price_summary v where v.product_id = p.id)
+            ) as has_stock,
+            1 as seller_count
+          from shop.offers o
+          join shop.sellers s on s.id = o.seller_id
+          where o.product_id = p.id and s.slug = ${filters.seller}
+            and s.is_active and s.deleted_at is null
+            and o.deleted_at is null and o.is_active
+        ) price_summary on true`
+      : sql`left join shop.v_product_price_summary price_summary on price_summary.product_id = p.id`}
     left join lateral (
       select url from shop.product_media pm where pm.product_id = p.id order by pm.is_primary desc, pm.display_order asc limit 1
     ) pm on true
@@ -342,7 +366,7 @@ export async function getProductBySlug(
     opts?.noFx
   );
 
-  const [gallery, categories, variantRows, attrRows, reviews, serviceLinks, questions] = await Promise.all([
+  const [gallery, categories, variantRows, attrRows, reviews, serviceLinks, questions, offerRows] = await Promise.all([
     sql<any[]>`select id::text as id, url, media_type as "mediaType", common.get_translation_t(alt_translations, ${lang}, 'en') as alt, is_primary as "isPrimary" from shop.product_media where product_id = ${row.id}::uuid order by is_primary desc, display_order asc`,
     sql<ShopCategory[]>`select c.id::text as id, c.parent_id::text as "parentId", common.get_translation_t(c.name_translations, ${lang}, 'en') as name, c.slug, c.image_url as "imageUrl", c.banner_url as "bannerUrl", c.icon, c.gradient, 0::int as "productCount" from shop.product_categories pc join shop.categories c on c.id = pc.category_id where pc.product_id = ${row.id}::uuid`,
     sql<any[]>`
@@ -385,7 +409,61 @@ export async function getProductBySlug(
       where q.product_id = ${row.id}::uuid and q.status = 'answered'
       order by q.last_modified_date desc limit 10
     `,
+    // Live offers: same rules as shop.v_product_price_summary (active offer, active seller,
+    // active item; the offer's own stock when set, else the shop inventory).
+    sql<any[]>`
+      select o.id::text as id, o.variant_id::text as "variantId", o.seller_id::text as "sellerId", s.slug as "sellerSlug",
+        common.get_translation_t(s.name_translations, ${lang}, 'en') as "sellerName",
+        s.logo_url as "sellerLogoUrl", s.is_default as "isDefaultSeller",
+        o.price::float as price, o.compare_at_price::float as "compareAtPrice", o.currency as "sourceCurrency",
+        o.handling_days as "handlingDays",
+        coalesce(nullif(common.get_translation_t(o.warranty_translations, ${lang}, 'en'), ''),
+                 common.get_translation_t(s.warranty_translations, ${lang}, 'en')) as warranty,
+        ((case
+           when o.stock_quantity is not null then o.stock_quantity > 0
+           else coalesce((
+             select sum(greatest(i.on_hand - i.reserved, 0)) from shop.inventory i
+             where (o.variant_id is not null and i.variant_id = o.variant_id)
+                or (o.variant_id is null and i.product_id = o.product_id and i.variant_id is null)
+           ), 0) > 0
+         end) or o.allow_backorder or coalesce(v.allow_backorder, p.allow_backorder)) as "inStock"
+      from shop.offers o
+      join shop.sellers s on s.id = o.seller_id and s.is_active and s.deleted_at is null
+      join shop.products p on p.id = o.product_id
+      left join shop.product_variants v on v.id = o.variant_id
+      where o.product_id = ${row.id}::uuid and o.deleted_at is null and o.is_active
+        and (o.variant_id is null or (v.deleted_at is null and v.is_active))
+      order by o.price asc
+    `,
   ]);
+
+  const offers = await Promise.all(
+    offerRows.map(async (o) => {
+      const pr = await resolvePrice({
+        noFx: opts?.noFx,
+        amount: Number(o.price),
+        sourceCurrency: o.sourceCurrency,
+        compareAtAmount: o.compareAtPrice != null ? Number(o.compareAtPrice) : null,
+        displayCurrency,
+      });
+      return {
+        id: o.id,
+        variantId: o.variantId ?? null,
+        sellerId: o.sellerId,
+        sellerSlug: o.sellerSlug,
+        sellerName: o.sellerName ?? "",
+        sellerLogoUrl: o.sellerLogoUrl ?? null,
+        isDefaultSeller: Boolean(o.isDefaultSeller),
+        price: pr.price.amount,
+        compareAtPrice: pr.compareAtPrice && !pr.compareAtPrice.unavailable ? pr.compareAtPrice.amount : null,
+        currency: pr.price.currency,
+        priceUnavailable: pr.price.unavailable,
+        inStock: Boolean(o.inStock),
+        handlingDays: o.handlingDays == null ? null : Number(o.handlingDays),
+        warranty: o.warranty ?? "",
+      };
+    })
+  );
 
   const variants = await Promise.all(
     variantRows.map(async (v) => {
@@ -441,13 +519,43 @@ export async function getProductBySlug(
     questions: questions.map((q) => ({ id: q.id, question: q.question, answer: q.answer, createDate: q.createDate })),
     reviews,
     relatedProducts: related.items.filter((x) => x.id !== row.id).slice(0, 8),
+    offers,
   };
 }
 
-/**
- * Active, listable product slugs — for `generateStaticParams` on the PDP.
- * Cookie-free and cheap; bounded by `limit`.
- */
+
+
+export async function getShopSellerBySlug(slug: string, locale?: string) {
+  const lang = normalizeLocale(locale ?? (await getShopContext()).locale);
+  const [row] = await sql<
+    {
+      id: string;
+      slug: string;
+      name: string;
+      description: string;
+      warranty: string;
+      logoUrl: string | null;
+      joinedAt: string;
+      productCount: number;
+    }[]
+  >`
+    select s.id::text as id, s.slug,
+      common.get_translation_t(s.name_translations, ${lang}, 'en') as name,
+      common.get_translation_t(s.description_translations, ${lang}, 'en') as description,
+      common.get_translation_t(s.warranty_translations, ${lang}, 'en') as warranty,
+      s.logo_url as "logoUrl", s.create_date::text as "joinedAt",
+      (select count(distinct o.product_id)::int
+         from shop.offers o join shop.products p on p.id = o.product_id
+        where o.seller_id = s.id and o.deleted_at is null and o.is_active
+          and p.deleted_at is null and p.status = 'active') as "productCount"
+    from shop.sellers s
+    where s.slug = ${slug} and s.deleted_at is null and s.is_active
+    limit 1
+  `;
+  return row ?? null;
+}
+
+
 export async function listActiveProductSlugs(limit = 500): Promise<string[]> {
   const rows = await sql<{ slug: string }[]>`
     select slug from shop.products

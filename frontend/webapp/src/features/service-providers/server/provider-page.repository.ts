@@ -791,7 +791,10 @@ async function getSpecialistRows(locale: string, providerId: string) {
     where psf.service_provider_id = ${providerId}::uuid
       and psf.is_active = true
       and s.is_active = true
-    order by coalesce(s.rating, 0) desc, name asc
+    -- Specialists the admin placed (1, 2, …) come first in that order; the rest follow
+    -- by rating, then name, as before.
+    order by case when psf.display_order > 0 then 0 else 1 end, psf.display_order,
+      coalesce(s.rating, 0) desc, name asc
   `;
 }
 

@@ -1,0 +1,1832 @@
+{
+  "slug": "terms-conditions",
+  "status": "draft",
+  "needsConfirmation": [
+    "Legal entity name that operates LSevin and is the contracting party, with registration number and registered address",
+    "Governing law and competent courts or dispute body (likely the laws of the Islamic Republic of Iran; not stated in code)",
+    "Any limitation-of-liability cap or exclusions the business wants (no figures used on the page)",
+    "Whether reviews and ratings by customers are moderated and on what rules (shop reviews have statuses in admin)",
+    "Whether wallet balances expire, can be withdrawn to a bank account, or are transferable",
+    "Effective date and version label of these terms",
+    "Whether a separate provider agreement exists that should be referenced"
+  ],
+  "sources": [
+    "messages/en.json MobileProfile.privacyPolicy (marketplace of independent providers; phone + OTP accounts; 18 years and older; contact email)",
+    "src/features/guides/content/hub.ts and visa.ts (LSevin does not issue visas or invitations; physician decides treatment; LSevin does not declare travel safe)",
+    "src/features/commercial/lib/server/payment-policy-engine.ts (collection modes per service: free, full, fixed booking amount, percentage deposit, provider collects)",
+    "src/features/booking-pro/utils/pay-in-place-plans.ts (pay 20% now with 5% addition, 50% with 2%, 80% with 1%; part due now paid by wallet or online payment)",
+    "src/features/finance/lib/server/viewer-pricing.ts and server/pricing-settings.repository.ts (currency by visitor; provider-specific international pricing)",
+    "src/features/wallet/actions.ts (top-up by online card or bank transfer; currency list; per-currency maximum top-up)",
+    "src/features/refunds/server/repository.ts and src/features/shop/server/returns.service.ts (refund and return processes)",
+    "src/features/tours/domain/cancellation.ts (policy version accepted at booking applies)",
+    "src/features/tours/server/admin/disputes.ts (tour disputes reviewed by admins and may lead to a refund request)",
+    "src/features/provider-portal/components/settings-manager.tsx (provider cannot change accredited flag or commission policy)",
+    "src/accounting/server/legacy-bridge.ts (platform fee is split from the amount paid, credited to platform income; provider receives the remainder)"
+  ],
+  "locales": {
+    "en-US": {
+      "title": "Terms and Conditions",
+      "metaDescription": "The terms for using LSevin: our role as a booking platform, accounts, bookings, payments, the wallet, provider responsibilities, cancellations and disputes.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "These terms apply when you use the LSevin website and app at lsevin.com or lsevincare.com, create an account, make a booking or place a shop order. By using LSevin you agree to them. If you do not agree, do not use the service."
+        },
+        {
+          "type": "h2",
+          "text": "1. LSevin's role"
+        },
+        {
+          "type": "p",
+          "text": "LSevin is a marketplace and booking intermediary. Clinics, hospitals, doctors, hotels, tour operators, gyms and other providers listed on LSevin are independent businesses. When you book a service, the service itself is provided by that provider under its own policies, and the provider is responsible for delivering it."
+        },
+        {
+          "type": "p",
+          "text": "LSevin is responsible for running the platform, showing provider information, recording your booking, collecting payments made through LSevin and handling cancellations and refunds under these terms. LSevin is not a healthcare provider, does not give medical advice and does not issue visas or medical invitation letters."
+        },
+        {
+          "type": "h2",
+          "text": "2. Medical decisions"
+        },
+        {
+          "type": "p",
+          "text": "Information on LSevin, including guides and advisor conversations, is general information. It does not replace an examination or advice from a qualified doctor. Decisions about diagnosis, treatment, fitness to travel and aftercare are made by you and your treating physician. LSevin does not guarantee any medical outcome."
+        },
+        {
+          "type": "h2",
+          "text": "3. Your account"
+        },
+        {
+          "type": "p",
+          "text": "You must be 18 or older to use LSevin. You sign in with your phone number and a one-time code. Keep your phone secure and do not share codes with anyone, including people who say they work for LSevin."
+        },
+        {
+          "type": "p",
+          "text": "Give accurate details in your profile and bookings, including names, contact details and, for international patients, the details needed for travel. You are responsible for activity on your account. We may suspend an account that is used for fraud, abuse or in breach of these terms."
+        },
+        {
+          "type": "h2",
+          "text": "4. Bookings"
+        },
+        {
+          "type": "p",
+          "text": "A booking is made when you complete the booking steps and, where payment is due, the payment is confirmed. Some services are confirmed by the provider after you request them, and the booking page shows the current status."
+        },
+        {
+          "type": "p",
+          "text": "Before you confirm, the booking shows the service, dates, price and the provider's policies. Read them. The policies in force when you book apply to that booking, including cancellation terms."
+        },
+        {
+          "type": "h2",
+          "text": "5. Prices and payment"
+        },
+        {
+          "type": "p",
+          "text": "Prices are set by providers. LSevin shows prices in rial or toman for visitors in Iran and in another currency for visitors abroad, and some providers set different prices for international patients. The amount shown at checkout is the amount you pay."
+        },
+        {
+          "type": "p",
+          "text": "Depending on the service, you may pay the full amount online, pay a fixed amount or a percentage up front, pay at the place, or book without payment. Where a pay-in-place plan is offered, you choose to pay 20, 50 or 80 percent now. Each plan adds 5, 2 or 1 percent to the bill respectively, and the part due now is paid by wallet or online payment."
+        },
+        {
+          "type": "p",
+          "text": "Online payments are processed by payment gateways such as Zarinpal. LSevin does not see your full card details."
+        },
+        {
+          "type": "h2",
+          "text": "6. LSevin wallet"
+        },
+        {
+          "type": "p",
+          "text": "Your wallet holds money you top up and refunds credited to you. Top-ups can be made by online card payment or by bank transfer with a receipt, which is checked before the balance is available. Each top-up is subject to a maximum amount per currency. Wallet balances are used to pay for bookings on LSevin."
+        },
+        {
+          "type": "h2",
+          "text": "7. Cancellations, refunds and returns"
+        },
+        {
+          "type": "p",
+          "text": "Cancellations and refunds follow the provider's policy for the booking and the LSevin Returns and Refunds Policy. Approved booking refunds are credited to your LSevin wallet. Shop returns and refunds follow the process described in that policy."
+        },
+        {
+          "type": "h2",
+          "text": "8. Provider responsibilities"
+        },
+        {
+          "type": "p",
+          "text": "Providers must hold the licences required for their services, publish accurate information and prices, and deliver what was booked. Badges such as Accredited are set by LSevin administrators and cannot be set by providers. A badge is not a guarantee of a provider's work."
+        },
+        {
+          "type": "h2",
+          "text": "9. Your obligations"
+        },
+        {
+          "type": "p",
+          "text": "Use LSevin only for lawful purposes. Do not make false bookings, misuse payment methods, post misleading reviews, copy the site's content or interfere with how it works. Do not arrange to pay a provider outside LSevin for a service you found and booked on LSevin, because such payments are outside our protection."
+        },
+        {
+          "type": "h2",
+          "text": "10. Travel"
+        },
+        {
+          "type": "p",
+          "text": "You are responsible for your visa, travel documents, insurance and checking your own government's travel advice. LSevin does not declare travel safe."
+        },
+        {
+          "type": "h2",
+          "text": "11. Liability"
+        },
+        {
+          "type": "p",
+          "text": "LSevin is responsible for operating the platform with reasonable care. It is not responsible for the medical care, accommodation, tour or other service delivered by an independent provider, or for losses caused by events outside its reasonable control. Nothing in these terms excludes liability that cannot be excluded by law."
+        },
+        {
+          "type": "h2",
+          "text": "12. Complaints and disputes"
+        },
+        {
+          "type": "p",
+          "text": "If something goes wrong, contact the provider through your booking and open a support conversation with LSevin. We review the booking, the policy that applied and the payment, and we may issue a refund where the policy or our review supports it. For tours, LSevin reviews disputes between customers and operators."
+        },
+        {
+          "type": "h2",
+          "text": "13. Changes to these terms"
+        },
+        {
+          "type": "p",
+          "text": "We may update these terms. The version published on this page applies from its stated date. Bookings already made keep the policies that applied when they were made."
+        },
+        {
+          "type": "h2",
+          "text": "14. Contact"
+        },
+        {
+          "type": "p",
+          "text": "Questions about these terms can be sent through Support in your account or by email to lsevin.turkiye@gmail.com."
+        }
+      ],
+      "faq": [
+        {
+          "q": "Who is responsible for my treatment?",
+          "a": "The independent clinic, hospital or doctor you booked with. LSevin runs the booking and payment and does not give medical advice."
+        },
+        {
+          "q": "Which cancellation policy applies to my booking?",
+          "a": "The provider's policy shown when you booked. For tours, the policy version you accepted stays attached to your booking."
+        },
+        {
+          "q": "What does the pay-in-place plan cost?",
+          "a": "Paying 20 percent now adds 5 percent to the bill, 50 percent adds 2 percent, and 80 percent adds 1 percent. The breakdown is shown before you confirm."
+        },
+        {
+          "q": "Can I pay the provider directly instead of through LSevin?",
+          "a": "Only where the booking itself says you pay at the place. Payments arranged outside LSevin for a service booked on LSevin are not covered by our refund process."
+        },
+        {
+          "q": "How do I raise a complaint?",
+          "a": "Open a support conversation in your account with the booking or order number and a description of the problem."
+        }
+      ]
+    },
+    "fa-IR": {
+      "title": "قوانین و مقررات",
+      "metaDescription": "شرایط استفاده از السوین: نقش ما به‌عنوان پلتفرم رزرو، حساب کاربری، رزرو، پرداخت، کیف پول، مسئولیت ارائه‌دهندگان، لغو و بازگشت وجه و رسیدگی به اختلاف.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "این قوانین هنگام استفاده از وب‌سایت و برنامه السوین در lsevin.com یا lsevincare.com، ساخت حساب کاربری، رزرو یا ثبت سفارش فروشگاه اعمال می‌شود. با استفاده از السوین این قوانین را می‌پذیرید. اگر با آن‌ها موافق نیستید، از سرویس استفاده نکنید."
+        },
+        {
+          "type": "h2",
+          "text": "۱. نقش السوین"
+        },
+        {
+          "type": "p",
+          "text": "السوین بازارچه و واسطه رزرو است. کلینیک‌ها، بیمارستان‌ها، پزشکان، هتل‌ها، برگزارکنندگان تور، باشگاه‌ها و دیگر ارائه‌دهندگانی که در السوین معرفی می‌شوند کسب‌وکارهای مستقل هستند. وقتی خدمتی رزرو می‌کنید، خود خدمت را همان ارائه‌دهنده طبق قوانین خودش ارائه می‌دهد و مسئولیت انجام آن با اوست."
+        },
+        {
+          "type": "p",
+          "text": "مسئولیت السوین اداره پلتفرم، نمایش اطلاعات ارائه‌دهندگان، ثبت رزرو، دریافت پرداخت‌هایی که از طریق السوین انجام می‌شود و رسیدگی به لغو و بازگشت وجه طبق این قوانین است. السوین ارائه‌دهنده خدمات درمانی نیست، توصیه پزشکی نمی‌دهد و ویزا یا دعوت‌نامه درمانی صادر نمی‌کند."
+        },
+        {
+          "type": "h2",
+          "text": "۲. تصمیم‌های پزشکی"
+        },
+        {
+          "type": "p",
+          "text": "اطلاعات السوین، از جمله راهنماها و گفت‌وگو با کارشناسان، اطلاعات عمومی است و جای معاینه یا نظر پزشک واجد صلاحیت را نمی‌گیرد. تصمیم درباره تشخیص، درمان، آمادگی برای سفر و مراقبت‌های پس از درمان با شما و پزشک معالج است. السوین هیچ نتیجه درمانی را تضمین نمی‌کند."
+        },
+        {
+          "type": "h2",
+          "text": "۳. حساب کاربری"
+        },
+        {
+          "type": "p",
+          "text": "برای استفاده از السوین باید دست‌کم ۱۸ سال داشته باشید. ورود با شماره تلفن و کد یک‌بارمصرف انجام می‌شود. از گوشی خود محافظت کنید و کد را به هیچ‌کس، حتی کسی که خود را کارمند السوین معرفی می‌کند، ندهید."
+        },
+        {
+          "type": "p",
+          "text": "در پروفایل و رزروها اطلاعات درست وارد کنید، از جمله نام، اطلاعات تماس و برای بیماران خارجی اطلاعات لازم برای سفر. مسئولیت فعالیت‌های حساب با شماست. ممکن است حسابی را که برای تقلب، سوءاستفاده یا برخلاف این قوانین استفاده شود مسدود کنیم."
+        },
+        {
+          "type": "h2",
+          "text": "۴. رزرو"
+        },
+        {
+          "type": "p",
+          "text": "رزرو زمانی ثبت می‌شود که مراحل رزرو را کامل کنید و اگر پرداختی لازم باشد، پرداخت تأیید شود. برخی خدمات پس از درخواست شما از سوی ارائه‌دهنده تأیید می‌شوند و وضعیت فعلی در صفحه رزرو نمایش داده می‌شود."
+        },
+        {
+          "type": "p",
+          "text": "پیش از تأیید، خدمت، تاریخ‌ها، قیمت و قوانین ارائه‌دهنده نمایش داده می‌شود. آن‌ها را بخوانید. قوانینی که هنگام رزرو برقرار است، از جمله شرایط لغو، برای همان رزرو اعمال می‌شود."
+        },
+        {
+          "type": "h2",
+          "text": "۵. قیمت و پرداخت"
+        },
+        {
+          "type": "p",
+          "text": "قیمت‌ها را ارائه‌دهندگان تعیین می‌کنند. السوین قیمت را برای بازدیدکنندگان داخل ایران به ریال یا تومان و برای بازدیدکنندگان خارج از ایران به ارز دیگری نشان می‌دهد و برخی ارائه‌دهندگان برای بیماران بین‌الملل قیمت متفاوتی دارند. مبلغی که هنگام پرداخت می‌بینید همان مبلغی است که می‌پردازید."
+        },
+        {
+          "type": "p",
+          "text": "بسته به خدمت، ممکن است کل مبلغ را آنلاین بپردازید، مبلغ ثابت یا درصدی را از پیش بپردازید، در محل بپردازید یا بدون پرداخت رزرو کنید. هر جا طرح پرداخت در محل فعال باشد، می‌توانید ۲۰، ۵۰ یا ۸۰ درصد را الان بپردازید. این طرح‌ها به ترتیب ۵، ۲ و ۱ درصد به مبلغ صورت‌حساب اضافه می‌کنند و بخش قابل پرداخت فعلی با کیف پول یا پرداخت آنلاین پرداخت می‌شود."
+        },
+        {
+          "type": "p",
+          "text": "پرداخت‌های آنلاین از طریق درگاه‌هایی مثل زرین‌پال انجام می‌شود و السوین اطلاعات کامل کارت شما را نمی‌بیند."
+        },
+        {
+          "type": "h2",
+          "text": "۶. کیف پول السوین"
+        },
+        {
+          "type": "p",
+          "text": "کیف پول شما مبلغ‌های شارژشده و وجوه بازگشتی را نگه می‌دارد. شارژ با پرداخت آنلاین کارتی یا واریز بانکی همراه با رسید انجام می‌شود و واریز بانکی پیش از قابل استفاده شدن بررسی می‌شود. هر بار شارژ برای هر ارز سقف مشخصی دارد. موجودی کیف پول برای پرداخت رزروها در السوین به کار می‌رود."
+        },
+        {
+          "type": "h2",
+          "text": "۷. لغو، بازگشت وجه و مرجوعی"
+        },
+        {
+          "type": "p",
+          "text": "لغو و بازگشت وجه تابع قانون ارائه‌دهنده برای همان رزرو و سیاست بازگشت کالا و وجه السوین است. بازگشت وجه پذیرفته‌شده رزروها به کیف پول السوین واریز می‌شود. مرجوعی و بازگشت وجه فروشگاه طبق روندی است که در همان سیاست آمده است."
+        },
+        {
+          "type": "h2",
+          "text": "۸. تعهدات ارائه‌دهندگان"
+        },
+        {
+          "type": "p",
+          "text": "ارائه‌دهندگان باید مجوزهای لازم برای خدمات خود را داشته باشند، اطلاعات و قیمت درست منتشر کنند و آنچه رزرو شده را ارائه دهند. نشان‌هایی مثل «معتبر» را مدیران السوین فعال می‌کنند و ارائه‌دهندگان نمی‌توانند خودشان آن را بگذارند. نشان تضمین کار ارائه‌دهنده نیست."
+        },
+        {
+          "type": "h2",
+          "text": "۹. تعهدات شما"
+        },
+        {
+          "type": "p",
+          "text": "از السوین فقط برای مقاصد قانونی استفاده کنید. رزرو ساختگی نکنید، از روش‌های پرداخت سوءاستفاده نکنید، نظر گمراه‌کننده ننویسید، محتوای سایت را کپی نکنید و در کار آن اختلال ایجاد نکنید. برای خدمتی که در السوین پیدا و رزرو کرده‌اید با ارائه‌دهنده بیرون از السوین قرار پرداخت نگذارید، چون چنین پرداختی خارج از حمایت ما است."
+        },
+        {
+          "type": "h2",
+          "text": "۱۰. سفر"
+        },
+        {
+          "type": "p",
+          "text": "ویزا، مدارک سفر، بیمه و بررسی توصیه‌های سفر دولت کشورتان بر عهده خود شماست. السوین سفر را امن اعلام نمی‌کند."
+        },
+        {
+          "type": "h2",
+          "text": "۱۱. مسئولیت"
+        },
+        {
+          "type": "p",
+          "text": "السوین مسئول است پلتفرم را با دقت معقول اداره کند. السوین مسئول خدمات درمانی، اقامت، تور یا خدمات دیگری که ارائه‌دهنده مستقل ارائه می‌دهد نیست و مسئولیتی در قبال خسارت ناشی از رویدادهای خارج از کنترل معقول خود ندارد. هیچ بخشی از این قوانین مسئولیتی را که طبق قانون قابل سلب نیست سلب نمی‌کند."
+        },
+        {
+          "type": "h2",
+          "text": "۱۲. شکایت و اختلاف"
+        },
+        {
+          "type": "p",
+          "text": "اگر مشکلی پیش آمد، از صفحه رزرو با ارائه‌دهنده تماس بگیرید و در السوین گفت‌وگوی پشتیبانی باز کنید. ما رزرو، قانون اعمال‌شده و پرداخت را بررسی می‌کنیم و اگر قانون یا بررسی ما پشتیبانی کند، وجه را بازمی‌گردانیم. در تورها، السوین به اختلاف میان مشتری و برگزارکننده رسیدگی می‌کند."
+        },
+        {
+          "type": "h2",
+          "text": "۱۳. تغییر قوانین"
+        },
+        {
+          "type": "p",
+          "text": "ممکن است این قوانین را به‌روزرسانی کنیم. نسخه منتشرشده در این صفحه از تاریخ اعلام‌شده اعمال می‌شود. رزروهای ثبت‌شده همان قوانینی را دارند که هنگام ثبت برقرار بود."
+        },
+        {
+          "type": "h2",
+          "text": "۱۴. تماس"
+        },
+        {
+          "type": "p",
+          "text": "پرسش‌های خود درباره این قوانین را از بخش پشتیبانی حساب یا با ایمیل به lsevin.turkiye@gmail.com بفرستید."
+        }
+      ],
+      "faq": [
+        {
+          "q": "مسئول درمان من کیست؟",
+          "a": "کلینیک، بیمارستان یا پزشک مستقلی که رزرو کرده‌اید. السوین رزرو و پرداخت را انجام می‌دهد و توصیه پزشکی نمی‌دهد."
+        },
+        {
+          "q": "کدام قانون لغو برای رزرو من اعمال می‌شود؟",
+          "a": "قانون ارائه‌دهنده که هنگام رزرو نمایش داده شد. در تورها، نسخه‌ای از قانون که پذیرفته‌اید به رزرو شما متصل می‌ماند."
+        },
+        {
+          "q": "طرح پرداخت در محل چه هزینه‌ای دارد؟",
+          "a": "پرداخت ۲۰ درصد در ابتدا ۵ درصد، ۵۰ درصد ۲ درصد و ۸۰ درصد ۱ درصد به صورت‌حساب اضافه می‌کند. جزئیات پیش از تأیید نمایش داده می‌شود."
+        },
+        {
+          "q": "می‌توانم به‌جای السوین مستقیم به ارائه‌دهنده پول بدهم؟",
+          "a": "فقط وقتی خود رزرو پرداخت در محل را مشخص کرده باشد. پرداختی که برای خدمت رزروشده در السوین بیرون از السوین انجام شود مشمول روند بازگشت وجه ما نیست."
+        },
+        {
+          "q": "چطور شکایت ثبت کنم؟",
+          "a": "در حساب خود گفت‌وگوی پشتیبانی باز کنید و شماره رزرو یا سفارش و شرح مشکل را بنویسید."
+        }
+      ]
+    },
+    "ar-SA": {
+      "title": "الشروط والأحكام",
+      "metaDescription": "شروط استخدام لسوين: دورنا كمنصة حجز، والحسابات، والحجوزات، والدفع، والمحفظة، ومسؤوليات مقدمي الخدمات، والإلغاء والاسترداد، وتسوية النزاعات.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "تنطبق هذه الشروط عند استخدامك موقع لسوين وتطبيقها على lsevin.com أو lsevincare.com، وعند إنشاء حساب أو إجراء حجز أو طلب من المتجر. باستخدامك لسوين فإنك توافق عليها، وإذا لم توافق فلا تستخدم الخدمة."
+        },
+        {
+          "type": "h2",
+          "text": "1. دور لسوين"
+        },
+        {
+          "type": "p",
+          "text": "لسوين سوق إلكترونية ووسيط حجز. العيادات والمستشفيات والأطباء والفنادق ومنظمو الجولات والنوادي وغيرهم من مقدمي الخدمات المعروضين على لسوين أعمال مستقلة. وعندما تحجز خدمة، يقدمها مقدم الخدمة نفسه وفق سياساته، ويتحمل مسؤولية تقديمها."
+        },
+        {
+          "type": "p",
+          "text": "تتولى لسوين تشغيل المنصة، وعرض معلومات مقدمي الخدمات، وتسجيل حجزك، وتحصيل المدفوعات التي تتم عبرها، ومعالجة الإلغاء والاسترداد وفق هذه الشروط. لسوين ليست جهة رعاية صحية، ولا تقدم نصائح طبية، ولا تصدر تأشيرات أو رسائل دعوة علاجية."
+        },
+        {
+          "type": "h2",
+          "text": "2. القرارات الطبية"
+        },
+        {
+          "type": "p",
+          "text": "المعلومات على لسوين، ومنها الأدلة والمحادثات مع المستشارين، معلومات عامة لا تغني عن الفحص أو رأي طبيب مؤهل. القرار في التشخيص والعلاج والقدرة على السفر والرعاية اللاحقة لك ولطبيبك المعالج، ولا تضمن لسوين أي نتيجة طبية."
+        },
+        {
+          "type": "h2",
+          "text": "3. حسابك"
+        },
+        {
+          "type": "p",
+          "text": "يجب أن يكون عمرك 18 عاماً أو أكثر لاستخدام لسوين. تسجّل الدخول برقم هاتفك ورمز لمرة واحدة. احمِ هاتفك ولا تشارك الرموز مع أحد، حتى مع من يقول إنه يعمل لدى لسوين."
+        },
+        {
+          "type": "p",
+          "text": "أدخل بيانات صحيحة في ملفك وحجوزاتك، ومنها الأسماء ووسائل التواصل، وللمرضى الدوليين البيانات اللازمة للسفر. أنت مسؤول عن النشاط في حسابك، وقد نعلّق أي حساب يُستخدم في الاحتيال أو الإساءة أو مخالفة هذه الشروط."
+        },
+        {
+          "type": "h2",
+          "text": "4. الحجوزات"
+        },
+        {
+          "type": "p",
+          "text": "يتم الحجز عندما تكمل خطواته، وإذا كان هناك مبلغ مستحق فعندما يتأكد الدفع. بعض الخدمات يؤكدها مقدم الخدمة بعد طلبك، وتظهر الحالة الحالية في صفحة الحجز."
+        },
+        {
+          "type": "p",
+          "text": "قبل التأكيد تظهر لك الخدمة والتواريخ والسعر وسياسات مقدم الخدمة، فاقرأها. وتنطبق على حجزك السياسات السارية وقت الحجز، ومنها شروط الإلغاء."
+        },
+        {
+          "type": "h2",
+          "text": "5. الأسعار والدفع"
+        },
+        {
+          "type": "p",
+          "text": "يحدد مقدمو الخدمات الأسعار. تعرض لسوين الأسعار بالريال أو التومان للزوار داخل إيران وبعملة أخرى للزوار من الخارج، ولبعض مقدمي الخدمات أسعار مختلفة للمرضى الدوليين. والمبلغ الظاهر عند الدفع هو المبلغ الذي تدفعه."
+        },
+        {
+          "type": "p",
+          "text": "بحسب الخدمة، قد تدفع المبلغ كاملاً عبر الإنترنت، أو مبلغاً ثابتاً أو نسبة مقدماً، أو تدفع في المكان، أو تحجز دون دفع. وحيث تتوفر خطة الدفع في المكان، تختار دفع 20 أو 50 أو 80 بالمئة الآن، وتضيف كل خطة على التوالي 5 أو 2 أو 1 بالمئة إلى الفاتورة، ويُدفع الجزء المستحق الآن بالمحفظة أو بالدفع الإلكتروني."
+        },
+        {
+          "type": "p",
+          "text": "تُعالَج المدفوعات الإلكترونية عبر بوابات دفع مثل زرين‌بال، ولا ترى لسوين بيانات بطاقتك كاملة."
+        },
+        {
+          "type": "h2",
+          "text": "6. محفظة لسوين"
+        },
+        {
+          "type": "p",
+          "text": "تحتفظ محفظتك بالمبالغ التي تشحنها والمبالغ المستردة إليك. يتم الشحن بالدفع الإلكتروني بالبطاقة أو بتحويل بنكي مع إيصال يُراجَع قبل إتاحة الرصيد. ولكل عملية شحن حد أقصى بحسب العملة. ويُستخدم رصيد المحفظة للدفع مقابل الحجوزات على لسوين."
+        },
+        {
+          "type": "h2",
+          "text": "7. الإلغاء والاسترداد والإرجاع"
+        },
+        {
+          "type": "p",
+          "text": "يخضع الإلغاء والاسترداد لسياسة مقدم الخدمة الخاصة بالحجز ولسياسة الإرجاع واسترداد الأموال في لسوين. تُضاف مبالغ استرداد الحجوزات المقبولة إلى محفظتك في لسوين، ويتبع الإرجاع والاسترداد في المتجر الإجراءات الموضحة في تلك السياسة."
+        },
+        {
+          "type": "h2",
+          "text": "8. مسؤوليات مقدمي الخدمات"
+        },
+        {
+          "type": "p",
+          "text": "على مقدمي الخدمات حيازة التراخيص اللازمة لخدماتهم، ونشر معلومات وأسعار صحيحة، وتقديم ما تم حجزه. الشارات مثل «معتمد» يفعّلها مشرفو لسوين ولا يستطيع مقدمو الخدمات تفعيلها بأنفسهم، والشارة ليست ضماناً لعمل مقدم الخدمة."
+        },
+        {
+          "type": "h2",
+          "text": "9. التزاماتك"
+        },
+        {
+          "type": "p",
+          "text": "استخدم لسوين للأغراض المشروعة فقط. لا تُجرِ حجوزات وهمية، ولا تسئ استخدام وسائل الدفع، ولا تنشر تقييمات مضللة، ولا تنسخ محتوى الموقع أو تعطّل عمله. ولا تتفق على الدفع لمقدم خدمة خارج لسوين مقابل خدمة وجدتها وحجزتها على لسوين، فهذه المدفوعات خارج حمايتنا."
+        },
+        {
+          "type": "h2",
+          "text": "10. السفر"
+        },
+        {
+          "type": "p",
+          "text": "أنت مسؤول عن تأشيرتك ووثائق سفرك وتأمينك ومراجعة إرشادات السفر الصادرة عن حكومتك. ولا تعلن لسوين أن السفر آمن."
+        },
+        {
+          "type": "h2",
+          "text": "11. المسؤولية"
+        },
+        {
+          "type": "p",
+          "text": "تلتزم لسوين بتشغيل المنصة بعناية معقولة، ولا تتحمل مسؤولية الرعاية الطبية أو الإقامة أو الجولة أو غيرها من الخدمات التي يقدمها مقدم خدمة مستقل، ولا الخسائر الناتجة عن أحداث خارجة عن سيطرتها المعقولة. ولا يستبعد أي بند في هذه الشروط مسؤولية لا يجوز استبعادها قانوناً."
+        },
+        {
+          "type": "h2",
+          "text": "12. الشكاوى والنزاعات"
+        },
+        {
+          "type": "p",
+          "text": "إذا حدثت مشكلة، تواصل مع مقدم الخدمة من صفحة الحجز وافتح محادثة دعم مع لسوين. نراجع الحجز والسياسة المطبقة والدفع، وقد نرد المبلغ حيث تدعم السياسة أو مراجعتنا ذلك. وفي الجولات، تنظر لسوين في النزاعات بين العملاء والمنظمين."
+        },
+        {
+          "type": "h2",
+          "text": "13. تعديل الشروط"
+        },
+        {
+          "type": "p",
+          "text": "قد نحدّث هذه الشروط، وتسري النسخة المنشورة في هذه الصفحة من التاريخ المذكور فيها. وتبقى الحجوزات القائمة خاضعة للسياسات التي كانت سارية وقت إجرائها."
+        },
+        {
+          "type": "h2",
+          "text": "14. التواصل"
+        },
+        {
+          "type": "p",
+          "text": "أرسل أسئلتك حول هذه الشروط عبر قسم الدعم في حسابك أو بالبريد الإلكتروني إلى lsevin.turkiye@gmail.com."
+        }
+      ],
+      "faq": [
+        {
+          "q": "من المسؤول عن علاجي؟",
+          "a": "العيادة أو المستشفى أو الطبيب المستقل الذي حجزت لديه. تتولى لسوين الحجز والدفع ولا تقدم نصائح طبية."
+        },
+        {
+          "q": "أي سياسة إلغاء تنطبق على حجزي؟",
+          "a": "سياسة مقدم الخدمة المعروضة وقت الحجز. وفي الجولات تبقى نسخة السياسة التي قبلتها مرتبطة بحجزك."
+        },
+        {
+          "q": "كم تكلف خطة الدفع في المكان؟",
+          "a": "دفع 20 بالمئة الآن يضيف 5 بالمئة إلى الفاتورة، و50 بالمئة يضيف 2 بالمئة، و80 بالمئة يضيف 1 بالمئة. وتظهر التفاصيل قبل التأكيد."
+        },
+        {
+          "q": "هل يمكنني الدفع لمقدم الخدمة مباشرة بدلاً من لسوين؟",
+          "a": "فقط إذا نص الحجز نفسه على الدفع في المكان. المدفوعات التي تُرتَّب خارج لسوين لخدمة محجوزة عليها لا تشملها إجراءات الاسترداد لدينا."
+        },
+        {
+          "q": "كيف أقدّم شكوى؟",
+          "a": "افتح محادثة دعم في حسابك واذكر رقم الحجز أو الطلب ووصف المشكلة."
+        }
+      ]
+    },
+    "tr-TR": {
+      "title": "Kullanım Koşulları",
+      "metaDescription": "LSevin kullanım koşulları: rezervasyon platformu olarak rolümüz, hesaplar, rezervasyonlar, ödemeler, cüzdan, sağlayıcı sorumlulukları, iptaller ve uyuşmazlıklar.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Bu koşullar; lsevin.com veya lsevincare.com adresindeki LSevin web sitesini ve uygulamasını kullandığınızda, hesap oluşturduğunuzda, rezervasyon yaptığınızda veya mağazadan sipariş verdiğinizde geçerlidir. LSevin'i kullanarak bu koşulları kabul etmiş olursunuz. Kabul etmiyorsanız hizmeti kullanmayın."
+        },
+        {
+          "type": "h2",
+          "text": "1. LSevin'in rolü"
+        },
+        {
+          "type": "p",
+          "text": "LSevin bir pazar yeri ve rezervasyon aracısıdır. LSevin'de listelenen klinikler, hastaneler, doktorlar, oteller, tur operatörleri, spor salonları ve diğer sağlayıcılar bağımsız işletmelerdir. Bir hizmet ayırttığınızda hizmetin kendisi o sağlayıcı tarafından kendi politikaları çerçevesinde verilir ve hizmetin sunulmasından sağlayıcı sorumludur."
+        },
+        {
+          "type": "p",
+          "text": "LSevin; platformu işletmekten, sağlayıcı bilgilerini göstermekten, rezervasyonunuzu kaydetmekten, LSevin üzerinden yapılan ödemeleri tahsil etmekten ve iptal ile geri ödemeleri bu koşullar çerçevesinde yürütmekten sorumludur. LSevin bir sağlık hizmeti sağlayıcısı değildir, tıbbi tavsiye vermez ve vize ya da tıbbi davet mektubu düzenlemez."
+        },
+        {
+          "type": "h2",
+          "text": "2. Tıbbi kararlar"
+        },
+        {
+          "type": "p",
+          "text": "Rehberler ve danışman görüşmeleri dahil LSevin'deki bilgiler genel bilgilerdir. Yetkin bir doktorun muayenesinin veya tavsiyesinin yerini tutmaz. Tanı, tedavi, seyahate uygunluk ve tedavi sonrası bakımla ilgili kararları siz ve sizi tedavi eden hekim verirsiniz. LSevin herhangi bir tıbbi sonucu garanti etmez."
+        },
+        {
+          "type": "h2",
+          "text": "3. Hesabınız"
+        },
+        {
+          "type": "p",
+          "text": "LSevin'i kullanmak için 18 yaşında veya daha büyük olmanız gerekir. Telefon numaranız ve tek kullanımlık bir kodla giriş yaparsınız. Telefonunuzu güvende tutun ve kodları, LSevin'de çalıştığını söyleyenler dahil hiç kimseyle paylaşmayın."
+        },
+        {
+          "type": "p",
+          "text": "Profilinizde ve rezervasyonlarınızda adlar, iletişim bilgileri ve uluslararası hastalar için seyahatte gereken bilgiler dahil doğru bilgiler verin. Hesabınızdaki işlemlerden siz sorumlusunuz. Dolandırıcılık, kötüye kullanım veya bu koşulların ihlali amacıyla kullanılan bir hesabı askıya alabiliriz."
+        },
+        {
+          "type": "h2",
+          "text": "4. Rezervasyonlar"
+        },
+        {
+          "type": "p",
+          "text": "Rezervasyon adımlarını tamamladığınızda ve ödeme gereken durumlarda ödeme onaylandığında rezervasyon yapılmış olur. Bazı hizmetler, talebinizden sonra sağlayıcı tarafından onaylanır; rezervasyon sayfası güncel durumu gösterir."
+        },
+        {
+          "type": "p",
+          "text": "Onaylamanızdan önce rezervasyonda hizmet, tarihler, fiyat ve sağlayıcının politikaları gösterilir. Bunları okuyun. Rezervasyon yaptığınız tarihte yürürlükte olan politikalar, iptal koşulları dahil, o rezervasyon için geçerlidir."
+        },
+        {
+          "type": "h2",
+          "text": "5. Fiyatlar ve ödeme"
+        },
+        {
+          "type": "p",
+          "text": "Fiyatları sağlayıcılar belirler. LSevin, İran'daki ziyaretçilere fiyatları riyal veya tümen olarak, yurt dışındaki ziyaretçilere ise başka bir para biriminde gösterir; bazı sağlayıcılar uluslararası hastalar için farklı fiyatlar belirler. Ödeme adımında gösterilen tutar, ödeyeceğiniz tutardır."
+        },
+        {
+          "type": "p",
+          "text": "Hizmete bağlı olarak tutarın tamamını online ödeyebilir, sabit bir tutarı veya bir yüzdeyi peşin ödeyebilir, yerinde ödeyebilir ya da ödeme yapmadan rezervasyon yapabilirsiniz. Yerinde ödeme planı sunulduğunda şimdi yüzde 20, 50 veya 80 ödemeyi seçersiniz. Planlar faturaya sırasıyla yüzde 5, 2 veya 1 ekler ve şimdi ödenecek kısım cüzdandan veya online ödemeyle ödenir."
+        },
+        {
+          "type": "p",
+          "text": "Online ödemeler Zarinpal gibi ödeme altyapıları tarafından işlenir. LSevin kart bilgilerinizin tamamını görmez."
+        },
+        {
+          "type": "h2",
+          "text": "6. LSevin cüzdanı"
+        },
+        {
+          "type": "p",
+          "text": "Cüzdanınızda yüklediğiniz para ve size aktarılan iadeler tutulur. Bakiye yüklemesi online kart ödemesiyle veya dekontlu banka havalesiyle yapılabilir; havale, bakiye kullanıma açılmadan önce kontrol edilir. Her yükleme, para birimi başına bir üst tutar sınırına tabidir. Cüzdan bakiyeleri LSevin'deki rezervasyonları ödemek için kullanılır."
+        },
+        {
+          "type": "h2",
+          "text": "7. İptaller, geri ödemeler ve iadeler"
+        },
+        {
+          "type": "p",
+          "text": "İptaller ve geri ödemeler, rezervasyon için geçerli sağlayıcı politikasına ve LSevin İade ve Geri Ödeme Politikası'na tabidir. Onaylanan rezervasyon geri ödemeleri LSevin cüzdanınıza aktarılır. Mağaza iadeleri ve geri ödemeleri bu politikada açıklanan süreci izler."
+        },
+        {
+          "type": "h2",
+          "text": "8. Sağlayıcı sorumlulukları"
+        },
+        {
+          "type": "p",
+          "text": "Sağlayıcılar, hizmetleri için gereken lisanslara sahip olmak, doğru bilgi ve fiyat yayımlamak ve ayırtılan hizmeti sunmak zorundadır. Akredite gibi rozetleri LSevin yöneticileri tanımlar; sağlayıcılar bunları tanımlayamaz. Bir rozet, sağlayıcının işinin garantisi değildir."
+        },
+        {
+          "type": "h2",
+          "text": "9. Yükümlülükleriniz"
+        },
+        {
+          "type": "p",
+          "text": "LSevin'i yalnızca hukuka uygun amaçlarla kullanın. Sahte rezervasyon yapmayın, ödeme yöntemlerini kötüye kullanmayın, yanıltıcı değerlendirme yayımlamayın, sitenin içeriğini kopyalamayın ve işleyişine müdahale etmeyin. LSevin'de bulup ayırttığınız bir hizmet için sağlayıcıya LSevin dışında ödeme yapmayı kararlaştırmayın; bu tür ödemeler korumamızın dışında kalır."
+        },
+        {
+          "type": "h2",
+          "text": "10. Seyahat"
+        },
+        {
+          "type": "p",
+          "text": "Vizeniz, seyahat belgeleriniz, sigortanız ve kendi ülkenizin seyahat uyarılarını kontrol etmek sizin sorumluluğunuzdadır. LSevin seyahatin güvenli olduğunu beyan etmez."
+        },
+        {
+          "type": "h2",
+          "text": "11. Sorumluluk"
+        },
+        {
+          "type": "p",
+          "text": "LSevin, platformu makul özenle işletmekten sorumludur. Bağımsız bir sağlayıcının sunduğu tıbbi bakımdan, konaklamadan, turdan veya diğer hizmetlerden ya da makul kontrolü dışındaki olayların neden olduğu kayıplardan sorumlu değildir. Bu koşullardaki hiçbir hüküm, kanunen hariç tutulamayan sorumluluğu ortadan kaldırmaz."
+        },
+        {
+          "type": "h2",
+          "text": "12. Şikâyetler ve uyuşmazlıklar"
+        },
+        {
+          "type": "p",
+          "text": "Bir sorun çıkarsa rezervasyonunuz üzerinden sağlayıcıyla iletişime geçin ve LSevin'de bir destek görüşmesi açın. Rezervasyonu, geçerli politikayı ve ödemeyi inceleriz; politika veya incelememiz bunu destekliyorsa geri ödeme yapabiliriz. Turlarda müşteriler ile operatörler arasındaki uyuşmazlıkları LSevin inceler."
+        },
+        {
+          "type": "h2",
+          "text": "13. Bu koşullardaki değişiklikler"
+        },
+        {
+          "type": "p",
+          "text": "Bu koşulları güncelleyebiliriz. Bu sayfada yayımlanan sürüm, belirtilen tarihinden itibaren geçerlidir. Daha önce yapılmış rezervasyonlar, yapıldıkları tarihte geçerli olan politikaları korur."
+        },
+        {
+          "type": "h2",
+          "text": "14. İletişim"
+        },
+        {
+          "type": "p",
+          "text": "Bu koşullarla ilgili sorularınızı hesabınızdaki Destek bölümünden veya lsevin.turkiye@gmail.com adresine e-posta ile iletebilirsiniz."
+        }
+      ],
+      "faq": [
+        {
+          "q": "Tedavimden kim sorumlu?",
+          "a": "Rezervasyon yaptığınız bağımsız klinik, hastane veya doktor. LSevin rezervasyonu ve ödemeyi yürütür, tıbbi tavsiye vermez."
+        },
+        {
+          "q": "Rezervasyonum için hangi iptal politikası geçerli?",
+          "a": "Rezervasyon yaptığınızda gösterilen sağlayıcı politikası. Turlarda kabul ettiğiniz politika sürümü rezervasyonunuza bağlı kalır."
+        },
+        {
+          "q": "Yerinde ödeme planının maliyeti nedir?",
+          "a": "Şimdi yüzde 20 ödemek faturaya yüzde 5, yüzde 50 ödemek yüzde 2, yüzde 80 ödemek ise yüzde 1 ekler. Tutar dökümü onaylamadan önce gösterilir."
+        },
+        {
+          "q": "LSevin yerine doğrudan sağlayıcıya ödeme yapabilir miyim?",
+          "a": "Yalnızca rezervasyonun kendisinde yerinde ödeme yapacağınız belirtiliyorsa. LSevin'de ayırtılan bir hizmet için LSevin dışında kararlaştırılan ödemeler geri ödeme sürecimiz kapsamında değildir."
+        },
+        {
+          "q": "Nasıl şikâyette bulunabilirim?",
+          "a": "Hesabınızda rezervasyon veya sipariş numarasıyla ve sorunun açıklamasıyla bir destek görüşmesi açın."
+        }
+      ]
+    },
+    "ku-KU": {
+      "title": "مەرج و ڕێساکان",
+      "metaDescription": "مەرجەکانی بەکارهێنانی LSevin: ڕۆڵمان وەک پلاتفۆرمی حجز، هەژمار، حجز، پارەدان، جزدان، بەرپرسیارێتیی دابینکەران، هەڵوەشاندنەوە و ناکۆکییەکان.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "ئەم مەرجانە کاتێک جێبەجێ دەبن کە ماڵپەڕ و ئەپی LSevin لە lsevin.com یان lsevincare.com بەکاردەهێنن، هەژمار دروست دەکەن، حجز دەکەن یان داواکارییەک لە فرۆشگا تۆمار دەکەن. بە بەکارهێنانی LSevin ڕازی دەبن پێیان. ئەگەر ڕازی نین، خزمەتگوزارییەکە بەکارمەهێنن."
+        },
+        {
+          "type": "h2",
+          "text": "1. ڕۆڵی LSevin"
+        },
+        {
+          "type": "p",
+          "text": "LSevin بازاڕ و نێوەندگیری حجزە. ئەو کلینیک، نەخۆشخانە، پزیشک، هوتێل، ڕێکخەری گەشت، جیم و دابینکەرانی ترەی لە LSevin تۆمار کراون، کاری سەربەخۆن. کاتێک خزمەتێک حجز دەکەن، خودی خزمەتەکە لەلایەن ئەو دابینکەرەوە و بەپێی سیاسەتەکانی خۆی پێشکەش دەکرێت، و دابینکەرەکە بەرپرسە لە پێشکەشکردنی."
+        },
+        {
+          "type": "p",
+          "text": "LSevin بەرپرسە لە بەڕێوەبردنی پلاتفۆرمەکە، پیشاندانی زانیاریی دابینکەران، تۆمارکردنی حجزەکەتان، وەرگرتنی ئەو پارەدانانەی لە ڕێگەی LSevinەوە دەکرێن، و بەڕێوەبردنی هەڵوەشاندنەوە و گەڕاندنەوەی پارە بەپێی ئەم مەرجانە. LSevin دابینکەری چاودێریی تەندروستی نییە، ئامۆژگاریی پزیشکی نادات و ڤیزا یان بانگهێشتنامەی پزیشکی دەرناکات."
+        },
+        {
+          "type": "h2",
+          "text": "2. بڕیارە پزیشکییەکان"
+        },
+        {
+          "type": "p",
+          "text": "زانیارییەکانی LSevin، لەوانە ڕێبەرەکان و گفتوگۆ لەگەڵ ڕاوێژکاران، زانیاریی گشتین. جێگەی پشکنین یان ئامۆژگاریی پزیشکێکی شارەزا ناگرنەوە. بڕیار لەسەر دەستنیشانکردنی نەخۆشی، چارەسەر، توانای گەشتکردن و چاودێریی دوای چارەسەر لەلایەن خۆتان و پزیشکی چارەسەرکەرتانەوە دەدرێت. LSevin گەرەنتیی هیچ ئەنجامێکی پزیشکی ناکات."
+        },
+        {
+          "type": "h2",
+          "text": "3. هەژمارەکەتان"
+        },
+        {
+          "type": "p",
+          "text": "بۆ بەکارهێنانی LSevin دەبێت تەمەنتان 18 ساڵ یان زیاتر بێت. بە ژمارەی تەلەفۆنەکەتان و کۆدێکی یەکجاری دەچنە ژوورەوە. تەلەفۆنەکەتان بپارێزن و کۆدەکان لەگەڵ هیچ کەسێکدا هاوبەش مەکەن، تەنانەت ئەو کەسانەی دەڵێن بۆ LSevin کار دەکەن."
+        },
+        {
+          "type": "p",
+          "text": "لە پرۆفایل و حجزەکانتاندا زانیاریی دروست بنووسن، لەوانە ناو، زانیاریی پەیوەندی و، بۆ نەخۆشانی نێودەوڵەتی، ئەو زانیارییانەی بۆ گەشت پێویستن. ئێوە بەرپرسن لە چالاکییەکانی سەر هەژمارەکەتان. دەکرێت ئەو هەژمارەی بۆ فێڵ، خراپ بەکارهێنان یان بە پێچەوانەی ئەم مەرجانە بەکاربهێنرێت ڕابگرین."
+        },
+        {
+          "type": "h2",
+          "text": "4. حجزەکان"
+        },
+        {
+          "type": "p",
+          "text": "حجز کاتێک ئەنجام دەدرێت کە هەنگاوەکانی حجزکردن تەواو بکەن و، لەو شوێنانەی پارەدان پێویستە، پارەدانەکە پشتڕاست بکرێتەوە. هەندێک خزمەت دوای داواکردنتان لەلایەن دابینکەرەوە پشتڕاست دەکرێنەوە، و پەڕەی حجزەکە دۆخی ئێستا پیشان دەدات."
+        },
+        {
+          "type": "p",
+          "text": "پێش پشتڕاستکردنەوە، حجزەکە خزمەت، بەروار، نرخ و سیاسەتەکانی دابینکەر پیشان دەدات. بیانخوێننەوە. ئەو سیاسەتانەی لە کاتی حجزکردندا لە کاردان، لەوانە مەرجەکانی هەڵوەشاندنەوە، بەسەر ئەو حجزەدا جێبەجێ دەبن."
+        },
+        {
+          "type": "h2",
+          "text": "5. نرخ و پارەدان"
+        },
+        {
+          "type": "p",
+          "text": "نرخەکان لەلایەن دابینکەرانەوە دیاری دەکرێن. LSevin نرخەکان بۆ سەردانکەرانی ناو ئێران بە ڕیاڵ یان تمەن و بۆ سەردانکەرانی دەرەوە بە دراوێکی تر پیشان دەدات، و هەندێک دابینکەر نرخی جیاواز بۆ نەخۆشانی نێودەوڵەتی دادەنێن. ئەو بڕەی لە کاتی پارەداندا پیشان دەدرێت هەمان ئەو بڕەیە کە دەیدەن."
+        },
+        {
+          "type": "p",
+          "text": "بەپێی خزمەتەکە، لەوانەیە هەموو بڕەکە بە ئۆنلاین بدەن، بڕێکی جێگیر یان ڕێژەیەک پێشوەختە بدەن، لە شوێنەکە پارە بدەن، یان بەبێ پارەدان حجز بکەن. لەو شوێنانەی پلانی پارەدان لە شوێن پێشکەش دەکرێت، هەڵدەبژێرن 20، 50 یان 80 لە سەد ئێستا بدەن. هەر پلانێک بە ڕیزبەندی 5، 2 یان 1 لە سەد دەخاتە سەر حیسابەکە، و بەشی ئێستا لە جزدانەوە یان بە پارەدانی ئۆنلاین دەدرێت."
+        },
+        {
+          "type": "p",
+          "text": "پارەدانە ئۆنلاینەکان لەلایەن دەروازەکانی پارەدانی وەک زەڕینپاڵەوە جێبەجێ دەکرێن. LSevin زانیاریی تەواوی کارتەکەتان نابینێت."
+        },
+        {
+          "type": "h2",
+          "text": "6. جزدانی LSevin"
+        },
+        {
+          "type": "p",
+          "text": "جزدانەکەتان ئەو پارەیەی تێی دەخەن و ئەو پارانەی بۆتان دەگەڕێندرێنەوە هەڵدەگرێت. پڕکردنەوە دەکرێت بە پارەدانی ئۆنلاینی کارت یان بە گواستنەوەی بانکی لەگەڵ فیش بێت، کە پێش بەردەستبوونی باڵانسەکە دەپشکنرێت. هەر پڕکردنەوەیەک سنوورێکی زۆرترینی بۆ هەر دراوێک هەیە. باڵانسی جزدان بۆ پارەدانی حجزەکان لە LSevin بەکاردێت."
+        },
+        {
+          "type": "h2",
+          "text": "7. هەڵوەشاندنەوە، گەڕاندنەوەی پارە و گەڕاندنەوەی کاڵا"
+        },
+        {
+          "type": "p",
+          "text": "هەڵوەشاندنەوە و گەڕاندنەوەی پارە پەیڕەوی سیاسەتی دابینکەر بۆ ئەو حجزە و سیاسەتی گەڕاندنەوەی کاڵا و پارەی LSevin دەکەن. پارەی پەسەندکراوی حجز دەخرێتە ناو جزدانی LSevinەکەتانەوە. گەڕاندنەوەی کاڵا و پارەی فرۆشگا پەیڕەوی ئەو ڕێکارە دەکەن کە لەو سیاسەتەدا باس کراوە."
+        },
+        {
+          "type": "h2",
+          "text": "8. بەرپرسیارێتییەکانی دابینکەر"
+        },
+        {
+          "type": "p",
+          "text": "دابینکەران دەبێت ئەو مۆڵەتانەیان هەبێت کە بۆ خزمەتەکانیان پێویستن، زانیاری و نرخی دروست بڵاو بکەنەوە و ئەوەی حجز کراوە پێشکەشی بکەن. نیشانەکانی وەک «پەسەندکراو» لەلایەن بەڕێوەبەرانی LSevinەوە دادەنرێن و دابینکەران ناتوانن دایانبنێن. نیشانە گەرەنتیی کاری دابینکەر نییە."
+        },
+        {
+          "type": "h2",
+          "text": "9. ئەرکەکانی ئێوە"
+        },
+        {
+          "type": "p",
+          "text": "LSevin تەنها بۆ مەبەستی یاسایی بەکاربهێنن. حجزی ساختە مەکەن، شێوازەکانی پارەدان بە خراپی بەکارمەهێنن، بۆچوونی چەواشەکارانە بڵاو مەکەنەوە، ناوەڕۆکی ماڵپەڕەکە کۆپی مەکەن و دەستکاریی کارکردنی مەکەن. بۆ خزمەتێک کە لە LSevin دۆزیوتانەتەوە و حجزتان کردووە، ڕێک مەکەون کە لە دەرەوەی LSevin پارە بە دابینکەر بدەن، چونکە ئەو جۆرە پارەدانانە لە دەرەوەی پاراستنی ئێمەن."
+        },
+        {
+          "type": "h2",
+          "text": "10. گەشت"
+        },
+        {
+          "type": "p",
+          "text": "ئێوە بەرپرسن لە ڤیزا، بەڵگەنامەکانی گەشت، بیمە و پشکنینی ئامۆژگارییەکانی گەشتی حکومەتی وڵاتەکەی خۆتان. LSevin سەلامەتیی گەشت ڕاناگەیەنێت."
+        },
+        {
+          "type": "h2",
+          "text": "11. بەرپرسیارێتی"
+        },
+        {
+          "type": "p",
+          "text": "LSevin بەرپرسە لە بەڕێوەبردنی پلاتفۆرمەکە بە ئاگاداریی گونجاو. بەرپرس نییە لە چاودێریی پزیشکی، شوێنی مانەوە، گەشت یان هەر خزمەتێکی تر کە دابینکەرێکی سەربەخۆ پێشکەشی دەکات، یان لەو زیانانەی بە هۆی ڕووداوگەلێکەوە دروست دەبن کە لە دەرەوەی کۆنتڕۆڵی گونجاوی ئەودان. هیچ شتێک لەم مەرجانەدا ئەو بەرپرسیارێتییە لانابات کە بەپێی یاسا لاناچێت."
+        },
+        {
+          "type": "h2",
+          "text": "12. سکاڵا و ناکۆکییەکان"
+        },
+        {
+          "type": "p",
+          "text": "ئەگەر کێشەیەک ڕووی دا، لە ڕێگەی حجزەکەتانەوە پەیوەندی بە دابینکەرەوە بکەن و گفتوگۆیەکی پشتگیری لەگەڵ LSevin بکەنەوە. ئێمە حجزەکە، ئەو سیاسەتەی جێبەجێ بووە و پارەدانەکە هەڵدەسەنگێنین، و لەوانەیە لەو شوێنانەی سیاسەتەکە یان هەڵسەنگاندنەکەمان پشتگیری بکات پارە بگەڕێنینەوە. بۆ گەشتەکان، LSevin ناکۆکییەکانی نێوان کڕیاران و ڕێکخەرانی گەشت هەڵدەسەنگێنێت."
+        },
+        {
+          "type": "h2",
+          "text": "13. گۆڕانکاری لەم مەرجانەدا"
+        },
+        {
+          "type": "p",
+          "text": "لەوانەیە ئەم مەرجانە نوێ بکەینەوە. ئەو وەشانەی لەم پەڕەیەدا بڵاو کراوەتەوە لە بەرواری دیاریکراوی خۆیەوە جێبەجێ دەبێت. ئەو حجزانەی پێشتر کراون ئەو سیاسەتانە دەپارێزن کە لە کاتی کردنیاندا لە کاردا بوون."
+        },
+        {
+          "type": "h2",
+          "text": "14. پەیوەندی"
+        },
+        {
+          "type": "p",
+          "text": "پرسیارەکان دەربارەی ئەم مەرجانە دەتوانرێن لە ڕێگەی «پشتگیری» لە هەژمارەکەتانەوە یان بە ئیمەیڵ بۆ lsevin.turkiye@gmail.com بنێردرێن."
+        }
+      ],
+      "faq": [
+        {
+          "q": "کێ بەرپرسە لە چارەسەرەکەم؟",
+          "a": "ئەو کلینیک، نەخۆشخانە یان پزیشکە سەربەخۆیەی حجزتان لەلای کردووە. LSevin حجز و پارەدانەکە بەڕێوە دەبات و ئامۆژگاریی پزیشکی نادات."
+        },
+        {
+          "q": "کام سیاسەتی هەڵوەشاندنەوە بەسەر حجزەکەمدا جێبەجێ دەبێت؟",
+          "a": "ئەو سیاسەتەی دابینکەر کە لە کاتی حجزکردندا پیشان درا. بۆ گەشتەکان، ئەو وەشانەی سیاسەتەکە کە پەسەندتان کردووە بە حجزەکەتانەوە دەمێنێتەوە."
+        },
+        {
+          "q": "پلانی پارەدان لە شوێن چەندی تێدەچێت؟",
+          "a": "دانی 20 لە سەدی ئێستا 5 لە سەد دەخاتە سەر حیسابەکە، 50 لە سەد 2 لە سەد، و 80 لە سەد 1 لە سەد. وردەکارییەکەی پێش پشتڕاستکردنەوە پیشان دەدرێت."
+        },
+        {
+          "q": "دەتوانم لە جیاتی LSevin ڕاستەوخۆ پارە بە دابینکەر بدەم؟",
+          "a": "تەنها لەو شوێنانەی خودی حجزەکە دەڵێت لە شوێنەکە پارە دەدەن. ئەو پارەدانانەی لە دەرەوەی LSevin بۆ خزمەتێکی حجزکراو لە LSevin ڕێک دەخرێن، ڕێکاری گەڕاندنەوەی پارەی ئێمە نایانگرێتەوە."
+        },
+        {
+          "q": "چۆن سکاڵا تۆمار بکەم؟",
+          "a": "لە هەژمارەکەتاندا گفتوگۆیەکی پشتگیری بکەنەوە و ژمارەی حجز یان داواکارییەکە و باسی کێشەکە بنووسن."
+        }
+      ]
+    },
+    "ru-RU": {
+      "title": "Условия использования",
+      "metaDescription": "Условия использования LSevin: наша роль как платформы бронирования, аккаунты, бронирования, оплата, кошелёк, обязанности поставщиков, отмены и споры.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Эти условия действуют, когда Вы пользуетесь сайтом и приложением LSevin на lsevin.com или lsevincare.com, создаёте аккаунт, делаете бронирование или оформляете заказ в магазине. Пользуясь LSevin, Вы соглашаетесь с ними. Если Вы не согласны, не пользуйтесь сервисом."
+        },
+        {
+          "type": "h2",
+          "text": "1. Роль LSevin"
+        },
+        {
+          "type": "p",
+          "text": "LSevin — маркетплейс и посредник в бронировании. Клиники, больницы, врачи, отели, туроператоры, спортзалы и другие поставщики, представленные на LSevin, — независимые организации. Когда Вы бронируете услугу, её оказывает этот поставщик по своим правилам, и именно он отвечает за её предоставление."
+        },
+        {
+          "type": "p",
+          "text": "LSevin отвечает за работу платформы, отображение информации о поставщиках, регистрацию Вашего бронирования, приём платежей, проводимых через LSevin, а также за обработку отмен и возвратов средств в соответствии с этими условиями. LSevin не является медицинской организацией, не даёт медицинских советов и не оформляет визы и медицинские приглашения."
+        },
+        {
+          "type": "h2",
+          "text": "2. Медицинские решения"
+        },
+        {
+          "type": "p",
+          "text": "Информация на LSevin, включая руководства и беседы с консультантами, носит общий характер. Она не заменяет осмотр или рекомендации квалифицированного врача. Решения о диагнозе, лечении, возможности путешествовать и последующем уходе принимаете Вы вместе с лечащим врачом. LSevin не гарантирует какого-либо медицинского результата."
+        },
+        {
+          "type": "h2",
+          "text": "3. Ваш аккаунт"
+        },
+        {
+          "type": "p",
+          "text": "Пользоваться LSevin можно с 18 лет. Вход выполняется по номеру телефона и одноразовому коду. Берегите свой телефон и никому не сообщайте коды, в том числе людям, которые называют себя сотрудниками LSevin."
+        },
+        {
+          "type": "p",
+          "text": "Указывайте в профиле и бронированиях точные сведения, включая имена, контактные данные, а для иностранных пациентов — данные, необходимые для поездки. Вы несёте ответственность за действия в своём аккаунте. Мы можем заблокировать аккаунт, который используется для мошенничества, злоупотреблений или с нарушением этих условий."
+        },
+        {
+          "type": "h2",
+          "text": "4. Бронирования"
+        },
+        {
+          "type": "p",
+          "text": "Бронирование считается оформленным, когда Вы выполните все шаги бронирования и, если требуется оплата, платёж будет подтверждён. Некоторые услуги подтверждаются поставщиком после Вашего запроса; текущий статус отображается на странице бронирования."
+        },
+        {
+          "type": "p",
+          "text": "Перед подтверждением в бронировании указаны услуга, даты, цена и правила поставщика. Ознакомьтесь с ними. К бронированию применяются правила, действующие на момент бронирования, включая условия отмены."
+        },
+        {
+          "type": "h2",
+          "text": "5. Цены и оплата"
+        },
+        {
+          "type": "p",
+          "text": "Цены устанавливают поставщики. LSevin показывает цены в риалах или туманах посетителям из Ирана и в другой валюте посетителям из-за рубежа; некоторые поставщики устанавливают для иностранных пациентов отдельные цены. Сумма, показанная при оформлении, и есть сумма к оплате."
+        },
+        {
+          "type": "p",
+          "text": "В зависимости от услуги можно оплатить всю сумму онлайн, внести заранее фиксированную сумму или процент, оплатить на месте или забронировать без оплаты. Если предлагается план с оплатой на месте, Вы выбираете, сколько внести сейчас: 20, 50 или 80 процентов. Эти планы добавляют к счёту 5, 2 или 1 процент соответственно, а часть, которую нужно внести сейчас, оплачивается с кошелька или онлайн."
+        },
+        {
+          "type": "p",
+          "text": "Онлайн-платежи обрабатываются платёжными шлюзами, например Zarinpal. LSevin не видит полные данные Вашей карты."
+        },
+        {
+          "type": "h2",
+          "text": "6. Кошелёк LSevin"
+        },
+        {
+          "type": "p",
+          "text": "В кошельке хранятся пополненные Вами средства и зачисленные Вам возвраты. Пополнить его можно онлайн-оплатой картой или банковским переводом с квитанцией, которая проверяется, прежде чем средства станут доступны. Для каждой валюты установлена максимальная сумма одного пополнения. Средства кошелька используются для оплаты бронирований на LSevin."
+        },
+        {
+          "type": "h2",
+          "text": "7. Отмены, возврат средств и товаров"
+        },
+        {
+          "type": "p",
+          "text": "Отмены и возвраты средств осуществляются по политике поставщика для данного бронирования и Политике возврата товаров и средств LSevin. Одобренные возвраты по бронированиям зачисляются на Ваш кошелёк LSevin. Возвраты товаров и средств в магазине проходят по порядку, описанному в этой политике."
+        },
+        {
+          "type": "h2",
+          "text": "8. Обязанности поставщиков"
+        },
+        {
+          "type": "p",
+          "text": "Поставщики должны иметь лицензии, необходимые для их услуг, публиковать точную информацию и цены и предоставлять то, что было забронировано. Отметки, например «Аккредитован», устанавливают администраторы LSevin; поставщики устанавливать их не могут. Отметка не является гарантией качества работы поставщика."
+        },
+        {
+          "type": "h2",
+          "text": "9. Ваши обязанности"
+        },
+        {
+          "type": "p",
+          "text": "Используйте LSevin только в законных целях. Не создавайте ложных бронирований, не злоупотребляйте способами оплаты, не публикуйте вводящие в заблуждение отзывы, не копируйте содержимое сайта и не вмешивайтесь в его работу. Не договаривайтесь с поставщиком об оплате вне LSevin за услугу, которую Вы нашли и забронировали на LSevin: на такие платежи наша защита не распространяется."
+        },
+        {
+          "type": "h2",
+          "text": "10. Поездки"
+        },
+        {
+          "type": "p",
+          "text": "Вы сами отвечаете за визу, проездные документы, страховку и за то, чтобы ознакомиться с рекомендациями своего правительства по поездкам. LSevin не заявляет, что поездка безопасна."
+        },
+        {
+          "type": "h2",
+          "text": "11. Ответственность"
+        },
+        {
+          "type": "p",
+          "text": "LSevin отвечает за работу платформы с разумной степенью заботливости. LSevin не несёт ответственности за медицинскую помощь, проживание, тур или иную услугу, оказанную независимым поставщиком, а также за убытки, вызванные обстоятельствами вне его разумного контроля. Ничто в этих условиях не исключает ответственность, которую нельзя исключить по закону."
+        },
+        {
+          "type": "h2",
+          "text": "12. Жалобы и споры"
+        },
+        {
+          "type": "p",
+          "text": "Если что-то пошло не так, свяжитесь с поставщиком через бронирование и откройте обращение в поддержку LSevin. Мы рассматриваем бронирование, применявшуюся политику и платёж и можем вернуть средства, если это предусмотрено политикой или подтверждается результатами нашей проверки. По турам LSevin рассматривает споры между клиентами и операторами."
+        },
+        {
+          "type": "h2",
+          "text": "13. Изменения условий"
+        },
+        {
+          "type": "p",
+          "text": "Мы можем обновлять эти условия. Версия, опубликованная на этой странице, действует с указанной в ней даты. Для уже оформленных бронирований сохраняются правила, действовавшие на момент их оформления."
+        },
+        {
+          "type": "h2",
+          "text": "14. Контакты"
+        },
+        {
+          "type": "p",
+          "text": "Вопросы об этих условиях можно задать в разделе «Поддержка» в Вашем аккаунте или по электронной почте lsevin.turkiye@gmail.com."
+        }
+      ],
+      "faq": [
+        {
+          "q": "Кто отвечает за моё лечение?",
+          "a": "Независимая клиника, больница или врач, у которых Вы бронировали. LSevin обеспечивает бронирование и оплату и не даёт медицинских советов."
+        },
+        {
+          "q": "Какая политика отмены применяется к моему бронированию?",
+          "a": "Политика поставщика, показанная при бронировании. Для туров к Вашему бронированию привязана та версия политики, которую Вы приняли."
+        },
+        {
+          "q": "Сколько стоит план с оплатой на месте?",
+          "a": "При оплате 20 процентов сейчас к счёту добавляется 5 процентов, при оплате 50 процентов — 2 процента, при оплате 80 процентов — 1 процент. Разбивка суммы показывается до подтверждения."
+        },
+        {
+          "q": "Можно ли заплатить поставщику напрямую, а не через LSevin?",
+          "a": "Только если в самом бронировании указано, что оплата производится на месте. Платежи, согласованные вне LSevin за услугу, забронированную на LSevin, не подпадают под наш порядок возврата средств."
+        },
+        {
+          "q": "Как подать жалобу?",
+          "a": "Откройте обращение в поддержку в своём аккаунте, укажите номер бронирования или заказа и опишите проблему."
+        }
+      ]
+    },
+    "tg-TJ": {
+      "title": "Шартҳо ва қоидаҳо",
+      "metaDescription": "Шартҳои истифодаи LSevin: нақши мо ҳамчун платформаи брон, ҳисобҳо, бронҳо, пардохтҳо, ҳамён, масъулияти хидматрасонҳо, бекоркунӣ ва ҳалли баҳсҳо.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Ин шартҳо вақте татбиқ мешаванд, ки шумо сайт ва барномаи LSevin-ро дар lsevin.com ё lsevincare.com истифода мебаред, ҳисоб месозед, брон мекунед ё аз мағоза фармоиш медиҳед. Бо истифодаи LSevin шумо ба ин шартҳо розӣ мешавед. Агар розӣ набошед, аз хидмат истифода набаред."
+        },
+        {
+          "type": "h2",
+          "text": "1. Нақши LSevin"
+        },
+        {
+          "type": "p",
+          "text": "LSevin бозор ва миёнарави брон аст. Клиникаҳо, беморхонаҳо, духтурон, меҳмонхонаҳо, ташкилкунандагони тур, варзишгоҳҳо ва дигар хидматрасонҳое, ки дар LSevin ҷой дода шудаанд, корхонаҳои мустақиланд. Вақте ки шумо хидматеро брон мекунед, худи хидматро ҳамон хидматрасон тибқи қоидаҳои худ мерасонад ва барои иҷрои он масъул аст."
+        },
+        {
+          "type": "p",
+          "text": "LSevin барои идораи платформа, нишон додани маълумоти хидматрасонҳо, сабти брони шумо, гирифтани пардохтҳое, ки тавассути LSevin анҷом мешаванд, ва коркарди бекоркунӣ ва бозгардонии маблағ тибқи ин шартҳо масъул аст. LSevin муассисаи тиббӣ нест, маслиҳати тиббӣ намедиҳад ва раводид ё даъватномаи тиббӣ намедиҳад."
+        },
+        {
+          "type": "h2",
+          "text": "2. Қарорҳои тиббӣ"
+        },
+        {
+          "type": "p",
+          "text": "Маълумот дар LSevin, аз ҷумла дастурҳо ва сӯҳбат бо мушовирон, маълумоти умумӣ аст. Он ҷои муоина ё маслиҳати духтури соҳибихтисосро намегирад. Қарорҳо дар бораи ташхис, табобат, қобилияти сафар ва нигоҳубини баъдиро шумо ва духтури муолиҷи шумо қабул мекунед. LSevin ягон натиҷаи тиббиро кафолат намедиҳад."
+        },
+        {
+          "type": "h2",
+          "text": "3. Ҳисоби шумо"
+        },
+        {
+          "type": "p",
+          "text": "Барои истифодаи LSevin шумо бояд на камтар аз 18 сола бошед. Шумо бо рақами телефон ва рамзи яккарата ворид мешавед. Телефони худро бехатар нигоҳ доред ва рамзҳоро ба ҳеҷ кас, аз ҷумла ба касоне, ки худро корманди LSevin муаррифӣ мекунанд, надиҳед."
+        },
+        {
+          "type": "p",
+          "text": "Дар профил ва бронҳо маълумоти дуруст диҳед, аз ҷумла ном, маълумоти тамос ва барои беморони хориҷӣ маълумоти зарурӣ барои сафар. Шумо барои амалҳое, ки дар ҳисобатон анҷом мешаванд, масъулед. Мо метавонем ҳисоберо, ки барои қаллобӣ, сӯистифода ё бо вайрон кардани ин шартҳо истифода мешавад, боздорем."
+        },
+        {
+          "type": "h2",
+          "text": "4. Бронҳо"
+        },
+        {
+          "type": "p",
+          "text": "Брон вақте сабт мешавад, ки шумо қадамҳои бронро анҷом медиҳед ва, агар пардохт лозим бошад, пардохт тасдиқ мешавад. Баъзе хидматҳоро хидматрасон пас аз дархости шумо тасдиқ мекунад ва саҳифаи брон ҳолати ҷориро нишон медиҳад."
+        },
+        {
+          "type": "p",
+          "text": "Пеш аз тасдиқ дар брон хидмат, санаҳо, нарх ва қоидаҳои хидматрасон нишон дода мешаванд. Онҳоро хонед. Қоидаҳое, ки ҳангоми брон амал мекунанд, аз ҷумла шартҳои бекоркунӣ, ба ҳамон брон татбиқ мешаванд."
+        },
+        {
+          "type": "h2",
+          "text": "5. Нархҳо ва пардохт"
+        },
+        {
+          "type": "p",
+          "text": "Нархҳоро хидматрасонҳо муайян мекунанд. LSevin нархҳоро ба меҳмонони дохили Эрон бо риёл ё туман ва ба меҳмонони хориҷӣ бо асъори дигар нишон медиҳад ва баъзе хидматрасонҳо барои беморони хориҷӣ нархҳои дигар муқаррар мекунанд. Маблағе, ки ҳангоми пардохт нишон дода мешавад, ҳамон маблағест, ки шумо мепардозед."
+        },
+        {
+          "type": "p",
+          "text": "Вобаста ба хидмат, шумо метавонед тамоми маблағро онлайн пардохт кунед, маблағи собит ё фоизеро пешакӣ пардозед, дар ҷой пардохт кунед ё бе пардохт брон кунед. Дар ҷое ки нақшаи пардохт дар ҷой пешниҳод шудааст, шумо интихоб мекунед, ки ҳозир 20, 50 ё 80 фоиз пардохт кунед. Ҳар нақша мутаносибан 5, 2 ё 1 фоиз ба ҳисоб илова мекунад ва қисми ҳозир пардохтшаванда аз ҳамён ё бо пардохти онлайн пардохт мешавад."
+        },
+        {
+          "type": "p",
+          "text": "Пардохтҳои онлайнро дарвозаҳои пардохт, масалан Zarinpal, коркард мекунанд. LSevin маълумоти пурраи корти шуморо намебинад."
+        },
+        {
+          "type": "h2",
+          "text": "6. Ҳамёни LSevin"
+        },
+        {
+          "type": "p",
+          "text": "Дар ҳамёни шумо маблағе, ки пур мекунед, ва маблағҳои баргардонидашуда нигоҳ дошта мешаванд. Ҳамёнро бо пардохти онлайн бо корт ё бо интиқоли бонкӣ ва квитансия пур кардан мумкин аст; интиқол пеш аз дастрас шудани маблағ санҷида мешавад. Ҳар пуркунӣ барои ҳар асъор ҳадди ниҳоӣ дорад. Маблағи ҳамён барои пардохти бронҳо дар LSevin истифода мешавад."
+        },
+        {
+          "type": "h2",
+          "text": "7. Бекоркунӣ, бозгардонии маблағ ва мол"
+        },
+        {
+          "type": "p",
+          "text": "Бекоркунӣ ва бозгардонии маблағ тибқи қоидаҳои хидматрасон барои брон ва Сиёсати бозгардонии мол ва маблағи LSevin анҷом мешаванд. Маблағҳои тасдиқшудаи брон ба ҳамёни LSevin-и шумо гузаронида мешаванд. Баргардонидани мол ва бозгардонии маблағ дар мағоза тибқи раванде, ки дар ҳамон сиёсат шарҳ дода шудааст, сурат мегирад."
+        },
+        {
+          "type": "h2",
+          "text": "8. Масъулияти хидматрасонҳо"
+        },
+        {
+          "type": "p",
+          "text": "Хидматрасонҳо бояд иҷозатномаҳои барои хидматҳояшон заруриро дошта бошанд, маълумот ва нархҳои дурустро нашр кунанд ва он чиро, ки брон шудааст, иҷро намоянд. Нишонҳо, масалан «Аккредитатсияшуда», аз ҷониби маъмурони LSevin гузошта мешаванд ва хидматрасонҳо онҳоро гузошта наметавонанд. Нишон кафолати кори хидматрасон нест."
+        },
+        {
+          "type": "h2",
+          "text": "9. Ӯҳдадориҳои шумо"
+        },
+        {
+          "type": "p",
+          "text": "LSevin-ро танҳо бо мақсадҳои қонунӣ истифода баред. Брони бардурӯғ накунед, аз усулҳои пардохт сӯистифода накунед, шарҳҳои гумроҳкунанда нагузоред, мундариҷаи сайтро нусхабардорӣ накунед ва ба кори он халал нарасонед. Барои хидмате, ки дар LSevin ёфта ва брон кардаед, бо хидматрасон дар бораи пардохт берун аз LSevin созиш накунед, зеро чунин пардохтҳо берун аз ҳимояи мо мебошанд."
+        },
+        {
+          "type": "h2",
+          "text": "10. Сафар"
+        },
+        {
+          "type": "p",
+          "text": "Шумо барои раводид, ҳуҷҷатҳои сафар, суғурта ва санҷидани тавсияҳои сафари ҳукумати худ масъулед. LSevin бехатар будани сафарро эълон намекунад."
+        },
+        {
+          "type": "h2",
+          "text": "11. Масъулият"
+        },
+        {
+          "type": "p",
+          "text": "LSevin барои идораи платформа бо эҳтиёти оқилона масъул аст. Он барои ёрии тиббӣ, иқомат, тур ё дигар хидмате, ки хидматрасони мустақил мерасонад, ё барои зарарҳое, ки аз ҳодисаҳои берун аз назорати оқилонаи он ба миён меоянд, масъул нест. Ҳеҷ чиз дар ин шартҳо масъулиятеро, ки тибқи қонун истисно кардан мумкин нест, истисно намекунад."
+        },
+        {
+          "type": "h2",
+          "text": "12. Шикоятҳо ва баҳсҳо"
+        },
+        {
+          "type": "p",
+          "text": "Агар мушкиле пеш ояд, тавассути брони худ бо хидматрасон тамос гиред ва бо LSevin сӯҳбати дастгирӣ кушоед. Мо брон, қоидаҳои татбиқшуда ва пардохтро баррасӣ мекунем ва метавонем маблағро баргардонем, агар қоидаҳо ё баррасии мо инро асоснок кунад. Дар турҳо баҳсҳои байни мизоҷон ва ташкилкунандагонро LSevin баррасӣ мекунад."
+        },
+        {
+          "type": "h2",
+          "text": "13. Тағйирот дар ин шартҳо"
+        },
+        {
+          "type": "p",
+          "text": "Мо метавонем ин шартҳоро навсозӣ кунем. Версияе, ки дар ин саҳифа нашр шудааст, аз санаи нишондодааш амал мекунад. Бронҳои аллакай анҷомдодашуда қоидаҳоеро, ки ҳангоми брон амал мекарданд, нигоҳ медоранд."
+        },
+        {
+          "type": "h2",
+          "text": "14. Тамос"
+        },
+        {
+          "type": "p",
+          "text": "Саволҳо дар бораи ин шартҳоро метавонед тавассути бахши «Дастгирӣ» дар ҳисоби худ ё ба почтаи электронии lsevin.turkiye@gmail.com фиристед."
+        }
+      ],
+      "faq": [
+        {
+          "q": "Барои табобати ман кӣ масъул аст?",
+          "a": "Клиника, беморхона ё духтури мустақиле, ки бо он брон кардаед. LSevin брон ва пардохтро анҷом медиҳад ва маслиҳати тиббӣ намедиҳад."
+        },
+        {
+          "q": "Ба брони ман кадом қоидаҳои бекоркунӣ татбиқ мешаванд?",
+          "a": "Қоидаҳои хидматрасон, ки ҳангоми брон нишон дода шуда буданд. Дар турҳо версияи қоидаҳое, ки шумо қабул кардаед, ба брони шумо пайваст мемонад."
+        },
+        {
+          "q": "Нақшаи пардохт дар ҷой чӣ қадар арзиш дорад?",
+          "a": "Пардохти 20 фоиз дар ҳозир ба ҳисоб 5 фоиз, 50 фоиз 2 фоиз ва 80 фоиз 1 фоиз илова мекунад. Тафсилот пеш аз тасдиқ нишон дода мешавад."
+        },
+        {
+          "q": "Оё метавонам ба ҷои LSevin бевосита ба хидматрасон пардохт кунам?",
+          "a": "Танҳо дар ҳолате ки дар худи брон гуфта шудааст, ки пардохт дар ҷой анҷом мешавад. Пардохтҳое, ки берун аз LSevin барои хидмати дар LSevin броншуда созиш карда шудаанд, ба раванди бозгардонии маблағи мо дохил намешаванд."
+        },
+        {
+          "q": "Чӣ тавр шикоят кунам?",
+          "a": "Дар ҳисоби худ бо рақами брон ё фармоиш ва тавсифи мушкил сӯҳбати дастгирӣ кушоед."
+        }
+      ]
+    },
+    "zh-CN": {
+      "title": "条款与条件",
+      "metaDescription": "使用LSevin的条款：我们作为预约平台的角色，以及账户、预约、付款、钱包、服务商责任、取消和争议处理等规定。",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "当您使用 lsevin.com 或 lsevincare.com 上的LSevin网站和应用、创建账户、进行预约或在商店下单时，适用本条款。使用LSevin即表示您同意本条款。如不同意，请勿使用本服务。"
+        },
+        {
+          "type": "h2",
+          "text": "1. LSevin的角色"
+        },
+        {
+          "type": "p",
+          "text": "LSevin是一个服务平台和预约中介。LSevin上列出的诊所、医院、医生、酒店、旅游运营方、健身房及其他服务商均为独立经营者。当您预约某项服务时，服务本身由该服务商按其自身政策提供，并由服务商负责履行。"
+        },
+        {
+          "type": "p",
+          "text": "LSevin负责运营平台、展示服务商信息、记录您的预约、代收通过LSevin支付的款项，并依据本条款处理取消和退款事宜。LSevin不是医疗服务提供者，不提供医疗建议，也不签发签证或医疗邀请函。"
+        },
+        {
+          "type": "h2",
+          "text": "2. 医疗决定"
+        },
+        {
+          "type": "p",
+          "text": "LSevin上的信息，包括各类指南和与顾问的沟通内容，均属一般性信息，不能替代合格医生的检查或建议。有关诊断、治疗、是否适宜出行以及术后护理的决定，由您和您的主治医生作出。LSevin不对任何医疗结果作出保证。"
+        },
+        {
+          "type": "h2",
+          "text": "3. 您的账户"
+        },
+        {
+          "type": "p",
+          "text": "您必须年满18周岁方可使用LSevin。登录时使用您的手机号码和一次性验证码。请妥善保管您的手机，不要将验证码告诉任何人，包括自称LSevin工作人员的人。"
+        },
+        {
+          "type": "p",
+          "text": "请在个人资料和预约中填写准确的信息，包括姓名、联系方式，以及国际患者出行所需的资料。您须对账户中的一切活动负责。对于用于欺诈、滥用或违反本条款的账户，我们可能予以暂停。"
+        },
+        {
+          "type": "h2",
+          "text": "4. 预约"
+        },
+        {
+          "type": "p",
+          "text": "当您完成预约步骤，且在需要付款时付款已获确认，预约即告成立。部分服务需在您提交申请后由服务商确认，预约页面会显示当前状态。"
+        },
+        {
+          "type": "p",
+          "text": "确认前，预约页面会显示服务内容、日期、价格以及服务商的政策，请仔细阅读。预约时有效的政策（包括取消条款）适用于该预约。"
+        },
+        {
+          "type": "h2",
+          "text": "5. 价格与付款"
+        },
+        {
+          "type": "p",
+          "text": "价格由服务商制定。LSevin向伊朗境内访客显示里亚尔或托曼价格，向境外访客显示其他货币的价格，部分服务商还会为国际患者设定不同的价格。结算时显示的金额即为您的实付金额。"
+        },
+        {
+          "type": "p",
+          "text": "根据服务不同，您可以在线全额支付、预付固定金额或一定比例、到店付款，或无需付款直接预约。如提供到店付款方案，您可以选择现在支付20%、50%或80%，对应方案分别使账单增加5%、2%或1%，现在应付的部分通过钱包或在线支付完成。"
+        },
+        {
+          "type": "p",
+          "text": "在线支付由Zarinpal等支付网关处理。LSevin看不到您完整的银行卡信息。"
+        },
+        {
+          "type": "h2",
+          "text": "6. LSevin钱包"
+        },
+        {
+          "type": "p",
+          "text": "您的钱包中存有您充值的金额以及退还给您的退款。可通过在线银行卡支付充值，或通过银行转账并提供凭证充值，转账经核查后余额才可使用。每种货币的单次充值均设有金额上限。钱包余额用于支付LSevin上的预约。"
+        },
+        {
+          "type": "h2",
+          "text": "7. 取消、退款与退货"
+        },
+        {
+          "type": "p",
+          "text": "取消和退款依照该预约所适用的服务商政策以及LSevin《退货与退款政策》办理。获批的预约退款将存入您的LSevin钱包。商店的退货和退款按该政策所述流程处理。"
+        },
+        {
+          "type": "h2",
+          "text": "8. 服务商的责任"
+        },
+        {
+          "type": "p",
+          "text": "服务商必须持有其服务所需的许可，发布准确的信息和价格，并提供所预约的服务。“已获资质认可”等标识由LSevin管理员设置，服务商无法自行设置。标识并不代表对服务商工作质量的保证。"
+        },
+        {
+          "type": "h2",
+          "text": "9. 您的义务"
+        },
+        {
+          "type": "p",
+          "text": "您只能将LSevin用于合法目的。不得虚假预约、滥用支付方式、发布误导性评价、复制网站内容或干扰网站运行。对于在LSevin上找到并预约的服务，请勿与服务商约定在LSevin之外付款，此类付款不在我们的保障范围内。"
+        },
+        {
+          "type": "h2",
+          "text": "10. 出行"
+        },
+        {
+          "type": "p",
+          "text": "您须自行负责办理签证、旅行证件和保险，并自行查阅本国政府发布的出行建议。LSevin不对出行安全作出任何声明。"
+        },
+        {
+          "type": "h2",
+          "text": "11. 责任"
+        },
+        {
+          "type": "p",
+          "text": "LSevin负责以合理的谨慎运营平台。对于独立服务商提供的医疗、住宿、旅游或其他服务，以及超出其合理控制范围的事件所造成的损失，LSevin不承担责任。本条款中的任何内容均不排除依法不得排除的责任。"
+        },
+        {
+          "type": "h2",
+          "text": "12. 投诉与争议"
+        },
+        {
+          "type": "p",
+          "text": "如出现问题，请通过您的预约联系服务商，并向LSevin发起客服对话。我们会审查预约、所适用的政策以及付款情况；在政策或我们的审查结果支持时，可能予以退款。对于旅游团，客户与运营方之间的争议由LSevin审查。"
+        },
+        {
+          "type": "h2",
+          "text": "13. 条款变更"
+        },
+        {
+          "type": "p",
+          "text": "我们可能会更新本条款。本页面发布的版本自其注明的日期起生效。已完成的预约继续适用预约时有效的政策。"
+        },
+        {
+          "type": "h2",
+          "text": "14. 联系方式"
+        },
+        {
+          "type": "p",
+          "text": "如对本条款有疑问，可通过账户中的“客服”联系我们，或发送邮件至 lsevin.turkiye@gmail.com。"
+        }
+      ],
+      "faq": [
+        {
+          "q": "谁对我的治疗负责？",
+          "a": "由您预约的独立诊所、医院或医生负责。LSevin负责预约和付款流程，不提供医疗建议。"
+        },
+        {
+          "q": "我的预约适用哪项取消政策？",
+          "a": "适用您预约时显示的服务商政策。对于旅游团，您所接受的政策版本会始终与您的预约绑定。"
+        },
+        {
+          "q": "到店付款方案需要额外支付多少？",
+          "a": "现在支付20%，账单增加5%；支付50%，增加2%；支付80%，增加1%。费用明细会在您确认前显示。"
+        },
+        {
+          "q": "可以不通过LSevin，直接向服务商付款吗？",
+          "a": "仅限预约本身注明到店付款的情况。对于在LSevin上预约的服务，在LSevin之外约定的付款不适用我们的退款流程。"
+        },
+        {
+          "q": "如何提出投诉？",
+          "a": "在账户中发起客服对话，提供预约编号或订单号，并描述遇到的问题。"
+        }
+      ]
+    },
+    "de-DE": {
+      "title": "Allgemeine Geschäftsbedingungen",
+      "metaDescription": "Die Bedingungen für die Nutzung von LSevin: unsere Rolle als Buchungsplattform, Konto, Buchungen, Zahlungen, Wallet, Anbieterpflichten, Stornierungen und Streitfälle.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Diese Bedingungen gelten, wenn Sie die LSevin Website und App unter lsevin.com oder lsevincare.com nutzen, ein Konto erstellen, eine Buchung vornehmen oder eine Shop-Bestellung aufgeben. Mit der Nutzung von LSevin stimmen Sie ihnen zu. Wenn Sie nicht zustimmen, nutzen Sie den Dienst bitte nicht."
+        },
+        {
+          "type": "h2",
+          "text": "1. Die Rolle von LSevin"
+        },
+        {
+          "type": "p",
+          "text": "LSevin ist ein Marktplatz und Buchungsvermittler. Kliniken, Krankenhäuser, Ärzte, Hotels, Reiseveranstalter, Fitnessstudios und andere auf LSevin gelistete Anbieter sind unabhängige Unternehmen. Wenn Sie eine Leistung buchen, wird die Leistung selbst von diesem Anbieter nach seinen eigenen Richtlinien erbracht, und der Anbieter ist für ihre Erbringung verantwortlich."
+        },
+        {
+          "type": "p",
+          "text": "LSevin ist dafür verantwortlich, die Plattform zu betreiben, Informationen zu Anbietern anzuzeigen, Ihre Buchung zu erfassen, über LSevin geleistete Zahlungen einzuziehen und Stornierungen und Erstattungen nach diesen Bedingungen abzuwickeln. LSevin ist kein Gesundheitsdienstleister, gibt keine medizinischen Ratschläge und stellt keine Visa oder medizinischen Einladungsschreiben aus."
+        },
+        {
+          "type": "h2",
+          "text": "2. Medizinische Entscheidungen"
+        },
+        {
+          "type": "p",
+          "text": "Informationen auf LSevin, einschließlich Leitfäden und Gesprächen mit Beratern, sind allgemeine Informationen. Sie ersetzen keine Untersuchung und keinen Rat durch einen qualifizierten Arzt. Entscheidungen über Diagnose, Behandlung, Reisefähigkeit und Nachsorge treffen Sie gemeinsam mit Ihrem behandelnden Arzt. LSevin garantiert kein medizinisches Ergebnis."
+        },
+        {
+          "type": "h2",
+          "text": "3. Ihr Konto"
+        },
+        {
+          "type": "p",
+          "text": "Sie müssen mindestens 18 Jahre alt sein, um LSevin zu nutzen. Sie melden sich mit Ihrer Telefonnummer und einem Einmalcode an. Schützen Sie Ihr Telefon und geben Sie Codes an niemanden weiter, auch nicht an Personen, die behaupten, für LSevin zu arbeiten."
+        },
+        {
+          "type": "p",
+          "text": "Machen Sie in Ihrem Profil und bei Buchungen zutreffende Angaben, einschließlich Namen, Kontaktdaten und, bei internationalen Patienten, der für die Reise erforderlichen Angaben. Sie sind für die Aktivitäten in Ihrem Konto verantwortlich. Wir können ein Konto sperren, das für Betrug oder Missbrauch oder unter Verstoß gegen diese Bedingungen genutzt wird."
+        },
+        {
+          "type": "h2",
+          "text": "4. Buchungen"
+        },
+        {
+          "type": "p",
+          "text": "Eine Buchung kommt zustande, wenn Sie die Buchungsschritte abschließen und, sofern eine Zahlung fällig ist, die Zahlung bestätigt wird. Manche Leistungen werden vom Anbieter bestätigt, nachdem Sie sie angefragt haben; die Buchungsseite zeigt den aktuellen Status."
+        },
+        {
+          "type": "p",
+          "text": "Bevor Sie bestätigen, zeigt die Buchung die Leistung, die Termine, den Preis und die Richtlinien des Anbieters. Lesen Sie sie. Für eine Buchung gelten die Richtlinien, die zum Zeitpunkt der Buchung in Kraft sind, einschließlich der Stornierungsbedingungen."
+        },
+        {
+          "type": "h2",
+          "text": "5. Preise und Zahlung"
+        },
+        {
+          "type": "p",
+          "text": "Die Preise werden von den Anbietern festgelegt. LSevin zeigt Besuchern im Iran Preise in Rial oder Toman und Besuchern im Ausland in einer anderen Währung an, und manche Anbieter legen für internationale Patienten andere Preise fest. Der an der Kasse angezeigte Betrag ist der Betrag, den Sie zahlen."
+        },
+        {
+          "type": "p",
+          "text": "Je nach Leistung zahlen Sie den vollen Betrag online, leisten vorab einen festen Betrag oder einen Prozentsatz, zahlen vor Ort oder buchen ohne Zahlung. Wo eine Teilzahlung mit Restzahlung vor Ort angeboten wird, wählen Sie, ob Sie jetzt 20, 50 oder 80 Prozent zahlen. Die Pläne schlagen entsprechend 5, 2 bzw. 1 Prozent auf die Rechnung auf, und der jetzt fällige Teil wird per Wallet oder Online-Zahlung beglichen."
+        },
+        {
+          "type": "p",
+          "text": "Online-Zahlungen werden von Zahlungsgateways wie Zarinpal abgewickelt. LSevin sieht Ihre vollständigen Kartendaten nicht."
+        },
+        {
+          "type": "h2",
+          "text": "6. LSevin Wallet"
+        },
+        {
+          "type": "p",
+          "text": "Ihr Wallet enthält das Geld, das Sie aufladen, und Erstattungen, die Ihnen gutgeschrieben werden. Aufladungen sind per Online-Kartenzahlung oder per Banküberweisung mit Beleg möglich; der Beleg wird geprüft, bevor das Guthaben verfügbar ist. Für jede Aufladung gilt ein Höchstbetrag je Währung. Das Wallet-Guthaben wird zur Bezahlung von Buchungen auf LSevin verwendet."
+        },
+        {
+          "type": "h2",
+          "text": "7. Stornierungen, Erstattungen und Rückgaben"
+        },
+        {
+          "type": "p",
+          "text": "Stornierungen und Erstattungen richten sich nach der Richtlinie des Anbieters für die jeweilige Buchung und nach der Richtlinie von LSevin zu Rückgabe und Erstattung. Genehmigte Erstattungen für Buchungen werden Ihrem LSevin Wallet gutgeschrieben. Rückgaben und Erstattungen im Shop folgen dem in dieser Richtlinie beschriebenen Ablauf."
+        },
+        {
+          "type": "h2",
+          "text": "8. Pflichten der Anbieter"
+        },
+        {
+          "type": "p",
+          "text": "Anbieter müssen die für ihre Leistungen erforderlichen Lizenzen besitzen, zutreffende Informationen und Preise veröffentlichen und das Gebuchte erbringen. Abzeichen wie „Akkreditiert“ werden von Administratoren von LSevin vergeben und können nicht von Anbietern gesetzt werden. Ein Abzeichen ist keine Garantie für die Arbeit eines Anbieters."
+        },
+        {
+          "type": "h2",
+          "text": "9. Ihre Pflichten"
+        },
+        {
+          "type": "p",
+          "text": "Nutzen Sie LSevin nur für rechtmäßige Zwecke. Nehmen Sie keine falschen Buchungen vor, missbrauchen Sie keine Zahlungsmethoden, veröffentlichen Sie keine irreführenden Bewertungen, kopieren Sie keine Inhalte der Website und beeinträchtigen Sie nicht deren Funktionsweise. Vereinbaren Sie keine Zahlung an einen Anbieter außerhalb von LSevin für eine Leistung, die Sie auf LSevin gefunden und gebucht haben, denn solche Zahlungen fallen nicht unter unseren Schutz."
+        },
+        {
+          "type": "h2",
+          "text": "10. Reisen"
+        },
+        {
+          "type": "p",
+          "text": "Sie sind selbst für Ihr Visum, Ihre Reisedokumente und Ihre Versicherung verantwortlich und dafür, die Reisehinweise Ihrer eigenen Regierung zu prüfen. LSevin erklärt Reisen nicht für sicher."
+        },
+        {
+          "type": "h2",
+          "text": "11. Haftung"
+        },
+        {
+          "type": "p",
+          "text": "LSevin ist dafür verantwortlich, die Plattform mit angemessener Sorgfalt zu betreiben. LSevin ist nicht verantwortlich für die medizinische Versorgung, die Unterkunft, die Tour oder eine andere Leistung, die ein unabhängiger Anbieter erbringt, und nicht für Schäden durch Ereignisse außerhalb seiner zumutbaren Kontrolle. Nichts in diesen Bedingungen schließt eine Haftung aus, die gesetzlich nicht ausgeschlossen werden kann."
+        },
+        {
+          "type": "h2",
+          "text": "12. Beschwerden und Streitfälle"
+        },
+        {
+          "type": "p",
+          "text": "Wenn etwas schiefgeht, wenden Sie sich über Ihre Buchung an den Anbieter und eröffnen Sie ein Support-Gespräch mit LSevin. Wir prüfen die Buchung, die geltende Richtlinie und die Zahlung und können eine Erstattung veranlassen, wenn die Richtlinie oder unsere Prüfung dies stützt. Bei Touren prüft LSevin Streitfälle zwischen Kunden und Veranstaltern."
+        },
+        {
+          "type": "h2",
+          "text": "13. Änderungen dieser Bedingungen"
+        },
+        {
+          "type": "p",
+          "text": "Wir können diese Bedingungen aktualisieren. Die auf dieser Seite veröffentlichte Fassung gilt ab dem dort angegebenen Datum. Für bereits getätigte Buchungen gelten weiterhin die Richtlinien, die zum Zeitpunkt der Buchung galten."
+        },
+        {
+          "type": "h2",
+          "text": "14. Kontakt"
+        },
+        {
+          "type": "p",
+          "text": "Fragen zu diesen Bedingungen können Sie über den Bereich Support in Ihrem Konto oder per E-Mail an lsevin.turkiye@gmail.com senden."
+        }
+      ],
+      "faq": [
+        {
+          "q": "Wer ist für meine Behandlung verantwortlich?",
+          "a": "Die unabhängige Klinik, das Krankenhaus oder der Arzt, bei dem Sie gebucht haben. LSevin wickelt Buchung und Zahlung ab und gibt keine medizinischen Ratschläge."
+        },
+        {
+          "q": "Welche Stornierungsrichtlinie gilt für meine Buchung?",
+          "a": "Die Richtlinie des Anbieters, die bei Ihrer Buchung angezeigt wurde. Bei Touren bleibt die Version der Richtlinie, die Sie akzeptiert haben, mit Ihrer Buchung verknüpft."
+        },
+        {
+          "q": "Was kostet die Teilzahlung mit Restzahlung vor Ort?",
+          "a": "Wenn Sie jetzt 20 Prozent zahlen, werden 5 Prozent auf die Rechnung aufgeschlagen, bei 50 Prozent sind es 2 Prozent und bei 80 Prozent 1 Prozent. Die Aufschlüsselung wird angezeigt, bevor Sie bestätigen."
+        },
+        {
+          "q": "Kann ich den Anbieter direkt bezahlen statt über LSevin?",
+          "a": "Nur wenn in der Buchung selbst angegeben ist, dass Sie vor Ort zahlen. Zahlungen, die außerhalb von LSevin für eine auf LSevin gebuchte Leistung vereinbart werden, sind nicht durch unser Erstattungsverfahren abgedeckt."
+        },
+        {
+          "q": "Wie reiche ich eine Beschwerde ein?",
+          "a": "Eröffnen Sie in Ihrem Konto ein Support-Gespräch mit der Buchungs- oder Bestellnummer und einer Beschreibung des Problems."
+        }
+      ]
+    },
+    "fr-FR": {
+      "title": "Conditions générales",
+      "metaDescription": "Les conditions d’utilisation de LSevin : notre rôle de plateforme de réservation, comptes, réservations, paiements, portefeuille, prestataires, annulations et litiges.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Les présentes conditions s’appliquent lorsque vous utilisez le site web et l’application LSevin sur lsevin.com ou lsevincare.com, créez un compte, effectuez une réservation ou passez une commande en boutique. En utilisant LSevin, vous les acceptez. Si vous ne les acceptez pas, n’utilisez pas le service."
+        },
+        {
+          "type": "h2",
+          "text": "1. Rôle de LSevin"
+        },
+        {
+          "type": "p",
+          "text": "LSevin est une place de marché et un intermédiaire de réservation. Les cliniques, hôpitaux, médecins, hôtels, organisateurs de circuits, salles de sport et autres prestataires présents sur LSevin sont des entreprises indépendantes. Lorsque vous réservez un service, celui-ci est fourni par le prestataire selon ses propres conditions, et le prestataire est responsable de sa bonne exécution."
+        },
+        {
+          "type": "p",
+          "text": "LSevin est responsable du fonctionnement de la plateforme, de l’affichage des informations des prestataires, de l’enregistrement de votre réservation, de l’encaissement des paiements effectués via LSevin et du traitement des annulations et des remboursements conformément aux présentes conditions. LSevin n’est pas un professionnel de santé, ne donne pas d’avis médical et ne délivre pas de visas ni de lettres d’invitation médicale."
+        },
+        {
+          "type": "h2",
+          "text": "2. Décisions médicales"
+        },
+        {
+          "type": "p",
+          "text": "Les informations disponibles sur LSevin, y compris les guides et les échanges avec les conseillers, sont des informations générales. Elles ne remplacent pas un examen ni l’avis d’un médecin qualifié. Les décisions relatives au diagnostic, au traitement, à l’aptitude au voyage et au suivi post-traitement sont prises par vous et votre médecin traitant. LSevin ne garantit aucun résultat médical."
+        },
+        {
+          "type": "h2",
+          "text": "3. Votre compte"
+        },
+        {
+          "type": "p",
+          "text": "Vous devez avoir 18 ans ou plus pour utiliser LSevin. Vous vous connectez avec votre numéro de téléphone et un code à usage unique. Protégez l’accès à votre téléphone et ne communiquez vos codes à personne, y compris à des personnes se présentant comme des employés de LSevin."
+        },
+        {
+          "type": "p",
+          "text": "Fournissez des informations exactes dans votre profil et vos réservations, notamment les noms, les coordonnées et, pour les patients internationaux, les informations nécessaires au voyage. Vous êtes responsable de l’activité de votre compte. Nous pouvons suspendre un compte utilisé à des fins de fraude ou d’abus, ou en violation des présentes conditions."
+        },
+        {
+          "type": "h2",
+          "text": "4. Réservations"
+        },
+        {
+          "type": "p",
+          "text": "Une réservation est effectuée lorsque vous terminez les étapes de réservation et, lorsqu’un paiement est dû, que celui-ci est confirmé. Certains services sont confirmés par le prestataire après votre demande, et la page de la réservation indique son statut actuel."
+        },
+        {
+          "type": "p",
+          "text": "Avant votre confirmation, la réservation indique le service, les dates, le prix et les conditions du prestataire. Lisez-les. Les conditions en vigueur au moment de la réservation s’appliquent à celle-ci, y compris les conditions d’annulation."
+        },
+        {
+          "type": "h2",
+          "text": "5. Prix et paiement"
+        },
+        {
+          "type": "p",
+          "text": "Les prix sont fixés par les prestataires. LSevin affiche les prix en rials ou en tomans pour les visiteurs en Iran et dans une autre devise pour les visiteurs à l’étranger, et certains prestataires fixent des prix différents pour les patients internationaux. Le montant affiché au moment du paiement est le montant que vous payez."
+        },
+        {
+          "type": "p",
+          "text": "Selon le service, vous pouvez payer la totalité en ligne, verser à l’avance un montant fixe ou un pourcentage, payer sur place ou réserver sans paiement. Lorsqu’une formule de paiement sur place est proposée, vous choisissez de payer 20, 50 ou 80 % maintenant. Ces formules ajoutent respectivement 5, 2 ou 1 % à la facture, et la part due maintenant se règle depuis le portefeuille ou par paiement en ligne."
+        },
+        {
+          "type": "p",
+          "text": "Les paiements en ligne sont traités par des passerelles de paiement comme Zarinpal. LSevin n’a pas accès à l’intégralité de vos coordonnées bancaires."
+        },
+        {
+          "type": "h2",
+          "text": "6. Portefeuille LSevin"
+        },
+        {
+          "type": "p",
+          "text": "Votre portefeuille contient l’argent que vous y versez et les remboursements qui vous sont crédités. Les recharges peuvent se faire par paiement en ligne par carte ou par virement bancaire avec reçu, vérifié avant que le solde soit disponible. Chaque recharge est soumise à un montant maximal par devise. Le solde du portefeuille sert à payer des réservations sur LSevin."
+        },
+        {
+          "type": "h2",
+          "text": "7. Annulations, remboursements et retours"
+        },
+        {
+          "type": "p",
+          "text": "Les annulations et les remboursements suivent les conditions du prestataire applicables à la réservation ainsi que la Politique de retours et de remboursements de LSevin. Les remboursements de réservation acceptés sont crédités sur votre portefeuille LSevin. Les retours et remboursements de la boutique suivent la procédure décrite dans cette politique."
+        },
+        {
+          "type": "h2",
+          "text": "8. Responsabilités des prestataires"
+        },
+        {
+          "type": "p",
+          "text": "Les prestataires doivent détenir les licences requises pour leurs services, publier des informations et des prix exacts, et fournir ce qui a été réservé. Les badges comme Accrédité sont attribués par les administrateurs de LSevin et ne peuvent pas être activés par les prestataires. Un badge ne garantit pas la qualité du travail d’un prestataire."
+        },
+        {
+          "type": "h2",
+          "text": "9. Vos obligations"
+        },
+        {
+          "type": "p",
+          "text": "N’utilisez LSevin qu’à des fins licites. N’effectuez pas de fausses réservations, n’utilisez pas abusivement les moyens de paiement, ne publiez pas d’avis trompeurs, ne copiez pas le contenu du site et ne perturbez pas son fonctionnement. Ne convenez pas de payer un prestataire en dehors de LSevin pour un service que vous avez trouvé et réservé sur LSevin, car ces paiements ne bénéficient pas de notre protection."
+        },
+        {
+          "type": "h2",
+          "text": "10. Voyage"
+        },
+        {
+          "type": "p",
+          "text": "Il vous appartient d’obtenir votre visa, vos documents de voyage et votre assurance, et de consulter les recommandations aux voyageurs de votre propre gouvernement. LSevin ne se prononce pas sur la sécurité d’un voyage."
+        },
+        {
+          "type": "h2",
+          "text": "11. Responsabilité"
+        },
+        {
+          "type": "p",
+          "text": "LSevin est tenu d’exploiter la plateforme avec un soin raisonnable. LSevin n’est pas responsable des soins médicaux, de l’hébergement, du circuit ou de tout autre service fourni par un prestataire indépendant, ni des pertes causées par des événements échappant à son contrôle raisonnable. Aucune disposition des présentes conditions n’exclut une responsabilité qui ne peut être exclue en vertu de la loi."
+        },
+        {
+          "type": "h2",
+          "text": "12. Réclamations et litiges"
+        },
+        {
+          "type": "p",
+          "text": "En cas de problème, contactez le prestataire depuis votre réservation et ouvrez une conversation avec l’assistance LSevin. Nous examinons la réservation, les conditions applicables et le paiement, et nous pouvons accorder un remboursement lorsque les conditions ou notre examen le justifient. Pour les circuits, LSevin examine les litiges entre clients et organisateurs."
+        },
+        {
+          "type": "h2",
+          "text": "13. Modifications des présentes conditions"
+        },
+        {
+          "type": "p",
+          "text": "Nous pouvons mettre à jour les présentes conditions. La version publiée sur cette page s’applique à compter de la date indiquée. Les réservations déjà effectuées conservent les conditions en vigueur au moment où elles ont été faites."
+        },
+        {
+          "type": "h2",
+          "text": "14. Contact"
+        },
+        {
+          "type": "p",
+          "text": "Vous pouvez envoyer vos questions sur les présentes conditions depuis Assistance dans votre compte ou par e-mail à lsevin.turkiye@gmail.com."
+        }
+      ],
+      "faq": [
+        {
+          "q": "Qui est responsable de mon traitement ?",
+          "a": "La clinique, l’hôpital ou le médecin indépendant auprès duquel vous avez réservé. LSevin gère la réservation et le paiement et ne donne pas d’avis médical."
+        },
+        {
+          "q": "Quelles conditions d’annulation s’appliquent à ma réservation ?",
+          "a": "Les conditions du prestataire affichées au moment de votre réservation. Pour les circuits, la version des conditions que vous avez acceptée reste rattachée à votre réservation."
+        },
+        {
+          "q": "Combien coûte la formule de paiement sur place ?",
+          "a": "Payer 20 % maintenant ajoute 5 % à la facture, 50 % ajoute 2 % et 80 % ajoute 1 %. Le détail s’affiche avant que vous confirmiez."
+        },
+        {
+          "q": "Puis-je payer le prestataire directement plutôt que via LSevin ?",
+          "a": "Uniquement lorsque la réservation elle-même indique un paiement sur place. Les paiements convenus en dehors de LSevin pour un service réservé sur LSevin ne sont pas couverts par notre procédure de remboursement."
+        },
+        {
+          "q": "Comment déposer une réclamation ?",
+          "a": "Ouvrez une conversation avec l’assistance depuis votre compte en indiquant le numéro de réservation ou de commande et en décrivant le problème."
+        }
+      ]
+    },
+    "es-ES": {
+      "title": "Términos y condiciones",
+      "metaDescription": "Condiciones de uso de LSevin: nuestro papel como plataforma de reservas, cuentas, reservas, pagos, monedero, deberes de los proveedores, cancelaciones y disputas.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Estas condiciones se aplican cuando utiliza el sitio web y la aplicación de LSevin en lsevin.com o lsevincare.com, crea una cuenta, hace una reserva o realiza un pedido en la tienda. Al utilizar LSevin, usted las acepta. Si no está de acuerdo, no utilice el servicio."
+        },
+        {
+          "type": "h2",
+          "text": "1. El papel de LSevin"
+        },
+        {
+          "type": "p",
+          "text": "LSevin es un marketplace e intermediario de reservas. Las clínicas, hospitales, médicos, hoteles, operadores turísticos, gimnasios y demás proveedores que figuran en LSevin son empresas independientes. Cuando reserva un servicio, el servicio en sí lo presta ese proveedor conforme a sus propias políticas, y el proveedor es responsable de prestarlo."
+        },
+        {
+          "type": "p",
+          "text": "LSevin es responsable de operar la plataforma, mostrar la información de los proveedores, registrar su reserva, cobrar los pagos que se realizan a través de LSevin y gestionar las cancelaciones y los reembolsos conforme a estas condiciones. LSevin no es un proveedor de atención sanitaria, no ofrece asesoramiento médico y no emite visados ni cartas de invitación médica."
+        },
+        {
+          "type": "h2",
+          "text": "2. Decisiones médicas"
+        },
+        {
+          "type": "p",
+          "text": "La información de LSevin, incluidas las guías y las conversaciones con los asesores, es información general. No sustituye a la exploración ni al consejo de un médico cualificado. Las decisiones sobre el diagnóstico, el tratamiento, la aptitud para viajar y los cuidados posteriores las toman usted y su médico tratante. LSevin no garantiza ningún resultado médico."
+        },
+        {
+          "type": "h2",
+          "text": "3. Su cuenta"
+        },
+        {
+          "type": "p",
+          "text": "Debe tener 18 años o más para utilizar LSevin. Inicia sesión con su número de teléfono y un código de un solo uso. Mantenga su teléfono protegido y no comparta los códigos con nadie, ni siquiera con personas que digan trabajar para LSevin."
+        },
+        {
+          "type": "p",
+          "text": "Facilite datos exactos en su perfil y en sus reservas, incluidos los nombres, los datos de contacto y, si es paciente internacional, los datos necesarios para el viaje. Usted es responsable de la actividad de su cuenta. Podemos suspender una cuenta que se utilice para fraude, abuso o en incumplimiento de estas condiciones."
+        },
+        {
+          "type": "h2",
+          "text": "4. Reservas"
+        },
+        {
+          "type": "p",
+          "text": "Una reserva queda hecha cuando completa los pasos de reserva y, si hay un pago pendiente, este se confirma. Algunos servicios los confirma el proveedor después de que usted los solicite, y la página de la reserva muestra el estado actual."
+        },
+        {
+          "type": "p",
+          "text": "Antes de confirmar, la reserva muestra el servicio, las fechas, el precio y las políticas del proveedor. Léalas. A cada reserva se le aplican las políticas vigentes en el momento de reservar, incluidas las condiciones de cancelación."
+        },
+        {
+          "type": "h2",
+          "text": "5. Precios y pago"
+        },
+        {
+          "type": "p",
+          "text": "Los precios los fijan los proveedores. LSevin muestra los precios en riales o tomanes a los visitantes en Irán y en otra moneda a los visitantes en el extranjero, y algunos proveedores fijan precios distintos para pacientes internacionales. El importe que se muestra al finalizar la compra es el importe que usted paga."
+        },
+        {
+          "type": "p",
+          "text": "Según el servicio, puede pagar el importe completo en línea, pagar por adelantado un importe fijo o un porcentaje, pagar en el lugar o reservar sin pago. Cuando se ofrece un plan de pago en el lugar, usted elige pagar ahora el 20, el 50 o el 80 por ciento. Cada plan añade a la cuenta un 5, un 2 o un 1 por ciento, respectivamente, y la parte que se paga ahora se abona con el monedero o mediante pago en línea."
+        },
+        {
+          "type": "p",
+          "text": "Los pagos en línea los procesan pasarelas de pago como Zarinpal. LSevin no ve los datos completos de su tarjeta."
+        },
+        {
+          "type": "h2",
+          "text": "6. Monedero de LSevin"
+        },
+        {
+          "type": "p",
+          "text": "Su monedero guarda el dinero que recarga y los reembolsos que se le abonan. Las recargas pueden hacerse con pago en línea con tarjeta o por transferencia bancaria con comprobante, que se revisa antes de que el saldo esté disponible. Cada recarga está sujeta a un importe máximo por moneda. El saldo del monedero se utiliza para pagar reservas en LSevin."
+        },
+        {
+          "type": "h2",
+          "text": "7. Cancelaciones, reembolsos y devoluciones"
+        },
+        {
+          "type": "p",
+          "text": "Las cancelaciones y los reembolsos se rigen por la política del proveedor aplicable a la reserva y por la Política de devoluciones y reembolsos de LSevin. Los reembolsos de reservas aprobados se abonan en su monedero de LSevin. Las devoluciones y los reembolsos de la tienda siguen el proceso descrito en esa política."
+        },
+        {
+          "type": "h2",
+          "text": "8. Responsabilidades de los proveedores"
+        },
+        {
+          "type": "p",
+          "text": "Los proveedores deben contar con las licencias que exigen sus servicios, publicar información y precios exactos, y prestar lo que se ha reservado. Insignias como Acreditado las asignan los administradores de LSevin y los proveedores no pueden asignárselas. Una insignia no garantiza el trabajo de un proveedor."
+        },
+        {
+          "type": "h2",
+          "text": "9. Sus obligaciones"
+        },
+        {
+          "type": "p",
+          "text": "Utilice LSevin solo con fines lícitos. No haga reservas falsas, no haga un uso indebido de los métodos de pago, no publique reseñas engañosas, no copie el contenido del sitio ni interfiera en su funcionamiento. No acuerde pagar a un proveedor fuera de LSevin por un servicio que encontró y reservó en LSevin, porque esos pagos quedan fuera de nuestra protección."
+        },
+        {
+          "type": "h2",
+          "text": "10. Viajes"
+        },
+        {
+          "type": "p",
+          "text": "Usted es responsable de su visado, sus documentos de viaje, su seguro y de consultar las recomendaciones de viaje de su propio gobierno. LSevin no declara que viajar sea seguro."
+        },
+        {
+          "type": "h2",
+          "text": "11. Responsabilidad"
+        },
+        {
+          "type": "p",
+          "text": "LSevin es responsable de operar la plataforma con una diligencia razonable. No es responsable de la atención médica, el alojamiento, el tour u otro servicio que preste un proveedor independiente, ni de las pérdidas causadas por hechos ajenos a su control razonable. Nada de lo dispuesto en estas condiciones excluye la responsabilidad que la ley no permite excluir."
+        },
+        {
+          "type": "h2",
+          "text": "12. Reclamaciones y disputas"
+        },
+        {
+          "type": "p",
+          "text": "Si algo sale mal, contacte con el proveedor a través de su reserva y abra una conversación con el soporte de LSevin. Revisamos la reserva, la política aplicada y el pago, y podemos emitir un reembolso cuando la política o nuestra revisión lo justifiquen. En el caso de los tours, LSevin revisa las disputas entre clientes y operadores."
+        },
+        {
+          "type": "h2",
+          "text": "13. Cambios en estas condiciones"
+        },
+        {
+          "type": "p",
+          "text": "Podemos actualizar estas condiciones. La versión publicada en esta página se aplica a partir de la fecha que indica. Las reservas ya realizadas conservan las políticas vigentes en el momento en que se hicieron."
+        },
+        {
+          "type": "h2",
+          "text": "14. Contacto"
+        },
+        {
+          "type": "p",
+          "text": "Puede enviar sus preguntas sobre estas condiciones a través de Soporte en su cuenta o por correo electrónico a lsevin.turkiye@gmail.com."
+        }
+      ],
+      "faq": [
+        {
+          "q": "¿Quién es responsable de mi tratamiento?",
+          "a": "La clínica, el hospital o el médico independiente con el que reservó. LSevin gestiona la reserva y el pago, y no ofrece asesoramiento médico."
+        },
+        {
+          "q": "¿Qué política de cancelación se aplica a mi reserva?",
+          "a": "La política del proveedor que se mostraba cuando reservó. En los tours, la versión de la política que aceptó queda vinculada a su reserva."
+        },
+        {
+          "q": "¿Cuánto cuesta el plan de pago en el lugar?",
+          "a": "Pagar ahora el 20 por ciento añade un 5 por ciento a la cuenta; el 50 por ciento, un 2 por ciento; y el 80 por ciento, un 1 por ciento. El desglose se muestra antes de confirmar."
+        },
+        {
+          "q": "¿Puedo pagar directamente al proveedor en lugar de a través de LSevin?",
+          "a": "Solo cuando la propia reserva indique que el pago se hace en el lugar. Los pagos acordados fuera de LSevin por un servicio reservado en LSevin no están cubiertos por nuestro proceso de reembolso."
+        },
+        {
+          "q": "¿Cómo presento una reclamación?",
+          "a": "Abra una conversación con soporte en su cuenta e indique el número de reserva o de pedido junto con una descripción del problema."
+        }
+      ]
+    }
+  }
+}

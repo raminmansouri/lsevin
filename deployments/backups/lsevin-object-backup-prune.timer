@@ -1,0 +1,10 @@
+[Unit]
+Description=Expire old SeaweedFS object snapshots daily, after the 02:20 backup
+
+[Timer]
+OnCalendar=*-*-* 04:10:00
+Persistent=true
+RandomizedDelaySec=10m
+
+[Install]
+WantedBy=timers.target

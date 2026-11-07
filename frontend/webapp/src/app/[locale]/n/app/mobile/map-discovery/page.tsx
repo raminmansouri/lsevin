@@ -2,6 +2,7 @@ import NearbyClient from "./NearbyClient";
 import { getNearbyPageData, parseNearbyFilters } from "./nearby.data";
 
 import { DesktopNearbyView } from "@/features/web-desktop/nearby/DesktopNearbyView";
+import { PageFaq } from "@/features/site-content/components/faq-section";
 
 export const dynamic = "force-dynamic";
 
@@ -50,6 +51,15 @@ export default async function MapDiscoveryPage({
       filters={filters}
       mapCenter={data.mapCenter}
       expandedBeyondFilters={data.expandedBeyondFilters}
+    />
+    {/* A category or provider-type filter shows that FAQ (exact), else the map FAQ. */}
+    <PageFaq
+      target={[
+        ...(filters.categoryId ? [{ scope: "category" as const, entityId: filters.categoryId, exact: true }] : []),
+        ...(filters.providerTypeId ? [{ scope: "provider_type" as const, entityId: filters.providerTypeId, exact: true }] : []),
+        { scope: "map" as const },
+      ]}
+      locale={locale}
     />
     </>
   );

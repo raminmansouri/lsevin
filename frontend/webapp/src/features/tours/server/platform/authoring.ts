@@ -6,6 +6,7 @@ import { addDaysIso, instantToLocalIso, isCalendarId, isIsoDate, LocalTimeError,
 import { normalizeRules } from "../../domain/cancellation";
 import { TOUR_TEXT_FIELDS } from "../../domain/content";
 import { fromPrice, TRAVELER_CLASSES } from "../../domain/pricing";
+import { isMediaRef } from "../../domain/media";
 import { expandRule } from "../../domain/recurrence";
 
 import { requireProviderRole, translatorLocales, type Actor, type ProviderRole } from "./roles";
@@ -292,12 +293,12 @@ export async function contentForEditor(actor: Actor, tourId: string) {
 // Media (V-014, M-006)
 // ----------------------------------------------------------------------------
 
-const MEDIA_URL_RE = /^(https:\/\/|\/)[^\s<>"']{1,1000}$/;
+
 const ALLOWED_MIME = new Set(["image/jpeg", "image/png", "image/webp", "image/avif", "video/mp4", "video/webm"]);
 
 export async function addMedia(actor: Actor, tourId: string, input: { url: string; kind?: "image" | "video" | "panorama"; album?: string; mimeType?: string; byteSize?: number; width?: number; height?: number; alt?: Record<string, string>; caption?: Record<string, string>; isCover?: boolean }) {
   const owner = await authorizeTour(actor, tourId, "editor");
-  if (!MEDIA_URL_RE.test(input.url)) throw fail.validation("invalid_media_url");
+  if (!isMediaRef(input.url)) throw fail.validation("invalid_media_url");
   if (input.mimeType && !ALLOWED_MIME.has(input.mimeType)) throw fail.validation("unsupported_media_type");
   if (input.byteSize && input.byteSize > 25 * 1024 * 1024) throw fail.validation("media_too_large");
   if ((input.kind ?? "image") === "image" && input.width && input.height && (input.width < 600 || input.height < 400)) throw fail.validation("image_too_small");
@@ -383,6 +384,7 @@ export async function saveItinerary(actor: Actor, tourId: string, locale: string
     if ((s.lat == null) !== (s.lng == null)) throw fail.validation("invalid_coordinates");
     if (s.lat != null && (s.lat < -90 || s.lat > 90 || s.lng! < -180 || s.lng! > 180)) throw fail.validation("invalid_coordinates");
     if (s.startTime && !/^([01]\d|2[0-3]):[0-5]\d$/.test(s.startTime)) throw fail.validation("invalid_time");
+    if (s.imageUrl && !isMediaRef(s.imageUrl)) throw fail.validation("invalid_media_url");
   }
   try {
     return await db.begin(async (tx) => {

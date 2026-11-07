@@ -328,9 +328,9 @@ export function DesktopServiceView({ data, serviceId, locale }: { data: GetServi
               </span>
             ))}
           </div>
-          <h1 className="text-[48px] font-black leading-[1.2] text-[#0e1a16]">
+          <div role="heading" aria-level={1} className="text-[48px] font-black leading-[1.2] text-[#0e1a16]">
             <AnimatedWords text={service.name} />
-          </h1>
+          </div>
           <LexicalDescription content={service.subtitle} fallback="" className="max-w-3xl text-lg leading-9 text-[#56675f]" />
 
           <div className="flex flex-wrap items-center gap-6">

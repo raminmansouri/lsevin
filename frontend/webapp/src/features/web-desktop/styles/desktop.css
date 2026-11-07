@@ -123,6 +123,14 @@
     color: var(--lsd-ink);
   }
 
+
+  /* Seller boutique: the dashed ring around the portrait and the warranty seal turn slowly */
+  @keyframes lsd-seller-spin { to { transform: rotate(360deg); } }
+  .lsd-seller-ring { animation: lsd-seller-spin 40s linear infinite; }
+  @media (prefers-reduced-motion: reduce) { .lsd-seller-ring { animation: none; } }
+
+
+  
   .lsd-container {
     max-width: 1280px;
     margin-inline: auto;

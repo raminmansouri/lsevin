@@ -22,6 +22,7 @@ import { DesktopServiceView } from '@/features/web-desktop/service/DesktopServic
 import { DesktopSponsoredSection } from '@/features/web-desktop/home/DesktopSponsoredSection';
 
 import ServicePage from "./service-page";
+import { PageFaq } from "@/features/site-content/components/faq-section";
 
 type ServiceRouteParams = {
   locale: string;
@@ -138,6 +139,8 @@ export default async function TreatmentDetailPage({
       <div className="lsd hidden pb-14 pt-4 xl:block">
         <DesktopSponsoredSection locale={locale} placement="service_detail" />
       </div>
+      {/* Platform FAQ (admin → Editorial); the provider's own service FAQ renders inside the views. */}
+      <PageFaq target={{ scope: "service", entityId: id }} locale={locale} pageUrl={serviceUrl(locale, id)} />
     </>
   );
 }

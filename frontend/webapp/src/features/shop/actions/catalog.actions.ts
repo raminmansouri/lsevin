@@ -8,6 +8,7 @@ export type ShopProductSearchInput = {
   category?: string;
   q?: string;
   brand?: string;
+  seller?: string;
   sort?: "popularity" | "newest" | "price_asc" | "price_desc" | "rating";
   page?: number;
   pageSize?: number;

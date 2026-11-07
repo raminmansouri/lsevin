@@ -59,6 +59,11 @@ declare const messages: {
         "hotel": "فندق",
         "transfer": "نقل"
       }
+    },
+    "nudge": {
+      "title": "الدعم عبر الإنترنت",
+      "body": "كيف يمكنني مساعدتك؟",
+      "close": "إغلاق"
     }
   },
   "ShopMedia": {
@@ -2663,7 +2668,10 @@ declare const messages: {
     },
     "internationalPriceMultiplier": "معامل السعر الدولي",
     "internationalPriceMultiplierPlaceholder": "مثلاً ٣",
-    "internationalPriceMultiplierHint": "السعر الدولي = السعر المحوّل × هذا المعامل. اتركه فارغًا لاستخدام القيمة الافتراضية."
+    "internationalPriceMultiplierHint": "السعر الدولي = السعر المحوّل × هذا المعامل. اتركه فارغًا لاستخدام القيمة الافتراضية.",
+    "staffOrder": "Order",
+    "staffOrderHint": "1 = first on the provider's page; 0 = no position",
+    "staffOrderSaved": "Order saved"
   },
   "HomeHero": {
     "title": "الصحة والجمال بلا حدود، كل شيء في مكان واحد",
@@ -2699,6 +2707,9 @@ declare const messages: {
           "terms": "شروط الخدمة",
           "privacy": "سياسة الخصوصية"
         }
+      },
+      "policies": {
+        "title": "السياسات"
       }
     }
   },
@@ -4839,7 +4850,10 @@ declare const messages: {
     "notifications": "الإشعارات",
     "refunds": "المبالغ المستردة",
     "templates": "القوالب",
-    "consultationRequests": "طلبات الاستشارة"
+    "consultationRequests": "طلبات الاستشارة",
+    "nav": {
+      "editorial": "محتوى الموقع"
+    }
   },
   "HomePage": {
     "title": "LSevin | العلاج في إيران: أطباء وعيادات وفنادق علاجية",
@@ -14341,7 +14355,26 @@ declare const messages: {
     "returnSubmitted": "تم إرسال طلب الإرجاع — سنراجعه قريباً.",
     "returnsHeading": "المرتجعات",
     "returnStatusLabel": "الحالة",
-    "qty": "الكمية"
+    "qty": "الكمية",
+    "sellers": "{count} بائعين",
+    "sellerOffers": {
+      "soldBy": "البائع: {name}",
+      "title": "بائعو هذا المنتج ({count})",
+      "best": "أفضل عرض",
+      "shipsIn": "الشحن خلال {days} أيام عمل",
+      "shipsToday": "الشحن اليوم",
+      "outOfStock": "غير متوفر",
+      "add": "إضافة",
+      "others": "{count} بائعين آخرين"
+    },
+    "sellerPage": {
+      "products": "{count} منتج",
+      "yearsOnSite": "+{count} سنة على السوين",
+      "newSeller": "بائع جديد على السوين",
+      "eyebrow": "بوتيك",
+      "productsLabel": "المنتجات",
+      "warrantyTitle": "ضمان البائع"
+    }
   },
   "ShopAdmin": {
     "nav": {
@@ -14362,7 +14395,9 @@ declare const messages: {
       "settings": "الإعدادات",
       "backToDashboard": "← لوحة التحكم",
       "backToProducts": "← المنتجات",
-      "backToCategories": "← الفئات"
+      "backToCategories": "← الفئات",
+      "warehouses": "المستودعات",
+      "sellers": "Sellers"
     },
     "common": {
       "save": "حفظ",
@@ -14434,7 +14469,9 @@ declare const messages: {
       "colReview": "المراجعة",
       "colTotal": "الإجمالي",
       "colPlaced": "وقت الإنشاء",
-      "noneMatch": "لا توجد طلبات مطابقة."
+      "noneMatch": "لا توجد طلبات مطابقة.",
+      "anySeller": "Any seller",
+      "sellers": "{count} sellers"
     },
     "orderDetail": {
       "items": "العناصر",
@@ -14903,6 +14940,67 @@ declare const messages: {
         "hidden": "مخفي",
         "all": "الكل"
       }
+    },
+    "sellers": {
+      "title": "Sellers",
+      "add": "Add seller",
+      "nameEn": "Name (English)",
+      "nameFa": "Name (Persian)",
+      "nameAr": "Name (Arabic)",
+      "slug": "Slug",
+      "phone": "Phone",
+      "email": "Email",
+      "warrantyEn": "Warranty (English)",
+      "warrantyFa": "Warranty (Persian)",
+      "warrantyAr": "Warranty (Arabic)",
+      "warrantyHint": "This seller's default warranty text; each offer can set its own.",
+      "logo": "Logo",
+      "save": "Save seller",
+      "archive": "Delete",
+      "noSellers": "No sellers yet.",
+      "colSeller": "Seller",
+      "colOffers": "Active offers",
+      "colStatus": "Status",
+      "default": "Default",
+      "defaultHint": "The default seller is always active.",
+      "descEn": "Description (English)",
+      "descFa": "Description (Persian)",
+      "descAr": "Description (Arabic)",
+      "deleteBlocked": "This seller still has active products; move or remove them first."
+    },
+    "offers": {
+      "title": "Sellers of this product",
+      "hint": "Title, images and specs belong to the product; each seller only has its own price, stock and terms.",
+      "price": "Price",
+      "compareAt": "Compare-at price",
+      "stock": "Stock",
+      "handlingDays": "Ships in (days)",
+      "none": "No seller offers this product yet.",
+      "add": "Add seller",
+      "pickSeller": "Pick a seller",
+      "pickVariant": "Pick a variant",
+      "sellerSku": "Seller SKU",
+      "warrantyFa": "Warranty (Persian)",
+      "warrantyEn": "Warranty (English)",
+      "addNote": "Empty stock means stock is read from the shop's current inventory. A seller can have one offer per item.",
+      "priceHistory": "Price history ({count})"
+    },
+    "similar": {
+      "title": "This product may already exist",
+      "hint": "If it's the same product, add the seller to it instead of creating a duplicate.",
+      "addSeller": "Add seller to this product",
+      "sellers": "{count} sellers"
+    },
+    "sellerOffers": {
+      "title": "{name}'s products",
+      "editSeller": "Edit seller",
+      "back": "← Sellers",
+      "colProduct": "Product",
+      "colTerms": "Price, stock and shipping",
+      "lowStock": "Running out",
+      "none": "This seller has no products yet.",
+      "manage": "{count} products",
+      "lowStockCount": "{count} low stock"
     }
   },
   "Patients": {
@@ -15807,6 +15905,144 @@ declare const messages: {
       "stale": "تم تعديل هذه المرحلة بواسطة مستخدم آخر. تم تحميل أحدث البيانات.",
       "invalid_transition": "لا يُسمح بهذا التغيير من الحالة الحالية.",
       "unknown": "تعذر تحديث المرحلة. يرجى المحاولة مرة أخرى."
+    }
+  },
+  "SitePages": {
+    "faqTitle": "الأسئلة الشائعة",
+    "updated": "آخر تحديث",
+    "home": "الرئيسية",
+    "more": "عن لسوين"
+  },
+  "AdminEditorial": {
+    "heading": "محتوى الموقع",
+    "intro": "صفحات الموقع (من نحن، اتصل بنا، السياسات) والأسئلة الشائعة المعروضة في أنحاء الموقع، بجميع اللغات.",
+    "tabs": {
+      "pages": "صفحات الموقع",
+      "faqs": "الأسئلة الشائعة"
+    },
+    "pagesHelp": "تظهر الصفحة على الموقع بعد نشرها. اللغات التي لا تتوفر لها ترجمة تعرض النسخة الإنجليزية ولا تظهر في نتائج البحث.",
+    "faqsHelp": "يظهر كل سؤال شائع على نوع واحد من الصفحات. اترك العنصر المحدد فارغًا لعرضه على كل صفحات هذا النوع.",
+    "page": "الصفحة",
+    "languages": "اللغات",
+    "status": "الحالة",
+    "actions": "الإجراءات",
+    "edit": "تعديل",
+    "delete": "حذف",
+    "confirmDelete": "حذف هذا السؤال بجميع اللغات؟ لا يمكن التراجع عن ذلك.",
+    "deleted": "تم حذف السؤال.",
+    "published": "منشور",
+    "publishedHelp": "ظاهر على الموقع وفي نتائج البحث.",
+    "draft": "مسودة",
+    "notCreated": "غير منشأة",
+    "inFooter": "في التذييل",
+    "showInFooter": "عرض في التذييل",
+    "showInFooterHelp": "إضافة رابط لهذه الصفحة في تذييل الموقع.",
+    "displayOrder": "الترتيب",
+    "editPage": "تعديل الصفحة",
+    "pageUrl": "العنوان (الرابط)",
+    "title": "العنوان",
+    "summary": "الملخص",
+    "summaryHelp": "جملة أو جملتان. يُستخدم وصفًا للصفحة في نتائج البحث.",
+    "body": "نص الصفحة",
+    "bodyHelp": "استخدم العناوين لتقسيم الأقسام. اكتب كل لغة على حدة، ولا تلصق ترجمة آلية دون مراجعتها.",
+    "heroImage": "صورة الترويسة",
+    "heroImageHelp": "اختياري. اختر من مكتبة الوسائط.",
+    "pickImage": "اختيار صورة",
+    "save": "حفظ",
+    "saving": "جارٍ الحفظ...",
+    "saved": "تم الحفظ.",
+    "back": "رجوع",
+    "viewPage": "عرض الصفحة",
+    "newFaq": "سؤال شائع جديد",
+    "editFaq": "تعديل السؤال الشائع",
+    "faqHelp": "اكتب السؤال والجواب بكل لغة تريد أن يظهر بها. لا يمكن حفظ لغة تحتوي على السؤال فقط أو الجواب فقط.",
+    "showOn": "مكان العرض",
+    "section": "القسم",
+    "choose": "اختر...",
+    "specificItem": "عنصر محدد (اختياري)",
+    "specificItemHelp": "العناصر التي لها أسئلة خاصة بها تعرض أسئلتها فقط، وبقية العناصر تعرض الأسئلة العامة.",
+    "allItems": "كل عناصر هذا النوع",
+    "currentItem": "الحالي",
+    "question": "السؤال",
+    "answer": "الجواب",
+    "active": "نشط",
+    "inactive": "مخفي",
+    "all": "الكل",
+    "noFaqs": "لا توجد أسئلة شائعة هنا بعد.",
+    "scopes": {
+      "home": "الصفحة الرئيسية",
+      "explore": "استكشاف",
+      "search": "البحث",
+      "map": "الخريطة",
+      "categories": "صفحة الفئات",
+      "provider": "صفحات مقدمي الخدمة",
+      "specialist": "صفحات الأخصائيين",
+      "service": "صفحات الخدمات",
+      "category": "فئة محددة",
+      "provider_type": "نوع مقدم خدمة",
+      "app": "قسم (المتجر، الجولات، النوادي...)",
+      "site_page": "صفحة من صفحات الموقع"
+    },
+    "apps": {
+      "shop": "المتجر",
+      "tours": "الجولات السياحية",
+      "gym": "النوادي الرياضية واللياقة",
+      "transfers": "النقل من المطار وإليه"
+    },
+    "pages": {
+      "about-us": "من نحن",
+      "services": "الخدمات",
+      "contact-us": "اتصل بنا",
+      "licenses-certifications": "التراخيص والشهادات",
+      "pricing-fees": "الأسعار والرسوم",
+      "shipping-delivery": "الشحن والتوصيل",
+      "returns-refunds": "الإرجاع واسترداد الأموال",
+      "terms-conditions": "الشروط والأحكام",
+      "privacy-policy": "سياسة الخصوصية"
+    }
+  },
+  "AdminAssistant": {
+    "title": "AI assistant",
+    "stats": {
+      "messages": "Messages today",
+      "conversations": "Chats today",
+      "users": "Users",
+      "guests": "Guests"
+    },
+    "settings": {
+      "title": "Settings and limits",
+      "hint": "0 means no limit. Changes apply at once.",
+      "guests": "Guest",
+      "users": "Signed-in user",
+      "daily": "Messages per day",
+      "perChat": "Messages per chat",
+      "maxChars": "Max message length (characters)",
+      "saveGuestChats": "Save guests' chats too",
+      "save": "Save"
+    },
+    "list": {
+      "title": "Chats",
+      "search": "Search titles and message text…",
+      "all": "All",
+      "users": "Users",
+      "guests": "Guests",
+      "filter": "Filter",
+      "colTitle": "First question",
+      "colWho": "User",
+      "colMessages": "Messages",
+      "colLocale": "Language",
+      "colUpdated": "Last message",
+      "untitled": "(untitled)",
+      "user": "User",
+      "guest": "Guest",
+      "none": "No chats found.",
+      "prev": "← Previous",
+      "next": "Next →"
+    },
+    "detail": {
+      "back": "← All chats",
+      "user": "User",
+      "assistant": "Assistant"
     }
   }
 };

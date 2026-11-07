@@ -1,4 +1,4 @@
-import { Star } from "lucide-react";
+import { Star, Store } from "lucide-react";
 
 import { shopImageSrc } from "@/features/shop/lib/image";
 import { ShopPrice } from "@/features/shop/components/ShopPrice";
@@ -74,6 +74,12 @@ export function DesktopProductCard({
               </>
             )}
           </div>
+          {(product.sellerCount ?? 1) > 1 ? (
+            <p className={`flex items-center gap-1 text-[11px] font-bold ${dark ? "text-[#eacb7f]" : "text-[#8c6b2c]"}`}>
+              <Store size={11} />
+              {labels.sellers(product.sellerCount!)}
+            </p>
+          ) : null}
           {product.rating > 0 ? (
             <p className={`flex items-center gap-1 text-[11px] ${dark ? "text-white/55" : "text-[#56675f]"}`}>
               <Star size={11} className="fill-[#c9a55a] text-[#c9a55a]" />

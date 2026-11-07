@@ -16,6 +16,7 @@ import { useRouter } from "@/i18n/navigation";
 
 import { createProductAction } from "../../actions/admin-catalog.actions";
 import { productCreateFormSchema } from "../../schemas/admin-forms";
+import { SimilarProductsHint } from "./SimilarProductsHint";
 
 const TYPES = ["simple", "variant", "digital"] as const;
 
@@ -68,6 +69,7 @@ export function ProductCreateForm({ categories }: { categories: Array<{ id: stri
   });
 
   const tp = (k: string) => t(`productNew.${k}` as never);
+  const names = form.watch(["nameEn", "nameFa", "nameAr"]) as string[];
   const field = (name: any, label: string, extra: Record<string, unknown> = {}) => (
     <FormField control={form.control} name={name} render={({ field: f }) => (
       <FormItem>
@@ -94,6 +96,7 @@ export function ProductCreateForm({ categories }: { categories: Array<{ id: stri
               {field("descFa", tp("shortDescFa"), { dir: "rtl" })}
               {field("descAr", tp("shortDescAr"), { dir: "rtl" })}
             </div>
+            <SimilarProductsHint names={names} />
 
             <div className="grid gap-3 md:grid-cols-4">
               {field("slug", tp("slug"), { dir: "ltr" })}

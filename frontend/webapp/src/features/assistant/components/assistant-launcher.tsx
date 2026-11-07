@@ -152,7 +152,10 @@ export function AssistantLauncher() {
         <motion.button
           layoutId={isDesktop ? "lsevin-assistant-shell" : undefined}
           type="button"
-          onClick={() => setOpen(true)}
+          onClick={() => {
+            setOpen(true);
+            window.dispatchEvent(new Event("lsevin:assistant-opened"));
+          }}
           aria-label={t("open")}
           initial={reduceMotion ? false : { scale: 0.7, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}

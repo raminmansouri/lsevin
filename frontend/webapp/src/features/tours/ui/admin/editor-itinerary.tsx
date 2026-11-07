@@ -13,7 +13,7 @@ import type { TourBundle } from "../../server/admin/queries";
 
 import { RichTextField } from "./editor-content";
 import { localeName, MediaUrlInput, OptionSelect, type Option } from "./inputs";
-import { Field, NativeSelect, Section, useAdminAction } from "./primitives";
+import { Field, NativeSelect, SaveBar, Section, useAdminAction, useUnsavedChanges } from "./primitives";
 
 type StopDraft = {
   id?: string; day: string; position: string; type: string; lat: string; lng: string; exact: boolean; startTime: string; durationMinutes: string;
@@ -47,6 +47,10 @@ export function ItineraryTab({ bundle }: { bundle: TourBundle }) {
   }));
   const [stops, setStops] = useState<StopDraft[]>(() => load(core.source_locale));
   const [summary, setSummary] = useState("");
+  // Last saved stops (for the selected text language); edits differ until "Save itinerary" succeeds.
+  const [savedStops, setSavedStops] = useState(stops);
+  const dirty = JSON.stringify(stops) !== JSON.stringify(savedStops);
+  useUnsavedChanges(dirty);
   const update = (i: number, patch: Partial<StopDraft>) => setStops(stops.map((s, j) => (j === i ? { ...s, ...patch } : s)));
   const save = () => run(() => saveItineraryAction(core.id, locale, stops.map((s) => ({
     id: s.id, day: Number(s.day), position: Number(s.position), type: s.type, lat: n(s.lat), lng: n(s.lng), exact: s.exact,
@@ -56,13 +60,14 @@ export function ItineraryTab({ bundle }: { bundle: TourBundle }) {
     text: Object.fromEntries((["title", "description", "instructions"] as const)
       .filter((f) => s[f].trim() !== "" || (s.id ? textOf(s.id, f, locale) !== "" : false))
       .map((f) => [f, s[f]])),
-  })), summary || undefined));
+  })), summary || undefined), { onSuccess: () => setSavedStops(stops) });
   return (
     <Section id="itinerary" title={t("title")} description={t("description")}
-      actions={<Button type="button" size="sm" disabled={pending} onClick={save}>{t("save")}</Button>}>
+      actions={<Button type="button" size="sm" disabled={pending} onClick={save}>{t("save")}</Button>}
+      footer={<SaveBar dirty={dirty} pending={pending} onSave={save} label={t("save")} testId="save-itinerary" />}>
       <div className="flex flex-wrap items-end gap-3">
         <Field label={t("textLocale")} htmlFor="it-locale">
-          <NativeSelect id="it-locale" value={locale} onChange={(e) => { setLocale(e.target.value); setStops(load(e.target.value)); }}>
+          <NativeSelect id="it-locale" value={locale} onChange={(e) => { setLocale(e.target.value); const next = load(e.target.value); setStops(next); setSavedStops(next); }}>
             {bundle.locales.map((l) => <option key={l} value={l}>{localeName(l, uiLocale)}{l === core.source_locale ? ` (${t("source")})` : ""}</option>)}
           </NativeSelect>
         </Field>

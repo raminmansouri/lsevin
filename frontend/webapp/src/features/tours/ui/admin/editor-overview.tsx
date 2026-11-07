@@ -22,7 +22,7 @@ import {
 import type { TourBundle } from "../../server/admin/queries";
 
 import { OptionMultiSelect, OptionSelect, pickLabel, TimezoneSelect, useAdminDates, useLanguageOptions, type Option } from "./inputs";
-import { CalendarDateField, Field, NativeSelect, ReasonAction, Section, useAdminAction } from "./primitives";
+import { CalendarDateField, Field, NativeSelect, ReasonAction, SaveBar, Section, useAdminAction, useUnsavedChanges } from "./primitives";
 import { TOURS_PLATFORM_BASE } from "./paths";
 import type { EditorLookups } from "./tour-editor";
 
@@ -144,6 +144,10 @@ function CoreForm({ bundle, lookups }: { bundle: TourBundle; lookups: EditorLook
     familyFriendly: c.family_friendly, recoveryFriendly: c.recovery_friendly, pickupAvailable: c.pickup_available,
   });
   const set = (patch: Partial<typeof v>) => setV({ ...v, ...patch });
+  // What was last saved; edits differ from it until "Save facts" succeeds.
+  const [saved, setSaved] = useState(v);
+  const dirty = JSON.stringify(v) !== JSON.stringify(saved);
+  useUnsavedChanges(dirty);
   const destinationOptions = useMemo<Option[]>(() => lookups.destinations.map((d) => ({ value: d.id, label: pickLabel(d.names, locale, d.name), hint: d.country_code ?? undefined })), [lookups.destinations, locale]);
   // Codes already on the tour stay selectable (and removable) even when the term is inactive or the language is not listed.
   const categoryOptions = useMemo<Option[]>(() => {
@@ -164,7 +168,7 @@ function CoreForm({ bundle, lookups }: { bundle: TourBundle; lookups: EditorLook
     bookingCutoffMinutes: Number(v.bookingCutoffMinutes), timezone: v.timezone, meetingLat: numOrNull(v.meetingLat), meetingLng: numOrNull(v.meetingLng),
     locationPrivacy: v.locationPrivacy, wheelchairAccessible: v.wheelchairAccessible, lowMobilityFriendly: v.lowMobilityFriendly,
     familyFriendly: v.familyFriendly, recoveryFriendly: v.recoveryFriendly, pickupAvailable: v.pickupAvailable,
-  }));
+  }), { onSuccess: () => setSaved(v) });
   const num = (key: keyof typeof v, label: string) => (
     <Field label={label} htmlFor={`core-${String(key)}`}>
       <Input id={`core-${String(key)}`} inputMode="decimal" dir="ltr" value={String(v[key])} onChange={(e) => set({ [key]: e.target.value } as never)} />
@@ -177,7 +181,8 @@ function CoreForm({ bundle, lookups }: { bundle: TourBundle; lookups: EditorLook
   );
   return (
     <Section id="core" title={t("title")} description={t("description")}
-      actions={<Button type="button" size="sm" disabled={pending} onClick={submit}>{t("save")}</Button>}>
+      actions={<Button type="button" size="sm" disabled={pending} onClick={submit}>{t("save")}</Button>}
+      footer={<SaveBar dirty={dirty} pending={pending} onSave={submit} label={t("save")} testId="save-core" />}>
       <form className="grid gap-3 md:grid-cols-3" onSubmit={(e) => { e.preventDefault(); submit(); }}>
         <Field label={t("destination")} htmlFor="core-destination">
           <OptionSelect id="core-destination" value={v.destinationId} onChange={(destinationId) => set({ destinationId })} options={destinationOptions} />

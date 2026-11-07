@@ -4,6 +4,7 @@ import { useLocale, useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import { Link } from "@/i18n/navigation";
+import { resolveMediaUrl } from "@/features/service-providers/lib/media-url";
 
 import { CALENDAR_IDS, calendarDisplayName, formatInstant, formatIsoDate } from "../../domain/calendar";
 import { directionOf } from "../../domain/content";
@@ -103,7 +104,7 @@ export function TourPreviewView({ data, tourId }: { data: TourPreview; tourId: s
           <div className="grid grid-cols-3 gap-2">
             {detail.media.slice(0, 6).map((m) =>
               // eslint-disable-next-line @next/next/no-img-element -- preview shows pending media exactly as uploaded
-              m.kind === "image" ? <img key={m.id} src={m.thumbnailUrl ?? m.url} alt={m.alt ?? ""} className="aspect-video w-full rounded object-cover" /> : null)}
+              m.kind === "image" ? <img key={m.id} src={resolveMediaUrl(m.thumbnailUrl ?? m.url)} alt={m.alt ?? ""} className="aspect-video w-full rounded object-cover" /> : null)}
           </div>
         ) : <p className="text-destructive text-sm">{t("noMedia")}</p>}
         <Text v={detail.text.summary} className="text-lg" />

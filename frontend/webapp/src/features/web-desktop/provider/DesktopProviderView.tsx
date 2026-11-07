@@ -321,9 +321,9 @@ export function DesktopProviderView({ initialData }: { initialData?: ProviderPag
                     </span>
                   ) : null}
                 </div>
-                <h1 className="text-[52px] font-black leading-[1.2]">
+                <div role="heading" aria-level={1} className="text-[52px] font-black leading-[1.2]">
                   <AnimatedWords text={provider.name} />
-                </h1>
+                </div>
                 {paragraphs(provider.tagline).length ? (
                   <p className="line-clamp-2 max-w-xl text-lg leading-8 text-white/75">{paragraphs(provider.tagline).join(" ")}</p>
                 ) : null}

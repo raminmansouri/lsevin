@@ -38,5 +38,26 @@ if (fresh) {
   run("docker", ["exec", container, "psql", "-U", url.username, "-d", "postgres", "-qc", `create database ${dbName}`]);
   run("docker", ["exec", container, "pg_restore", "-U", url.username, "-d", dbName, "--no-owner", dump]);
 }
+// Production state (2026-11-04): rows replicated from the other site already hold the next
+// numbers of this site's sequence. Recreate it before every run; the migration runner must
+// realign the sequences, or every admin save in the suite fails with a duplicate key.
+{
+  const { default: postgres } = await import("postgres");
+  const sql = postgres(url.toString(), { max: 1, onnotice: () => {} });
+  try {
+    const [{ t }] = await sql`select to_regclass('tour.audit_log') is not null as t`;
+    if (t) {
+      const [{ next }] = await sql`select nextval('tour.audit_log_id_seq')::bigint as next`;
+      await sql`
+        insert into tour.audit_log (id, actor_scope, entity_type, entity_id, action, detail)
+        select ${next} + g, 'system', 'replication', gen_random_uuid(), 'replicated_from_other_site', '{}'::jsonb
+          from generate_series(0, 15) g`;
+      await sql`select setval('tour.audit_log_id_seq', ${next}, true)`;
+      console.log(`planted 16 replicated audit rows ahead of tour.audit_log_id_seq (from ${next})`);
+    }
+  } finally {
+    await sql.end({ timeout: 5 });
+  }
+}
 run(process.execPath, [path.join(appRoot, "scripts/migrate.mjs")], { DATABASE_URL: url.toString() });
 console.log(`Tours E2E database ready: ${dbName}`);

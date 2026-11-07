@@ -89,7 +89,7 @@ export async function DesktopShopHome({
 
             <Reveal className="relative z-10 space-y-5">
               <span className="text-[11px] font-bold tracking-[0.35em] text-[#eacb7f]">L SEVIN BOUTIQUE</span>
-              <h1 className="lsd-gold-text text-[42px] font-black leading-tight">{t("title")}</h1>
+              <div role="heading" aria-level={1} className="lsd-gold-text text-[42px] font-black leading-tight">{t("title")}</div>
               <div className="max-w-md">
                 <SearchBar defaultValue="" />
               </div>

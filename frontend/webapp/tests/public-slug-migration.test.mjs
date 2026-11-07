@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { test } from 'node:test';
 
 const migration = readFileSync(
-  fileURLToPath(new URL('../db/migrations/0086_public_url_slug_backfill.sql', import.meta.url)),
+  fileURLToPath(new URL('../db/migrations/0092_public_url_slug_backfill.sql', import.meta.url)),
   'utf8',
 );
 

@@ -209,6 +209,12 @@ export async function recordShipment(input: {
       // convert reservations to outbound for the quantities shipped now
       for (const w of wanted) {
         const l = orderLines.find((x) => x.id === w.id)!;
+        // Seller-stock line: its units left the seller's offer at checkout, not the shop inventory.
+        const [sellerStock] = await tx<{ ok: number }[]>`
+          select 1 as ok from shop.order_items oi join shop.offers o on o.id = oi.offer_id
+          where oi.id = ${w.id}::uuid and o.stock_quantity is not null
+        `;
+        if (sellerStock) continue;
         const [inv] = await tx<{ id: string }[]>`
           select i.id::text as id from shop.inventory i
           where (${l.variant_id}::uuid is not null and i.variant_id = ${l.variant_id}::uuid)
@@ -282,8 +288,19 @@ export async function markShipmentDelivered(input: { orderId: string; shipmentId
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function releaseReservations(tx: any, orderId: string, note: string) {
-  const items = await tx<any[]>`select product_id, variant_id, quantity from shop.order_items where order_id = ${orderId}::uuid`;
+  // A line bought from an offer that keeps its own stock (a marketplace seller) took its
+  // units from that offer at checkout, never from the shop inventory: give them back there.
+  const items = await tx<any[]>`
+    select oi.product_id, oi.variant_id, oi.quantity, oi.offer_id::text as offer_id,
+      (oi.offer_id is not null and o.stock_quantity is not null) as seller_stock
+    from shop.order_items oi left join shop.offers o on o.id = oi.offer_id
+    where oi.order_id = ${orderId}::uuid
+  `;
   for (const it of items) {
+    if (it.seller_stock) {
+      await tx`update shop.offers set stock_quantity = stock_quantity + ${it.quantity}, last_modified_date = now() where id = ${it.offer_id}::uuid`;
+      continue;
+    }
     const [inv] = await tx<{ id: string }[]>`
       select i.id::text as id from shop.inventory i
       where (${it.variant_id}::uuid is not null and i.variant_id = ${it.variant_id}::uuid)
@@ -299,8 +316,15 @@ async function releaseReservations(tx: any, orderId: string, note: string) {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function convertReservationsToOutbound(tx: any, orderId: string) {
-  const items = await tx<any[]>`select product_id, variant_id, quantity from shop.order_items where order_id = ${orderId}::uuid`;
+  // Seller-stock lines already left the seller's offer at checkout; the shop inventory isn't involved.
+  const items = await tx<any[]>`
+    select oi.product_id, oi.variant_id, oi.quantity,
+      (oi.offer_id is not null and o.stock_quantity is not null) as seller_stock
+    from shop.order_items oi left join shop.offers o on o.id = oi.offer_id
+    where oi.order_id = ${orderId}::uuid
+  `;
   for (const it of items) {
+    if (it.seller_stock) continue;
     const [inv] = await tx<{ id: string }[]>`
       select i.id::text as id from shop.inventory i
       where (${it.variant_id}::uuid is not null and i.variant_id = ${it.variant_id}::uuid)

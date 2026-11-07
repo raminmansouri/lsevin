@@ -59,6 +59,11 @@ declare const messages: {
         "hotel": "هتل",
         "transfer": "ترانسفر"
       }
+    },
+    "nudge": {
+      "title": "پشتیبانی آنلاین",
+      "body": "چطور می‌تونم کمکتون کنم؟",
+      "close": "بستن"
     }
   },
   "ShopMedia": {
@@ -2308,7 +2313,10 @@ declare const messages: {
     "renderedOn": "نمایش در",
     "duplicateProvider": "ایجاد نسخه مشابه",
     "serviceProviderDuplicated": "نسخه مشابه ارائه‌دهنده ساخته شد",
-    "duplicateServiceProviderConfirm": "از «{name}» یک نسخه مشابه ساخته شود؟"
+    "duplicateServiceProviderConfirm": "از «{name}» یک نسخه مشابه ساخته شود؟",
+    "staffOrder": "ترتیب",
+    "staffOrderHint": "۱ = اول در صفحهٔ مرکز؛ ۰ = بدون ترتیب",
+    "staffOrderSaved": "ترتیب ذخیره شد"
   },
   "HomeHero": {
     "title": "سلامت و زیبایی بی‌مرز، همه‌چیز در یک جا",
@@ -2344,6 +2352,9 @@ declare const messages: {
           "terms": "شرایط استفاده",
           "privacy": "حریم خصوصی"
         }
+      },
+      "policies": {
+        "title": "قوانین و سیاست‌ها"
       }
     }
   },
@@ -4726,7 +4737,9 @@ declare const messages: {
       "toursPlatformTranslations": "۵. ترجمه‌های تور",
       "toursPlatformReports": "گزارش‌های تور",
       "toursPlatformSettings": "۱. تنظیمات تورها",
-      "toursPlatformTaxonomy": "۲. دسته‌ها و برچسب‌ها"
+      "toursPlatformTaxonomy": "۲. دسته‌ها و برچسب‌ها",
+      "editorial": "محتوای سایت",
+      "assistant": "دستیار هوشمند"
     }
   },
   "HomePage": {
@@ -16188,7 +16201,26 @@ declare const messages: {
     "returnSubmitted": "درخواست مرجوعی ثبت شد — به‌زودی بررسی می‌کنیم.",
     "returnsHeading": "مرجوعی‌ها",
     "returnStatusLabel": "وضعیت",
-    "qty": "تعداد"
+    "qty": "تعداد",
+    "sellers": "{count} فروشنده",
+    "sellerOffers": {
+      "soldBy": "فروشنده: {name}",
+      "title": "فروشندگان این کالا ({count})",
+      "best": "بهترین پیشنهاد",
+      "shipsIn": "ارسال تا {days} روز کاری",
+      "shipsToday": "ارسال امروز",
+      "outOfStock": "ناموجود",
+      "add": "افزودن",
+      "others": "{count} فروشندهٔ دیگر"
+    },
+    "sellerPage": {
+      "products": "{count} کالا",
+      "yearsOnSite": "+{count} سال در السوین",
+      "newSeller": "فروشندهٔ تازه در السوین",
+      "eyebrow": "بوتیک",
+      "productsLabel": "کالاها",
+      "warrantyTitle": "ضمانت فروشنده"
+    }
   },
   "ShopAdmin": {
     "acmeHealth": "acme-health",
@@ -16210,7 +16242,9 @@ declare const messages: {
       "settings": "تنظیمات",
       "backToDashboard": "← داشبورد",
       "backToProducts": "← محصولات",
-      "backToCategories": "← دسته‌بندی‌ها"
+      "backToCategories": "← دسته‌بندی‌ها",
+      "warehouses": "انبارها",
+      "sellers": "فروشندگان"
     },
     "common": {
       "save": "ذخیره",
@@ -16282,7 +16316,9 @@ declare const messages: {
       "colReview": "بازبینی",
       "colTotal": "مبلغ کل",
       "colPlaced": "زمان ثبت",
-      "noneMatch": "سفارشی مطابقت ندارد."
+      "noneMatch": "سفارشی مطابقت ندارد.",
+      "anySeller": "همهٔ فروشنده‌ها",
+      "sellers": "{count} فروشنده"
     },
     "orderDetail": {
       "items": "اقلام",
@@ -16751,6 +16787,67 @@ declare const messages: {
         "hidden": "پنهان",
         "all": "همه"
       }
+    },
+    "sellers": {
+      "title": "فروشندگان",
+      "add": "افزودن فروشنده",
+      "nameEn": "نام (انگلیسی)",
+      "nameFa": "نام (فارسی)",
+      "nameAr": "نام (عربی)",
+      "slug": "نامک",
+      "phone": "تلفن",
+      "email": "ایمیل",
+      "warrantyEn": "گارانتی (انگلیسی)",
+      "warrantyFa": "گارانتی (فارسی)",
+      "warrantyAr": "گارانتی (عربی)",
+      "warrantyHint": "متن پیش‌فرض گارانتی این فروشنده؛ هر پیشنهاد می‌تواند گارانتی خودش را داشته باشد.",
+      "logo": "لوگو",
+      "save": "ذخیرهٔ فروشنده",
+      "archive": "حذف",
+      "noSellers": "هنوز فروشنده‌ای نیست.",
+      "colSeller": "فروشنده",
+      "colOffers": "پیشنهادهای فعال",
+      "colStatus": "وضعیت",
+      "default": "پیش‌فرض",
+      "defaultHint": "فروشندهٔ پیش‌فرض همیشه فعال است.",
+      "descEn": "توضیحات (انگلیسی)",
+      "descFa": "توضیحات (فارسی)",
+      "descAr": "توضیحات (عربی)",
+      "deleteBlocked": "این فروشنده هنوز کالای فعال دارد؛ اول کالاهایش را به فروشندهٔ دیگری بدهید یا حذف کنید."
+    },
+    "offers": {
+      "title": "فروشندگان این کالا",
+      "hint": "عنوان، عکس و مشخصات مال خود کالاست؛ هر فروشنده فقط قیمت، موجودی و شرایط خودش را دارد.",
+      "price": "قیمت",
+      "compareAt": "قیمت قبل از تخفیف",
+      "stock": "موجودی",
+      "handlingDays": "ارسال (روز)",
+      "none": "هنوز فروشنده‌ای برای این کالا نیست.",
+      "add": "افزودن فروشنده",
+      "pickSeller": "انتخاب فروشنده",
+      "pickVariant": "انتخاب نوع کالا",
+      "sellerSku": "کد کالای فروشنده",
+      "warrantyFa": "گارانتی (فارسی)",
+      "warrantyEn": "گارانتی (انگلیسی)",
+      "addNote": "موجودی خالی یعنی موجودی از انبار فعلی فروشگاه خوانده می‌شود. هر فروشنده برای هر کالا فقط یک پیشنهاد دارد.",
+      "priceHistory": "تاریخچهٔ قیمت ({count})"
+    },
+    "similar": {
+      "title": "این کالا شاید از قبل وجود دارد",
+      "hint": "اگر همان کالاست، به‌جای ساختن کالای تکراری، فروشنده را به همان کالا اضافه کنید.",
+      "addSeller": "افزودن فروشنده به این کالا",
+      "sellers": "{count} فروشنده"
+    },
+    "sellerOffers": {
+      "title": "کالاهای {name}",
+      "editSeller": "ویرایش فروشنده",
+      "back": "← فروشندگان",
+      "colProduct": "کالا",
+      "colTerms": "قیمت، موجودی و ارسال",
+      "lowStock": "موجودی رو به اتمام",
+      "none": "این فروشنده هنوز کالایی ندارد.",
+      "manage": "{count} کالا",
+      "lowStockCount": "{count} موجودی کم"
     }
   },
   "Patients": {
@@ -17762,6 +17859,144 @@ declare const messages: {
       "BOOKING_DRAFT_NOT_EDITABLE": "این رزرو دیگر قابل ویرایش نیست.",
       "VALIDATION_ERROR": "اطلاعات واردشده معتبر نیست.",
       "generic": "ذخیره انجام نشد. دوباره تلاش کنید."
+    }
+  },
+  "SitePages": {
+    "faqTitle": "پرسش‌های متداول",
+    "updated": "آخرین به‌روزرسانی",
+    "home": "خانه",
+    "more": "درباره السوین"
+  },
+  "AdminEditorial": {
+    "heading": "محتوای سایت",
+    "intro": "صفحه‌های سایت (درباره ما، تماس با ما، قوانین و سیاست‌ها) و پرسش‌های متداولی که در سراسر سایت نمایش داده می‌شوند، به همه زبان‌ها.",
+    "tabs": {
+      "pages": "صفحه‌های سایت",
+      "faqs": "پرسش‌های متداول"
+    },
+    "pagesHelp": "هر صفحه پس از انتشار در سایت نمایش داده می‌شود. برای زبان‌هایی که ترجمه ندارند نسخه انگلیسی نمایش داده می‌شود و آن صفحه در نتایج جستجو نمی‌آید.",
+    "faqsHelp": "هر پرسش متداول روی یک نوع صفحه نمایش داده می‌شود. اگر مورد مشخصی انتخاب نکنید، روی همه صفحه‌های آن نوع نمایش داده می‌شود.",
+    "page": "صفحه",
+    "languages": "زبان‌ها",
+    "status": "وضعیت",
+    "actions": "اقدامات",
+    "edit": "ویرایش",
+    "delete": "حذف",
+    "confirmDelete": "این پرسش در همه زبان‌ها حذف شود؟ این کار قابل بازگشت نیست.",
+    "deleted": "پرسش متداول حذف شد.",
+    "published": "منتشرشده",
+    "publishedHelp": "در سایت و نتایج جستجو نمایش داده می‌شود.",
+    "draft": "پیش‌نویس",
+    "notCreated": "ایجاد نشده",
+    "inFooter": "در فوتر",
+    "showInFooter": "نمایش در فوتر",
+    "showInFooterHelp": "پیوند این صفحه در فوتر سایت نمایش داده شود.",
+    "displayOrder": "ترتیب",
+    "editPage": "ویرایش صفحه",
+    "pageUrl": "نشانی",
+    "title": "عنوان",
+    "summary": "خلاصه",
+    "summaryHelp": "یک یا دو جمله. به‌عنوان توضیح صفحه در نتایج جستجو استفاده می‌شود.",
+    "body": "متن صفحه",
+    "bodyHelp": "بخش‌ها را با عنوان از هم جدا کنید. متن هر زبان را جداگانه بنویسید و ترجمه ماشینی را بدون بازبینی وارد نکنید.",
+    "heroImage": "تصویر سربرگ",
+    "heroImageHelp": "اختیاری. از کتابخانه رسانه انتخاب کنید.",
+    "pickImage": "انتخاب تصویر",
+    "save": "ذخیره",
+    "saving": "در حال ذخیره...",
+    "saved": "ذخیره شد.",
+    "back": "بازگشت",
+    "viewPage": "مشاهده صفحه",
+    "newFaq": "پرسش متداول جدید",
+    "editFaq": "ویرایش پرسش متداول",
+    "faqHelp": "پرسش و پاسخ را به هر زبانی که می‌خواهید نمایش داده شود بنویسید. زبانی که فقط پرسش یا فقط پاسخ داشته باشد ذخیره نمی‌شود.",
+    "showOn": "محل نمایش",
+    "section": "بخش",
+    "choose": "انتخاب کنید...",
+    "specificItem": "مورد مشخص (اختیاری)",
+    "specificItemHelp": "مواردی که پرسش متداول اختصاصی دارند فقط همان را نمایش می‌دهند و بقیه پرسش عمومی را.",
+    "allItems": "همه موارد این نوع",
+    "currentItem": "فعلی",
+    "question": "پرسش",
+    "answer": "پاسخ",
+    "active": "فعال",
+    "inactive": "پنهان",
+    "all": "همه",
+    "noFaqs": "هنوز پرسش متداولی در اینجا ثبت نشده است.",
+    "scopes": {
+      "home": "صفحه اصلی",
+      "explore": "کاوش",
+      "search": "جستجو",
+      "map": "نقشه",
+      "categories": "صفحه دسته‌بندی‌ها",
+      "provider": "صفحه‌های ارائه‌دهندگان",
+      "specialist": "صفحه‌های متخصصان",
+      "service": "صفحه‌های خدمات",
+      "category": "یک دسته‌بندی",
+      "provider_type": "یک نوع ارائه‌دهنده",
+      "app": "بخش (فروشگاه، تورها، باشگاه...)",
+      "site_page": "یک صفحه سایت"
+    },
+    "apps": {
+      "shop": "فروشگاه",
+      "tours": "تورها",
+      "gym": "باشگاه و تناسب اندام",
+      "transfers": "ترانسفر فرودگاهی"
+    },
+    "pages": {
+      "about-us": "درباره ما",
+      "services": "خدمات",
+      "contact-us": "تماس با ما",
+      "licenses-certifications": "مجوزها و گواهینامه‌ها",
+      "pricing-fees": "قیمت‌ها و هزینه‌ها",
+      "shipping-delivery": "ارسال و تحویل",
+      "returns-refunds": "مرجوعی و بازپرداخت",
+      "terms-conditions": "شرایط و قوانین",
+      "privacy-policy": "حریم خصوصی"
+    }
+  },
+  "AdminAssistant": {
+    "title": "دستیار هوشمند",
+    "stats": {
+      "messages": "پیام‌های امروز",
+      "conversations": "گفتگوهای امروز",
+      "users": "کاربران",
+      "guests": "مهمان‌ها"
+    },
+    "settings": {
+      "title": "تنظیمات و محدودیت‌ها",
+      "hint": "عدد ۰ یعنی بدون محدودیت. تغییرات فوراً اعمال می‌شوند.",
+      "guests": "مهمان",
+      "users": "کاربر واردشده",
+      "daily": "پیام در روز",
+      "perChat": "پیام در هر گفتگو",
+      "maxChars": "حداکثر طول پیام (کاراکتر)",
+      "saveGuestChats": "گفتگوهای مهمان‌ها هم ذخیره شوند",
+      "save": "ذخیره"
+    },
+    "list": {
+      "title": "گفتگوها",
+      "search": "جستجو در عنوان و متن پیام‌ها…",
+      "all": "همه",
+      "users": "کاربران",
+      "guests": "مهمان‌ها",
+      "filter": "فیلتر",
+      "colTitle": "اولین سؤال",
+      "colWho": "کاربر",
+      "colMessages": "پیام‌ها",
+      "colLocale": "زبان",
+      "colUpdated": "آخرین پیام",
+      "untitled": "(بدون عنوان)",
+      "user": "کاربر",
+      "guest": "مهمان",
+      "none": "گفتگویی پیدا نشد.",
+      "prev": "← قبلی",
+      "next": "بعدی →"
+    },
+    "detail": {
+      "back": "← همهٔ گفتگوها",
+      "user": "کاربر",
+      "assistant": "دستیار"
     }
   }
 };

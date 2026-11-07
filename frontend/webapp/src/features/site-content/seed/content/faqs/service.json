@@ -1,0 +1,307 @@
+{
+  "scope": "service",
+  "entityKey": null,
+  "sources": [
+    "messages/en.json ServicePage.included.title / price.packagePrice / price.save / price.convertedFrom / offers.* : what's included, package price, conversion note, active offers",
+    "messages/en.json ServicePage.importantInfo.finalPlanAssessment: final plan and price can depend on provider assessment",
+    "src/features/booking-pro/components/BookingWizard.tsx tBooking('coupon'/'enterCouponCode'): coupon at Review & Pay",
+    "messages/en.json ServicePage.providers.* + providerProfile.* (rating, response, established) : providers offering this service",
+    "src/app/[locale]/n/app/mobile/service/[id]/service-page.tsx: provider rows open /n/app/mobile/service/{providerServiceId}; specialist rows open the specialist profile",
+    "messages/en.json ServicePage.importantInfo.specialistRequired / specialistOptional + specialists.title",
+    "messages/en.json ServicePage.importantInfo.dateRange / availabilityConfirmed + Booking.stepSchedule",
+    "src/app/[locale]/n/app/mobile/bookings/[id]/page.tsx getStatusBadge: Pending confirmation (provider reviewing) / Booking confirmed by the provider",
+    "messages/en.json ServicePage.requirements.* + importantInfo.documentsMayBeRequested; Booking.stepFiles only when extra support is ticked (LSEVIN_ONLY_STEPS); Booking.uploadedDocuments",
+    "src/booking/actions/cancel-booking + bookings/[id]/page.tsx: Cancel booking with optional reason; no customer reschedule action in the mobile booking pages",
+    "messages/en.json Booking.paidAmountsMayBeRefundableDependingOnTheProvider + ServicePage.policies.title"
+  ],
+  "items": [
+    {
+      "locales": {
+        "en-US": {
+          "q": "What does the price of this service include?",
+          "a": "Check “What's Included” on this page. If the service is sold as a package, you'll see the package price and any saving. A price converted from another currency is marked “Converted from” with the original amount. The final treatment plan and price can depend on the provider's assessment. Current deals and their codes are under “Active offers”, and you enter a coupon at “Review & Pay”."
+        },
+        "fa-IR": {
+          "q": "قیمت این خدمت شامل چه چیزهایی است؟",
+          "a": "بخش «موارد شامل‌شده» را در همین صفحه ببینید. اگر خدمت به‌صورت پکیج عرضه شود، قیمت پکیج و میزان صرفه‌جویی هم نمایش داده می‌شود. قیمتی که از ارز دیگری تبدیل شده، با عبارت «تبدیل‌شده از» و مبلغ اصلی مشخص است. برنامهٔ نهایی درمان و قیمت می‌تواند به ارزیابی ارائه‌دهنده بستگی داشته باشد. تخفیف‌های جاری و کدهایشان در «پیشنهادهای فعال» آمده و کد کوپن را در مرحلهٔ «بررسی و پرداخت» وارد می‌کنید."
+        },
+        "ar-SA": {
+          "q": "ماذا يشمل سعر هذه الخدمة؟",
+          "a": "راجع قسم «ما الذي يشمله السعر» في هذه الصفحة. وإذا كانت الخدمة تُقدَّم كباقة، فسترى سعر الباقة ومقدار التوفير. والسعر المحوّل من عملة أخرى تظهر بجانبه عبارة «محوّل من» مع المبلغ الأصلي. قد تعتمد خطة العلاج النهائية والسعر على تقييم مقدم الخدمة. وتجد العروض الحالية ورموزها في «العروض النشطة»، وتُدخل رمز القسيمة في خطوة «المراجعة والدفع»."
+        },
+        "tr-TR": {
+          "q": "Bu hizmetin fiyatına neler dahil?",
+          "a": "Bu sayfadaki “Fiyata Dahil Olanlar” bölümüne bakın. Hizmet paket olarak satılıyorsa paket fiyatını ve varsa tasarruf tutarını görürsünüz. Başka bir para biriminden çevrilen fiyatın yanında orijinal tutarla birlikte “… tutarından dönüştürüldü” ibaresi yer alır. Nihai tedavi planı ve fiyat, sağlayıcının değerlendirmesine bağlı olabilir. Güncel kampanyalar ve kodları “Geçerli kampanyalar” altındadır; kuponu “İncele ve Öde” adımında girersiniz."
+        },
+        "ku-KU": {
+          "q": "نرخی ئەم خزمەتە چی لەخۆ دەگرێت؟",
+          "a": "لەم پەڕەیەدا «چی لەخۆدەگرێت» ببینن. ئەگەر خزمەتەکە وەک پاکێج دەفرۆشرێت، نرخی پاکێجەکە و هەر پاشەکەوتێک دەبینن. نرخێک کە لە دراوێکی ترەوە گۆڕدرابێت بە «گۆڕدراوە لە» و بڕە ئەسڵییەکەوە نیشان دەکرێت. پلان و نرخی کۆتایی چارەسەر دەکرێت بەندبن بە هەڵسەنگاندنی دابینکەر. ئۆفەرە ئێستاییەکان و کۆدەکانیان لە ژێر «ئۆفەرە چالاکەکان»دان، و کۆپۆن لە «پێداچوونەوە و پارەدان»دا دەنووسن."
+        },
+        "ru-RU": {
+          "q": "Что входит в стоимость этой услуги?",
+          "a": "Посмотрите блок «Что включено» на этой странице. Если услуга продаётся как пакет, Вы увидите цену пакета и размер экономии, если она есть. Цена, пересчитанная из другой валюты, отмечена пометкой «Пересчитано из» с исходной суммой. Окончательный план лечения и цена могут зависеть от оценки поставщика. Текущие предложения и их коды указаны в блоке «Действующие акции», а купон вводится на шаге «Проверка и оплата»."
+        },
+        "tg-TJ": {
+          "q": "Ба нархи ин хидмат чӣ дохил мешавад?",
+          "a": "Бахши «Чӣ дохил мешавад»-ро дар ҳамин саҳифа бинед. Агар хидмат ҳамчун баста фурӯхта шавад, нархи баста ва сарфаҷӯиро, агар бошад, мебинед. Нархе, ки аз асъори дигар табдил дода шудааст, бо нишони «Табдил аз» ва маблағи аслӣ қайд мешавад. Нақшаи ниҳоии табобат ва нарх метавонад аз баҳодиҳии хидматрасон вобаста бошад. Пешниҳодҳои ҷорӣ ва рамзҳои онҳо дар «Пешниҳодҳои фаъол» ҷойгиранд ва купонро дар «Санҷиш ва пардохт» ворид мекунед."
+        },
+        "zh-CN": {
+          "q": "这项服务的价格包含哪些内容？",
+          "a": "请查看本页的“服务包含”部分。如果该服务以套餐形式出售，您会看到套餐价格以及节省的金额。由其他货币换算而来的价格会标注“由……折算”并显示原始金额。最终的治疗方案和价格可能取决于服务商的评估。当前的优惠及其优惠码位于“进行中的优惠”中，优惠券在“核对与支付”步骤中填写。"
+        },
+        "de-DE": {
+          "q": "Was ist im Preis dieser Leistung enthalten?",
+          "a": "Sehen Sie auf dieser Seite unter „Enthaltene Leistungen“ nach. Wird die Leistung als Paket angeboten, sehen Sie den Paketpreis und eine etwaige Ersparnis. Ein aus einer anderen Währung umgerechneter Preis ist mit „Umgerechnet von“ und dem ursprünglichen Betrag gekennzeichnet. Der endgültige Behandlungsplan und Preis können von der Einschätzung des Anbieters abhängen. Aktuelle Aktionen und ihre Codes finden Sie unter „Aktuelle Angebote“; einen Gutschein geben Sie unter „Prüfen & Bezahlen“ ein."
+        },
+        "fr-FR": {
+          "q": "Que comprend le prix de ce service ?",
+          "a": "Consultez « Ce qui est inclus » sur cette page. Si le service est vendu sous forme de forfait, vous voyez le prix du forfait et l’économie éventuelle. Un prix converti depuis une autre devise porte la mention « Converti depuis » avec le montant d’origine. Le plan de traitement et le prix définitifs peuvent dépendre de l’évaluation du prestataire. Les offres en cours et leurs codes se trouvent sous « Offres en cours », et vous saisissez un code promo à l’étape « Vérification et paiement »."
+        },
+        "es-ES": {
+          "q": "¿Qué incluye el precio de este servicio?",
+          "a": "Consulte «Qué incluye» en esta página. Si el servicio se vende como paquete, verá el precio del paquete y el ahorro, si lo hay. Un precio convertido desde otra moneda lleva la indicación «Convertido desde» con el importe original. El plan de tratamiento y el precio definitivos pueden depender de la valoración del proveedor. Las promociones vigentes y sus códigos están en «Ofertas activas», y el cupón se introduce en «Revisar y pagar»."
+        }
+      }
+    },
+    {
+      "locales": {
+        "en-US": {
+          "q": "Which providers offer this service, and how do I compare them?",
+          "a": "“Providers offering this service” lists the clinics and providers that deliver it, with their price and details such as location, rating and response time where listed. Tap one to open that provider's version of the service, or open the provider's own page to compare policies, languages and reviews. If there are many, tap “Show more” to see the rest."
+        },
+        "fa-IR": {
+          "q": "کدام ارائه‌دهندگان این خدمت را ارائه می‌دهند و چطور مقایسه‌شان کنم؟",
+          "a": "بخش «ارائه‌دهندگان این خدمت» کلینیک‌ها و ارائه‌دهندگانی را که این خدمت را انجام می‌دهند همراه با قیمت و جزئیاتی مثل موقعیت، امتیاز و زمان پاسخ‌گویی، در صورت ثبت، نشان می‌دهد. با زدن روی هر کدام، همین خدمت نزد آن ارائه‌دهنده باز می‌شود؛ برای مقایسهٔ سیاست‌ها، زبان‌ها و نظرها هم می‌توانید صفحهٔ خود ارائه‌دهنده را باز کنید. اگر تعدادشان زیاد باشد، با گزینهٔ نمایش ارائه‌دهندگان دیگر بقیه را می‌بینید."
+        },
+        "ar-SA": {
+          "q": "من يقدم هذه الخدمة، وكيف أقارن بينهم؟",
+          "a": "يعرض قسم «مقدمو هذه الخدمة» العيادات ومقدمي الخدمة الذين يقدمونها، مع السعر وتفاصيل مثل الموقع والتقييم ووقت الاستجابة إن كانت مدرجة. اضغط على أي منهم لفتح الخدمة نفسها لديه، أو افتح صفحة مقدم الخدمة لمقارنة السياسات واللغات والتقييمات. وإذا كان عددهم كبيرًا، فاضغط على زر عرض المزيد لرؤية البقية."
+        },
+        "tr-TR": {
+          "q": "Bu hizmeti hangi sağlayıcılar sunuyor ve onları nasıl karşılaştırırım?",
+          "a": "“Bu hizmeti sunan sağlayıcılar” bölümü, hizmeti veren klinikleri ve sağlayıcıları fiyatlarıyla ve belirtilmişse konum, puan ve yanıt süresi gibi bilgilerle listeler. O sağlayıcının hizmet sayfasını açmak için birine dokunun ya da politikaları, dilleri ve değerlendirmeleri karşılaştırmak için sağlayıcının kendi sayfasını açın. Çok sayıda sağlayıcı varsa kalanları görmek için “daha göster” bağlantısına dokunun."
+        },
+        "ku-KU": {
+          "q": "کام دابینکەران ئەم خزمەتە پێشکەش دەکەن، و چۆن بەراوردیان بکەم؟",
+          "a": "«دابینکەرانی ئەم خزمەتە» ئەو کلینیک و دابینکەرانە دەخاتە ڕوو کە پێشکەشی دەکەن، لەگەڵ نرخ و وردەکاریی وەک شوێن، هەڵسەنگاندن و کاتی وەڵامدانەوە لەو شوێنانەی تۆمار کراون. کرتە لەسەر یەکێکیان بکەن بۆ کردنەوەی خزمەتەکە لای ئەو دابینکەرە، یان پەڕەی خودی دابینکەرەکە بکەنەوە بۆ بەراوردکردنی سیاسەت، زمان و بۆچوونەکان. ئەگەر ژمارەیان زۆر بوو، کرتە لەسەر «زیاتر پیشان بدە» بکەن بۆ بینینی ئەوانی تر."
+        },
+        "ru-RU": {
+          "q": "Какие поставщики предлагают эту услугу и как их сравнить?",
+          "a": "В блоке «Поставщики этой услуги» перечислены клиники и поставщики, которые её оказывают, с ценой и такими сведениями, как адрес, рейтинг и время ответа, если они указаны. Нажмите на поставщика, чтобы открыть его вариант услуги, или откройте страницу самого поставщика, чтобы сравнить правила, языки и отзывы. Если поставщиков много, нажмите «Показать ещё», чтобы увидеть остальных."
+        },
+        "tg-TJ": {
+          "q": "Кадом хидматрасонҳо ин хидматро пешниҳод мекунанд ва онҳоро чӣ тавр муқоиса кунам?",
+          "a": "«Хидматрасонҳои ин хидмат» клиникаҳо ва хидматрасонҳоеро, ки онро анҷом медиҳанд, бо нарх ва тафсилот, масалан ҷойгиршавӣ, баҳо ва вақти посух, агар нишон дода шуда бошанд, номбар мекунад. Яке аз онҳоро пахш кунед, то варианти ин хидмат дар ҳамон хидматрасон кушода шавад, ё барои муқоисаи қоидаҳо, забонҳо ва шарҳҳо саҳифаи худи хидматрасонро кушоед. Агар онҳо бисёр бошанд, барои дидани боқимонда «Бештар нишон додан»-ро пахш кунед."
+        },
+        "zh-CN": {
+          "q": "哪些服务商提供这项服务？如何比较？",
+          "a": "“提供该服务的服务商”列出了提供这项服务的诊所和服务商，并显示其价格，以及位置、评分和响应时间等信息（如有）。点击其中一家可打开该服务商提供的这项服务，或打开服务商自己的页面，比较政策、语言和评价。如果服务商较多，点击“查看更多”即可看到其余服务商。"
+        },
+        "de-DE": {
+          "q": "Welche Anbieter bieten diese Leistung an, und wie vergleiche ich sie?",
+          "a": "„Anbieter für diese Leistung“ listet die Kliniken und Anbieter auf, die sie erbringen, mit ihrem Preis und, sofern angegeben, Details wie Standort, Bewertung und Antwortzeit. Tippen Sie auf einen Eintrag, um die Leistung dieses Anbieters zu öffnen, oder öffnen Sie die Seite des Anbieters, um Richtlinien, Sprachen und Bewertungen zu vergleichen. Bei vielen Einträgen tippen Sie auf „Mehr anzeigen“, um die übrigen zu sehen."
+        },
+        "fr-FR": {
+          "q": "Quels prestataires proposent ce service, et comment les comparer ?",
+          "a": "« Prestataires proposant ce service » liste les cliniques et prestataires qui l’assurent, avec leur prix et des informations comme l’adresse, la note et le délai de réponse lorsqu’elles sont renseignées. Touchez-en un pour ouvrir le service tel que ce prestataire le propose, ou ouvrez la page du prestataire pour comparer ses conditions, ses langues et ses avis. S’ils sont nombreux, touchez « Voir plus » pour afficher les autres."
+        },
+        "es-ES": {
+          "q": "¿Qué proveedores ofrecen este servicio y cómo los comparo?",
+          "a": "«Proveedores que ofrecen este servicio» enumera las clínicas y los proveedores que lo prestan, con su precio y datos como la ubicación, la valoración y el tiempo de respuesta, cuando están disponibles. Toque uno para abrir la versión del servicio de ese proveedor, o abra la página del propio proveedor para comparar políticas, idiomas y reseñas. Si hay muchos, toque «Ver más» para ver el resto."
+        }
+      }
+    },
+    {
+      "locales": {
+        "en-US": {
+          "q": "Do I need to choose a specialist for this service?",
+          "a": "It depends on the service. Under “Important Information”, the page says either “Specialist selection may be required during booking” or that the service can be booked without choosing a specialist first. The “Specialists” section lists who performs this service; tap a name to open their profile, places of work and credentials."
+        },
+        "fa-IR": {
+          "q": "آیا برای این خدمت باید متخصص انتخاب کنم؟",
+          "a": "به خدمت بستگی دارد. در بخش «اطلاعات مهم» یا نوشته شده «ممکن است در فرآیند رزرو انتخاب متخصص الزامی باشد» یا اینکه این خدمت بدون انتخاب اولیهٔ متخصص هم قابل رزرو است. بخش «متخصصان» کسانی را که این خدمت را انجام می‌دهند نشان می‌دهد؛ با زدن روی هر نام، پروفایل، محل‌های فعالیت و مدارک او باز می‌شود."
+        },
+        "ar-SA": {
+          "q": "هل يجب أن أختار أخصائيًا لهذه الخدمة؟",
+          "a": "يعتمد ذلك على الخدمة. في قسم «معلومات مهمة» تذكر الصفحة إما «قد يكون اختيار المتخصص مطلوباً أثناء الحجز» أو أن الخدمة يمكن حجزها دون اختيار متخصص مسبقًا. ويعرض قسم «المتخصصون» من يقدّم هذه الخدمة، واضغط على أي اسم لفتح ملفه وأماكن عمله ومؤهلاته."
+        },
+        "tr-TR": {
+          "q": "Bu hizmet için bir uzman seçmem gerekiyor mu?",
+          "a": "Bu, hizmete bağlıdır. “Önemli Bilgiler” altında sayfa ya “Randevu sırasında uzman seçimi gerekebilir” der ya da hizmetin önce bir uzman seçmeden ayırtılabileceğini belirtir. “Uzmanlar” bölümü bu hizmeti kimlerin uyguladığını listeler; profilini, çalıştığı yerleri ve niteliklerini açmak için bir isme dokunun."
+        },
+        "ku-KU": {
+          "q": "ئایا بۆ ئەم خزمەتە پێویستە پسپۆڕێک هەڵبژێرم؟",
+          "a": "بەندە بە خزمەتەکە. لە ژێر «زانیاریی گرنگ»، پەڕەکە یان دەڵێت «لەوانەیە لە کاتی حجزکردندا پێویست بێت پسپۆڕێک هەڵبژێریت» یان ئەوە کە خزمەتەکە بەبێ هەڵبژاردنی پسپۆڕ لە پێشدا حجز دەکرێت. بەشی «پسپۆڕان» ئەو کەسانە دەخاتە ڕوو کە ئەم خزمەتە ئەنجام دەدەن؛ کرتە لەسەر ناوێک بکەن بۆ کردنەوەی پرۆفایل، شوێنەکانی کار و بڕوانامەکانی."
+        },
+        "ru-RU": {
+          "q": "Нужно ли выбирать специалиста для этой услуги?",
+          "a": "Это зависит от услуги. В блоке «Важная информация» указано либо «При записи может потребоваться выбрать специалиста», либо что услугу можно забронировать без предварительного выбора специалиста. В разделе «Специалисты» перечислены те, кто оказывает эту услугу; нажмите на имя, чтобы открыть профиль врача, места его работы и квалификацию."
+        },
+        "tg-TJ": {
+          "q": "Оё барои ин хидмат бояд мутахассис интихоб кунам?",
+          "a": "Ин аз хидмат вобаста аст. Дар бахши «Маълумоти муҳим» дар саҳифа ё «Ҳангоми брон интихоби мутахассис лозим шуда метавонад» навишта шудааст, ё гуфта мешавад, ки хидматро бе интихоби пешакии мутахассис брон кардан мумкин аст. Дар бахши «Мутахассисон» онҳое, ки ин хидматро анҷом медиҳанд, номбар шудаанд; номро пахш кунед, то профил, ҷойҳои кор ва ҳуҷҷатҳои тахассусии онҳо кушода шаванд."
+        },
+        "zh-CN": {
+          "q": "这项服务需要选择专家吗？",
+          "a": "视服务而定。在“重要信息”下，页面会注明“预约时可能需要选择专家”，或者说明无需先选择专家即可预约该服务。“专家”部分列出了提供这项服务的专家；点击姓名可打开其资料、执业地点和资质信息。"
+        },
+        "de-DE": {
+          "q": "Muss ich für diese Leistung einen Spezialisten auswählen?",
+          "a": "Das hängt von der Leistung ab. Unter „Wichtige Hinweise“ steht entweder „Bei der Buchung kann die Auswahl eines Spezialisten erforderlich sein“ oder dass die Leistung ohne vorherige Auswahl eines Spezialisten gebucht werden kann. Der Abschnitt „Spezialisten“ listet auf, wer diese Leistung erbringt; tippen Sie auf einen Namen, um das Profil, die Arbeitsorte und die Qualifikationen zu öffnen."
+        },
+        "fr-FR": {
+          "q": "Dois-je choisir un spécialiste pour ce service ?",
+          "a": "Cela dépend du service. Sous « Informations importantes », la page indique soit « Le choix d’un spécialiste peut être requis lors de la réservation », soit que le service peut être réservé sans choisir de spécialiste au préalable. La section « Spécialistes » indique qui réalise ce service ; touchez un nom pour ouvrir son profil, ses lieux d’exercice et ses qualifications."
+        },
+        "es-ES": {
+          "q": "¿Tengo que elegir un especialista para este servicio?",
+          "a": "Depende del servicio. En «Información importante», la página indica «Puede que sea necesario elegir un especialista durante la reserva» o bien que el servicio puede reservarse sin elegir antes un especialista. La sección «Especialistas» muestra quién realiza este servicio; toque un nombre para abrir su perfil, sus lugares de trabajo y sus credenciales."
+        }
+      }
+    },
+    {
+      "locales": {
+        "en-US": {
+          "q": "How do I choose a date and time, and when is my booking confirmed?",
+          "a": "Tap “Book Now” and pick a date and time in the “Schedule” step, where only available times are offered. Stays and other date-range services ask for start and end dates instead. Availability is confirmed during booking. Some providers review each request, so your booking may show “Pending confirmation” until the provider confirms it. You can follow the status in “My bookings”."
+        },
+        "fa-IR": {
+          "q": "تاریخ و ساعت را چطور انتخاب کنم و رزروم کی قطعی می‌شود؟",
+          "a": "«رزرو کنید» را بزنید و در مرحلهٔ «زمان‌بندی» تاریخ و ساعت را انتخاب کنید؛ فقط زمان‌های آزاد نمایش داده می‌شوند. برای اقامت و سایر خدماتی که بازهٔ تاریخی دارند، تاریخ شروع و پایان را انتخاب می‌کنید. دسترسی در جریان رزرو تأیید می‌شود. برخی ارائه‌دهندگان هر درخواست را بررسی می‌کنند، پس ممکن است رزرو شما تا تأیید ارائه‌دهنده «در انتظار تأیید» بماند. وضعیت را در «رزروهای من» دنبال کنید."
+        },
+        "ar-SA": {
+          "q": "كيف أختار التاريخ والوقت، ومتى يتأكد حجزي؟",
+          "a": "اضغط «احجز الآن» واختر التاريخ والوقت في خطوة «الجدولة»، حيث لا تظهر إلا الأوقات المتاحة. أما الإقامة والخدمات التي تعتمد على فترة زمنية فتطلب تاريخي البداية والنهاية. يتم تأكيد التوفر أثناء الحجز، وبعض مقدمي الخدمة يراجعون كل طلب، لذا قد يبقى حجزك «بانتظار التأكيد» حتى يؤكده مقدم الخدمة. يمكنك متابعة الحالة في «حجوزاتي»."
+        },
+        "tr-TR": {
+          "q": "Tarih ve saati nasıl seçerim, rezervasyonum ne zaman onaylanır?",
+          "a": "“Hemen Randevu Al”a dokunun ve “Program” adımında bir tarih ve saat seçin; burada yalnızca müsait saatler sunulur. Konaklamalar ve tarih aralığına dayalı diğer hizmetler bunun yerine başlangıç ve bitiş tarihi ister. Müsaitlik rezervasyon sırasında teyit edilir. Bazı sağlayıcılar her talebi inceler; bu nedenle rezervasyonunuz sağlayıcı onaylayana kadar “Onay bekliyor” olarak görünebilir. Durumu “Rezervasyonlarım” bölümünden takip edebilirsiniz."
+        },
+        "ku-KU": {
+          "q": "چۆن بەروار و کات هەڵبژێرم، و حجزەکەم کەی پشتڕاست دەکرێتەوە؟",
+          "a": "کرتە لەسەر «ئێستا حجز بکە» بکەن و لە هەنگاوی «خشتەی کات»دا بەروار و کاتێک هەڵبژێرن، کە تەنها کاتە بەردەستەکان پیشان دەدرێن. مانەوە و خزمەتەکانی تری ماوەدار لە جیاتی ئەوە داوای بەرواری دەستپێک و کۆتایی دەکەن. بەردەستبوون لە کاتی حجزکردندا پشتڕاست دەکرێتەوە. هەندێک دابینکەر هەر داواکارییەک هەڵدەسەنگێنن، بۆیە لەوانەیە حجزەکەتان تا دابینکەر پشتڕاستی دەکاتەوە «چاوەڕوانی پشتڕاستکردنەوە» پیشان بدات. دەتوانن لە «حجزەکانم»دا بەدواداچوون بۆ دۆخەکە بکەن."
+        },
+        "ru-RU": {
+          "q": "Как выбрать дату и время и когда бронирование будет подтверждено?",
+          "a": "Нажмите «Записаться» и выберите дату и время на шаге «Расписание», где предлагается только свободное время. Для проживания и других услуг на период нужно указать даты начала и окончания. Доступность подтверждается в процессе бронирования. Некоторые поставщики рассматривают каждый запрос, поэтому бронирование может иметь статус «Ожидает подтверждения», пока поставщик его не подтвердит. Следить за статусом можно в разделе «Мои бронирования»."
+        },
+        "tg-TJ": {
+          "q": "Сана ва вақтро чӣ тавр интихоб кунам ва брони ман кай тасдиқ мешавад?",
+          "a": "«Ҳозир брон кунед»-ро пахш кунед ва дар қадами «Ҷадвал» сана ва вақтро интихоб намоед; дар он ҷо танҳо вақтҳои холӣ пешниҳод мешаванд. Барои иқомат ва дигар хидматҳои давомдор ба ҷои ин санаи оғоз ва анҷом пурсида мешавад. Дастрасӣ ҳангоми брон тасдиқ мешавад. Баъзе хидматрасонҳо ҳар дархостро баррасӣ мекунанд, бинобар ин брони шумо то тасдиқи хидматрасон метавонад «Дар интизори тасдиқ» бошад. Ҳолатро дар «Бронҳои ман» пайгирӣ карда метавонед."
+        },
+        "zh-CN": {
+          "q": "如何选择日期和时间？预约何时确认？",
+          "a": "点击“立即预约”，在“日程”步骤中选择日期和时间，系统只会提供可预约的时段。住宿等按日期区间提供的服务则会要求填写开始和结束日期。可预约时间会在预约过程中确认。部分服务商会逐一审核申请，因此在服务商确认前，您的预约可能显示为“等待确认”。您可以在“我的预约”中查看状态。"
+        },
+        "de-DE": {
+          "q": "Wie wähle ich Datum und Uhrzeit, und wann ist meine Buchung bestätigt?",
+          "a": "Tippen Sie auf „Jetzt buchen“ und wählen Sie im Schritt „Termin“ Datum und Uhrzeit; dort werden nur verfügbare Zeiten angeboten. Bei Aufenthalten und anderen Leistungen über einen Zeitraum werden stattdessen Beginn- und Enddatum abgefragt. Die Verfügbarkeit wird während der Buchung bestätigt. Manche Anbieter prüfen jede Anfrage, daher kann Ihre Buchung „Bestätigung ausstehend“ anzeigen, bis der Anbieter sie bestätigt. Den Status verfolgen Sie unter „Meine Buchungen“."
+        },
+        "fr-FR": {
+          "q": "Comment choisir une date et une heure, et quand ma réservation est-elle confirmée ?",
+          "a": "Touchez « Réserver » et choisissez une date et une heure à l’étape « Planning », où seuls les créneaux disponibles sont proposés. Pour les séjours et les autres services sur plusieurs jours, vous indiquez plutôt une date de début et une date de fin. La disponibilité est confirmée pendant la réservation. Certains prestataires examinent chaque demande : votre réservation peut donc afficher « En attente de confirmation » jusqu’à ce que le prestataire la confirme. Vous pouvez suivre son statut dans « Mes réservations »."
+        },
+        "es-ES": {
+          "q": "¿Cómo elijo la fecha y la hora, y cuándo se confirma mi reserva?",
+          "a": "Toque «Reservar ahora» y elija una fecha y una hora en el paso «Agenda», donde solo se ofrecen horarios disponibles. Las estancias y otros servicios por rango de fechas piden en su lugar una fecha de inicio y una de fin. La disponibilidad se confirma durante la reserva. Algunos proveedores revisan cada solicitud, por lo que su reserva puede aparecer como «Pendiente de confirmación» hasta que el proveedor la confirme. Puede seguir el estado en «Mis reservas»."
+        }
+      }
+    },
+    {
+      "locales": {
+        "en-US": {
+          "q": "What documents do I need for this service?",
+          "a": "Check “Requirements before booking” on this page. It lists each document the provider asks for, marks the mandatory ones, and gives the file count and size limits. Medical or identity documents may be requested. If you ask LSevin to arrange extra support services while booking, you upload them in the “Files” step, and they appear later under “Uploaded documents” in your booking."
+        },
+        "fa-IR": {
+          "q": "برای این خدمت به چه مدارکی نیاز دارم؟",
+          "a": "بخش «الزامات قبل از رزرو» را در همین صفحه ببینید. در آن هر مدرکی که ارائه‌دهنده می‌خواهد آمده، موارد اجباری مشخص شده و حداکثر تعداد و حجم فایل‌ها نوشته شده است. ممکن است مدارک پزشکی یا هویتی درخواست شود. اگر هنگام رزرو هماهنگی خدمات پشتیبانی تکمیلی را به السوین بسپارید، فایل‌ها را در مرحلهٔ «فایل‌ها» بارگذاری می‌کنید و بعداً در بخش «مدارک بارگذاری‌شده» در رزروتان دیده می‌شوند."
+        },
+        "ar-SA": {
+          "q": "ما المستندات التي أحتاجها لهذه الخدمة؟",
+          "a": "راجع قسم «المتطلبات قبل الحجز» في هذه الصفحة. ستجد فيه كل مستند يطلبه مقدم الخدمة مع تمييز الإلزامي منها، والحد الأقصى لعدد الملفات وحجمها. قد تُطلب مستندات طبية أو هويات. وإذا اخترت أثناء الحجز أن ترتّب لسوين خدمات الدعم الإضافية، فسترفع الملفات في خطوة «الملفات»، وتظهر لاحقًا تحت «المستندات المرفوعة» في حجزك."
+        },
+        "tr-TR": {
+          "q": "Bu hizmet için hangi belgelere ihtiyacım var?",
+          "a": "Bu sayfadaki “Randevu öncesi gereklilikler” bölümüne bakın. Burada sağlayıcının istediği her belge listelenir, zorunlu olanlar işaretlenir, dosya sayısı ve boyut sınırları belirtilir. Tıbbi veya kimlik belgeleri istenebilir. Rezervasyon sırasında LSevin'den ek destek hizmetleri ayarlamasını isterseniz belgeleri “Dosyalar” adımında yüklersiniz; bunlar daha sonra rezervasyonunuzda “Yüklenen belgeler” altında görünür."
+        },
+        "ku-KU": {
+          "q": "بۆ ئەم خزمەتە پێویستم بە چ بەڵگەنامەیەکە؟",
+          "a": "لەم پەڕەیەدا «پێداویستییەکان پێش حجزکردن» ببینن. هەر بەڵگەنامەیەک کە دابینکەر داوای دەکات تێیدا نووسراوە، ناچارییەکان نیشان کراون، و سنووری ژمارە و قەبارەی فایلەکان دیاری کراوە. لەوانەیە بەڵگەنامەی پزیشکی یان ناسنامە داوا بکرێت. ئەگەر لە کاتی حجزکردندا داوا لە LSevin بکەن خزمەتگوزاریی پشتیوانیی زیادە ڕێک بخات، لە هەنگاوی «فایلەکان»دا باریان دەکەن، و دواتر لە ژێر «بەڵگەنامە بارکراوەکان» لە حجزەکەتاندا دەردەکەون."
+        },
+        "ru-RU": {
+          "q": "Какие документы нужны для этой услуги?",
+          "a": "Посмотрите блок «Что нужно перед записью» на этой странице. В нём перечислены все документы, которые запрашивает поставщик, отмечены обязательные и указаны ограничения на количество и размер файлов. Могут потребоваться медицинские документы или документы, удостоверяющие личность. Если при бронировании Вы попросите LSevin организовать дополнительные услуги поддержки, документы загружаются на шаге «Файлы», а затем отображаются в Вашем бронировании в разделе «Загруженные документы»."
+        },
+        "tg-TJ": {
+          "q": "Барои ин хидмат ба ман кадом ҳуҷҷатҳо лозиманд?",
+          "a": "Бахши «Талабот пеш аз брон»-ро дар ҳамин саҳифа бинед. Дар он ҳар ҳуҷҷате, ки хидматрасон талаб мекунад, номбар шудааст, ҳуҷҷатҳои ҳатмӣ қайд гардида, шумора ва ҳаҷми ҳадди файлҳо нишон дода шудаанд. Ҳуҷҷатҳои тиббӣ ё шахсият талаб карда шуда метавонанд. Агар ҳангоми брон аз LSevin ташкили хидматҳои иловагии дастгириро дархост кунед, онҳоро дар қадами «Файлҳо» бор мекунед ва баъдтар онҳо дар брони шумо дар зери «Ҳуҷҷатҳои боршуда» пайдо мешаванд."
+        },
+        "zh-CN": {
+          "q": "这项服务需要准备哪些材料？",
+          "a": "请查看本页的“预约前需准备”部分。其中列出了服务商要求的每份材料，标明哪些是必需的，并注明文件数量和大小限制。可能需要您提供医疗或身份证明材料。如果您在预约时请LSevin安排额外的支持服务，可以在“文件”步骤中上传，之后这些材料会显示在预约的“已上传材料”中。"
+        },
+        "de-DE": {
+          "q": "Welche Dokumente brauche ich für diese Leistung?",
+          "a": "Sehen Sie auf dieser Seite unter „Voraussetzungen vor der Buchung“ nach. Dort steht jedes Dokument, das der Anbieter verlangt, die Pflichtdokumente sind gekennzeichnet, und die zulässige Anzahl und Größe der Dateien wird genannt. Es können medizinische Unterlagen oder Ausweisdokumente verlangt werden. Wenn Sie LSevin bei der Buchung bitten, zusätzliche Unterstützungsleistungen zu organisieren, laden Sie sie im Schritt „Dateien“ hoch; später erscheinen sie in Ihrer Buchung unter „Hochgeladene Dokumente“."
+        },
+        "fr-FR": {
+          "q": "Quels documents me faut-il pour ce service ?",
+          "a": "Consultez « Prérequis avant la réservation » sur cette page. Vous y trouverez chaque document demandé par le prestataire, les documents obligatoires signalés comme tels, ainsi que le nombre de fichiers et la taille maximale autorisés. Des documents médicaux ou d’identité peuvent être demandés. Si vous demandez à LSevin d’organiser des services d’assistance supplémentaires lors de la réservation, vous les téléversez à l’étape « Fichiers », et ils apparaissent ensuite sous « Documents téléversés » dans votre réservation."
+        },
+        "es-ES": {
+          "q": "¿Qué documentos necesito para este servicio?",
+          "a": "Consulte «Requisitos antes de reservar» en esta página. Allí se enumeran los documentos que pide el proveedor, se marcan los obligatorios y se indican el número de archivos y los límites de tamaño. Pueden solicitarse documentos médicos o de identidad. Si al reservar pide a LSevin que organice servicios de apoyo adicionales, los subirá en el paso «Archivos», y más tarde aparecerán en «Documentos subidos» dentro de su reserva."
+        }
+      }
+    },
+    {
+      "locales": {
+        "en-US": {
+          "q": "Can I change or cancel my booking?",
+          "a": "To cancel, open the booking in “My bookings”, tap “Cancel booking”, add a reason if you like, and confirm. There's no reschedule button in the app, so to move to another time, book the new slot and then cancel the old one, or contact LSevin support for help. Paid amounts may be refundable depending on the provider's policy, which you'll find under “Provider policies”."
+        },
+        "fa-IR": {
+          "q": "آیا می‌توانم رزروم را تغییر دهم یا لغو کنم؟",
+          "a": "برای لغو، رزرو را در «رزروهای من» باز کنید، «لغو رزرو» را بزنید، اگر خواستید دلیلی بنویسید و تأیید کنید. در برنامه دکمهٔ تغییر زمان وجود ندارد؛ برای جابه‌جایی نوبت، زمان جدید را رزرو کنید و بعد رزرو قبلی را لغو کنید یا از پشتیبانی السوین کمک بگیرید. مبالغ پرداخت‌شده ممکن است بر اساس سیاست ارائه‌دهنده قابل بازپرداخت باشند که آن را زیر «سیاست‌های ارائه‌دهنده» می‌بینید."
+        },
+        "ar-SA": {
+          "q": "هل يمكنني تعديل حجزي أو إلغاؤه؟",
+          "a": "للإلغاء افتح الحجز في «حجوزاتي»، واضغط «إلغاء الحجز»، وأضف سببًا إن أردت ثم أكّد. لا يوجد في التطبيق زر لإعادة الجدولة، لذا لتغيير الموعد احجز الموعد الجديد ثم ألغِ القديم، أو تواصل مع دعم لسوين للمساعدة. قد تكون المبالغ المدفوعة قابلة للاسترداد حسب سياسة مقدم الخدمة، وتجدها تحت «سياسات مقدم الخدمة»."
+        },
+        "tr-TR": {
+          "q": "Rezervasyonumu değiştirebilir veya iptal edebilir miyim?",
+          "a": "İptal etmek için rezervasyonu “Rezervasyonlarım” bölümünde açın, “Rezervasyonu iptal et”e dokunun, isterseniz bir neden ekleyin ve onaylayın. Uygulamada tarih değiştirme düğmesi yoktur; başka bir saate geçmek için yeni saati ayırtıp eskisini iptal edin ya da yardım için LSevin desteğine başvurun. Ödenen tutarlar, “Sağlayıcı politikaları” altında bulabileceğiniz sağlayıcı politikasına bağlı olarak iade edilebilir."
+        },
+        "ku-KU": {
+          "q": "دەتوانم حجزەکەم بگۆڕم یان هەڵیبوەشێنمەوە؟",
+          "a": "بۆ هەڵوەشاندنەوە، حجزەکە لە «حجزەکانم» بکەنەوە، کرتە لەسەر «هەڵوەشاندنەوەی حجز» بکەن، ئەگەر بتانەوێت هۆکارێک بنووسن، و پشتڕاستی بکەنەوە. لە ئەپەکەدا دوگمەی گۆڕینی کات نییە، بۆیە بۆ گواستنەوە بۆ کاتێکی تر، کاتە نوێیەکە حجز بکەن و پاشان کۆنەکە هەڵبوەشێننەوە، یان بۆ یارمەتی پەیوەندی بە پشتگیریی LSevinەوە بکەن. لەوانەیە بڕە دراوەکان بەپێی سیاسەتی دابینکەر بگەڕێندرێنەوە، کە لە ژێر «سیاسەتەکانی دابینکەر» دەیدۆزنەوە."
+        },
+        "ru-RU": {
+          "q": "Можно ли изменить или отменить бронирование?",
+          "a": "Чтобы отменить бронирование, откройте его в разделе «Мои бронирования», нажмите «Отменить бронирование», при желании укажите причину и подтвердите. Кнопки переноса в приложении нет, поэтому, чтобы перейти на другое время, забронируйте новое время, а затем отмените старое бронирование или обратитесь за помощью в поддержку LSevin. Оплаченная сумма может быть возвращена в зависимости от политики поставщика, которую можно найти в блоке «Правила поставщика»."
+        },
+        "tg-TJ": {
+          "q": "Оё метавонам брони худро тағйир диҳам ё бекор кунам?",
+          "a": "Барои бекор кардан бронро дар «Бронҳои ман» кушоед, «Бекор кардани брон»-ро пахш кунед, агар хоҳед сабабро нависед ва тасдиқ кунед. Дар барнома тугмаи иваз кардани вақт нест, бинобар ин барои гузаштан ба вақти дигар вақти навро брон кунед ва баъд брони кӯҳнаро бекор кунед ё барои кӯмак ба дастгирии LSevin муроҷиат намоед. Маблағҳои пардохтшуда вобаста ба қоидаҳои хидматрасон метавонанд баргардонида шаванд; ин қоидаҳоро дар «Қоидаҳои хидматрасон» меёбед."
+        },
+        "zh-CN": {
+          "q": "可以修改或取消预约吗？",
+          "a": "如需取消，请在“我的预约”中打开该预约，点击“取消预约”，可选填原因，然后确认。应用中没有改期按钮，如需更换时间，请先预约新的时段，再取消原来的预约，或联系LSevin客服协助。已付款项是否可以退还取决于服务商的政策，相关政策可在“服务商政策”中查看。"
+        },
+        "de-DE": {
+          "q": "Kann ich meine Buchung ändern oder stornieren?",
+          "a": "Zum Stornieren öffnen Sie die Buchung unter „Meine Buchungen“, tippen auf „Buchung stornieren“, geben bei Bedarf einen Grund an und bestätigen. In der App gibt es keine Schaltfläche zum Umbuchen; um auf eine andere Zeit zu wechseln, buchen Sie den neuen Termin und stornieren dann den alten, oder Sie wenden sich an den LSevin Support. Gezahlte Beträge können je nach Richtlinie des Anbieters erstattungsfähig sein; Sie finden sie unter „Anbieterrichtlinien“."
+        },
+        "fr-FR": {
+          "q": "Puis-je modifier ou annuler ma réservation ?",
+          "a": "Pour annuler, ouvrez la réservation dans « Mes réservations », touchez « Annuler la réservation », ajoutez un motif si vous le souhaitez, puis confirmez. L’application ne propose pas de bouton de report : pour changer d’horaire, réservez le nouveau créneau puis annulez l’ancien, ou contactez l’assistance LSevin pour obtenir de l’aide. Les sommes payées peuvent être remboursables selon les conditions du prestataire, que vous trouverez sous « Conditions du prestataire »."
+        },
+        "es-ES": {
+          "q": "¿Puedo modificar o cancelar mi reserva?",
+          "a": "Para cancelar, abra la reserva en «Mis reservas», toque «Cancelar reserva», añada un motivo si lo desea y confirme. En la aplicación no hay un botón para cambiar la fecha, así que, para pasar a otro horario, reserve el nuevo y después cancele el anterior, o pida ayuda al soporte de LSevin. Los importes pagados pueden ser reembolsables según la política del proveedor, que encontrará en «Políticas del proveedor»."
+        }
+      }
+    }
+  ]
+}

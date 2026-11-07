@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState, useTransition, type ReactNode } from "react";
+import { useEffect, useId, useState, useTransition, type ReactNode } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -201,7 +201,7 @@ export function EmptyState({ children }: { children: ReactNode }) {
   return <p className="text-muted-foreground rounded-md border border-dashed p-6 text-center text-sm">{children}</p>;
 }
 
-export function Section({ title, description, actions, children, id }: { title: string; description?: ReactNode; actions?: ReactNode; children: ReactNode; id?: string }) {
+export function Section({ title, description, actions, children, id, footer }: { title: string; description?: ReactNode; actions?: ReactNode; children: ReactNode; id?: string; footer?: ReactNode }) {
   return (
     <section className="space-y-3 rounded-lg border p-4" aria-labelledby={id ? `${id}-title` : undefined}>
       <div className="flex flex-wrap items-start justify-between gap-2">
@@ -212,7 +212,58 @@ export function Section({ title, description, actions, children, id }: { title: 
         {actions ? <div className="flex flex-wrap gap-2">{actions}</div> : null}
       </div>
       {children}
+      {footer}
     </section>
+  );
+}
+
+// ----------------------------------------------------------------------------
+// Unsaved changes. A form whose edits are only kept until its own Save button is
+// pressed registers here, so leaving (tab switch, back link, reload, close) warns
+// instead of silently dropping the edits — the cause of "my changes were not saved"
+// when an admin pressed another section's Save button.
+// ----------------------------------------------------------------------------
+
+const dirtyForms = new Set<string>();
+
+/** Registers `dirty` for this form; warns before the page is closed or reloaded while dirty. */
+export function useUnsavedChanges(dirty: boolean) {
+  const key = useId();
+  useEffect(() => {
+    if (!dirty) {
+      dirtyForms.delete(key);
+      return;
+    }
+    dirtyForms.add(key);
+    const onBeforeUnload = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = "";
+    };
+    window.addEventListener("beforeunload", onBeforeUnload);
+    return () => {
+      dirtyForms.delete(key);
+      window.removeEventListener("beforeunload", onBeforeUnload);
+    };
+  }, [dirty, key]);
+}
+
+/** For in-app links: true when nothing is unsaved, or the admin confirms leaving anyway. */
+export function confirmLeave(message: string): boolean {
+  return dirtyForms.size === 0 || window.confirm(message);
+}
+
+/** The form's main Save button at the end of its fields, with an "Unsaved changes" marker. */
+export function SaveBar({ dirty, pending, onSave, label, testId }: { dirty: boolean; pending: boolean; onSave: () => unknown; label: string; testId: string }) {
+  const t = useTranslations("TourAdmin.common");
+  return (
+    <div className="flex flex-wrap items-center justify-end gap-3 border-t pt-3">
+      {dirty ? (
+        <span className="text-xs font-medium text-amber-700 dark:text-amber-300" role="status" data-testid={`${testId}-unsaved`}>
+          {t("unsavedChanges")}
+        </span>
+      ) : null}
+      <Button type="button" disabled={pending} onClick={() => onSave()} data-testid={testId}>{label}</Button>
+    </div>
   );
 }
 

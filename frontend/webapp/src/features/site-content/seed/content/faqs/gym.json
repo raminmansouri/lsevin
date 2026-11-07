@@ -1,0 +1,207 @@
+{
+  "scope": "app",
+  "entityKey": "gym",
+  "sources": [
+    "src/app/[locale]/(main)/profile/memberships/page.tsx: customer page 'My gym memberships' under /profile (sign-in gated by protectedSegments) with a Subscribe section",
+    "src/features/gym-memberships/components/customer/gym-membership-plans-browser.tsx: active plans with provider name, plan name, monthly price and currency",
+    "src/features/gym-memberships/components/customer/gym-membership-subscribe-dialog.tsx + GymMemberships.customer.subscribe.*: select months to pay, optional payment reference, Submit for review",
+    "messages/en.json GymMemberships.customer.subscribe.paymentReferenceHint: reference for an existing bank transfer",
+    "messages/en.json GymMemberships.customer.month.* : Pending review, Paid, Rejected (with reason), Due",
+    "messages/en.json HomeHero.subtitle / searchPlaceholder: find gyms nearby; MapDiscovery 'Use my location' and filters",
+    "src/app/[locale]/n/app/mobile/service/[id]/service-page.tsx: Book Now -> /n/app/mobile/booking?serviceId= (same booking wizard for any listed service)"
+  ],
+  "items": [
+    {
+      "locales": {
+        "en-US": {
+          "q": "How do I buy a gym membership through LSevin?",
+          "a": "Sign in and open “My gym memberships” in your account. Under “Subscribe” you see the active plans, each with the gym's name and its monthly price. Pick a plan, select the months you want to pay for, and tap “Submit for review”. The LSevin team reviews the request and marks each month as paid once it is approved."
+        },
+        "fa-IR": {
+          "q": "چطور از طریق السوین اشتراک باشگاه بخرم؟",
+          "a": "وارد حساب خود شوید و صفحهٔ «اشتراک‌های باشگاه من» را باز کنید. در بخش «اشتراک» طرح‌های فعال را همراه با نام باشگاه و هزینهٔ ماهانه می‌بینید. طرح موردنظر را انتخاب کنید، ماه‌هایی را که می‌خواهید پرداخت کنید برگزینید و «ارسال برای بررسی» را بزنید. تیم السوین درخواست را بررسی می‌کند و پس از تأیید، هر ماه را پرداخت‌شده ثبت می‌کند."
+        },
+        "ar-SA": {
+          "q": "كيف أشتري عضوية نادٍ رياضي عبر لسوين؟",
+          "a": "سجّل الدخول وافتح صفحة «عضويات الصالة الرياضية الخاصة بي» في حسابك. في قسم «اشتراك» تظهر الخطط النشطة مع اسم النادي وسعره الشهري. اختر الخطة، وحدد الأشهر التي تريد دفعها، ثم اضغط «إرسال للمراجعة». يراجع فريق لسوين الطلب ويسجّل كل شهر مدفوعًا بعد الموافقة."
+        },
+        "tr-TR": {
+          "q": "LSevin üzerinden spor salonu üyeliğini nasıl satın alırım?",
+          "a": "Giriş yapın ve hesabınızda “Spor salonu üyeliklerim” bölümünü açın. “Abone ol” altında, her biri spor salonunun adı ve aylık fiyatıyla birlikte aktif planları görürsünüz. Bir plan seçin, ödemek istediğiniz ayları belirleyin ve “İncelemeye gönder”e dokunun. LSevin ekibi talebi inceler ve onaylanan her ayı ödendi olarak işaretler."
+        },
+        "ku-KU": {
+          "q": "چۆن لە ڕێگەی LSevinەوە ئەندامێتیی جیم بکڕم؟",
+          "a": "بچنە ژوورەوە و لە هەژمارەکەتاندا «ئەندامەتییەکانی جیمی من» بکەنەوە. لە ژێر «بەشداریکردن» پلانە چالاکەکان دەبینن، کە هەر یەکەیان ناوی جیمەکە و نرخی مانگانەی لەگەڵدایە. پلانێک هەڵبژێرن، ئەو مانگانە دیاری بکەن کە دەتانەوێت پارەیان بدەن، و کرتە لەسەر «ناردن بۆ پێداچوونەوە» بکەن. تیمی LSevin داواکارییەکە هەڵدەسەنگێنێت و دوای پەسەندکردن هەر مانگێک وەک پارەدراو نیشان دەکات."
+        },
+        "ru-RU": {
+          "q": "Как купить абонемент в спортзал через LSevin?",
+          "a": "Войдите в аккаунт и откройте раздел «Мои абонементы в спортзал». В блоке «Оформить абонемент» показаны действующие тарифы с названием спортзала и ценой в месяц. Выберите тариф, отметьте месяцы, которые хотите оплатить, и нажмите «Отправить на проверку». Команда LSevin проверяет заявку и после одобрения отмечает каждый месяц как оплаченный."
+        },
+        "tg-TJ": {
+          "q": "Чӣ тавр тавассути LSevin аъзогии варзишгоҳ харам?",
+          "a": "Ворид шавед ва дар ҳисоби худ «Аъзогии варзишгоҳи ман»-ро кушоед. Дар бахши «Обуна шудан» нақшаҳои фаъол бо номи варзишгоҳ ва нархи моҳонаи онҳо нишон дода мешаванд. Нақшаро интихоб кунед, моҳҳоеро, ки мехоҳед пардохт кунед, қайд намоед ва «Барои баррасӣ фиристодан»-ро пахш кунед. Гурӯҳи LSevin дархостро баррасӣ мекунад ва пас аз тасдиқ ҳар моҳро пардохтшуда қайд мекунад."
+        },
+        "zh-CN": {
+          "q": "如何通过LSevin购买健身房会员？",
+          "a": "登录后，在账户中打开“我的健身房会员”。在“订阅”下可以看到当前可选的方案，每个方案都显示健身房名称和月费。选择方案，勾选要付费的月份，然后点击“提交审核”。LSevin团队会审核申请，每个月份获批后会被标记为已支付。"
+        },
+        "de-DE": {
+          "q": "Wie schließe ich über LSevin eine Fitnessstudio-Mitgliedschaft ab?",
+          "a": "Melden Sie sich an und öffnen Sie in Ihrem Konto „Meine Fitnessstudio-Mitgliedschaften“. Unter „Abonnieren“ sehen Sie die aktiven Tarife, jeweils mit dem Namen des Studios und dem Monatspreis. Wählen Sie einen Tarif, markieren Sie die Monate, die Sie bezahlen möchten, und tippen Sie auf „Zur Prüfung senden“. Das LSevin Team prüft die Anfrage und markiert jeden Monat als bezahlt, sobald er genehmigt ist."
+        },
+        "fr-FR": {
+          "q": "Comment souscrire un abonnement de salle de sport via LSevin ?",
+          "a": "Connectez-vous et ouvrez « Mes abonnements de salle de sport » dans votre compte. Sous « S’abonner », vous voyez les formules actives, chacune avec le nom de la salle et son prix mensuel. Choisissez une formule, sélectionnez les mois que vous souhaitez payer et touchez « Envoyer pour vérification ». L’équipe LSevin examine la demande et marque chaque mois comme payé une fois la demande approuvée."
+        },
+        "es-ES": {
+          "q": "¿Cómo compro una membresía de gimnasio a través de LSevin?",
+          "a": "Inicie sesión y abra «Mis membresías de gimnasio» en su cuenta. En «Suscribirse» verá los planes activos, cada uno con el nombre del gimnasio y su precio mensual. Elija un plan, seleccione los meses que desea pagar y toque «Enviar para revisión». El equipo de LSevin revisa la solicitud y marca cada mes como pagado una vez aprobado."
+        }
+      }
+    },
+    {
+      "locales": {
+        "en-US": {
+          "q": "How do I pay for my gym membership months?",
+          "a": "The subscription form doesn't take card payments. If you have already paid by bank transfer, enter the transfer's reference number in “Payment reference (optional)” so the team can match it to your request. Each month then shows its status: “Pending review”, “Paid”, “Rejected” with the reason, or “Due”. If a month is rejected, read the reason and contact LSevin support."
+        },
+        "fa-IR": {
+          "q": "هزینهٔ ماه‌های اشتراک باشگاه را چطور پرداخت کنم؟",
+          "a": "فرم اشتراک پرداخت کارتی ندارد. اگر مبلغ را با انتقال بانکی پرداخت کرده‌اید، شمارهٔ پیگیری آن را در «شماره پیگیری پرداخت (اختیاری)» وارد کنید تا تیم بتواند آن را با درخواست شما تطبیق دهد. پس از آن وضعیت هر ماه نمایش داده می‌شود: «در انتظار بررسی»، «پرداخت‌شده»، «ردشده» همراه با دلیل، یا «سررسیدشده». اگر ماهی رد شد، دلیل را بخوانید و با پشتیبانی السوین تماس بگیرید."
+        },
+        "ar-SA": {
+          "q": "كيف أدفع أشهر عضوية النادي الرياضي؟",
+          "a": "لا يقبل نموذج الاشتراك الدفع بالبطاقة. إذا كنت قد دفعت عبر تحويل مصرفي، فأدخل رقم مرجع التحويل في «رقم مرجع الدفع (اختياري)» ليتمكن الفريق من مطابقته مع طلبك. بعد ذلك تظهر حالة كل شهر: «قيد المراجعة» أو «مدفوع» أو «مرفوض» مع السبب أو «مستحق». وإذا رُفض شهر ما، اقرأ السبب وتواصل مع دعم لسوين."
+        },
+        "tr-TR": {
+          "q": "Spor salonu üyeliğimin aylarını nasıl öderim?",
+          "a": "Abonelik formu kartla ödeme almaz. Banka havalesiyle ödeme yaptıysanız ekibin ödemeyi talebinizle eşleştirebilmesi için havalenin referans numarasını “Ödeme referansı (isteğe bağlı)” alanına girin. Ardından her ayın durumu görünür: “İnceleniyor”, “Ödendi”, nedeniyle birlikte “Reddedildi” veya “Ödenecek”. Bir ay reddedilirse nedenini okuyun ve LSevin desteğine başvurun."
+        },
+        "ku-KU": {
+          "q": "چۆن پارەی مانگەکانی ئەندامێتیی جیمەکەم بدەم؟",
+          "a": "فۆرمی بەشداریکردن پارەدان بە کارت وەرناگرێت. ئەگەر پێشتر بە گواستنەوەی بانکی پارەتان داوە، ژمارەی بەدواداچوونی گواستنەوەکە لە «ژمارەی پشتڕاستکردنەوەی پارەدان (ئارەزوومەندانە)» بنووسن بۆ ئەوەی تیمەکە بتوانێت بە داواکارییەکەتانەوە ببەستێتەوە. پاشان هەر مانگێک دۆخی خۆی پیشان دەدات: «چاوەڕوانی پێداچوونەوە»، «پارەدراوە»، «ڕەتکراوەتەوە» لەگەڵ هۆکارەکەی، یان «کاتی پارەدانە». ئەگەر مانگێک ڕەت کرایەوە، هۆکارەکە بخوێننەوە و پەیوەندی بە پشتگیریی LSevinەوە بکەن."
+        },
+        "ru-RU": {
+          "q": "Как оплатить месяцы абонемента?",
+          "a": "Форма оформления абонемента не принимает оплату картой. Если Вы уже оплатили банковским переводом, введите номер перевода в поле «Номер платежа (необязательно)», чтобы команда могла сопоставить его с Вашей заявкой. Затем у каждого месяца отображается статус: «На проверке», «Оплачено», «Отклонено» с указанием причины или «К оплате». Если месяц отклонён, ознакомьтесь с причиной и обратитесь в поддержку LSevin."
+        },
+        "tg-TJ": {
+          "q": "Барои моҳҳои аъзогӣ чӣ тавр пардохт кунам?",
+          "a": "Формаи обуна пардохт бо кортро қабул намекунад. Агар аллакай бо интиқоли бонкӣ пардохт карда бошед, рақами пайгирии интиқолро дар «Рақами пайгирии пардохт (ихтиёрӣ)» ворид кунед, то гурӯҳ онро ба дархости шумо мувофиқ кунад. Баъд ҳар моҳ ҳолати худро нишон медиҳад: «Дар интизори баррасӣ», «Пардохтшуда», «Радшуда» бо сабаби он ё «Барои пардохт». Агар моҳе рад шуда бошад, сабабро хонед ва ба дастгирии LSevin муроҷиат кунед."
+        },
+        "zh-CN": {
+          "q": "如何支付健身房会员的月费？",
+          "a": "订阅表单不支持银行卡付款。如果您已通过银行转账付款，请在“付款参考号（可选）”中填写转账参考号，方便团队将其与您的申请对应。之后每个月份都会显示状态：“待审核”、“已支付”、“已拒绝”（附原因）或“待支付”。如果某个月份被拒绝，请查看原因并联系LSevin客服。"
+        },
+        "de-DE": {
+          "q": "Wie bezahle ich die Monate meiner Fitnessstudio-Mitgliedschaft?",
+          "a": "Das Abo-Formular nimmt keine Kartenzahlungen an. Wenn Sie bereits per Banküberweisung bezahlt haben, geben Sie die Referenznummer der Überweisung unter „Zahlungsreferenz (optional)“ ein, damit das Team sie Ihrer Anfrage zuordnen kann. Jeder Monat zeigt dann seinen Status: „In Prüfung“, „Bezahlt“, „Abgelehnt“ mit Grund oder „Fällig“. Wird ein Monat abgelehnt, lesen Sie den Grund und wenden Sie sich an den LSevin Support."
+        },
+        "fr-FR": {
+          "q": "Comment payer les mois de mon abonnement ?",
+          "a": "Le formulaire d’abonnement n’accepte pas les paiements par carte. Si vous avez déjà payé par virement bancaire, saisissez la référence du virement dans « Référence de paiement (facultatif) » afin que l’équipe puisse la rapprocher de votre demande. Chaque mois affiche ensuite son statut : « En attente de vérification », « Payé », « Refusé » avec le motif, ou « À payer ». Si un mois est refusé, lisez le motif et contactez l’assistance LSevin."
+        },
+        "es-ES": {
+          "q": "¿Cómo pago los meses de mi membresía de gimnasio?",
+          "a": "El formulario de suscripción no admite pagos con tarjeta. Si ya ha pagado por transferencia bancaria, introduzca el número de referencia de la transferencia en «Referencia de pago (opcional)» para que el equipo pueda asociarla a su solicitud. Después, cada mes muestra su estado: «En revisión», «Pagado», «Rechazado» con el motivo, o «Pendiente de pago». Si se rechaza un mes, lea el motivo y contacte con el soporte de LSevin."
+        }
+      }
+    },
+    {
+      "locales": {
+        "en-US": {
+          "q": "How do I find a gym near me?",
+          "a": "Search for “gym” or a gym's name, or browse the categories that list gyms and fitness centres. Map Discovery shows providers around you after you tap “Use my location”, and you can narrow the list by distance or to verified providers. Each gym's page shows its services, address, location on the map and any policies it has published."
+        },
+        "fa-IR": {
+          "q": "چطور باشگاهی نزدیک خودم پیدا کنم؟",
+          "a": "کلمهٔ «باشگاه» یا نام باشگاه موردنظر را جست‌وجو کنید یا دسته‌هایی را که باشگاه‌ها و مراکز ورزشی را فهرست می‌کنند مرور کنید. «کشف روی نقشه» پس از زدن «استفاده از موقعیت من» ارائه‌دهندگان اطراف شما را نشان می‌دهد و می‌توانید فهرست را بر اساس فاصله یا فقط ارائه‌دهندگان تأییدشده محدود کنید. صفحهٔ هر باشگاه خدمات، آدرس، موقعیت روی نقشه و سیاست‌های منتشرشدهٔ آن را نشان می‌دهد."
+        },
+        "ar-SA": {
+          "q": "كيف أجد ناديًا رياضيًا قريبًا مني؟",
+          "a": "ابحث عن كلمة «نادٍ رياضي» أو عن اسم النادي، أو تصفح الفئات التي تضم النوادي ومراكز اللياقة. تعرض خريطة الاكتشاف مقدمي الخدمة من حولك بعد الضغط على «استخدام موقعي»، ويمكنك تضييق القائمة حسب المسافة أو عرض الموثّقين فقط. وتعرض صفحة كل نادٍ خدماته وعنوانه وموقعه على الخريطة وأي سياسات نشرها."
+        },
+        "tr-TR": {
+          "q": "Yakınımdaki bir spor salonunu nasıl bulurum?",
+          "a": "“spor salonu” veya bir salonun adıyla arama yapın ya da spor salonlarını ve fitness merkezlerini listeleyen kategorilere göz atın. Haritada Keşfet, “Konumumu kullan”a dokunduktan sonra çevrenizdeki sağlayıcıları gösterir; listeyi mesafeye göre veya yalnızca doğrulanmış sağlayıcılarla daraltabilirsiniz. Her spor salonunun sayfasında hizmetleri, adresi, haritadaki konumu ve yayımladığı politikalar yer alır."
+        },
+        "ku-KU": {
+          "q": "چۆن جیمێکی نزیک خۆم بدۆزمەوە؟",
+          "a": "بە «جیم» یان ناوی جیمێک بگەڕێن، یان ئەو هاوپۆلانە ببینن کە جیم و ناوەندە وەرزشییەکانیان تێدایە. «دۆزینەوە لەسەر نەخشە» دوای کرتەکردن لەسەر «شوێنەکەم بەکاربهێنە» دابینکەرانی دەوروبەرتان پیشان دەدات، و دەتوانن لیستەکە بەپێی دووری یان بۆ دابینکەرە پشتڕاستکراوەکان سنووردار بکەن. پەڕەی هەر جیمێک خزمەتەکان، ناونیشان، شوێنی سەر نەخشە و هەر سیاسەتێک کە بڵاوی کردبێتەوە پیشان دەدات."
+        },
+        "ru-RU": {
+          "q": "Как найти спортзал рядом со мной?",
+          "a": "Введите в поиске «спортзал» или название спортзала либо просмотрите категории, в которых представлены спортзалы и фитнес-центры. «Поиск на карте» показывает поставщиков вокруг Вас после нажатия «Использовать моё местоположение», а список можно сузить по расстоянию или оставить только проверенных поставщиков. На странице каждого спортзала указаны его услуги, адрес, расположение на карте и опубликованные правила."
+        },
+        "tg-TJ": {
+          "q": "Варзишгоҳи наздики худро чӣ тавр ёбам?",
+          "a": "Калимаи «варзишгоҳ» ё номи варзишгоҳро ҷустуҷӯ кунед ё категорияҳоеро, ки варзишгоҳҳо ва марказҳои фитнесро дар бар мегиранд, бинед. «Кашф бо харита» пас аз пахш кардани «Макони маро истифода баред» хидматрасонҳои атрофи шуморо нишон медиҳад ва рӯйхатро аз рӯи масофа ё танҳо бо хидматрасонҳои тасдиқшуда маҳдуд карда метавонед. Дар саҳифаи ҳар варзишгоҳ хидматҳо, суроға, ҷойгиршавӣ дар харита ва қоидаҳои нашркардаи он нишон дода мешаванд."
+        },
+        "zh-CN": {
+          "q": "如何找到附近的健身房？",
+          "a": "搜索“健身房”或健身房名称，或浏览列有健身房和健身中心的分类。在“地图探索”中点击“使用我的位置”后，会显示您周围的服务商，您还可以按距离筛选或只看已认证的服务商。每家健身房的页面都会显示其服务、地址、地图位置以及已发布的政策。"
+        },
+        "de-DE": {
+          "q": "Wie finde ich ein Fitnessstudio in meiner Nähe?",
+          "a": "Suchen Sie nach „Fitnessstudio“ oder dem Namen eines Studios, oder durchsuchen Sie die Kategorien, in denen Fitnessstudios und Fitnesscenter aufgeführt sind. Die Kartensuche zeigt Anbieter in Ihrer Umgebung, nachdem Sie auf „Meinen Standort verwenden“ getippt haben, und Sie können die Liste nach Entfernung oder auf verifizierte Anbieter eingrenzen. Die Seite jedes Studios zeigt Leistungen, Adresse, Standort auf der Karte und gegebenenfalls veröffentlichte Richtlinien."
+        },
+        "fr-FR": {
+          "q": "Comment trouver une salle de sport près de chez moi ?",
+          "a": "Recherchez « salle de sport » ou le nom d’une salle, ou parcourez les catégories qui regroupent les salles de sport et centres de fitness. La Découverte sur la carte affiche les prestataires autour de vous après que vous avez touché « Utiliser ma position », et vous pouvez restreindre la liste par distance ou aux prestataires vérifiés. La page de chaque salle présente ses services, son adresse, son emplacement sur la carte et les conditions qu’elle a publiées."
+        },
+        "es-ES": {
+          "q": "¿Cómo encuentro un gimnasio cerca de mí?",
+          "a": "Busque «gimnasio» o el nombre de un gimnasio, o explore las categorías que incluyen gimnasios y centros de fitness. Explorar el mapa muestra los proveedores de su zona después de tocar «Usar mi ubicación», y puede acotar la lista por distancia o a proveedores verificados. La página de cada gimnasio muestra sus servicios, su dirección, su ubicación en el mapa y las políticas que haya publicado."
+        }
+      }
+    },
+    {
+      "locales": {
+        "en-US": {
+          "q": "Can I book a single session or a trainer instead of a membership?",
+          "a": "Yes, if the gym lists that session, class or trainer as a service on LSevin. Open the service and tap “Book Now”; it follows the same steps as other bookings, from choosing the time to “Review & Pay”. What a session includes and what it costs are set by the gym and shown on the service page before you book."
+        },
+        "fa-IR": {
+          "q": "آیا به‌جای اشتراک می‌توانم یک جلسه یا مربی رزرو کنم؟",
+          "a": "بله، اگر باشگاه آن جلسه، کلاس یا مربی را به‌عنوان خدمت در السوین ثبت کرده باشد. صفحهٔ خدمت را باز کنید و «رزرو کنید» را بزنید؛ مراحل مثل بقیهٔ رزروهاست، از انتخاب زمان تا «بررسی و پرداخت». محتوای هر جلسه و هزینهٔ آن را باشگاه تعیین می‌کند و پیش از رزرو در صفحهٔ خدمت نمایش داده می‌شود."
+        },
+        "ar-SA": {
+          "q": "هل يمكنني حجز جلسة واحدة أو مدرب بدل العضوية؟",
+          "a": "نعم، إذا أدرج النادي تلك الجلسة أو الحصة أو المدرب كخدمة على لسوين. افتح صفحة الخدمة واضغط «احجز الآن»، وستمر بالخطوات نفسها المتبعة في أي حجز، من اختيار الوقت حتى «المراجعة والدفع». ويحدد النادي ما تشمله الجلسة وسعرها، ويظهر ذلك في صفحة الخدمة قبل الحجز."
+        },
+        "tr-TR": {
+          "q": "Üyelik yerine tek bir seans veya antrenör ayırtabilir miyim?",
+          "a": "Evet, spor salonu o seansı, dersi veya antrenörü LSevin'de bir hizmet olarak listelediyse. Hizmeti açın ve “Hemen Randevu Al”a dokunun; saati seçmekten “İncele ve Öde” adımına kadar diğer rezervasyonlarla aynı adımları izler. Bir seansın neleri kapsadığını ve ücretini spor salonu belirler; bunlar rezervasyondan önce hizmet sayfasında gösterilir."
+        },
+        "ku-KU": {
+          "q": "دەتوانم لە جیاتی ئەندامێتی، یەک دانیشتن یان ڕاهێنەرێک حجز بکەم؟",
+          "a": "بەڵێ، ئەگەر جیمەکە ئەو دانیشتن، وانە یان ڕاهێنەرە وەک خزمەتێک لە LSevin تۆمار کردبێت. خزمەتەکە بکەنەوە و کرتە لەسەر «ئێستا حجز بکە» بکەن؛ هەمان هەنگاوەکانی حجزەکانی تر دەگرێتەبەر، لە هەڵبژاردنی کاتەوە تا «پێداچوونەوە و پارەدان». ئەوەی دانیشتنێک لەخۆی دەگرێت و نرخەکەی، لەلایەن جیمەکەوە دیاری دەکرێن و پێش حجزکردن لە پەڕەی خزمەتەکەدا پیشان دەدرێن."
+        },
+        "ru-RU": {
+          "q": "Можно ли записаться на разовое занятие или к тренеру вместо абонемента?",
+          "a": "Да, если спортзал разместил это занятие, класс или тренера как услугу на LSevin. Откройте услугу и нажмите «Записаться»; дальше всё проходит так же, как при других бронированиях, от выбора времени до шага «Проверка и оплата». Что входит в занятие и сколько оно стоит, определяет спортзал; эти сведения указаны на странице услуги до бронирования."
+        },
+        "tg-TJ": {
+          "q": "Оё ба ҷои аъзогӣ як машғулият ё мураббиро брон карда метавонам?",
+          "a": "Бале, агар варзишгоҳ он машғулият, дарс ё мураббиро ҳамчун хидмат дар LSevin гузошта бошад. Хидматро кушоед ва «Ҳозир брон кунед»-ро пахш кунед; раванд ҳамон қадамҳои дигар бронҳоро дорад, аз интихоби вақт то «Санҷиш ва пардохт». Ба машғулият чӣ дохил мешавад ва нархи он чанд аст, варзишгоҳ муайян мекунад ва пеш аз брон дар саҳифаи хидмат нишон дода мешавад."
+        },
+        "zh-CN": {
+          "q": "可以只预约单次课程或教练，而不办会员吗？",
+          "a": "可以，前提是健身房已在LSevin上将该课程、团课或教练作为服务发布。打开该服务并点击“立即预约”，流程与其他预约相同，从选择时间到“核对与支付”。单次课程包含的内容和费用由健身房设定，并会在预约前显示在服务页面上。"
+        },
+        "de-DE": {
+          "q": "Kann ich statt einer Mitgliedschaft eine einzelne Trainingseinheit oder einen Trainer buchen?",
+          "a": "Ja, sofern das Studio diese Einheit, diesen Kurs oder diesen Trainer als Leistung auf LSevin anbietet. Öffnen Sie die Leistung und tippen Sie auf „Jetzt buchen“; es folgen dieselben Schritte wie bei anderen Buchungen, von der Wahl der Uhrzeit bis „Prüfen & Bezahlen“. Was eine Einheit umfasst und was sie kostet, legt das Studio fest; beides wird vor der Buchung auf der Leistungsseite angezeigt."
+        },
+        "fr-FR": {
+          "q": "Puis-je réserver une séance ou un coach plutôt qu’un abonnement ?",
+          "a": "Oui, si la salle propose cette séance, ce cours ou ce coach en tant que service sur LSevin. Ouvrez le service et touchez « Réserver » : la réservation suit les mêmes étapes que les autres, du choix de l’horaire jusqu’à « Vérification et paiement ». Le contenu et le prix d’une séance sont fixés par la salle et affichés sur la page du service avant la réservation."
+        },
+        "es-ES": {
+          "q": "¿Puedo reservar una sesión suelta o un entrenador en lugar de una membresía?",
+          "a": "Sí, si el gimnasio ofrece esa sesión, clase o entrenador como servicio en LSevin. Abra el servicio y toque «Reservar ahora»; el proceso sigue los mismos pasos que las demás reservas, desde elegir la hora hasta «Revisar y pagar». Lo que incluye una sesión y su precio los fija el gimnasio y se muestran en la página del servicio antes de reservar."
+        }
+      }
+    }
+  ]
+}

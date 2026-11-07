@@ -1,7 +1,7 @@
 -- Approved public URL slug mapping from the 2026-11-01 production-derived snapshot.
 -- Existing non-null slugs are preserved; a collision fails the migration.
 -- Google Search Central recommends descriptive, hyphen-separated URLs.
-begin;
+-- The migration runner applies this file in one transaction.
 update category.service_providers as target set slug = source.slug
 from (values
   ('001c1d83-1110-474a-b441-c017f83c9539'::uuid, 'tehran-suite'::text),
@@ -3631,9 +3631,8 @@ from (values
 where target.id = source.id and target.slug is null;
 update marketing.special_packages as target set slug = source.slug
 from (values
-  ('25bcf6e8-a8b0-4b13-ac0a-bff781aac060'::uuid, 'pkhyj-tlyy'::text),
-  ('25c4ce44-9c08-48c1-aa75-a400401c51fc'::uuid, 'pkhyj-nqrh-y'::text),
-  ('b8bf669b-a9b2-412e-8b0a-6a57a787fb88'::uuid, 'pkhyj-brnzy'::text)
+  ('25bcf6e8-a8b0-4b13-ac0a-bff781aac060'::uuid, 'golden-package'::text),
+  ('25c4ce44-9c08-48c1-aa75-a400401c51fc'::uuid, 'silver-package'::text),
+  ('b8bf669b-a9b2-412e-8b0a-6a57a787fb88'::uuid, 'bronze-package'::text)
 ) as source(id, slug)
 where target.id = source.id and target.slug is null;
-commit;

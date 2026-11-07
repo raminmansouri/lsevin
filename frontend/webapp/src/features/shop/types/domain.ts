@@ -55,6 +55,7 @@ export interface ProductCard {
   isBestSeller: boolean;
   isNewArrival: boolean;
   hasDiscount: boolean;
+  sellerCount?: number;
   hasStock: boolean;
   isPreorder: boolean;
   wishlistActive: boolean;
@@ -76,6 +77,24 @@ export interface ProductVariantView {
   selections: Record<string, string>;
 }
 
+
+export interface ProductOfferView {
+  id: UUID;
+  variantId: UUID | null;
+  sellerId: UUID;
+  sellerSlug: string;
+  sellerName: string;
+  sellerLogoUrl: string | null;
+  isDefaultSeller: boolean;
+  price: number;
+  compareAtPrice: number | null;
+  currency: string;
+  priceUnavailable: boolean;
+  inStock: boolean;
+  handlingDays: number | null;
+  warranty: string;
+}
+
 export interface ProductDetail extends ProductCard {
   description: string;
   requiresShipping: boolean;
@@ -95,10 +114,14 @@ export interface ProductDetail extends ProductCard {
   questions: Array<{ id: UUID; question: string; answer: string | null; createDate: string }>;
   reviews: Array<{ id: UUID; rating: number; title: string | null; body: string | null; createDate: string; customerName: string | null; isVerifiedPurchase: boolean; }>;
   relatedProducts: ProductCard[];
+  /** Live offers, every seller and variant; the page picks the winner per selected variant. */
+  offers: ProductOfferView[];
 }
 
 export interface CartItem {
   id: UUID; productId: UUID; variantId: UUID | null; slug: string; name: string; variantTitle: string | null; imageUrl: string | null;
+  /** The seller this line buys from (null for lines added before the marketplace). */
+  sellerName?: string | null;
   attributes: Record<string, string>; quantity: number;
   /** resolved display unit price + line total in `currency` */
   unitPrice: number; lineTotal: number; compareAtPrice: number | null; currency: string;

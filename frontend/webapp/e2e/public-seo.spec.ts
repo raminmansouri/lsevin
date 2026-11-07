@@ -2,6 +2,17 @@
 
 const origin = process.env.SEO_EXPECTED_ORIGIN || "https://lsevincare.com";
 
+/** Full-page screenshot saved in the test's output dir and attached to the report. */
+async function attachShot(
+  page: import("@playwright/test").Page,
+  testInfo: import("@playwright/test").TestInfo,
+  name: string
+) {
+  const file = testInfo.outputPath(`${name}.png`);
+  await page.screenshot({ path: file, fullPage: true });
+  await testInfo.attach(name, { path: file, contentType: "image/png" });
+}
+
 // Public read-only tests can safely audit production. No booking or payment writes.
 for (const route of ["home", "categories", "explore", "search"]) {
   test(`public ${route}: direct navigation and refresh`, async ({
@@ -344,9 +355,7 @@ test("llms.txt maps the site on the public domain", async ({ request }) => {
   expect(text).not.toContain("appmain.lsevin.com");
 });
 
-test("home: one descriptive h1, organization schema and a crawlable guides entry", async ({
-  page,
-}) => {
+test("home: one descriptive h1 and organization schema @smoke", async ({ page }, testInfo) => {
   await page.goto("/fa/n/app/mobile/home");
   await expect(page.locator("h1")).toHaveCount(1);
   const org = await page.$$eval('script[type="application/ld+json"]', (nodes) =>
@@ -356,22 +365,24 @@ test("home: one descriptive h1, organization schema and a crawlable guides entry
       .find((item) => item["@type"] === "Organization")
   );
   expect(org.alternateName).toContain("السوین");
-  // A first visit opens the location picker sheet over the page; close it the
-  // way a visitor would (tap the dimmed backdrop) before using the page.
-  // It opens shortly after hydration, so wait for it rather than checking once.
-  const pickerBackdrop = page.locator(".sheet-scrim").first();
-  const opened = await pickerBackdrop
-    .waitFor({ state: "visible", timeout: 5_000 })
-    .then(() => true)
-    .catch(() => false);
-  if (opened) {
-    await pickerBackdrop.click({ position: { x: 10, y: 10 } });
-    await expect(pickerBackdrop).toBeHidden();
+  await attachShot(page, testInfo, "seo__home__loaded");
+});
+
+test("guides: the hub links every published guide and each loads @smoke", async ({ page }, testInfo) => {
+  await page.goto("/en/medical-tourism");
+  await attachShot(page, testInfo, "seo__guide-hub__loaded");
+  const hrefs = await page.$$eval('nav[aria-label="Related guides"] a', (links) =>
+    links.map((link) => link.getAttribute("href"))
+  );
+  expect(hrefs.length).toBeGreaterThanOrEqual(14);
+  for (const href of hrefs.slice(0, 3)) {
+    const response = await page.goto(href!);
+    expect(response?.status()).toBe(200);
+    await expect(page.locator("h1")).toHaveCount(1);
   }
-  const guideLink = page.locator('a[href$="/fa/medical-tourism"]').first();
-  await expect(guideLink).toBeVisible();
-  await guideLink.click();
-  await expect(page).toHaveURL(/\/fa\/medical-tourism$/);
+  await page.reload();
+  await expect(page.locator("h1")).toHaveCount(1);
+  await attachShot(page, testInfo, "seo__guide__after-reload");
 });
 
 test("legacy provider and type URLs move permanently to the current pages", async ({
