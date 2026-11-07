@@ -1,6 +1,7 @@
 import "server-only";
 
 import sql from "@/config/database/db";
+import { toPublicPath } from "@/lib/routes/public-paths";
 import {
   AUTH_ONBOARDING_STEP_CONTENT_TYPE,
   AUTH_PAGE_CONTENT_TYPE,
@@ -121,7 +122,7 @@ function toAuthPageContent(
     mediaKind: row.media_kind,
     alt: pickTranslation(row.alt_translations, locale),
     buttonTitle: pickTranslation(row.button_title_translations, locale),
-    buttonUrl: row.button_url,
+    buttonUrl: row.button_url ? toPublicPath(row.button_url) : row.button_url,
     openInNewTab: row.open_in_new_tab,
     style: row.style || {},
     metadata: row.metadata || {},
