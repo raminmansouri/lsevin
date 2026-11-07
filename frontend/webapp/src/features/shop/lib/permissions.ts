@@ -23,6 +23,8 @@ export const SHOP_PERMISSIONS = {
   paymentsView: "shop.payments.view",
   refundsManage: "shop.refunds.manage",
   pricingManage: "shop.pricing.manage",
+  /** Issue and revoke API tokens for client websites (sellers). */
+  integrationsManage: "shop.integrations.manage",
 } as const;
 
 export type ShopPermission = (typeof SHOP_PERMISSIONS)[keyof typeof SHOP_PERMISSIONS];
@@ -39,6 +41,7 @@ const PERMISSION_ROLES: Record<ShopPermission, string[]> = {
   "shop.payments.view": FINANCE_OR_ACCOUNTANT,
   "shop.refunds.manage": FINANCE,
   "shop.pricing.manage": [...ADMIN, UserRole.FinanceAdmin],
+  "shop.integrations.manage": ADMIN,
 };
 
 export type ShopAdminActor = { userId?: string; roles: string[] };
