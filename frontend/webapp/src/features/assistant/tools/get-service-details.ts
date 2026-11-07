@@ -58,7 +58,7 @@ export async function getServiceDetails(input: GetServiceDetailsInput, storedLoc
     `.catch((): { slug: string | null }[] => []),
     doctors.length
       ? sql<{ id: string; slug: string | null }[]>`
-          select id::text as id, slug from category.staff where id = any(${doctors.map((doctor) => doctor.staffId)})
+          select id::text as id, slug from category.staff where id = any(${doctors.map((doctor) => doctor.staffId)}::uuid[])
         `.catch((): { id: string; slug: string | null }[] => [])
       : Promise.resolve([] as { id: string; slug: string | null }[]),
   ]);
