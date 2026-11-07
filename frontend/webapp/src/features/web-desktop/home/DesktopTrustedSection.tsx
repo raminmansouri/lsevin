@@ -7,6 +7,7 @@ import type { HomeTrustedProvider } from "@/features/home/api/server/get-home-pa
 import { HomeLexicalDescription } from "@/features/home/components/home-lexical-description";
 import { resolveHomeMediaUrl } from "@/features/home/components/home-media";
 import { Link } from "@/i18n/navigation";
+import { entityPath } from "@/lib/routes/public-paths";
 
 import { Reveal } from "../components/motion";
 
@@ -24,7 +25,7 @@ export async function DesktopTrustedSection({ locale, providers }: { locale: str
           <p className="mt-6 max-w-xl text-lg text-[#56675f]">{t("trusted.subtitle")}</p>
         </div>
         <Link
-          href="/n/app/mobile/providers"
+          href="/providers"
           className="group inline-flex shrink-0 items-center gap-2 text-[15px] font-bold text-[#083f30] transition hover:text-[#8c6b2c]"
         >
           {t("common.seeAll")}
@@ -35,7 +36,7 @@ export async function DesktopTrustedSection({ locale, providers }: { locale: str
       <div className="grid grid-cols-4 gap-7">
         {providers.map((provider, index) => {
           const image = resolveHomeMediaUrl(provider.imageUrl);
-          const href = `/n/app/mobile/provider/${provider.id}`;
+          const href = entityPath("provider", provider);
           return (
             <Reveal key={provider.id} delay={index * 90} className="h-[440px]">
               <div className="lsd-flip h-full">

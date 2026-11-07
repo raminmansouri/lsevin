@@ -10,8 +10,8 @@
  * to the map.
  */
 
-const CATEGORY_BROWSER_PATH = "/n/app/mobile/categories";
-const PROVIDER_LIST_PATH = "/n/app/mobile/map-discovery";
+const CATEGORY_BROWSER_PATH = "/categories";
+const PROVIDER_LIST_PATH = "/map";
 
 /** The category browser, opened on a node's subcategories rather than at the root. */
 export function categoryBrowserHref(categoryId: string) {

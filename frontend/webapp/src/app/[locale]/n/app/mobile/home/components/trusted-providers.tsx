@@ -9,6 +9,7 @@ import type { HomeTrustedProvider } from '@/features/home/api/server/get-home-pa
 import { resolveHomeMediaUrl } from '@/features/home/components/home-media';
 import { HomeLexicalDescription } from '@/features/home/components/home-lexical-description';
 import { Link } from '@/i18n/navigation';
+import { entityPath } from '@/lib/routes/public-paths';
 
 // 'rail' is the horizontal home carousel (fixed-width cards); 'grid' is the
 // full listing page, where cards stretch to the column and share one height.
@@ -75,7 +76,7 @@ function TrustedProviderCard({
 
   return (
     <Link
-      href={`/n/app/mobile/provider/${provider.id}`}
+      href={entityPath('provider', provider)}
       className={`cursor-pointer rounded-2xl border border-gray-100 bg-white p-4 shadow-md transition-all hover:shadow-xl active:scale-[0.98] ${
         isGrid ? 'flex h-full w-full flex-col' : 'w-44 flex-none'
       }`}

@@ -23,8 +23,8 @@ export function DesktopHeader({ actions }: { actions?: React.ReactNode }) {
   // Same destinations as the mobile bottom tab bar; Profile is the gold button on the left.
   const nav = [
     { href: HOME, label: tTab("Home") },
-    { href: "/n/app/mobile/explore", label: tTab("Explore") },
-    { href: "/n/app/mobile/shop", label: tTab("Shop") },
+    { href: "/explore", label: tTab("Explore") },
+    { href: "/shop", label: tTab("Shop") },
     { href: "/n/app/mobile/bookings", label: tTab("Bookings") },
   ];
 

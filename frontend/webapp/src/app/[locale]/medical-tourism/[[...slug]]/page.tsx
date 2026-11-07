@@ -303,7 +303,7 @@ export default async function GuidePage({ params }: PageProps) {
             <h2 className="mb-3 font-bold text-neutral-900">{labels.explore}</h2>
             <ul className="space-y-2">
               <li>
-                <Link href="/n/app/mobile/categories" className="text-[#083f30] hover:underline">
+                <Link href="/categories" className="text-[#083f30] hover:underline">
                   {labels.categories}
                 </Link>
               </li>

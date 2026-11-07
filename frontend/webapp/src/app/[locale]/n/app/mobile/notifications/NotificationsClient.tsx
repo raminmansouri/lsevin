@@ -42,12 +42,12 @@ function hrefForNotification(item: NotificationItem): string {
         : "/n/app/mobile/bookings";
     case "offer":
       if (item.entityType === "service" && item.entityId) {
-        return `/n/app/mobile/service/${item.entityId}`;
+        return `/services/${item.entityId}`;
       }
       if (item.entityType === "provider" && item.entityId) {
-        return `/n/app/mobile/provider/${item.entityId}`;
+        return `/providers/${item.entityId}`;
       }
-      return "/n/app/mobile/offers";
+      return "/offers";
     case "system":
       return item.entityType === "bug_report" && item.entityId
         ? `/n/app/mobile/bug-reports/${item.entityId}`

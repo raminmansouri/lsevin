@@ -574,7 +574,7 @@ export async function getSearchResults(params?: {
           pt.name_translations AS tag_2_translations,
           sp.is_sponsored AS is_sponsored,
           sp.sponsored_tag AS sponsored_tag,
-          CONCAT('/n/app/mobile/service/', ps.id::text) AS href,
+          CONCAT('/services/', coalesce(ps.slug, ps.id::text)) AS href,
           (
             CASE WHEN params.q IS NULL THEN 0 ELSE
               ts_rank_cd(
@@ -641,7 +641,7 @@ export async function getSearchResults(params?: {
           NULL::jsonb AS tag_2_translations,
           sp.is_sponsored AS is_sponsored,
           sp.sponsored_tag AS sponsored_tag,
-          CONCAT('/n/app/mobile/provider/', sp.id::text) AS href,
+          CONCAT('/providers/', coalesce(sp.slug, sp.id::text)) AS href,
           (
             CASE WHEN params.q IS NULL THEN 0 ELSE
               ts_rank_cd(
@@ -707,7 +707,7 @@ export async function getSearchResults(params?: {
           sp.name_translations AS tag_2_translations,
           false AS is_sponsored,
           NULL::text AS sponsored_tag,
-          CONCAT('/n/app/mobile/specialist/', staff.id::text) AS href,
+          CONCAT('/specialists/', coalesce(staff.slug, staff.id::text)) AS href,
           (COALESCE(staff.rating, 0)::float8 / 10) AS rank_score
         FROM category.staff staff
         JOIN category.provider_staffs psf ON psf.staff_id = staff.id AND psf.is_active = true

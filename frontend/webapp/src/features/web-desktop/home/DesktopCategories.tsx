@@ -21,7 +21,7 @@ export async function DesktopCategories({ locale, categories }: { locale: string
       <Reveal className="mb-14 flex items-end justify-between gap-8">
         <h2 className="lsd-heading text-5xl font-black text-[#0e1a16]">{t("categories.title")}</h2>
         <Link
-          href="/n/app/mobile/categories"
+          href="/categories"
           className="group inline-flex items-center gap-2 text-[15px] font-bold text-[#083f30] transition hover:text-[#8c6b2c]"
         >
           {t("common.seeAll")}

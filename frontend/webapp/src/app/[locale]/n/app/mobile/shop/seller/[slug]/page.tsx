@@ -47,7 +47,7 @@ export default async function ShopSellerPage({
         searchDefault=""
         currency={currency}
         selectableCurrencies={selectable.map((s) => ({ code: s.code, symbol: s.symbol, name: s.name }))}
-        back="/n/app/mobile/shop"
+        back="/shop"
       />
 
       {/* Mobile header: one slim deep-green card */}

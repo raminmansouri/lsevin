@@ -285,7 +285,7 @@ export function DesktopRewardsView({ data }: { data: RewardsPageData }) {
                             ) : null}
                           </div>
                           <Link
-                            href={coupon.providerServiceId ? `/n/app/mobile/booking?serviceId=${encodeURIComponent(coupon.providerServiceId)}` : "/n/app/mobile/explore"}
+                            href={coupon.providerServiceId ? `/n/app/mobile/booking?serviceId=${encodeURIComponent(coupon.providerServiceId)}` : "/explore"}
                             className="mt-auto inline-flex w-fit items-center gap-2 pt-4 text-sm font-bold text-[#eacb7f] transition hover:text-white"
                           >
                             {t("actions.useCoupon")}

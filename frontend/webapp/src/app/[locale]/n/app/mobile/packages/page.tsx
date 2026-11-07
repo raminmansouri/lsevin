@@ -5,6 +5,7 @@ import { ReserveButton } from './reserve-button';
 
 import { ImageWithFallback } from '@/components/ui/image-with-fallback';
 import { Link } from '@/i18n/navigation';
+import { entityPath } from '@/lib/routes/public-paths';
 import type { PageProps } from '@/types/next';
 import { resolveHomeMediaUrl } from '@/features/home/components/home-media';
 import { SafePriceText } from '@/features/home/components/safe-price-text';
@@ -113,7 +114,7 @@ function SpecialPackageCard({
 
   return (
     <div className="group relative flex flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all hover:shadow-md active:scale-[0.99]">
-      <Link href={`/packages/${pkg.slug ?? pkg.id}`} aria-label={pkg.title} className="absolute inset-0 z-[1]" />
+      <Link href={entityPath('package', pkg)} aria-label={pkg.title} className="absolute inset-0 z-[1]" />
       <div className="relative h-40 w-full overflow-hidden bg-gray-100">
         {mediaUrl ? (
           <ImageWithFallback

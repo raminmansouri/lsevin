@@ -27,10 +27,10 @@ export function DesktopFooter({ pages = [] }: { pages?: FooterPageLink[] }) {
     {
       title: t("columns.explore.title"),
       links: [
-        { href: "/n/app/mobile/categories", label: t("columns.explore.links.categories") },
-        { href: "/n/app/mobile/map-discovery", label: t("columns.explore.links.map") },
-        { href: "/n/app/mobile/packages", label: t("columns.explore.links.packages") },
-        { href: "/n/app/mobile/providers", label: t("columns.explore.links.providers") },
+        { href: "/categories", label: t("columns.explore.links.categories") },
+        { href: "/map", label: t("columns.explore.links.map") },
+        { href: "/packages", label: t("columns.explore.links.packages") },
+        { href: "/providers", label: t("columns.explore.links.providers") },
       ],
     },
     {

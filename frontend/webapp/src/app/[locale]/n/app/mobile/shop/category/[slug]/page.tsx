@@ -61,7 +61,7 @@ export default async function ShopCategoryPage({
 
   return (
     <div className="min-h-screen bg-neutral-50">
-      <ShopHeader back="/n/app/mobile/shop" />
+      <ShopHeader back="/shop" />
       <ShopViewTracker categoryId={category.id} surface="category" />
       {category.bannerUrl ? (
         // eslint-disable-next-line @next/next/no-img-element
@@ -70,7 +70,7 @@ export default async function ShopCategoryPage({
       <Suspense fallback={null}>
         <ProductListViewClient
           locale={locale}
-          basePath={`/n/app/mobile/shop/category/${slug}`}
+          basePath={`/shop/${slug}`}
           fixed={{ category: slug }}
           heading={category.name}
           brands={brands}

@@ -206,7 +206,7 @@ export function DesktopNearbyView({ locale, categories, providers, filters, mapC
             </div>
 
             {hasCustomFilters ? (
-              <Link href="/n/app/mobile/map-discovery" className="inline-block text-sm font-semibold text-[#8c6b2c] hover:text-[#083f30]">
+              <Link href="/map" className="inline-block text-sm font-semibold text-[#8c6b2c] hover:text-[#083f30]">
                 {t("clearAll")}
               </Link>
             ) : null}
@@ -231,7 +231,7 @@ export function DesktopNearbyView({ locale, categories, providers, filters, mapC
                         selected ? "shadow-[0_20px_40px_-25px_rgba(6,42,32,0.6)] ring-2 ring-[#c9a55a]" : "ring-1 ring-[#dce4e0] hover:ring-[#c9a55a]/60"
                       }`}
                     >
-                      <Link href={providerHref(provider.id)} className="absolute inset-0 z-0 rounded-[24px]" aria-label={provider.name} />
+                      <Link href={providerHref(provider)} className="absolute inset-0 z-0 rounded-[24px]" aria-label={provider.name} />
                       <div className="relative h-28 w-28 shrink-0 overflow-hidden rounded-2xl bg-[#0f5a45]">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img src={mediaUrl(provider.image)} alt="" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110" />

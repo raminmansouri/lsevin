@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
+import { entityPath, toPublicPath } from "@/lib/routes/public-paths";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
@@ -71,10 +72,10 @@ type OptimisticUiFilters = {
 };
 
 const MOBILE_BASE_PATH = "/n/app/mobile";
-const EXPLORE_PATH = `${MOBILE_BASE_PATH}/explore`;
+const EXPLORE_PATH = "/explore";
 
 export function buildMobilePath(path: string) {
-  return `${MOBILE_BASE_PATH}${path.startsWith("/") ? path : `/${path}`}`;
+  return toPublicPath(`${MOBILE_BASE_PATH}${path.startsWith("/") ? path : `/${path}`}`);
 }
 
 function buildFilteredMobilePath(path: string, next: ExploreFiltersInput) {
@@ -98,7 +99,7 @@ function buildFilteredMobilePath(path: string, next: ExploreFiltersInput) {
 
   const query = params.toString();
   const normalizedPath = path.startsWith("/") ? path : `/${path}`;
-  return query ? `${MOBILE_BASE_PATH}${normalizedPath}?${query}` : `${MOBILE_BASE_PATH}${normalizedPath}`;
+  return toPublicPath(query ? `${MOBILE_BASE_PATH}${normalizedPath}?${query}` : `${MOBILE_BASE_PATH}${normalizedPath}`);
 }
 
 export function buildExploreQuery(next: ExploreFiltersInput) {
@@ -668,7 +669,7 @@ export default function ExploreClient({
             return (
             <div
               key={`featured-provider-${provider.id}`}
-              onClick={() => router.push(buildMobilePath(`/provider/${provider.id}`))}
+              onClick={() => router.push(entityPath("provider", provider))}
               className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-lg transition-all cursor-pointer"
             >
               
@@ -776,7 +777,7 @@ export default function ExploreClient({
               />
               <div className="flex items-center gap-3">
                 <button
-                  onClick={() => router.push(buildMobilePath(`/provider/${sponsoredProviders[0].id}`))}
+                  onClick={() => router.push(entityPath("provider", sponsoredProviders[0]))}
                   className="bg-white text-purple-900 px-6 py-3 rounded-xl font-bold text-sm hover:bg-gray-100 transition-all shadow-lg"
                 >
                   {t("actions.learnMore")}
@@ -813,7 +814,7 @@ export default function ExploreClient({
             return (
             <div
               key={`trending-service-${service.id}`}
-              onClick={() => router.push(buildMobilePath(`/service/${service.id}`))}
+              onClick={() => router.push(entityPath("service", service))}
               className="flex-none w-64 bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all cursor-pointer border border-gray-100"
             >
               

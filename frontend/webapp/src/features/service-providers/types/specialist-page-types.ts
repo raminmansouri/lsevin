@@ -95,6 +95,8 @@ export interface SpecialistMoney {
 
 export interface SpecialistProvider {
   id: string;
+  /** Public URL segment; null for rows that predate slugs. */
+  slug?: string | null;
   providerStaffId: string;
   name: string;
   description: string;
@@ -112,9 +114,12 @@ export interface SpecialistProvider {
 
 export interface SpecialistService {
   id: string;
+  /** Public URL segment; null for rows that predate slugs. */
+  slug?: string | null;
   providerServiceId: string;
   serviceDefinitionId: string;
   providerId: string;
+  providerSlug?: string | null;
   providerName: string;
   name: string;
   description: string;

@@ -66,6 +66,7 @@ export type ProviderReviewReplyInput = {
 
 type ProviderRow = {
   id: string;
+  slug: string | null;
   name: string;
   avatar: string | null;
   providerType: string | null;
@@ -103,6 +104,7 @@ type ProviderRow = {
 
 type ServiceRow = {
   id: string;
+  slug: string | null;
   name: string;
   description: string | null;
   price: number | string | null;
@@ -376,6 +378,7 @@ export async function getProviderPageDataFromDb(
     const providerRows = await sql<ProviderRow[]>`
       select
         sp.id::text,
+        sp.slug,
         common.get_translation_t(sp.name_translations, ${locale}, 'en-US') as name,
         nullif(common.get_translation_t(pt.name_translations, ${locale}, 'en-US'), '') as "providerType",
         common.get_translation_t(sp.description_translations, ${locale}, 'en-US') as tagline,
@@ -522,6 +525,7 @@ export async function getProviderPageDataFromDb(
     return ok({
       provider: {
         id: row.id,
+        slug: row.slug,
         name: row.name,
         providerType: row.providerType,
         tagline: row.tagline,
@@ -563,6 +567,7 @@ export async function getProviderPageDataFromDb(
       services,
       specialists: specialistRows.map((specialist: any) => ({
         id: specialist.id,
+        slug: specialist.slug ?? null,
         name: specialist.name,
         specialty: specialist.specialty || "Specialist",
         experience: specialist.experienceYears
@@ -611,6 +616,7 @@ async function mapService(
 
   return {
     id: service.id,
+    slug: service.slug,
     name: service.name,
     description: service.description,
     price: tomanOverride.value,
@@ -638,6 +644,7 @@ async function getServiceRows(
   return sql<ServiceRow[]>`
     select
       ps.id::text,
+      ps.slug,
       coalesce(nullif(common.get_translation_t(ps.display_name_translations, ${locale}, 'en-US'), ''), common.get_translation_t(sd.name_translations, ${locale}, 'en-US')) as name,
       coalesce(
         nullif(common.get_translation_t(ps.description_translations, ${locale}, 'en-US'), ''),
@@ -763,6 +770,7 @@ async function getSpecialistRows(locale: string, providerId: string) {
   return sql<any[]>`
     select
       s.id::text,
+      s.slug,
       common.get_translation_t(s.name_translations, ${locale}, 'en-US') as name,
       coalesce(
         nullif(common.get_translation_t(coalesce(s.specialty_translations, '{}'::jsonb), ${locale}, 'en-US'), ''),
@@ -1054,7 +1062,7 @@ async function getRecommendationRows(
       sp.city,
       sp.country,
       coalesce(sp.accredited, false) as verified,
-      concat('/n/app/mobile/provider/', sp.id::text) as link,
+      concat('/providers/', coalesce(sp.slug, sp.id::text)) as link,
       min_service.price::float8 as "priceFrom",
       min_service.currency,
       min_service.value_toman as "valueToman"

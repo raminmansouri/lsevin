@@ -3,6 +3,7 @@ import "server-only";
 import { z } from "zod";
 
 import sql from "@/config/database/db";
+import { entityPath } from "@/lib/routes/public-paths";
 
 import type { AssistantServiceResult } from "../types";
 
@@ -25,6 +26,7 @@ export type GetTransferOptionsInput = z.infer<typeof getTransferOptionsInputSche
 
 type TransferRow = {
   providerServiceId: string;
+  providerServiceSlug: string | null;
   fromText: string | null;
   toText: string | null;
   vehicleType: string | null;
@@ -51,6 +53,7 @@ export async function getTransferOptions(
   const rows = await sql<TransferRow[]>`
     select
       r.provider_service_id::text as "providerServiceId",
+      ps.slug as "providerServiceSlug",
       common.get_translation_t(r.from_translations, ${storedLocale}, 'en-US') as "fromText",
       common.get_translation_t(r.to_translations, ${storedLocale}, 'en-US') as "toText",
       r.vehicle_type as "vehicleType",
@@ -84,7 +87,7 @@ export async function getTransferOptions(
     price: Number(row.price ?? 0),
     currency: row.currency ?? "IRR",
     image: row.image ?? "",
-    href: `/n/app/mobile/service/${row.providerServiceId}`,
+    href: entityPath("service", { slug: row.providerServiceSlug, id: row.providerServiceId }),
   }));
 
   return { count: results.length, results };

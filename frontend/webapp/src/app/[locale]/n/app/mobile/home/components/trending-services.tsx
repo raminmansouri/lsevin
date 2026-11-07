@@ -7,6 +7,7 @@ import { ImageWithFallback } from '@/components/ui/image-with-fallback';
 import type { HomeTrendingService } from '@/features/home/api/server/get-home-page';
 import { resolveHomeMediaUrl } from '@/features/home/components/home-media';
 import { Link } from '@/i18n/navigation';
+import { entityPath } from '@/lib/routes/public-paths';
 
 export type HomeTrendingServiceLabels = {
   emptyTitle: string;
@@ -57,7 +58,7 @@ function TrendingServiceCard({ service, labels }: { service: HomeTrendingService
 
   return (
     <Link
-      href={`/n/app/mobile/service/${service.id}`}
+      href={entityPath('service', service)}
       className="flex-none w-40 cursor-pointer overflow-hidden rounded-2xl bg-gray-100 shadow-md transition-all hover:shadow-xl active:scale-[0.98]"
     >
       <div className="relative aspect-square">

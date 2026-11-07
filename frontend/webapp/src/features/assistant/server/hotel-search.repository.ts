@@ -2,6 +2,7 @@ import "server-only";
 
 import sql from "@/config/database/db";
 import { resolveDisplayPrice } from "@/features/finance/lib/server/toman-price";
+import { entityPath } from "@/lib/routes/public-paths";
 
 import type { SearchHotelsToolOutput } from "../types";
 import { toCitySlug } from "./assistant-search.repository";
@@ -11,6 +12,7 @@ const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 
 type HotelRow = {
   id: string;
+  slug: string | null;
   hotel: string | null;
   room: string | null;
   location: string;
@@ -92,6 +94,7 @@ export async function searchAssistantHotels(input: {
     )
     SELECT
       ps.id::text AS id,
+      ps.slug,
       common.get_translation_t(sp.name_translations, ${input.locale}::text, 'en-US') AS hotel,
       COALESCE(
         NULLIF(common.get_translation_t(ps.display_name_translations, ${input.locale}::text, 'en-US'), ''),
@@ -153,7 +156,7 @@ export async function searchAssistantHotels(input: {
         price: price.value,
         currency: price.currency,
         image: row.image || "",
-        href: `/n/app/mobile/service/${row.id}`,
+        href: entityPath("service", row),
       };
     }),
   };

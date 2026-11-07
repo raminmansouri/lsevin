@@ -4,6 +4,7 @@ export type FavoritesTabId = "all" | "clinic" | "doctor" | "salon" | "gym";
 export interface FavoriteCard {
   favoriteId: string;
   entityId: string;
+  entitySlug: string | null;
   favoriteType: FavoriteEntityType;
   tabId: Exclude<FavoritesTabId, "all">;
   name: string;

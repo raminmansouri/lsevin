@@ -27,7 +27,7 @@ export function DesktopProductCard({
   const dark = tone === "dark";
   return (
     <div className="group relative">
-      <Link href={`/n/app/mobile/shop/product/${product.slug}`} className="block">
+      <Link href={`/products/${product.slug}`} className="block">
         <div
           className={`relative aspect-square overflow-hidden rounded-[20px] ring-1 transition duration-500 group-hover:shadow-[0_22px_40px_-24px_rgba(0,0,0,0.7)] group-hover:ring-[#c9a55a] ${
             dark ? "bg-white/[0.04] ring-white/10" : "bg-gradient-to-b from-white to-[#efe6d2] ring-[#e7dcc4]"

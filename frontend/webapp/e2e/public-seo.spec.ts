@@ -406,3 +406,53 @@ test("legacy provider and type URLs move permanently to the current pages", asyn
     /\/en\/specialties\/[a-z0-9-]+$/
   );
 });
+
+// docs/seo/lsevin-url-tasks.md T9/T11: every old public address reaches its new
+// one in a single permanent redirect, the new address answers 200 itself, and
+// private screens keep their paths.
+test("old public URLs move in one permanent redirect; private ones stay", async ({
+  request,
+}) => {
+  const moves: [string, RegExp][] = [
+    ["/fa/n/app/mobile/explore", /^\/fa\/explore$/],
+    ["/n/app/mobile/explore", /^\/fa\/explore$/],
+    ["/fa/n/app/mobile/categories", /^\/fa\/categories$/],
+    ["/fa/n/app/mobile/map-discovery", /^\/fa\/map$/],
+    ["/fa/n/app/mobile/shop", /^\/fa\/shop$/],
+    ["/fa/n/app/mobile/packages", /^\/fa\/packages$/],
+    ["/fa/n/app/mobile/providers", /^\/fa\/providers$/],
+    ["/en/n/app/mobile/offers", /^\/en\/offers$/],
+    ["/fa/n/app/mobile/featured", /^\/fa\/featured$/],
+  ];
+  for (const [from, to] of moves) {
+    const response = await request.get(from, { maxRedirects: 0 });
+    expect([301, 308], from).toContain(response.status());
+    const target = new URL(response.headers()["location"], "http://x");
+    expect(target.pathname, from).toMatch(to);
+    const landed = await request.get(target.pathname, { maxRedirects: 0 });
+    expect(landed.status(), target.pathname).toBe(200);
+  }
+
+  for (const [kind, id] of [
+    ["provider", process.env.SEO_E2E_PROVIDER_ID || "30000000-0000-4000-8000-000000000001"],
+    ["service", process.env.SEO_E2E_SERVICE_ID || "50000000-0000-4000-8000-000000000001"],
+    ["specialist", process.env.SEO_E2E_STAFF_ID || "60000000-0000-4000-8000-000000000001"],
+  ]) {
+    for (const from of [`/fa/n/app/mobile/${kind}/${id}`, `/fa/${kind}s/${id}`]) {
+      const response = await request.get(from, { maxRedirects: 0 });
+      expect([301, 308], from).toContain(response.status());
+      const target = new URL(response.headers()["location"], "http://x").pathname;
+      expect(target, from).toMatch(new RegExp(`^/fa/${kind}s/[a-z0-9-]+$`));
+      expect(target, from).not.toContain(id);
+      const landed = await request.get(target, { maxRedirects: 0 });
+      expect(landed.status(), target).toBe(200);
+    }
+  }
+
+  for (const path of ["/fa/n/app/mobile/shop/cart", "/fa/n/app/mobile/profile", "/fa/n/app/mobile/home"]) {
+    const response = await request.get(path, { maxRedirects: 0 });
+    const location = response.headers()["location"];
+    const target = location ? new URL(location, "http://x").pathname : path;
+    expect(target, path).not.toMatch(/^\/fa\/(shop|explore|providers)(\/|$)/);
+  }
+});

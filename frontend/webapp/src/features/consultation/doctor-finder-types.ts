@@ -23,6 +23,7 @@ export type DoctorFinderGroup = {
 
 export type DoctorFinderDoctor = {
   id: string;
+  slug: string | null;
   name: string;
   title: string | null;
   specialty: string | null;

@@ -44,7 +44,7 @@ export async function GET() {
     `- [Home (Persian)](${absoluteUrl("fa", "/n/app/mobile/home")})`,
     `- [Home (English)](${absoluteUrl("en", "/n/app/mobile/home")})`,
     `- [Home (Arabic)](${absoluteUrl("ar", "/n/app/mobile/home")})`,
-    `- [Treatment categories](${absoluteUrl("en", "/n/app/mobile/categories")})`,
+    `- [Treatment categories](${absoluteUrl("en", "/categories")})`,
     `- [Free consultation request](${absoluteUrl("en", "/consulting")})`,
     `- [Health tours](${absoluteUrl("en", "/tours")})`,
     "",

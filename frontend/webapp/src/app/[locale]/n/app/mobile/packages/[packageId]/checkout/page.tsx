@@ -108,7 +108,7 @@ export default function PackageCheckoutPage() {
         <div className="min-h-screen bg-white pb-24">
             <div className="sticky top-0 z-40 flex items-center gap-3 border-b border-gray-100 bg-white px-5 pb-4 pt-3">
                 <Link
-                    href={`/n/app/mobile/packages/${packageId}`}
+                    href={`/packages/${packageId}`}
                     className="flex h-10 w-10 items-center justify-center rounded-full transition-colors hover:bg-gray-100"
                 >
                     <ChevronLeft size={24} className="text-gray-700 rtl:rotate-180" />
@@ -128,7 +128,7 @@ export default function PackageCheckoutPage() {
                     <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-6 text-center">
                         <p className="text-sm text-red-700">{error}</p>
                         <Link
-                            href={`/n/app/mobile/packages/${packageId}`}
+                            href={`/packages/${packageId}`}
                             className="mt-4 inline-block rounded-xl bg-[#083f30] px-5 py-2 text-sm font-semibold text-white"
                         >
                             بازگشت

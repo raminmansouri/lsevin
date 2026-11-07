@@ -1,6 +1,7 @@
 import 'server-only';
 
 import sql from '@/config/database/db';
+import { toPublicPath } from '@/lib/routes/public-paths';
 
 export type SponsoredSlide = {
   id: string;
@@ -106,7 +107,7 @@ export async function getSponsoredSlides(
 
   return rows.map((row) => ({
     id: row.id,
-    link: row.link,
+    link: row.link ? toPublicPath(row.link) : null,
     url: row.url,
     // Prefer the media_library row's actual type (source of truth) over the slide's
     // separately-managed media_type_id, which can be stale after swapping the media.

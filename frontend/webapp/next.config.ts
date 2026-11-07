@@ -163,14 +163,21 @@ const nextConfig: NextConfig = {
   // intl middleware only adds the prefix on a plain page request.
   async redirects() {
     const localePattern = routing.locales.join("|");
+    // Public pages that moved off /n/app/mobile (docs/seo/lsevin-url-tasks.md).
+    // Pages without an id move by config; entity pages (provider, service,
+    // specialist, package, type) redirect in their old route, which looks up
+    // the slug so a UUID link reaches the final URL in one response.
     const publicMoves = [
       ['explore', 'explore'],
       ['categories', 'categories'],
       ['offers', 'offers'],
       ['featured', 'featured'],
       ['packages', 'packages'],
+      ['providers', 'providers'],
       ['shop', 'shop'],
       ['map-discovery', 'map'],
+      ['shop/category/:slug', 'shop/:slug'],
+      ['shop/product/:slug', 'products/:slug'],
     ] as const;
     return [
       // The locale root is not a real page: it forwards to the mobile home. Doing
@@ -194,23 +201,20 @@ const nextConfig: NextConfig = {
         destination: "/:locale/n/app/mobile/home",
         permanent: false,
       },
-      // Entity redirects resolve the database slug in their legacy page so each
-      // UUID reaches its final public URL in a single response.
-      ...publicMoves.map(([oldPath, newPath]) => ({
-        source: `/:locale(${localePattern})/n/app/mobile/${oldPath}`,
-        destination: `/:locale/${newPath}`,
-        permanent: true,
-      })),
-      {
-        source: `/:locale(${localePattern})/n/app/mobile/shop/category/:slug`,
-        destination: '/:locale/shop/:slug',
-        permanent: true,
-      },
-      {
-        source: `/:locale(${localePattern})/n/app/mobile/shop/product/:slug`,
-        destination: '/:locale/products/:slug',
-        permanent: true,
-      },
+      ...publicMoves.flatMap(([oldPath, newPath]) => [
+        {
+          source: `/:locale(${localePattern})/n/app/mobile/${oldPath}`,
+          destination: `/:locale/${newPath}`,
+          permanent: true,
+        },
+        // Without a locale: straight to the default-locale page, not via the
+        // middleware's locale redirect (no chain).
+        {
+          source: `/n/app/mobile/${oldPath}`,
+          destination: `/${routing.defaultLocale}/${newPath}`,
+          permanent: true,
+        },
+      ]),
       {
         source: "/admin/sponsered-slider/:path*",
         destination: "/admin/sponsored-slider/:path*",
@@ -226,52 +230,24 @@ const nextConfig: NextConfig = {
 
   async rewrites() {
     const localePattern = routing.locales.join("|");
+    // The new public paths of pages that still live under /n/app/mobile. Entity
+    // pages (providers, services, specialists, packages, specialties) are real
+    // routes in app/[locale]/(site) and need no rewrite.
     const seoRewrites = [
       ['explore', 'explore'],
       ['categories', 'categories'],
       ['offers', 'offers'],
       ['featured', 'featured'],
       ['packages', 'packages'],
+      ['providers', 'providers'],
       ['shop', 'shop'],
       ['map', 'map-discovery'],
+      ['shop/:slug', 'shop/category/:slug'],
+      ['products/:slug', 'shop/product/:slug'],
     ].map(([newPath, oldPath]) => ({
       source: `/:locale(${localePattern})/${newPath}`,
       destination: `/:locale/n/app/mobile/${oldPath}`,
     }));
-    seoRewrites.push(
-      {
-        source: `/:locale(${localePattern})/providers/:id`,
-        destination: '/:locale/n/app/mobile/provider/:id',
-      },
-      {
-        source: `/:locale(${localePattern})/services/:id/gallery`,
-        destination: '/:locale/n/app/mobile/service/:id/gallery',
-      },
-      {
-        source: `/:locale(${localePattern})/services/:id`,
-        destination: '/:locale/n/app/mobile/service/:id',
-      },
-      {
-        source: `/:locale(${localePattern})/specialists/:id`,
-        destination: '/:locale/n/app/mobile/specialist/:id',
-      },
-      {
-        source: `/:locale(${localePattern})/specialties/:id`,
-        destination: '/:locale/type/:id',
-      },
-      {
-        source: `/:locale(${localePattern})/packages/:packageId`,
-        destination: '/:locale/n/app/mobile/packages/:packageId',
-      },
-      {
-        source: `/:locale(${localePattern})/shop/:slug`,
-        destination: '/:locale/n/app/mobile/shop/category/:slug',
-      },
-      {
-        source: `/:locale(${localePattern})/products/:slug`,
-        destination: '/:locale/n/app/mobile/shop/product/:slug',
-      },
-    );
 
     // Only use Next rewrites locally (or whenever you explicitly set BOOKING_ORIGIN)
     // In production behind Caddy, leave BOOKING_ORIGIN empty and rewrites will be disabled.

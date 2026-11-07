@@ -39,7 +39,7 @@ export async function DesktopNearbySection({
   const count = nearbyProviderCount.toLocaleString(locale);
   const subtitle =
     formatHomeSectionText(section.subtitle, { count, scope }) || t("exploreNearby.subtitle", { count, scope });
-  const href = section.buttonHref || "/n/app/mobile/map-discovery";
+  const href = section.buttonHref || "/map";
 
   return (
     <section className="lsd-container py-12">

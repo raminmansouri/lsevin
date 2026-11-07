@@ -44,9 +44,10 @@ import type {
   SpecialistService,
 } from "@/features/service-providers/types/specialist-page-types";
 import { useNavigate } from "@/hooks/use-navigate";
-import ReviewForm, { type ReviewFormSubmitValue } from "../../../components/ReviewForm";
-import { DigikalaReviewCard } from "../../../components/DigikalaReviewCard";
-import { useReviewEligibility } from "../../../components/useReviewEligibility";
+import { entityPath } from "@/lib/routes/public-paths";
+import ReviewForm, { type ReviewFormSubmitValue } from "@/app/[locale]/n/app/components/ReviewForm";
+import { DigikalaReviewCard } from "@/app/[locale]/n/app/components/DigikalaReviewCard";
+import { useReviewEligibility } from "@/app/[locale]/n/app/components/useReviewEligibility";
 
 type ReviewSort = "newest" | "buyers" | "helpful";
 
@@ -295,7 +296,7 @@ function ProvidersSection({ providers, navigate }: { providers: SpecialistProvid
         <button
           key={provider.providerStaffId}
           type="button"
-          onClick={() => navigate(`/n/app/mobile/provider/${provider.id}`)}
+          onClick={() => navigate(entityPath("provider", provider))}
           className="flex w-full gap-3 rounded-2xl border border-gray-200 bg-white p-3 text-left transition-colors hover:bg-gray-50 active:scale-[0.99]"
         >
           <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-2xl bg-gray-100 lg:h-28 lg:w-32">
@@ -337,7 +338,7 @@ function ServicesSection({ services, navigate }: { services: SpecialistService[]
         <button
           key={service.providerServiceId}
           type="button"
-          onClick={() => navigate(`/n/app/mobile/service/${service.providerServiceId}`)}
+          onClick={() => navigate(entityPath("service", { id: service.providerServiceId, slug: service.slug }))}
           className="w-full overflow-hidden rounded-2xl border border-gray-200 bg-white text-left shadow-sm transition hover:bg-gray-50 active:scale-[0.99]"
         >
           <div className="flex gap-3 p-3">

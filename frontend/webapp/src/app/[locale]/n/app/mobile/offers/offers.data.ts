@@ -24,6 +24,7 @@ export type OfferTab = {
 export type OfferCard = {
   id: number;
   providerServiceId: string;
+  providerServiceSlug: string | null;
   providerId: string;
   categoryId: string | null;
   categoryLabel: string;
@@ -222,6 +223,7 @@ export async function getOffersPageData({
     select
       o.id::int as id,
       ps.id::text as provider_service_id,
+      ps.slug as provider_service_slug,
       sp.id::text as provider_id,
       sd.category_id::text as category_id,
       common.get_translation_t(c.name_translations, ${lang}, 'en') as category_label,
@@ -321,6 +323,7 @@ export async function getOffersPageData({
   const offers: OfferCard[] = rows.map((row) => ({
     id: Number(row.id),
     providerServiceId: row.provider_service_id,
+    providerServiceSlug: row.provider_service_slug ?? null,
     providerId: row.provider_id,
     categoryId: row.category_id,
     categoryLabel: row.category_label || t("fallback.offers"),

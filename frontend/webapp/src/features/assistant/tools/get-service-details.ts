@@ -4,6 +4,7 @@ import { z } from "zod";
 
 import sql from "@/config/database/db";
 import { getServicePageByIdFromDb } from "@/features/service-providers/server/service-page.repository";
+import { entityPath } from "@/lib/routes/public-paths";
 
 export const GET_SERVICE_DETAILS_DESCRIPTION =
   "Get full details of one LSevin service (a treatment at a specific clinic), by the service id from search_services results (type: service). " +
@@ -43,12 +44,25 @@ export async function getServiceDetails(input: GetServiceDetailsInput, storedLoc
 
   const { service } = page;
 
-  // Clinic coordinates, so the assistant can suggest hotels and transfers near the clinic.
-  const [coords] = await sql<{ lat: number | null; lng: number | null }[]>`
-    select latitude::float8 as lat, longitude::float8 as lng
-    from category.service_providers
-    where id = ${service.clinicId}::uuid
-  `.catch(() => []);
+  const doctors = page.specialists.slice(0, 5);
+  const [[coords], [serviceSlug], staffSlugs] = await Promise.all([
+    // Clinic coordinates, so the assistant can suggest hotels and transfers near the clinic.
+    sql<{ lat: number | null; lng: number | null }[]>`
+      select latitude::float8 as lat, longitude::float8 as lng
+      from category.service_providers
+      where id = ${service.clinicId}::uuid
+    `.catch(() => []),
+    // Slugs for the public links; a missing one falls back to the id (the page redirects).
+    sql<{ slug: string | null }[]>`
+      select slug from category.provider_services where id = ${service.id}::uuid
+    `.catch((): { slug: string | null }[] => []),
+    doctors.length
+      ? sql<{ id: string; slug: string | null }[]>`
+          select id::text as id, slug from category.staff where id = any(${doctors.map((doctor) => doctor.staffId)})
+        `.catch((): { id: string; slug: string | null }[] => [])
+      : Promise.resolve([] as { id: string; slug: string | null }[]),
+  ]);
+  const staffSlugById = new Map(staffSlugs.map((row) => [row.id, row.slug] as const));
 
   return {
     found: true as const,
@@ -73,7 +87,7 @@ export async function getServiceDetails(input: GetServiceDetailsInput, storedLoc
     included: page.included.slice(0, 10),
     steps: page.process.slice(0, 8).map((step) => ({ step: step.step, title: step.title, duration: step.duration })),
     faqs: page.faqs.slice(0, 5).map((faq) => ({ q: faq.q, a: plainText(faq.a, 300) })),
-    doctors: page.specialists.slice(0, 5).map((doctor) => ({
+    doctors: doctors.map((doctor) => ({
       id: doctor.staffId,
       name: doctor.name,
       title: doctor.title,
@@ -82,7 +96,7 @@ export async function getServiceDetails(input: GetServiceDetailsInput, storedLoc
       languages: doctor.languages,
       consultationFee: doctor.consultationFee,
       consultationCurrency: doctor.consultationCurrency,
-      href: `/n/app/mobile/specialist/${doctor.staffId}`,
+      href: entityPath("specialist", { slug: staffSlugById.get(doctor.staffId), id: doctor.staffId }),
     })),
     otherClinics: page.providers.slice(0, 5).map((offer) => ({
       id: offer.id,
@@ -90,6 +104,6 @@ export async function getServiceDetails(input: GetServiceDetailsInput, storedLoc
       rating: offer.rating,
       reviews: offer.reviewCount,
     })),
-    href: `/n/app/mobile/service/${service.id}`,
+    href: entityPath("service", { slug: serviceSlug?.slug, id: service.id }),
   };
 }

@@ -148,7 +148,7 @@ export function DesktopOffersView({ tabs, offers, featuredOffer, filters }: Prop
       {featuredOffer ? (
         <section className="lsd-container mt-14">
           <Reveal>
-            <Link href={serviceHref(featuredOffer.providerServiceId)} className="group block">
+            <Link href={serviceHref(featuredOffer.providerServiceId, featuredOffer.providerServiceSlug)} className="group block">
               <div className="lsd-certificate relative grid grid-cols-[260px_1fr_200px] items-center gap-10 rounded-[30px] p-10">
                 <div className="h-[300px] overflow-hidden rounded-t-full rounded-b-[22px] bg-[#efe6d2]">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -203,7 +203,7 @@ export function DesktopOffersView({ tabs, offers, featuredOffer, filters }: Prop
                 <Reveal key={offer.id} delay={Math.min(index, 6) * 60}>
                   <div className="lsd-ticket-shadow group">
                     <div className="lsd-ticket grid grid-cols-[78fr_22fr] overflow-hidden rounded-[24px] bg-white" style={{ ["--notch" as string]: "22%" }}>
-                      <Link href={serviceHref(offer.providerServiceId)} className="flex items-center gap-6 p-5">
+                      <Link href={serviceHref(offer.providerServiceId, offer.providerServiceSlug)} className="flex items-center gap-6 p-5">
                         <span className="h-24 w-24 shrink-0 overflow-hidden rounded-2xl bg-[#efe6d2]">
                           {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img src={offerImageUrl(offer.image)} alt="" className="h-full w-full object-cover transition-transform duration-[1.2s] group-hover:scale-110" />
@@ -246,7 +246,7 @@ export function DesktopOffersView({ tabs, offers, featuredOffer, filters }: Prop
           <div className="mx-auto max-w-md py-20 text-center">
             <h3 className="text-2xl font-black text-[#0e1a16]">{t("empty.title")}</h3>
             <p className="mt-3 text-[#6b6150]">{t("empty.description")}</p>
-            <Link href="/n/app/mobile/offers" className="mt-6 inline-block text-sm font-bold text-[#8c6b2c] underline underline-offset-8">
+            <Link href="/offers" className="mt-6 inline-block text-sm font-bold text-[#8c6b2c] underline underline-offset-8">
               {t("empty.clearFilters")}
             </Link>
           </div>

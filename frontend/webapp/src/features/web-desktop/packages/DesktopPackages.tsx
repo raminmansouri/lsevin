@@ -5,6 +5,7 @@ import { resolveHomeMediaUrl } from "@/features/home/components/home-media";
 import { SafePriceText } from "@/features/home/components/safe-price-text";
 import type { SpecialPackagePublicItem } from "@/features/special-packages/server/repository";
 import { Link } from "@/i18n/navigation";
+import { entityPath } from "@/lib/routes/public-paths";
 
 import { Reveal } from "../components/motion";
 
@@ -13,7 +14,7 @@ const savedPercent = (pkg: SpecialPackagePublicItem) =>
     ? Math.round((1 - pkg.priceAmount / pkg.originalPriceAmount) * 100)
     : 0;
 const checkoutHref = (pkg: SpecialPackagePublicItem) => (pkg.providerServiceId ? `/n/app/mobile/packages/${pkg.id}/checkout` : null);
-const detailHref = (pkg: SpecialPackagePublicItem) => `/packages/${pkg.slug ?? pkg.id}`;
+const detailHref = (pkg: SpecialPackagePublicItem) => entityPath("package", pkg);
 
 function SaveChip({ percent, locale }: { percent: number; locale: string }) {
   if (percent <= 0) return null;
@@ -182,7 +183,7 @@ export async function DesktopPackageDetail({ pkg, locale }: { pkg: SpecialPackag
         </div>
 
         <Reveal className="flex flex-col justify-center gap-6">
-          <Link href="/n/app/mobile/packages" className="inline-flex w-fit items-center gap-2 text-sm text-white/55 transition hover:text-[#eacb7f]">
+          <Link href="/packages" className="inline-flex w-fit items-center gap-2 text-sm text-white/55 transition hover:text-[#eacb7f]">
             {t("packagesPage.title")}
             <ChevronLeft size={14} className="ltr:rotate-180" />
           </Link>
@@ -200,7 +201,7 @@ export async function DesktopPackageDetail({ pkg, locale }: { pkg: SpecialPackag
               <span className="rounded-full bg-white/10 px-8 py-3.5 font-bold text-white/50">به‌زودی</span>
             )}
             <Link
-              href="/n/app/mobile/packages"
+              href="/packages"
               aria-label={t("packagesPage.backAria")}
               className="grid h-12 w-12 place-items-center rounded-full ring-1 ring-white/15 transition hover:ring-[#eacb7f]/60"
             >

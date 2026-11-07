@@ -25,7 +25,7 @@ import { Link, useRouter } from "@/i18n/navigation";
 
 import { Reveal, Tilt } from "../components/motion";
 
-const BROWSER_PATH = "/n/app/mobile/categories";
+const BROWSER_PATH = "/categories";
 
 /** Grid spans that repeat: a big room, small ones, a tall one… so the wall never looks like a table. */
 const ROOM_SPANS = [
@@ -386,7 +386,7 @@ export function DesktopCategoryBrowser({
               </p>
             </div>
             <Link
-              href="/n/app/mobile/explore"
+              href="/explore"
               className="lsd-btn lsd-btn-green h-14 shrink-0 px-8"
             >
               {t("searchNow")}

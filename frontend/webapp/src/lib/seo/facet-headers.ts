@@ -1,10 +1,11 @@
 // Query-scoped headers preserve static/ISR landing pages. Do not match tracking
-// parameters or apply noindex to the unfiltered category/type landing itself.
+// parameters or apply noindex to the unfiltered shop category/specialty landing itself.
 export function facetHeaders(locales: readonly string[]) {
   const prefix = `/:locale(${locales.join("|")})`;
   const families = [
-    { source: `${prefix}/n/app/mobile/shop/category/:slug`, keys: ["sort", "page", "brand", "inStockOnly", "onSale", "minRating", "minPrice", "maxPrice"] },
-    { source: `${prefix}/type/:id`, keys: ["search", "countryCode", "cityCode", "attributeFilters"] },
+    { source: `${prefix}/shop/:slug`, keys: ["sort", "page", "brand", "inStockOnly", "onSale", "minRating", "minPrice", "maxPrice"] },
+    // Specialty landings take the explore filters (explore.data parseExploreFilters).
+    { source: `${prefix}/specialties/:slug`, keys: ["q", "categoryId", "country", "countryCode", "city", "cityCode", "minPrice", "maxPrice", "currency", "minRating", "verifiedOnly", "languages", "responseTime", "sort"] },
   ];
   return families.flatMap(({ source, keys }) => keys.map(key => ({
     source,

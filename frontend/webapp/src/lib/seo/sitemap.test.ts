@@ -19,7 +19,8 @@ const isCatalogQuery = (first: unknown) =>
 const catalogSql = () =>
   (query.mock.calls.find(([first]) => isCatalogQuery(first))![0] as string[]).join("?");
 
-const STATIC_COUNT = 4 * routing.locales.length + 2 + 1 + 3;
+// home, explore, consulting, privacy and the providers listing in every locale.
+const STATIC_COUNT = 5 * routing.locales.length + 2 + 1 + 3;
 const GUIDE_COUNT = allGuides().reduce((sum, guide) => sum + guideLocales(guide).length, 0);
 
 beforeEach(() => {

@@ -19,6 +19,7 @@ import {
   Globe,
 } from "lucide-react";
 
+import { entityPath } from "@/lib/routes/public-paths";
 import type { OfferCard, OfferTab, OffersFiltersInput } from "./offers.data";
 
 const MOBILE_BASE_PATH = "/n/app/mobile";
@@ -33,8 +34,8 @@ export function offerImageUrl(value?: string | null): string {
   return resolveHomeMediaUrl(raw);
 }
 
-export function serviceHref(providerServiceId: string) {
-  return `${MOBILE_BASE_PATH}/service/${providerServiceId}`;
+export function serviceHref(providerServiceId: string, slug?: string | null) {
+  return entityPath("service", { slug, id: providerServiceId });
 }
 
 export function bookingHref(providerServiceId: string) {
@@ -74,7 +75,7 @@ export function buildOffersQuery(next: OffersFiltersInput) {
   if (next.responseTime !== "any") params.set("responseTime", next.responseTime);
 
   const query = params.toString();
-  return query ? `/n/app/mobile/offers?${query}` : "/n/app/mobile/offers";
+  return query ? `/offers?${query}` : "/offers";
 }
 
 export function navigateSmooth(
@@ -378,7 +379,7 @@ export default function OffersClient({
         <div className="px-5 pt-4 pb-2">
           <div
             className="relative h-40 rounded-2xl overflow-hidden shadow-lg cursor-pointer"
-            onClick={() => router.push(serviceHref(featuredOffer.providerServiceId))}
+            onClick={() => router.push(serviceHref(featuredOffer.providerServiceId, featuredOffer.providerServiceSlug))}
           >
             <OfferImage src={featuredOffer.image} alt={featuredOffer.title} />
             <div className="absolute inset-0 bg-gradient-to-r from-[#083f30]/95 to-[#083f30]/60" />
@@ -426,7 +427,7 @@ export default function OffersClient({
           return (
             <div
               key={offer.id}
-              onClick={() => router.push(serviceHref(offer.providerServiceId))}
+              onClick={() => router.push(serviceHref(offer.providerServiceId, offer.providerServiceSlug))}
               className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-md transition-all active:scale-[0.98] cursor-pointer"
             >
               <div className="relative h-48">

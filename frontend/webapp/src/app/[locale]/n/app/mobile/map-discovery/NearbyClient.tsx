@@ -13,6 +13,7 @@ import {
 // /n/app/mobile/...), which the middleware then resolves to the default locale,
 // silently switching the app to Farsi whenever the map navigates.
 import { useRouter } from "@/i18n/navigation";
+import { entityPath } from "@/lib/routes/public-paths";
 import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import {
@@ -116,8 +117,8 @@ export function buildNearbyQuery(next: NearbyFiltersInput, view: "map" | "list" 
 
   const query = params.toString();
   return query
-    ? `/n/app/mobile/map-discovery?${query}`
-    : "/n/app/mobile/map-discovery";
+    ? `/map?${query}`
+    : "/map";
 }
 
 export function navigateSmooth(
@@ -136,8 +137,8 @@ export function PendingOverlay() {
   );
 }
 
-export function providerHref(providerId: string) {
-  return `/n/app/mobile/provider/${providerId}`;
+export function providerHref(provider: { slug?: string | null; id: string }) {
+  return entityPath("provider", provider);
 }
 
 const BARE_UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -856,7 +857,7 @@ export default function NearbyClient({
           {selectedProvider && (
             <div className="absolute bottom-24 left-0 right-0 px-5 z-40">
               <div
-                onClick={() => router.push(providerHref(selectedProvider.id))}
+                onClick={() => router.push(providerHref(selectedProvider))}
                 className="bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden cursor-pointer"
               >
                 <div className="flex gap-4 p-4">
@@ -941,7 +942,7 @@ export default function NearbyClient({
           {providers.map((provider) => (
             <div
               key={provider.id}
-              onClick={() => router.push(providerHref(provider.id))}
+              onClick={() => router.push(providerHref(provider))}
               className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-lg transition-all cursor-pointer"
             >
               <div className="flex gap-4 p-4">
@@ -998,7 +999,7 @@ export default function NearbyClient({
                   entityId={provider.id}
                   favoriteType="provider"
                   active={provider.isFavorited}
-                  path="/n/app/mobile/map-discovery"
+                  path="/map"
                 />
               </div>
             </div>

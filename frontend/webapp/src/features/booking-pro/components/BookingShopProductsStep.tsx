@@ -74,7 +74,7 @@ export function BookingShopProductsStep({
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
               {group.products.map((product) => (
                 <div key={product.id} className="flex flex-col gap-2">
-                  <Link href={`/n/app/mobile/shop/product/${product.slug}`} className="block">
+                  <Link href={`/products/${product.slug}`} className="block">
                     <ProductCard product={product} locale={locale} labels={labels} />
                   </Link>
                   <button

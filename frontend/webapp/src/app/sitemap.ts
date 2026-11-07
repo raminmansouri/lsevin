@@ -32,6 +32,7 @@ const STATIC_PATHS: CatalogEntry[] = [
   { path: "/offers", locales: PERSIAN_ONLY },
   { path: "/featured", locales: PERSIAN_ONLY },
   { path: "/packages", locales: PERSIAN_ONLY },
+  { path: "/providers", locales: ALL_LOCALES },
   { path: "/consulting", locales: ALL_LOCALES },
   { path: "/privacy-policy", locales: ALL_LOCALES },
 ];
@@ -85,10 +86,15 @@ const catalogEntries = unstable_cache(
     `;
     return rows.map((row) => ({
       path: row.path,
-      locales: row.persian_only ? PERSIAN_ONLY : indexableLocalesFromKeys(row.keys),
+      locales: row.persian_only
+        ? PERSIAN_ONLY
+        : row.path.startsWith("/specialties/")
+          ? // Specialty landings are directory pages, indexed like category landings.
+            indexableLocalesFromKeys(row.keys).filter((locale) => INDEXABLE_CATEGORY_LOCALES.includes(locale))
+          : indexableLocalesFromKeys(row.keys),
     }));
   },
-  ["public-sitemap-catalog-v5"],
+  ["public-sitemap-catalog-v6"],
   { revalidate: 300, tags: ["sitemap-catalog"] }
 );
 

@@ -30,6 +30,7 @@ type CategoryRow = {
 
 type DoctorRow = {
   id: string;
+  slug: string | null;
   name: string | null;
   title: string | null;
   specialty: string | null;
@@ -117,6 +118,7 @@ const getDoctorRows = unstable_cache(
     return sql<DoctorRow[]>`
       select
         s.id::text as id,
+        s.slug as slug,
         nullif(common.get_translation_t(s.name_translations, ${locale}, ${FALLBACK_LOCALE}), '') as name,
         nullif(common.get_translation_t(s.title_translations, ${locale}, ${FALLBACK_LOCALE}), '') as title,
         coalesce(
@@ -259,6 +261,7 @@ export async function getDoctorFinderDoctorsAction(
       ok: true,
       data: rows.map((row) => ({
         id: row.id,
+        slug: row.slug ?? null,
         name: row.name || "—",
         title: row.title,
         specialty: row.specialty,

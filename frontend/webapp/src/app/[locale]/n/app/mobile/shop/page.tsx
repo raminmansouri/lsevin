@@ -73,7 +73,7 @@ export default async function ShopHomePage({ params }: { params: Promise<{ local
     { items: [], total: 0, page: 1, pageSize: 20 },
   );
 
-  const shopUrl = absoluteUrl(locale, "/n/app/mobile/shop");
+  const shopUrl = absoluteUrl(locale, "/shop");
   const brand = (await getTranslations({ locale, namespace: "LocaleLayout" }))("title");
 
   return (

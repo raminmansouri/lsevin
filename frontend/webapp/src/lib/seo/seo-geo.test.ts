@@ -103,12 +103,14 @@ describe("entity schema", () => {
       country: "Iran",
       latitude: 0,
       longitude: 0,
-      services: [{ id: "s1", name: "لیزر" }],
+      services: [{ id: "s1", slug: "laser-s1", name: "لیزر" }],
       specialists: [],
     });
     const json = JSON.stringify(node);
     expect(node["@type"]).toBe("MedicalClinic");
-    expect(node.url).toBe("https://lsevincare.com/fa/n/app/mobile/provider/p1");
+    expect(node.url).toBe("https://lsevincare.com/fa/providers/p1");
+    // A related entity with a slug is linked by its slug, not its id.
+    expect(JSON.stringify(node.makesOffer)).toContain("https://lsevincare.com/fa/services/laser-s1");
     expect(node.description).toBe("درمان پوست و مو");
     expect(node.image).toEqual(["https://lsevincare.com/files/a.jpg", "https://cdn.example.com/b.jpg"]);
     expect(node.geo).toBeUndefined(); // 0,0 is a missing location, not the Gulf of Guinea
@@ -119,9 +121,11 @@ describe("entity schema", () => {
   it("links services and people back to their provider entity", () => {
     const service = serviceSchema({ locale: "en", id: "s1", name: "Rhinoplasty", providerId: "p1", providerName: "Clinic" });
     expect((service.provider as Record<string, string>)["@id"]).toBe(
-      "https://lsevincare.com/en/n/app/mobile/provider/p1#business"
+      "https://lsevincare.com/en/providers/p1#business"
     );
     const person = personSchema({ locale: "en", id: "d1", name: "Dr. A", providers: [{ id: "p1", name: "Clinic" }] });
+    const sluggedService = serviceSchema({ locale: "en", id: "s1", name: "Rhinoplasty", providerId: "p1", providerSlug: "clinic", providerName: "Clinic" });
+    expect((sluggedService.provider as Record<string, string>).url).toBe("https://lsevincare.com/en/providers/clinic");
     expect((person.worksFor as Record<string, string>[])[0]["@id"]).toBe(service.provider && (service.provider as Record<string, string>)["@id"]);
     const crumbs = breadcrumbList([{ name: "Home", url: "u1" }, { name: "", url: "u2" }, { name: "Dr. A", url: "u3" }]);
     expect((crumbs.itemListElement as unknown[]).length).toBe(2);

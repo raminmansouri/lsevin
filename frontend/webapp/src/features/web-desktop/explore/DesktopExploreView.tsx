@@ -7,6 +7,7 @@ import { useState, useTransition } from "react";
 
 import { FavoriteButton } from "@/features/favorites/components/favorite-button";
 import { Link, useRouter } from "@/i18n/navigation";
+import { entityPath } from "@/lib/routes/public-paths";
 import {
   buildExploreQuery,
   buildMapDiscoveryQuery,
@@ -177,7 +178,7 @@ export function DesktopExploreView({
             </div>
             <div className="flex shrink-0 items-center gap-2">
               {hasFilters ? (
-                <Link href="/n/app/mobile/explore" className="rounded-full px-4 py-2 text-sm font-semibold text-[#8c6b2c] hover:text-[#083f30]">
+                <Link href="/explore" className="rounded-full px-4 py-2 text-sm font-semibold text-[#8c6b2c] hover:text-[#083f30]">
                   {t("actions.clearAll")}
                 </Link>
               ) : null}
@@ -239,7 +240,7 @@ export function DesktopExploreView({
           <div className="grid grid-cols-4 gap-6">
             {featuredProviders.map((provider, index) => (
               <Reveal key={provider.id} delay={(index % 4) * 80}>
-                <Link href={buildMobilePath(`/provider/${provider.id}`)} className="group block h-full">
+                <Link href={entityPath("provider", provider)} className="group block h-full">
                   <Tilt className="flex h-full flex-col">
                     <div className="relative h-48 overflow-hidden bg-[#0f5a45]">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -295,7 +296,7 @@ export function DesktopExploreView({
         <section className="lsd-container mt-20">
           <Reveal>
             <Link
-              href={buildMobilePath(`/provider/${sponsoredProviders[0].id}`)}
+              href={entityPath("provider", sponsoredProviders[0])}
               className="lsd-champagne-bg group grid grid-cols-[1.1fr_0.9fr] items-center overflow-hidden rounded-[36px] ring-1 ring-[#eacb7f]/50"
             >
               <div className="space-y-4 p-12">
@@ -330,7 +331,7 @@ export function DesktopExploreView({
           <div className="grid grid-cols-4 gap-6">
             {trendingServices.map((service, index) => (
               <Reveal key={service.id} delay={(index % 4) * 80}>
-                <Link href={buildMobilePath(`/service/${service.id}`)} className="group block h-full">
+                <Link href={entityPath("service", service)} className="group block h-full">
                   <Tilt className="flex h-full flex-col">
                     <div className="relative h-48 overflow-hidden bg-[#0f5a45]">
                       {/* eslint-disable-next-line @next/next/no-img-element */}

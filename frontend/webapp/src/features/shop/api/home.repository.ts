@@ -100,7 +100,7 @@ export async function getShopHome(opts?: {
             imageUrl: o?.imageUrl || c.imageUrl || null,
             icon: c.icon || null,
             gradient: c.gradient || null,
-            linkUrl: o?.linkUrl || `/n/app/mobile/shop/category/${c.slug}`,
+            linkUrl: o?.linkUrl || `/shop/${c.slug}`,
           };
         });
 
@@ -167,7 +167,7 @@ export async function getShopHome(opts?: {
         case "category":
           if (cfg.slug) {
             filters.category = String(cfg.slug);
-            viewAllHref = `/n/app/mobile/shop/category/${cfg.slug}`;
+            viewAllHref = `/shop/${cfg.slug}`;
           }
           break;
         default:

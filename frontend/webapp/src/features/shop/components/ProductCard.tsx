@@ -49,7 +49,7 @@ export function ProductCard({
 }) {
   // [default, compact] class pairs
   const sz = (normal: string, small: string) => (compact ? small : normal);
-  const href = `/n/app/mobile/shop/product/${product.slug}`;
+  const href = `/products/${product.slug}`;
   const ranged = product.priceMax > product.price + 0.001;
 
   return (

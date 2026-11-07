@@ -43,6 +43,8 @@ export interface AlRecommendation {
 export interface ServiceProviderOffering {
   id: string;
   providerServiceId: string;
+  /** The provider service's public URL segment; null for rows that predate slugs. */
+  slug?: string | null;
   serviceDefinitionId: string;
   providerTypeName: string;
   image: string;
@@ -87,6 +89,8 @@ export interface ServiceGalleryItem {
 
 export interface ProviderProfileSummary {
   id: string;
+  /** Public URL segment; null for rows that predate slugs. */
+  slug?: string | null;
   name: string;
   description: string;
   image: string;
@@ -117,6 +121,8 @@ export interface ProviderProfileSummary {
 
 export interface Service {
   id: string;
+  /** Public URL segment; null for rows that predate slugs. */
+  slug?: string | null;
   providerServiceId: string;
   serviceDefinitionId: string;
   categoryId: string | null;
@@ -127,6 +133,7 @@ export interface Service {
   definitionDescription: string;
   clinic: string;
   clinicId: string;
+  clinicSlug?: string | null;
   providerDescription: string;
   providerProfile: ProviderProfileSummary;
   location: string;
@@ -261,6 +268,7 @@ export interface ProviderPolicy {
 export interface ServiceSpecialist {
   id: string;
   staffId: string;
+  staffSlug?: string | null;
   name: string;
   title: string;
   biography: string;

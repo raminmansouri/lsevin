@@ -2,6 +2,7 @@ import "server-only";
 
 import sql from "@/config/database/db";
 import { resolveDisplayPrice } from "@/features/finance/lib/server/toman-price";
+import { entityPath } from "@/lib/routes/public-paths";
 
 import type { AssistantServiceResult, SearchServicesToolOutput } from "../types";
 
@@ -100,6 +101,7 @@ export type AssistantSearchKind = "all" | "clinics" | "doctors";
 
 type ClinicRow = {
   id: string;
+  slug: string | null;
   name: string | null;
   provider: string | null;
   location: string;
@@ -114,6 +116,7 @@ type ClinicRow = {
 
 type DoctorRow = {
   id: string;
+  slug: string | null;
   name: string | null;
   specialty: string | null;
   provider: string | null;
@@ -278,6 +281,7 @@ async function searchCatalogue(input: SearchInput): Promise<SearchServicesToolOu
         )
         SELECT
           ps.id::text AS id,
+          ps.slug,
           COALESCE(
             NULLIF(common.get_translation_t(ps.display_name_translations, ${input.locale}::text, 'en-US'), ''),
             common.get_translation_t(sd.name_translations, ${input.locale}::text, 'en-US')
@@ -357,6 +361,7 @@ async function searchCatalogue(input: SearchInput): Promise<SearchServicesToolOu
         )
         SELECT
           st.id::text AS id,
+          st.slug,
           common.get_translation_t(st.name_translations, ${input.locale}::text, 'en-US') AS name,
           COALESCE(
             NULLIF(common.get_translation_t(st.specialty_translations, ${input.locale}::text, 'en-US'), ''),
@@ -408,7 +413,7 @@ async function searchCatalogue(input: SearchInput): Promise<SearchServicesToolOu
       price: price.value,
       currency: price.currency,
       image: row.image || "",
-      href: `/n/app/mobile/service/${row.id}`,
+      href: entityPath("service", row),
     };
   });
 
@@ -423,7 +428,7 @@ async function searchCatalogue(input: SearchInput): Promise<SearchServicesToolOu
     price: toNumber(row.price),
     currency: row.currency || "USD",
     image: row.image || "",
-    href: `/n/app/mobile/specialist/${row.id}`,
+    href: entityPath("specialist", row),
   }));
 
   return {

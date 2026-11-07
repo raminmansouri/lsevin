@@ -44,6 +44,7 @@ export default defineConfig({
       "src/features/booking-pro/**/*.test.ts",
       "src/features/categories/**/*.test.ts",
       "src/features/site-content/**/*.test.ts",
+      "src/lib/routes/**/*.test.ts",
       "src/features/booking/**/*.test.ts",
       "src/features/gym-memberships/**/*.test.ts",
       "src/features/patients/**/*.test.ts",

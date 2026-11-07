@@ -32,10 +32,10 @@ import { getFavoriteStatusAction } from "@/features/favorites/actions/favorite-a
 
 
 
-import RecommendationSection from "../../components/RecommendationSection";
-import ReviewForm, { type ReviewFormSubmitValue } from "../../../components/ReviewForm";
-import { DigikalaReviewCard } from "../../../components/DigikalaReviewCard";
-import { useReviewEligibility } from "../../../components/useReviewEligibility";
+import RecommendationSection from "@/app/[locale]/n/app/mobile/components/RecommendationSection";
+import ReviewForm, { type ReviewFormSubmitValue } from "@/app/[locale]/n/app/components/ReviewForm";
+import { DigikalaReviewCard } from "@/app/[locale]/n/app/components/DigikalaReviewCard";
+import { useReviewEligibility } from "@/app/[locale]/n/app/components/useReviewEligibility";
 import { PriceConverterCardClient } from "@/features/finance/components/price-converter-card-client";
 import { PriceTextClient } from "@/features/finance/components/price-text-client";
 import { FavoriteButton } from "@/features/favorites/components/favorite-button";
@@ -46,6 +46,7 @@ import { env } from "@/config/env/client";
 import { ServiceProductsRail } from "@/features/shop/components/ServiceProductsRail";
 import { ConsultationCtaButton } from "@/features/consultation/components/consultation-cta-button";
 import { useNavigate } from "@/hooks/use-navigate";
+import { entityPath } from "@/lib/routes/public-paths";
 import { ViewerPrice } from "@/features/finance/components/viewer-price";
 import { MealPlanPrices } from "@/features/meal-plans/components/meal-plan-prices";
 import type {
@@ -246,7 +247,7 @@ function ProviderOfferingCard({ provider, currentProviderServiceId, locale }: { 
   return (
     <button
       type="button"
-      onClick={() => navigate(`/n/app/mobile/service/${provider.providerServiceId}`)}
+      onClick={() => navigate(entityPath("service", { id: provider.providerServiceId, slug: provider.slug }))}
       className={`w-full rounded-2xl border bg-white p-3 text-left transition-all active:scale-[0.99] ${
         isCurrent ? "border-[#083f30] shadow-md ring-1 ring-[#083f30]/10" : "border-gray-200 hover:border-[#083f30] hover:shadow-md"
       }`}
@@ -512,7 +513,7 @@ export function SpecialistsSection({ specialists, locale }: { specialists: Servi
           <button
             key={specialist.staffId}
             type="button"
-            onClick={() => navigate(`/n/app/mobile/specialist/${specialist.staffId}`)}
+            onClick={() => navigate(entityPath("specialist", { id: specialist.staffId, slug: specialist.staffSlug }))}
             className="w-full rounded-2xl border border-gray-200 bg-white p-4 text-left transition-all hover:border-[#083f30] hover:shadow-md active:scale-[0.99] lg:p-5"
           >
             <div className="flex gap-3">
@@ -789,7 +790,7 @@ export default function ServicePage({ data, serviceId, locale }: ServicePageProp
                 </button>
               ))}
               {galleryItems.length > 6 && (
-                <button type="button" onClick={() => navigate(`/n/app/mobile/service/${serviceId}/gallery`)} aria-label={t("gallery.openGallery")} className="flex h-14 w-14 items-center justify-center rounded-xl bg-black/50 text-xs font-bold text-white backdrop-blur-sm">+{galleryItems.length - 6}</button>
+                <button type="button" onClick={() => navigate(`${entityPath("service", { id: serviceId, slug: service.slug })}/gallery`)} aria-label={t("gallery.openGallery")} className="flex h-14 w-14 items-center justify-center rounded-xl bg-black/50 text-xs font-bold text-white backdrop-blur-sm">+{galleryItems.length - 6}</button>
               )}
             </div>
           )}
@@ -809,7 +810,7 @@ export default function ServicePage({ data, serviceId, locale }: ServicePageProp
           <LexicalDescription content={service.subtitle} fallback="-" className="leading-relaxed text-muted-foreground" />
         </div>
 
-        <button type="button" onClick={() => navigate(`/n/app/mobile/provider/${service.clinicId}`)} className="-mx-2 mb-4 flex w-full items-center gap-3 rounded-xl px-2 py-2 text-left transition-colors hover:bg-gray-50">
+        <button type="button" onClick={() => navigate(entityPath("provider", { id: service.clinicId, slug: service.clinicSlug }))} className="-mx-2 mb-4 flex w-full items-center gap-3 rounded-xl px-2 py-2 text-left transition-colors hover:bg-gray-50">
           <ThumbImage src={service.providerProfile.image} alt={service.clinic} className="h-12 w-12 flex-shrink-0 rounded-xl" />
           <div className="min-w-0 flex-1">
             <div className="mb-0.5 flex items-center gap-2">

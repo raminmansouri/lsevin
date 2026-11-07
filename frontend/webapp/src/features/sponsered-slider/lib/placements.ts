@@ -27,13 +27,13 @@ export const SPONSERED_SLIDER_PLACEMENT_META: readonly SponseredSliderPlacementM
   { key: "home_native_ad", labelKey: "placementHomeNativeAd", route: "/n/app/mobile/home", isMounted: true },
   { key: "home_bottom", labelKey: "placementHomeBottom", route: "/n/app/mobile/home", isMounted: true },
   { key: "search_results", labelKey: "placementSearchResults", route: "/n/app/mobile/search-results", isMounted: true },
-  { key: "explore", labelKey: "placementExplore", route: "/n/app/mobile/explore", isMounted: true },
-  { key: "categories", labelKey: "placementCategories", route: "/n/app/mobile/categories", isMounted: true },
-  { key: "offers", labelKey: "placementOffers", route: "/n/app/mobile/offers", isMounted: true },
-  { key: "packages", labelKey: "placementPackages", route: "/n/app/mobile/packages", isMounted: true },
+  { key: "explore", labelKey: "placementExplore", route: "/explore", isMounted: true },
+  { key: "categories", labelKey: "placementCategories", route: "/categories", isMounted: true },
+  { key: "offers", labelKey: "placementOffers", route: "/offers", isMounted: true },
+  { key: "packages", labelKey: "placementPackages", route: "/packages", isMounted: true },
   { key: "provider_detail", labelKey: "placementProviderDetail", route: "/n/app/mobile/provider/[id]", isMounted: true },
   { key: "service_detail", labelKey: "placementServiceDetail", route: "/n/app/mobile/service/[id]", isMounted: true },
-  { key: "shop_home", labelKey: "placementShopHome", route: "/n/app/mobile/shop", isMounted: true },
+  { key: "shop_home", labelKey: "placementShopHome", route: "/shop", isMounted: true },
   { key: "booking_review", labelKey: "placementBookingReview", route: "/n/app/mobile/booking-v2", isMounted: false },
 ];
 

@@ -7,6 +7,7 @@ import type { HomeFeaturedService } from "@/features/home/api/server/get-home-pa
 import { resolveHomeMediaUrl } from "@/features/home/components/home-media";
 import { SafePriceText } from "@/features/home/components/safe-price-text";
 import { Link } from "@/i18n/navigation";
+import { entityPath } from "@/lib/routes/public-paths";
 
 import { Reveal, Tilt } from "../components/motion";
 import { DesktopSignatureCollection, type SignatureItem } from "./DesktopSignatureCollection";
@@ -27,7 +28,7 @@ export async function DesktopFeaturedServices({
   const t = await getTranslations({ locale, namespace: "Home" });
   const tCarousel = await getTranslations({ locale, namespace: "Home.sponsoredCarousel" });
 
-  const href = (service: HomeFeaturedService) => `/n/app/mobile/service/${service.id}`;
+  const href = (service: HomeFeaturedService) => entityPath("service", service);
   const originalPrice = (service: HomeFeaturedService) =>
     service.originalAmount && service.originalAmount > service.priceAmount
       ? formatMoney({ amount: service.originalAmount, currencyCode: service.currencyCode }, { locale, compact: false })
@@ -77,7 +78,7 @@ export async function DesktopFeaturedServices({
         title={t("featured.title")}
         subtitle={t("featured.subtitle")}
         seeAll={t("common.seeAll")}
-        seeAllHref="/n/app/mobile/featured"
+        seeAllHref="/featured"
         labels={{ previous: tCarousel("previousSlideAria"), next: tCarousel("nextSlideAria") }}
       />
 

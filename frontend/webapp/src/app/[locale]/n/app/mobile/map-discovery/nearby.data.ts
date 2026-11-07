@@ -46,6 +46,7 @@ export type NearbyCurrencyOption = {
 
 export type NearbyProvider = {
   id: string;
+  slug: string | null;
   name: string;
   image: string;
   rating: number;
@@ -573,6 +574,7 @@ export async function getNearbyPageData({
     sql<any[]>`
     select
       sp.id::text as id,
+      sp.slug as slug,
       common.get_translation_t(sp.name_translations, ${lang}, 'en') as name,
       -- The provider's own featured image first. The first gallery item used to lead,
       -- so a provider that had set a picture still showed a gallery photo instead.
@@ -724,6 +726,7 @@ export async function getNearbyPageData({
 
     return {
       id: row.id,
+      slug: row.slug ?? null,
       name: row.name,
       image: coalesceImage(row.image),
       rating: Number(row.rating ?? 0),

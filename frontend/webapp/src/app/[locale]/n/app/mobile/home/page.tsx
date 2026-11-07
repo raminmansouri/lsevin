@@ -6,6 +6,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { ImageWithFallback } from '@/components/ui/image-with-fallback';
 import { Skeleton } from '../../design-system/components';
 import { Link } from '@/i18n/navigation';
+import { entityPath } from '@/lib/routes/public-paths';
 import type { PageProps } from '@/types/next';
 import LocationPicker from './components/location-picker';
 import { ServiceProvidersCategoriesSuspenseBoundary } from './components/service-providers-category';
@@ -385,7 +386,7 @@ async function Home({ params }: PageProps) {
         <div className="mb-5 flex items-center justify-between">
           <h2 className="text-xl font-bold text-gray-900">{labels.categories.title}</h2>
           <Link
-            href="/n/app/mobile/categories"
+            href="/categories"
             className="flex items-center gap-1 text-sm font-semibold text-[#083f30] hover:underline"
           >
             {labels.common.viewAll}
@@ -416,7 +417,7 @@ async function Home({ params }: PageProps) {
             <p className="text-sm text-gray-600">{labels.featured.subtitle}</p>
           </div>
           <Link
-            href="/n/app/mobile/featured"
+            href="/featured"
             className="flex items-center gap-1 text-sm font-semibold text-[#083f30] hover:underline"
           >
             {labels.common.seeAll}
@@ -484,7 +485,7 @@ async function Home({ params }: PageProps) {
             <p className="text-sm text-gray-600">{labels.trusted.subtitle}</p>
           </div>
           <Link
-            href={`/n/app/mobile/providers?${new URLSearchParams({
+            href={`/providers?${new URLSearchParams({
               ...(queryInput.countryCode ? { countryCode: queryInput.countryCode } : {}),
               ...(queryInput.cityCode ? { cityCode: queryInput.cityCode } : {}),
             }).toString()}`}
@@ -625,7 +626,7 @@ function HomeHeroBanner({
   noDescription: string;
 }) {
   const mediaUrl = resolveHomeMediaUrl(section.imageUrl || offer?.imageUrl);
-  const href = section.buttonHref || (offer?.serviceId ? `/n/app/mobile/service/${offer.serviceId}` : '/n/app/mobile/offers');
+  const href = section.buttonHref || (offer?.serviceId ? entityPath('service', { slug: offer.serviceSlug, id: offer.serviceId }) : '/offers');
 
   return (
     <HomeHeroCard
@@ -672,7 +673,7 @@ function ExploreNearbySection({
 
   // Carry the visitor's coordinates into the map so it opens centered on them
   // with nearby providers already loaded (50 km radius).
-  const baseHref = section.buttonHref || '/n/app/mobile/map-discovery';
+  const baseHref = section.buttonHref || '/map';
   const href =
     latitude != null && longitude != null && !baseHref.includes('?')
       ? `${baseHref}?lat=${latitude}&lng=${longitude}&distanceKm=50`
@@ -726,7 +727,7 @@ function PremiumPackagesSection({
   // Avoid a dead link: when the CTA still points at the default packages route
   // and there are no active special packages, hide the whole section. If an
   // admin set a custom buttonHref, keep rendering (they own that destination).
-  const usesDefaultHref = !section.buttonHref || section.buttonHref === '/n/app/mobile/packages';
+  const usesDefaultHref = !section.buttonHref || section.buttonHref === '/packages';
   if (activePackagesCount <= 0 && usesDefaultHref) {
     return null;
   }
@@ -767,7 +768,7 @@ function PremiumPackagesSection({
           />
 
           <Link
-            href={section.buttonHref || '/n/app/mobile/packages'}
+            href={section.buttonHref || '/packages'}
             className="inline-flex rounded-xl bg-[#eacb7f] px-6 py-3 text-sm font-bold text-[#083f30] shadow-lg transition-all hover:bg-[#e0b654]"
           >
             {section.buttonLabel || labels.button}

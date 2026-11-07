@@ -23,7 +23,7 @@ export default async function CartPage({ params }: { params: Promise<{ locale: s
         cartCount={cart.itemCount + bookings.length}
         currency={cart.currency}
         selectableCurrencies={cart.selectableCurrencies}
-        back="/n/app/mobile/shop"
+        back="/shop"
       />
       <h1 className="px-4 pt-3 text-lg font-extrabold text-neutral-900">{t("cart")}</h1>
       <CartBookings bookings={bookings} locale={locale} />

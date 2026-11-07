@@ -6,6 +6,7 @@ import HomeTrustedProvidersSuspenseBoundary from '../home/components/trusted-pro
 import type { PageProps } from '@/types/next';
 import { Link } from '@/i18n/navigation';
 import { getTrustedHomeProvidersCached } from '@/features/home/api/server/get-home-page.cached';
+import { buildPublicMetadata } from '@/lib/seo/metadata';
 
 // Static / ISR — location-agnostic listing.
 export const dynamic = 'force-dynamic';
@@ -14,6 +15,17 @@ export const dynamic = 'force-dynamic';
 // Kept as a single constant so it can move to config/pagination later without
 // hunting for a magic number (see get-home-page.ts for the offset hook).
 const TRUSTED_PROVIDERS_LISTING_LIMIT = 999;
+
+export async function generateMetadata({ params }: Pick<PageProps, 'params'>) {
+  const locale = await getLocaleFromParams(params);
+  const t = await getTranslations({ locale, namespace: 'Home' });
+  return buildPublicMetadata({
+    locale,
+    path: '/providers',
+    title: t('trustedPage.title'),
+    descriptions: [t('trustedPage.subtitle')],
+  });
+}
 
 async function getLocaleFromParams(params: PageProps['params']) {
   const resolved = await params;

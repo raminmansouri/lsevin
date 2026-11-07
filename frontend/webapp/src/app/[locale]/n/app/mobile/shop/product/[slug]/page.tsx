@@ -64,7 +64,7 @@ export default async function ProductDetailPage({
   const product = await getProductBySlugCached(slug, locale);
   if (!product) notFound();
 
-  const productUrl = absoluteUrl(locale, `/n/app/mobile/shop/product/${slug}`);
+  const productUrl = absoluteUrl(locale, `/products/${slug}`);
   const productImages = [
     ...product.gallery.map((g) => g.url),
     product.imageUrl,
@@ -115,7 +115,7 @@ export default async function ProductDetailPage({
           ])
         )}
       />
-      <ShopHeader currency={product.currency} back="/n/app/mobile/shop" />
+      <ShopHeader currency={product.currency} back="/shop" />
 
       <div className="bg-white">
         <div className="no-scrollbar flex snap-x snap-mandatory overflow-x-auto">
@@ -257,7 +257,7 @@ export default async function ProductDetailPage({
       />
 
       <div className="p-4 text-center">
-        <Link href="/n/app/mobile/shop" className="text-xs font-semibold text-[#083f30]">
+        <Link href="/shop" className="text-xs font-semibold text-[#083f30]">
           ‹ {t("continueShopping")}
         </Link>
       </div>

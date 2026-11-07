@@ -28,16 +28,17 @@ import { ViewerPrice } from "@/features/finance/components/viewer-price";
 import { useSectionScroll } from "@/hooks/use-section-scroll";
 import { getFavoriteStatusAction } from "@/features/favorites/actions/favorite-actions";
 import { ProviderActionBar } from "@/features/service-providers/components/details/provider-action-bar";
-import ReviewForm, { type ReviewFormSubmitValue } from "../../../components/ReviewForm";
-import { DigikalaReviewCard } from "../../../components/DigikalaReviewCard";
-import { useReviewEligibility } from "../../../components/useReviewEligibility";
-import RecommendationsSection from "../../../components/RecommendationsSection";
+import ReviewForm, { type ReviewFormSubmitValue } from "@/app/[locale]/n/app/components/ReviewForm";
+import { DigikalaReviewCard } from "@/app/[locale]/n/app/components/DigikalaReviewCard";
+import { useReviewEligibility } from "@/app/[locale]/n/app/components/useReviewEligibility";
+import RecommendationsSection from "@/app/[locale]/n/app/components/RecommendationsSection";
 import { PriceTextClient } from "@/features/finance/components/price-text-client";
 import { useFetchProviderPageData } from "@/features/service-providers/api/client/fetch-provider-page-data";
 import type { ProviderPageDataResponse, Review } from "@/features/service-providers/types/provider-page-types";
 import { hasLexicalContent, LexicalRenderer } from "@/components/editor/lexical-renderer";
 import { env } from "@/config/env/client";
 import { useNavigate } from "@/hooks/use-navigate";
+import { entityPath } from "@/lib/routes/public-paths";
 import { useCurrentSession } from "@/hooks/use-current-session";
 import { CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -149,7 +150,8 @@ export function ProviderDetailView({ initialData }: { initialData?: ProviderPage
   const tGallery = useTranslations("SpecialistPage");
   const tConsultation = useTranslations("Consultation");
   const { user } = useCurrentSession(false);
-  const providerId = firstParam(params.id as string | string[] | undefined);
+  // The route segment is the slug now; the server-rendered data carries the id.
+  const providerId = initialData?.provider.id || firstParam(params.id as string | string[] | undefined);
 
   const [selectedTab, setSelectedTab] = useState<
     "overview" | "services" | "beforeAfter" | "specialists" | "reviews"
@@ -482,11 +484,11 @@ export function ProviderDetailView({ initialData }: { initialData?: ProviderPage
                 key={treatment.id}
                 role="button"
                 tabIndex={0}
-                onClick={() => navigate(`/n/app/mobile/service/${treatment.id}`)}
+                onClick={() => navigate(entityPath("service", treatment))}
                 onKeyDown={(event) => {
                   if (event.key === "Enter" || event.key === " ") {
                     event.preventDefault();
-                    navigate(`/n/app/mobile/service/${treatment.id}`);
+                    navigate(entityPath("service", treatment));
                   }
                 }}
                 className="w-full cursor-pointer overflow-hidden rounded-2xl border border-gray-200 bg-white text-start transition-all hover:shadow-lg"
@@ -557,7 +559,7 @@ export function ProviderDetailView({ initialData }: { initialData?: ProviderPage
             {specialists.length ? specialists.map((doctor) => (
               <button
                 key={doctor.id}
-                onClick={() => navigate(`/n/app/mobile/specialist/${doctor.id}`)}
+                onClick={() => navigate(entityPath("specialist", doctor))}
                 className="w-full rounded-2xl border border-gray-200 bg-white p-4 text-start transition-all hover:shadow-lg lg:p-5"
                 type="button"
               >

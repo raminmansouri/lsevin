@@ -14,6 +14,7 @@ import {
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { resolveHomeMediaUrl } from "@/features/home/components/home-media";
 import { Link } from "@/i18n/navigation";
+import { entityPath } from "@/lib/routes/public-paths";
 
 import type {
   DoctorFinderCategory,
@@ -296,7 +297,7 @@ function DoctorCard({
 
   return (
     <Link
-      href={`/n/app/mobile/specialist/${encodeURIComponent(doctor.id)}`}
+      href={entityPath("specialist", doctor)}
       onClick={onNavigate}
       className="flex items-center gap-3 rounded-2xl border border-gray-100 bg-white p-3 shadow-sm transition hover:border-[#083f30]/30"
     >

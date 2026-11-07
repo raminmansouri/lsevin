@@ -11,6 +11,7 @@ import { SafePriceText } from '@/features/home/components/safe-price-text';
 import { HomeLexicalDescription } from '@/features/home/components/home-lexical-description';
 import { formatMoney } from '@/features/finance/lib/money';
 import { Link } from '@/i18n/navigation';
+import { entityPath } from '@/lib/routes/public-paths';
 
 export type HomeFeaturedServiceLabels = {
   emptyTitle: string;
@@ -128,7 +129,7 @@ function FeaturedServiceCard({
 
   return (
     <Link
-      href={`/n/app/mobile/service/${service.id}`}
+      href={entityPath('service', service)}
       className={`@container flex h-full flex-col overflow-hidden rounded-xl border border-gray-100 bg-white shadow-md transition-all hover:shadow-xl active:scale-[0.99] @min-[220px]:rounded-2xl ${styles.card}`}
     >
       <div className="relative aspect-[16/10] overflow-hidden bg-gray-50">
