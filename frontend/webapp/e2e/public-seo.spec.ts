@@ -204,8 +204,9 @@ test("category and shop fallback locales are excluded from search", async ({
   expect(types).toContain(
     "CollectionPage"
   );
-  await expect(page.getByText("سایر خدمات").first()).toBeVisible();
-  await expect(page.getByText(/زیردسته/).first()).toBeVisible();
+  // Localized labels are rendered (the mobile tree, hidden at desktop width, carries them).
+  await expect(page.getByText("سایر خدمات").first()).toBeAttached();
+  await expect(page.getByText(/زیردسته/).first()).toBeAttached();
 
   for (const path of ["/es/categories", "/en/shop"]) {
     await page.goto(path);

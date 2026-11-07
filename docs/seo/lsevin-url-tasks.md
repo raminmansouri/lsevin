@@ -218,3 +218,34 @@ canonical هر صفحه جدید با `alternatesFor(locale, <مسیر جدید>
 - Verification on the exact branch commit: SEO unit suite 121/121 passed; a production-mode build on F: exited successfully after compiling and generating 2,313 static pages. That build used a non-production database endpoint and logged connection failures, so it is not a runtime or data-integrity pass.
 - Repository-wide typecheck still exits nonzero with 2,285 diagnostic lines; the changed SEO files have no remaining type diagnostic. Targeted lint reports four existing app-import boundary violations in the offers, featured, and packages pages. The persistent Playwright suite has not run against a deployed candidate.
 - No production slug backfill was run. A reviewed mapping of current production records is required before the slug-based redirects and internal-link cutover can safely ship.
+
+## پیاده‌سازی — برنچ `feat/public-url-cutover-20261107` (۷ نوامبر ۲۰۲۶)
+
+ادامه همون برنچ قبلی، به‌روز با `Lsevin-New`. هنوز merge و منتشر نشده؛ طبق T9 قبل از merge باید تایید بشه.
+
+### آدرس‌های جدید
+| قبلی | جدید | چطور |
+|---|---|---|
+| `/fa/n/app/mobile/provider/<uuid>` و `/fa/service-providers/<uuid>` | `/fa/providers/<slug>` | صفحه واقعی در `app/[locale]/(site)`؛ آدرس قبلی slug رو پیدا می‌کنه و یه 308 مستقیم می‌ده |
+| `.../service/<uuid>` و `/gallery` | `/fa/services/<slug>` و `/gallery` | همین‌طور |
+| `.../specialist/<uuid>` | `/fa/specialists/<slug>` | همین‌طور |
+| `.../packages/<uuid>` | `/fa/packages/<slug>` | همین‌طور (checkout خصوصی سر جاشه) |
+| `/fa/type/<uuid>` | `/fa/specialties/<slug>` | صفحه کاوش فیلترشده با همون نوع، فقط fa/en ایندکس |
+| `explore`، `categories`، `offers`، `featured`، `packages`، `providers`، `shop`، `map-discovery` | `/fa/explore`، ...، `/fa/map` | redirect در `next.config.ts`، با و بدون locale |
+| `shop/category/<slug>`، `shop/product/<slug>` | `/fa/shop/<slug>`، `/fa/products/<slug>` | همین‌طور |
+
+- home طبق تصمیم ۱ نوامبر سر جاش موند. صفحه‌های خصوصی (profile، bookings، cart، checkout، orders، search، ...) دست نخوردن.
+- `medical/clinics` منتقل **نشد**: داده‌های نمایشی hard-coded داره و نباید ایندکس بشه.
+- UUID روی آدرس جدید (`/fa/providers/<uuid>`) با rewrite به مسیر قدیمی می‌ره که یه 308 تمیز به slug می‌ده.
+
+### slug
+- `0091`: ستون‌ها. `0092`: نگاشت تاییدشده ۱ نوامبر (بدون `begin/commit` داخلی؛ سه پکیج: `golden-package`، `silver-package`، `bronze-package`).
+- `0093`: تابع و trigger که به هر ردیف جدید یا بدون slug، slug می‌ده (اول نام انگلیسی، بعد آوانگاری فارسی، پیشوند ارائه‌دهنده برای خدمت، `-2` برای تکراری). slug بعد از ساخته شدن عوض نمی‌شه، حتی با تغییر نام.
+- اسم فارسی‌ای که انگلیسی نداره slug بدون صدادار می‌گیره (مثل `klynyk-zybayy`). بهتره ادمین‌ها اسم انگلیسی رو قبل از ثبت پر کنن.
+
+### لینک‌ها
+- لینک‌های داخلی، JSON-LD، sitemap و ابزارهای دستیار از slug استفاده می‌کنن.
+- لینک‌های ذخیره‌شده توسط ادمین (`home_sections.button_href`، `shop.home_section_items.link_url`، `common.app_content_items.button_url`، اسلایدر) موقع خوندن به آدرس جدید تبدیل می‌شن (`toPublicPath`).
+
+### محدودیت شناخته‌شده
+- آدرس UUID بدون locale (`/n/app/mobile/provider/<uuid>`) دو redirect می‌خوره (اضافه شدن locale، بعد slug). config نمی‌تونه slug رو از دیتابیس بخونه.
