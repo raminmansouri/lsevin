@@ -38,6 +38,12 @@ import {
 } from "@/features/assistant/tools/get-availability";
 
 import {
+  START_BOOKING_DESCRIPTION,
+  startBooking,
+  startBookingInputSchema,
+} from "@/features/assistant/tools/start-booking";
+
+import {
   BUILD_JOURNEY_PLAN_DESCRIPTION,
   buildJourneyPlan,
   buildJourneyPlanInputSchema,
@@ -209,6 +215,29 @@ async function handler(req: Request): Promise<Response> {
             return {
               isError: true,
               content: [{ type: "text" as const, text: "Free times are temporarily unavailable." }],
+            };
+          }
+        }
+      );
+
+      server.registerTool(
+        "start_booking",
+        {
+          title: "Start a booking",
+          description: START_BOOKING_DESCRIPTION,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          inputSchema: startBookingInputSchema as any,
+        },
+        async (args: unknown) => {
+          try {
+            const input = startBookingInputSchema.parse(args);
+            const result = await startBooking(input, storedLocale);
+            return { content: [{ type: "text" as const, text: JSON.stringify(result) }] };
+          } catch (error) {
+            console.error("[mcp] start_booking failed", error);
+            return {
+              isError: true,
+              content: [{ type: "text" as const, text: "The booking could not be prepared right now." }],
             };
           }
         }
