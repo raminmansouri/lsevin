@@ -253,9 +253,25 @@ const nextConfig: NextConfig = {
     // In production behind Caddy, leave BOOKING_ORIGIN empty and rewrites will be disabled.
     const bookingOrigin = process.env.BOOKING_ORIGIN;
 
-    if (!bookingOrigin) return seoRewrites;
+    // A UUID on a new entity path (/fa/providers/<uuid>, from an old link or
+    // bookmark) is served by the dynamic legacy route, which looks up the slug
+    // and answers one clean 308. The static slug pages would redirect too, but
+    // a first, uncached render repeats the Location header.
+    const uuid = "[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}";
+    const beforeFiles = [
+      ['providers/:id', 'provider/:id'],
+      ['services/:id/gallery', 'service/:id/gallery'],
+      ['services/:id', 'service/:id'],
+      ['specialists/:id', 'specialist/:id'],
+      ['packages/:id', 'packages/:id'],
+    ].map(([newPath, oldPath]) => ({
+      source: `/:locale(${localePattern})/${newPath.replace(':id', `:id(${uuid})`)}`,
+      destination: `/:locale/n/app/mobile/${oldPath}`,
+    }));
 
-    return [
+    if (!bookingOrigin) return { beforeFiles, afterFiles: seoRewrites, fallback: [] };
+
+    return { beforeFiles, fallback: [], afterFiles: [
       ...seoRewrites,
       // locale assets
       {
@@ -286,7 +302,7 @@ const nextConfig: NextConfig = {
         source: `/:locale(${localePattern})/booking`,
         destination: `${bookingOrigin}/booking/`,
       },
-    ];
+    ] };
   },
 };
 

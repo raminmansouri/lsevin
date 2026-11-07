@@ -1,6 +1,9 @@
 ﻿import { expect, test } from "@playwright/test";
 
 const origin = process.env.SEO_EXPECTED_ORIGIN || "https://lsevincare.com";
+// The page heading: an <h1>, or the desktop layout's role="heading" level 1
+// (the <h1> of the mobile layout is hidden at desktop width).
+const H1 = 'h1:visible, [role="heading"][aria-level="1"]:visible';
 
 /** Full-page screenshot saved in the test's output dir and attached to the report. */
 async function attachShot(
@@ -22,12 +25,12 @@ for (const route of ["home", "categories", "explore", "search"]) {
     const response = await page.goto(path);
     expect(response?.status()).toBe(200);
     if (route === "home") await expect(page.locator("h1").first()).toContainText(/\S/);
-    else await expect(page.locator(route === "search" ? "input" : "h1:visible").first()).toBeVisible();
+    else await expect(page.locator(route === "search" ? "input" : H1).first()).toBeVisible();
     await page.screenshot({ path: testInfo.outputPath(`${route}-loaded.png`) });
     const refreshed = await page.reload();
     expect(refreshed?.status()).toBe(200);
     if (route === "home") await expect(page.locator("h1").first()).toContainText(/\S/);
-    else await expect(page.locator(route === "search" ? "input" : "h1:visible").first()).toBeVisible();
+    else await expect(page.locator(route === "search" ? "input" : H1).first()).toBeVisible();
   });
 }
 
@@ -81,13 +84,16 @@ test('@regression explore: localized review count hydrates without a browser err
   });
   const response = await page.goto('/fa/explore');
   expect(response?.status()).toBe(200);
-  await expect(page.locator('h1:visible').first()).toBeVisible();
+  await expect(page.locator(H1).first()).toBeVisible();
   await page.reload();
-  await expect(page.locator('h1:visible').first()).toBeVisible();
+  await expect(page.locator(H1).first()).toBeVisible();
   expect(hydrationErrors).toEqual([]);
 });
 
 for (const route of ["home", "categories", "explore"]) {
+  // A Persian browser: with an English one the home page switches itself to /en
+  // on the client (separate issue), and this test is about the canonical.
+  test.describe(() => { test.use({ locale: "fa-IR" });
   test(`SEO ${route}: public canonical domain`, async ({ page }, testInfo) => {
     const path = route === 'home' ? `/fa/n/app/mobile/home` : `/fa/${route}`;
     await page.goto(path);
@@ -109,6 +115,7 @@ for (const route of ["home", "categories", "explore"]) {
           ?.getAttribute("content") ?? ""
     );
     expect(robots).not.toContain("noindex");
+  });
   });
 }
 
@@ -168,7 +175,7 @@ for (const section of ['providers', 'services', 'specialists', 'specialties', 'p
 
     const response = await page.goto(path!);
     expect(response?.status()).toBe(200);
-    if (section !== 'specialties') await expect(page.locator('h1:visible').first()).toBeVisible();
+    if (section !== 'specialties') await expect(page.locator(H1).first()).toBeVisible();
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', `${origin}${path}`);
     await page.screenshot({ path: testInfo.outputPath(`${section}-slug-loaded.png`) });
 
@@ -189,7 +196,12 @@ test("category and shop fallback locales are excluded from search", async ({
   const schema = await page
     .locator('script[type="application/ld+json"]')
     .allTextContents();
-  expect(schema.map((text) => JSON.parse(text)["@type"])).toContain(
+  // Nodes are either top-level or inside an @graph.
+  const types = schema.flatMap((text) => {
+    const data = JSON.parse(text);
+    return [data["@type"], ...(data["@graph"] ?? []).map((node: { "@type"?: string }) => node["@type"])];
+  });
+  expect(types).toContain(
     "CollectionPage"
   );
   await expect(page.getByText("سایر خدمات")).toBeVisible();
@@ -237,7 +249,7 @@ for (const [kind, id] of [
     expect(response?.status()).toBe(200);
     const newPath = new URL(page.url()).pathname;
     expect(newPath).toMatch(new RegExp(`^/fa/${kind}s/[a-z0-9-]+$`));
-    await expect(page.locator("h1:visible").first()).toBeVisible();
+    await expect(page.locator(H1).first()).toBeVisible();
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
       "href",
       `${origin}${newPath}`

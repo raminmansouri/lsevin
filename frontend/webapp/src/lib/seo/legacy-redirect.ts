@@ -29,6 +29,8 @@ export async function redirectToPublicEntity(
   suffix = '',
 ): Promise<never> {
   const ref = await resolvePublicEntity(kind, identifier);
-  if (!ref) notFound();
-  permanentRedirect(`/${locale}${publicEntityPath(kind, ref.slug ?? ref.id, suffix)}`);
+  // Every row has a slug (migration 0093); without one the id path would be
+  // rewritten back here (next.config.ts beforeFiles) and loop.
+  if (!ref?.slug) notFound();
+  permanentRedirect(`/${locale}${publicEntityPath(kind, ref.slug, suffix)}`);
 }
