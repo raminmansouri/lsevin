@@ -25,6 +25,11 @@ import {
   getServiceDetailsInputSchema,
 } from "@/features/assistant/tools/get-service-details";
 
+import {
+  SEARCH_NEARBY_DESCRIPTION,
+  searchNearby,
+  searchNearbyInputSchema,
+} from "@/features/assistant/tools/search-nearby";
 
 import {
   BUILD_JOURNEY_PLAN_DESCRIPTION,
@@ -230,7 +235,7 @@ async function handler(req: Request): Promise<Response> {
       );
 
 
-      
+
     },
     { serverInfo: { name: "lsevin-assistant", version: "0.2.0" } }
   );
