@@ -204,7 +204,7 @@ test("category and shop fallback locales are excluded from search", async ({
   expect(types).toContain(
     "CollectionPage"
   );
-  await expect(page.getByText("سایر خدمات")).toBeVisible();
+  await expect(page.getByText("سایر خدمات").first()).toBeVisible();
   await expect(page.getByText(/زیردسته/).first()).toBeVisible();
 
   for (const path of ["/es/categories", "/en/shop"]) {
@@ -257,7 +257,7 @@ for (const [kind, id] of [
     await page.screenshot({ path: testInfo.outputPath(`${kind}-loaded.png`) });
     const refreshed = await page.reload();
     expect(refreshed?.status()).toBe(200);
-    await expect(page.locator("h1").first()).toBeVisible();
+    await expect(page.locator(H1).first()).toBeVisible();
     await page.screenshot({ path: testInfo.outputPath(`${kind}-refreshed.png`) });
   });
   test(`public ${kind}: malformed entity is a real 404`, async ({
@@ -410,7 +410,7 @@ test("legacy provider and type URLs move permanently to the current pages", asyn
     /\/fa\/providers\/[a-z0-9-]+$/
   );
   const type = await request.get(
-    "/en/type/20000000-0000-4000-8000-000000000001",
+    `/en/type/${process.env.SEO_E2E_TYPE_ID || "20000000-0000-4000-8000-000000000001"}`,
     { maxRedirects: 0 }
   );
   expect([301, 308]).toContain(type.status());
