@@ -55,6 +55,12 @@ const SUITES = {
     e2e: 'playwright.category-landing.config.ts',
     warmup: [{ path: '/fa/n/app/mobile/home', signedIn: false }, { path: '/fa/n/app/mobile/categories', signedIn: false }],
   },
+  'shop-api': {
+    unit: ['src/features/shop-api/shop-api.test.ts'],
+    integration: ['src/features/shop-api/shop-api.int.test.ts'],
+    e2e: 'playwright.shop-api.config.ts',
+    warmup: [{ path: '/fa/developers/shop-api', signedIn: false }],
+  },
   'site-chrome': {
     unit: [],
     integration: [],

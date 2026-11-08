@@ -25,6 +25,23 @@ import {
   getServiceDetailsInputSchema,
 } from "@/features/assistant/tools/get-service-details";
 
+import {
+  SEARCH_NEARBY_DESCRIPTION,
+  searchNearby,
+  searchNearbyInputSchema,
+} from "@/features/assistant/tools/search-nearby";
+
+import {
+  GET_AVAILABILITY_DESCRIPTION,
+  getAvailability,
+  getAvailabilityInputSchema,
+} from "@/features/assistant/tools/get-availability";
+
+import {
+  START_BOOKING_DESCRIPTION,
+  startBooking,
+  startBookingInputSchema,
+} from "@/features/assistant/tools/start-booking";
 
 import {
   BUILD_JOURNEY_PLAN_DESCRIPTION,
@@ -35,13 +52,11 @@ import {
 import { SEARCH_HOTELS_DESCRIPTION, searchHotels, searchHotelsInputSchema } from "@/features/assistant/tools/search-hotels";
 import type { LocaleTypes } from "@/types/common";
 
-
 import {
   SEARCH_KNOWLEDGE_DESCRIPTION,
   searchKnowledge,
   searchKnowledgeInputSchema,
 } from "@/features/assistant/tools/search-knowledge";
-
 
 export const maxDuration = 60;
 
@@ -135,6 +150,7 @@ async function handler(req: Request): Promise<Response> {
           }
         }
       );
+
       server.registerTool(
         "get_service_details",
         {
@@ -158,6 +174,74 @@ async function handler(req: Request): Promise<Response> {
         }
       );
 
+      server.registerTool(
+        "search_nearby",
+        {
+          title: "Search nearby",
+          description: SEARCH_NEARBY_DESCRIPTION,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          inputSchema: searchNearbyInputSchema as any,
+        },
+        async (args: unknown) => {
+          try {
+            const input = searchNearbyInputSchema.parse(args);
+            const result = await searchNearby(input, storedLocale);
+            return { content: [{ type: "text" as const, text: JSON.stringify(result) }] };
+          } catch (error) {
+            console.error("[mcp] search_nearby failed", error);
+            return {
+              isError: true,
+              content: [{ type: "text" as const, text: "Nearby search is temporarily unavailable." }],
+            };
+          }
+        }
+      );
+
+      server.registerTool(
+        "get_availability",
+        {
+          title: "Get free appointment times",
+          description: GET_AVAILABILITY_DESCRIPTION,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          inputSchema: getAvailabilityInputSchema as any,
+        },
+        async (args: unknown) => {
+          try {
+            const input = getAvailabilityInputSchema.parse(args);
+            const result = await getAvailability(input, storedLocale);
+            return { content: [{ type: "text" as const, text: JSON.stringify(result) }] };
+          } catch (error) {
+            console.error("[mcp] get_availability failed", error);
+            return {
+              isError: true,
+              content: [{ type: "text" as const, text: "Free times are temporarily unavailable." }],
+            };
+          }
+        }
+      );
+
+      server.registerTool(
+        "start_booking",
+        {
+          title: "Start a booking",
+          description: START_BOOKING_DESCRIPTION,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          inputSchema: startBookingInputSchema as any,
+        },
+        async (args: unknown) => {
+          try {
+            const input = startBookingInputSchema.parse(args);
+            const result = await startBooking(input, storedLocale);
+            return { content: [{ type: "text" as const, text: JSON.stringify(result) }] };
+          } catch (error) {
+            console.error("[mcp] start_booking failed", error);
+            return {
+              isError: true,
+              content: [{ type: "text" as const, text: "The booking could not be prepared right now." }],
+            };
+          }
+        }
+      );
 
       server.registerTool(
         "get_transfer_options",
@@ -181,7 +265,6 @@ async function handler(req: Request): Promise<Response> {
           }
         }
       );
-
 
       server.registerTool(
         "build_journey_plan",
@@ -228,11 +311,8 @@ async function handler(req: Request): Promise<Response> {
           }
         }
       );
-
-
-      
     },
-    { serverInfo: { name: "lsevin-assistant", version: "0.2.0" } }
+    { serverInfo: { name: "lsevin-assistant", version: "0.3.0" } }
   );
 
   return mcp(req);
