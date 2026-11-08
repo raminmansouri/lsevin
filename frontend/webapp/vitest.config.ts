@@ -45,6 +45,7 @@ export default defineConfig({
       "src/features/categories/**/*.test.ts",
       "src/features/shop-api/**/*.test.ts",
       "src/features/site-content/**/*.test.ts",
+      "src/features/assistant/tools/*.test.ts",
       "src/lib/routes/**/*.test.ts",
       "src/features/booking/**/*.test.ts",
       "src/features/gym-memberships/**/*.test.ts",

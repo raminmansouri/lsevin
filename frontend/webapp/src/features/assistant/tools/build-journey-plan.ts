@@ -16,7 +16,7 @@ export const BUILD_JOURNEY_PLAN_DESCRIPTION =
   "Pass the ids the user chose from search_services (type service), search_hotels, get_transfer_options and search_products. " +
   "All prices are loaded and converted on the server; never invent prices. Only serviceId is required.";
 
-const uuid = z.string().uuid();
+const uuid = z.guid();
 
 export const buildJourneyPlanInputSchema = z.object({
   serviceId: uuid.describe("The treatment: id of a search_services result whose type is 'service'."),

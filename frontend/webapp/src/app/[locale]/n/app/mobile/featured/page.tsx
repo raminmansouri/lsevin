@@ -43,7 +43,7 @@ export default async function FeaturedServicesPage({ params }: PageProps) {
       <div className="sticky top-[60px] z-40 border-b border-gray-100 bg-white px-4 pb-3 pt-3 sm:px-5 sm:pb-4">
         <div className="mx-auto flex max-w-7xl items-center gap-2 sm:gap-3">
           <Link
-            href="/n/app/mobile/home"
+            href="/"
             className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-colors hover:bg-gray-100"
             aria-label={t('featuredPage.backAria')}
           >

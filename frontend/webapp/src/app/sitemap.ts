@@ -25,7 +25,7 @@ type CatalogEntry = { path: string; locales: readonly SeoLocale[] };
 type CatalogRow = { path: string; keys: string[] | null; persian_only: boolean };
 
 const STATIC_PATHS: CatalogEntry[] = [
-  { path: "/n/app/mobile/home", locales: ALL_LOCALES },
+  { path: "", locales: ALL_LOCALES },
   { path: "/categories", locales: INDEXABLE_CATEGORY_LOCALES },
   { path: "/explore", locales: ALL_LOCALES },
   { path: "/shop", locales: INDEXABLE_SHOP_LOCALES },

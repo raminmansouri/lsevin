@@ -9,7 +9,7 @@ import { Link, usePathname } from "@/i18n/navigation";
 
 import { Magnetic } from "./motion";
 
-const HOME = "/n/app/mobile/home";
+const HOME = "/";
 
 /** Desktop-only floating capsule header (>= 1280px), with a gold indicator that glides between links. */
 export function DesktopHeader({ actions }: { actions?: React.ReactNode }) {

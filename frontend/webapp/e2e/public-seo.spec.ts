@@ -21,7 +21,7 @@ for (const route of ["home", "categories", "explore", "search"]) {
   test(`public ${route}: direct navigation and refresh`, async ({
     page,
   }, testInfo) => {
-    const path = route === 'home' || route === 'search' ? `/fa/n/app/mobile/${route}` : `/fa/${route}`;
+    const path = route === 'home' ? '/fa' : route === 'search' ? `/fa/n/app/mobile/${route}` : `/fa/${route}`;
     const response = await page.goto(path);
     expect(response?.status()).toBe(200);
     if (route === "home") await expect(page.locator("h1").first()).toContainText(/\S/);
@@ -71,7 +71,7 @@ test("categories: keyboard filtering, hierarchy and persisted URL", async ({
   await page.screenshot({
     path: testInfo.outputPath("category-selected-refreshed.png"),
   });
-  await page.goto("/fa/n/app/mobile/home");
+  await page.goto("/fa");
   await page.goBack();
   await expect(page).toHaveURL(selected);
   expect(browserErrors).toEqual([]);
@@ -90,13 +90,18 @@ test('@regression explore: localized review count hydrates without a browser err
   expect(hydrationErrors).toEqual([]);
 });
 
+// Seen as Googlebot sees it: a rendering crawler from a non-Iranian IP must stay
+// on the Persian page (the home location picker switches people, not crawlers).
+const GOOGLEBOT =
+  "Mozilla/5.0 (Linux; Android 6.0.1; Nexus 5X Build/MMB29P) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.6778.204 Mobile Safari/537.36 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)";
 for (const route of ["home", "categories", "explore"]) {
-  // A Persian browser: with an English one the home page switches itself to /en
-  // on the client (separate issue), and this test is about the canonical.
-  test.describe(() => { test.use({ locale: "fa-IR" });
+  test.describe(() => { test.use({ userAgent: GOOGLEBOT, locale: "en-US" });
   test(`SEO ${route}: public canonical domain`, async ({ page }, testInfo) => {
-    const path = route === 'home' ? `/fa/n/app/mobile/home` : `/fa/${route}`;
+    const path = route === 'home' ? `/fa` : `/fa/${route}`;
     await page.goto(path);
+    // Give the client location detection time to (wrongly) move the page.
+    await page.waitForLoadState("networkidle").catch(() => undefined);
+    expect(new URL(page.url()).pathname).toBe(path);
     await page.screenshot({ path: testInfo.outputPath(`${route}-seo.png`) });
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
       "href",
@@ -347,16 +352,21 @@ test("guides exist only in written languages", async ({ request }) => {
   );
 });
 
-test("locale roots redirect to the localized home instead of a soft refresh", async ({
+test("home lives at the locale root; the old address moves there once", async ({
   request,
 }) => {
-  const response = await request.get("/en", { maxRedirects: 0 });
-  expect([301, 302, 307, 308]).toContain(response.status());
-  expect(response.headers()["location"]).toMatch(/\/en\/n\/app\/mobile\/home$/);
+  const root = await request.get("/en", { maxRedirects: 0 });
+  expect(root.status()).toBe(200);
+  const old = await request.get("/en/n/app/mobile/home?countryCode=GB", { maxRedirects: 0 });
+  expect([301, 308]).toContain(old.status());
+  expect(old.headers()["location"]).toMatch(/^(https?:\/\/[^/]+)?\/en\?countryCode=GB$/);
+  const bare = await request.get("/n/app/mobile/home", { maxRedirects: 0 });
+  expect([301, 308]).toContain(bare.status());
+  expect(new URL(bare.headers()["location"], "http://x").pathname).toBe("/fa");
 });
 
 test("Sorani pages declare ckb", async ({ request }) => {
-  const response = await request.get("/ku/n/app/mobile/home");
+  const response = await request.get("/ku");
   expect(response.headers()["content-language"]).toBe("ckb");
 });
 
@@ -369,7 +379,7 @@ test("llms.txt maps the site on the public domain", async ({ request }) => {
 });
 
 test("home: one descriptive h1 and organization schema @smoke", async ({ page }, testInfo) => {
-  await page.goto("/fa/n/app/mobile/home");
+  await page.goto("/fa");
   await expect(page.locator("h1")).toHaveCount(1);
   const org = await page.$$eval('script[type="application/ld+json"]', (nodes) =>
     nodes
@@ -436,6 +446,8 @@ test("old public URLs move in one permanent redirect; private ones stay", async 
     ["/fa/n/app/mobile/providers", /^\/fa\/providers$/],
     ["/en/n/app/mobile/offers", /^\/en\/offers$/],
     ["/fa/n/app/mobile/featured", /^\/fa\/featured$/],
+    ["/fa/n/app/mobile/home", /^\/fa$/],
+    ["/fa/n/app/mobile/medical/clinics", /^\/fa\/clinics$/],
   ];
   for (const [from, to] of moves) {
     const response = await request.get(from, { maxRedirects: 0 });
@@ -451,7 +463,8 @@ test("old public URLs move in one permanent redirect; private ones stay", async 
     ["service", process.env.SEO_E2E_SERVICE_ID || "50000000-0000-4000-8000-000000000001"],
     ["specialist", process.env.SEO_E2E_STAFF_ID || "60000000-0000-4000-8000-000000000001"],
   ]) {
-    for (const from of [`/fa/n/app/mobile/${kind}/${id}`, `/fa/${kind}s/${id}`]) {
+    // With and without a locale: one redirect either way.
+    for (const from of [`/fa/n/app/mobile/${kind}/${id}`, `/fa/${kind}s/${id}`, `/n/app/mobile/${kind}/${id}`, `/${kind}s/${id}`]) {
       const response = await request.get(from, { maxRedirects: 0 });
       expect([301, 308], from).toContain(response.status());
       const target = new URL(response.headers()["location"], "http://x").pathname;
@@ -462,10 +475,23 @@ test("old public URLs move in one permanent redirect; private ones stay", async 
     }
   }
 
-  for (const path of ["/fa/n/app/mobile/shop/cart", "/fa/n/app/mobile/profile", "/fa/n/app/mobile/home"]) {
+  for (const path of ["/fa/n/app/mobile/shop/cart", "/fa/n/app/mobile/profile"]) {
     const response = await request.get(path, { maxRedirects: 0 });
     const location = response.headers()["location"];
     const target = location ? new URL(location, "http://x").pathname : path;
     expect(target, path).not.toMatch(/^\/fa\/(shop|explore|providers)(\/|$)/);
   }
+});
+
+// A slug that changed (migration 0094: English name added to a Persian-only
+// record) keeps working: one permanent redirect to the current slug.
+test("a previous slug redirects once to the current one", async ({ request }) => {
+  const previous = process.env.SEO_E2E_PREVIOUS_PROVIDER_SLUG;
+  test.skip(!previous, "SEO_E2E_PREVIOUS_PROVIDER_SLUG names a provider slug kept in category.public_slug_history");
+  const response = await request.get(`/fa/providers/${previous}`, { maxRedirects: 0 });
+  expect([301, 308]).toContain(response.status());
+  const target = new URL(response.headers()["location"], "http://x").pathname;
+  expect(target).toMatch(/^\/fa\/providers\/[a-z0-9-]+$/);
+  expect(target).not.toBe(`/fa/providers/${previous}`);
+  expect((await request.get(target, { maxRedirects: 0 })).status()).toBe(200);
 });

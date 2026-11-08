@@ -89,7 +89,7 @@ export default async function ShopHomePage({ params }: { params: Promise<{ local
           isPartOf: { "@id": `${seoOrigin()}/#website` },
         },
         breadcrumbList([
-          { name: brand, url: absoluteUrl(locale, "/n/app/mobile/home") },
+          { name: brand, url: absoluteUrl(locale) },
           { name: t("title"), url: shopUrl },
         ])
       )}

@@ -51,7 +51,7 @@ document.addEventListener(
       if (target.hasAttribute("data-pwa-signout")) {
         await LsevinViewStore.clear();
         location.assign(
-          "/" + document.documentElement.lang + "/n/app/mobile/home"
+          "/" + document.documentElement.lang
         );
       } else connectionNotice();
       return;
@@ -85,7 +85,7 @@ document.addEventListener(
 window.addEventListener("online", () => location.reload());
 function closePrivateView() {
   document.body.replaceChildren();
-  location.replace("/" + document.documentElement.lang + "/n/app/mobile/home");
+  location.replace("/" + document.documentElement.lang);
 }
 async function checkPrivateView() {
   const owner = document.documentElement.dataset.lsevinViewOwner;

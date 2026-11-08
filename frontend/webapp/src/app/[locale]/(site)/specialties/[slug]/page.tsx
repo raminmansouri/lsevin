@@ -66,7 +66,7 @@ export default async function SpecialtyPage({ params, searchParams }: PageProps)
             inLanguage: locale,
           },
           breadcrumbList([
-            { name: brand, url: absoluteUrl(locale, "/n/app/mobile/home") },
+            { name: brand, url: absoluteUrl(locale) },
             { name, url: pageUrl },
           ])
         )}

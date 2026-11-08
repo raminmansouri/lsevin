@@ -129,7 +129,7 @@ const ConsultingSeo = async ({ params }: { params: Promise<LocaleParams> }) => {
             provider: { "@id": organizationId() },
           },
           breadcrumbList([
-            { name: copy.title.split(" | ")[1] ?? "LSevin", url: absoluteUrl(locale, "/n/app/mobile/home") },
+            { name: copy.title.split(" | ")[1] ?? "LSevin", url: absoluteUrl(locale) },
             { name: heading, url },
           ])
         )}

@@ -14,7 +14,7 @@ export const GET_SERVICE_DETAILS_DESCRIPTION =
   "steps or doctors, or when planning a stay/transfer around a treatment. Never invent or convert prices.";
 
 export const getServiceDetailsInputSchema = z.object({
-  serviceId: z.string().uuid().describe("The service id from a search_services result whose type is 'service'."),
+  serviceId: z.guid().describe("The service id from a search_services result whose type is 'service'."),
 });
 
 export type GetServiceDetailsInput = z.infer<typeof getServiceDetailsInputSchema>;

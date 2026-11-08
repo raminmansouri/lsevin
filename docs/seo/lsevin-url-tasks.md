@@ -234,18 +234,22 @@ canonical هر صفحه جدید با `alternatesFor(locale, <مسیر جدید>
 | `explore`، `categories`، `offers`، `featured`، `packages`، `providers`، `shop`، `map-discovery` | `/fa/explore`، ...، `/fa/map` | redirect در `next.config.ts`، با و بدون locale |
 | `shop/category/<slug>`، `shop/product/<slug>` | `/fa/shop/<slug>`، `/fa/products/<slug>` | همین‌طور |
 
-- home طبق تصمیم ۱ نوامبر سر جاش موند. صفحه‌های خصوصی (profile، bookings، cart، checkout، orders، search، ...) دست نخوردن.
-- `medical/clinics` منتقل **نشد**: داده‌های نمایشی hard-coded داره و نباید ایندکس بشه.
+- **home (۸ نوامبر):** آدرسش شد `/<locale>` (مثلا `/fa`). فایلش هنوز `n/app/mobile/home` است و یه rewrite در `beforeFiles` سرو می‌کنه. `/fa/n/app/mobile/home` با یه 308 (همراه query) می‌ره `/fa`؛ `/` با 307 می‌ره `/fa`. canonical، sitemap، llms.txt، breadcrumbها و لینک‌های «خانه» عوض شدن. Service worker اول `/fa` رو برای حالت آفلاین نگه می‌داره.
+- صفحه‌های خصوصی (profile، bookings، cart، checkout، orders، search، ...) دست نخوردن.
+- **clinics (۸ نوامبر):** `/fa/n/app/mobile/medical/clinics` → `/fa/clinics` (308). چون داده‌هاش نمایشی (hard-coded) است، noindex مونده و توی sitemap نیست؛ وقتی داده واقعی گرفت، noindex رو بردارید و به sitemap اضافه کنید.
 - UUID روی آدرس جدید (`/fa/providers/<uuid>`) با rewrite به مسیر قدیمی می‌ره که یه 308 تمیز به slug می‌ده.
 
 ### slug
 - `0091`: ستون‌ها. `0092`: نگاشت تاییدشده ۱ نوامبر (بدون `begin/commit` داخلی؛ سه پکیج: `golden-package`، `silver-package`، `bronze-package`).
 - `0093`: تابع و trigger که به هر ردیف جدید یا بدون slug، slug می‌ده (اول نام انگلیسی، بعد آوانگاری فارسی، پیشوند ارائه‌دهنده برای خدمت، `-2` برای تکراری). slug بعد از ساخته شدن عوض نمی‌شه، حتی با تغییر نام.
-- اسم فارسی‌ای که انگلیسی نداره slug بدون صدادار می‌گیره (مثل `klynyk-zybayy`). بهتره ادمین‌ها اسم انگلیسی رو قبل از ثبت پر کنن.
+- اسم فارسی‌ای که انگلیسی نداره slug بدون صدادار می‌گیره (مثل `klynyk-zybayy`).
+- **`0094` (۸ نوامبر):** جدول `category.public_slug_history`. هر slug قبلی یه رکورد اونجا می‌مونه و صفحه با یه 308 به slug فعلی می‌ره (T7). وقتی ادمین برای رکوردی که فقط اسم فارسی داشت اسم انگلیسی وارد کنه، slug یه بار به نسخه انگلیسی عوض می‌شه و slug قبلی ریدایرکت می‌شه. بقیه تغییر اسم‌ها URL رو عوض نمی‌کنن. slug قدیمی یه رکورد برای رکورد دیگه رزرو می‌مونه. اگه لازم شد slug رو دستی عوض کنید، فقط ستون `slug` رو update کنید؛ قبلی خودکار ثبت می‌شه.
 
 ### لینک‌ها
 - لینک‌های داخلی، JSON-LD، sitemap و ابزارهای دستیار از slug استفاده می‌کنن.
 - لینک‌های ذخیره‌شده توسط ادمین (`home_sections.button_href`، `shop.home_section_items.link_url`، `common.app_content_items.button_url`، اسلایدر) موقع خوندن به آدرس جدید تبدیل می‌شن (`toPublicPath`).
 
-### محدودیت شناخته‌شده
-- آدرس UUID بدون locale (`/n/app/mobile/provider/<uuid>`) دو redirect می‌خوره (اضافه شدن locale، بعد slug). config نمی‌تونه slug رو از دیتابیس بخونه.
+### موارد رفع‌شده (۸ نوامبر)
+- آدرس قدیمی بدون locale (`/n/app/mobile/provider/<uuid>`، `/service-providers/<uuid>`، `/providers/<uuid>`، ...) حالا با **یه** 308 به `/fa/providers/<slug>` می‌ره: middleware مستقیم به route قدیمی با locale پیش‌فرض rewrite می‌کنه.
+- انتخابگر موقعیت در home زبان رو بر اساس IP عوض می‌کرد (مثلا از `/fa` به `/en` برای IP انگلیس). Googlebot از IP آمریکا رندر می‌کنه، پس صفحه فارسی رو ریدایرکت می‌دید. حالا برای crawlerها (`src/lib/seo/crawler.ts`) زبان عوض نمی‌شه؛ برای کاربرها مثل قبل.
+- ابزارهای دستیار id رو با `z.guid()` چک می‌کنن (id های production استاندارد RFC نیستن و `uuid()` ردشون می‌کرد).

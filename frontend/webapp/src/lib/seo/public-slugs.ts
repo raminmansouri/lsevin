@@ -37,7 +37,11 @@ export async function publicSegmentsForIds(kind: PublicEntityKind, ids: string[]
   return ids.map((id) => slugs.get(id) ?? id);
 }
 
-/** Resolve only public catalog identifiers; SQL table names are fixed, never user-provided. */
+/**
+ * Resolve only public catalog identifiers; SQL table names are fixed, never user-provided.
+ * A slug the record used to have (category.public_slug_history, migration 0094)
+ * resolves to the record too; its page then redirects to the current slug.
+ */
 export const resolvePublicEntity = cache(async (kind: PublicEntityKind, value: string): Promise<PublicEntityRef | null> => {
   const byId = isPublicUuid(value);
   if (!byId && !isPublicSlug(value)) return null;
@@ -69,5 +73,13 @@ export const resolvePublicEntity = cache(async (kind: PublicEntityKind, value: s
         : await sql<PublicEntityRef[]>`select id::text as id, slug from marketing.special_packages where slug = ${value} and is_active = true limit 1`;
       break;
   }
-  return rows[0] ?? null;
+  if (rows[0] || byId) return rows[0] ?? null;
+  const previous = await sql<PublicEntityRef[]>`
+    select t.id::text as id, t.slug
+      from category.public_slug_history h
+      join ${sql(SLUG_TABLES[kind])} t on t.id = h.entity_id
+     where h.kind = ${kind} and h.slug = ${value} and t.is_active = true
+     limit 1
+  `;
+  return previous[0] ?? null;
 });

@@ -178,28 +178,31 @@ const nextConfig: NextConfig = {
       ['map-discovery', 'map'],
       ['shop/category/:slug', 'shop/:slug'],
       ['shop/product/:slug', 'products/:slug'],
+      ['medical/clinics', 'clinics'],
     ] as const;
     return [
-      // The locale root is not a real page: it forwards to the mobile home. Doing
-      // that here gives a real 307 that keeps the locale. The page-level redirect()
-      // ran after the layout had started streaming, so it became a 200 with a
-      // 1-second meta refresh to the unprefixed /n/app/mobile/home, and the
-      // middleware then sent every visitor to /fa — /en visitors included.
+      // The home page's address is the locale root (/fa); its file still lives at
+      // n/app/mobile/home and a beforeFiles rewrite serves it there. "/" picks the
+      // default locale; the old /n/app/mobile/home moves permanently, query kept.
       //
       // The financial panel host is excluded: config redirects run before the
-      // middleware, so without `missing` its "/" was sent to the customer mobile
-      // home (a 404 there) instead of being rewritten to /financial.
+      // middleware, so without `missing` its "/" was sent to the customer home
+      // instead of being rewritten to /financial.
       {
         source: "/",
         missing: [{ type: "host", value: "financial\\..*" }],
-        destination: `/${routing.defaultLocale}/n/app/mobile/home`,
+        destination: `/${routing.defaultLocale}`,
         permanent: false,
       },
       {
-        source: `/:locale(${routing.locales.join("|")})`,
-        missing: [{ type: "host", value: "financial\\..*" }],
-        destination: "/:locale/n/app/mobile/home",
-        permanent: false,
+        source: `/:locale(${localePattern})/n/app/mobile/home`,
+        destination: "/:locale",
+        permanent: true,
+      },
+      {
+        source: "/n/app/mobile/home",
+        destination: `/${routing.defaultLocale}`,
+        permanent: true,
       },
       ...publicMoves.flatMap(([oldPath, newPath]) => [
         {
@@ -244,6 +247,8 @@ const nextConfig: NextConfig = {
       ['map', 'map-discovery'],
       ['shop/:slug', 'shop/category/:slug'],
       ['products/:slug', 'shop/product/:slug'],
+      // Sample data for now: noindex (medical/layout.tsx) and not in the sitemap.
+      ['clinics', 'medical/clinics'],
     ].map(([newPath, oldPath]) => ({
       source: `/:locale(${localePattern})/${newPath}`,
       destination: `/:locale/n/app/mobile/${oldPath}`,
@@ -258,7 +263,7 @@ const nextConfig: NextConfig = {
     // and answers one clean 308. The static slug pages would redirect too, but
     // a first, uncached render repeats the Location header.
     const uuid = "[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}";
-    const beforeFiles = [
+    const entityRewrites = [
       ['providers/:id', 'provider/:id'],
       ['services/:id/gallery', 'service/:id/gallery'],
       ['services/:id', 'service/:id'],
@@ -268,6 +273,15 @@ const nextConfig: NextConfig = {
       source: `/:locale(${localePattern})/${newPath.replace(':id', `:id(${uuid})`)}`,
       destination: `/:locale/n/app/mobile/${oldPath}`,
     }));
+    const beforeFiles = [
+      // Home: the locale root serves the mobile home page (see redirects()).
+      {
+        source: `/:locale(${localePattern})`,
+        missing: [{ type: "host" as const, value: "financial\\..*" }],
+        destination: "/:locale/n/app/mobile/home",
+      },
+      ...entityRewrites,
+    ];
 
     if (!bookingOrigin) return { beforeFiles, afterFiles: seoRewrites, fallback: [] };
 

@@ -108,7 +108,7 @@ export default async function CategoryBrowserPage({
               : {}),
           },
           breadcrumbList([
-            { name: brand, url: absoluteUrl(locale, "/n/app/mobile/home") },
+            { name: brand, url: absoluteUrl(locale) },
             { name: pageT("allCategories"), url: pageUrl },
           ])
         )}

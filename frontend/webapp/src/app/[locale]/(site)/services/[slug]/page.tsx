@@ -125,7 +125,7 @@ export default async function TreatmentDetailPage({
               country: service.country,
             }),
             breadcrumbList([
-              { name: brand, url: absoluteUrl(locale, "/n/app/mobile/home") },
+              { name: brand, url: absoluteUrl(locale) },
               ...(service.clinicId && service.clinic
                 ? [{ name: service.clinic, url: providerUrl(locale, { id: service.clinicId, slug: service.clinicSlug }) }]
                 : []),

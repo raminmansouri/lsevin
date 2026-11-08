@@ -173,7 +173,7 @@
 })();
 
 /* PROFILE_VIEW_STORE_END */
-const VERSION = "v1-aa5dd798473d3464";
+const VERSION = "v1-1454fb1c9ae03d75";
 const SHELL_CACHE = `lsevin-pwa-shell-${VERSION}`;
 const ASSET_CACHE = "lsevin-pwa-assets-v2";
 const APPLICATION_CACHE = "lsevin-pwa-application-v2";
@@ -396,7 +396,7 @@ async function offlineNavigation(request) {
           : self.location.hostname.endsWith(".ir")
             ? "fa"
             : "en";
-        for (const fallback of [`/${locale}/n/app/mobile/home`, `/${locale}`]) {
+        for (const fallback of [`/${locale}`, `/${locale}/n/app/mobile/home`]) {
           const page = await (
             await caches.open(APPLICATION_CACHE)
           ).match(fallback);

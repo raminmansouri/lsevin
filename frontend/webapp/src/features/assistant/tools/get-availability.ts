@@ -14,8 +14,8 @@ export const GET_AVAILABILITY_DESCRIPTION =
   "These are exactly the times the booking page shows, in the clinic's local time. Never invent or guess times.";
 
 export const getAvailabilityInputSchema = z.object({
-  serviceId: z.string().uuid().describe("The service id (a treatment at a specific clinic)."),
-  specialistId: z.string().uuid().optional().describe("A specific doctor/specialist, if the user asked for one."),
+  serviceId: z.guid().describe("The service id (a treatment at a specific clinic)."),
+  specialistId: z.guid().optional().describe("A specific doctor/specialist, if the user asked for one."),
   date: z
     .string()
     .regex(/^\d{4}-\d{2}-\d{2}$/)

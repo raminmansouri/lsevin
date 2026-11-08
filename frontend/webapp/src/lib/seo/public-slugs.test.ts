@@ -34,8 +34,26 @@ describe('public slug resolution', () => {
   });
 
   it('does not invent a slug for a missing or unslugged record', async () => {
-    query.mockResolvedValueOnce([]).mockResolvedValueOnce([{ id: 'id', slug: null }]);
+    // slug miss, the history table name, the history miss, then the UUID lookup
+    query.mockResolvedValueOnce([]).mockReturnValueOnce('t').mockResolvedValueOnce([]).mockResolvedValueOnce([{ id: 'id', slug: null }]);
     expect(await resolvePublicEntity('package', 'missing-package')).toBeNull();
     expect(await resolvePublicEntity('package', '30000000-0000-4000-8000-000000000001')).toEqual({ id: 'id', slug: null });
+  });
+
+  it('resolves a previous slug to the record, so its page can redirect to the current one', async () => {
+    query.mockImplementation((strings: unknown) =>
+      Array.isArray(strings)
+        ? Promise.resolve(strings.join('?').includes('public_slug_history') ? [{ id: 'p1', slug: 'clinic-zibaei' }] : [])
+        : strings,
+    );
+    expect(await resolvePublicEntity('provider', 'klynyk-zybayy')).toEqual({ id: 'p1', slug: 'clinic-zibaei' });
+    const history = query.mock.calls.find((call) => Array.isArray(call[0]) && call[0].join('?').includes('public_slug_history'));
+    expect(history?.slice(1)).toEqual(['category.service_providers', 'provider', 'klynyk-zybayy']);
+  });
+
+  it('never looks up the history for a UUID', async () => {
+    query.mockResolvedValue([]);
+    expect(await resolvePublicEntity('provider', '30000000-0000-4000-8000-000000000001')).toBeNull();
+    expect(query).toHaveBeenCalledTimes(1);
   });
 });

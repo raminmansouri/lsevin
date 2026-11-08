@@ -14,8 +14,8 @@ export const START_BOOKING_DESCRIPTION =
   "and never say the booking is done: the user still has to confirm and pay on that page.";
 
 export const startBookingInputSchema = z.object({
-  serviceId: z.string().uuid().describe("The service id (a treatment at a specific clinic)."),
-  specialistId: z.string().uuid().optional().describe("The doctor/specialist id, if the user chose one."),
+  serviceId: z.guid().describe("The service id (a treatment at a specific clinic)."),
+  specialistId: z.guid().optional().describe("The doctor/specialist id, if the user chose one."),
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional().describe("Chosen day (YYYY-MM-DD, Gregorian), from get_availability."),
   time: z.string().regex(/^\d{2}:\d{2}$/).optional().describe("Chosen start time (HH:MM), from get_availability."),
 });

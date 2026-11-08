@@ -52,7 +52,7 @@ export default async function SpecialPackagesPage({ params }: PageProps) {
       <div className="sticky top-0 z-40 border-b border-gray-100 bg-white px-5 pb-4 pt-3">
         <div className="flex items-center gap-3">
           <Link
-            href="/n/app/mobile/home"
+            href="/"
             className="flex h-10 w-10 items-center justify-center rounded-full transition-colors hover:bg-gray-100"
             aria-label={t('packagesPage.backAria')}
           >

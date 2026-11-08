@@ -104,7 +104,7 @@ export default async function SpecialistPage({ params }: PageProps) {
             providers: data.providers,
           }),
           breadcrumbList([
-            { name: brand, url: absoluteUrl(locale, "/n/app/mobile/home") },
+            { name: brand, url: absoluteUrl(locale) },
             { name: specialist.name, url: canonicalUrl },
           ])
         )}

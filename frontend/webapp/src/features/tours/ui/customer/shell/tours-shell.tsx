@@ -11,7 +11,7 @@ import { directionOf } from "../../../domain/content";
 
 import { DisplaySettingsButton } from "./display-settings";
 
-export const PARENT_APP_PATH = "/n/app/mobile/home";
+export const PARENT_APP_PATH = "/";
 
 const TABS = [
   { key: "home", href: "/tours", icon: Home, match: (p: string) => p === "/tours" },

@@ -13,6 +13,7 @@ import { routing } from "./i18n/routing";
 import { getSession } from "./lib/auth/session";
 import { UserRole } from "./types/common";
 import { publicAppOrigin, publicAppUrl } from "./lib/http/public-origin";
+import { legacyEntityRoute } from "./lib/routes/legacy-entity-route";
 
 type Locale = (typeof routing.locales)[number];
 
@@ -39,6 +40,17 @@ export default async function middleware(request: NextRequest) {
   // a URL, and appmain.lsevin.com/financial would be a second door to the books.
   if (request.nextUrl.pathname.startsWith("/financial")) {
     return new NextResponse(null, { status: 404 });
+  }
+
+  // An old entity link without a locale (/n/app/mobile/provider/<uuid>,
+  // /service-providers/<uuid>, /providers/<uuid>, ...) is served by the
+  // default-locale legacy route, which answers one 308 straight to the slug URL.
+  // Letting the intl middleware add the locale first would be a second hop.
+  const legacyEntity = legacyEntityRoute(request.nextUrl.pathname);
+  if (legacyEntity) {
+    const url = request.nextUrl.clone();
+    url.pathname = `/${routing.defaultLocale}${legacyEntity}`;
+    return NextResponse.rewrite(url);
   }
 
   const intlResponse = intlMiddleware(request);

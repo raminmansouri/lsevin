@@ -76,7 +76,7 @@ export const revalidate = 120;
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "HomePage" });
-  return buildPublicMetadata({ locale, path: "/n/app/mobile/home", title: t("title"), descriptions: [t("description")] });
+  return buildPublicMetadata({ locale, path: "", title: t("title"), descriptions: [t("description")] });
 }
 
 async function getLocaleFromParams(params: PageProps['params']) {
@@ -606,7 +606,7 @@ async function Home({ params }: PageProps) {
     />
     {/* One FAQ block for both layouts (a single FAQPage node per page). */}
     <div className="mx-auto max-w-3xl px-4 pb-10 xl:py-16">
-      <FaqSection target={{ scope: "home" }} locale={locale} pageUrl={absoluteUrl(locale, "/n/app/mobile/home")} />
+      <FaqSection target={{ scope: "home" }} locale={locale} pageUrl={absoluteUrl(locale)} />
     </div>
     </>
   );

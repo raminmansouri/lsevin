@@ -109,7 +109,7 @@ export default async function ProductDetailPage({
           breadcrumbList([
             {
               name: (await getTranslations({ locale, namespace: "LocaleLayout" }))("title"),
-              url: absoluteUrl(locale, "/n/app/mobile/home"),
+              url: absoluteUrl(locale),
             },
             { name: product.name, url: productUrl },
           ])

@@ -43,6 +43,6 @@ document.getElementById("retry").textContent = persian
 document.getElementById("retry").addEventListener("click", () => {
   // Preserve the requested page and query when the worker supplies this shell.
   if (location.pathname === "/offline.html")
-    location.replace(`/${locale}/n/app/mobile/home`);
+    location.replace(`/${locale}`);
   else location.reload();
 });

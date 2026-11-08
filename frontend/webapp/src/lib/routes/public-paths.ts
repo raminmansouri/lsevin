@@ -1,6 +1,6 @@
 /**
  * Public URLs (docs/seo/lsevin-url-tasks.md): `/<locale>/<section>/<slug>`, no
- * `/n/app/mobile`. Private screens (profile, bookings, cart, checkout, orders,
+ * `/n/app/mobile`; home is `/<locale>`. Private screens (profile, bookings, cart, checkout, orders,
  * search, ...) keep their `/n/app/mobile/...` paths.
  *
  * `toPublicPath` maps an old mobile path (with or without its query) to the
@@ -17,6 +17,9 @@ const RULES: [RegExp, string][] = [
   [/^\/shop\/product\/([^/?#]+)(?=$|[?#])/, '/products/$1'],
   [/^\/shop\/category\/([^/?#]+)(?=$|[?#])/, '/shop/$1'],
   [/^\/map-discovery(?=$|[?#])/, '/map'],
+  [/^\/medical\/clinics(?=$|[?#])/, '/clinics'],
+  // Home is the locale root: /fa/n/app/mobile/home -> /fa.
+  [/^\/home(?=$|[?#])/, ''],
   [/^\/(explore|categories|offers|featured|packages|providers|shop)(?=$|[?#])/, '/$1'],
 ];
 
@@ -46,7 +49,10 @@ export function toPublicPath(path: string): string {
   if (!match) return path;
   const [, head, rest] = match;
   for (const [pattern, replacement] of RULES) {
-    if (pattern.test(rest)) return head + rest.replace(pattern, replacement);
+    if (!pattern.test(rest)) continue;
+    const mapped = rest.replace(pattern, replacement);
+    // A bare "/n/app/mobile/home" has no locale to fall back on: the site root.
+    return head || mapped.startsWith('/') ? head + mapped : `/${mapped}`;
   }
   return path;
 }

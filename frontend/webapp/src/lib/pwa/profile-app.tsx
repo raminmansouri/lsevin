@@ -19,7 +19,7 @@ async function start() {
     ))
   ) {
     document.body.replaceChildren();
-    location.replace(`/${document.documentElement.lang}/n/app/mobile/home`);
+    location.replace(`/${document.documentElement.lang}`);
     return;
   }
   createRoot(root).render(

@@ -60,7 +60,7 @@ export function DesktopFooter({ pages = [] }: { pages?: FooterPageLink[] }) {
 
       <div className="lsd-container relative grid grid-cols-[1.5fr_1fr_1fr_1fr] gap-14 pb-14 pt-14">
         <Reveal className="space-y-5">
-          <Link href="/n/app/mobile/home" className="flex w-fit items-center gap-3">
+          <Link href="/" className="flex w-fit items-center gap-3">
             <Image src="/brand/lsevin-mark-reversed.png" alt="" width={30} height={42} />
             <Image src="/brand/lsevin-wordmark.png" alt="L SEVIN" width={104} height={29} />
           </Link>

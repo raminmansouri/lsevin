@@ -38,7 +38,7 @@ function pageSchema(slug: SitePageSlug, locale: string, found: PublishedSitePage
       ...(slug === "about-us" || slug === "contact-us" ? { mainEntity: { "@id": organizationId() } } : {}),
     },
     breadcrumbList([
-      { name: homeLabel, url: absoluteUrl(locale, "/n/app/mobile/home") },
+      { name: homeLabel, url: absoluteUrl(locale) },
       { name: found.page.title, url },
     ]),
   );
@@ -72,7 +72,7 @@ export function SitePageView({
         <nav aria-label="breadcrumb" className="mb-4 text-sm text-neutral-500">
           <ol className="flex flex-wrap items-center gap-1.5">
             <li>
-              <Link href="/n/app/mobile/home" className="hover:underline">
+              <Link href="/" className="hover:underline">
                 {homeLabel}
               </Link>
             </li>

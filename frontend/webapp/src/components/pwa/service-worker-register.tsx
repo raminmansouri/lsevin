@@ -216,7 +216,7 @@ export function ServiceWorkerRegister() {
         await navigator.serviceWorker.ready;
         if (controller.signal.aborted) return;
         const locale = pathname.split("/")[1] || "fa";
-        const home = "/" + locale + "/n/app/mobile/home";
+        const home = "/" + locale;
         await Promise.all([
           saveApplicationPage(pathname, controller.signal),
           ...(pathname !== home

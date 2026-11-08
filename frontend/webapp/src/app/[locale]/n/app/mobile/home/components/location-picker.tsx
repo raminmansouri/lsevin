@@ -22,6 +22,7 @@ import {
 import { saveCurrentLocationToProfileAction } from '../actions/save-profile-location';
 import { resolveHomeMediaUrl } from '@/features/home/components/home-media';
 import { hasExplicitLocaleChoice, localeForCountry } from '@/i18n/locale-by-country';
+import { isCrawler } from '@/lib/seo/crawler';
 
 /**
  * This form holds three ids chosen from cascading selects — there is no free
@@ -467,7 +468,9 @@ export default function LocationPicker({ locale = 'fa-IR' }: Props) {
       // explicit language choice. Switches the /[locale] segment + NEXT_LOCALE
       // cookie and carries the location params across in a single navigation.
       const localeCountryCode = options.localeCountryCode ?? location.countryCode;
-      if (adoptLocale && localeCountryCode && !hasExplicitLocaleChoice()) {
+      // Never for a crawler: Googlebot renders from US IPs, and a JS move from /fa
+      // to /en makes it treat every Persian page as a redirect.
+      if (adoptLocale && localeCountryCode && !hasExplicitLocaleChoice() && !isCrawler()) {
         const segments = pathname.split('/');
         const currentUrlLocale = segments[1] || '';
         const targetLocale = localeForCountry(localeCountryCode);
