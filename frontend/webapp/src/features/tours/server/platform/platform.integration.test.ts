@@ -104,6 +104,33 @@ suite("tours platform (real database)", () => {
     expect(d!.itinerary.every((s) => s.distanceKmFromPrev === null && s.travelMinutesFromPrev === null)).toBe(true);
   });
 
+  it("REG-2026-11-07 stop order is immediate (replication-safe) yet saveItinerary can still swap and reorder stops", async () => {
+    // SymmetricDS loads rows with INSERT ... ON CONFLICT DO NOTHING, which PostgreSQL rejects on a table with a
+    // DEFERRABLE unique constraint. 0092 made ux_stops_order immediate; saveItinerary parks stops before rewriting positions.
+    const [con] = await sql<any[]>`select condeferrable from pg_constraint where conrelid = 'tour.itinerary_stops'::regclass and conname = 'ux_stops_order'`;
+    expect(con.condeferrable).toBe(false);
+
+    const owner = await seedUser(sql);
+    const p = await seedProvider(sql, owner.id);
+    const t = await seedTour(sql, { providerId: p.id });
+    const rows = await sql<any[]>`select id::text, day_number, position, stop_type, latitude::float8 as lat, longitude::float8 as lng from tour.itinerary_stops where tour_id = ${t.id} order by position`;
+    expect(rows.map((r) => r.position)).toEqual([1, 2, 3]);
+    const input = (r: any, position: number) => ({ id: r.id, day: r.day_number, position, type: r.stop_type, lat: r.lat, lng: r.lng });
+
+    // swap the first two stops, move the third one first, and add a new stop at the end
+    const [a, b, c] = rows;
+    await authoring.saveItinerary(admin(owner.id), t.id, "en-US", [input(c, 1), input(b, 2), input(a, 3), { day: 1, position: 4, type: "activity" }]);
+    const after = await sql<any[]>`select id::text, position from tour.itinerary_stops where tour_id = ${t.id} order by position`;
+    expect(after.map((r) => r.id).slice(0, 3)).toEqual([c.id, b.id, a.id]);
+    expect(after.map((r) => r.position)).toEqual([1, 2, 3, 4]);
+
+    // a duplicate position is still rejected as a validation error, not an infrastructure error
+    await expect(authoring.saveItinerary(admin(owner.id), t.id, "en-US", [input(a, 1), input(b, 1)])).rejects.toMatchObject({ kind: "validation" });
+    // nothing changed after the rejected save
+    const unchanged = await sql<any[]>`select id::text, position from tour.itinerary_stops where tour_id = ${t.id} order by position`;
+    expect(unchanged.map((r) => r.position)).toEqual([1, 2, 3, 4]);
+  });
+
   it("C-043 approximate location privacy never returns the exact meeting point", async () => {
     const owner = await seedUser(sql);
     const p = await seedProvider(sql, owner.id);
