@@ -392,6 +392,12 @@ export async function saveItinerary(actor: Actor, tourId: string, locale: string
       const keep = stops.filter((s) => s.id).map((s) => s.id!);
       await tx`delete from tour.itinerary_stops where tour_id = ${tourId}::uuid and not (id = any(${keep}::uuid[]))`;
       await tx`delete from tour.content where entity_type = 'stop' and tour_id = ${tourId}::uuid and not (entity_id = any(${keep}::uuid[]))`;
+      // ux_stops_order is not deferrable (migration 0092: SymmetricDS cannot load rows into a table with a deferrable unique
+      // constraint). Park the kept stops far above any real position (at most 200 stops) so that the final positions below
+      // can be written one by one, including swaps, without two rows ever holding the same (day, position).
+      if (keep.length > 0) {
+        await tx`update tour.itinerary_stops set position = position + 100000 where tour_id = ${tourId}::uuid and id = any(${keep}::uuid[])`;
+      }
       for (const s of stops) {
         const values = {
           tour_id: tourId, day_number: s.day, position: s.position, stop_type: s.type, latitude: s.lat ?? null, longitude: s.lng ?? null,
