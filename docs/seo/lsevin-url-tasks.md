@@ -253,3 +253,7 @@ canonical هر صفحه جدید با `alternatesFor(locale, <مسیر جدید>
 - آدرس قدیمی بدون locale (`/n/app/mobile/provider/<uuid>`، `/service-providers/<uuid>`، `/providers/<uuid>`، ...) حالا با **یه** 308 به `/fa/providers/<slug>` می‌ره: middleware مستقیم به route قدیمی با locale پیش‌فرض rewrite می‌کنه.
 - انتخابگر موقعیت در home زبان رو بر اساس IP عوض می‌کرد (مثلا از `/fa` به `/en` برای IP انگلیس). Googlebot از IP آمریکا رندر می‌کنه، پس صفحه فارسی رو ریدایرکت می‌دید. حالا برای crawlerها (`src/lib/seo/crawler.ts`) زبان عوض نمی‌شه؛ برای کاربرها مثل قبل.
 - ابزارهای دستیار id رو با `z.guid()` چک می‌کنن (id های production استاندارد RFC نیستن و `uuid()` ردشون می‌کرد).
+
+### محدودیت باقی‌مونده
+- اولین درخواست به یه slug قدیمی (قبل از cache شدن) دو هدر `Location` **یکسان** برمی‌گردونه (رفتار Next.js روی صفحه‌های static). Chrome و Firefox فقط وقتی مقدارها فرق کنن خطا می‌دن؛ درخواست‌های بعدی یه هدر دارن. برای UUID ها این مشکل با rewrite به route داینامیک حل شده.
+- `middleware.ts` فعال، فایل ریشه `frontend/webapp/middleware.ts` است، نه `src/middleware.ts`.
