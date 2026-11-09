@@ -196,8 +196,6 @@ export function ServiceProviderAdminForm({ provider, lookups, locale }: Props) {
   const t = useTranslations("AdminGenerated");
   const tAdmin = useTranslations("AdminGenerated");
   const router = useRouter();
-  // Saving state is ours (not a React transition), so it always ends
-  // after success, error or crash — even if navigation is slow.
   const [isPending, setIsPending] = useState(false);
   const [formKey, setFormKey] = useState(0);
   const startTransition: React.TransitionStartFunction = (callback) => {

@@ -584,6 +584,13 @@ export async function getSearchResults(params?: {
             END
             + COALESCE(ps.trending_score, 0)::float8 / 100
             + COALESCE(ps.rating, sp.rating, 0)::float8 / 10
+            + CASE
+                WHEN params.q IS NULL THEN 0
+                WHEN lower(btrim(common.get_translation_t(ps.display_name_translations, params.locale, 'en-US'))) = lower(btrim(params.q)) THEN 3
+                WHEN lower(common.get_translation_t(ps.display_name_translations, params.locale, 'en-US')) LIKE lower(btrim(params.q)) || '%' THEN 2
+                WHEN common.get_translation_t(ps.display_name_translations, params.locale, 'en-US') ILIKE params.like_q THEN 1
+                ELSE 0
+              END
           ) AS rank_score
         FROM category.provider_services ps
         JOIN category.service_definitions sd ON sd.id = ps.service_definition_id
@@ -651,6 +658,13 @@ export async function getSearchResults(params?: {
             END
             + COALESCE(sp.featured_score, 0)::float8 / 100
             + COALESCE(sp.rating, 0)::float8 / 10
+            + CASE
+                WHEN params.q IS NULL THEN 0
+                WHEN lower(btrim(common.get_translation_t(sp.name_translations, params.locale, 'en-US'))) = lower(btrim(params.q)) THEN 3.5
+                WHEN lower(common.get_translation_t(sp.name_translations, params.locale, 'en-US')) LIKE lower(btrim(params.q)) || '%' THEN 2.5
+                WHEN sp.name_translations::text ILIKE params.like_q THEN 1.5
+                ELSE 0
+              END
           ) AS rank_score
         FROM category.service_providers sp
         JOIN category.provider_types pt ON pt.id = sp.provider_type_id
@@ -708,7 +722,16 @@ export async function getSearchResults(params?: {
           false AS is_sponsored,
           NULL::text AS sponsored_tag,
           CONCAT('/specialists/', coalesce(staff.slug, staff.id::text)) AS href,
-          (COALESCE(staff.rating, 0)::float8 / 10) AS rank_score
+          (
+            COALESCE(staff.rating, 0)::float8 / 10
+            + CASE
+                WHEN params.q IS NULL THEN 0
+                WHEN lower(btrim(common.get_translation_t(staff.name_translations, params.locale, 'en-US'))) = lower(btrim(params.q)) THEN 3
+                WHEN lower(common.get_translation_t(staff.name_translations, params.locale, 'en-US')) LIKE lower(btrim(params.q)) || '%' THEN 2
+                WHEN staff.name_translations::text ILIKE params.like_q THEN 1
+                ELSE 0
+              END
+          ) AS rank_score
         FROM category.staff staff
         JOIN category.provider_staffs psf ON psf.staff_id = staff.id AND psf.is_active = true
         JOIN category.service_providers sp ON sp.id = psf.service_provider_id AND sp.is_active = true and category.provider_type_is_public(sp.provider_type_id)
