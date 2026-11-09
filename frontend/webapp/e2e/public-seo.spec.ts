@@ -392,6 +392,19 @@ test("server HTML declares each page's own language and direction", async ({ req
   }
 });
 
+// T40: since the home block was removed, the footer is the only site-wide link
+// to the guides. Only where the guides exist, so no locale links to a 404.
+test("the footer links the guides hub in the guide languages only", async ({ request }) => {
+  for (const [path, locale] of [["/fa", "fa"], ["/en/providers", "en"], ["/ar/explore", "ar"]]) {
+    const html = await (await request.get(path)).text();
+    expect(html, path).toContain(`href="/${locale}/medical-tourism"`);
+    const hub = await request.get(`/${locale}/medical-tourism`, { maxRedirects: 0 });
+    expect(hub.status(), locale).toBe(200);
+  }
+  const tr = await (await request.get("/tr")).text();
+  expect(tr).not.toContain('href="/tr/medical-tourism"');
+});
+
 test("llms.txt maps the site on the public domain", async ({ request }) => {
   const response = await request.get("/llms.txt");
   expect(response.status()).toBe(200);

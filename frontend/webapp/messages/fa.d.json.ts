@@ -2352,7 +2352,8 @@ declare const messages: {
           "categories": "دسته‌بندی‌ها",
           "map": "نقشه",
           "packages": "پکیج‌ها",
-          "providers": "ارائه‌دهندگان"
+          "providers": "ارائه‌دهندگان",
+          "guides": "راهنمای سفر درمانی"
         }
       },
       "company": {

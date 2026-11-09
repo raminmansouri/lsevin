@@ -1,6 +1,7 @@
 import Image from "next/image";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
+import { GUIDE_LOCALES } from "@/features/guides/types";
 import type { FooterPageLink, SitePageSlug } from "@/features/site-content/types";
 import { EnamadSeal } from "@/components/trust/enamad-seal";
 import { Link } from "@/i18n/navigation";
@@ -17,6 +18,11 @@ const COMPANY_PAGES: readonly SitePageSlug[] = ["about-us", "services", "contact
  */
 export function DesktopFooter({ pages = [] }: { pages?: FooterPageLink[] }) {
   const t = useTranslations("Footer");
+  const locale = useLocale();
+  // The guides hub exists only in the languages the guides are written in;
+  // elsewhere the link would be a 404. It is the only site-wide link to the
+  // guides since the home block was removed (SEO tracker T40).
+  const hasGuides = (GUIDE_LOCALES as readonly string[]).includes(locale);
   const year = new Date().getFullYear();
   const toLink = (page: FooterPageLink) => ({ href: `/${page.slug}`, label: page.title });
   const published = new Set(pages.map((page) => page.slug));
@@ -31,6 +37,7 @@ export function DesktopFooter({ pages = [] }: { pages?: FooterPageLink[] }) {
         { href: "/map", label: t("columns.explore.links.map") },
         { href: "/packages", label: t("columns.explore.links.packages") },
         { href: "/providers", label: t("columns.explore.links.providers") },
+        ...(hasGuides ? [{ href: "/medical-tourism", label: t("columns.explore.links.guides") }] : []),
       ],
     },
     {

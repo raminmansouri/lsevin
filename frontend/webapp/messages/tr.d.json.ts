@@ -2937,7 +2937,8 @@ declare const messages: {
           "categories": "Kategoriler",
           "map": "Harita",
           "packages": "Paketler",
-          "providers": "Hizmet sağlayıcılar"
+          "providers": "Hizmet sağlayıcılar",
+          "guides": "Sağlık turizmi rehberi"
         }
       },
       "company": {

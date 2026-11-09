@@ -3247,7 +3247,8 @@ declare const messages: {
           "categories": "Categories",
           "map": "Map",
           "packages": "Packages",
-          "providers": "Providers"
+          "providers": "Providers",
+          "guides": "Medical treatment guide"
         }
       },
       "company": {

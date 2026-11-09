@@ -2696,7 +2696,8 @@ declare const messages: {
           "categories": "الفئات",
           "map": "الخريطة",
           "packages": "الباقات",
-          "providers": "مقدمو الخدمة"
+          "providers": "مقدمو الخدمة",
+          "guides": "دليل السياحة العلاجية"
         }
       },
       "company": {
