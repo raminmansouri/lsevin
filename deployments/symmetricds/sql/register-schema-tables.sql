@@ -1,8 +1,10 @@
 -- register-schema-tables.sql - registers every table of one schema for two-way SymmetricDS replication, copying the configuration of tour.departures.
 -- Run on the HUB (server B) database: psql -v schema=tour -f register-schema-tables.sql   (dry run: replace the final commit with rollback).
 -- Afterwards: A pulls the configuration and both sides create their triggers by themselves; existing rows need reload requests
--- (insert into sym_table_reload_request ...). Known trap: a table with a DEFERRABLE unique constraint (tour.itinerary_stops) fails the initial load
--- with 'ON CONFLICT does not support deferrable unique constraints': skip that batch and copy the rows once with COPY in replica mode.
+-- (insert into sym_table_reload_request ...). Known trap: SymmetricDS loads rows with INSERT ... ON CONFLICT DO NOTHING, which PostgreSQL rejects on a table
+-- with a DEFERRABLE unique constraint ('ON CONFLICT does not support deferrable unique constraints'): the batch fails forever and blocks every batch behind it
+-- (2026-11-04, tour.itinerary_stops, fixed by migration 0092). Before registering a schema run:
+--   select conrelid::regclass, conname from pg_constraint where condeferrable and contype in ('u','x');
 -- Excluded on purpose: per-user history and caches. Default: recent_searches,recent_views,weather_cache; override with -v exclude=a,b
 -- (consultation: -v schema=consultation -v exclude=rate_limit_hits).
 -- Registers the tables for two-way replication, exactly like tour.departures (copy of its configuration).

@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+# lsevin-webapp-recycle - rolling restart of the webapp deployment, once a night (lsevin-webapp-recycle.timer).
+# Why: with cacheMaxMemorySize=0 (frontend/webapp/next.config.ts) every ISR page the crawlers fetch is written to /app/.next/server/app
+# inside the pod's writable layer (html + rsc + meta, ~300 KB per file). That layer grew ~3 GB per pod per day and reached 6 GB per pod
+# on 2026-11-07: with two replicas that was 12 GB and drove server B's disk to 94% (disk_critical). A new pod starts with an empty cache,
+# so a nightly rolling restart (maxUnavailable 0: one replica always serves) puts a hard ceiling on it. Quiet hours: 04:30 UTC.
+# Skips while a build or deploy is running, and when a rollout is already in progress.
+set -uo pipefail
+NS=${NS:-lsevin}; DEPLOY=${DEPLOY:-lsevin-webapp}; LOG=${LOG:-/var/log/lsevin-webapp-recycle.log}
+K=${KUBECTL:-kubectl}; command -v "$K" >/dev/null 2>&1 || K="k3s kubectl"; [ "$(id -u)" = 0 ] || K="sudo -n $K"
+log() { printf '%s %s\n' "$(date -u +%FT%TZ)" "$*" | tee -a "$LOG" >&2; }
+ps -eo args | grep -qE "[d]ocker build|[k]3s-deploy.sh (import|deploy)" && { log "a build/deploy is running; skipped"; exit 0; }
+$K -n "$NS" get deploy "$DEPLOY" >/dev/null 2>&1 || { log "deployment $DEPLOY not found in $NS; nothing to do"; exit 0; }
+$K -n "$NS" rollout status "deploy/$DEPLOY" --timeout=5s >/dev/null 2>&1 || { log "a rollout is already in progress or the deployment is unhealthy; skipped"; exit 0; }
+before=$(df --output=pcent / | tail -1 | tr -dc 0-9)
+$K -n "$NS" rollout restart "deploy/$DEPLOY" >/dev/null || { log "rollout restart failed"; exit 1; }
+if $K -n "$NS" rollout status "deploy/$DEPLOY" --timeout=600s >/dev/null 2>&1; then
+  sleep 30
+  log "recycled $DEPLOY; disk ${before}% -> $(df --output=pcent / | tail -1 | tr -dc 0-9)%"
+else
+  log "recycle of $DEPLOY did not finish within 10 minutes - check the rollout"; exit 1
+fi

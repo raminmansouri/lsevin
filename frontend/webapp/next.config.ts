@@ -76,7 +76,9 @@ const nextConfig: NextConfig = {
   // No in-memory ISR/data cache. A heap profile of the live pod on server B (2026-11-02) showed the memory that kept growing was
   // Next's own response cache (handleRevalidate -> set, plus the retained render results): every locale x service page the
   // crawlers (ClaudeBot, Amazonbot, Googlebot ...) fetched stayed in the Node process, the pod reached its 2Gi limit every
-  // 25-40 minutes and was OOM-killed, which served Bad Gateway while it restarted. Entries are still cached, on disk.
+  // 25-40 minutes and was OOM-killed, which served Bad Gateway while it restarted. Entries are still cached, on disk - inside the
+  // pod's writable layer (~3 GB per pod per day, 94% disk on server B on 2026-11-07): deployments/jenkins/lsevin-webapp-recycle
+  // empties it with a nightly rolling restart.
   cacheMaxMemorySize: 0,
 
   // Next compresses with gzip by default. Caddy sits in front of it with
