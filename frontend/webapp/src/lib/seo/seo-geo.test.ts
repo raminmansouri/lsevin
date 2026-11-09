@@ -7,7 +7,7 @@ import { routing } from "@/i18n/routing";
 
 import { languageAlternates } from "./alternates";
 import { breadcrumbList, businessTypeFor, personSchema, providerSchema, serviceSchema } from "./entity-schema";
-import { contentLanguageFor } from "./language-tags";
+import { contentLanguageFor, directionFor, routeLocaleFor } from "./language-tags";
 import { indexableLocalesFromKeys } from "./locale-eligibility";
 import { buildPublicMetadata } from "./metadata";
 import { toSeoPlainText } from "./plain-text";
@@ -57,6 +57,19 @@ describe("indexable locales", () => {
 });
 
 describe("language tags", () => {
+  it("maps a document lang back to its URL locale", () => {
+    expect(routeLocaleFor("ckb")).toBe("ku");
+    expect(routeLocaleFor("fa")).toBe("fa");
+    expect(routeLocaleFor("en")).toBe("en");
+    for (const locale of routing.locales) {
+      expect(routeLocaleFor(contentLanguageFor(locale))).toBe(locale);
+    }
+  });
+
+  it("gives right-to-left only to fa, ar and ku", () => {
+    expect(routing.locales.filter((l) => directionFor(l) === "rtl").sort()).toEqual(["ar", "fa", "ku"]);
+  });
+
   it("publishes Sorani as ckb while URLs keep /ku", () => {
     expect(contentLanguageFor("ku")).toBe("ckb");
     expect(contentLanguageFor("fa")).toBe("fa");

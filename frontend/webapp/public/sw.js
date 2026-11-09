@@ -173,7 +173,7 @@
 })();
 
 /* PROFILE_VIEW_STORE_END */
-const VERSION = "v1-1454fb1c9ae03d75";
+const VERSION = "v1-1ace604952c9c834";
 const SHELL_CACHE = `lsevin-pwa-shell-${VERSION}`;
 const ASSET_CACHE = "lsevin-pwa-assets-v2";
 const APPLICATION_CACHE = "lsevin-pwa-application-v2";

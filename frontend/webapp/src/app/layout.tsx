@@ -1,41 +1,6 @@
 import type { Metadata, Viewport } from "next";
-import localFont from "next/font/local";
-import Script from "next/script";
 
-import { ServiceWorkerRegister } from "@/components/pwa/service-worker-register";
-import { env } from "@/config/env/client";
-import { routing } from "@/i18n/routing";
 import { seoOrigin } from "@/lib/seo/origin";
-
-import "./globals.css";
-
-// Vazirmatn (Persian font) served from local files — no Google CDN. The variable
-// woff2 covers weights 100–900. Exposed as the `--font-vazirmatn` CSS variable so
-// globals.css can apply it to Persian (fa) content.
-//
-// The committed woff2 is a subset, not the upstream release — see
-// scripts/subset-font.sh before replacing it.
-//
-// `preload: false` because globals.css applies this font to `html[lang="fa"]`
-// alone, while this layout sits above the [locale] segment and therefore runs for
-// every locale. With preloading on, Next listed the font in the font manifest of
-// 315 of 316 routes, so English, Turkish, Arabic, Russian and Chinese visitors
-// each fetched 86 KB at high priority for a face their pages never apply. Without
-// it the font is requested only when the `lang="fa"` rule actually matches, and
-// `display: "swap"` means Persian text renders in Tahoma until it lands rather
-// than waiting on it.
-const vazirmatn = localFont({
-  src: [
-    {
-      path: "../../public/fonts/Vazirmatn-Variable.woff2",
-      weight: "100 900",
-      style: "normal",
-    },
-  ],
-  variable: "--font-vazirmatn",
-  display: "swap",
-  preload: false,
-});
 
 // Enamad (Iran's e-commerce trust-seal authority) verifies domain ownership by
 // looking for this exact meta tag in the served HTML — it has to be site-wide
@@ -59,55 +24,17 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = { themeColor: "#101E33" };
 
-const LOCALE_BOOTSTRAP = `(function(){var m=location.pathname.match(/^\\/(${routing.locales.join(
-  "|"
-)})(?=\\/|$)/);if(!m)return;var d=document.documentElement;d.lang=m[1];d.dir=/^(fa|ar|ku)$/.test(m[1])?"rtl":"ltr";})();`;
-
-// The single <html>/<body> for the whole app — it also wraps the (financial)
-// tree and the root not-found, so it stays a plain root layout.
+// The root layout only carries site-wide metadata. The <html>/<body> document is
+// rendered one level down by the layouts that know the language
+// (app/[locale]/layout.tsx and the financial panel, both via RootDocument), so
+// the server HTML says <html lang="en" dir="ltr"> on /en instead of the default
+// locale on every page. app/not-found.tsx and app/global-error.tsx render their
+// own document.
 //
-// It must NOT call any next-intl server API (getLocale/getMessages/...). This
+// Do NOT call any next-intl server API (getLocale/getMessages/...) here: this
 // layout renders above the [locale] segment, so during static generation of a
-// non-default locale that call runs before app/[locale]/layout.tsx's
-// setRequestLocale(), resolves to the default locale, and — because next-intl
-// memoises the request config per render — pins every later ambient
-// getTranslations()/getFormatter() on that page to the default too. That was
-// "/tr shop shows Mağaza and فروشگاه side by side": client components (their
-// provider is passed an explicit locale) rendered tr, ambient server
-// components rendered fa. `lang`/`dir` here are the default locale; LocaleSync
-// (mounted in the [locale] providers) mirrors the real locale onto <html
-// lang/dir> on the client after hydration.
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  return (
-    <html
-      lang="fa"
-      dir="rtl"
-      className={vazirmatn.variable}
-      suppressHydrationWarning
-    >
-      <head>
-        {/* The server HTML can only carry the default locale (see above). Set
-            the real lang/dir from the URL before first paint, so LTR locales do
-            not render mirrored until hydration and rendering crawlers read the
-            right language. LocaleSync keeps it in sync on client navigation. */}
-        <script dangerouslySetInnerHTML={{ __html: LOCALE_BOOTSTRAP }} />
-      </head>
-      <body className="antialiased" suppressHydrationWarning>
-        {children}
-        <ServiceWorkerRegister />
-        {env.NEXT_PUBLIC_CRM_ANALYTICS_URL &&
-          env.NEXT_PUBLIC_CRM_ANALYTICS_SITE_KEY && (
-            <Script
-              src={`${env.NEXT_PUBLIC_CRM_ANALYTICS_URL}/t.js`}
-              data-site={env.NEXT_PUBLIC_CRM_ANALYTICS_SITE_KEY}
-              strategy="afterInteractive"
-            />
-          )}
-      </body>
-    </html>
-  );
+// non-default locale that call runs before setRequestLocale() and pins every
+// later ambient getTranslations() on that page to the default locale.
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return children;
 }

@@ -4,11 +4,10 @@ import { useEffect } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { usePathname as useRawPathname } from "next/navigation";
 
-import { getDirection } from "@/config/locales";
 import { hasExplicitLocaleChoice } from "@/i18n/locale-by-country";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
-import { LocaleTypes } from "@/types/common";
+import { contentLanguageFor, directionFor } from "@/lib/seo/language-tags";
 
 function readCookieLocale(): string | null {
   if (typeof document === "undefined") return null;
@@ -47,8 +46,9 @@ export function LocaleSync() {
   useEffect(() => {
     if (typeof document === "undefined") return;
     const root = document.documentElement;
-    root.lang = activeLocale;
-    root.dir = getDirection(activeLocale as LocaleTypes);
+    // Same tags the server document uses (ku is served as Sorani, "ckb").
+    root.lang = contentLanguageFor(activeLocale);
+    root.dir = directionFor(activeLocale);
   }, [activeLocale]);
 
   useEffect(() => {

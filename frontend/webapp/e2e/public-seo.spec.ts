@@ -370,6 +370,28 @@ test("Sorani pages declare ckb", async ({ request }) => {
   expect(response.headers()["content-language"]).toBe("ckb");
 });
 
+// REG-2026-11-09: the root layout rendered <html lang="fa" dir="rtl"> for every
+// locale and only a client script fixed it, so the HTML crawlers read declared
+// English and Arabic pages as Persian. Read the raw response, not the DOM.
+test("server HTML declares each page's own language and direction", async ({ request }) => {
+  const cases: Array<[string, string, string]> = [
+    ["/fa", "fa", "rtl"],
+    ["/en", "en", "ltr"],
+    ["/ar", "ar", "rtl"],
+    ["/tr/explore", "tr", "ltr"],
+    ["/ku", "ckb", "rtl"],
+    ["/en/medical-tourism", "en", "ltr"],
+    ["/en/providers", "en", "ltr"],
+  ];
+  for (const [path, lang, dir] of cases) {
+    const response = await request.get(path, { maxRedirects: 0 });
+    expect(response.status(), path).toBe(200);
+    const html = (await response.text()).match(/<html[^>]*>/)?.[0] ?? "";
+    expect(html, path).toContain(`lang="${lang}"`);
+    expect(html, path).toContain(`dir="${dir}"`);
+  }
+});
+
 test("llms.txt maps the site on the public domain", async ({ request }) => {
   const response = await request.get("/llms.txt");
   expect(response.status()).toBe(200);
