@@ -142,3 +142,28 @@ export const MOBILE_ADMIN_GENERATED_KEYS = [
   "value",
   "yes",
 ] as const;
+
+/**
+ * Booking (~56 KB) belongs to the booking routes, which receive it in full
+ * (ROUTE_NAMESPACES). Public pages borrow a few labels: explore's close button
+ * and the service page's meal-plan prices. `src/lib/seo/route-messages.test.ts`
+ * fails if a page outside the booking routes reads a key missing here.
+ */
+export const MOBILE_BOOKING_KEYS = ["close", "mealPlan", "stay"] as const;
+
+/**
+ * Consultation (~25 KB, mostly the doctor panel, call room and admin screens)
+ * belongs to the consultation routes. Public provider, service, specialist and
+ * product pages show the "request a consultation" button and form, and home
+ * shows its teaser; these are the keys those read.
+ */
+export const MOBILE_CONSULTATION_KEYS = [
+  "contactTime",
+  "cta",
+  "errors",
+  "form",
+  "homeTeaser",
+  "step",
+  "success",
+  "urgency",
+] as const;
