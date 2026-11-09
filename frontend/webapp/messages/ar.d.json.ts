@@ -11475,7 +11475,7 @@ declare const messages: {
     },
     "sections": {
       "languages": "اللغات",
-      "about": "العنوان",
+      "about": "نبذة",
       "gallery": "المعرض",
       "providerDetails": "تفاصيل مقدم الخدمة",
       "certifications": "الشهادات",
