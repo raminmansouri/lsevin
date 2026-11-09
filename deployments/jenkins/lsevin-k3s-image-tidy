@@ -35,4 +35,16 @@ for repo in lsevin-webapp lsevin-webapp-migrations lsevin-api; do
     $CTR images rm --sync "docker.io/library/$ref" >/dev/null 2>&1 && removed=$((removed + 1))
   done
 done
+# Untagged ("<none>") images: when a tag is re-imported or a pod pulls by digest, the previous image loses its name and the loops above
+# (which work on names) never see it again. On 2026-11-09 server B held 46 of them. Remove every untagged image that no container
+# (running or exited) references; images a container still uses are kept.
+CRI="k3s crictl"; [ "$(id -u)" = 0 ] || CRI="sudo -n $CRI"
+in_use_ids=$($CRI ps -a -o json 2>/dev/null | grep -oE '"imageRef": *"[^"]*"' | cut -d'"' -f4 | sort -u)
+# sanity: the platform runs far more than 5 images; fewer means the listing failed and nothing may be judged "unused"
+if [ "$(printf '%s\n' "$in_use_ids" | grep -c .)" -ge 5 ]; then
+  for id in $($CRI images 2>/dev/null | awk '$2=="<none>"{print $3}' | sort -u); do
+    printf '%s\n' "$in_use_ids" | grep -q -- "$id" && continue
+    $CRI rmi "$id" >/dev/null 2>&1 && removed=$((removed + 1))
+  done
+fi
 log "removed $removed old images (kept: in use + newest $KEEP builds per repository); disk ${before}% -> $(df --output=pcent / | tail -1 | tr -dc 0-9)%"
