@@ -382,7 +382,10 @@ export async function getProviderPageDataFromDb(
         common.get_translation_t(sp.name_translations, ${locale}, 'en-US') as name,
         nullif(common.get_translation_t(pt.name_translations, ${locale}, 'en-US'), '') as "providerType",
         common.get_translation_t(sp.description_translations, ${locale}, 'en-US') as tagline,
-        common.get_translation_t(coalesce(sp.detail_translations, sp.description_translations), ${locale}, 'en-US') as about,
+        -- "About" is always the description, in full. detail_translations is the admin's
+        -- "address details" field: it is joined to the street below, never shown as "About".
+        common.get_translation_t(sp.description_translations, ${locale}, 'en-US') as about,
+        nullif(common.get_translation_t(coalesce(sp.detail_translations, '{}'::jsonb), ${locale}, 'en-US'), '') as "addressDetail",
         concat_ws(', ', nullif(sp.city, ''), nullif(sp.country, '')) as location,
         sp.city,
         sp.country,
@@ -534,7 +537,7 @@ export async function getProviderPageDataFromDb(
         location: row.location,
         city: row.city,
         country: row.country,
-        street: row.street,
+        street: providerAddressLine(row.street, row.addressDetail, row.tagline || row.about),
         latitude: row.latitude,
         longitude: row.longitude,
         email: row.email || null,
@@ -765,6 +768,25 @@ async function getProviderBeforeAfter(
 }
 
 
+function providerAddressLine(
+  street: string | null | undefined,
+  detail: string | null | undefined,
+  description: string | null | undefined
+): string | null {
+  const desc = (description ?? "").trim();
+  const clean = (value: string | null | undefined) => {
+    const text = (value ?? "").trim();
+    return text && text.length <= 200 && text !== desc ? text : null;
+  };
+  const s = clean(street);
+  const d = clean(detail);
+  if (s && d) {
+    if (s.includes(d)) return s;
+    if (d.includes(s)) return d;
+    return `${s}، ${d}`;
+  }
+  return s ?? d;
+}
 
 async function getSpecialistRows(locale: string, providerId: string) {
   return sql<any[]>`
@@ -772,11 +794,12 @@ async function getSpecialistRows(locale: string, providerId: string) {
       s.id::text,
       s.slug,
       common.get_translation_t(s.name_translations, ${locale}, 'en-US') as name,
-      coalesce(
-        nullif(common.get_translation_t(coalesce(s.specialty_translations, '{}'::jsonb), ${locale}, 'en-US'), ''),
-        nullif(s.specialty, ''),
-        nullif(common.get_translation_t(s.title_translations, ${locale}, 'en-US'), '')
-      ) as specialty,
+      -- Professional title and specialty side by side ("Title · Specialty"); one of them
+      -- alone when the other is empty, and once when both say the same thing.
+      nullif(concat_ws(' · ',
+        staff_text.title,
+        case when staff_text.specialty is distinct from staff_text.title then staff_text.specialty end
+      ), '') as specialty,
       s.experience,
       s.experience_years as "experienceYears",
       s.patients,
@@ -785,6 +808,14 @@ async function getSpecialistRows(locale: string, providerId: string) {
       coalesce(psf.is_active, false) as verified
     from category.provider_staffs psf
     join category.staff s on s.id = psf.staff_id
+    cross join lateral (
+      select
+        nullif(common.get_translation_t(s.title_translations, ${locale}, 'en-US'), '') as title,
+        coalesce(
+          nullif(common.get_translation_t(coalesce(s.specialty_translations, '{}'::jsonb), ${locale}, 'en-US'), ''),
+          nullif(s.specialty, '')
+        ) as specialty
+    ) staff_text
     left join media.media_library staff_media
       on staff_media.id = case when s.profile_image_url ~* ${UUID_PATTERN} then s.profile_image_url::uuid else null end
     left join lateral (

@@ -8937,7 +8937,7 @@ declare const messages: {
       "writeReview": "Değerlendirme yaz"
     },
     "sections": {
-      "about": "Adres",
+      "about": "Hakkında",
       "certifications": "Sertifikalar",
       "contact": "İletişim",
       "gallery": "Galeri",
