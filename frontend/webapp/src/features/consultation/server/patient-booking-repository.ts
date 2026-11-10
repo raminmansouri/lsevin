@@ -93,6 +93,19 @@ type CreateArgs = {
   patientGender: "male" | "female" | "other" | null;
   patientNote: string | null;
   attachmentMediaIds: string[];
+  /** What the session was bought with (migration 0085); left out until that migration is applied. */
+  snapshot?: SessionSnapshot | null;
+};
+
+export type SessionSnapshot = {
+  packagePriceId: string | null;
+  serviceProviderId: string | null;
+  patientRegion: "iran" | "international";
+  patientCountryCode: string | null;
+  platformPercent: number | null;
+  source: string | null;
+  /** category.provider_services id the consultation is about, if any. */
+  serviceId: string | null;
 };
 
 /**
@@ -125,7 +138,22 @@ export async function createVideoSessionIfFree(args: CreateArgs): Promise<string
       )
       returning id::text as id
     `;
-    return rows[0]?.id ?? null;
+    const id = rows[0]?.id ?? null;
+    if (id && args.snapshot) {
+      const snap = args.snapshot;
+      await tx`
+        update consultation.video_sessions set
+          package_price_id = ${snap.packagePriceId}::uuid,
+          service_provider_id = ${snap.serviceProviderId}::uuid,
+          patient_region = ${snap.patientRegion},
+          patient_country_code = ${snap.patientCountryCode},
+          platform_percent = ${snap.platformPercent},
+          source = ${snap.source},
+          service_id = ${snap.serviceId}::uuid
+        where id = ${id}::uuid
+      `;
+    }
+    return id;
   });
 }
 

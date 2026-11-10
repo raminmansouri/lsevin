@@ -12775,6 +12775,7 @@ declare const messages: {
       }
     },
     "homeCard": {
+      "packages": "Vidéoconsultation de {durations} minutes · à partir de {price}",
       "title": "Parlez à un médecin avant le traitement",
       "details": "Consultation vidéo de {minutes, number} min · {price}",
       "cta": "Commencer"
@@ -12788,7 +12789,8 @@ declare const messages: {
     },
     "cta": {
       "beforeBooking": "Consultation gratuite avant réservation",
-      "beforePurchase": "Consultation gratuite avant achat"
+      "beforePurchase": "Consultation gratuite avant achat",
+      "video": "Consultation vidéo"
     },
     "form": {
       "firstName": {
@@ -12859,13 +12861,14 @@ declare const messages: {
     "admin": {
       "video": {
         "title": "Consultation vidéo avec un médecin",
-        "description": "Durée et prix de la consultation vidéo, identiques pour tous les médecins. La carte de la page d'accueil affiche exactement ces valeurs.",
+        "description": "Active ou désactive la vidéoconsultation payante. Chaque médecin a ses propres forfaits de 20, 45 et 60 minutes et ses prix ; la carte d'accueil affiche leur offre.",
         "enabled": "Afficher la carte de consultation sur la page d'accueil",
         "duration": "Durée (minutes)",
         "price": "Prix de base",
         "currency": "Devise",
         "priceToman": "Prix en tomans (facultatif)",
-        "priceTomanHint": "Si renseigné, les visiteurs iraniens voient ce prix en tomans à la place."
+        "priceTomanHint": "Si renseigné, les visiteurs iraniens voient ce prix en tomans à la place.",
+        "packagesHint": "Les prix sont fixés par médecin : ceux des cliniques dans le portail prestataires, ceux inscrits ici dans la section médecins ci-dessous. Les patients iraniens (selon leur numéro) voient le prix en tomans, les autres le prix en dollars."
       },
       "title": "Demandes de consultation",
       "description": "Rappels de consultation gratuite demandés depuis le parcours de réservation.",
@@ -12991,6 +12994,7 @@ declare const messages: {
         "photoPlaceholder": "Choisir une photo",
         "active": "Afficher aux patients",
         "add": "Enregistrer",
+        "addFromPortal": "Les nouveaux médecins sont ajoutés uniquement depuis le portail des prestataires : le médecin remplit « Créer mon profil de médecin » et, après approbation dans la file des demandes de page, il apparaît dans cette liste. Pour voir ou modifier un médecin, choisissez-le dans la liste.",
         "save": "Enregistrer les modifications",
         "cancelEdit": "Annuler",
         "added": "Médecin enregistré",
@@ -13019,10 +13023,60 @@ declare const messages: {
           "registerFailed": "Impossible de créer le compte.",
           "accountTaken": "Ce compte est déjà associé à {name}.",
           "savedWithoutAccount": "Le médecin a été enregistré, mais le compte de connexion n'a pas été créé :"
+        },
+        "packages": {
+          "title": "Forfaits de consultation",
+          "hint": "Activez les durées proposées par ce médecin. Chaque forfait nécessite les deux prix : en tomans pour les patients iraniens, en dollars pour les autres.",
+          "minutes": "{minutes, number} min",
+          "toman": "Tomans (patients iraniens)",
+          "usd": "Dollars (autres patients)",
+          "fromClinic": "Ce médecin dépend de {clinic}. La clinique fixe ses forfaits et ses prix dans le portail prestataires.",
+          "clinicPaused": "La clinique a suspendu ce médecin : les patients ne peuvent pas réserver pour l'instant.",
+          "none": "Aucun forfait n'est encore activé : les patients ne voient pas ce médecin.",
+          "noneShort": "Aucun forfait actif",
+          "summary": "{durations} min",
+          "clinic": "Clinique : {clinic}",
+          "clinicRow": "{minutes, number} min : {toman, number} tomans / {usd, number} $",
+          "priceRequired": "Un forfait ne peut être activé qu'avec les deux prix (tomans et dollars).",
+          "invalidPrice": "Saisissez les prix sous forme de nombres positifs.",
+          "migrationMissing": "Le médecin est enregistré, mais la table des forfaits n'existe pas encore. Lancez d'abord pnpm migrate."
         }
+      },
+      "payments": {
+        "title": "Paiements et remboursements des consultations",
+        "description": "Les reçus des patients hors d'Iran attendent ici votre validation. Les remboursements dus après une annulation ou une absence du médecin restent listés jusqu'à ce que vous les marquiez comme effectués.",
+        "migrationMissing": "Lancez pnpm migrate (migration 0087) pour utiliser les reçus et remboursements.",
+        "instructions": "Instructions de virement pour les patients hors d'Iran",
+        "methodsFromSettings": "Patients outside Iran pay with the same methods as service bookings: online card (BTCPay), bank receipt with the international accounts, and any other method enabled for international customers in the payment method settings. Receipts and manual payments come here for approval.",
+        "instructionsPlaceholder": "Titulaire, IBAN ou numéro de compte, banque, référence…",
+        "instructionsHint": "Affiché aux patients qui paient en dollars. Sans cela, ils ne peuvent pas envoyer de reçu.",
+        "receipts": "Reçus à vérifier ({count, number})",
+        "noReceipts": "Aucun reçu en attente.",
+        "viewReceipt": "Voir le reçu",
+        "approve": "Valider",
+        "approved": "Reçu validé ; la consultation est confirmée.",
+        "approvedButLost": "Le créneau n'était plus libre ; ce paiement est passé dans les remboursements.",
+        "reject": "Refuser",
+        "rejectPrompt": "Pourquoi refuser ce reçu ? Le patient verra ce texte.",
+        "rejected": "Reçu refusé ; le patient peut en envoyer un nouveau.",
+        "noteRequired": "Indiquez une courte raison pour le patient.",
+        "refunds": "Remboursements dus ({count, number})",
+        "noRefunds": "Aucun remboursement dû.",
+        "reason": {
+          "patient": "Annulé par le patient (24 h ou plus avant)",
+          "doctor": "Annulé par la clinique du médecin",
+          "missed": "Le médecin n'a pas rejoint",
+          "slotLost": "Payé après l'attribution du créneau"
+        },
+        "byReceipt": "Payé par reçu",
+        "markRefunded": "Marquer comme remboursé",
+        "confirmRefunded": "Avez-vous remboursé ce montant au patient ?",
+        "refundedDone": "Remboursement enregistré."
       }
     },
     "doctorsPage": {
+      "package": "{minutes, number} min · {price}",
+      "offerPackages": "{durations} minutes · à partir de {price}",
       "back": "Retour",
       "title": "Consultation vidéo",
       "subtitle": "Parlez à l'un de nos médecins généralistes",
@@ -13125,6 +13179,7 @@ declare const messages: {
       "callWindowClosed": "La salle d'appel est fermée ({from}–{to})."
     },
     "booking": {
+      "pickPackage": "Durée de la consultation",
       "back": "Retour",
       "title": "Réserver une consultation vidéo",
       "generalPractitioner": "Médecin généraliste",
@@ -13170,7 +13225,11 @@ declare const messages: {
         "notJoinable": "Ce n'est pas encore le moment de rejoindre cet appel.",
         "alreadyPaid": "Cette consultation est déjà payée.",
         "expired": "La réservation de ce créneau a expiré. Veuillez réserver à nouveau.",
-        "paymentUnavailable": "Le paiement en ligne est indisponible pour le moment. Réessayez dans un instant."
+        "paymentUnavailable": "Le paiement en ligne est indisponible pour le moment. Réessayez dans un instant.",
+        "notCancellable": "Cette consultation ne peut plus être annulée.",
+        "notResolvable": "Ce choix n'est plus disponible. Actualisez la page.",
+        "receiptNotAllowed": "Cette consultation se paie en ligne, pas par reçu.",
+        "receiptMissing": "Choisissez d'abord le fichier du reçu."
       },
       "joinCall": "Rejoindre l'appel",
       "joinLater": "Le bouton pour rejoindre s'activera à l'ouverture de la salle d'appel.",
@@ -13187,12 +13246,54 @@ declare const messages: {
       "paying": "Redirection vers la page de paiement…",
       "paymentResult": {
         "paid": "Paiement reçu. Votre consultation est confirmée.",
+        "pending": "Votre paiement a été reçu et attend la confirmation du réseau. Votre consultation est confirmée dès sa validation.",
         "cancelled": "Le paiement a été annulé. Vous pouvez payer à nouveau tant que le créneau est réservé.",
         "failed": "Le paiement n'a pas pu être confirmé. Si de l'argent a été débité, il est généralement restitué sous 72 heures.",
         "refund": "Le paiement a abouti, mais ce créneau n'était plus libre. Vous serez remboursé ; veuillez contacter le support."
       },
       "testPay": "Paiement de test (tests uniquement)",
-      "foreignVpnNote": "Ce service n'est pour l'instant disponible qu'en Iran."
+      "foreignVpnNote": "Ce service n'est pour l'instant disponible qu'en Iran.",
+      "cancel": {
+        "button": "Annuler la consultation",
+        "confirmUnpaid": "Annuler cette demande ? Le créneau sera libéré.",
+        "confirmRefund": "Annuler cette consultation ? Elle commence dans plus de {hours, number} heures : votre paiement sera remboursé.",
+        "confirmNoRefund": "Annuler cette consultation ? Elle commence dans moins de {hours, number} heures : le paiement ne sera pas remboursé.",
+        "done": "La consultation a été annulée.",
+        "doneRefund": "La consultation a été annulée. Votre paiement sera remboursé.",
+        "byPatient": "Vous avez annulé cette consultation.",
+        "byDoctor": "Le médecin a annulé cette consultation.",
+        "cancelled": "Cette consultation a été annulée.",
+        "ruleRefundable": "Annulez jusqu'à {hours, number} heures avant le début pour être remboursé.",
+        "ruleLate": "Moins de {hours, number} heures restantes : une annulation maintenant n'est pas remboursée."
+      },
+      "refund": {
+        "pending": "Votre remboursement est en cours.",
+        "refunded": "Votre paiement a été remboursé."
+      },
+      "receipt": {
+        "title": "Payer {price} par virement bancaire",
+        "methodsTitle": "Payer {price} : choisissez un mode de paiement",
+        "submitManual": "Envoyer le paiement",
+        "noInstructions": "Les coordonnées de paiement ne sont pas encore disponibles. Contactez le support.",
+        "pick": "Choisir le reçu (image ou PDF)",
+        "send": "Envoyer le reçu",
+        "underReview": "Votre reçu a été envoyé et est en cours de vérification. Votre créneau est réservé entre-temps ; vous serez prévenu dès la confirmation.",
+        "rejected": "Votre reçu n'a pas été accepté."
+      },
+      "doctorIssue": {
+        "missed": "Le médecin n'a pas rejoint votre consultation.",
+        "cancelled": "Le médecin a annulé votre consultation.",
+        "choose": "Choisissez : être remboursé, ou un nouveau créneau avec le même médecin sans frais supplémentaires.",
+        "refund": "Être remboursé",
+        "reschedule": "Choisir un nouveau créneau",
+        "confirmRefund": "Demander le remboursement ? Cette consultation sera clôturée.",
+        "refundChosen": "Votre remboursement est demandé ; vous serez remboursé sous peu.",
+        "rescheduled": "Votre consultation a été déplacée au nouveau créneau.",
+        "noSlots": "Ce médecin n'a pas de créneau libre dans les prochains jours. Vous pouvez demander le remboursement.",
+        "confirmTime": "Confirmer le créneau",
+        "back": "Retour"
+      },
+      "forService": "Concernant : {name}"
     },
     "call": {
       "phase": {
@@ -13257,7 +13358,14 @@ declare const messages: {
         "secure": "Secure and private",
         "noInstall": "No app to install",
         "verified": "Verified doctors"
-      }
+      },
+      "packageChip": "{minutes, number} min · dès {price}"
+    },
+    "videoOffer": {
+      "title": "Consultation vidéo avant le traitement",
+      "subtitle": "Parlez en vidéo avec un médecin de cette clinique avant de réserver.",
+      "book": "Réserver une consultation vidéo",
+      "continue": "Continuer sans consultation"
     }
   },
   "GymMemberships": {
@@ -13593,6 +13701,12 @@ declare const messages: {
     "previous": "Précédent",
     "next": "Suivant",
     "confirm": "Utiliser les fichiers sélectionnés"
+  },
+  "ClaimPage": {
+    "title": "Est-ce votre page ?",
+    "providerText": "Si vous êtes propriétaire ou responsable de cet établissement, demandez à gérer sa page dans l’espace LSevin.",
+    "staffText": "Si vous êtes ce médecin, demandez à gérer votre profil dans l’espace LSevin.",
+    "button": "Cette page est à moi"
   }
 };
 export default messages;

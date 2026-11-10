@@ -134,11 +134,23 @@ export const VIDEO_CONSULTATION_DEFAULTS: VideoConsultationSettings = {
   priceToman: null,
 };
 
+/** One consultation package (length and price) as this visitor sees it, already formatted. */
+export type ConsultationPackageOption = {
+  minutes: number;
+  priceLabel: string;
+};
+
 /** What the home card needs: already resolved for the visitor and formatted. */
 export type VideoConsultationOffer = {
   enabled: boolean;
+  /** The shortest package, kept for screens that show a single length and price. */
   durationMinutes: number;
   priceLabel: string;
+  /**
+   * The lengths on offer, shortest first, each with the lowest price any doctor asks for it
+   * in this visitor's currency (toman for Iranians, dollars for everyone else).
+   */
+  packages: ConsultationPackageOption[];
 };
 
 export type ConsultationStats = {

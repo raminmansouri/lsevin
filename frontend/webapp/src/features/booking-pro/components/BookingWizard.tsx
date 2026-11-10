@@ -5,7 +5,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
 import { DynamicServiceForm } from '@/features/form-builder/components/DynamicServiceForm';
-import { ConsultationStep } from '@/features/consultation/components/consultation-step';
+import { BookingConsultationStep } from '@/features/consultation/components/provider-video-offer';
 import type { BookingDraftState, ChildBookingDraft, ProviderCardItem, ProviderTypeAddonItem, ServiceCardItem, SpecialistCardItem, UploadRequirementItem } from '../types';
 import { AddressPicker } from './AddressPicker';
 import { BookingProgress } from './BookingProgress';
@@ -1503,7 +1503,7 @@ export function BookingWizard() {
 
                 {/* Shown between Schedule and the rest of the flow. Optional throughout: the
               customer can submit nothing and press Continue. */}
-                {currentStep === 6 ? (<ConsultationStep bookingDraftId={draft.id} onContinue={goNext}/>) : null}
+                {currentStep === 6 ? (<BookingConsultationStep bookingDraftId={draft.id} providerId={draft.providerId} serviceId={draft.serviceId} specialistId={draft.specialistId} onContinue={goNext}/>) : null}
 
                 {currentStep === 3 ? (<div className="lg:hidden">
                     <MobileItinerary

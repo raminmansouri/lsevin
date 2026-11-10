@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
+import { ClaimPageCard } from "@/features/service-providers/components/details/claim-page-card";
 import { useParams, useSearchParams } from "next/navigation";
 import { BeforeAfterGallery } from "@/features/service-providers/components/before-after-gallery";
 import { FavoriteButton } from "@/features/favorites/components/favorite-button";
@@ -782,6 +783,8 @@ export function ProviderDetailView({ initialData }: { initialData?: ProviderPage
               </div>
             </div>
 
+            <ClaimPageCard targetType="provider" targetId={provider.id} />
+
             <RecommendationsSection
               currentProviderId={provider.id}
               currentCountry={provider.country}
@@ -796,6 +799,7 @@ export function ProviderDetailView({ initialData }: { initialData?: ProviderPage
       </div>
 
       <ProviderActionBar
+        providerId={providerId}
         categoryName={provider.name}
         consultationLabel={tConsultation("cta.beforeBooking")}
         contactLabel={t("actions.contact")}

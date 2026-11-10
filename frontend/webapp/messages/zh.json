@@ -12749,6 +12749,7 @@
       }
     },
     "homeCard": {
+      "packages": "{durations} 分钟视频咨询 · {price} 起",
       "title": "治疗前先咨询医生",
       "details": "{minutes, number} 分钟视频咨询 · {price}",
       "cta": "开始"
@@ -12762,7 +12763,8 @@
     },
     "cta": {
       "beforeBooking": "预约前免费咨询",
-      "beforePurchase": "购买前免费咨询"
+      "beforePurchase": "购买前免费咨询",
+      "video": "视频咨询"
     },
     "form": {
       "firstName": {
@@ -12833,13 +12835,14 @@
     "admin": {
       "video": {
         "title": "与医生视频问诊",
-        "description": "视频问诊的时长和价格，所有医生统一。首页卡片将完全按照这些值显示。",
+        "description": "开启或关闭付费视频咨询。每位医生都有自己的 20、45 和 60 分钟套餐及价格，首页卡片会展示这些内容。",
         "enabled": "在首页显示问诊卡片",
         "duration": "时长（分钟）",
         "price": "基础价格",
         "currency": "货币",
         "priceToman": "托曼价格（选填）",
-        "priceTomanHint": "设置后，伊朗访客将看到此托曼价格。"
+        "priceTomanHint": "设置后，伊朗访客将看到此托曼价格。",
+        "packagesHint": "价格按医生分别设置：诊所的医生在服务商门户中设置，在此登记的医生在下方医生区域设置。伊朗患者（按手机号）看到托曼价格，其他人看到美元价格。"
       },
       "title": "咨询申请",
       "description": "来自预约流程的免费咨询回电申请。",
@@ -12965,6 +12968,7 @@
         "photoPlaceholder": "选择照片",
         "active": "向患者显示",
         "add": "登记医生",
+        "addFromPortal": "New doctors are added only from the provider portal: the doctor fills in \"Create my doctor profile\", and after approval in the page claims queue they appear in this list. To view or edit a doctor, choose them from the list.",
         "save": "保存更改",
         "cancelEdit": "取消",
         "added": "医生已登记",
@@ -12993,10 +12997,60 @@
           "registerFailed": "无法创建账号。",
           "accountTaken": "此账号已关联到 {name}。",
           "savedWithoutAccount": "医生信息已保存，但登录账号未能创建："
+        },
+        "packages": {
+          "title": "咨询套餐",
+          "hint": "开启该医生提供的时长。每个套餐都需要两个价格：伊朗患者的托曼价格和其他患者的美元价格。",
+          "minutes": "{minutes, number} 分钟",
+          "toman": "托曼（伊朗患者）",
+          "usd": "美元（其他患者）",
+          "fromClinic": "该医生隶属于 {clinic}，其套餐和价格由诊所在服务商门户中设置。",
+          "clinicPaused": "诊所已暂停该医生，患者目前无法预约。",
+          "none": "尚未开启任何套餐，因此患者看不到该医生。",
+          "noneShort": "无启用套餐",
+          "summary": "{durations} 分钟",
+          "clinic": "诊所：{clinic}",
+          "clinicRow": "{minutes, number} 分钟：{toman, number} 托曼 / {usd, number} 美元",
+          "priceRequired": "套餐须同时填写托曼和美元两个价格才能开启。",
+          "invalidPrice": "请输入正数价格。",
+          "migrationMissing": "医生已保存，但套餐表尚未创建。请先运行 pnpm migrate。"
         }
+      },
+      "payments": {
+        "title": "咨询付款与退款",
+        "description": "伊朗境外患者的转账凭证在此等待审核；因取消或医生缺席而需退还的款项会一直列出，直到你标记为已退款。",
+        "migrationMissing": "请运行 pnpm migrate（迁移 0087）以使用凭证与退款功能。",
+        "instructions": "伊朗境外患者的转账说明",
+        "methodsFromSettings": "Patients outside Iran pay with the same methods as service bookings: online card (BTCPay), bank receipt with the international accounts, and any other method enabled for international customers in the payment method settings. Receipts and manual payments come here for approval.",
+        "instructionsPlaceholder": "收款人、IBAN 或账号、银行、需填写的备注…",
+        "instructionsHint": "展示给以美元付款的患者；未填写时他们无法提交凭证。",
+        "receipts": "待审核凭证（{count, number}）",
+        "noReceipts": "暂无待审核凭证。",
+        "viewReceipt": "查看凭证",
+        "approve": "通过",
+        "approved": "凭证已通过，咨询已确认。",
+        "approvedButLost": "该时段已被占用，此笔付款已转入退款列表。",
+        "reject": "驳回",
+        "rejectPrompt": "驳回原因（患者可见）：",
+        "rejected": "凭证已驳回，患者可重新提交。",
+        "noteRequired": "请为患者填写简短原因。",
+        "refunds": "待退款（{count, number}）",
+        "noRefunds": "暂无待退款。",
+        "reason": {
+          "patient": "患者取消（提前 24 小时以上）",
+          "doctor": "医生所在诊所取消",
+          "missed": "医生未加入",
+          "slotLost": "时段被占后才付款"
+        },
+        "byReceipt": "凭证付款",
+        "markRefunded": "标记为已退款",
+        "confirmRefunded": "你已将这笔款项退还给患者了吗？",
+        "refundedDone": "已记录退款。"
       }
     },
     "doctorsPage": {
+      "package": "{minutes, number} 分钟 · {price}",
+      "offerPackages": "{durations} 分钟 · {price} 起",
       "back": "返回",
       "title": "视频问诊",
       "subtitle": "与我们的全科医生沟通",
@@ -13099,6 +13153,7 @@
       "callWindowClosed": "通话室已关闭（{from}–{to}）。"
     },
     "booking": {
+      "pickPackage": "咨询时长",
       "back": "返回",
       "title": "预约视频问诊",
       "generalPractitioner": "全科医生",
@@ -13144,7 +13199,11 @@
         "notJoinable": "现在还不能加入此通话。",
         "alreadyPaid": "此咨询已付款。",
         "expired": "此时段的保留已过期，请重新预约。",
-        "paymentUnavailable": "在线支付暂时不可用，请稍后再试。"
+        "paymentUnavailable": "在线支付暂时不可用，请稍后再试。",
+        "notCancellable": "此咨询已无法取消。",
+        "notResolvable": "此选项已不可用，请刷新页面。",
+        "receiptNotAllowed": "此咨询需在线支付，不能上传凭证。",
+        "receiptMissing": "请先选择凭证文件。"
       },
       "joinCall": "加入通话",
       "joinLater": "通话室开放后即可使用加入按钮。",
@@ -13161,12 +13220,54 @@
       "paying": "正在前往支付页面…",
       "paymentResult": {
         "paid": "已收到付款，您的咨询已确认。",
+        "pending": "Your payment was received and is waiting for network confirmation. Your consultation is confirmed as soon as it clears.",
         "cancelled": "付款已取消。在时段保留期间，您可以再次付款。",
         "failed": "无法确认付款。如果已扣款，通常会在 72 小时内退回。",
         "refund": "付款已完成，但该时段已被占用。款项将退还给您，请联系客服。"
       },
       "testPay": "测试支付（仅用于测试）",
-      "foreignVpnNote": "此服务目前仅在伊朗境内提供。"
+      "foreignVpnNote": "此服务目前仅在伊朗境内提供。",
+      "cancel": {
+        "button": "取消咨询",
+        "confirmUnpaid": "取消此申请？该时段将被释放。",
+        "confirmRefund": "取消此咨询？距开始还有 {hours, number} 小时以上，费用将退还。",
+        "confirmNoRefund": "取消此咨询？距开始不足 {hours, number} 小时，费用将不予退还。",
+        "done": "咨询已取消。",
+        "doneRefund": "咨询已取消，费用将退还。",
+        "byPatient": "你已取消此咨询。",
+        "byDoctor": "医生已取消此咨询。",
+        "cancelled": "此咨询已取消。",
+        "ruleRefundable": "在开始前 {hours, number} 小时以上取消可获全额退款。",
+        "ruleLate": "距开始不足 {hours, number} 小时：现在取消不退款。"
+      },
+      "refund": {
+        "pending": "退款正在处理中。",
+        "refunded": "费用已退还。"
+      },
+      "receipt": {
+        "title": "通过银行转账支付 {price}",
+        "methodsTitle": "Pay {price}: choose a payment method",
+        "submitManual": "Submit payment",
+        "noInstructions": "付款信息暂不可用，请联系客服。",
+        "pick": "选择转账凭证（图片或 PDF）",
+        "send": "提交凭证",
+        "underReview": "凭证已提交，正在审核。期间为你保留该时段，确认后会通知你。",
+        "rejected": "你的凭证未通过审核。"
+      },
+      "doctorIssue": {
+        "missed": "医生未加入你的咨询。",
+        "cancelled": "医生取消了你的咨询。",
+        "choose": "请选择：退款，或与同一医生另约时间（不另收费）。",
+        "refund": "退款",
+        "reschedule": "选择新时间",
+        "confirmRefund": "申请退款？此咨询将被关闭。",
+        "refundChosen": "退款申请已提交，费用将很快退还。",
+        "rescheduled": "你的咨询已改到新时间。",
+        "noSlots": "该医生近期没有空闲时间，你可以选择退款。",
+        "confirmTime": "确认新时间",
+        "back": "返回"
+      },
+      "forService": "关于：{name}"
     },
     "call": {
       "phase": {
@@ -13231,7 +13332,14 @@
         "secure": "Secure and private",
         "noInstall": "No app to install",
         "verified": "Verified doctors"
-      }
+      },
+      "packageChip": "{minutes, number} 分钟 · {price} 起"
+    },
+    "videoOffer": {
+      "title": "治疗前视频咨询",
+      "subtitle": "预约前，先与本机构的医生进行视频咨询。",
+      "book": "预约视频咨询",
+      "continue": "不咨询，继续预约"
     }
   },
   "GymMemberships": {
@@ -13565,5 +13673,11 @@
       "updating": "正在更新配送和付款选项…",
       "retryNotice": "订单已保存，请重试付款，无需重复下单。"
     }
+  },
+  "ClaimPage": {
+    "title": "这是您的页面吗？",
+    "providerText": "如果您是该机构的所有者或管理者，请在 LSevin 面板中申请管理此页面。",
+    "staffText": "如果您就是这位医生，请在 LSevin 面板中申请管理您的个人资料。",
+    "button": "这是我的页面"
   }
 }

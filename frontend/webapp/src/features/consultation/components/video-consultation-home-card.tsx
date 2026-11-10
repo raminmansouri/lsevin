@@ -2,20 +2,23 @@
 
 import { useEffect, useState } from "react";
 import { Stethoscope } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
 import { Link } from "@/i18n/navigation";
 
 import { getVideoConsultationOfferAction } from "../server/video-offer";
 import type { VideoConsultationOffer } from "../types";
+import { formatDurations } from "./package-format";
 
 /**
- * "Consult a doctor before treatment" card under the home search box. Shows the
- * fixed length and price an admin set, and opens the consultation doctors page. Renders
- * nothing until the offer loads, and nothing at all while the admin has it off.
+ * "Consult a doctor before treatment" card under the home search box. Shows the package
+ * lengths the bookable doctors offer (20, 45 or 60 minutes) and the lowest price, in the
+ * visitor's currency, and opens the consultation doctors page. Renders nothing until the
+ * offer loads, and nothing at all while the admin has it off or no doctor can be booked.
  */
 export function VideoConsultationHomeCard() {
   const t = useTranslations("Consultation.homeCard");
+  const locale = useLocale();
   const [offer, setOffer] = useState<VideoConsultationOffer | null>(null);
 
   useEffect(() => {
@@ -46,7 +49,12 @@ export function VideoConsultationHomeCard() {
         <span className="min-w-0 flex-1">
           <span className="block font-bold text-gray-900">{t("title")}</span>
           <span className="mt-0.5 block text-xs text-gray-500">
-            {t("details", { minutes: offer.durationMinutes, price: offer.priceLabel })}
+            {offer.packages.length > 1
+              ? t("packages", {
+                  durations: formatDurations(locale, offer.packages.map((p) => p.minutes)),
+                  price: offer.packages[0].priceLabel,
+                })
+              : t("details", { minutes: offer.durationMinutes, price: offer.priceLabel })}
           </span>
         </span>
         <span className="shrink-0 rounded-xl bg-[#083f30] px-3.5 py-2 text-xs font-bold text-white">

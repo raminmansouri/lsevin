@@ -650,6 +650,7 @@ export function DesktopServiceView({ data, serviceId, locale }: { data: GetServi
                   <ConsultationCtaButton
                     categoryName={service.name}
                     label={tConsultation("cta.beforeBooking")}
+                    videoOffer={{ providerId: service.clinicId, serviceId: service.providerServiceId, source: "service" }}
                     className="flex h-14 w-full items-center justify-center gap-2 rounded-full border border-[#eacb7f]/40 text-sm font-bold text-[#eacb7f] transition hover:bg-[#eacb7f]/10"
                   />
                 </div>

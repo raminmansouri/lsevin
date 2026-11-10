@@ -5,6 +5,7 @@ import { Phone } from "lucide-react";
 import { ConsultationCtaButton } from "@/features/consultation/components/consultation-cta-button";
 
 export function ProviderActionBar({
+  providerId,
   categoryName,
   consultationLabel,
   contactLabel,
@@ -12,6 +13,8 @@ export function ProviderActionBar({
   onContact,
   onServices,
 }: {
+  /** The provider of the page; its paid video consultation, when it has one, replaces the free form. */
+  providerId?: string | null;
   categoryName: string;
   consultationLabel: string;
   contactLabel: string;
@@ -33,6 +36,7 @@ export function ProviderActionBar({
         <ConsultationCtaButton
           categoryName={categoryName}
           label={consultationLabel}
+          videoOffer={{ providerId, source: "provider" }}
           className="flex min-h-12 min-w-0 items-center justify-center gap-2 rounded-2xl border border-[#083f30]/20 bg-[#083f30]/5 px-3 py-3 text-sm font-bold text-[#083f30] hover:bg-[#083f30]/10 [&_span]:whitespace-nowrap"
         />
         <button

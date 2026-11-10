@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
+import { settleVideoSessionBtcPay } from "@/features/consultation/server/video-foreign-payment";
 import {
   resolveBtcPayWebhookSecret,
   settleBtcPayPayment,
@@ -40,7 +41,10 @@ export async function POST(request: NextRequest) {
     try {
       // Settlement re-reads the invoice from BTCPay before crediting, so the
       // webhook body alone can never mark a booking paid. Idempotent.
-      await settleBtcPayPayment({ invoiceId });
+      // A video consultation's invoice lives in consultation.video_session_payments, not in
+      // booking.payments; it is tried first and returns null when the invoice is not its own.
+      const consultation = await settleVideoSessionBtcPay(invoiceId);
+      if (!consultation) await settleBtcPayPayment({ invoiceId });
     } catch (error) {
       // Return 500 so BTCPay retries transient failures (DB blips, etc.).
       console.error("[btcpay:webhook] settlement failed", { type, invoiceId, error });

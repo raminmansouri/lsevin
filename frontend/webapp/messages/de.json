@@ -12772,6 +12772,7 @@
       }
     },
     "homeCard": {
+      "packages": "Videoberatung, {durations} Minuten · ab {price}",
       "title": "Vor der Behandlung mit einem Arzt sprechen",
       "details": "{minutes, number} Min. Videoberatung · {price}",
       "cta": "Starten"
@@ -12785,7 +12786,8 @@
     },
     "cta": {
       "beforeBooking": "Kostenlose Beratung vor der Buchung",
-      "beforePurchase": "Kostenlose Beratung vor dem Kauf"
+      "beforePurchase": "Kostenlose Beratung vor dem Kauf",
+      "video": "Videoberatung"
     },
     "form": {
       "firstName": {
@@ -12856,13 +12858,14 @@
     "admin": {
       "video": {
         "title": "Videoberatung mit einem Arzt",
-        "description": "Dauer und Preis der Videoberatung, für alle Ärzte gleich. Die Karte auf der Startseite zeigt genau diese Werte.",
+        "description": "Schaltet die bezahlte Videoberatung ein oder aus. Jede Ärztin und jeder Arzt hat eigene Pakete mit 20, 45 und 60 Minuten und eigene Preise; die Startseitenkarte zeigt dieses Angebot.",
         "enabled": "Beratungskarte auf der Startseite anzeigen",
         "duration": "Dauer (Minuten)",
         "price": "Grundpreis",
         "currency": "Währung",
         "priceToman": "Preis in Toman (optional)",
-        "priceTomanHint": "Wenn festgelegt, sehen Besucher aus dem Iran stattdessen diesen Preis in Toman."
+        "priceTomanHint": "Wenn festgelegt, sehen Besucher aus dem Iran stattdessen diesen Preis in Toman.",
+        "packagesHint": "Preise gelten pro Arzt: Ärzte von Kliniken im Anbieterportal, hier registrierte Ärzte im Ärztebereich unten. Iranische Patienten (nach Telefonnummer) sehen den Toman-Preis, alle anderen den Dollarpreis."
       },
       "title": "Beratungsanfragen",
       "description": "Rückrufwünsche für die kostenlose Beratung aus dem Buchungsprozess.",
@@ -12988,6 +12991,7 @@
         "photoPlaceholder": "Foto wählen",
         "active": "Patienten anzeigen",
         "add": "Arzt registrieren",
+        "addFromPortal": "Neue Ärzte werden nur über das Anbieterportal hinzugefügt: Der Arzt füllt „Mein Arztprofil erstellen“ aus und erscheint nach der Freigabe in der Warteschlange der Seitenanfragen in dieser Liste. Zum Ansehen oder Bearbeiten einen Arzt in der Liste auswählen.",
         "save": "Änderungen speichern",
         "cancelEdit": "Abbrechen",
         "added": "Arzt registriert",
@@ -13016,10 +13020,60 @@
           "registerFailed": "Das Konto konnte nicht erstellt werden.",
           "accountTaken": "Dieses Konto ist bereits mit {name} verknüpft.",
           "savedWithoutAccount": "Der Arzt wurde gespeichert, aber das Anmeldekonto wurde nicht erstellt:"
+        },
+        "packages": {
+          "title": "Beratungspakete",
+          "hint": "Schalten Sie die Längen ein, die diese Ärztin oder dieser Arzt anbietet. Jedes Paket braucht beide Preise: Toman für iranische Patienten, Dollar für alle anderen.",
+          "minutes": "{minutes, number} Min.",
+          "toman": "Toman (iranische Patienten)",
+          "usd": "Dollar (alle anderen)",
+          "fromClinic": "Diese Ärztin/dieser Arzt gehört zu {clinic}. Die Klinik legt Pakete und Preise im Anbieterportal fest.",
+          "clinicPaused": "Die Klinik hat diese Ärztin/diesen Arzt pausiert; derzeit sind keine Buchungen möglich.",
+          "none": "Noch ist kein Paket eingeschaltet, daher sehen Patienten diese Ärztin/diesen Arzt nicht.",
+          "noneShort": "Kein aktives Paket",
+          "summary": "{durations} Min.",
+          "clinic": "Klinik: {clinic}",
+          "clinicRow": "{minutes, number} Min.: {toman, number} Toman / {usd, number} $",
+          "priceRequired": "Ein Paket lässt sich nur mit beiden Preisen (Toman und Dollar) einschalten.",
+          "invalidPrice": "Geben Sie Preise als positive Zahlen ein.",
+          "migrationMissing": "Die Ärztin/der Arzt wurde gespeichert, aber die Pakettabelle fehlt noch. Führen Sie zuerst pnpm migrate aus."
         }
+      },
+      "payments": {
+        "title": "Zahlungen und Erstattungen der Beratungen",
+        "description": "Belege von Patienten außerhalb Irans warten hier auf Freigabe. Erstattungen nach einer Stornierung oder wenn die Ärztin/der Arzt nicht kam, bleiben gelistet, bis Sie sie als erstattet markieren.",
+        "migrationMissing": "Führen Sie pnpm migrate (Migration 0087) aus, um Belege und Erstattungen zu nutzen.",
+        "instructions": "Überweisungshinweise für Patienten außerhalb Irans",
+        "methodsFromSettings": "Patients outside Iran pay with the same methods as service bookings: online card (BTCPay), bank receipt with the international accounts, and any other method enabled for international customers in the payment method settings. Receipts and manual payments come here for approval.",
+        "instructionsPlaceholder": "Kontoinhaber, IBAN oder Kontonummer, Bank, Verwendungszweck…",
+        "instructionsHint": "Wird Patienten angezeigt, die in Dollar zahlen. Ohne diesen Text können sie keinen Beleg senden.",
+        "receipts": "Zu prüfende Belege ({count, number})",
+        "noReceipts": "Kein Beleg wartet.",
+        "viewReceipt": "Beleg ansehen",
+        "approve": "Freigeben",
+        "approved": "Beleg freigegeben; die Beratung ist bestätigt.",
+        "approvedButLost": "Der Termin war nicht mehr frei; die Zahlung steht jetzt bei den Erstattungen.",
+        "reject": "Ablehnen",
+        "rejectPrompt": "Warum wird der Beleg abgelehnt? Der Patient sieht diesen Text.",
+        "rejected": "Beleg abgelehnt; der Patient kann einen neuen senden.",
+        "noteRequired": "Schreiben Sie eine kurze Begründung für den Patienten.",
+        "refunds": "Offene Erstattungen ({count, number})",
+        "noRefunds": "Keine Erstattung offen.",
+        "reason": {
+          "patient": "Vom Patienten storniert (24+ Std. vorher)",
+          "doctor": "Von der Klinik storniert",
+          "missed": "Ärztin/Arzt nicht erschienen",
+          "slotLost": "Bezahlt, nachdem der Termin vergeben war"
+        },
+        "byReceipt": "Per Beleg bezahlt",
+        "markRefunded": "Als erstattet markieren",
+        "confirmRefunded": "Haben Sie diesen Betrag an den Patienten erstattet?",
+        "refundedDone": "Erstattung erfasst."
       }
     },
     "doctorsPage": {
+      "package": "{minutes, number} Min. · {price}",
+      "offerPackages": "{durations} Minuten · ab {price}",
       "back": "Zurück",
       "title": "Videosprechstunde",
       "subtitle": "Sprechen Sie mit einem unserer Allgemeinärzte",
@@ -13122,6 +13176,7 @@
       "callWindowClosed": "Der Gesprächsraum ist geschlossen ({from}–{to})."
     },
     "booking": {
+      "pickPackage": "Dauer der Beratung",
       "back": "Zurück",
       "title": "Videoberatung buchen",
       "generalPractitioner": "Allgemeinmediziner",
@@ -13167,7 +13222,11 @@
         "notJoinable": "Es ist noch nicht Zeit, diesem Gespräch beizutreten.",
         "alreadyPaid": "Diese Beratung ist bereits bezahlt.",
         "expired": "Die Reservierung dieses Termins ist abgelaufen. Bitte buche erneut.",
-        "paymentUnavailable": "Online-Zahlung ist gerade nicht verfügbar. Bitte versuche es gleich noch einmal."
+        "paymentUnavailable": "Online-Zahlung ist gerade nicht verfügbar. Bitte versuche es gleich noch einmal.",
+        "notCancellable": "Diese Beratung kann nicht mehr storniert werden.",
+        "notResolvable": "Diese Auswahl ist nicht mehr verfügbar. Laden Sie die Seite neu.",
+        "receiptNotAllowed": "Diese Beratung wird online bezahlt, nicht per Beleg.",
+        "receiptMissing": "Wählen Sie zuerst die Belegdatei."
       },
       "joinCall": "Gespräch beitreten",
       "joinLater": "Die Schaltfläche zum Beitreten wird aktiv, sobald der Gesprächsraum öffnet.",
@@ -13184,12 +13243,54 @@
       "paying": "Weiter zur Zahlungsseite…",
       "paymentResult": {
         "paid": "Zahlung erhalten. Deine Beratung ist bestätigt.",
+        "pending": "Ihre Zahlung ist eingegangen und wartet auf die Bestätigung des Netzwerks. Ihre Beratung wird bestätigt, sobald sie gutgeschrieben ist.",
         "cancelled": "Die Zahlung wurde abgebrochen. Du kannst erneut bezahlen, solange der Termin reserviert ist.",
         "failed": "Die Zahlung konnte nicht bestätigt werden. Falls Geld abgebucht wurde, kommt es meist innerhalb von 72 Stunden zurück.",
         "refund": "Die Zahlung ist eingegangen, aber dieser Termin war nicht mehr frei. Du erhältst eine Rückerstattung; bitte wende dich an den Support."
       },
       "testPay": "Testzahlung (nur zum Testen)",
-      "foreignVpnNote": "Dieser Dienst ist derzeit nur im Iran verfügbar."
+      "foreignVpnNote": "Dieser Dienst ist derzeit nur im Iran verfügbar.",
+      "cancel": {
+        "button": "Beratung stornieren",
+        "confirmUnpaid": "Diese Anfrage stornieren? Der Termin wird freigegeben.",
+        "confirmRefund": "Diese Beratung stornieren? Sie beginnt in mehr als {hours, number} Stunden, daher wird die Zahlung erstattet.",
+        "confirmNoRefund": "Diese Beratung stornieren? Sie beginnt in weniger als {hours, number} Stunden, daher wird die Zahlung nicht erstattet.",
+        "done": "Die Beratung wurde storniert.",
+        "doneRefund": "Die Beratung wurde storniert. Die Zahlung wird erstattet.",
+        "byPatient": "Sie haben diese Beratung storniert.",
+        "byDoctor": "Die Beratung wurde von der Ärztin/dem Arzt storniert.",
+        "cancelled": "Diese Beratung wurde storniert.",
+        "ruleRefundable": "Bis {hours, number} Stunden vor Beginn storniert, wird das Geld erstattet.",
+        "ruleLate": "Weniger als {hours, number} Stunden übrig: Eine Stornierung jetzt wird nicht erstattet."
+      },
+      "refund": {
+        "pending": "Ihre Erstattung wird bearbeitet.",
+        "refunded": "Ihre Zahlung wurde erstattet."
+      },
+      "receipt": {
+        "title": "{price} per Banküberweisung bezahlen",
+        "methodsTitle": "{price} bezahlen: Zahlungsart wählen",
+        "submitManual": "Zahlung senden",
+        "noInstructions": "Die Zahlungsdaten sind noch nicht verfügbar. Bitte kontaktieren Sie den Support.",
+        "pick": "Beleg auswählen (Bild oder PDF)",
+        "send": "Beleg senden",
+        "underReview": "Ihr Beleg wurde gesendet und wird geprüft. Ihr Termin bleibt so lange reserviert; Sie werden nach der Bestätigung benachrichtigt.",
+        "rejected": "Ihr Beleg wurde nicht akzeptiert."
+      },
+      "doctorIssue": {
+        "missed": "Die Ärztin/der Arzt ist der Beratung nicht beigetreten.",
+        "cancelled": "Die Ärztin/der Arzt hat Ihre Beratung storniert.",
+        "choose": "Wählen Sie: Geld zurück oder ein neuer Termin bei derselben Ärztin/demselben Arzt ohne Mehrkosten.",
+        "refund": "Geld zurück",
+        "reschedule": "Neuen Termin wählen",
+        "confirmRefund": "Erstattung anfordern? Diese Beratung wird geschlossen.",
+        "refundChosen": "Ihre Erstattung wurde angefordert und folgt in Kürze.",
+        "rescheduled": "Ihre Beratung wurde auf den neuen Termin verschoben.",
+        "noSlots": "Diese Ärztin/dieser Arzt hat in den nächsten Tagen keine freien Termine. Sie können stattdessen eine Erstattung wählen.",
+        "confirmTime": "Neuen Termin bestätigen",
+        "back": "Zurück"
+      },
+      "forService": "Zu: {name}"
     },
     "call": {
       "phase": {
@@ -13254,7 +13355,14 @@
         "secure": "Secure and private",
         "noInstall": "No app to install",
         "verified": "Verified doctors"
-      }
+      },
+      "packageChip": "{minutes, number} Min. · ab {price}"
+    },
+    "videoOffer": {
+      "title": "Videoberatung vor der Behandlung",
+      "subtitle": "Sprechen Sie vor der Buchung per Video mit einem Arzt dieser Klinik.",
+      "book": "Videoberatung buchen",
+      "continue": "Ohne Beratung weiterbuchen"
     }
   },
   "GymMemberships": {
@@ -13590,5 +13698,11 @@
     "previous": "Zurück",
     "next": "Weiter",
     "confirm": "Ausgewählte Dateien verwenden"
+  },
+  "ClaimPage": {
+    "title": "Ist das Ihre Seite?",
+    "providerText": "Wenn Sie Inhaber oder Leitung dieser Einrichtung sind, beantragen Sie die Verwaltung der Seite im LSevin-Bereich.",
+    "staffText": "Wenn Sie dieser Arzt sind, beantragen Sie die Verwaltung Ihres Profils im LSevin-Bereich.",
+    "button": "Diese Seite gehört mir"
   }
 }

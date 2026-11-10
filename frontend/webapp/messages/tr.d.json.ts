@@ -13212,6 +13212,7 @@ declare const messages: {
       }
     },
     "homeCard": {
+      "packages": "{durations} dakikalık görüntülü danışma · {price} başlayan fiyatlarla",
       "title": "Tedaviden önce bir doktora danışın",
       "details": "{minutes, number} dk görüntülü görüşme · {price}",
       "cta": "Başla"
@@ -13225,7 +13226,8 @@ declare const messages: {
     },
     "cta": {
       "beforeBooking": "Randevudan önce ücretsiz danışmanlık",
-      "beforePurchase": "Satın almadan önce ücretsiz danışmanlık"
+      "beforePurchase": "Satın almadan önce ücretsiz danışmanlık",
+      "video": "Görüntülü danışmanlık"
     },
     "form": {
       "firstName": {
@@ -13296,13 +13298,14 @@ declare const messages: {
     "admin": {
       "video": {
         "title": "Doktorla görüntülü görüşme",
-        "description": "Görüntülü görüşmenin süresi ve ücreti; tüm doktorlar için aynıdır. Ana sayfa kartında tam olarak bu değerler gösterilir.",
+        "description": "Ücretli görüntülü danışmayı açar veya kapatır. Her doktorun kendi 20, 45 ve 60 dakikalık paketleri ve fiyatları vardır; ana sayfa kartı bunları gösterir.",
         "enabled": "Görüşme kartını ana sayfada göster",
         "duration": "Süre (dakika)",
         "price": "Temel ücret",
         "currency": "Para birimi",
         "priceToman": "Toman cinsinden ücret (isteğe bağlı)",
-        "priceTomanHint": "Ayarlandığında İranlı ziyaretçiler bunun yerine bu Toman ücretini görür."
+        "priceTomanHint": "Ayarlandığında İranlı ziyaretçiler bunun yerine bu Toman ücretini görür.",
+        "packagesHint": "Fiyatlar doktor başına belirlenir: kliniklerin doktorları sağlayıcı portalında, burada kayıtlı doktorlar ise aşağıdaki doktorlar bölümünde. İranlı hastalar (telefon numarasına göre) toman, diğerleri dolar fiyatını görür."
       },
       "title": "Danışmanlık talepleri",
       "description": "Rezervasyon akışından gelen ücretsiz danışmanlık geri arama talepleri.",
@@ -13428,6 +13431,7 @@ declare const messages: {
         "photoPlaceholder": "Fotoğraf seç",
         "active": "Hastalara göster",
         "add": "Doktoru kaydet",
+        "addFromPortal": "Yeni doktorlar yalnızca sağlayıcı portalından eklenir: doktor \"Doktor profilimi oluştur\" formunu doldurur ve sayfa talepleri kuyruğunda onaylandıktan sonra bu listede görünür. Bir doktoru görmek veya düzenlemek için listeden seçin.",
         "save": "Değişiklikleri kaydet",
         "cancelEdit": "İptal",
         "added": "Doktor kaydedildi",
@@ -13456,10 +13460,60 @@ declare const messages: {
           "registerFailed": "Hesap oluşturulamadı.",
           "accountTaken": "Bu hesap zaten {name} ile bağlantılı.",
           "savedWithoutAccount": "Doktor kaydedildi ancak giriş hesabı oluşturulamadı:"
+        },
+        "packages": {
+          "title": "Danışma paketleri",
+          "hint": "Bu doktorun sunduğu süreleri açın. Her paket iki fiyat ister: İranlı hastalar için toman, diğerleri için dolar.",
+          "minutes": "{minutes, number} dk",
+          "toman": "Toman (İranlı hastalar)",
+          "usd": "Dolar (diğer hastalar)",
+          "fromClinic": "Bu doktor {clinic} bünyesindedir. Paketlerini ve fiyatlarını klinik sağlayıcı portalında belirler.",
+          "clinicPaused": "Klinik bu doktoru duraklattı; hastalar şu an randevu alamaz.",
+          "none": "Henüz açık paket yok; bu yüzden hastalar bu doktoru görmez.",
+          "noneShort": "Açık paket yok",
+          "summary": "{durations} dk",
+          "clinic": "Klinik: {clinic}",
+          "clinicRow": "{minutes, number} dk: {toman, number} toman / {usd, number} $",
+          "priceRequired": "Bir paket ancak iki fiyatla (toman ve dolar) açılabilir.",
+          "invalidPrice": "Fiyatları pozitif sayı olarak girin.",
+          "migrationMissing": "Doktor kaydedildi ancak paket tablosu henüz yok. Önce pnpm migrate çalıştırın."
         }
+      },
+      "payments": {
+        "title": "Danışma ödemeleri ve iadeler",
+        "description": "İran dışındaki hastaların dekontları burada onay bekler. İptal veya doktorun katılmaması sonrası borçlu olunan iadeler, iade edildi olarak işaretlenene kadar listelenir.",
+        "migrationMissing": "Dekont ve iadeler için pnpm migrate (migration 0087) çalıştırın.",
+        "instructions": "İran dışındaki hastalar için havale bilgileri",
+        "methodsFromSettings": "Patients outside Iran pay with the same methods as service bookings: online card (BTCPay), bank receipt with the international accounts, and any other method enabled for international customers in the payment method settings. Receipts and manual payments come here for approval.",
+        "instructionsPlaceholder": "Hesap sahibi, IBAN veya hesap no, banka, açıklama…",
+        "instructionsHint": "Dolarla ödeyen hastalara gösterilir. Boşsa dekont gönderemezler.",
+        "receipts": "İncelenecek dekontlar ({count, number})",
+        "noReceipts": "Bekleyen dekont yok.",
+        "viewReceipt": "Dekontu gör",
+        "approve": "Onayla",
+        "approved": "Dekont onaylandı; danışma kesinleşti.",
+        "approvedButLost": "Saat artık boş değildi; bu ödeme iadelere taşındı.",
+        "reject": "Reddet",
+        "rejectPrompt": "Dekont neden reddediliyor? Hasta bunu görecek.",
+        "rejected": "Dekont reddedildi; hasta yenisini gönderebilir.",
+        "noteRequired": "Hasta için kısa bir neden yazın.",
+        "refunds": "Yapılacak iadeler ({count, number})",
+        "noRefunds": "Bekleyen iade yok.",
+        "reason": {
+          "patient": "Hasta iptal etti (24+ saat önce)",
+          "doctor": "Doktorun kliniği iptal etti",
+          "missed": "Doktor katılmadı",
+          "slotLost": "Saat alındıktan sonra ödendi"
+        },
+        "byReceipt": "Dekontla ödendi",
+        "markRefunded": "İade edildi olarak işaretle",
+        "confirmRefunded": "Bu tutarı hastaya iade ettiniz mi?",
+        "refundedDone": "İade kaydedildi."
       }
     },
     "doctorsPage": {
+      "package": "{minutes, number} dk · {price}",
+      "offerPackages": "{durations} dakika · {price} başlayan fiyatlarla",
       "back": "Geri",
       "title": "Görüntülü danışma",
       "subtitle": "Pratisyen hekimlerimizden biriyle görüşün",
@@ -13562,6 +13616,7 @@ declare const messages: {
       "callWindowClosed": "Görüşme odası kapandı ({from}–{to})."
     },
     "booking": {
+      "pickPackage": "Danışma süresi",
       "back": "Geri",
       "title": "Görüntülü görüşme randevusu al",
       "generalPractitioner": "Pratisyen hekim",
@@ -13607,7 +13662,11 @@ declare const messages: {
         "notJoinable": "Bu görüşmeye katılma zamanı değil.",
         "alreadyPaid": "Bu görüşmenin ödemesi zaten yapıldı.",
         "expired": "Bu saatin ayırma süresi doldu. Lütfen yeniden randevu alın.",
-        "paymentUnavailable": "Çevrimiçi ödeme şu anda kullanılamıyor. Lütfen birazdan tekrar deneyin."
+        "paymentUnavailable": "Çevrimiçi ödeme şu anda kullanılamıyor. Lütfen birazdan tekrar deneyin.",
+        "notCancellable": "Bu danışma artık iptal edilemez.",
+        "notResolvable": "Bu seçenek artık yok. Sayfayı yenileyin.",
+        "receiptNotAllowed": "Bu danışma dekontla değil, çevrim içi ödenir.",
+        "receiptMissing": "Önce dekont dosyasını seçin."
       },
       "joinCall": "Görüşmeye katıl",
       "joinLater": "Katıl düğmesi, görüşme odası açıldığında etkinleşir.",
@@ -13624,12 +13683,54 @@ declare const messages: {
       "paying": "Ödeme sayfasına yönlendiriliyor…",
       "paymentResult": {
         "paid": "Ödeme alındı. Görüşmeniz onaylandı.",
+        "pending": "Ödemeniz alındı ve ağ onayı bekleniyor. Onaylanır onaylanmaz görüşmeniz kesinleşir.",
         "cancelled": "Ödeme iptal edildi. Saat ayrılmış olduğu sürece yeniden ödeyebilirsiniz.",
         "failed": "Ödeme onaylanamadı. Hesabınızdan para çekildiyse genellikle 72 saat içinde iade edilir.",
         "refund": "Ödeme yapıldı ancak bu saat artık boş değildi. Ücret iade edilecek; lütfen destekle iletişime geçin."
       },
       "testPay": "Test ödemesi (yalnızca test için)",
-      "foreignVpnNote": "Bu hizmet şu anda yalnızca İran içinde kullanılabilir."
+      "foreignVpnNote": "Bu hizmet şu anda yalnızca İran içinde kullanılabilir.",
+      "cancel": {
+        "button": "Danışmayı iptal et",
+        "confirmUnpaid": "Bu talep iptal edilsin mi? Saat serbest bırakılacak.",
+        "confirmRefund": "Bu danışma iptal edilsin mi? Başlamasına {hours, number} saatten fazla var, ödemeniz iade edilecek.",
+        "confirmNoRefund": "Bu danışma iptal edilsin mi? Başlamasına {hours, number} saatten az var, ödeme iade edilmeyecek.",
+        "done": "Danışma iptal edildi.",
+        "doneRefund": "Danışma iptal edildi. Ödemeniz iade edilecek.",
+        "byPatient": "Bu danışmayı siz iptal ettiniz.",
+        "byDoctor": "Bu danışma doktor tarafından iptal edildi.",
+        "cancelled": "Bu danışma iptal edildi.",
+        "ruleRefundable": "Paranızı geri almak için başlangıçtan en az {hours, number} saat önce iptal edin.",
+        "ruleLate": "{hours, number} saatten az kaldı: şimdi iptal etmek ödemeyi iade etmez."
+      },
+      "refund": {
+        "pending": "İadeniz işleniyor.",
+        "refunded": "Ödemeniz iade edildi."
+      },
+      "receipt": {
+        "title": "{price} tutarını banka havalesiyle ödeyin",
+        "methodsTitle": "{price} öde: bir ödeme yöntemi seçin",
+        "submitManual": "Ödemeyi gönder",
+        "noInstructions": "Ödeme bilgileri henüz yok. Lütfen destekle iletişime geçin.",
+        "pick": "Dekontu seçin (görsel veya PDF)",
+        "send": "Dekontu gönder",
+        "underReview": "Dekontunuz gönderildi ve inceleniyor. Bu sürede saatiniz tutulur; onaylanınca bilgilendirileceksiniz.",
+        "rejected": "Dekontunuz kabul edilmedi."
+      },
+      "doctorIssue": {
+        "missed": "Doktor danışmanıza katılmadı.",
+        "cancelled": "Doktor danışmanızı iptal etti.",
+        "choose": "Tercihinizi seçin: paranızın iadesi veya aynı doktorla ek ücretsiz yeni bir saat.",
+        "refund": "Paramı iade et",
+        "reschedule": "Yeni saat seç",
+        "confirmRefund": "Para iadesi istensin mi? Bu danışma kapatılacak.",
+        "refundChosen": "İade talebiniz alındı; paranız yakında iade edilecek.",
+        "rescheduled": "Danışmanız yeni saate taşındı.",
+        "noSlots": "Bu doktorun önümüzdeki günlerde boş saati yok. Bunun yerine iade isteyebilirsiniz.",
+        "confirmTime": "Yeni saati onayla",
+        "back": "Geri"
+      },
+      "forService": "Hizmet: {name}"
     },
     "call": {
       "phase": {
@@ -13694,7 +13795,14 @@ declare const messages: {
         "secure": "Güvenli ve gizli",
         "noInstall": "Uygulama kurmadan",
         "verified": "Onaylı doktorlar"
-      }
+      },
+      "packageChip": "{minutes, number} dk · {price}'den"
+    },
+    "videoOffer": {
+      "title": "Tedavi öncesi görüntülü danışmanlık",
+      "subtitle": "Rezervasyondan önce bu kliniğin bir doktoruyla görüntülü görüşün.",
+      "book": "Görüntülü danışmanlık al",
+      "continue": "Danışmadan devam et"
     }
   },
   "GymMemberships": {
@@ -14010,6 +14118,12 @@ declare const messages: {
     "previous": "Önceki",
     "next": "Sonraki",
     "confirm": "Seçilen dosyaları kullan"
+  },
+  "ClaimPage": {
+    "title": "Bu sayfa sizin mi?",
+    "providerText": "Bu kurumun sahibi veya yöneticisiyseniz, sayfayı yönetmek için LSevin panelinden talepte bulunun.",
+    "staffText": "Bu doktor sizseniz, profilinizi yönetmek için LSevin panelinden talepte bulunun.",
+    "button": "Bu sayfa benim"
   }
 };
 export default messages;

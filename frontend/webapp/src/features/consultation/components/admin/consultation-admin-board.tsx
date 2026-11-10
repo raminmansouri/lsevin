@@ -8,6 +8,7 @@ import type {
 } from "../../types";
 import { ConsultationDetailDialog } from "./consultation-detail-dialog";
 import { ConsultationFilters } from "./consultation-filters";
+import { ConsultationPaymentsManager } from "./consultation-payments-manager";
 import { ConsultationRecipientsManager } from "./consultation-recipients-manager";
 import { ConsultationRequestsTable } from "./consultation-requests-table";
 import { ConsultationSmsSettingsForm } from "./consultation-sms-settings-form";
@@ -28,12 +29,11 @@ export function ConsultationAdminBoard({ data }: { data: ConsultationAdminPageDa
     <div className="space-y-6">
       <ConsultationStatsStrip stats={data.stats} />
 
-      <VideoConsultationSettingsForm
-        settings={data.videoSettings}
-        currencyCodes={data.currencyCodes}
-      />
+      <VideoConsultationSettingsForm settings={data.videoSettings} />
 
       <VideoConsultationDoctorsManager />
+
+      <ConsultationPaymentsManager />
 
       <div className="space-y-3">
         <ConsultationFilters filters={data.filters} />

@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
-import { ChevronLeft, Clock, Globe, Loader2, User } from "lucide-react";
+import { ChevronLeft, Clock, Globe, Loader2, Stethoscope, User } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { toast } from "sonner";
 
@@ -11,7 +11,7 @@ import MultiMediaPickerInput from "@/features/media-picker-addon/components/Mult
 import { useRouter } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 
-import type { BookingOptions } from "../patient-booking-types";
+import type { BookingOptions, BookingSource } from "../patient-booking-types";
 import { createVideoSessionAction, getBookingOptionsAction } from "../server/patient-booking";
 import {
   formatSessionDate,
@@ -22,14 +22,25 @@ import {
 type Gender = "male" | "female" | "other";
 
 /**
- * The patient picks a free time with the GP and describes their problem. The
- * request is saved unpaid and holds the time while the patient pays.
+ * The patient picks a package (20, 45 or 60 minutes, as the doctor offers), a free time for
+ * it, and describes their problem. The request is saved unpaid and holds the time while the
+ * patient pays.
  */
-export function VideoBookingPage({ doctorId }: { doctorId: string }) {
+export function VideoBookingPage({
+  doctorId,
+  serviceId,
+  source,
+}: {
+  doctorId: string;
+  /** The clinic service the patient came from; shown and kept on the request when it is the doctor's clinic's. */
+  serviceId?: string | null;
+  source?: BookingSource | null;
+}) {
   const t = useTranslations("Consultation.booking");
   const locale = useLocale();
   const router = useRouter();
   const [options, setOptions] = useState<BookingOptions | null>(null);
+  const [minutes, setMinutes] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [day, setDay] = useState<string | null>(null);
   const [slot, setSlot] = useState<string | null>(null);
@@ -42,7 +53,7 @@ export function VideoBookingPage({ doctorId }: { doctorId: string }) {
   const [isPending, startTransition] = useTransition();
 
   const load = useCallback(() => {
-    getBookingOptionsAction(doctorId)
+    getBookingOptionsAction(doctorId, serviceId)
       .then((result) => {
         if (result.ok && result.data) {
           setOptions(result.data);
@@ -53,14 +64,17 @@ export function VideoBookingPage({ doctorId }: { doctorId: string }) {
         }
       })
       .catch(() => setError(t("errors.loadFailed")));
-  }, [doctorId, t]);
+  }, [doctorId, serviceId, t]);
 
   useEffect(load, [load]);
+
+  // The picked package (the first until the patient picks), and its free times.
+  const selected = options?.packages.find((p) => p.minutes === minutes) ?? options?.packages[0] ?? null;
 
   // Free times grouped under their Tehran day.
   const days = useMemo(() => {
     const groups: Array<{ key: string; label: string; slots: string[] }> = [];
-    for (const iso of options?.slots ?? []) {
+    for (const iso of selected?.slots ?? []) {
       const key = sessionDayKey(iso);
       let group = groups.find((g) => g.key === key);
       if (!group) {
@@ -70,12 +84,12 @@ export function VideoBookingPage({ doctorId }: { doctorId: string }) {
       group.slots.push(iso);
     }
     return groups;
-  }, [options, locale]);
+  }, [selected, locale]);
 
   const activeDay = days.find((d) => d.key === day) ?? days[0] ?? null;
 
   const submit = () => {
-    if (!options || !slot) {
+    if (!options || !selected || !slot) {
       toast.error(t("errors.pickTime"));
       return;
     }
@@ -83,6 +97,9 @@ export function VideoBookingPage({ doctorId }: { doctorId: string }) {
       try {
         const result = await createVideoSessionAction({
           doctorId,
+          packageMinutes: selected.minutes,
+          source: source ?? "doctors_page",
+          serviceId: options.service?.id ?? null,
           scheduledAt: slot,
           patientName: name,
           patientAge: age,
@@ -132,13 +149,49 @@ export function VideoBookingPage({ doctorId }: { doctorId: string }) {
 
       {options && (
         <div className="space-y-4 px-5 pt-4">
-          <DoctorSummary options={options} />
+          <DoctorSummary options={options} selected={selected} />
+
+          {options.service && (
+            <p className="flex items-center gap-2 rounded-2xl bg-[#083f30]/5 px-4 py-3 text-sm text-[#083f30]">
+              <Stethoscope className="h-4 w-4 shrink-0" aria-hidden />
+              <span className="min-w-0">{t("forService", { name: options.service.name })}</span>
+            </p>
+          )}
 
           {options.foreignVisitor && (
             <div className="flex items-start gap-3 rounded-2xl bg-amber-50 p-4 text-amber-900">
               <Globe className="mt-0.5 h-5 w-5 shrink-0" aria-hidden />
               <p className="text-sm leading-6">{t("foreignVpnNote")}</p>
             </div>
+          )}
+
+          {options.packages.length > 1 && (
+            <section className="rounded-2xl bg-white p-4 shadow-sm">
+              <h2 className="font-bold text-gray-900">{t("pickPackage")}</h2>
+              <div className="mt-3 grid grid-cols-3 gap-2">
+                {options.packages.map((pkg) => (
+                  <button
+                    key={pkg.minutes}
+                    type="button"
+                    onClick={() => {
+                      setMinutes(pkg.minutes);
+                      setDay(null);
+                      setSlot(null);
+                    }}
+                    aria-pressed={selected?.minutes === pkg.minutes}
+                    className={cn(
+                      "rounded-xl border px-2 py-2.5 text-center",
+                      selected?.minutes === pkg.minutes
+                        ? "border-[#083f30] bg-[#083f30] text-white"
+                        : "border-gray-200 bg-white text-gray-800"
+                    )}
+                  >
+                    <span className="block text-sm font-bold">{t("minutes", { minutes: pkg.minutes })}</span>
+                    <span className="mt-0.5 block text-[11px] opacity-80">{pkg.priceLabel}</span>
+                  </button>
+                ))}
+              </div>
+            </section>
           )}
 
           <section className="rounded-2xl bg-white p-4 shadow-sm">
@@ -277,7 +330,13 @@ export function VideoBookingPage({ doctorId }: { doctorId: string }) {
   );
 }
 
-function DoctorSummary({ options }: { options: BookingOptions }) {
+function DoctorSummary({
+  options,
+  selected,
+}: {
+  options: BookingOptions;
+  selected: BookingOptions["packages"][number] | null;
+}) {
   const t = useTranslations("Consultation.booking");
   const imageUrl = resolveHomeMediaUrl(options.doctor.imageUrl);
   return (
@@ -300,10 +359,13 @@ function DoctorSummary({ options }: { options: BookingOptions }) {
       </div>
       <div className="min-w-0">
         <p className="truncate font-bold">{options.doctor.name}</p>
-        <p className="text-xs text-[#eacb7f]">{t("generalPractitioner")}</p>
+        <p className="text-xs text-[#eacb7f]">{options.doctor.clinicName ?? t("generalPractitioner")}</p>
         <p className="mt-1 flex items-center gap-1 text-xs text-white/80">
           <Clock className="h-3.5 w-3.5" aria-hidden />
-          {t("offer", { minutes: options.durationMinutes, price: options.priceLabel })}
+          {t("offer", {
+            minutes: selected?.minutes ?? options.durationMinutes,
+            price: selected?.priceLabel ?? options.priceLabel,
+          })}
         </p>
       </div>
     </div>

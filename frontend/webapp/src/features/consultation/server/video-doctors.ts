@@ -11,16 +11,18 @@ import { parsePhone } from "@/lib/parse-phone";
 
 import { CONSULTATION_TRANSLATION_KEY, type ConsultationActionResult } from "../types";
 import type { AdminVideoDoctor, VideoDoctorsPageData } from "../video-doctors-types";
-import { getVideoConsultationOfferAction } from "./video-offer";
+import { listBookableDoctors, loadOfferContext, providerDoctors, summarizePackages } from "./doctor-offers";
+import { adminPackagesReady, saveAdminPackages } from "./doctor-packages-repository";
+import { PACKAGE_MINUTES } from "./portal-packages";
 import {
   createVideoDoctor,
   deleteVideoDoctor,
   findIdentityUser,
   findVideoDoctorByUser,
   getVideoDoctorUserId,
+  isPortalDoctor,
   setVideoDoctorUser,
   listAdminVideoDoctors,
-  listPublicVideoDoctors,
   moveVideoDoctor,
   setVideoDoctorActive,
   updateVideoDoctor,
@@ -51,6 +53,29 @@ const toLatinDigits = (value: string) =>
     .replace(/[۰-۹]/g, (d) => String(d.charCodeAt(0) - 0x06f0))
     .replace(/[٠-٩]/g, (d) => String(d.charCodeAt(0) - 0x0660));
 
+/**
+ * "1,500,000", "۱٬۵۰۰٬۰۰۰" or "" to a number, or null when blank. Dollar prices stay well
+ * under what numeric(10, 2) holds.
+ */
+const priceField = (integer: boolean) =>
+  z.preprocess((value) => {
+    if (value === "" || value === null || value === undefined) return null;
+    const text = toLatinDigits(String(value)).replace(/٫/g, ".").replace(/[,\s٬،]/g, "");
+    return text === "" ? null : Number(text);
+  }, (integer ? z.number().int().max(1_000_000_000_000) : z.number().max(10_000_000)).positive().nullable());
+
+const PackageSchema = z
+  .object({
+    minutes: z.union([z.literal(20), z.literal(45), z.literal(60)]),
+    isActive: z.boolean(),
+    priceToman: priceField(true),
+    priceUsd: priceField(false),
+  })
+  // Same rule as the provider portal: a package goes on sale only with both prices.
+  .refine((pkg) => !pkg.isActive || (pkg.priceToman != null && pkg.priceUsd != null), {
+    message: "packagePriceRequired",
+  });
+
 const VideoDoctorSchema = z.object({
   id: z.uuid().optional(),
   nameFa: z.string().trim().min(2).max(120),
@@ -70,6 +95,8 @@ const VideoDoctorSchema = z.object({
   accountPhone: optionalText(30),
   accountEmail: optionalText(250).pipe(z.email().nullable()),
   accountPassword: z.string().max(100).nullish(),
+  // The 20, 45 and 60 minute packages. Ignored for a clinic's doctor, whose clinic sets them in the portal.
+  packages: z.array(PackageSchema).max(PACKAGE_MINUTES.length).optional(),
 });
 
 /** "09121234567", "9121234567", "00989…" or "+98…" to the international form. */
@@ -172,17 +199,31 @@ async function linkOrCreateAccount(
 export type SaveVideoDoctorInput = z.input<typeof VideoDoctorSchema>;
 
 /** The doctors page behind the home card: the offer plus the active doctors. */
-export async function getVideoDoctorsPageAction(): Promise<
-  ConsultationActionResult<VideoDoctorsPageData>
-> {
+export async function getVideoDoctorsPageAction(filter?: {
+  /** Only this provider's doctors (the "consult before treatment" button of a provider with several doctors). */
+  providerId?: string | null;
+  staffId?: string | null;
+}): Promise<ConsultationActionResult<VideoDoctorsPageData>> {
   try {
-    const offer = await getVideoConsultationOfferAction();
-    if (!offer.enabled || !(await videoDoctorsTableExists())) {
-      return { ok: true, data: { ...offer, doctors: [] } };
-    }
+    const empty = { enabled: false, durationMinutes: 0, priceLabel: "", packages: [], doctors: [] };
+    if (!(await videoDoctorsTableExists())) return { ok: true, data: empty };
     const locale = (await getLocale()) || FALLBACK_LOCALE;
-    const doctors = await listPublicVideoDoctors(locale);
-    return { ok: true, data: { ...offer, doctors } };
+    const ctx = await loadOfferContext(locale);
+    if (!ctx.enabled) return { ok: true, data: empty };
+    const providerId = z.guid().safeParse(filter?.providerId).success ? filter!.providerId! : null;
+    const staffId = z.guid().safeParse(filter?.staffId).success ? filter!.staffId! : null;
+    const doctors = providerId ? await providerDoctors(ctx, providerId, staffId) : await listBookableDoctors(ctx);
+    const packages = summarizePackages(ctx, doctors);
+    return {
+      ok: true,
+      data: {
+        enabled: true,
+        durationMinutes: packages[0]?.minutes ?? 0,
+        priceLabel: packages[0]?.priceLabel ?? "",
+        packages,
+        doctors,
+      },
+    };
   } catch (error) {
     console.error("[consultation] video doctors page failed", error);
     const detail = devDetail(error);
@@ -217,10 +258,16 @@ export async function saveVideoDoctorAction(
       const key = String(issue.path[0] ?? "form");
       (fieldErrors[key] ??= []).push(issue.message);
     }
-    return { ok: false, error: t("errors.invalidForm"), fieldErrors };
+    const packageIssue = parsed.error.issues.find((issue) => issue.path[0] === "packages");
+    const error = packageIssue
+      ? packageIssue.message === "packagePriceRequired"
+        ? t("admin.videoDoctors.packages.priceRequired")
+        : t("admin.videoDoctors.packages.invalidPrice")
+      : t("errors.invalidForm");
+    return { ok: false, error, fieldErrors };
   }
 
-  const { id, accountPhone, accountEmail, accountPassword, ...values } = parsed.data;
+  const { id, accountPhone, accountEmail, accountPassword, packages, ...values } = parsed.data;
   // The transforms already turn blanks into null; zod's output type just doesn't say so.
   const doctor: VideoDoctorInput = {
     nameFa: values.nameFa,
@@ -245,6 +292,37 @@ export async function saveVideoDoctorAction(
   } catch (error) {
     console.error("[consultation] saving video doctor failed", error);
     return { ok: false, error: t("errors.generic") + devDetail(error) };
+  }
+
+  if (packages) {
+    try {
+      if (!(await adminPackagesReady())) {
+        return {
+          ok: false,
+          error: t("admin.videoDoctors.packages.migrationMissing"),
+          data: { id: doctorId, accountCreated: false },
+        };
+      }
+      if (!(await isPortalDoctor(doctorId))) {
+        await saveAdminPackages(
+          doctorId,
+          packages.map((pkg) => ({
+            minutes: pkg.minutes,
+            isActive: pkg.isActive,
+            priceToman: pkg.priceToman ?? null,
+            priceUsd: pkg.priceUsd ?? null,
+          })),
+          ctx.userId ?? null
+        );
+      }
+    } catch (error) {
+      console.error("[consultation] saving video doctor packages failed", error);
+      return {
+        ok: false,
+        error: t("errors.generic") + devDetail(error),
+        data: { id: doctorId, accountCreated: false },
+      };
+    }
   }
 
   revalidatePath(ADMIN_PATH);

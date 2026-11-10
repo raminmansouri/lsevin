@@ -27,7 +27,6 @@ export const protectedPrefixes: string[] = [
   "/admin",
   "/provider-panel",
   "/provider-portal",
-  "/n/app/mobile/consultation/doctor",
   // Booking a GP (the doctors list itself stays public) and the patient's sessions.
   "/n/app/mobile/consultation/doctors/",
   "/n/app/mobile/consultation/sessions",

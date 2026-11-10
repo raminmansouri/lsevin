@@ -13,9 +13,8 @@ import db from "@/config/database/db";
 export type AppRole = "consultationDoctor";
 
 /** Where each role lands after signing in, highest priority first. */
-const ROLE_HOME: Array<[AppRole, string]> = [
-  ["consultationDoctor", "/n/app/mobile/consultation/doctor"],
-];
+// The GP panel moved to the provider portal, so no role lands anywhere special for now.
+const ROLE_HOME: Array<[AppRole, string]> = [];
 
 export async function getAppRoles(userId: string | null | undefined): Promise<AppRole[]> {
   if (!userId) return [];

@@ -10,6 +10,7 @@ import { MapViewer } from "@/components/map/map-viewer";
 import { isProviderConfigured, resolveMapProvider } from "@/components/map/map-provider";
 import { VideoGallery } from "@/components/media/video-gallery";
 import { ConsultationCtaButton } from "@/features/consultation/components/consultation-cta-button";
+import { ClaimPageCard } from "@/features/service-providers/components/details/claim-page-card";
 import { FavoriteButton } from "@/features/favorites/components/favorite-button";
 import { ViewerPrice } from "@/features/finance/components/viewer-price";
 import { useFetchProviderPageData } from "@/features/service-providers/api/client/fetch-provider-page-data";
@@ -690,6 +691,7 @@ export function DesktopProviderView({ initialData }: { initialData?: ProviderPag
                   <ConsultationCtaButton
                     categoryName={provider.name}
                     label={tConsultation("cta.beforeBooking")}
+                    videoOffer={{ providerId: provider.id, source: "provider" }}
                     className="flex h-14 w-full items-center justify-center gap-2 rounded-full border border-[#eacb7f]/40 text-sm font-bold text-[#eacb7f] transition hover:bg-[#eacb7f]/10"
                   />
                   <Link
@@ -698,6 +700,7 @@ export function DesktopProviderView({ initialData }: { initialData?: ProviderPag
                   >
                     {t("actions.contact")}
                   </Link>
+                  <ClaimPageCard variant="link" targetType="provider" targetId={provider.id} />
                 </div>
               </div>
 

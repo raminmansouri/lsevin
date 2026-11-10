@@ -3,6 +3,7 @@
 import { Check, Video } from "lucide-react";
 import { useTranslations } from "next-intl";
 
+import { ConsultationPackageChips } from "@/features/consultation/components/consultation-package-chips";
 import { Link } from "@/i18n/navigation";
 
 import { Magnetic, Reveal } from "../components/motion";
@@ -35,13 +36,18 @@ export function DesktopConsultationTeaser() {
             <p className="max-w-[320px] truncate text-sm text-[#6b6150]">{t("subtitle")}</p>
           </div>
 
+          {/* The packages doctors offer (20, 45, 60 minutes) and their lowest prices; the perks until they load. */}
           <div className="flex min-w-0 flex-1 items-center justify-center gap-2">
-            {perks.map((perk) => (
-              <span key={perk} className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-white/60 px-4 py-2 text-sm text-[#3d4b45] ring-1 ring-[#eadfc6]">
-                <Check size={14} className="text-[#0f5a45]" />
-                {perk}
-              </span>
-            ))}
+            <ConsultationPackageChips
+              className="flex-nowrap justify-center gap-2 text-sm font-bold text-[#0e1a16]"
+              chipClassName="bg-white/70 px-4 py-2 ring-1 ring-[#eadfc6]"
+              fallback={perks.map((perk) => (
+                <span key={perk} className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-white/60 px-4 py-2 text-sm text-[#3d4b45] ring-1 ring-[#eadfc6]">
+                  <Check size={14} className="text-[#0f5a45]" />
+                  {perk}
+                </span>
+              ))}
+            />
           </div>
 
           <Magnetic>

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
+import { findVideoBtcPayInvoice, settleVideoSessionBtcPay } from "@/features/consultation/server/video-foreign-payment";
 import { seoOrigin } from "@/lib/seo/origin";
 import { settleBtcPayPayment } from "@/payment/server/btcpay.service";
 import { getGatewayPaymentById } from "@/payment/server/payment.repository";
@@ -21,6 +22,15 @@ export async function GET(
   // origin (NEXT_PUBLIC_URL): request.nextUrl.origin is the internal 0.0.0.0:3000 behind the proxy.
   const bookingsUrl = (bookingId?: string | null) =>
     new URL(bookingId ? `/${locale}/n/app/mobile/bookings/${bookingId}` : `/${locale}/n/app/mobile/bookings`, seoOrigin());
+
+  // A video consultation paid with BTCPay comes back here too: settle it and show its page.
+  const consultation = paymentId ? await findVideoBtcPayInvoice(paymentId) : null;
+  if (consultation) {
+    const settled = consultation.invoiceId ? await settleVideoSessionBtcPay(consultation.invoiceId, locale) : null;
+    const target = new URL(`/${locale}/n/app/mobile/consultation/sessions/${consultation.sessionId}`, seoOrigin());
+    target.searchParams.set("payment", settled?.outcome ?? "pending");
+    return NextResponse.redirect(target);
+  }
 
   const payment = paymentId ? await getGatewayPaymentById(paymentId) : null;
   if (!payment || !payment.externalReference) {

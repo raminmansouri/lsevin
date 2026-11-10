@@ -27,9 +27,33 @@ import {
   saveVideoDoctorAction,
 } from "../../server/video-doctors";
 import { CONSULTATION_TRANSLATION_KEY } from "../../types";
-import type { AdminVideoDoctor } from "../../video-doctors-types";
+import type { AdminVideoDoctor, DoctorPackageDraft } from "../../video-doctors-types";
 
 type Mutation = Parameters<typeof mutateVideoDoctorAction>[0];
+
+const PACKAGE_MINUTES = [20, 45, 60] as const;
+
+/** A package row as typed: prices stay text until the server parses them. */
+type PackageField = {
+  minutes: (typeof PACKAGE_MINUTES)[number];
+  isActive: boolean;
+  priceToman: string;
+  priceUsd: string;
+};
+
+const emptyPackages = (): PackageField[] =>
+  PACKAGE_MINUTES.map((minutes) => ({ minutes, isActive: false, priceToman: "", priceUsd: "" }));
+
+const packageFieldsFrom = (packages: DoctorPackageDraft[]): PackageField[] =>
+  PACKAGE_MINUTES.map((minutes) => {
+    const pkg = packages.find((p) => p.minutes === minutes);
+    return {
+      minutes,
+      isActive: pkg?.isActive ?? false,
+      priceToman: pkg?.priceToman == null ? "" : String(pkg.priceToman),
+      priceUsd: pkg?.priceUsd == null ? "" : String(pkg.priceUsd),
+    };
+  });
 
 type Draft = {
   id?: string;
@@ -44,6 +68,7 @@ type Draft = {
   accountPhone: string;
   accountEmail: string;
   accountPassword: string;
+  packages: PackageField[];
 };
 
 const emptyDraft = (): Draft => ({
@@ -58,6 +83,7 @@ const emptyDraft = (): Draft => ({
   accountPhone: "",
   accountEmail: "",
   accountPassword: "",
+  packages: emptyPackages(),
 });
 
 const draftFrom = (doctor: AdminVideoDoctor): Draft => ({
@@ -73,11 +99,13 @@ const draftFrom = (doctor: AdminVideoDoctor): Draft => ({
   accountPhone: "",
   accountEmail: "",
   accountPassword: "",
+  packages: packageFieldsFrom(doctor.packages),
 });
 
 /**
- * The general practitioners patients see on the page the home consultation card
- * opens. They are registered here, separately from the app's other doctors. The
+ * The doctors patients see on the page the home consultation card opens: the ones
+ * registered here, with their 20, 45 and 60 minute packages, and the ones clinics add
+ * in the provider portal, whose packages the clinic sets there (shown read-only). The
  * list loads on its own rather than through the board's payload, so this panel
  * can say "run the migration" without blocking the rest of the page.
  */
@@ -119,6 +147,26 @@ export function VideoConsultationDoctorsManager() {
   const set = <K extends keyof Draft>(key: K, value: Draft[K]) =>
     setDraft((prev) => ({ ...prev, [key]: value }));
 
+  const setPackage = (minutes: number, patch: Partial<PackageField>) =>
+    setDraft((prev) => ({
+      ...prev,
+      packages: prev.packages.map((pkg) => (pkg.minutes === minutes ? { ...pkg, ...patch } : pkg)),
+    }));
+
+  const packageSummary = (doctor: AdminVideoDoctor) => {
+    const active = doctor.clinic
+      ? doctor.clinic.packages
+      : doctor.packages.filter((pkg) => pkg.isActive);
+    const text = active.length
+      ? t("admin.videoDoctors.packages.summary", {
+          durations: active.map((pkg) => pkg.minutes).join("/"),
+        })
+      : t("admin.videoDoctors.packages.noneShort");
+    return doctor.clinic
+      ? `${t("admin.videoDoctors.packages.clinic", { clinic: doctor.clinic.name ?? "—" })} · ${text}`
+      : text;
+  };
+
   const submit = () => {
     if (draft.nameFa.trim().length < 2) {
       setNameError(true);
@@ -126,7 +174,12 @@ export function VideoConsultationDoctorsManager() {
     }
     startTransition(async () => {
       try {
-        const result = await saveVideoDoctorAction({ ...draft });
+        // A clinic's doctor gets packages in the provider portal, so none are sent for them.
+        const { packages, ...profile } = draft;
+        const result = await saveVideoDoctorAction({
+          ...profile,
+          packages: editing?.clinic ? undefined : packages,
+        });
         if (!result.ok) {
           setNameError(Boolean(result.fieldErrors?.nameFa));
           setAccountError(result.fieldErrors?.account?.[0] ?? null);
@@ -197,7 +250,8 @@ export function VideoConsultationDoctorsManager() {
 
         {Array.isArray(doctors) && (
           <div className="grid gap-6 xl:grid-cols-2">
-            <form
+            {/* New doctors come from the provider portal ("create doctor profile"); here an admin only edits existing ones. */}
+            {draft.id ? <form
               className="space-y-4 rounded-lg border p-4"
               onSubmit={(event) => {
                 event.preventDefault();
@@ -292,6 +346,80 @@ export function VideoConsultationDoctorsManager() {
                   placeholder={t("admin.videoDoctors.photoPlaceholder")}
                   disabled={isPending}
                 />
+              </div>
+
+              <div className="space-y-3 rounded-lg border p-3">
+                <p className="text-sm font-medium">{t("admin.videoDoctors.packages.title")}</p>
+                {editing?.clinic ? (
+                  <div className="space-y-2 text-sm">
+                    <p className="text-xs text-muted-foreground">
+                      {t("admin.videoDoctors.packages.fromClinic", {
+                        clinic: editing.clinic.name ?? "—",
+                      })}
+                    </p>
+                    {editing.clinic.status !== "active" && (
+                      <p className="text-xs text-amber-700">{t("admin.videoDoctors.packages.clinicPaused")}</p>
+                    )}
+                    {editing.clinic.packages.length === 0 ? (
+                      <p className="text-xs text-muted-foreground">{t("admin.videoDoctors.packages.none")}</p>
+                    ) : (
+                      <ul className="space-y-1">
+                        {editing.clinic.packages.map((pkg) => (
+                          <li key={pkg.minutes} className="rounded-md bg-muted/50 px-2 py-1">
+                            {t("admin.videoDoctors.packages.clinicRow", {
+                              minutes: pkg.minutes,
+                              toman: pkg.priceToman ?? 0,
+                              usd: pkg.priceUsd ?? 0,
+                            })}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                ) : (
+                  <>
+                    <p className="text-xs text-muted-foreground">{t("admin.videoDoctors.packages.hint")}</p>
+                    {draft.packages.map((pkg) => (
+                      <div key={pkg.minutes} className="grid items-end gap-2 sm:grid-cols-[8rem_1fr_1fr]">
+                        <label className="flex h-9 items-center gap-2 text-sm">
+                          <Switch
+                            className="data-[state=unchecked]:bg-gray-300"
+                            checked={pkg.isActive}
+                            onCheckedChange={(checked) => setPackage(pkg.minutes, { isActive: checked })}
+                            disabled={isPending}
+                          />
+                          {t("admin.videoDoctors.packages.minutes", { minutes: pkg.minutes })}
+                        </label>
+                        <div className="space-y-1">
+                          <Label htmlFor={`video-doctor-package-${pkg.minutes}-toman`} className="text-xs">
+                            {t("admin.videoDoctors.packages.toman")}
+                          </Label>
+                          <Input
+                            id={`video-doctor-package-${pkg.minutes}-toman`}
+                            dir="ltr"
+                            inputMode="numeric"
+                            value={pkg.priceToman}
+                            onChange={(event) => setPackage(pkg.minutes, { priceToman: event.target.value })}
+                            disabled={isPending}
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <Label htmlFor={`video-doctor-package-${pkg.minutes}-usd`} className="text-xs">
+                            {t("admin.videoDoctors.packages.usd")}
+                          </Label>
+                          <Input
+                            id={`video-doctor-package-${pkg.minutes}-usd`}
+                            dir="ltr"
+                            inputMode="decimal"
+                            value={pkg.priceUsd}
+                            onChange={(event) => setPackage(pkg.minutes, { priceUsd: event.target.value })}
+                            disabled={isPending}
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </>
+                )}
               </div>
 
               <div className="space-y-3 rounded-lg border border-dashed p-3">
@@ -405,7 +533,11 @@ export function VideoConsultationDoctorsManager() {
                   </Button>
                 )}
               </div>
-            </form>
+            </form> : (
+              <p className="h-fit rounded-lg border border-dashed p-4 text-sm leading-7 text-muted-foreground">
+                {t("admin.videoDoctors.addFromPortal")}
+              </p>
+            )}
 
             <div className="space-y-2">
               <p className="text-sm font-medium">
@@ -429,6 +561,7 @@ export function VideoConsultationDoctorsManager() {
                           <p className="truncate text-sm font-medium">{doctor.nameFa}</p>
                           <p className="truncate text-xs text-muted-foreground">
                             {[
+                              packageSummary(doctor),
                               doctor.nameEn,
                               doctor.medicalCouncilNumber,
                               doctor.account

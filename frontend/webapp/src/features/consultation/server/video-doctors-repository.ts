@@ -2,7 +2,9 @@ import "server-only";
 
 import db from "@/config/database/db";
 
-import type { AdminVideoDoctor, VideoDoctor } from "../video-doctors-types";
+import type { AdminVideoDoctor, VideoDoctorProfile } from "../video-doctors-types";
+import { emptyPackageDrafts, listAdminPackageDrafts } from "./doctor-packages-repository";
+import { listPortalDoctors, type PortalDoctor } from "./portal-packages";
 
 type DoctorRow = {
   id: string;
@@ -68,7 +70,7 @@ export async function videoDoctorsTableExists(): Promise<boolean> {
 }
 
 /** Persian names and bios for Persian visitors, English (falling back to Persian) for the rest. */
-export async function listPublicVideoDoctors(locale: string): Promise<VideoDoctor[]> {
+export async function listPublicVideoDoctors(locale: string): Promise<VideoDoctorProfile[]> {
   const persian = locale.toLowerCase().startsWith("fa");
   const rows = await selectDoctors(true);
   return rows.map((row) => ({
@@ -82,7 +84,11 @@ export async function listPublicVideoDoctors(locale: string): Promise<VideoDocto
 }
 
 export async function listAdminVideoDoctors(): Promise<AdminVideoDoctor[]> {
-  const rows = await selectDoctors(false);
+  const [rows, drafts, portal] = await Promise.all([
+    selectDoctors(false),
+    listAdminPackageDrafts(),
+    listPortalDoctors(),
+  ]);
   return rows.map((row) => ({
     id: row.id,
     nameFa: row.name_fa,
@@ -98,7 +104,28 @@ export async function listAdminVideoDoctors(): Promise<AdminVideoDoctor[]> {
     account: row.user_id
       ? { userId: row.user_id, phone: row.account_phone, email: row.account_email }
       : null,
+    clinic: clinicFor(portal.get(row.id)),
+    packages: drafts.get(row.id) ?? emptyPackageDrafts(),
   }));
+}
+
+function clinicFor(doctor: PortalDoctor | undefined): AdminVideoDoctor["clinic"] {
+  if (!doctor) return null;
+  return {
+    name: doctor.providerNameFa || doctor.providerNameEn,
+    status: doctor.status,
+    packages: doctor.packages.map((pkg) => ({
+      minutes: pkg.minutes,
+      isActive: true,
+      priceToman: pkg.priceToman,
+      priceUsd: pkg.priceUsd,
+    })),
+  };
+}
+
+/** Whether a clinic added this doctor in the provider portal (its packages are then set there). */
+export async function isPortalDoctor(id: string): Promise<boolean> {
+  return (await listPortalDoctors()).has(id);
 }
 
 /** New doctors go to the end of the list. Returns the new doctor's id. */

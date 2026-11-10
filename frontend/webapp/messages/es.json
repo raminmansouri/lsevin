@@ -12775,6 +12775,7 @@
       }
     },
     "homeCard": {
+      "packages": "Videoconsulta de {durations} minutos · desde {price}",
       "title": "Habla con un médico antes del tratamiento",
       "details": "Videoconsulta de {minutes, number} min · {price}",
       "cta": "Empezar"
@@ -12788,7 +12789,8 @@
     },
     "cta": {
       "beforeBooking": "Consulta gratuita antes de reservar",
-      "beforePurchase": "Consulta gratuita antes de comprar"
+      "beforePurchase": "Consulta gratuita antes de comprar",
+      "video": "Consulta por video"
     },
     "form": {
       "firstName": {
@@ -12859,13 +12861,14 @@
     "admin": {
       "video": {
         "title": "Videoconsulta con un médico",
-        "description": "Duración y precio de la videoconsulta, iguales para todos los médicos. La tarjeta de la página de inicio muestra exactamente estos valores.",
+        "description": "Activa o desactiva la videoconsulta de pago. Cada médico tiene sus propios paquetes de 20, 45 y 60 minutos con sus precios; la tarjeta de inicio muestra lo que ofrecen.",
         "enabled": "Mostrar la tarjeta de consulta en la página de inicio",
         "duration": "Duración (minutos)",
         "price": "Precio base",
         "currency": "Moneda",
         "priceToman": "Precio en tomanes (opcional)",
-        "priceTomanHint": "Si se indica, los visitantes de Irán verán este precio en tomanes."
+        "priceTomanHint": "Si se indica, los visitantes de Irán verán este precio en tomanes.",
+        "packagesHint": "Los precios son por médico: los de las clínicas en el portal de proveedores y los registrados aquí en la sección de médicos de abajo. Los pacientes iraníes (según su teléfono) ven el precio en tomanes; el resto, en dólares."
       },
       "title": "Solicitudes de consulta",
       "description": "Llamadas de consulta gratuita solicitadas desde el proceso de reserva.",
@@ -12991,6 +12994,7 @@
         "photoPlaceholder": "Elegir foto",
         "active": "Mostrar a pacientes",
         "add": "Registrar médico",
+        "addFromPortal": "Los médicos nuevos solo se añaden desde el portal de proveedores: el médico completa «Crear mi perfil de médico» y, tras la aprobación en la cola de solicitudes de página, aparece en esta lista. Para ver o editar un médico, elíjalo en la lista.",
         "save": "Guardar cambios",
         "cancelEdit": "Cancelar",
         "added": "Médico registrado",
@@ -13019,10 +13023,60 @@
           "registerFailed": "No se pudo crear la cuenta.",
           "accountTaken": "Esta cuenta ya está vinculada a {name}.",
           "savedWithoutAccount": "El médico se guardó, pero no se creó la cuenta de acceso:"
+        },
+        "packages": {
+          "title": "Paquetes de consulta",
+          "hint": "Activa las duraciones que ofrece este médico. Cada paquete necesita ambos precios: tomanes para pacientes iraníes y dólares para el resto.",
+          "minutes": "{minutes, number} min",
+          "toman": "Tomanes (pacientes iraníes)",
+          "usd": "Dólares (resto de pacientes)",
+          "fromClinic": "Este médico pertenece a {clinic}. La clínica fija sus paquetes y precios en el portal de proveedores.",
+          "clinicPaused": "La clínica ha pausado a este médico, así que ahora no se puede reservar.",
+          "none": "Aún no hay ningún paquete activo, así que los pacientes no ven a este médico.",
+          "noneShort": "Sin paquete activo",
+          "summary": "{durations} min",
+          "clinic": "Clínica: {clinic}",
+          "clinicRow": "{minutes, number} min: {toman, number} tomanes / {usd, number} $",
+          "priceRequired": "Un paquete solo se puede activar con ambos precios (tomanes y dólares).",
+          "invalidPrice": "Introduce los precios como números positivos.",
+          "migrationMissing": "El médico se guardó, pero la tabla de paquetes aún no existe. Ejecuta primero pnpm migrate."
         }
+      },
+      "payments": {
+        "title": "Pagos y reembolsos de consultas",
+        "description": "Aquí esperan aprobación los comprobantes de pacientes fuera de Irán. Los reembolsos pendientes tras una cancelación o un médico ausente se listan hasta marcarlos como devueltos.",
+        "migrationMissing": "Ejecuta pnpm migrate (migración 0087) para usar comprobantes y reembolsos.",
+        "instructions": "Instrucciones de transferencia para pacientes fuera de Irán",
+        "methodsFromSettings": "Patients outside Iran pay with the same methods as service bookings: online card (BTCPay), bank receipt with the international accounts, and any other method enabled for international customers in the payment method settings. Receipts and manual payments come here for approval.",
+        "instructionsPlaceholder": "Titular, IBAN o número de cuenta, banco, referencia…",
+        "instructionsHint": "Se muestra a quienes pagan en dólares. Sin esto no pueden enviar comprobante.",
+        "receipts": "Comprobantes por revisar ({count, number})",
+        "noReceipts": "No hay comprobantes pendientes.",
+        "viewReceipt": "Ver comprobante",
+        "approve": "Aprobar",
+        "approved": "Comprobante aprobado; la consulta está confirmada.",
+        "approvedButLost": "La hora ya no estaba libre; este pago pasó a reembolsos.",
+        "reject": "Rechazar",
+        "rejectPrompt": "¿Por qué se rechaza? El paciente lo verá.",
+        "rejected": "Comprobante rechazado; el paciente puede enviar otro.",
+        "noteRequired": "Escribe un motivo breve para el paciente.",
+        "refunds": "Reembolsos pendientes ({count, number})",
+        "noRefunds": "No hay reembolsos pendientes.",
+        "reason": {
+          "patient": "Cancelado por el paciente (24 h o más antes)",
+          "doctor": "Cancelado por la clínica del médico",
+          "missed": "El médico no se unió",
+          "slotLost": "Pagado cuando la hora ya estaba ocupada"
+        },
+        "byReceipt": "Pagado con comprobante",
+        "markRefunded": "Marcar como devuelto",
+        "confirmRefunded": "¿Ya devolviste este dinero al paciente?",
+        "refundedDone": "Reembolso registrado."
       }
     },
     "doctorsPage": {
+      "package": "{minutes, number} min · {price}",
+      "offerPackages": "{durations} minutos · desde {price}",
       "back": "Volver",
       "title": "Consulta por video",
       "subtitle": "Habla con uno de nuestros médicos generales",
@@ -13125,6 +13179,7 @@
       "callWindowClosed": "La sala de llamada se ha cerrado ({from}–{to})."
     },
     "booking": {
+      "pickPackage": "Duración de la consulta",
       "back": "Atrás",
       "title": "Reservar una videoconsulta",
       "generalPractitioner": "Médico de cabecera",
@@ -13170,7 +13225,11 @@
         "notJoinable": "Todavía no es momento de unirse a esta llamada.",
         "alreadyPaid": "Esta consulta ya está pagada.",
         "expired": "La reserva de esta hora ha caducado. Vuelve a reservar.",
-        "paymentUnavailable": "El pago en línea no está disponible ahora. Inténtalo de nuevo en un momento."
+        "paymentUnavailable": "El pago en línea no está disponible ahora. Inténtalo de nuevo en un momento.",
+        "notCancellable": "Esta consulta ya no se puede cancelar.",
+        "notResolvable": "Esta opción ya no está disponible. Actualiza la página.",
+        "receiptNotAllowed": "Esta consulta se paga en línea, no con comprobante.",
+        "receiptMissing": "Primero elige el archivo del comprobante."
       },
       "joinCall": "Unirse a la llamada",
       "joinLater": "El botón para unirte se activa cuando se abra la sala de llamada.",
@@ -13187,12 +13246,54 @@
       "paying": "Yendo a la página de pago…",
       "paymentResult": {
         "paid": "Pago recibido. Tu consulta está confirmada.",
+        "pending": "Recibimos su pago y espera la confirmación de la red. Su consulta se confirma en cuanto se acredite.",
         "cancelled": "El pago se canceló. Puedes volver a pagar mientras la hora siga reservada.",
         "failed": "No se pudo confirmar el pago. Si se descontó dinero de tu cuenta, suele devolverse en 72 horas.",
         "refund": "El pago se realizó, pero esta hora ya no estaba libre. Se te reembolsará; contacta con soporte."
       },
       "testPay": "Pago de prueba (solo para pruebas)",
-      "foreignVpnNote": "Este servicio por ahora solo está disponible dentro de Irán."
+      "foreignVpnNote": "Este servicio por ahora solo está disponible dentro de Irán.",
+      "cancel": {
+        "button": "Cancelar consulta",
+        "confirmUnpaid": "¿Cancelar esta solicitud? La hora quedará libre.",
+        "confirmRefund": "¿Cancelar esta consulta? Faltan más de {hours, number} horas, así que se te devolverá el pago.",
+        "confirmNoRefund": "¿Cancelar esta consulta? Faltan menos de {hours, number} horas, así que el pago no se devolverá.",
+        "done": "La consulta se canceló.",
+        "doneRefund": "La consulta se canceló. Se te devolverá el pago.",
+        "byPatient": "Cancelaste esta consulta.",
+        "byDoctor": "El médico canceló esta consulta.",
+        "cancelled": "Esta consulta fue cancelada.",
+        "ruleRefundable": "Cancela hasta {hours, number} horas antes del inicio para recuperar tu dinero.",
+        "ruleLate": "Quedan menos de {hours, number} horas: si cancelas ahora no se devuelve el pago."
+      },
+      "refund": {
+        "pending": "Tu reembolso está en proceso.",
+        "refunded": "Se te devolvió el pago."
+      },
+      "receipt": {
+        "title": "Paga {price} por transferencia bancaria",
+        "methodsTitle": "Pagar {price}: elija un método de pago",
+        "submitManual": "Enviar pago",
+        "noInstructions": "Los datos de pago aún no están disponibles. Contacta con soporte.",
+        "pick": "Elige el comprobante (imagen o PDF)",
+        "send": "Enviar comprobante",
+        "underReview": "Tu comprobante se envió y se está revisando. Mientras tanto se guarda tu hora; te avisaremos al confirmarlo.",
+        "rejected": "Tu comprobante no fue aceptado."
+      },
+      "doctorIssue": {
+        "missed": "El médico no se unió a tu consulta.",
+        "cancelled": "El médico canceló tu consulta.",
+        "choose": "Elige: que te devuelvan el dinero o una nueva hora con el mismo médico sin coste adicional.",
+        "refund": "Devolver mi dinero",
+        "reschedule": "Elegir nueva hora",
+        "confirmRefund": "¿Pedir la devolución? Esta consulta se cerrará.",
+        "refundChosen": "Se registró tu reembolso; recibirás tu dinero pronto.",
+        "rescheduled": "Tu consulta se movió a la nueva hora.",
+        "noSlots": "Este médico no tiene horas libres en los próximos días. Puedes pedir la devolución.",
+        "confirmTime": "Confirmar nueva hora",
+        "back": "Volver"
+      },
+      "forService": "Sobre: {name}"
     },
     "call": {
       "phase": {
@@ -13257,7 +13358,14 @@
         "secure": "Secure and private",
         "noInstall": "No app to install",
         "verified": "Verified doctors"
-      }
+      },
+      "packageChip": "{minutes, number} min · desde {price}"
+    },
+    "videoOffer": {
+      "title": "Consulta por video antes del tratamiento",
+      "subtitle": "Habla por video con un médico de esta clínica antes de reservar.",
+      "book": "Reservar consulta por video",
+      "continue": "Seguir reservando sin consulta"
     }
   },
   "GymMemberships": {
@@ -13593,5 +13701,11 @@
     "previous": "Anterior",
     "next": "Siguiente",
     "confirm": "Usar archivos seleccionados"
+  },
+  "ClaimPage": {
+    "title": "¿Es tu página?",
+    "providerText": "Si eres propietario o gerente de este centro, solicita gestionar su página en el panel de LSevin.",
+    "staffText": "Si eres este médico, solicita gestionar tu perfil en el panel de LSevin.",
+    "button": "Esta página es mía"
   }
 }

@@ -36,6 +36,7 @@ import {
   deleteConsultationRecipient,
   getConsultationRequestDetail,
   getConsultationSmsSettings,
+  getVideoConsultationSettings,
   saveConsultationSmsSettings,
   saveVideoConsultationSettings,
   updateConsultationRequest,
@@ -325,15 +326,13 @@ export async function saveVideoConsultationSettingsAction(
     };
   }
 
-  // z.preprocess types its output as optional; the schema has already required them.
+  // Only the switch changes; the old length and price keys stay as they were and are unused.
   const values = parsed.data;
   try {
+    const current = await getVideoConsultationSettings();
     await saveVideoConsultationSettings({
+      ...current,
       enabled: values.enabled,
-      durationMinutes: Number(values.durationMinutes),
-      priceAmount: Number(values.priceAmount),
-      priceCurrency: values.priceCurrency,
-      priceToman: values.priceToman ?? null,
       actorUserId: ctx.userId ?? null,
     });
   } catch (error) {

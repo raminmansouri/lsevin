@@ -961,6 +961,7 @@ export default function ServicePage({ data, serviceId, locale }: ServicePageProp
           <ConsultationCtaButton
             categoryName={service.name}
             label={tConsultation("cta.beforeBooking")}
+            videoOffer={{ providerId: service.clinicId, serviceId: service.providerServiceId, source: "service" }}
             className="flex h-14 w-20 shrink-0 flex-col items-center justify-center gap-1 rounded-2xl border border-[#083f30]/20 bg-[#083f30]/5 px-1 text-center text-[10px] font-bold leading-tight text-[#083f30] transition-all hover:bg-[#083f30]/10 active:scale-95"
           />
           <button type="button" onClick={() => navigate(`/n/app/mobile/booking?serviceId=${service.providerServiceId}`)} className="flex h-14 shrink-0 items-center gap-2 rounded-2xl bg-gradient-to-r from-[#083f30] to-[#0a5a44] px-5 font-bold text-white sm:px-8 transition-all hover:shadow-xl active:scale-95">{t("actions.bookNow")}</button>

@@ -20,6 +20,7 @@ import {
   getSessionForPayment,
   settleSessionPayment,
 } from "./video-payment-repository";
+import { getReceiptForReview, markReceiptReviewed } from "./session-changes-repository";
 
 /**
  * Paying for a video consultation. Like the shop, this adds no payment engine
@@ -171,6 +172,29 @@ export async function payVideoSessionForTest(input: {
 }
 
 export type PaymentOutcome = "paid" | "cancelled" | "failed" | "refund";
+
+/**
+ * An admin accepts a patient's transfer receipt: settled exactly like a gateway payment (same
+ * lock and checks), so a time lost meanwhile turns into a refund instead of a double booking.
+ */
+export async function approveReceiptPayment(
+  paymentId: string,
+  adminUserId: string | null,
+  locale: string
+): Promise<"confirmed" | "refund" | "notFound"> {
+  const receipt = await getReceiptForReview(paymentId);
+  if (!receipt) return "notFound";
+  const settled = await settleSessionPayment({
+    paymentId,
+    referenceId: `RECEIPT-${paymentId.slice(0, 8)}`,
+    cardPan: null,
+    raw: { receiptApprovedBy: adminUserId },
+  });
+  await markReceiptReviewed(paymentId, adminUserId);
+  if (settled === "needsRefund") return "refund";
+  if (settled === "confirmed") await notifyConfirmed(receipt.sessionId, locale);
+  return "confirmed";
+}
 
 /**
  * The gateway's return. Success is checked server to server with the gateway,
@@ -330,7 +354,7 @@ async function notifyConfirmed(sessionId: string, locale: string): Promise<void>
             patientName: info.patientName ?? "",
             when: formatWhen(new Date(info.scheduledAt), true),
           },
-          data: { url: `/n/app/mobile/consultation/doctor/sessions/${sessionId}` },
+          data: { url: "/api/provider-portal-sso" }, // the doctor works in the provider portal
         })
       );
     }
@@ -341,4 +365,9 @@ async function notifyConfirmed(sessionId: string, locale: string): Promise<void>
   } catch (error) {
     console.error("[consultation] confirmation notices threw", error);
   }
+}
+
+/** Tells the patient and doctor a consultation is confirmed; shared with the BTCPay path. */
+export async function notifyVideoSessionConfirmed(sessionId: string, locale: string): Promise<void> {
+  await notifyConfirmed(sessionId, locale);
 }

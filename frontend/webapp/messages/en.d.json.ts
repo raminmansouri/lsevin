@@ -14395,6 +14395,7 @@ declare const messages: {
       }
     },
     "homeCard": {
+      "packages": "{durations}-minute video consultation · from {price}",
       "title": "Talk to a doctor before treatment",
       "details": "{minutes, number}-min video consultation · {price}",
       "cta": "Start"
@@ -14408,7 +14409,8 @@ declare const messages: {
     },
     "cta": {
       "beforeBooking": "Free consultation before booking",
-      "beforePurchase": "Free consultation before buying"
+      "beforePurchase": "Free consultation before buying",
+      "video": "Video consultation"
     },
     "form": {
       "firstName": {
@@ -14480,13 +14482,14 @@ declare const messages: {
     "admin": {
       "video": {
         "title": "Video consultation with a doctor",
-        "description": "Length and price of the video consultation, the same for every doctor. The home page card shows exactly these values.",
+        "description": "Turns paid video consultation on or off. Each doctor sets their own 20, 45 and 60 minute packages and prices; the home card shows what they offer.",
         "enabled": "Show the consultation card on the home page",
         "duration": "Length (minutes)",
         "price": "Base price",
         "currency": "Currency",
         "priceToman": "Price in Toman (optional)",
-        "priceTomanHint": "When set, Iranian visitors see this Toman price instead."
+        "priceTomanHint": "When set, Iranian visitors see this Toman price instead.",
+        "packagesHint": "Prices are set per doctor: a clinic's doctors in the provider portal, and doctors registered here in the doctors panel below. Iranian patients (by phone number) see the toman price, everyone else the dollar price."
       },
       "title": "Consultation requests",
       "description": "Free-consultation callbacks raised from the booking flow.",
@@ -14616,6 +14619,7 @@ declare const messages: {
         "photoPlaceholder": "Choose a photo",
         "active": "Show to patients",
         "add": "Register doctor",
+        "addFromPortal": "New doctors are added only from the provider portal: the doctor fills in \"Create my doctor profile\", and after approval in the page claims queue they appear in this list. To view or edit a doctor, choose them from the list.",
         "save": "Save changes",
         "cancelEdit": "Cancel",
         "added": "Doctor registered",
@@ -14644,10 +14648,60 @@ declare const messages: {
           "registerFailed": "The account couldn't be created.",
           "accountTaken": "This account is already linked to {name}.",
           "savedWithoutAccount": "The doctor was saved, but the sign-in account wasn't created:"
+        },
+        "packages": {
+          "title": "Consultation packages",
+          "hint": "Switch on the lengths this doctor offers. A package needs both prices: toman for Iranian patients and dollars for everyone else.",
+          "minutes": "{minutes, number} min",
+          "toman": "Toman (Iranian patients)",
+          "usd": "Dollars (everyone else)",
+          "fromClinic": "This doctor belongs to {clinic}. The clinic sets their packages and prices in the provider portal.",
+          "clinicPaused": "The clinic has paused this doctor, so patients cannot book them now.",
+          "none": "No package is switched on yet, so patients do not see this doctor.",
+          "noneShort": "No active package",
+          "summary": "{durations} min",
+          "clinic": "Clinic: {clinic}",
+          "clinicRow": "{minutes, number} min: {toman, number} toman / ${usd, number}",
+          "priceRequired": "A package can only be switched on with both prices (toman and dollars).",
+          "invalidPrice": "Enter prices as positive numbers.",
+          "migrationMissing": "The doctor was saved, but the packages table does not exist yet. Run pnpm migrate first."
         }
+      },
+      "payments": {
+        "title": "Consultation payments and refunds",
+        "description": "Receipts from patients outside Iran wait here for approval. Refunds owed after a cancellation or a doctor who didn't join are listed until you mark them paid back.",
+        "migrationMissing": "Run pnpm migrate (migration 0087) to use receipts and refunds.",
+        "instructions": "Transfer instructions for patients outside Iran",
+        "methodsFromSettings": "Patients outside Iran pay with the same methods as service bookings: online card (BTCPay), bank receipt with the international accounts, and any other method enabled for international customers in the payment method settings. Receipts and manual payments come here for approval.",
+        "instructionsPlaceholder": "Account holder, IBAN or account number, bank, reference to write…",
+        "instructionsHint": "Shown to patients who pay in dollars. Without it they cannot send a receipt.",
+        "receipts": "Receipts to check ({count, number})",
+        "noReceipts": "No receipt is waiting.",
+        "viewReceipt": "View receipt",
+        "approve": "Approve",
+        "approved": "Receipt approved; the consultation is confirmed.",
+        "approvedButLost": "The time was no longer free, so this payment moved to refunds.",
+        "reject": "Reject",
+        "rejectPrompt": "Why is the receipt rejected? The patient will see this.",
+        "rejected": "Receipt rejected; the patient can send a new one.",
+        "noteRequired": "Write a short reason for the patient.",
+        "refunds": "Refunds owed ({count, number})",
+        "noRefunds": "No refund is owed.",
+        "reason": {
+          "patient": "Cancelled by the patient (24+ hours ahead)",
+          "doctor": "Cancelled by the doctor's clinic",
+          "missed": "The doctor did not join",
+          "slotLost": "Paid after the time was taken"
+        },
+        "byReceipt": "Paid by receipt",
+        "markRefunded": "Mark as refunded",
+        "confirmRefunded": "Have you paid this money back to the patient?",
+        "refundedDone": "Refund recorded."
       }
     },
     "doctorsPage": {
+      "package": "{minutes, number} min · {price}",
+      "offerPackages": "{durations} minutes · from {price}",
       "back": "Back",
       "title": "Video consultation",
       "subtitle": "Talk to one of our general practitioners",
@@ -14750,6 +14804,7 @@ declare const messages: {
       "callWindowClosed": "The call room has closed ({from}–{to})."
     },
     "booking": {
+      "pickPackage": "Consultation length",
       "back": "Back",
       "title": "Book a video consultation",
       "generalPractitioner": "General practitioner",
@@ -14795,7 +14850,11 @@ declare const messages: {
         "notJoinable": "It isn't time to join this call.",
         "alreadyPaid": "This consultation is already paid.",
         "expired": "The hold on this time ran out. Please book again.",
-        "paymentUnavailable": "Online payment isn't available right now. Please try again shortly."
+        "paymentUnavailable": "Online payment isn't available right now. Please try again shortly.",
+        "notCancellable": "This consultation can no longer be cancelled.",
+        "notResolvable": "This choice is no longer available. Refresh the page.",
+        "receiptNotAllowed": "This consultation is paid online, not by receipt.",
+        "receiptMissing": "Choose the receipt file first."
       },
       "joinCall": "Join call",
       "joinLater": "The join button opens when the call room opens.",
@@ -14812,12 +14871,54 @@ declare const messages: {
       "paying": "Going to the payment page…",
       "paymentResult": {
         "paid": "Payment received. Your consultation is confirmed.",
+        "pending": "Your payment was received and is waiting for network confirmation. Your consultation is confirmed as soon as it clears.",
         "cancelled": "The payment was cancelled. You can pay again while the time is held.",
         "failed": "The payment couldn't be confirmed. If money left your account, it usually comes back within 72 hours.",
         "refund": "The payment went through, but this time was no longer free. You'll be refunded; please contact support."
       },
       "testPay": "Test payment (testing only)",
-      "foreignVpnNote": "This service is currently available only inside Iran."
+      "foreignVpnNote": "This service is currently available only inside Iran.",
+      "cancel": {
+        "button": "Cancel consultation",
+        "confirmUnpaid": "Cancel this request? The time will be released.",
+        "confirmRefund": "Cancel this consultation? It is more than {hours, number} hours away, so your payment will be refunded.",
+        "confirmNoRefund": "Cancel this consultation? It starts in less than {hours, number} hours, so the payment will not be refunded.",
+        "done": "The consultation was cancelled.",
+        "doneRefund": "The consultation was cancelled. Your payment will be refunded.",
+        "byPatient": "You cancelled this consultation.",
+        "byDoctor": "The doctor cancelled this consultation.",
+        "cancelled": "This consultation was cancelled.",
+        "ruleRefundable": "Cancel up to {hours, number} hours before the start to get your money back.",
+        "ruleLate": "Less than {hours, number} hours remain: cancelling now does not refund the payment."
+      },
+      "refund": {
+        "pending": "Your refund is being processed.",
+        "refunded": "Your payment was refunded."
+      },
+      "receipt": {
+        "title": "Pay {price} by bank transfer",
+        "methodsTitle": "Pay {price}: choose a payment method",
+        "submitManual": "Submit payment",
+        "noInstructions": "Payment details are not available yet. Please contact support.",
+        "pick": "Choose the receipt (image or PDF)",
+        "send": "Send receipt",
+        "underReview": "Your receipt was sent and is being checked. Your time is held meanwhile; you'll be notified once it is confirmed.",
+        "rejected": "Your receipt was not accepted."
+      },
+      "doctorIssue": {
+        "missed": "The doctor did not join your consultation.",
+        "cancelled": "The doctor cancelled your consultation.",
+        "choose": "Choose what you prefer: your money back, or a new time with the same doctor at no extra cost.",
+        "refund": "Get my money back",
+        "reschedule": "Pick a new time",
+        "confirmRefund": "Ask for your money back? This consultation will be closed.",
+        "refundChosen": "Your refund was requested. You'll get your money back soon.",
+        "rescheduled": "Your consultation was moved to the new time.",
+        "noSlots": "This doctor has no free time in the coming days. You can ask for your money back instead.",
+        "confirmTime": "Confirm new time",
+        "back": "Back"
+      },
+      "forService": "About: {name}"
     },
     "call": {
       "phase": {
@@ -14882,7 +14983,14 @@ declare const messages: {
         "secure": "Secure and private",
         "noInstall": "No app to install",
         "verified": "Verified doctors"
-      }
+      },
+      "packageChip": "{minutes, number} min · from {price}"
+    },
+    "videoOffer": {
+      "title": "Video consultation before treatment",
+      "subtitle": "Talk to a doctor from this clinic by video before you book.",
+      "book": "Book a video consultation",
+      "continue": "Continue booking without it"
     }
   },
   "GymMemberships": {
@@ -17739,6 +17847,12 @@ declare const messages: {
       "VALIDATION_ERROR": "Some of the details are not valid.",
       "generic": "Could not save. Please try again."
     }
+  },
+  "ClaimPage": {
+    "title": "Is this your page?",
+    "providerText": "If you own or manage this center, ask to manage its page in the LSevin panel.",
+    "staffText": "If you are this doctor, ask to manage your profile in the LSevin panel.",
+    "button": "This page is mine"
   }
 };
 export default messages;

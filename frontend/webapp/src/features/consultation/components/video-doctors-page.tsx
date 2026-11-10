@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { BadgeCheck, ChevronLeft, Clock, Loader2, User, Video } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { resolveHomeMediaUrl } from "@/features/home/components/home-media";
@@ -10,6 +10,7 @@ import { Link, useRouter } from "@/i18n/navigation";
 
 import { getVideoDoctorsPageAction } from "../server/video-doctors";
 import type { VideoDoctor, VideoDoctorsPageData } from "../video-doctors-types";
+import { formatDurations } from "./package-format";
 
 type State =
   | { status: "loading" }
@@ -17,23 +18,34 @@ type State =
   | { status: "ready"; data: VideoDoctorsPageData };
 
 /**
- * The page the home consultation card opens: the general practitioners an admin
- * registered for video consultation, with the fixed length and price on top.
+ * The page the home consultation card opens: the doctors a patient can book (approved, and
+ * for a clinic's doctor, with an active package), each with their own packages and prices.
  */
-export function VideoDoctorsPage() {
+export function VideoDoctorsPage({
+  providerId,
+  staffId,
+  bookQuery,
+}: {
+  /** Only this provider's doctors. */
+  providerId?: string | null;
+  staffId?: string | null;
+  /** Carried to each doctor's booking page (the service the patient came from and where they came from). */
+  bookQuery?: string;
+} = {}) {
   const t = useTranslations("Consultation.doctorsPage");
+  const locale = useLocale();
   const router = useRouter();
   const [state, setState] = useState<State>({ status: "loading" });
 
   const load = useCallback(() => {
     setState({ status: "loading" });
-    getVideoDoctorsPageAction()
+    getVideoDoctorsPageAction({ providerId, staffId })
       .then((result) => {
         if (result.ok && result.data) setState({ status: "ready", data: result.data });
         else setState({ status: "error", detail: result.fieldErrors?.detail?.[0] });
       })
       .catch(() => setState({ status: "error" }));
-  }, []);
+  }, [providerId, staffId]);
 
   useEffect(load, [load]);
 
@@ -96,10 +108,15 @@ export function VideoDoctorsPage() {
               <p className="font-bold">{t("offerTitle")}</p>
               <p className="mt-0.5 flex items-center gap-1 text-xs text-white/80">
                 <Clock className="h-3.5 w-3.5" aria-hidden />
-                {t("offerDetails", {
-                  minutes: state.data.durationMinutes,
-                  price: state.data.priceLabel,
-                })}
+                {state.data.packages.length > 1
+                  ? t("offerPackages", {
+                      durations: formatDurations(locale, state.data.packages.map((p) => p.minutes)),
+                      price: state.data.packages[0].priceLabel,
+                    })
+                  : t("offerDetails", {
+                      minutes: state.data.durationMinutes,
+                      price: state.data.priceLabel,
+                    })}
               </p>
             </div>
           </div>
@@ -109,7 +126,7 @@ export function VideoDoctorsPage() {
           ) : (
             <div className="space-y-3">
               {doctors.map((doctor) => (
-                <DoctorCard key={doctor.id} doctor={doctor} />
+                <DoctorCard key={doctor.id} doctor={doctor} bookQuery={bookQuery} />
               ))}
             </div>
           )}
@@ -119,7 +136,7 @@ export function VideoDoctorsPage() {
   );
 }
 
-function DoctorCard({ doctor }: { doctor: VideoDoctor }) {
+function DoctorCard({ doctor, bookQuery }: { doctor: VideoDoctor; bookQuery?: string }) {
   const t = useTranslations("Consultation.doctorsPage");
   const imageUrl = resolveHomeMediaUrl(doctor.imageUrl);
 
@@ -145,7 +162,7 @@ function DoctorCard({ doctor }: { doctor: VideoDoctor }) {
 
         <div className="min-w-0 flex-1">
           <p className="truncate font-bold text-gray-900">{doctor.name}</p>
-          <p className="truncate text-xs text-gray-600">{t("generalPractitioner")}</p>
+          <p className="truncate text-xs text-gray-600">{doctor.clinicName ?? t("generalPractitioner")}</p>
           <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-gray-500">
             {doctor.experienceYears != null && doctor.experienceYears > 0 && (
               <span>{t("experience", { years: doctor.experienceYears })}</span>
@@ -162,8 +179,22 @@ function DoctorCard({ doctor }: { doctor: VideoDoctor }) {
 
       {doctor.bio && <p className="mt-3 line-clamp-3 text-xs leading-5 text-gray-600">{doctor.bio}</p>}
 
+      {doctor.packages.length > 0 && (
+        <div className="mt-3 flex flex-wrap gap-1.5">
+          {doctor.packages.map((pkg) => (
+            <span
+              key={pkg.minutes}
+              className="flex items-center gap-1 rounded-lg bg-[#083f30]/5 px-2 py-1 text-[11px] font-medium text-[#083f30]"
+            >
+              <Clock className="h-3 w-3" aria-hidden />
+              {t("package", { minutes: pkg.minutes, price: pkg.priceLabel })}
+            </span>
+          ))}
+        </div>
+      )}
+
       <Link
-        href={`/n/app/mobile/consultation/doctors/${doctor.id}/book`}
+        href={`/n/app/mobile/consultation/doctors/${doctor.id}/book${bookQuery ? `?${bookQuery}` : ""}`}
         className="mt-3 block rounded-xl bg-[#083f30] py-2.5 text-center text-sm font-bold text-white"
       >
         {t("book")}

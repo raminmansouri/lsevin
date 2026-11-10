@@ -90,6 +90,8 @@ export function PaymentMethodsPanel(props: {
   receiptFile?: File | null;
   onReceiptFileChange?: (file: File | null) => void;
   onReadyChange?: (ready: boolean) => void;
+  /** Methods this checkout cannot use (a video consultation has no pay in place). */
+  excludeCodes?: readonly string[];
 }) {
   const tBooking = useTranslations("Booking");
   // Built-in methods are labelled from the app's own translations, so every supported
@@ -114,6 +116,7 @@ export function PaymentMethodsPanel(props: {
   const [loadError, setLoadError] = useState(false);
   const [methodsLoaded, setMethodsLoaded] = useState(false);
   const [gatewaysLoaded, setGatewaysLoaded] = useState(false);
+  const excludedKey = (props.excludeCodes ?? []).join(",");
   useEffect(() => {
     fetch(
       `/api/booking-pro/payments/methods?locale=${encodeURIComponent(locale)}`,
@@ -124,7 +127,8 @@ export function PaymentMethodsPanel(props: {
         return res.json();
       })
       .then((data) => {
-        setItems(data.items ?? []);
+        const excluded = excludedKey ? excludedKey.split(",") : [];
+        setItems(((data.items ?? []) as PaymentMethod[]).filter((item) => !excluded.includes(item.code)));
         setMethodsLoaded(true);
       })
       .catch(() => {
@@ -144,7 +148,7 @@ export function PaymentMethodsPanel(props: {
         setLoadError(true);
       })
       .finally(() => setGatewaysLoaded(true));
-  }, [locale]);
+  }, [locale, excludedKey]);
   // Fallback only when the methods fetch fails. Mirrors what the server now offers —
   // the online card gateway (Zarinpal) plus wallet. No 'bank': it was a placeholder
   // method that no longer exists server-side.
