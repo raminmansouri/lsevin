@@ -105,6 +105,71 @@ export const updateOfferSchema = z
   .strict()
   .refine((value) => Object.keys(value).length > 0, { message: "Send at least one field to change." });
 
+// ------------------------------------------------------------------------------------------------
+// Provider portal endpoints (/api/shop/v1/portal/...)
+// ------------------------------------------------------------------------------------------------
+
+const reason = z.string().trim().min(1, "Write a short reason.").max(1000);
+const warranty = z.string().trim().max(300).nullable().optional();
+
+export const portalActivationSchema = z
+  .object({
+    name: z.string().trim().min(2).max(120),
+    phone: z.string().trim().max(40).nullable().optional(),
+    categoryIds: z.array(apiId).min(1, "Choose at least one category.").max(30),
+    licenceUrl: z.string().trim().max(1000).regex(/^(https?:\/\/|\/)/, "Use an uploaded file URL.").nullable().optional(),
+  })
+  .strict();
+
+/** Like createOfferSchema, but stock is required and a warranty text may be sent. */
+export const portalCreateOfferSchema = z
+  .object({
+    productId: apiId,
+    variantId: apiId.nullable().optional(),
+    price: money,
+    compareAtPrice: money.nullable().optional(),
+    stockQuantity: z.number({ error: "Stock quantity is required." }).int().min(0).max(10_000_000),
+    sellerSku: z.string().trim().max(100).nullable().optional(),
+    handlingDays: z.number().int().min(0).max(365).nullable().optional(),
+    warranty,
+    isActive: z.boolean().optional(),
+  })
+  .strict()
+  .refine((offer) => offer.compareAtPrice == null || offer.compareAtPrice >= offer.price, {
+    message: "compareAtPrice must not be lower than price.",
+    path: ["compareAtPrice"],
+  });
+
+export const portalUpdateOfferSchema = z
+  .object({
+    price: money.optional(),
+    compareAtPrice: money.nullable().optional(),
+    stockQuantity: z.number().int().min(0).max(10_000_000).nullable().optional(),
+    sellerSku: z.string().trim().max(100).nullable().optional(),
+    handlingDays: z.number().int().min(0).max(365).nullable().optional(),
+    warranty,
+    isActive: z.boolean().optional(),
+    resubmit: z.boolean().optional(),
+  })
+  .strict()
+  .refine((value) => Object.keys(value).length > 0, { message: "Send at least one field to change." });
+
+export const portalShopDecisionSchema = z.discriminatedUnion("decision", [
+  z.object({ decision: z.literal("approve"), categoryIds: z.array(apiId).min(1, "Choose at least one allowed category.").max(50) }).strict(),
+  z.object({ decision: z.literal("reject"), reason }).strict(),
+  z.object({ decision: z.literal("suspend"), reason }).strict(),
+  z.object({ decision: z.literal("unsuspend") }).strict(),
+]);
+
+export const portalOfferDecisionSchema = z.discriminatedUnion("decision", [
+  z.object({ decision: z.literal("approve") }).strict(),
+  z.object({ decision: z.literal("reject"), reason }).strict(),
+  z.object({ decision: z.literal("block"), reason }).strict(),
+  z.object({ decision: z.literal("unblock") }).strict(),
+]);
+
+export const portalQueueStatusSchema = z.enum(["pending", "approved", "rejected", "blocked"]).catch("pending");
+
 export type ProductContentInput = z.infer<typeof productContentSchema>;
 export type CreateProductInput = z.infer<typeof createProductSchema>;
 export type UpdateProductInput = z.infer<typeof updateProductSchema>;

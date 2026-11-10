@@ -99,3 +99,47 @@ describe("request validation", () => {
     expect(createOfferSchema.safeParse({ productId: "019eb710-abaa-bbe5-2703-75d6e772c57f", price: 5, sellerId: "x" }).success).toBe(false);
   });
 });
+
+describe("portal assertion", async () => {
+  const { signPortalAssertion, verifyPortalAssertion, PORTAL_ASSERTION_MAX_TTL_SECONDS } = await import("./server/portal-assertion");
+  const secret = "unit-test-portal-assertion-secret-0123456789";
+  const userId = "0e2e0000-0000-4000-8000-000000000001";
+  const providerId = "0e2e0000-0000-4000-8000-000000000002";
+  const now = 1_800_000_000;
+
+  it("accepts a correctly signed, unexpired provider or admin assertion", () => {
+    const provider = signPortalAssertion({ userId, providerId, kind: "provider", iat: now, exp: now + 60 }, secret);
+    expect(verifyPortalAssertion(provider, secret, now + 10)).toEqual({ userId, providerId, kind: "provider", iat: now, exp: now + 60 });
+    const admin = signPortalAssertion({ userId, kind: "admin", iat: now, exp: now + 60 }, secret);
+    expect(verifyPortalAssertion(admin, secret, now)).toMatchObject({ kind: "admin", providerId: null });
+  });
+
+  it("rejects expired, future-dated and over-long tokens", () => {
+    expect(verifyPortalAssertion(signPortalAssertion({ userId, providerId, kind: "provider", iat: now - 120, exp: now - 1 }, secret), secret, now)).toBeNull();
+    expect(verifyPortalAssertion(signPortalAssertion({ userId, providerId, kind: "provider", iat: now + 300, exp: now + 360 }, secret), secret, now)).toBeNull();
+    const tooLong = signPortalAssertion({ userId, providerId, kind: "provider", iat: now, exp: now + PORTAL_ASSERTION_MAX_TTL_SECONDS + 1 }, secret);
+    expect(verifyPortalAssertion(tooLong, secret, now)).toBeNull();
+  });
+
+  it("rejects a wrong signature, a tampered payload and malformed tokens", () => {
+    const token = signPortalAssertion({ userId, providerId, kind: "provider", iat: now, exp: now + 60 }, secret);
+    expect(verifyPortalAssertion(token, "another-secret-of-sufficient-length-123", now)).toBeNull();
+    const [, signature] = token.split(".");
+    const tampered = Buffer.from(JSON.stringify({ userId, providerId, kind: "admin", iat: now, exp: now + 60 })).toString("base64url");
+    expect(verifyPortalAssertion(`${tampered}.${signature}`, secret, now)).toBeNull();
+    for (const bad of ["", "abc", "a.b.c", `${token}x`, "!!.??"]) expect(verifyPortalAssertion(bad, secret, now)).toBeNull();
+  });
+
+  it("rejects claims of the wrong shape (bad ids, unknown kind, provider without a provider id)", () => {
+    const sign = (claims: Record<string, unknown>) => {
+      const payload = Buffer.from(JSON.stringify(claims)).toString("base64url");
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const { createHmac } = require("node:crypto") as typeof import("node:crypto");
+      return `${payload}.${createHmac("sha256", secret).update(payload).digest("base64url")}`;
+    };
+    expect(verifyPortalAssertion(sign({ userId: "nope", providerId, kind: "provider", iat: now, exp: now + 60 }), secret, now)).toBeNull();
+    expect(verifyPortalAssertion(sign({ userId, providerId, kind: "root", iat: now, exp: now + 60 }), secret, now)).toBeNull();
+    expect(verifyPortalAssertion(sign({ userId, kind: "provider", iat: now, exp: now + 60 }), secret, now)).toBeNull();
+    expect(verifyPortalAssertion(sign({ userId, providerId, kind: "provider", iat: "1", exp: now + 60 }), secret, now)).toBeNull();
+  });
+});

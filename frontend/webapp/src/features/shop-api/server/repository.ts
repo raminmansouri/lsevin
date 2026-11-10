@@ -128,12 +128,50 @@ export function serializeOffer(row: OfferRow) {
 // Helpers
 // ------------------------------------------------------------------------------------------------
 
-async function audit(tx: Tx, principal: ShopApiPrincipal, action: string, entityType: string, entityId: string | null) {
+export type AuditEntry = {
+  tokenId: string | null;
+  sellerId: string | null;
+  actorUserId: string | null;
+  source: "api_token" | "portal";
+  ip: string | null;
+  action: string;
+  entityType: string;
+  entityId: string | null;
+  note?: string | null;
+};
+
+/** One row per write, for both channels: the API token, or the portal user who acted. */
+export async function writeAudit(tx: Tx, entry: AuditEntry) {
   await tx`
-    insert into shop.api_audit_log (token_id, seller_id, action, entity_type, entity_id, ip)
-    values (${principal.tokenId}::uuid, ${principal.sellerId}::uuid, ${action}, ${entityType}, ${entityId}::uuid, ${principal.ip})
+    insert into shop.api_audit_log (token_id, seller_id, action, entity_type, entity_id, ip, actor_user_id, source, note)
+    values (${entry.tokenId}::uuid, ${entry.sellerId}::uuid, ${entry.action}, ${entry.entityType}, ${entry.entityId}::uuid, ${entry.ip},
+      ${entry.actorUserId}::uuid, ${entry.source}, ${entry.note ?? null})
   `;
 }
+
+async function audit(tx: Tx, principal: ShopApiPrincipal, action: string, entityType: string, entityId: string | null) {
+  await writeAudit(tx, {
+    tokenId: principal.tokenId,
+    sellerId: principal.sellerId,
+    actorUserId: principal.actorUserId,
+    source: principal.source,
+    ip: principal.ip,
+    action,
+    entityType,
+    entityId,
+  });
+}
+
+/** The database refuses a provider seller's offer without stock (migration 0096); say it as a 422. */
+function isProviderStockViolation(error: unknown) {
+  const e = error as { code?: string; constraint_name?: string; constraint?: string };
+  return e?.code === "23514" && (e.constraint_name ?? e.constraint) === "ck_shop_offers_provider_stock";
+}
+const stockRequired = () =>
+  new ShopApiError("validation_error", "Stock quantity is required.", [{ field: "stockQuantity", message: "Enter how many you have in stock." }]);
+
+/** Extra offer fields the portal sends (not part of the public Shop API). */
+export type PortalOfferExtras = { warranty?: string | null; resubmit?: boolean };
 
 async function assertCategoriesExist(tx: Tx, ids: string[]) {
   if (!ids.length) return;
@@ -379,8 +417,23 @@ export async function getOwnOffer(principal: ShopApiPrincipal, offerId: string, 
  * A seller may sell its own products, and products of the platform catalog that are live.
  * Another seller's own products are not visible to it (not found).
  */
-export async function createOwnOffer(principal: ShopApiPrincipal, input: CreateOfferInput) {
+export async function createOwnOffer(principal: ShopApiPrincipal, input: CreateOfferInput, extras: PortalOfferExtras = {}) {
+  const fromPortal = principal.source === "portal";
   return sql.begin(async (tx) => {
+    if (fromPortal) {
+      // Portal listings: the shop must be active, the product in an allowed category, stock set.
+      const [seller] = await tx<{ shop_status: string }[]>`
+        select shop_status from shop.sellers where id = ${principal.sellerId}::uuid and deleted_at is null and is_active
+      `;
+      if (!seller || seller.shop_status !== "active") {
+        throw new ShopApiError("forbidden", "Your shop is not active, so you cannot list products yet.");
+      }
+      if (input.stockQuantity == null) throw stockRequired();
+      const [allowed] = await tx<{ ok: boolean }[]>`select shop.seller_may_list_product(${principal.sellerId}::uuid, ${input.productId}::uuid) as ok`;
+      if (!allowed?.ok) {
+        throw new ShopApiError("forbidden", "This product is not in a category your shop is approved for.", { reason: "category_not_allowed" });
+      }
+    }
     const [product] = await tx<{ base_currency: string }[]>`
       select base_currency from shop.products
       where id = ${input.productId}::uuid and deleted_at is null
@@ -397,10 +450,12 @@ export async function createOwnOffer(principal: ShopApiPrincipal, input: CreateO
     try {
       const [row] = await tx<{ id: string }[]>`
         insert into shop.offers (product_id, variant_id, seller_id, seller_sku, currency, price, compare_at_price,
-          stock_quantity, handling_days, is_active)
+          stock_quantity, handling_days, is_active, admin_status, warranty_translations)
         values (${input.productId}::uuid, ${input.variantId ?? null}::uuid, ${principal.sellerId}::uuid, ${input.sellerSku ?? null},
           ${product.base_currency}, ${input.price}, ${input.compareAtPrice ?? null}, ${input.stockQuantity ?? null},
-          ${input.handlingDays ?? null}, ${input.isActive ?? true})
+          ${input.handlingDays ?? null}, ${input.isActive ?? true},
+          -- Token-created offers keep going live at once; portal listings wait for an admin.
+          ${fromPortal ? "pending" : "approved"}, ${j(extras.warranty ? { fa: extras.warranty } : {})})
         returning id::text as id
       `;
       await audit(tx, principal, "offer.create", "offer", row.id);
@@ -409,19 +464,39 @@ export async function createOwnOffer(principal: ShopApiPrincipal, input: CreateO
       if ((error as { code?: string })?.code === "23505") {
         throw new ShopApiError("conflict", "You already have an offer for this item. Update it with PATCH /offers/{id}.");
       }
+      if (isProviderStockViolation(error)) throw stockRequired();
       throw error;
     }
   });
 }
 
-export async function updateOwnOffer(principal: ShopApiPrincipal, offerId: string, input: UpdateOfferInput) {
+export async function updateOwnOffer(
+  principal: ShopApiPrincipal,
+  offerId: string,
+  input: Partial<UpdateOfferInput>,
+  extras: PortalOfferExtras = {},
+) {
   return sql.begin(async (tx) => {
-    const [current] = await tx<{ price: string; compare_at_price: string | null }[]>`
-      select price::text as price, compare_at_price::text as compare_at_price from shop.offers
+    const [current] = await tx<{ price: string; compare_at_price: string | null; admin_status: string; admin_status_reason: string | null }[]>`
+      select price::text as price, compare_at_price::text as compare_at_price, admin_status, admin_status_reason from shop.offers
       where id = ${offerId}::uuid and seller_id = ${principal.sellerId}::uuid and deleted_at is null
       for update
     `;
     if (!current) throw notFound("Offer");
+    // A blocked offer stays off until an admin unblocks it, whatever channel asks.
+    if (current.admin_status === "blocked" && input.isActive === true) {
+      throw new ShopApiError(
+        "forbidden",
+        `This listing was blocked by an admin and cannot be switched on.${current.admin_status_reason ? ` Reason: ${current.admin_status_reason}` : ""}`,
+        { reason: "offer_blocked" },
+      );
+    }
+    if (extras.resubmit && current.admin_status !== "rejected") {
+      throw new ShopApiError("conflict", "Only a rejected listing can be sent for approval again.");
+    }
+    if (Object.prototype.hasOwnProperty.call(input, "stockQuantity") && input.stockQuantity == null && principal.source === "portal") {
+      throw stockRequired();
+    }
     const price = input.price ?? Number(current.price);
     const compareAt = input.compareAtPrice !== undefined ? input.compareAtPrice : current.compare_at_price == null ? null : Number(current.compare_at_price);
     if (compareAt != null && compareAt < price) {
@@ -436,10 +511,16 @@ export async function updateOwnOffer(principal: ShopApiPrincipal, offerId: strin
         seller_sku = case when ${has("sellerSku")} then ${input.sellerSku ?? null} else seller_sku end,
         handling_days = case when ${has("handlingDays")} then ${input.handlingDays ?? null}::int else handling_days end,
         is_active = coalesce(${input.isActive ?? null}::boolean, is_active),
+        warranty_translations = case when ${extras.warranty !== undefined} then ${j(extras.warranty ? { fa: extras.warranty } : {})}::jsonb else warranty_translations end,
+        admin_status = case when ${Boolean(extras.resubmit)} then 'pending' else admin_status end,
+        admin_status_reason = case when ${Boolean(extras.resubmit)} then null else admin_status_reason end,
         last_modified_date = now()
       where id = ${offerId}::uuid and seller_id = ${principal.sellerId}::uuid
-    `;
-    await audit(tx, principal, "offer.update", "offer", offerId);
+    `.catch((error) => {
+      if (isProviderStockViolation(error)) throw stockRequired();
+      throw error;
+    });
+    await audit(tx, principal, extras.resubmit ? "offer.resubmit" : "offer.update", "offer", offerId);
     return getOwnOffer(principal, offerId, tx);
   });
 }

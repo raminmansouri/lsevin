@@ -3,7 +3,7 @@ import "server-only";
 import { NextRequest, NextResponse } from "next/server";
 
 import type { ShopApiScope } from "../scopes";
-import { authenticateShopApi, requireScope, type ShopApiPrincipal } from "./auth";
+import { authenticatePortal, authenticateShopApi, type PortalPrincipal, requireScope, type ShopApiPrincipal } from "./auth";
 import { errorResponse, ShopApiError } from "./errors";
 
 /** Largest JSON body the API accepts. */
@@ -21,7 +21,7 @@ export function shopApiRoute<P = Record<string, never>>(scope: ShopApiScope | nu
     let tokenId: string | undefined;
     try {
       const principal = await authenticateShopApi(request.headers);
-      tokenId = principal.tokenId;
+      tokenId = principal.tokenId ?? undefined;
       if (scope) requireScope(principal, scope);
       const params = (await context?.params) ?? ({} as P);
       const response = await handler({ request, principal, params });
@@ -29,6 +29,26 @@ export function shopApiRoute<P = Record<string, never>>(scope: ShopApiScope | nu
       return response;
     } catch (error) {
       return errorResponse(error, { method: request.method, path: request.nextUrl.pathname, tokenId });
+    }
+  };
+}
+
+type PortalHandler<P> = (context: { request: NextRequest; principal: PortalPrincipal; params: P }) => Promise<NextResponse>;
+
+/**
+ * Wraps a provider-portal route: verifies the signed X-Lsevin-Portal-Assertion and the user's
+ * membership/admin role in the database. GET is a read; every other method needs a write role.
+ */
+export function shopPortalRoute<P = Record<string, never>>(kind: "provider" | "admin", handler: PortalHandler<P>) {
+  return async (request: NextRequest, context: { params: Promise<P> }) => {
+    try {
+      const principal = await authenticatePortal(request.headers, { kind, write: request.method !== "GET" });
+      const params = (await context?.params) ?? ({} as P);
+      const response = await handler({ request, principal, params });
+      response.headers.set("Cache-Control", "no-store");
+      return response;
+    } catch (error) {
+      return errorResponse(error, { method: request.method, path: request.nextUrl.pathname });
     }
   };
 }
