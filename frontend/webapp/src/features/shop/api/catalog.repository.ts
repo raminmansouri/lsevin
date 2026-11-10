@@ -243,8 +243,8 @@ export async function searchProducts(
           from shop.offers o
           join shop.sellers s on s.id = o.seller_id
           where o.product_id = p.id and s.slug = ${filters.seller}
-            and s.is_active and s.deleted_at is null
-            and o.deleted_at is null and o.is_active
+            and s.is_active and s.deleted_at is null and s.shop_status = 'active'
+            and o.deleted_at is null and o.is_active and o.admin_status = 'approved'
         ) price_summary on true`
       : sql`left join shop.v_product_price_summary price_summary on price_summary.product_id = p.id`}
     left join lateral (
@@ -428,10 +428,10 @@ export async function getProductBySlug(
            ), 0) > 0
          end) or o.allow_backorder or coalesce(v.allow_backorder, p.allow_backorder)) as "inStock"
       from shop.offers o
-      join shop.sellers s on s.id = o.seller_id and s.is_active and s.deleted_at is null
+      join shop.sellers s on s.id = o.seller_id and s.is_active and s.deleted_at is null and s.shop_status = 'active'
       join shop.products p on p.id = o.product_id
       left join shop.product_variants v on v.id = o.variant_id
-      where o.product_id = ${row.id}::uuid and o.deleted_at is null and o.is_active
+      where o.product_id = ${row.id}::uuid and o.deleted_at is null and o.is_active and o.admin_status = 'approved'
         and (o.variant_id is null or (v.deleted_at is null and v.is_active))
       order by o.price asc
     `,
@@ -546,10 +546,10 @@ export async function getShopSellerBySlug(slug: string, locale?: string) {
       s.logo_url as "logoUrl", s.create_date::text as "joinedAt",
       (select count(distinct o.product_id)::int
          from shop.offers o join shop.products p on p.id = o.product_id
-        where o.seller_id = s.id and o.deleted_at is null and o.is_active
+        where o.seller_id = s.id and o.deleted_at is null and o.is_active and o.admin_status = 'approved'
           and p.deleted_at is null and p.status = 'active') as "productCount"
     from shop.sellers s
-    where s.slug = ${slug} and s.deleted_at is null and s.is_active
+    where s.slug = ${slug} and s.deleted_at is null and s.is_active and s.shop_status = 'active'
     limit 1
   `;
   return row ?? null;

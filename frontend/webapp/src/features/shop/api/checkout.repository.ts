@@ -416,7 +416,7 @@ export async function placeOrder(
         coalesce(v.preorder_limit, p.preorder_limit) as "preorderLimit",
         coalesce(v.preorder_release_at, p.preorder_release_at)::text as "preorderReleaseAt",
         (p.status = 'active' and p.deleted_at is null
-          and (ci.offer_id is null or (o.id is not null and o.deleted_at is null and o.is_active and s.is_active and s.deleted_at is null))) as "productActive",
+          and (ci.offer_id is null or (o.id is not null and o.deleted_at is null and o.is_active and o.admin_status = 'approved' and s.is_active and s.deleted_at is null and s.shop_status = 'active'))) as "productActive",
         coalesce((
           select url from shop.product_media where product_id = p.id order by is_primary desc, display_order asc limit 1
         ), null) as "imageUrl"

@@ -135,7 +135,7 @@ async function loadCartLines(
       (coalesce(o.allow_backorder, false) or coalesce(v.allow_backorder, p.allow_backorder)) as "allowBackorder",
       (p.status = 'active' and p.deleted_at is null and (v.id is null or (v.is_active and v.deleted_at is null))
         -- A line tied to an offer that was removed or switched off is unavailable, never repriced.
-        and (ci.offer_id is null or (o.id is not null and o.deleted_at is null and o.is_active and s.is_active and s.deleted_at is null))) as "productActive"
+        and (ci.offer_id is null or (o.id is not null and o.deleted_at is null and o.is_active and o.admin_status = 'approved' and s.is_active and s.deleted_at is null and s.shop_status = 'active'))) as "productActive"
     from shop.cart_items ci
     join shop.products p on p.id = ci.product_id
     left join shop.product_variants v on v.id = ci.variant_id
@@ -320,10 +320,10 @@ export async function addCartItem(input: {
   const [offer] = await sql<{ id: string; price: number; compare_price: number | null; currency: string }[]>`
     select o.id::text as id, o.price::float as price, o.compare_at_price::float as compare_price, o.currency
     from shop.offers o
-    join shop.sellers s on s.id = o.seller_id and s.is_active and s.deleted_at is null
+    join shop.sellers s on s.id = o.seller_id and s.is_active and s.deleted_at is null and s.shop_status = 'active'
     where o.product_id = ${input.productId}::uuid
       and o.variant_id is not distinct from ${input.variantId ?? null}::uuid
-      and o.deleted_at is null and o.is_active
+      and o.deleted_at is null and o.is_active and o.admin_status = 'approved'
       and (${input.offerId ?? null}::uuid is null or o.id = ${input.offerId ?? null}::uuid)
     order by (o.stock_quantity is null or o.stock_quantity > 0 or o.allow_backorder) desc,
       o.price asc, o.handling_days asc nulls last, o.id
