@@ -1,0 +1,1344 @@
+{
+  "slug": "services",
+  "status": "publish",
+  "needsConfirmation": [
+    "Which cities and provider categories are live at publication (the page names Tehran, Mashhad and Shiraz only as the cities covered by the published guides)",
+    "Which add-ons (translator, home nursing, transfers, in-hotel care) are currently offered by at least one listed provider",
+    "Which product categories the LSevin shop currently sells"
+  ],
+  "sources": [
+    "messages/en.json HomePage/Explore SEO copy ('Plan treatment in Iran in one place: book specialists and clinics, medical hotels near hospitals, in-hotel care and a free consultation')",
+    "messages/en.json ServiceDefinitions (add-on provider types: hotel, translator, home nursing, transfers, tours; services delivered at the customer's address add an address step)",
+    "src/features/guides/content/medical-hotels.ts (hotels chosen by distance to hospital; in-hotel care such as nurse visits or hospital transfers where available; physician decides care)",
+    "messages/en.json Consultation (free callback; paid video consultation with a doctor, length and price shown, Tehran time, files up to 10, no app to install)",
+    "src/features/consultation/server/livekit.ts (video calls run in the browser through LiveKit)",
+    "src/features/tours (tours platform: departures, seats, versioned cancellation policy, operator-cancelled departures refunded 100%)",
+    "messages/en.json GymMemberships (monthly plans, pay by month, bank-transfer reference reviewed)",
+    "src/features/shop (catalogue, cart, coupons including free-shipping coupons, delivery methods with fee and ETA, order tracking, returns)",
+    "src/features/wallet/actions.ts and types.ts (wallet top-up by online card or bank transfer; currencies IRR, IRT, USD, EUR, GBP, AED; refunds, cashback and referral bonus credits)",
+    "src/features/booking-pro/utils/pay-in-place-plans.ts (pay 20/50/80% now)",
+    "src/app/[locale]/n/app/mobile/explore/explore.data.ts (filter to accredited providers only)"
+  ],
+  "locales": {
+    "en-US": {
+      "title": "LSevin Products and Services",
+      "metaDescription": "Book clinics and specialists, hotels near hospitals with in-hotel care, tours and gym memberships in Iran, shop health products and pay from your LSevin wallet.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "LSevin puts the parts of a health trip in Iran into one account: the doctor, the hospital, the hotel nearby, the care you need while you recover, and the transport between them. You can also use it for wellness on its own, from a gym membership to a city tour or an order from the shop."
+        },
+        {
+          "type": "p",
+          "text": "Every service on LSevin is delivered by an independent provider. LSevin shows you the options, takes the booking and the payment, and stays your contact if something goes wrong."
+        },
+        {
+          "type": "h2",
+          "text": "Clinics, hospitals and specialists"
+        },
+        {
+          "type": "p",
+          "text": "Search by treatment, specialty or city, or browse providers on the map. Each provider page shows its services, prices, location, photos and the policies it has published. Specialist pages list the certifications and memberships the doctor has provided."
+        },
+        {
+          "type": "p",
+          "text": "You can filter the results to show only providers with the Accredited badge, which LSevin administrators assign. For treatment as an international patient, check the facility on the Ministry of Health IPD list at iht.behdasht.gov.ir as well."
+        },
+        {
+          "type": "h2",
+          "text": "Medical hotels and in-hotel care"
+        },
+        {
+          "type": "p",
+          "text": "After many procedures you need to stay in the city for follow-up visits. LSevin shows hotels close to hospitals so you can pick one by distance. Where the hotel and city offer it, you can add care to the booking, such as nurse visits or transfers to the hospital."
+        },
+        {
+          "type": "p",
+          "text": "Your treating physician decides what level of care you need. In-hotel care supports your recovery and does not replace hospital visits."
+        },
+        {
+          "type": "h2",
+          "text": "Add-ons for a full trip"
+        },
+        {
+          "type": "p",
+          "text": "Some services can be booked together with extras from other providers, for example a hotel, a translator, home nursing, airport and city transfers or a tour. Services delivered at your address, such as home nursing, ask for the address during booking."
+        },
+        {
+          "type": "h2",
+          "text": "Free consultation and video visits"
+        },
+        {
+          "type": "p",
+          "text": "A free consultation is a callback from an LSevin advisor. Leave your name, phone number and the best time to call. The advisor helps you compare providers and plan dates."
+        },
+        {
+          "type": "p",
+          "text": "A video consultation is a paid appointment with a doctor. You pick a day and time (Tehran time), describe your problem and can attach up to 10 files such as test results or photos. The length and price are shown before you book, and the call runs in your browser with nothing to install."
+        },
+        {
+          "type": "h2",
+          "text": "Tours"
+        },
+        {
+          "type": "p",
+          "text": "Book a seat on a scheduled tour departure. Each tour page shows the meeting point, the itinerary and the cancellation policy that applies to your booking. If the operator cancels a departure, your payment for it is refunded in full."
+        },
+        {
+          "type": "h2",
+          "text": "Gym memberships"
+        },
+        {
+          "type": "p",
+          "text": "Choose a gym and a monthly plan, then select the months you want to pay for. If you paid by bank transfer, enter the reference number and the gym's payment is reviewed before the month is marked paid."
+        },
+        {
+          "type": "h2",
+          "text": "LSevin shop"
+        },
+        {
+          "type": "p",
+          "text": "Order products online and pay at checkout. You choose a delivery method, see its cost and estimated delivery time before you pay, and follow the order with the carrier's tracking number once it ships. Coupons can take money off the order or make delivery free."
+        },
+        {
+          "type": "h2",
+          "text": "Wallet and payment options"
+        },
+        {
+          "type": "p",
+          "text": "Your LSevin wallet holds money you top up and refunds credited to you. Top up with an online card payment or a bank transfer with a receipt upload, then pay for bookings from the balance."
+        },
+        {
+          "type": "p",
+          "text": "For many bookings you can also choose to pay part now and the rest at the place. Plans let you pay 20, 50 or 80 percent up front, and the addition for each plan is shown before you confirm."
+        },
+        {
+          "type": "p",
+          "text": "Ready to plan? Request a free consultation, or search for a provider and book directly."
+        }
+      ],
+      "faq": [
+        {
+          "q": "Can I book treatment, a hotel and transfers in one place?",
+          "a": "Yes. Where the provider offers them, add-ons such as a hotel, transfers, a translator or home nursing can be booked with the main service, and all of it appears in your account."
+        },
+        {
+          "q": "Who provides the medical care?",
+          "a": "Independent clinics, hospitals and doctors listed on LSevin. LSevin coordinates the booking and payment and does not give medical advice."
+        },
+        {
+          "q": "What is the difference between the free consultation and a video consultation?",
+          "a": "The free consultation is a callback from an LSevin advisor about providers, dates and logistics. A video consultation is a paid appointment with a doctor."
+        },
+        {
+          "q": "Can I pay at the clinic or hotel instead of online?",
+          "a": "It depends on the service. Some let you book without paying in advance, some require full online payment, and some offer a plan where you pay 20, 50 or 80 percent now and the rest at the place."
+        },
+        {
+          "q": "Do I need an app?",
+          "a": "No. LSevin works in the browser on phone and desktop, including video consultations."
+        }
+      ]
+    },
+    "fa-IR": {
+      "title": "محصولات و خدمات السوین",
+      "metaDescription": "رزرو کلینیک و پزشک متخصص، هتل نزدیک بیمارستان با مراقبت در هتل، تور و عضویت باشگاه در ایران، خرید از فروشگاه سلامت و پرداخت از کیف پول السوین.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "السوین بخش‌های مختلف یک سفر درمانی در ایران را در یک حساب کاربری جمع می‌کند: پزشک، بیمارستان، هتل نزدیک آن، مراقبتی که در دوران بهبود لازم دارید و جابه‌جایی میان این‌ها. برای تندرستی هم می‌توانید از آن استفاده کنید، از عضویت باشگاه تا تور شهری یا خرید از فروشگاه."
+        },
+        {
+          "type": "p",
+          "text": "هر خدمتی در السوین را یک ارائه‌دهنده مستقل ارائه می‌کند. السوین گزینه‌ها را نشان می‌دهد، رزرو و پرداخت را ثبت می‌کند و اگر مشکلی پیش بیاید طرف ارتباط شما می‌ماند."
+        },
+        {
+          "type": "h2",
+          "text": "کلینیک، بیمارستان و پزشک متخصص"
+        },
+        {
+          "type": "p",
+          "text": "بر اساس درمان، تخصص یا شهر جست‌وجو کنید یا ارائه‌دهندگان را روی نقشه ببینید. صفحه هر ارائه‌دهنده خدمات، قیمت‌ها، موقعیت، تصاویر و قوانینی را که منتشر کرده نشان می‌دهد. در صفحه پزشکان، گواهی‌ها و عضویت‌هایی که خود پزشک ثبت کرده آمده است."
+        },
+        {
+          "type": "p",
+          "text": "می‌توانید نتایج را فقط به ارائه‌دهندگان دارای نشان «معتبر» محدود کنید؛ این نشان را مدیران السوین اختصاص می‌دهند. اگر بیمار بین‌الملل هستید، نام مرکز را در فهرست IPD وزارت بهداشت در iht.behdasht.gov.ir هم بررسی کنید."
+        },
+        {
+          "type": "h2",
+          "text": "هتل درمانی و مراقبت در هتل"
+        },
+        {
+          "type": "p",
+          "text": "بعد از بسیاری از درمان‌ها باید برای ویزیت‌های پیگیری در شهر بمانید. السوین هتل‌های نزدیک بیمارستان را نشان می‌دهد تا بر اساس فاصله انتخاب کنید. هر جا هتل و شهر امکانش را داشته باشند، می‌توانید خدماتی مثل ویزیت پرستار یا ترانسفر به بیمارستان را به رزرو اضافه کنید."
+        },
+        {
+          "type": "p",
+          "text": "سطح مراقبت لازم را پزشک معالج تعیین می‌کند. مراقبت در هتل به دوران بهبود کمک می‌کند و جای مراجعه به بیمارستان را نمی‌گیرد."
+        },
+        {
+          "type": "h2",
+          "text": "خدمات جانبی برای یک سفر کامل"
+        },
+        {
+          "type": "p",
+          "text": "برخی خدمات را می‌توان همراه با خدمات جانبی ارائه‌دهندگان دیگر رزرو کرد، مثل هتل، مترجم، پرستاری در منزل، ترانسفر فرودگاهی و شهری یا تور. برای خدماتی که در محل شما انجام می‌شوند، مثل پرستاری در منزل، هنگام رزرو نشانی پرسیده می‌شود."
+        },
+        {
+          "type": "h2",
+          "text": "مشاوره رایگان و ویزیت تصویری"
+        },
+        {
+          "type": "p",
+          "text": "مشاوره رایگان یعنی تماس کارشناس السوین با شما. نام، شماره تلفن و زمان مناسب برای تماس را بگذارید تا کارشناس در مقایسه ارائه‌دهندگان و برنامه‌ریزی تاریخ‌ها کمکتان کند."
+        },
+        {
+          "type": "p",
+          "text": "مشاوره تصویری نوبت پولی با پزشک است. روز و ساعت را (به وقت تهران) انتخاب می‌کنید، مشکلتان را شرح می‌دهید و می‌توانید تا ۱۰ فایل مثل جواب آزمایش یا عکس پیوست کنید. مدت و قیمت پیش از رزرو نمایش داده می‌شود و تماس در مرورگر برقرار می‌شود و نصب برنامه لازم نیست."
+        },
+        {
+          "type": "h2",
+          "text": "تورها"
+        },
+        {
+          "type": "p",
+          "text": "در یکی از حرکت‌های زمان‌بندی‌شده تور صندلی رزرو کنید. صفحه هر تور محل قرار، برنامه سفر و قانون لغوی را که برای رزرو شما اعمال می‌شود نشان می‌دهد. اگر برگزارکننده حرکت را لغو کند، مبلغ پرداختی شما برای آن کامل بازگردانده می‌شود."
+        },
+        {
+          "type": "h2",
+          "text": "عضویت باشگاه ورزشی"
+        },
+        {
+          "type": "p",
+          "text": "باشگاه و طرح ماهانه را انتخاب کنید و ماه‌هایی را که می‌خواهید بپردازید مشخص کنید. اگر با واریز بانکی پرداخت کرده‌اید، شماره پیگیری را وارد کنید تا پرداخت بررسی و آن ماه پرداخت‌شده ثبت شود."
+        },
+        {
+          "type": "h2",
+          "text": "فروشگاه السوین"
+        },
+        {
+          "type": "p",
+          "text": "محصولات را آنلاین سفارش دهید و هنگام تسویه بپردازید. روش ارسال را انتخاب می‌کنید، هزینه و زمان تقریبی تحویل آن را پیش از پرداخت می‌بینید و پس از ارسال، سفارش را با کد رهگیری شرکت حمل دنبال می‌کنید. کد تخفیف می‌تواند از مبلغ سفارش کم کند یا ارسال را رایگان کند."
+        },
+        {
+          "type": "h2",
+          "text": "کیف پول و روش‌های پرداخت"
+        },
+        {
+          "type": "p",
+          "text": "کیف پول السوین مبلغ‌هایی را که شارژ می‌کنید و وجوه بازگشتی به شما را نگه می‌دارد. با پرداخت آنلاین کارتی یا واریز بانکی همراه با بارگذاری رسید آن را شارژ کنید و هزینه رزروها را از موجودی بپردازید."
+        },
+        {
+          "type": "p",
+          "text": "برای بسیاری از رزروها می‌توانید بخشی از مبلغ را الان و باقی را در محل بپردازید. در این طرح‌ها ۲۰، ۵۰ یا ۸۰ درصد را از پیش می‌پردازید و افزایش مبلغ هر طرح پیش از تأیید نمایش داده می‌شود."
+        },
+        {
+          "type": "p",
+          "text": "برای برنامه‌ریزی آماده‌اید؟ مشاوره رایگان بخواهید یا ارائه‌دهنده را جست‌وجو کنید و مستقیم رزرو کنید."
+        }
+      ],
+      "faq": [
+        {
+          "q": "می‌توانم درمان، هتل و ترانسفر را یک‌جا رزرو کنم؟",
+          "a": "بله. هر جا ارائه‌دهنده ارائه کند، خدمات جانبی مثل هتل، ترانسفر، مترجم یا پرستاری در منزل همراه خدمت اصلی رزرو می‌شوند و همه در حساب شما دیده می‌شوند."
+        },
+        {
+          "q": "مراقبت پزشکی را چه کسی ارائه می‌دهد؟",
+          "a": "کلینیک‌ها، بیمارستان‌ها و پزشکان مستقلی که در السوین معرفی شده‌اند. السوین رزرو و پرداخت را هماهنگ می‌کند و توصیه پزشکی نمی‌دهد."
+        },
+        {
+          "q": "فرق مشاوره رایگان با مشاوره تصویری چیست؟",
+          "a": "مشاوره رایگان تماس کارشناس السوین درباره ارائه‌دهندگان، تاریخ‌ها و امور سفر است. مشاوره تصویری نوبت پولی با پزشک است."
+        },
+        {
+          "q": "می‌توانم به‌جای پرداخت آنلاین در کلینیک یا هتل بپردازم؟",
+          "a": "بستگی به خدمت دارد. برخی بدون پیش‌پرداخت رزرو می‌شوند، برخی پرداخت کامل آنلاین می‌خواهند و برخی طرحی دارند که ۲۰، ۵۰ یا ۸۰ درصد را الان و باقی را در محل می‌پردازید."
+        },
+        {
+          "q": "برای استفاده باید برنامه نصب کنم؟",
+          "a": "خیر. السوین در مرورگر گوشی و رایانه کار می‌کند، از جمله برای مشاوره تصویری."
+        }
+      ]
+    },
+    "ar-SA": {
+      "title": "منتجات وخدمات لسوين",
+      "metaDescription": "احجز العيادات والأطباء المختصين والفنادق القريبة من المستشفيات مع الرعاية في الفندق والجولات واشتراكات النوادي في إيران، وتسوّق وادفع من محفظة لسوين.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "تجمع لسوين أجزاء الرحلة العلاجية إلى إيران في حساب واحد: الطبيب، والمستشفى، والفندق القريب منه، والرعاية التي تحتاجها أثناء التعافي، والتنقل بينها. ويمكنك استخدامها أيضاً لخدمات العافية وحدها، من اشتراك نادٍ رياضي إلى جولة في المدينة أو طلب من المتجر."
+        },
+        {
+          "type": "p",
+          "text": "كل خدمة على لسوين يقدمها مقدم خدمة مستقل. تعرض لك لسوين الخيارات، وتسجل الحجز والدفع، وتبقى جهة التواصل معك إذا حدثت مشكلة."
+        },
+        {
+          "type": "h2",
+          "text": "العيادات والمستشفيات والأطباء المختصون"
+        },
+        {
+          "type": "p",
+          "text": "ابحث حسب العلاج أو التخصص أو المدينة، أو تصفح مقدمي الخدمات على الخريطة. تعرض صفحة كل مقدم خدمة خدماته وأسعاره وموقعه وصوره والسياسات التي نشرها، وتعرض صفحات الأطباء الشهادات والعضويات التي أضافها الطبيب."
+        },
+        {
+          "type": "p",
+          "text": "يمكنك حصر النتائج في مقدمي الخدمات الحاملين لشارة «معتمد» التي يمنحها مشرفو لسوين. وإذا كنت مريضاً دولياً، فتحقق من المنشأة أيضاً في قائمة IPD لوزارة الصحة على iht.behdasht.gov.ir."
+        },
+        {
+          "type": "h2",
+          "text": "الفنادق العلاجية والرعاية في الفندق"
+        },
+        {
+          "type": "p",
+          "text": "بعد كثير من الإجراءات تحتاج إلى البقاء في المدينة لزيارات المتابعة. تعرض لسوين الفنادق القريبة من المستشفيات لتختار حسب المسافة. وحيث يتوفر ذلك في الفندق والمدينة، يمكنك إضافة خدمات رعاية إلى الحجز، مثل زيارات التمريض أو التنقل إلى المستشفى."
+        },
+        {
+          "type": "p",
+          "text": "يحدد طبيبك المعالج مستوى الرعاية الذي تحتاجه. الرعاية في الفندق تدعم تعافيك ولا تغني عن زيارات المستشفى."
+        },
+        {
+          "type": "h2",
+          "text": "خدمات إضافية لرحلة كاملة"
+        },
+        {
+          "type": "p",
+          "text": "يمكن حجز بعض الخدمات مع إضافات من مقدمي خدمات آخرين، مثل الفندق أو المترجم أو التمريض المنزلي أو التنقل من المطار وداخل المدينة أو جولة سياحية. وفي الخدمات التي تُقدَّم في عنوانك، مثل التمريض المنزلي، يُطلب منك العنوان أثناء الحجز."
+        },
+        {
+          "type": "h2",
+          "text": "الاستشارة المجانية والزيارات المرئية"
+        },
+        {
+          "type": "p",
+          "text": "الاستشارة المجانية اتصال من أحد مستشاري لسوين. اترك اسمك ورقم هاتفك والوقت المناسب للاتصال، وسيساعدك المستشار في مقارنة مقدمي الخدمات وترتيب المواعيد."
+        },
+        {
+          "type": "p",
+          "text": "الاستشارة المرئية موعد مدفوع مع طبيب. تختار اليوم والساعة (بتوقيت طهران)، وتصف مشكلتك، ويمكنك إرفاق ما يصل إلى 10 ملفات مثل نتائج التحاليل أو الصور. تظهر المدة والسعر قبل الحجز، وتجري المكالمة في المتصفح دون تثبيت أي تطبيق."
+        },
+        {
+          "type": "h2",
+          "text": "الجولات السياحية"
+        },
+        {
+          "type": "p",
+          "text": "احجز مقعداً في إحدى رحلات الجولة المجدولة. تعرض صفحة كل جولة نقطة اللقاء وبرنامج الرحلة وسياسة الإلغاء التي تنطبق على حجزك. وإذا ألغى المنظم الرحلة، يُعاد إليك المبلغ المدفوع لها كاملاً."
+        },
+        {
+          "type": "h2",
+          "text": "اشتراكات النوادي الرياضية"
+        },
+        {
+          "type": "p",
+          "text": "اختر النادي والخطة الشهرية، ثم حدد الأشهر التي تريد دفعها. وإذا دفعت بتحويل بنكي، فأدخل الرقم المرجعي ليُراجع الدفع قبل تسجيل الشهر مدفوعاً."
+        },
+        {
+          "type": "h2",
+          "text": "متجر لسوين"
+        },
+        {
+          "type": "p",
+          "text": "اطلب المنتجات عبر الإنترنت وادفع عند إتمام الطلب. تختار طريقة التوصيل وترى تكلفتها والمدة التقديرية للتسليم قبل الدفع، وتتابع الطلب برقم التتبع لدى شركة الشحن بعد إرساله. ويمكن أن تخفض القسائم قيمة الطلب أو تجعل التوصيل مجانياً."
+        },
+        {
+          "type": "h2",
+          "text": "المحفظة وطرق الدفع"
+        },
+        {
+          "type": "p",
+          "text": "تحتفظ محفظة لسوين بالمبالغ التي تشحنها بها والمبالغ المستردة إليك. اشحنها بالدفع الإلكتروني بالبطاقة أو بتحويل بنكي مع رفع الإيصال، ثم ادفع حجوزاتك من الرصيد."
+        },
+        {
+          "type": "p",
+          "text": "وفي كثير من الحجوزات يمكنك أن تدفع جزءاً الآن والباقي في المكان. تتيح الخطط دفع 20 أو 50 أو 80 بالمئة مقدماً، وتظهر الزيادة الخاصة بكل خطة قبل التأكيد."
+        },
+        {
+          "type": "p",
+          "text": "هل أنت مستعد للتخطيط؟ اطلب استشارة مجانية، أو ابحث عن مقدم خدمة واحجز مباشرة."
+        }
+      ],
+      "faq": [
+        {
+          "q": "هل يمكنني حجز العلاج والفندق والتنقلات في مكان واحد؟",
+          "a": "نعم. حيث يوفرها مقدم الخدمة، تُحجز الإضافات مثل الفندق والتنقلات والمترجم والتمريض المنزلي مع الخدمة الأساسية، وتظهر كلها في حسابك."
+        },
+        {
+          "q": "من يقدم الرعاية الطبية؟",
+          "a": "العيادات والمستشفيات والأطباء المستقلون المعروضون على لسوين. تنسق لسوين الحجز والدفع ولا تقدم نصائح طبية."
+        },
+        {
+          "q": "ما الفرق بين الاستشارة المجانية والاستشارة المرئية؟",
+          "a": "الاستشارة المجانية اتصال من مستشار لسوين بشأن مقدمي الخدمات والمواعيد وترتيبات السفر، أما الاستشارة المرئية فموعد مدفوع مع طبيب."
+        },
+        {
+          "q": "هل يمكنني الدفع في العيادة أو الفندق بدلاً من الدفع الإلكتروني؟",
+          "a": "يعتمد ذلك على الخدمة. بعضها يُحجز دون دفع مسبق، وبعضها يتطلب الدفع الكامل إلكترونياً، وبعضها يتيح خطة تدفع فيها 20 أو 50 أو 80 بالمئة الآن والباقي في المكان."
+        },
+        {
+          "q": "هل أحتاج إلى تطبيق؟",
+          "a": "لا. تعمل لسوين في متصفح الهاتف والكمبيوتر، ومنها الاستشارات المرئية."
+        }
+      ]
+    },
+    "tr-TR": {
+      "title": "LSevin Ürün ve Hizmetleri",
+      "metaDescription": "İran'da klinik ve uzman doktor, otelde bakım sunan hastaneye yakın oteller, tur ve spor salonu üyeliği ayırtın, sağlık ürünleri alın ve LSevin cüzdanınızla ödeyin.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "LSevin, İran'daki bir sağlık seyahatinin tüm parçalarını tek bir hesapta toplar: doktor, hastane, yakındaki otel, iyileşme sürecinde ihtiyaç duyduğunuz bakım ve bunlar arasındaki ulaşım. Platformu yalnızca sağlıklı yaşam için de kullanabilirsiniz; spor salonu üyeliğinden şehir turuna ya da mağazadan bir siparişe kadar."
+        },
+        {
+          "type": "p",
+          "text": "LSevin'deki her hizmet bağımsız bir sağlayıcı tarafından verilir. LSevin size seçenekleri gösterir, rezervasyonu ve ödemeyi alır ve bir sorun çıkarsa muhatabınız olmaya devam eder."
+        },
+        {
+          "type": "h2",
+          "text": "Klinikler, hastaneler ve uzman doktorlar"
+        },
+        {
+          "type": "p",
+          "text": "Tedaviye, uzmanlık alanına veya şehre göre arama yapın ya da sağlayıcılara harita üzerinden göz atın. Her sağlayıcı sayfasında hizmetler, fiyatlar, konum, fotoğraflar ve sağlayıcının yayımladığı politikalar yer alır. Uzman sayfalarında doktorun sağladığı sertifikalar ve üyelikler listelenir."
+        },
+        {
+          "type": "p",
+          "text": "Sonuçları yalnızca LSevin yöneticilerinin tanımladığı Akredite rozetine sahip sağlayıcıları gösterecek şekilde filtreleyebilirsiniz. Uluslararası hasta olarak tedavi için kuruluşu ayrıca iht.behdasht.gov.ir adresindeki Sağlık Bakanlığı IPD listesinde de kontrol edin."
+        },
+        {
+          "type": "h2",
+          "text": "Medikal oteller ve otelde bakım"
+        },
+        {
+          "type": "p",
+          "text": "Birçok işlemden sonra kontrol randevuları için şehirde kalmanız gerekir. LSevin hastanelere yakın otelleri gösterir; böylece mesafeye göre seçim yapabilirsiniz. Otelin ve şehrin sunduğu durumlarda rezervasyona hemşire ziyareti veya hastaneye transfer gibi bakım hizmetleri ekleyebilirsiniz."
+        },
+        {
+          "type": "p",
+          "text": "Hangi düzeyde bakıma ihtiyacınız olduğuna sizi tedavi eden hekim karar verir. Otelde bakım iyileşmenizi destekler, hastane ziyaretlerinin yerini tutmaz."
+        },
+        {
+          "type": "h2",
+          "text": "Eksiksiz bir seyahat için ek hizmetler"
+        },
+        {
+          "type": "p",
+          "text": "Bazı hizmetler, başka sağlayıcıların ek hizmetleriyle birlikte ayırtılabilir; örneğin otel, tercüman, evde hemşirelik, havalimanı ve şehir içi transferler veya bir tur. Evde hemşirelik gibi adresinizde verilen hizmetler, rezervasyon sırasında adresinizi ister."
+        },
+        {
+          "type": "h2",
+          "text": "Ücretsiz danışmanlık ve görüntülü görüşmeler"
+        },
+        {
+          "type": "p",
+          "text": "Ücretsiz danışmanlık, bir LSevin danışmanının sizi geri aramasıdır. Adınızı, telefon numaranızı ve size en uygun arama zamanını bırakın. Danışman sağlayıcıları karşılaştırmanıza ve tarihleri planlamanıza yardımcı olur."
+        },
+        {
+          "type": "p",
+          "text": "Görüntülü danışma, bir doktorla yapılan ücretli bir randevudur. Bir gün ve saat seçer (Tahran saati), şikâyetinizi anlatır ve tahlil sonuçları ya da fotoğraf gibi en fazla 10 dosya ekleyebilirsiniz. Süre ve fiyat rezervasyondan önce gösterilir; görüşme tarayıcınızda yapılır ve herhangi bir şey yüklemeniz gerekmez."
+        },
+        {
+          "type": "h2",
+          "text": "Turlar"
+        },
+        {
+          "type": "p",
+          "text": "Planlanmış bir tur kalkışında yerinizi ayırtın. Her tur sayfasında buluşma noktası, program ve rezervasyonunuz için geçerli iptal politikası yer alır. Operatör bir kalkışı iptal ederse bunun için yaptığınız ödeme tamamen iade edilir."
+        },
+        {
+          "type": "h2",
+          "text": "Spor salonu üyelikleri"
+        },
+        {
+          "type": "p",
+          "text": "Bir spor salonu ve aylık bir plan seçin, ardından ödemek istediğiniz ayları belirleyin. Banka havalesiyle ödediyseniz referans numarasını girin; ay ödendi olarak işaretlenmeden önce salona yapılan ödeme kontrol edilir."
+        },
+        {
+          "type": "h2",
+          "text": "LSevin mağazası"
+        },
+        {
+          "type": "p",
+          "text": "Ürünleri online sipariş edin ve ödeme adımında ödeyin. Bir teslimat yöntemi seçer, ödeme yapmadan önce ücretini ve tahmini teslimat süresini görür, sipariş kargoya verildiğinde kargo firmasının takip numarasıyla izlersiniz. Kuponlar siparişte indirim sağlayabilir veya teslimatı ücretsiz yapabilir."
+        },
+        {
+          "type": "h2",
+          "text": "Cüzdan ve ödeme seçenekleri"
+        },
+        {
+          "type": "p",
+          "text": "LSevin cüzdanınızda yüklediğiniz para ve size aktarılan iadeler tutulur. Online kart ödemesiyle veya dekont yükleyerek banka havalesiyle bakiye yükleyin, ardından rezervasyonlarınızı bu bakiyeden ödeyin."
+        },
+        {
+          "type": "p",
+          "text": "Birçok rezervasyonda bir kısmını şimdi, kalanını yerinde ödemeyi de seçebilirsiniz. Planlar tutarın yüzde 20, 50 veya 80'ini peşin ödemenize olanak tanır ve her planın eklemesi onaylamadan önce gösterilir."
+        },
+        {
+          "type": "p",
+          "text": "Planlamaya hazır mısınız? Ücretsiz danışmanlık isteyin ya da bir sağlayıcı arayıp doğrudan rezervasyon yapın."
+        }
+      ],
+      "faq": [
+        {
+          "q": "Tedaviyi, oteli ve transferleri tek bir yerden ayırtabilir miyim?",
+          "a": "Evet. Sağlayıcının sunduğu durumlarda otel, transfer, tercüman veya evde hemşirelik gibi ek hizmetler ana hizmetle birlikte ayırtılabilir ve hepsi hesabınızda görünür."
+        },
+        {
+          "q": "Tıbbi bakımı kim sağlıyor?",
+          "a": "LSevin'de listelenen bağımsız klinikler, hastaneler ve doktorlar. LSevin rezervasyonu ve ödemeyi koordine eder, tıbbi tavsiye vermez."
+        },
+        {
+          "q": "Ücretsiz danışmanlık ile görüntülü danışma arasındaki fark nedir?",
+          "a": "Ücretsiz danışmanlık, bir LSevin danışmanının sağlayıcılar, tarihler ve lojistik hakkında sizi geri aramasıdır. Görüntülü danışma ise bir doktorla yapılan ücretli bir randevudur."
+        },
+        {
+          "q": "Online yerine klinikte veya otelde ödeme yapabilir miyim?",
+          "a": "Bu, hizmete bağlıdır. Bazıları önceden ödeme yapmadan rezervasyon yapmanıza izin verir, bazıları tam online ödeme gerektirir, bazıları da şimdi yüzde 20, 50 veya 80 ödeyip kalanını yerinde ödediğiniz bir plan sunar."
+        },
+        {
+          "q": "Uygulama indirmem gerekiyor mu?",
+          "a": "Hayır. LSevin, görüntülü danışmalar dahil telefonda ve bilgisayarda tarayıcı üzerinden çalışır."
+        }
+      ]
+    },
+    "ku-KU": {
+      "title": "بەرهەم و خزمەتگوزارییەکانی LSevin",
+      "metaDescription": "کلینیک و پسپۆڕ، هوتێلی نزیک نەخۆشخانە لەگەڵ چاودێری لە هوتێلدا، گەشت و ئەندامێتیی جیم لە ئێران حجز بکەن، بەرهەمی تەندروستی بکڕن و لە جزدانی LSevin پارە بدەن.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "LSevin بەشەکانی گەشتێکی چارەسەری بۆ ئێران لە یەک هەژماردا کۆ دەکاتەوە: پزیشک، نەخۆشخانە، هوتێلی نزیک، ئەو چاودێرییەی لە ماوەی چاکبوونەوەدا پێویستتانە، و گواستنەوە لە نێوانیاندا. دەتوانن بە تەنها بۆ ئاسوودەیی و تەندروستیش بەکاری بهێنن، لە ئەندامێتیی جیمەوە تا گەشتێکی ناو شار یان داواکارییەک لە فرۆشگا."
+        },
+        {
+          "type": "p",
+          "text": "هەموو خزمەتێک لە LSevin لەلایەن دابینکەرێکی سەربەخۆوە پێشکەش دەکرێت. LSevin بژاردەکانتان پیشان دەدات، حجز و پارەکە وەردەگرێت، و ئەگەر کێشەیەک ڕووی دا هەر ئەو شوێنی پەیوەندیکردنتانە."
+        },
+        {
+          "type": "h2",
+          "text": "کلینیک، نەخۆشخانە و پسپۆڕان"
+        },
+        {
+          "type": "p",
+          "text": "بەپێی چارەسەر، پسپۆڕی یان شار بگەڕێن، یان دابینکەران لەسەر نەخشە ببینن. پەڕەی هەر دابینکەرێک خزمەتەکان، نرخ، شوێن، وێنە و ئەو سیاسەتانەی بڵاوی کردوونەتەوە پیشان دەدات. پەڕەکانی پسپۆڕان ئەو بڕوانامە و ئەندامێتییانە دەخەنە ڕوو کە پزیشکەکە خۆی پێشکەشی کردوون."
+        },
+        {
+          "type": "p",
+          "text": "دەتوانن ئەنجامەکان فلتەر بکەن بۆ ئەوەی تەنها ئەو دابینکەرانە پیشان بدرێن کە نیشانەی «پەسەندکراو» یان هەیە، کە بەڕێوەبەرانی LSevin دایدەنێن. بۆ چارەسەر وەک نەخۆشی نێودەوڵەتی، دامەزراوەکە لە لیستی IPDی وەزارەتی تەندروستی لە iht.behdasht.gov.ir یش بپشکنن."
+        },
+        {
+          "type": "h2",
+          "text": "هوتێلی پزیشکی و چاودێری لە هوتێلدا"
+        },
+        {
+          "type": "p",
+          "text": "دوای زۆرێک لە پرۆسە پزیشکییەکان پێویستە بۆ سەردانەکانی بەدواداچوون لە شارەکەدا بمێننەوە. LSevin هوتێلە نزیکەکانی نەخۆشخانە پیشان دەدات تا بتوانن بەپێی دووری یەکێکیان هەڵبژێرن. لەو شوێنانەی هوتێل و شارەکە پێشکەشی دەکەن، دەتوانن چاودێری بخەنە سەر حجزەکە، وەک سەردانی پەرستار یان گواستنەوە بۆ نەخۆشخانە."
+        },
+        {
+          "type": "p",
+          "text": "پزیشکی چارەسەرکەرتان بڕیار دەدات چ ئاستێکی چاودێریتان پێویستە. چاودێری لە هوتێلدا یارمەتیی چاکبوونەوەتان دەدات و جێگەی سەردانی نەخۆشخانە ناگرێتەوە."
+        },
+        {
+          "type": "h2",
+          "text": "خزمەتە زیادەکان بۆ گەشتێکی تەواو"
+        },
+        {
+          "type": "p",
+          "text": "هەندێک خزمەت دەتوانرێن لەگەڵ خزمەتی زیادەی دابینکەرانی تردا حجز بکرێن، بۆ نموونە هوتێل، وەرگێڕ، پەرستاری لە ماڵ، گواستنەوە لە فڕۆکەخانە و ناو شار یان گەشتێک. ئەو خزمەتانەی لە ناونیشانەکەی خۆتاندا پێشکەش دەکرێن، وەک پەرستاری لە ماڵ، لە کاتی حجزدا داوای ناونیشانەکە دەکەن."
+        },
+        {
+          "type": "h2",
+          "text": "ڕاوێژکاریی بەخۆڕایی و سەردانی ڤیدیۆیی"
+        },
+        {
+          "type": "p",
+          "text": "ڕاوێژکاریی بەخۆڕایی پەیوەندییەکی تەلەفۆنییە لەلایەن ڕاوێژکارێکی LSevinەوە. ناو، ژمارەی تەلەفۆن و باشترین کات بۆ پەیوەندی بنووسن. ڕاوێژکارەکە یارمەتیتان دەدات دابینکەران بەراورد بکەن و بەروارەکان پلان بکەن."
+        },
+        {
+          "type": "p",
+          "text": "ڕاوێژی ڤیدیۆیی چاوپێکەوتنێکی بەپارەیە لەگەڵ پزیشک. ڕۆژ و کاتێک (بە کاتی تاران) هەڵدەبژێرن، کێشەکەتان باس دەکەن و دەتوانن تا 10 فایل هاوپێچ بکەن، وەک ئەنجامی پشکنین یان وێنە. ماوە و نرخەکەی پێش حجزکردن پیشان دەدرێت، و پەیوەندییەکە لە وێبگەڕەکەتاندا ئەنجام دەدرێت بەبێ ئەوەی پێویست بکات هیچ شتێک دابمەزرێنن."
+        },
+        {
+          "type": "h2",
+          "text": "گەشتەکان"
+        },
+        {
+          "type": "p",
+          "text": "کورسییەک لە یەکێک لە کاتە دیاریکراوەکانی گەشتێک حجز بکەن. پەڕەی هەر گەشتێک شوێنی کۆبوونەوە، بەرنامەی گەشتەکە و ئەو سیاسەتی هەڵوەشاندنەوەیەی بەسەر حجزەکەتاندا جێبەجێ دەکرێت پیشان دەدات. ئەگەر ڕێکخەری گەشت کاتێکی بەڕێکەوتن هەڵبوەشێنێتەوە، پارەکەتان بۆ ئەو کاتە بە تەواوی دەگەڕێندرێتەوە."
+        },
+        {
+          "type": "h2",
+          "text": "ئەندامێتیی جیم"
+        },
+        {
+          "type": "p",
+          "text": "جیمێک و پلانێکی مانگانە هەڵبژێرن، پاشان ئەو مانگانە دیاری بکەن کە دەتانەوێت پارەیان بدەن. ئەگەر بە گواستنەوەی بانکی پارەتان داوە، ژمارەی بەدواداچوونەکە بنووسن؛ پارەدانەکە بۆ جیمەکە پێداچوونەوەی بۆ دەکرێت پێش ئەوەی مانگەکە وەک پارەدراو نیشان بکرێت."
+        },
+        {
+          "type": "h2",
+          "text": "فرۆشگای LSevin"
+        },
+        {
+          "type": "p",
+          "text": "بەرهەم بە ئۆنلاین داوا بکەن و لە کاتی تەواوکردنی کڕیندا پارە بدەن. شێوازێکی گەیاندن هەڵدەبژێرن، پێش پارەدان تێچوون و کاتی خەمڵێنراوی گەیاندنەکەی دەبینن، و دوای ناردن بە ژمارەی بەدواداچوونی کۆمپانیای گەیاندن شوێنی داواکارییەکە دەکەون. کۆپۆنەکان دەتوانن بڕێک لە نرخی داواکارییەکە کەم بکەنەوە یان گەیاندن بەخۆڕایی بکەن."
+        },
+        {
+          "type": "h2",
+          "text": "جزدان و شێوازەکانی پارەدان"
+        },
+        {
+          "type": "p",
+          "text": "جزدانی LSevinەکەتان ئەو پارەیەی تێی دەخەن و ئەو پارانەی بۆتان دەگەڕێندرێنەوە هەڵدەگرێت. بە پارەدانی ئۆنلاینی کارت یان بە گواستنەوەی بانکی و بارکردنی فیشەکە پڕی بکەنەوە، پاشان لە باڵانسەکەوە پارەی حجزەکان بدەن."
+        },
+        {
+          "type": "p",
+          "text": "بۆ زۆرێک لە حجزەکان دەتوانن ئەوەش هەڵبژێرن کە بەشێکی ئێستا بدەن و ئەوی دیکە لە شوێنەکە. پلانەکان ڕێگەتان پێ دەدەن 20، 50 یان 80 لە سەد پێشوەختە بدەن، و زیادکراوی هەر پلانێک پێش پشتڕاستکردنەوە پیشان دەدرێت."
+        },
+        {
+          "type": "p",
+          "text": "ئامادەن بۆ پلاندانان؟ داوای ڕاوێژکاریی بەخۆڕایی بکەن، یان بە دوای دابینکەرێکدا بگەڕێن و ڕاستەوخۆ حجز بکەن."
+        }
+      ],
+      "faq": [
+        {
+          "q": "دەتوانم چارەسەر، هوتێل و گواستنەوە لە یەک شوێندا حجز بکەم؟",
+          "a": "بەڵێ. لەو شوێنانەی دابینکەر پێشکەشیان دەکات، خزمەتە زیادەکانی وەک هوتێل، گواستنەوە، وەرگێڕ یان پەرستاری لە ماڵ دەتوانرێن لەگەڵ خزمەتی سەرەکیدا حجز بکرێن، و هەموویان لە هەژمارەکەتاندا دەردەکەون."
+        },
+        {
+          "q": "کێ چاودێریی پزیشکی پێشکەش دەکات؟",
+          "a": "ئەو کلینیک، نەخۆشخانە و پزیشکە سەربەخۆیانەی لە LSevin تۆمار کراون. LSevin حجز و پارەدانەکە ڕێک دەخات و ئامۆژگاریی پزیشکی نادات."
+        },
+        {
+          "q": "جیاوازیی نێوان ڕاوێژکاریی بەخۆڕایی و ڕاوێژی ڤیدیۆیی چییە؟",
+          "a": "ڕاوێژکاریی بەخۆڕایی پەیوەندییەکی تەلەفۆنییە لەلایەن ڕاوێژکارێکی LSevinەوە دەربارەی دابینکەران، بەروارەکان و ڕێکخستنەکانی گەشت. ڕاوێژی ڤیدیۆیی چاوپێکەوتنێکی بەپارەیە لەگەڵ پزیشک."
+        },
+        {
+          "q": "دەتوانم لە جیاتی ئۆنلاین، لە کلینیک یان هوتێلەکە پارە بدەم؟",
+          "a": "بەندە بە خزمەتەکە. هەندێکیان ڕێگە دەدەن بەبێ پارەدانی پێشەکی حجز بکەن، هەندێکیان پارەدانی تەواوی ئۆنلاین داوا دەکەن، و هەندێکیشیان پلانێک پێشکەش دەکەن کە تێیدا 20، 50 یان 80 لە سەد ئێستا دەدەن و ئەوی دیکە لە شوێنەکە."
+        },
+        {
+          "q": "پێویستم بە ئەپ هەیە؟",
+          "a": "نەخێر. LSevin لە وێبگەڕدا لەسەر مۆبایل و کۆمپیوتەر کار دەکات، ڕاوێژی ڤیدیۆییش لەوانە."
+        }
+      ]
+    },
+    "ru-RU": {
+      "title": "Продукты и услуги LSevin",
+      "metaDescription": "Бронируйте клиники и врачей, отели у больниц с уходом в отеле, туры и абонементы в спортзалы в Иране, покупайте товары для здоровья и платите с кошелька LSevin.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "LSevin объединяет в одном аккаунте всё, что нужно для медицинской поездки в Иран: врача, больницу, отель рядом с ней, уход на время восстановления и транспорт между ними. Сервисом можно пользоваться и просто для оздоровления: от абонемента в спортзал до экскурсии по городу или заказа в магазине."
+        },
+        {
+          "type": "p",
+          "text": "Каждую услугу на LSevin оказывает независимый поставщик. LSevin показывает Вам варианты, принимает бронирование и оплату и остаётся Вашим контактным лицом, если что-то пойдёт не так."
+        },
+        {
+          "type": "h2",
+          "text": "Клиники, больницы и врачи"
+        },
+        {
+          "type": "p",
+          "text": "Ищите по виду лечения, специальности или городу либо просматривайте поставщиков на карте. На странице каждого поставщика указаны его услуги, цены, адрес, фотографии и опубликованные правила. На страницах врачей перечислены сертификаты и членство в организациях, которые указал сам врач."
+        },
+        {
+          "type": "p",
+          "text": "Результаты можно отфильтровать, чтобы видеть только поставщиков с отметкой «Аккредитован», которую присваивают администраторы LSevin. Если Вы едете на лечение из-за рубежа, также проверьте учреждение в списке IPD Министерства здравоохранения на iht.behdasht.gov.ir."
+        },
+        {
+          "type": "h2",
+          "text": "Медицинские отели и уход в отеле"
+        },
+        {
+          "type": "p",
+          "text": "После многих процедур нужно остаться в городе для повторных визитов. LSevin показывает отели рядом с больницами, чтобы Вы могли выбрать по расстоянию. Если отель и город это предлагают, к бронированию можно добавить уход, например визиты медсестры или трансферы в больницу."
+        },
+        {
+          "type": "p",
+          "text": "Какой уход Вам нужен, решает лечащий врач. Уход в отеле поддерживает восстановление, но не заменяет визиты в больницу."
+        },
+        {
+          "type": "h2",
+          "text": "Дополнительные услуги для всей поездки"
+        },
+        {
+          "type": "p",
+          "text": "Некоторые услуги можно забронировать вместе с дополнительными услугами других поставщиков, например отелем, переводчиком, сестринским уходом на дому, трансферами из аэропорта и по городу или туром. Для услуг, которые оказываются по Вашему адресу, например сестринского ухода на дому, адрес запрашивается при бронировании."
+        },
+        {
+          "type": "h2",
+          "text": "Бесплатная консультация и видеоприём"
+        },
+        {
+          "type": "p",
+          "text": "Бесплатная консультация — это обратный звонок от консультанта LSevin. Оставьте имя, номер телефона и удобное время для звонка. Консультант поможет сравнить поставщиков и спланировать даты."
+        },
+        {
+          "type": "p",
+          "text": "Видеоконсультация — платный приём у врача. Вы выбираете день и время (по тегеранскому времени), описываете проблему и можете приложить до 10 файлов, например результаты анализов или фотографии. Продолжительность и стоимость указываются до бронирования, а звонок проходит в браузере, ничего устанавливать не нужно."
+        },
+        {
+          "type": "h2",
+          "text": "Туры"
+        },
+        {
+          "type": "p",
+          "text": "Забронируйте место на тур с запланированной датой отправления. На странице каждого тура указаны место сбора, маршрут и политика отмены, которая действует для Вашего бронирования. Если оператор отменяет отправление, оплата за него возвращается в полном объёме."
+        },
+        {
+          "type": "h2",
+          "text": "Абонементы в спортзалы"
+        },
+        {
+          "type": "p",
+          "text": "Выберите спортзал и месячный тариф, затем отметьте месяцы, которые хотите оплатить. Если Вы платили банковским переводом, введите номер операции: платёж в спортзал проверяется, прежде чем месяц будет отмечен как оплаченный."
+        },
+        {
+          "type": "h2",
+          "text": "Магазин LSevin"
+        },
+        {
+          "type": "p",
+          "text": "Заказывайте товары онлайн и оплачивайте при оформлении. До оплаты Вы выбираете способ доставки и видите её стоимость и ориентировочный срок, а после отправки отслеживаете заказ по трек-номеру перевозчика. Купоны позволяют получить скидку на заказ или бесплатную доставку."
+        },
+        {
+          "type": "h2",
+          "text": "Кошелёк и способы оплаты"
+        },
+        {
+          "type": "p",
+          "text": "В кошельке LSevin хранятся пополненные Вами средства и зачисленные Вам возвраты. Пополняйте его онлайн-оплатой картой или банковским переводом с загрузкой квитанции, а затем оплачивайте бронирования с баланса."
+        },
+        {
+          "type": "p",
+          "text": "Для многих бронирований можно также оплатить часть сейчас, а остаток на месте. Планы позволяют внести заранее 20, 50 или 80 процентов, а надбавка по каждому плану показывается до подтверждения."
+        },
+        {
+          "type": "p",
+          "text": "Готовы планировать? Оставьте заявку на бесплатную консультацию или найдите поставщика и забронируйте напрямую."
+        }
+      ],
+      "faq": [
+        {
+          "q": "Можно ли забронировать лечение, отель и трансферы в одном месте?",
+          "a": "Да. Если поставщик их предлагает, дополнительные услуги, например отель, трансферы, переводчика или сестринский уход на дому, можно забронировать вместе с основной услугой, и всё это будет отображаться в Вашем аккаунте."
+        },
+        {
+          "q": "Кто оказывает медицинскую помощь?",
+          "a": "Независимые клиники, больницы и врачи, представленные на LSevin. LSevin координирует бронирование и оплату и не даёт медицинских советов."
+        },
+        {
+          "q": "Чем бесплатная консультация отличается от видеоконсультации?",
+          "a": "Бесплатная консультация — это обратный звонок от консультанта LSevin по вопросам выбора поставщиков, дат и организации поездки. Видеоконсультация — платный приём у врача."
+        },
+        {
+          "q": "Можно ли оплатить в клинике или отеле вместо онлайн-оплаты?",
+          "a": "Это зависит от услуги. Некоторые можно забронировать без предоплаты, для некоторых требуется полная онлайн-оплата, а некоторые предлагают план, при котором Вы платите 20, 50 или 80 процентов сейчас, а остаток на месте."
+        },
+        {
+          "q": "Нужно ли устанавливать приложение?",
+          "a": "Нет. LSevin работает в браузере на телефоне и компьютере, включая видеоконсультации."
+        }
+      ]
+    },
+    "tg-TJ": {
+      "title": "Маҳсулот ва хидматҳои LSevin",
+      "metaDescription": "Дар Эрон клиника ва мутахассис, меҳмонхонаи назди беморхона бо нигоҳубин, тур ва аъзогии варзишгоҳ брон кунед, маҳсулоти тандурустӣ харед ва аз ҳамёни LSevin пардозед.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "LSevin қисмҳои сафари табобатӣ ба Эронро дар як ҳисоб ҷамъ меорад: духтур, беморхона, меҳмонхонаи наздики он, нигоҳубине, ки ҳангоми барқароршавӣ лозим аст, ва нақлиёт байни онҳо. Шумо метавонед онро танҳо барои солимӣ низ истифода баред, аз аъзогии варзишгоҳ то тури шаҳрӣ ё фармоиш аз мағоза."
+        },
+        {
+          "type": "p",
+          "text": "Ҳар хидмат дар LSevin аз ҷониби хидматрасони мустақил анҷом дода мешавад. LSevin ба шумо имконотро нишон медиҳад, брон ва пардохтро қабул мекунад ва агар мушкиле пеш ояд, тарафи тамоси шумо мемонад."
+        },
+        {
+          "type": "h2",
+          "text": "Клиникаҳо, беморхонаҳо ва мутахассисон"
+        },
+        {
+          "type": "p",
+          "text": "Аз рӯи табобат, тахассус ё шаҳр ҷустуҷӯ кунед ё хидматрасонҳоро дар харита бинед. Дар саҳифаи ҳар хидматрасон хидматҳо, нархҳо, ҷойгиршавӣ, суратҳо ва қоидаҳои нашркардаи он нишон дода мешаванд. Дар саҳифаҳои мутахассисон сертификатҳо ва узвиятҳое, ки духтур пешниҳод кардааст, оварда шудаанд."
+        },
+        {
+          "type": "p",
+          "text": "Шумо метавонед натиҷаҳоро тавре филтр кунед, ки танҳо хидматрасонҳои дорои нишони «Аккредитатсияшуда», ки маъмурони LSevin медиҳанд, нишон дода шаванд. Барои табобат ҳамчун бемори хориҷӣ муассисаро дар рӯйхати IPD-и Вазорати тандурустӣ дар iht.behdasht.gov.ir низ санҷед."
+        },
+        {
+          "type": "h2",
+          "text": "Меҳмонхонаҳои тиббӣ ва нигоҳубин дар меҳмонхона"
+        },
+        {
+          "type": "p",
+          "text": "Пас аз бисёр амалиётҳо бояд барои ташрифҳои такрорӣ дар шаҳр бимонед. LSevin меҳмонхонаҳои наздики беморхонаҳоро нишон медиҳад, то шумо аз рӯи масофа интихоб кунед. Дар ҷое ки меҳмонхона ва шаҳр имкон медиҳанд, ба брон нигоҳубин илова карда метавонед, масалан ташрифи ҳамшираи шафқат ё интиқол ба беморхона."
+        },
+        {
+          "type": "p",
+          "text": "Сатҳи нигоҳубини заруриро духтури муолиҷи шумо муайян мекунад. Нигоҳубин дар меҳмонхона ба барқароршавии шумо кӯмак мекунад ва ҷои ташриф ба беморхонаро намегирад."
+        },
+        {
+          "type": "h2",
+          "text": "Иловаҳо барои сафари пурра"
+        },
+        {
+          "type": "p",
+          "text": "Баъзе хидматҳоро метавон ҳамроҳи иловаҳо аз дигар хидматрасонҳо брон кард, масалан меҳмонхона, тарҷумон, парастории хонагӣ, интиқол аз фурудгоҳ ва дар дохили шаҳр ё тур. Барои хидматҳое, ки дар суроғаи шумо анҷом дода мешаванд, масалан парастории хонагӣ, ҳангоми брон суроға пурсида мешавад."
+        },
+        {
+          "type": "h2",
+          "text": "Машварати ройгон ва қабули видеоӣ"
+        },
+        {
+          "type": "p",
+          "text": "Машварати ройгон занги баргашти мушовири LSevin аст. Ном, рақами телефон ва вақти беҳтарини зангро нависед. Мушовир ба шумо дар муқоисаи хидматрасонҳо ва банақшагирии санаҳо кӯмак мекунад."
+        },
+        {
+          "type": "p",
+          "text": "Машварати видеоӣ қабули пулакӣ бо духтур аст. Шумо рӯз ва вақтро (бо вақти Теҳрон) интихоб мекунед, мушкили худро тавсиф медиҳед ва то 10 файл, масалан натиҷаи таҳлилҳо ё суратҳо, замима карда метавонед. Давомнокӣ ва нарх пеш аз брон нишон дода мешаванд ва занг дар браузери шумо бе насб кардани ягон барнома мегузарад."
+        },
+        {
+          "type": "h2",
+          "text": "Турҳо"
+        },
+        {
+          "type": "p",
+          "text": "Дар сафари ба нақша гирифташудаи тур ҷой брон кунед. Дар саҳифаи ҳар тур ҷои вохӯрӣ, барномаи сафар ва қоидаҳои бекоркунӣ, ки ба брони шумо татбиқ мешаванд, нишон дода мешаванд. Агар ташкилкунанда сафарро бекор кунад, маблағи пардохткардаатон пурра баргардонида мешавад."
+        },
+        {
+          "type": "h2",
+          "text": "Аъзогӣ дар варзишгоҳ"
+        },
+        {
+          "type": "p",
+          "text": "Варзишгоҳ ва нақшаи моҳонаро интихоб кунед, баъд моҳҳоеро, ки мехоҳед пардохт кунед, қайд намоед. Агар бо интиқоли бонкӣ пардохт карда бошед, рақами пайгириро ворид кунед; пардохт пеш аз он ки моҳ пардохтшуда қайд шавад, баррасӣ мешавад."
+        },
+        {
+          "type": "h2",
+          "text": "Мағозаи LSevin"
+        },
+        {
+          "type": "p",
+          "text": "Маҳсулотро онлайн фармоиш диҳед ва ҳангоми ба расмият даровардани фармоиш пардохт кунед. Шумо усули расониданро интихоб мекунед, нарх ва мӯҳлати тахминии расониданро пеш аз пардохт мебинед ва пас аз фиристодан фармоишро бо рақами пайгирии ширкати расонанда назорат мекунед. Купонҳо метавонанд нархи фармоишро кам кунанд ё расониданро ройгон гардонанд."
+        },
+        {
+          "type": "h2",
+          "text": "Ҳамён ва усулҳои пардохт"
+        },
+        {
+          "type": "p",
+          "text": "Дар ҳамёни LSevin маблағе, ки шумо пур мекунед, ва маблағҳои баргардонидашуда нигоҳ дошта мешаванд. Ҳамёнро бо пардохти онлайн бо корт ё бо интиқоли бонкӣ ва боркунии квитансия пур кунед, баъд бронҳоро аз ҳамин маблағ пардохт намоед."
+        },
+        {
+          "type": "p",
+          "text": "Барои бисёр бронҳо шумо инчунин метавонед як қисмро ҳозир ва боқимондаро дар ҷой пардохт кунед. Нақшаҳо имкон медиҳанд, ки 20, 50 ё 80 фоизро пешакӣ пардохт кунед ва иловапулии ҳар нақша пеш аз тасдиқ нишон дода мешавад."
+        },
+        {
+          "type": "p",
+          "text": "Барои банақшагирӣ тайёред? Машварати ройгон дархост кунед ё хидматрасонро ёфта, бевосита брон кунед."
+        }
+      ],
+      "faq": [
+        {
+          "q": "Оё табобат, меҳмонхона ва интиқолро дар як ҷо брон карда метавонам?",
+          "a": "Бале. Дар ҷое ки хидматрасон пешниҳод мекунад, иловаҳо, масалан меҳмонхона, интиқол, тарҷумон ё парастории хонагӣ, ҳамроҳи хидмати асосӣ брон карда мешаванд ва ҳамаи онҳо дар ҳисоби шумо нишон дода мешаванд."
+        },
+        {
+          "q": "Ёрии тиббиро кӣ мерасонад?",
+          "a": "Клиникаҳо, беморхонаҳо ва духтурони мустақиле, ки дар LSevin ҷой дода шудаанд. LSevin брон ва пардохтро ҳамоҳанг мекунад ва маслиҳати тиббӣ намедиҳад."
+        },
+        {
+          "q": "Фарқи машварати ройгон ва машварати видеоӣ дар чист?",
+          "a": "Машварати ройгон занги баргашти мушовири LSevin дар бораи хидматрасонҳо, санаҳо ва масъалаҳои ташкилӣ аст. Машварати видеоӣ қабули пулакӣ бо духтур аст."
+        },
+        {
+          "q": "Оё метавонам ба ҷои пардохти онлайн дар клиника ё меҳмонхона пардохт кунам?",
+          "a": "Ин аз хидмат вобаста аст. Баъзеҳо имкон медиҳанд бе пешпардохт брон кунед, баъзеҳо пардохти пурраи онлайнро талаб мекунанд ва баъзеҳо нақшае пешниҳод мекунанд, ки 20, 50 ё 80 фоизро ҳозир ва боқимондаро дар ҷой мепардозед."
+        },
+        {
+          "q": "Оё ба ман барнома лозим аст?",
+          "a": "Не. LSevin дар браузери телефон ва компютер кор мекунад, аз ҷумла машваратҳои видеоӣ."
+        }
+      ]
+    },
+    "zh-CN": {
+      "title": "LSevin产品与服务",
+      "metaDescription": "在伊朗预约诊所和专家、提供酒店内护理的医院周边酒店、旅游团和健身房会员，选购健康产品，并使用LSevin钱包付款。",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "LSevin将伊朗医疗之旅的各个环节集中在一个账户中：医生、医院、附近的酒店、康复期间所需的护理，以及往返各处的交通。您也可以单独使用它来安排健康养生服务，无论是健身房会员、城市观光团，还是在商店下单。"
+        },
+        {
+          "type": "p",
+          "text": "LSevin上的每项服务都由独立服务商提供。LSevin为您展示可选方案，受理预约和付款，并在出现问题时作为您的联系渠道。"
+        },
+        {
+          "type": "h2",
+          "text": "诊所、医院和专家"
+        },
+        {
+          "type": "p",
+          "text": "您可以按治疗项目、专科或城市搜索，也可以在地图上浏览服务商。每个服务商页面都会显示其服务、价格、地点、照片和已发布的政策。专家页面会列出医生本人提供的资质认证和学会会员信息。"
+        },
+        {
+          "type": "p",
+          "text": "您可以筛选结果，只显示带有“已获资质认可”标识的服务商，该标识由LSevin管理员授予。以国际患者身份就医时，还请在 iht.behdasht.gov.ir 上查询该医疗机构是否列入卫生部的IPD名单。"
+        },
+        {
+          "type": "h2",
+          "text": "医疗酒店与酒店内护理"
+        },
+        {
+          "type": "p",
+          "text": "许多治疗结束后，您需要留在当地复诊。LSevin会显示医院附近的酒店，方便您按距离选择。在酒店和所在城市提供相关服务的情况下，您可以在预约中添加护理服务，例如护士上门探视或往返医院的接送。"
+        },
+        {
+          "type": "p",
+          "text": "您需要何种程度的护理，由主治医生决定。酒店内护理用于辅助康复，不能替代到医院复诊。"
+        },
+        {
+          "type": "h2",
+          "text": "完整行程的附加服务"
+        },
+        {
+          "type": "p",
+          "text": "部分服务可以与其他服务商提供的附加项一起预约，例如酒店、翻译、居家护理、机场及市内接送或旅游团。在您所在地址提供的服务（如居家护理）会在预约过程中要求您填写地址。"
+        },
+        {
+          "type": "h2",
+          "text": "免费咨询与视频问诊"
+        },
+        {
+          "type": "p",
+          "text": "免费咨询是由LSevin顾问为您回电。留下您的姓名、电话号码和方便接听的时间，顾问会帮您比较服务商并规划日期。"
+        },
+        {
+          "type": "p",
+          "text": "视频问诊是与医生进行的付费问诊。您选择日期和时间（德黑兰时间），描述您的问题，并可附加最多10个文件，例如检查结果或照片。时长和价格会在预约前显示，通话直接在浏览器中进行，无需安装任何软件。"
+        },
+        {
+          "type": "h2",
+          "text": "旅游团"
+        },
+        {
+          "type": "p",
+          "text": "您可以预订定期出发的旅游团座位。每个旅游团页面都会显示集合地点、行程安排以及适用于您预约的取消政策。如果运营方取消某个团期，您为该团期支付的款项将全额退还。"
+        },
+        {
+          "type": "h2",
+          "text": "健身房会员"
+        },
+        {
+          "type": "p",
+          "text": "选择一家健身房和一种月度方案，然后选择要付费的月份。如果您通过银行转账付款，请填写参考号；健身房款项经审核后，该月份才会被标记为已支付。"
+        },
+        {
+          "type": "h2",
+          "text": "LSevin商店"
+        },
+        {
+          "type": "p",
+          "text": "在线订购产品并在结算时付款。付款前，您可以选择配送方式，查看其费用和预计送达时间；订单发货后，可凭承运商的物流单号跟踪订单。优惠券可以为订单减免金额，或免除配送费。"
+        },
+        {
+          "type": "h2",
+          "text": "钱包与付款方式"
+        },
+        {
+          "type": "p",
+          "text": "您的LSevin钱包中存有您充值的金额以及退还给您的退款。可通过在线银行卡支付充值，或银行转账并上传凭证，之后即可使用余额支付预约。"
+        },
+        {
+          "type": "p",
+          "text": "许多预约还可以选择现在支付一部分，其余款项到店支付。可选方案为预付20%、50%或80%，每种方案的附加费用会在您确认前显示。"
+        },
+        {
+          "type": "p",
+          "text": "准备开始规划了吗？申请免费咨询，或搜索服务商直接预约。"
+        }
+      ],
+      "faq": [
+        {
+          "q": "治疗、酒店和接送可以在一个地方预约吗？",
+          "a": "可以。在服务商提供的情况下，酒店、接送、翻译或居家护理等附加服务可以与主要服务一起预约，所有内容都会显示在您的账户中。"
+        },
+        {
+          "q": "医疗服务由谁提供？",
+          "a": "由LSevin上列出的独立诊所、医院和医生提供。LSevin负责协调预约和付款，不提供医疗建议。"
+        },
+        {
+          "q": "免费咨询和视频问诊有什么区别？",
+          "a": "免费咨询是LSevin顾问就服务商、日期和行程安排为您回电。视频问诊是与医生进行的付费问诊。"
+        },
+        {
+          "q": "可以不在线支付，而是到诊所或酒店付款吗？",
+          "a": "视服务而定。有些服务无需预付即可预约，有些需要在线全额支付，还有些提供现在支付20%、50%或80%、其余款项到店支付的方案。"
+        },
+        {
+          "q": "需要下载应用吗？",
+          "a": "不需要。LSevin可在手机和电脑的浏览器中使用，视频问诊也是如此。"
+        }
+      ]
+    },
+    "de-DE": {
+      "title": "Produkte und Leistungen von LSevin",
+      "metaDescription": "Buchen Sie im Iran Kliniken und Fachärzte, Hotels nahe Krankenhäusern mit Betreuung, Touren und Fitnessstudios, kaufen Sie Gesundheitsprodukte und zahlen Sie per Wallet.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "LSevin bündelt die Bausteine einer Gesundheitsreise in den Iran in einem Konto: den Arzt, das Krankenhaus, das Hotel in der Nähe, die Betreuung während der Genesung und den Transport dazwischen. Sie können LSevin auch nur für Wellness nutzen, von der Fitnessstudio-Mitgliedschaft über eine Stadttour bis zur Bestellung im Shop."
+        },
+        {
+          "type": "p",
+          "text": "Jede Leistung auf LSevin wird von einem unabhängigen Anbieter erbracht. LSevin zeigt Ihnen die Möglichkeiten, nimmt Buchung und Zahlung entgegen und bleibt Ihr Ansprechpartner, wenn etwas schiefgeht."
+        },
+        {
+          "type": "h2",
+          "text": "Kliniken, Krankenhäuser und Fachärzte"
+        },
+        {
+          "type": "p",
+          "text": "Suchen Sie nach Behandlung, Fachgebiet oder Stadt, oder entdecken Sie Anbieter auf der Karte. Jede Anbieterseite zeigt Leistungen, Preise, Standort, Fotos und die veröffentlichten Richtlinien. Facharztseiten führen die Zertifizierungen und Mitgliedschaften auf, die der Arzt angegeben hat."
+        },
+        {
+          "type": "p",
+          "text": "Sie können die Ergebnisse so filtern, dass nur Anbieter mit dem Abzeichen „Akkreditiert“ erscheinen, das Administratoren von LSevin vergeben. Prüfen Sie für eine Behandlung als internationaler Patient die Einrichtung zusätzlich auf der IPD-Liste des Gesundheitsministeriums unter iht.behdasht.gov.ir."
+        },
+        {
+          "type": "h2",
+          "text": "Medizinhotels und Betreuung im Hotel"
+        },
+        {
+          "type": "p",
+          "text": "Nach vielen Eingriffen müssen Sie für Nachsorgetermine in der Stadt bleiben. LSevin zeigt Hotels in der Nähe von Krankenhäusern, sodass Sie nach Entfernung auswählen können. Wo Hotel und Stadt es anbieten, können Sie der Buchung Betreuung hinzufügen, etwa Besuche einer Pflegekraft oder Transfers zum Krankenhaus."
+        },
+        {
+          "type": "p",
+          "text": "Welches Maß an Betreuung Sie brauchen, entscheidet Ihr behandelnder Arzt. Die Betreuung im Hotel unterstützt Ihre Genesung und ersetzt keine Termine im Krankenhaus."
+        },
+        {
+          "type": "h2",
+          "text": "Zusatzleistungen für die ganze Reise"
+        },
+        {
+          "type": "p",
+          "text": "Manche Leistungen lassen sich zusammen mit Extras anderer Anbieter buchen, zum Beispiel einem Hotel, einem Dolmetscher, häuslicher Pflege, Flughafen- und Stadttransfers oder einer Tour. Bei Leistungen, die an Ihrer Adresse erbracht werden, etwa häuslicher Pflege, wird die Adresse während der Buchung abgefragt."
+        },
+        {
+          "type": "h2",
+          "text": "Kostenlose Beratung und Videosprechstunden"
+        },
+        {
+          "type": "p",
+          "text": "Die kostenlose Beratung ist ein Rückruf durch einen LSevin Berater. Hinterlassen Sie Ihren Namen, Ihre Telefonnummer und die beste Zeit für einen Anruf. Der Berater hilft Ihnen, Anbieter zu vergleichen und Termine zu planen."
+        },
+        {
+          "type": "p",
+          "text": "Eine Videosprechstunde ist ein kostenpflichtiger Termin mit einem Arzt. Sie wählen Tag und Uhrzeit (Teheraner Zeit), beschreiben Ihr Anliegen und können bis zu 10 Dateien anhängen, etwa Laborbefunde oder Fotos. Dauer und Preis werden vor der Buchung angezeigt, und das Gespräch läuft in Ihrem Browser, ohne dass Sie etwas installieren müssen."
+        },
+        {
+          "type": "h2",
+          "text": "Touren"
+        },
+        {
+          "type": "p",
+          "text": "Buchen Sie einen Platz für einen geplanten Tourtermin. Jede Tourseite zeigt den Treffpunkt, den Ablauf und die Stornierungsrichtlinie, die für Ihre Buchung gilt. Sagt der Veranstalter einen Termin ab, wird Ihre Zahlung dafür vollständig erstattet."
+        },
+        {
+          "type": "h2",
+          "text": "Fitnessstudio-Mitgliedschaften"
+        },
+        {
+          "type": "p",
+          "text": "Wählen Sie ein Fitnessstudio und einen Monatstarif und dann die Monate, die Sie bezahlen möchten. Wenn Sie per Banküberweisung bezahlt haben, geben Sie die Referenznummer ein; die Zahlung an das Studio wird geprüft, bevor der Monat als bezahlt markiert wird."
+        },
+        {
+          "type": "h2",
+          "text": "LSevin Shop"
+        },
+        {
+          "type": "p",
+          "text": "Bestellen Sie Produkte online und bezahlen Sie an der Kasse. Sie wählen eine Versandart, sehen deren Kosten und die voraussichtliche Lieferzeit, bevor Sie zahlen, und verfolgen die Bestellung nach dem Versand mit der Sendungsnummer des Versanddienstleisters. Gutscheine können den Bestellbetrag reduzieren oder den Versand kostenlos machen."
+        },
+        {
+          "type": "h2",
+          "text": "Wallet und Zahlungsmöglichkeiten"
+        },
+        {
+          "type": "p",
+          "text": "Ihr LSevin Wallet enthält das Geld, das Sie aufladen, und Erstattungen, die Ihnen gutgeschrieben werden. Laden Sie es per Online-Kartenzahlung oder per Banküberweisung mit hochgeladenem Beleg auf und bezahlen Sie Buchungen dann aus dem Guthaben."
+        },
+        {
+          "type": "p",
+          "text": "Bei vielen Buchungen können Sie außerdem einen Teil jetzt und den Rest vor Ort bezahlen. Die Pläne sehen eine Vorauszahlung von 20, 50 oder 80 Prozent vor, und der Zuschlag für jeden Plan wird angezeigt, bevor Sie bestätigen."
+        },
+        {
+          "type": "p",
+          "text": "Möchten Sie mit der Planung beginnen? Fordern Sie eine kostenlose Beratung an oder suchen Sie einen Anbieter und buchen Sie direkt."
+        }
+      ],
+      "faq": [
+        {
+          "q": "Kann ich Behandlung, Hotel und Transfers an einem Ort buchen?",
+          "a": "Ja. Wo der Anbieter sie anbietet, lassen sich Zusatzleistungen wie Hotel, Transfers, Dolmetscher oder häusliche Pflege zusammen mit der Hauptleistung buchen, und alles erscheint in Ihrem Konto."
+        },
+        {
+          "q": "Wer erbringt die medizinische Versorgung?",
+          "a": "Unabhängige Kliniken, Krankenhäuser und Ärzte, die auf LSevin gelistet sind. LSevin koordiniert Buchung und Zahlung und gibt keine medizinischen Ratschläge."
+        },
+        {
+          "q": "Was ist der Unterschied zwischen der kostenlosen Beratung und einer Videosprechstunde?",
+          "a": "Die kostenlose Beratung ist ein Rückruf durch einen LSevin Berater zu Anbietern, Terminen und Organisation. Eine Videosprechstunde ist ein kostenpflichtiger Termin mit einem Arzt."
+        },
+        {
+          "q": "Kann ich in der Klinik oder im Hotel bezahlen statt online?",
+          "a": "Das hängt von der Leistung ab. Manche lassen sich ohne Vorauszahlung buchen, manche erfordern die volle Online-Zahlung, und manche bieten einen Plan, bei dem Sie jetzt 20, 50 oder 80 Prozent und den Rest vor Ort zahlen."
+        },
+        {
+          "q": "Brauche ich eine App?",
+          "a": "Nein. LSevin funktioniert im Browser auf Smartphone und Computer, auch für Videosprechstunden."
+        }
+      ]
+    },
+    "fr-FR": {
+      "title": "Produits et services LSevin",
+      "metaDescription": "Réservez cliniques et spécialistes, hôtels proches des hôpitaux avec soins sur place, circuits et salles de sport en Iran, et payez depuis votre portefeuille LSevin.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "LSevin réunit dans un seul compte les différentes étapes d’un voyage de santé en Iran : le médecin, l’hôpital, l’hôtel à proximité, les soins dont vous avez besoin pendant votre convalescence et les trajets entre ces lieux. Vous pouvez aussi l’utiliser uniquement pour le bien-être, qu’il s’agisse d’un abonnement de salle de sport, d’une visite de ville ou d’une commande dans la boutique."
+        },
+        {
+          "type": "p",
+          "text": "Chaque service proposé sur LSevin est assuré par un prestataire indépendant. LSevin vous présente les options, enregistre la réservation et le paiement, et reste votre interlocuteur en cas de problème."
+        },
+        {
+          "type": "h2",
+          "text": "Cliniques, hôpitaux et spécialistes"
+        },
+        {
+          "type": "p",
+          "text": "Recherchez par traitement, spécialité ou ville, ou parcourez les prestataires sur la carte. Chaque page de prestataire présente ses services, ses prix, son adresse, des photos et les conditions qu’il a publiées. Les pages des spécialistes indiquent les certifications et les affiliations fournies par le médecin."
+        },
+        {
+          "type": "p",
+          "text": "Vous pouvez filtrer les résultats pour n’afficher que les prestataires portant le badge Accrédité, attribué par les administrateurs de LSevin. Pour un traitement en tant que patient international, vérifiez également l’établissement sur la liste IPD du ministère de la Santé, sur iht.behdasht.gov.ir."
+        },
+        {
+          "type": "h2",
+          "text": "Hôtels médicaux et soins à l’hôtel"
+        },
+        {
+          "type": "p",
+          "text": "Après de nombreuses interventions, vous devez rester dans la ville pour les visites de suivi. LSevin affiche les hôtels proches des hôpitaux afin que vous puissiez choisir selon la distance. Lorsque l’hôtel et la ville le proposent, vous pouvez ajouter des soins à la réservation, comme des passages d’infirmier ou des transferts vers l’hôpital."
+        },
+        {
+          "type": "p",
+          "text": "C’est votre médecin traitant qui détermine le niveau de soins dont vous avez besoin. Les soins à l’hôtel accompagnent votre convalescence et ne remplacent pas les visites à l’hôpital."
+        },
+        {
+          "type": "h2",
+          "text": "Options pour un séjour complet"
+        },
+        {
+          "type": "p",
+          "text": "Certains services peuvent être réservés avec des options proposées par d’autres prestataires, par exemple un hôtel, un traducteur, des soins infirmiers à domicile, des transferts aéroport et en ville, ou un circuit. Pour les services assurés à votre adresse, comme les soins infirmiers à domicile, l’adresse vous est demandée lors de la réservation."
+        },
+        {
+          "type": "h2",
+          "text": "Consultation gratuite et consultations vidéo"
+        },
+        {
+          "type": "p",
+          "text": "La consultation gratuite est un rappel par un conseiller LSevin. Laissez votre nom, votre numéro de téléphone et le meilleur moment pour vous appeler. Le conseiller vous aide à comparer les prestataires et à planifier vos dates."
+        },
+        {
+          "type": "p",
+          "text": "La consultation vidéo est un rendez-vous payant avec un médecin. Vous choisissez un jour et une heure (heure de Téhéran), décrivez votre problème et pouvez joindre jusqu’à 10 fichiers, comme des résultats d’analyses ou des photos. La durée et le prix s’affichent avant la réservation, et l’appel se déroule dans votre navigateur, sans rien installer."
+        },
+        {
+          "type": "h2",
+          "text": "Circuits"
+        },
+        {
+          "type": "p",
+          "text": "Réservez une place sur un départ programmé. Chaque page de circuit indique le point de rendez-vous, l’itinéraire et les conditions d’annulation applicables à votre réservation. Si l’organisateur annule un départ, votre paiement pour ce départ vous est intégralement remboursé."
+        },
+        {
+          "type": "h2",
+          "text": "Abonnements de salle de sport"
+        },
+        {
+          "type": "p",
+          "text": "Choisissez une salle de sport et une formule mensuelle, puis sélectionnez les mois que vous souhaitez payer. Si vous avez payé par virement bancaire, saisissez le numéro de référence : le paiement est vérifié avant que le mois soit marqué comme payé."
+        },
+        {
+          "type": "h2",
+          "text": "Boutique LSevin"
+        },
+        {
+          "type": "p",
+          "text": "Commandez des produits en ligne et payez au moment de la commande. Vous choisissez un mode de livraison, consultez son coût et son délai de livraison estimé avant de payer, puis suivez la commande grâce au numéro de suivi du transporteur une fois qu’elle est expédiée. Les codes promo peuvent réduire le montant de la commande ou rendre la livraison gratuite."
+        },
+        {
+          "type": "h2",
+          "text": "Portefeuille et options de paiement"
+        },
+        {
+          "type": "p",
+          "text": "Votre portefeuille LSevin contient l’argent que vous y versez et les remboursements qui vous sont crédités. Rechargez-le par paiement en ligne par carte ou par virement bancaire en téléversant le reçu, puis réglez vos réservations à partir de ce solde."
+        },
+        {
+          "type": "p",
+          "text": "Pour de nombreuses réservations, vous pouvez aussi choisir de payer une partie maintenant et le reste sur place. Les formules vous permettent de régler 20, 50 ou 80 % à l’avance, et le supplément de chaque formule s’affiche avant que vous confirmiez."
+        },
+        {
+          "type": "p",
+          "text": "Prêt à organiser votre séjour ? Demandez une consultation gratuite, ou recherchez un prestataire et réservez directement."
+        }
+      ],
+      "faq": [
+        {
+          "q": "Puis-je réserver le traitement, l’hôtel et les transferts au même endroit ?",
+          "a": "Oui. Lorsque le prestataire les propose, des options comme un hôtel, des transferts, un traducteur ou des soins infirmiers à domicile peuvent être réservées avec le service principal, et l’ensemble apparaît dans votre compte."
+        },
+        {
+          "q": "Qui dispense les soins médicaux ?",
+          "a": "Les cliniques, hôpitaux et médecins indépendants présents sur LSevin. LSevin coordonne la réservation et le paiement et ne donne pas d’avis médical."
+        },
+        {
+          "q": "Quelle différence entre la consultation gratuite et la consultation vidéo ?",
+          "a": "La consultation gratuite est un rappel par un conseiller LSevin au sujet des prestataires, des dates et de l’organisation. La consultation vidéo est un rendez-vous payant avec un médecin."
+        },
+        {
+          "q": "Puis-je payer à la clinique ou à l’hôtel plutôt qu’en ligne ?",
+          "a": "Cela dépend du service. Certains permettent de réserver sans paiement préalable, d’autres exigent un paiement intégral en ligne, et d’autres encore proposent une formule où vous payez 20, 50 ou 80 % maintenant et le reste sur place."
+        },
+        {
+          "q": "Ai-je besoin d’une application ?",
+          "a": "Non. LSevin fonctionne dans le navigateur, sur téléphone comme sur ordinateur, y compris pour les consultations vidéo."
+        }
+      ]
+    },
+    "es-ES": {
+      "title": "Productos y servicios de LSevin",
+      "metaDescription": "Reserve clínicas, especialistas, hoteles cerca de hospitales con atención en el hotel, tours y gimnasios en Irán, compre productos de salud y pague con su monedero.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "LSevin reúne en una sola cuenta todo lo que forma parte de un viaje de salud a Irán: el médico, el hospital, el hotel cercano, la atención que necesita durante la recuperación y el transporte entre ellos. También puede usarlo solo para el bienestar, desde la membresía de un gimnasio hasta un tour por la ciudad o un pedido en la tienda."
+        },
+        {
+          "type": "p",
+          "text": "Cada servicio de LSevin lo presta un proveedor independiente. LSevin le muestra las opciones, gestiona la reserva y el pago, y sigue siendo su contacto si algo sale mal."
+        },
+        {
+          "type": "h2",
+          "text": "Clínicas, hospitales y especialistas"
+        },
+        {
+          "type": "p",
+          "text": "Busque por tratamiento, especialidad o ciudad, o explore los proveedores en el mapa. La página de cada proveedor muestra sus servicios, precios, ubicación, fotos y las políticas que ha publicado. Las páginas de especialistas incluyen las certificaciones y afiliaciones que ha facilitado el médico."
+        },
+        {
+          "type": "p",
+          "text": "Puede filtrar los resultados para mostrar solo proveedores con la insignia Acreditado, que asignan los administradores de LSevin. Si va a recibir tratamiento como paciente internacional, compruebe además el centro en la lista IPD del Ministerio de Salud, en iht.behdasht.gov.ir."
+        },
+        {
+          "type": "h2",
+          "text": "Hoteles médicos y atención en el hotel"
+        },
+        {
+          "type": "p",
+          "text": "Después de muchos procedimientos es necesario quedarse en la ciudad para las visitas de seguimiento. LSevin muestra hoteles cercanos a los hospitales para que pueda elegir uno según la distancia. Cuando el hotel y la ciudad lo ofrecen, puede añadir atención a la reserva, como visitas de enfermería o traslados al hospital."
+        },
+        {
+          "type": "p",
+          "text": "Su médico tratante decide qué nivel de atención necesita. La atención en el hotel apoya su recuperación y no sustituye a las visitas al hospital."
+        },
+        {
+          "type": "h2",
+          "text": "Complementos para un viaje completo"
+        },
+        {
+          "type": "p",
+          "text": "Algunos servicios pueden reservarse junto con extras de otros proveedores, por ejemplo un hotel, un intérprete, enfermería a domicilio, traslados al aeropuerto y por la ciudad o un tour. Para los servicios que se prestan en su domicilio, como la enfermería a domicilio, se le pide la dirección durante la reserva."
+        },
+        {
+          "type": "h2",
+          "text": "Consulta gratuita y videoconsultas"
+        },
+        {
+          "type": "p",
+          "text": "La consulta gratuita es una llamada de un asesor de LSevin. Deje su nombre, su número de teléfono y el mejor momento para llamarle. El asesor le ayuda a comparar proveedores y a planificar las fechas."
+        },
+        {
+          "type": "p",
+          "text": "La videoconsulta es una cita de pago con un médico. Usted elige el día y la hora (hora de Teherán), describe su problema y puede adjuntar hasta 10 archivos, como resultados de pruebas o fotos. La duración y el precio se muestran antes de reservar, y la llamada se realiza en el navegador, sin instalar nada."
+        },
+        {
+          "type": "h2",
+          "text": "Tours"
+        },
+        {
+          "type": "p",
+          "text": "Reserve una plaza en una salida programada de un tour. La página de cada tour muestra el punto de encuentro, el itinerario y la política de cancelación que se aplica a su reserva. Si el operador cancela una salida, se le reembolsa íntegramente lo que pagó por ella."
+        },
+        {
+          "type": "h2",
+          "text": "Membresías de gimnasio"
+        },
+        {
+          "type": "p",
+          "text": "Elija un gimnasio y un plan mensual y, a continuación, seleccione los meses que desea pagar. Si pagó por transferencia bancaria, introduzca el número de referencia; el pago al gimnasio se revisa antes de marcar el mes como pagado."
+        },
+        {
+          "type": "h2",
+          "text": "Tienda de LSevin"
+        },
+        {
+          "type": "p",
+          "text": "Pida productos en línea y pague al finalizar la compra. Elige un método de envío y ve su coste y el plazo de entrega estimado antes de pagar; una vez enviado el pedido, puede seguirlo con el número de seguimiento del transportista. Los cupones pueden descontar dinero del pedido o hacer que el envío sea gratuito."
+        },
+        {
+          "type": "h2",
+          "text": "Monedero y opciones de pago"
+        },
+        {
+          "type": "p",
+          "text": "Su monedero de LSevin guarda el dinero que recarga y los reembolsos que se le abonan. Recárguelo con pago en línea con tarjeta o por transferencia bancaria subiendo el comprobante, y pague después sus reservas con el saldo."
+        },
+        {
+          "type": "p",
+          "text": "En muchas reservas también puede elegir pagar una parte ahora y el resto en el lugar. Los planes le permiten pagar por adelantado el 20, el 50 o el 80 por ciento, y el recargo de cada plan se muestra antes de confirmar."
+        },
+        {
+          "type": "p",
+          "text": "¿Listo para planificar? Solicite una consulta gratuita, o busque un proveedor y reserve directamente."
+        }
+      ],
+      "faq": [
+        {
+          "q": "¿Puedo reservar el tratamiento, el hotel y los traslados en un solo lugar?",
+          "a": "Sí. Cuando el proveedor los ofrece, los complementos como hotel, traslados, intérprete o enfermería a domicilio pueden reservarse junto con el servicio principal, y todo aparece en su cuenta."
+        },
+        {
+          "q": "¿Quién presta la atención médica?",
+          "a": "Las clínicas, hospitales y médicos independientes que figuran en LSevin. LSevin coordina la reserva y el pago, y no ofrece asesoramiento médico."
+        },
+        {
+          "q": "¿Qué diferencia hay entre la consulta gratuita y una videoconsulta?",
+          "a": "La consulta gratuita es una llamada de un asesor de LSevin sobre proveedores, fechas y logística. La videoconsulta es una cita de pago con un médico."
+        },
+        {
+          "q": "¿Puedo pagar en la clínica o en el hotel en lugar de en línea?",
+          "a": "Depende del servicio. Algunos permiten reservar sin pago anticipado, otros exigen el pago completo en línea y otros ofrecen un plan en el que paga ahora el 20, el 50 o el 80 por ciento y el resto en el lugar."
+        },
+        {
+          "q": "¿Necesito una aplicación?",
+          "a": "No. LSevin funciona en el navegador del móvil y del ordenador, incluidas las videoconsultas."
+        }
+      ]
+    }
+  }
+}

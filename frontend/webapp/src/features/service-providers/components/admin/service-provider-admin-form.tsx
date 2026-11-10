@@ -163,9 +163,6 @@ function LocalizedInputBridge({
   locale,
   ...props
 }: LocalizedInputBridgeProps) {
-  // Keep text exactly as typed while editing. Normalizing on every keystroke trimmed
-  // spaces away and refilled an emptied locale from its sibling key, so the last letter
-  // could not be deleted. Clean-up for the database happens on save.
   const normalizedValue = useMemo(() => {
     const maybeInput = value as AdminLocalizedInputValue | null | undefined;
     if (maybeInput && typeof maybeInput === "object" && maybeInput.translations && typeof maybeInput.translations === "object") {
@@ -178,9 +175,18 @@ function LocalizedInputBridge({
     <LocalizedInput
       {...props}
       value={normalizedValue}
-      onChange={(nextValue) =>
-        onChange({ translations: { ...(nextValue.translations as Record<string, string>) } })
-      }
+      onChange={(nextValue) => {
+        const previous = ((normalizedValue as AdminLocalizedInputValue | null)?.translations ?? {}) as Record<string, string>;
+        const next = { ...(nextValue.translations as Record<string, string>) };
+        for (const key of Object.keys(next)) {
+          if (next[key] === previous[key]) continue;
+          const base = key.split("-")[0].toLowerCase();
+          for (const other of Object.keys(next)) {
+            if (other !== key && other.split("-")[0].toLowerCase() === base) delete next[other];
+          }
+        }
+        onChange({ translations: next });
+      }}
       supportedLocales={SUPPORTED_LOCALE_HEADERS}
     />
   );
@@ -190,8 +196,6 @@ export function ServiceProviderAdminForm({ provider, lookups, locale }: Props) {
   const t = useTranslations("AdminGenerated");
   const tAdmin = useTranslations("AdminGenerated");
   const router = useRouter();
-  // Saving state is ours (not a React transition), so it always ends
-  // after success, error or crash — even if navigation is slow.
   const [isPending, setIsPending] = useState(false);
   const [formKey, setFormKey] = useState(0);
   const startTransition: React.TransitionStartFunction = (callback) => {
@@ -248,6 +252,7 @@ export function ServiceProviderAdminForm({ provider, lookups, locale }: Props) {
   });
 
   const onSubmit = (values: ServiceProviderAdminFormValues) => {
+    console.log("[debug] detail before save", JSON.stringify(values.detail));
     setIsPending(true);
     startTransition(async () => {
       await execute({

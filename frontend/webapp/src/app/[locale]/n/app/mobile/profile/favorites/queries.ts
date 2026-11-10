@@ -73,6 +73,7 @@ export async function getFavoritesPageData(
   const rows = await sql<{
     favorite_id: string;
     entity_id: string;
+    entity_slug: string | null;
     favorite_type: FavoriteCard["favoriteType"];
     tab_id: FavoritesTabId;
     name: string;
@@ -88,6 +89,7 @@ export async function getFavoritesPageData(
       SELECT
         f.id::text AS favorite_id,
         sp.id::text AS entity_id,
+        sp.slug AS entity_slug,
         'provider'::text AS favorite_type,
         ${sql.unsafe(sqlForProviderTab("common.get_translation_t(pt.name_translations, $1, 'en')"))} AS tab_id,
         common.get_translation_t(sp.name_translations, ${preferredLanguage}, 'en') AS name,
@@ -118,6 +120,7 @@ export async function getFavoritesPageData(
       SELECT
         f.id::text AS favorite_id,
         ps.id::text AS entity_id,
+        ps.slug AS entity_slug,
         'service'::text AS favorite_type,
         ${sql.unsafe(sqlForProviderTab("common.get_translation_t(pt.name_translations, $1, 'en')"))} AS tab_id,
         common.get_translation_t(ps.display_name_translations, ${preferredLanguage}, 'en') AS name,
@@ -157,6 +160,7 @@ export async function getFavoritesPageData(
       SELECT
         f.id::text AS favorite_id,
         st.id::text AS entity_id,
+        st.slug AS entity_slug,
         'specialist'::text AS favorite_type,
         'doctor'::text AS tab_id,
         common.get_translation_t(st.name_translations, ${preferredLanguage}, 'en') AS name,
@@ -203,6 +207,7 @@ export async function getFavoritesPageData(
   const favorites: FavoriteCard[] = rows.map((row) => ({
     favoriteId: row.favorite_id,
     entityId: row.entity_id,
+    entitySlug: row.entity_slug ?? null,
     favoriteType: row.favorite_type,
     tabId: row.tab_id === "all" ? "clinic" : row.tab_id,
     name: row.name,

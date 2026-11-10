@@ -1,6 +1,7 @@
 import 'server-only';
 
 import sql from '@/config/database/db';
+import { toPublicPath } from '@/lib/routes/public-paths';
 
 export const HOME_SECTION_KEYS = [
   'hero_featured',
@@ -56,7 +57,7 @@ const fallbackSections: HomeManagedSections = {
     subtitle: '',
     description: '',
     buttonLabel: '',
-    buttonHref: '/n/app/mobile/offers',
+    buttonHref: '/offers',
     imageUrl: null,
     iconName: 'Sparkles',
     metadata: {},
@@ -68,7 +69,7 @@ const fallbackSections: HomeManagedSections = {
     subtitle: '',
     description: '',
     buttonLabel: '',
-    buttonHref: '/n/app/mobile/map-discovery',
+    buttonHref: '/map',
     imageUrl: null,
     iconName: 'Map',
     metadata: {},
@@ -80,7 +81,7 @@ const fallbackSections: HomeManagedSections = {
     subtitle: '',
     description: '',
     buttonLabel: '',
-    buttonHref: '/n/app/mobile/packages',
+    buttonHref: '/packages',
     imageUrl: null,
     iconName: 'Sparkles',
     metadata: {},
@@ -114,7 +115,8 @@ function mergeSection(row: HomeSectionRow): HomeManagedSection | null {
     subtitle: row.subtitle || fallback.subtitle,
     description: row.description || fallback.description,
     buttonLabel: row.buttonLabel || fallback.buttonLabel,
-    buttonHref: row.buttonHref || fallback.buttonHref,
+    // Links saved before the URL change still read /n/app/mobile/...
+    buttonHref: toPublicPath(row.buttonHref || fallback.buttonHref),
     imageUrl: row.imageUrl || fallback.imageUrl,
     iconName: row.iconName || fallback.iconName,
     metadata: row.metadata && typeof row.metadata === 'object' ? row.metadata : fallback.metadata,

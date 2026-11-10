@@ -75,7 +75,7 @@ const ServiceProviderGroup = ({
           <h3 className="text-xl font-semibold">{group.providerTypeName}</h3>
           <Badge variant="default">{group.totalCount}</Badge>
         </div>
-        <Link href={`/type/${group.providerTypeId}`}>
+        <Link href={`/specialties/${group.providerTypeId}`}>
           <Button variant="link">{t("serviceProviders.viewAll")}</Button>
         </Link>
       </div>

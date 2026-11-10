@@ -6,6 +6,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { ImageWithFallback } from '@/components/ui/image-with-fallback';
 import { Skeleton } from '../../design-system/components';
 import { Link } from '@/i18n/navigation';
+import { entityPath } from '@/lib/routes/public-paths';
 import type { PageProps } from '@/types/next';
 import LocationPicker from './components/location-picker';
 import { ServiceProvidersCategoriesSuspenseBoundary } from './components/service-providers-category';
@@ -33,10 +34,13 @@ import { HomeHeroCard } from '@/features/home/components/home-hero-card';
 import { resolveHomeMediaUrl } from '@/features/home/components/home-media';
 import { SponsoredMediaCarouselSection } from '@/features/home/components/sponsored-media-carousel-section';
 import { countActiveSpecialPackages } from '@/features/special-packages/server/repository';
-import { findGuide, guidePath } from '@/features/guides/registry';
 import { LANDING_CATEGORY_LIMIT } from "@/features/categories/constants";
 
 import { DesktopHome } from "@/features/web-desktop/home/DesktopHome";
+import { EnamadSeal } from "@/components/trust/enamad-seal";
+import { absoluteUrl } from "@/lib/seo/alternates";
+import { FaqSection } from "@/features/site-content/components/faq-section";
+import { SiteLinks } from "@/features/site-content/components/site-links";
 
 // Static / ISR — the landing page shell no longer reads the visitor's location
 // or profile on the server; see `Home` below.
@@ -72,7 +76,7 @@ export const revalidate = 120;
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "HomePage" });
-  return buildPublicMetadata({ locale, path: "/n/app/mobile/home", title: t("title"), descriptions: [t("description")] });
+  return buildPublicMetadata({ locale, path: "", title: t("title"), descriptions: [t("description")] });
 }
 
 async function getLocaleFromParams(params: PageProps['params']) {
@@ -382,7 +386,7 @@ async function Home({ params }: PageProps) {
         <div className="mb-5 flex items-center justify-between">
           <h2 className="text-xl font-bold text-gray-900">{labels.categories.title}</h2>
           <Link
-            href="/n/app/mobile/categories"
+            href="/categories"
             className="flex items-center gap-1 text-sm font-semibold text-[#083f30] hover:underline"
           >
             {labels.common.viewAll}
@@ -404,7 +408,7 @@ async function Home({ params }: PageProps) {
         </div>
       </section>
 
-      <HomeGuidesSection locale={locale} />
+
 
       <section className="pb-8">
         <div className="mb-5 flex items-center justify-between px-5">
@@ -413,7 +417,7 @@ async function Home({ params }: PageProps) {
             <p className="text-sm text-gray-600">{labels.featured.subtitle}</p>
           </div>
           <Link
-            href="/n/app/mobile/featured"
+            href="/featured"
             className="flex items-center gap-1 text-sm font-semibold text-[#083f30] hover:underline"
           >
             {labels.common.seeAll}
@@ -481,7 +485,7 @@ async function Home({ params }: PageProps) {
             <p className="text-sm text-gray-600">{labels.trusted.subtitle}</p>
           </div>
           <Link
-            href={`/n/app/mobile/providers?${new URLSearchParams({
+            href={`/providers?${new URLSearchParams({
               ...(queryInput.countryCode ? { countryCode: queryInput.countryCode } : {}),
               ...(queryInput.cityCode ? { cityCode: queryInput.cityCode } : {}),
             }).toString()}`}
@@ -515,18 +519,14 @@ async function Home({ params }: PageProps) {
       <SponsoredMediaCarouselSection locale={locale} placement="home_bottom" />
 
 
+<SiteLinks locale={locale} />
 <div className="container" style={{  
   display:'flex',
   justifyContent:'center',
   alignItems:'center',
   marginBottom:'37px'}}>
     
-      {/* Enamad verifies the seal through the Referer, so no rel="noreferrer". */}
-      <a referrerPolicy='origin' target='_blank' rel='noopener'
-      href='https://trustseal.enamad.ir/?id=7764782&Code=XcQgNRMRzN92gDmZbf8t5GMh1mtctW9d'>
-        <img referrerPolicy='origin' src='https://trustseal.enamad.ir/logo.aspx?id=7764782&Code=XcQgNRMRzN92gDmZbf8t5GMh1mtctW9d'
-        alt={labels.common.trustSeal} style={{cursor:"pointer"}} {...{ code: 'XcQgNRMRzN92gDmZbf8t5GMh1mtctW9d' }} />
-      </a>
+      <EnamadSeal alt={labels.common.trustSeal} />
    </div>
     </div>
     <DesktopHome
@@ -604,44 +604,15 @@ async function Home({ params }: PageProps) {
         sponsoredBottom: <SponsoredMediaCarouselSection locale={locale} placement="home_bottom" />,
       }}
     />
+    {/* One FAQ block for both layouts (a single FAQPage node per page). */}
+    <div className="mx-auto max-w-3xl px-4 pb-10 xl:py-16">
+      <FaqSection target={{ scope: "home" }} locale={locale} pageUrl={absoluteUrl(locale)} />
+    </div>
     </>
   );
 }
 
-// Crawlable entry to the editorial guides, in the languages they are written in.
-function HomeGuidesSection({ locale }: { locale: string }) {
-  const hub = findGuide(locale, '');
-  if (!hub) return null;
-  // The hub lists every guide; the home block shows the first few, in hub order.
-  const guides = hub.guide.related
-    .map((slug) => findGuide(locale, slug))
-    .filter((item): item is NonNullable<typeof item> => Boolean(item))
-    .slice(0, 8);
-  return (
-    <section className="px-5 pb-8">
-      <div className="rounded-2xl bg-[#083f30]/[0.05] p-5 ring-1 ring-[#083f30]/10">
-        <h2 className="mb-1 text-lg font-bold text-gray-900">
-          <Link href={guidePath('')} className="hover:underline">
-            {hub.copy.h1}
-          </Link>
-        </h2>
-        <p className="mb-3 line-clamp-2 text-sm text-gray-600">{hub.copy.description}</p>
-        <ul className="flex flex-wrap gap-2">
-          {guides.map((item) => (
-            <li key={item.guide.slug}>
-              <Link
-                href={guidePath(item.guide.slug)}
-                className="inline-flex rounded-full bg-white px-3 py-1.5 text-sm font-semibold text-[#083f30] ring-1 ring-[#083f30]/15 hover:bg-[#083f30]/5"
-              >
-                {item.copy.navLabel}
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </div>
-    </section>
-  );
-}
+
 
 function HomeHeroBanner({
   offer,
@@ -655,7 +626,7 @@ function HomeHeroBanner({
   noDescription: string;
 }) {
   const mediaUrl = resolveHomeMediaUrl(section.imageUrl || offer?.imageUrl);
-  const href = section.buttonHref || (offer?.serviceId ? `/n/app/mobile/service/${offer.serviceId}` : '/n/app/mobile/offers');
+  const href = section.buttonHref || (offer?.serviceId ? entityPath('service', { slug: offer.serviceSlug, id: offer.serviceId }) : '/offers');
 
   return (
     <HomeHeroCard
@@ -702,7 +673,7 @@ function ExploreNearbySection({
 
   // Carry the visitor's coordinates into the map so it opens centered on them
   // with nearby providers already loaded (50 km radius).
-  const baseHref = section.buttonHref || '/n/app/mobile/map-discovery';
+  const baseHref = section.buttonHref || '/map';
   const href =
     latitude != null && longitude != null && !baseHref.includes('?')
       ? `${baseHref}?lat=${latitude}&lng=${longitude}&distanceKm=50`
@@ -756,7 +727,7 @@ function PremiumPackagesSection({
   // Avoid a dead link: when the CTA still points at the default packages route
   // and there are no active special packages, hide the whole section. If an
   // admin set a custom buttonHref, keep rendering (they own that destination).
-  const usesDefaultHref = !section.buttonHref || section.buttonHref === '/n/app/mobile/packages';
+  const usesDefaultHref = !section.buttonHref || section.buttonHref === '/packages';
   if (activePackagesCount <= 0 && usesDefaultHref) {
     return null;
   }
@@ -797,7 +768,7 @@ function PremiumPackagesSection({
           />
 
           <Link
-            href={section.buttonHref || '/n/app/mobile/packages'}
+            href={section.buttonHref || '/packages'}
             className="inline-flex rounded-xl bg-[#eacb7f] px-6 py-3 text-sm font-bold text-[#083f30] shadow-lg transition-all hover:bg-[#e0b654]"
           >
             {section.buttonLabel || labels.button}

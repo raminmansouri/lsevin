@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { FavoriteButton } from "@/features/favorites/components/favorite-button";
 import type { HomeTrendingService } from "@/features/home/api/server/get-home-page";
 import { resolveHomeMediaUrl } from "@/features/home/components/home-media";
+import { entityPath } from "@/lib/routes/public-paths";
 
 import { DesktopTrendingChart, type TrendingItem } from "./DesktopTrendingChart";
 
@@ -12,7 +13,7 @@ export async function DesktopTrendingSection({ locale, services }: { locale: str
 
   const items: TrendingItem[] = services.map((service) => ({
     id: service.id,
-    href: `/n/app/mobile/service/${service.id}`,
+    href: entityPath("service", service),
     title: service.displayName,
     imageSrc: resolveHomeMediaUrl(service.imageUrl) ?? null,
     bookingCount: service.bookingCount,

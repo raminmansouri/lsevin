@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { buildPublicMetadata } from "@/lib/seo/metadata";
+import { INDEXABLE_SHOP_LOCALES } from "@/lib/seo/locale-eligibility";
 import {
   getShopBrandsCached,
   getShopCategoriesCached,
@@ -30,10 +31,11 @@ export async function generateMetadata({
 
   return buildPublicMetadata({
     locale,
-    path: `/n/app/mobile/shop/category/${encodeURIComponent(slug)}`,
+    path: `/shop/${encodeURIComponent(slug)}`,
     title: category?.name,
     descriptions: category ? [t("categoryMetaDescription", { count: category.productCount, name: category.name })] : [],
     image: category?.imageUrl,
+    eligibleLocales: INDEXABLE_SHOP_LOCALES,
   });
 }
 
@@ -59,7 +61,7 @@ export default async function ShopCategoryPage({
 
   return (
     <div className="min-h-screen bg-neutral-50">
-      <ShopHeader back="/n/app/mobile/shop" />
+      <ShopHeader back="/shop" />
       <ShopViewTracker categoryId={category.id} surface="category" />
       {category.bannerUrl ? (
         // eslint-disable-next-line @next/next/no-img-element
@@ -68,7 +70,7 @@ export default async function ShopCategoryPage({
       <Suspense fallback={null}>
         <ProductListViewClient
           locale={locale}
-          basePath={`/n/app/mobile/shop/category/${slug}`}
+          basePath={`/shop/${slug}`}
           fixed={{ category: slug }}
           heading={category.name}
           brands={brands}

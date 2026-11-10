@@ -9,7 +9,7 @@ import { Link, usePathname } from "@/i18n/navigation";
 
 import { Magnetic } from "./motion";
 
-const HOME = "/n/app/mobile/home";
+const HOME = "/";
 
 /** Desktop-only floating capsule header (>= 1280px), with a gold indicator that glides between links. */
 export function DesktopHeader({ actions }: { actions?: React.ReactNode }) {
@@ -23,8 +23,8 @@ export function DesktopHeader({ actions }: { actions?: React.ReactNode }) {
   // Same destinations as the mobile bottom tab bar; Profile is the gold button on the left.
   const nav = [
     { href: HOME, label: tTab("Home") },
-    { href: "/n/app/mobile/explore", label: tTab("Explore") },
-    { href: "/n/app/mobile/shop", label: tTab("Shop") },
+    { href: "/explore", label: tTab("Explore") },
+    { href: "/shop", label: tTab("Shop") },
     { href: "/n/app/mobile/bookings", label: tTab("Bookings") },
   ];
 

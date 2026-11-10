@@ -1,0 +1,343 @@
+{
+  "measuredAt": "2026-10-29T16:02:24.440Z",
+  "origin": "https://lsevincare.com",
+  "method": "curl GET; new connection per sample; DNS/TCP/TLS included; no redirects followed",
+  "routes": [
+    {
+      "path": "/fa/n/app/mobile/home",
+      "requests": 5,
+      "successful": 5,
+      "p50Ms": 680.8149999999999,
+      "p95Ms": 840.58,
+      "budgetMs": 30,
+      "pass": false,
+      "samples": [
+        {
+          "status": 200,
+          "ttfbMs": 840.58,
+          "dnsMs": 0.526,
+          "tcpMs": 1.498,
+          "tlsMs": 400.161,
+          "totalMs": 1297.549,
+          "curlExit": 0
+        },
+        {
+          "status": 200,
+          "ttfbMs": 680.8149999999999,
+          "dnsMs": 0.044,
+          "tcpMs": 0.9169999999999999,
+          "tlsMs": 300.833,
+          "totalMs": 1240.808,
+          "curlExit": 0
+        },
+        {
+          "status": 200,
+          "ttfbMs": 718.9879999999999,
+          "dnsMs": 0.04,
+          "tcpMs": 0.629,
+          "tlsMs": 331.866,
+          "totalMs": 1630.456,
+          "curlExit": 0
+        },
+        {
+          "status": 200,
+          "ttfbMs": 573.2040000000001,
+          "dnsMs": 0.048,
+          "tcpMs": 0.892,
+          "tlsMs": 345.933,
+          "totalMs": 1038.139,
+          "curlExit": 0
+        },
+        {
+          "status": 200,
+          "ttfbMs": 538.535,
+          "dnsMs": 0.041999999999999996,
+          "tcpMs": 0.632,
+          "tlsMs": 296.365,
+          "totalMs": 965.915,
+          "curlExit": 0
+        }
+      ]
+    },
+    {
+      "path": "/fa/n/app/mobile/categories",
+      "requests": 5,
+      "successful": 5,
+      "p50Ms": 769.295,
+      "p95Ms": 17099.522,
+      "budgetMs": 30,
+      "pass": false,
+      "samples": [
+        {
+          "status": 200,
+          "ttfbMs": 17099.522,
+          "dnsMs": 0.044,
+          "tcpMs": 0.637,
+          "tlsMs": 16386.021,
+          "totalMs": 17358.464,
+          "curlExit": 0
+        },
+        {
+          "status": 200,
+          "ttfbMs": 769.295,
+          "dnsMs": 0.047,
+          "tcpMs": 0.6449999999999999,
+          "tlsMs": 302.53200000000004,
+          "totalMs": 1049.815,
+          "curlExit": 0
+        },
+        {
+          "status": 200,
+          "ttfbMs": 728.121,
+          "dnsMs": 0.04,
+          "tcpMs": 0.903,
+          "tlsMs": 306.78499999999997,
+          "totalMs": 1052.242,
+          "curlExit": 0
+        },
+        {
+          "status": 200,
+          "ttfbMs": 629.455,
+          "dnsMs": 0.04,
+          "tcpMs": 0.656,
+          "tlsMs": 293.983,
+          "totalMs": 912.103,
+          "curlExit": 0
+        },
+        {
+          "status": 200,
+          "ttfbMs": 791.12,
+          "dnsMs": 0.039,
+          "tcpMs": 0.638,
+          "tlsMs": 293.07,
+          "totalMs": 1087.524,
+          "curlExit": 0
+        }
+      ]
+    },
+    {
+      "path": "/fa/n/app/mobile/explore",
+      "requests": 5,
+      "successful": 5,
+      "p50Ms": 692.631,
+      "p95Ms": 726.912,
+      "budgetMs": 30,
+      "pass": false,
+      "samples": [
+        {
+          "status": 200,
+          "ttfbMs": 723.605,
+          "dnsMs": 0.044,
+          "tcpMs": 0.665,
+          "tlsMs": 263.701,
+          "totalMs": 1185.25,
+          "curlExit": 0
+        },
+        {
+          "status": 200,
+          "ttfbMs": 726.912,
+          "dnsMs": 0.041,
+          "tcpMs": 0.71,
+          "tlsMs": 267.699,
+          "totalMs": 1046.006,
+          "curlExit": 0
+        },
+        {
+          "status": 200,
+          "ttfbMs": 576.726,
+          "dnsMs": 0.04,
+          "tcpMs": 0.615,
+          "tlsMs": 269.93899999999996,
+          "totalMs": 899.481,
+          "curlExit": 0
+        },
+        {
+          "status": 200,
+          "ttfbMs": 692.631,
+          "dnsMs": 0.088,
+          "tcpMs": 1.32,
+          "tlsMs": 292.391,
+          "totalMs": 1013.6510000000001,
+          "curlExit": 0
+        },
+        {
+          "status": 200,
+          "ttfbMs": 680.234,
+          "dnsMs": 0.047,
+          "tcpMs": 0.696,
+          "tlsMs": 262.90599999999995,
+          "totalMs": 1002.308,
+          "curlExit": 0
+        }
+      ]
+    },
+    {
+      "path": "/fa/n/app/mobile/search",
+      "requests": 5,
+      "successful": 5,
+      "p50Ms": 808.345,
+      "p95Ms": 2004.7259999999999,
+      "budgetMs": 30,
+      "pass": false,
+      "samples": [
+        {
+          "status": 200,
+          "ttfbMs": 2004.7259999999999,
+          "dnsMs": 0.061,
+          "tcpMs": 0.924,
+          "tlsMs": 328.656,
+          "totalMs": 2288.597,
+          "curlExit": 0
+        },
+        {
+          "status": 200,
+          "ttfbMs": 871.3629999999999,
+          "dnsMs": 0.04,
+          "tcpMs": 0.6539999999999999,
+          "tlsMs": 305.73,
+          "totalMs": 1151.2910000000002,
+          "curlExit": 0
+        },
+        {
+          "status": 200,
+          "ttfbMs": 612.3499999999999,
+          "dnsMs": 0.044,
+          "tcpMs": 0.623,
+          "tlsMs": 295.50300000000004,
+          "totalMs": 894.922,
+          "curlExit": 0
+        },
+        {
+          "status": 200,
+          "ttfbMs": 637.948,
+          "dnsMs": 0.039,
+          "tcpMs": 0.6849999999999999,
+          "tlsMs": 281.87800000000004,
+          "totalMs": 901.004,
+          "curlExit": 0
+        },
+        {
+          "status": 200,
+          "ttfbMs": 808.345,
+          "dnsMs": 0.044,
+          "tcpMs": 0.722,
+          "tlsMs": 378.306,
+          "totalMs": 1170.799,
+          "curlExit": 0
+        }
+      ]
+    },
+    {
+      "path": "/sitemap.xml",
+      "requests": 5,
+      "successful": 4,
+      "p50Ms": 1235.932,
+      "p95Ms": 1344.242,
+      "budgetMs": 30,
+      "pass": false,
+      "samples": [
+        {
+          "status": 200,
+          "ttfbMs": 1235.932,
+          "dnsMs": 0.04,
+          "tcpMs": 0.6629999999999999,
+          "tlsMs": 428.82300000000004,
+          "totalMs": 5021.3640000000005,
+          "curlExit": 0
+        },
+        {
+          "status": 200,
+          "ttfbMs": 1259.879,
+          "dnsMs": 0.041999999999999996,
+          "tcpMs": 0.696,
+          "tlsMs": 631.103,
+          "totalMs": 5322.174999999999,
+          "curlExit": 0
+        },
+        {
+          "status": 0,
+          "ttfbMs": 1313.498,
+          "dnsMs": 0.043000000000000003,
+          "tcpMs": 0.6719999999999999,
+          "tlsMs": 309.28299999999996,
+          "totalMs": 20002.086,
+          "curlExit": 28
+        },
+        {
+          "status": 200,
+          "ttfbMs": 1344.242,
+          "dnsMs": 0.04,
+          "tcpMs": 0.6719999999999999,
+          "tlsMs": 304.803,
+          "totalMs": 3345.462,
+          "curlExit": 0
+        },
+        {
+          "status": 200,
+          "ttfbMs": 1013.2460000000001,
+          "dnsMs": 0.048,
+          "tcpMs": 0.763,
+          "tlsMs": 286.105,
+          "totalMs": 3011.626,
+          "curlExit": 0
+        }
+      ]
+    },
+    {
+      "path": "/robots.txt",
+      "requests": 5,
+      "successful": 5,
+      "p50Ms": 450.59900000000005,
+      "p95Ms": 679.486,
+      "budgetMs": 30,
+      "pass": false,
+      "samples": [
+        {
+          "status": 200,
+          "ttfbMs": 650.624,
+          "dnsMs": 0.043000000000000003,
+          "tcpMs": 0.674,
+          "tlsMs": 283.57,
+          "totalMs": 650.695,
+          "curlExit": 0
+        },
+        {
+          "status": 200,
+          "ttfbMs": 446.85,
+          "dnsMs": 0.046,
+          "tcpMs": 0.675,
+          "tlsMs": 262.27299999999997,
+          "totalMs": 446.94,
+          "curlExit": 0
+        },
+        {
+          "status": 200,
+          "ttfbMs": 441.096,
+          "dnsMs": 0.053,
+          "tcpMs": 0.6809999999999999,
+          "tlsMs": 276.774,
+          "totalMs": 441.255,
+          "curlExit": 0
+        },
+        {
+          "status": 200,
+          "ttfbMs": 679.486,
+          "dnsMs": 0.047,
+          "tcpMs": 0.6539999999999999,
+          "tlsMs": 337.466,
+          "totalMs": 679.534,
+          "curlExit": 0
+        },
+        {
+          "status": 200,
+          "ttfbMs": 450.59900000000005,
+          "dnsMs": 0.052,
+          "tcpMs": 0.7240000000000001,
+          "tlsMs": 293.396,
+          "totalMs": 450.661,
+          "curlExit": 0
+        }
+      ]
+    }
+  ]
+}

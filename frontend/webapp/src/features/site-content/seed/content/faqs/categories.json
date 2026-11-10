@@ -1,0 +1,206 @@
+{
+  "scope": "categories",
+  "entityKey": null,
+  "sources": [
+    "src/features/service-providers/components/categories/category-browser-client.tsx: grouped category tree, ?parent= drill-down, breadcrumb path, 'All categories' reset, category/provider counts",
+    "src/features/service-providers/components/categories/category-browser-client.tsx: 'View all N providers in X' link when a parent has providers of its own",
+    "src/features/service-providers/components/categories/category-browser-client.tsx: search box filters across all categories including subcategories",
+    "src/features/categories/utils/category-href.ts: leaf category opens provider list (categoryProvidersHref); Tourism opens /tours",
+    "src/app/[locale]/n/app/mobile/categories/page.tsx: tourismCategoryId from tour settings opens the Tours sub-app",
+    "messages/en.json CategoryBrowser.cantFindTitle / cantFindDescription / searchNow: smart search over services, providers, packages and specialists"
+  ],
+  "items": [
+    {
+      "locales": {
+        "en-US": {
+          "q": "How are categories organised on LSevin?",
+          "a": "“All categories” shows every category in groups, with the total number of categories and providers at the top. Tap a category to open its subcategories, and use the path at the top or “All categories” to step back. If a parent category also has providers listed directly on it, a link to view all of them appears above the subcategories, so none are hidden."
+        },
+        "fa-IR": {
+          "q": "دسته‌بندی‌ها در السوین چگونه مرتب شده‌اند؟",
+          "a": "در «همه دسته‌ها» همهٔ دسته‌بندی‌ها به‌صورت گروه‌بندی‌شده نمایش داده می‌شوند و تعداد کل دسته‌ها و ارائه‌دهندگان بالای صفحه آمده است. با زدن روی هر دسته، زیردسته‌های آن باز می‌شود و با مسیر بالای صفحه یا «همه دسته‌ها» به عقب برمی‌گردید. اگر خود دستهٔ اصلی هم ارائه‌دهندگانی داشته باشد، پیوند مشاهدهٔ همهٔ آن‌ها بالای زیردسته‌ها نمایش داده می‌شود تا هیچ‌کدام از قلم نیفتد."
+        },
+        "ar-SA": {
+          "q": "كيف تُنظَّم الفئات في لسوين؟",
+          "a": "تعرض صفحة جميع الفئات كل الفئات ضمن مجموعات، مع العدد الإجمالي للفئات ومقدمي الخدمة في أعلى الصفحة. اضغط على أي فئة لفتح فئاتها الفرعية، واستخدم المسار في الأعلى أو رابط جميع الفئات للرجوع. وإذا كانت الفئة الرئيسية نفسها تضم مقدمي خدمة، يظهر فوق الفئات الفرعية رابط لعرضهم جميعًا حتى لا يغيب أي منهم."
+        },
+        "tr-TR": {
+          "q": "LSevin'de kategoriler nasıl düzenlenmiştir?",
+          "a": "“Tüm kategoriler” bölümü tüm kategorileri gruplar halinde gösterir; en üstte toplam kategori ve hizmet sağlayıcı sayısı yer alır. Alt kategorilerini açmak için bir kategoriye dokunun; geri dönmek için üstteki yolu veya “Tüm kategoriler” bağlantısını kullanın. Bir üst kategoride doğrudan listelenmiş sağlayıcılar da varsa alt kategorilerin üzerinde bunların tümünü görüntüleme bağlantısı çıkar; böylece hiçbiri gizli kalmaz."
+        },
+        "ku-KU": {
+          "q": "هاوپۆلەکان لە LSevin چۆن ڕێکخراون؟",
+          "a": "«هەموو هاوپۆلەکان» هەموو هاوپۆلێک بە گرووپ پیشان دەدات، و لە سەرەوە کۆی ژمارەی هاوپۆل و دابینکەرەکان دیارە. کرتە لەسەر هاوپۆلێک بکەن بۆ کردنەوەی ژێرهاوپۆلەکانی، و بۆ گەڕانەوە ڕێڕەوەکەی سەرەوە یان «هەموو هاوپۆلەکان» بەکاربهێنن. ئەگەر هاوپۆلێکی سەرەکی دابینکەری ڕاستەوخۆی لەسەر بێت، بەستەرێک بۆ بینینی هەموویان لە سەرووی ژێرهاوپۆلەکانەوە دەردەکەوێت، بۆ ئەوەی هیچیان شاراوە نەبن."
+        },
+        "ru-RU": {
+          "q": "Как устроены категории на LSevin?",
+          "a": "В разделе «Все категории» показаны все категории, сгруппированные по разделам, а вверху указано общее число категорий и поставщиков. Нажмите на категорию, чтобы открыть её подкатегории, а чтобы вернуться назад, используйте путь вверху страницы или ссылку «Все категории». Если в родительской категории есть и поставщики, привязанные непосредственно к ней, над подкатегориями появляется ссылка для просмотра всех таких поставщиков, поэтому никто из них не остаётся скрытым."
+        },
+        "tg-TJ": {
+          "q": "Категорияҳо дар LSevin чӣ тавр ташкил шудаанд?",
+          "a": "Дар «Ҳамаи категорияҳо» ҳамаи категорияҳо гурӯҳ-гурӯҳ нишон дода мешаванд ва дар боло шумораи умумии категорияҳо ва хидматрасонҳо навишта шудааст. Категорияро пахш кунед, то зеркатегорияҳои он кушода шаванд; барои баргаштан аз роҳнамои боло ё «Ҳамаи категорияҳо» истифода баред. Агар дар худи категорияи асосӣ низ хидматрасонҳо бошанд, болои зеркатегорияҳо пайванди дидани ҳамаи онҳо пайдо мешавад, то ҳеҷ кадоме пинҳон намонад."
+        },
+        "zh-CN": {
+          "q": "LSevin上的分类是如何组织的？",
+          "a": "“全部分类”会按组显示所有分类，页面顶部显示分类总数和服务商总数。点击某个分类即可打开其子分类，使用顶部的路径或“全部分类”可返回上一级。如果某个上级分类下也直接列有服务商，子分类上方会出现查看全部服务商的链接，确保不会遗漏。"
+        },
+        "de-DE": {
+          "q": "Wie sind die Kategorien auf LSevin aufgebaut?",
+          "a": "„Alle Kategorien“ zeigt jede Kategorie in Gruppen, oben mit der Gesamtzahl der Kategorien und Anbieter. Tippen Sie auf eine Kategorie, um ihre Unterkategorien zu öffnen, und gehen Sie über den Pfad oben oder über „Alle Kategorien“ wieder zurück. Sind einer übergeordneten Kategorie auch direkt Anbieter zugeordnet, erscheint über den Unterkategorien ein Link, mit dem Sie alle anzeigen können, sodass keiner verborgen bleibt."
+        },
+        "fr-FR": {
+          "q": "Comment les catégories sont-elles organisées sur LSevin ?",
+          "a": "« Toutes les catégories » présente l’ensemble des catégories par groupes, avec en haut le nombre total de catégories et de prestataires. Touchez une catégorie pour ouvrir ses sous-catégories, et utilisez le chemin affiché en haut ou « Toutes les catégories » pour revenir en arrière. Si une catégorie parente comporte aussi des prestataires rattachés directement à elle, un lien permettant de tous les afficher apparaît au-dessus des sous-catégories, afin qu’aucun ne soit masqué."
+        },
+        "es-ES": {
+          "q": "¿Cómo se organizan las categorías en LSevin?",
+          "a": "«Todas las categorías» muestra cada categoría agrupada, con el número total de categorías y proveedores en la parte superior. Toque una categoría para abrir sus subcategorías y use la ruta de la parte superior o «Todas las categorías» para volver atrás. Si una categoría principal también tiene proveedores asignados directamente, encima de las subcategorías aparece un enlace para verlos todos, de modo que ninguno queda oculto."
+        }
+      }
+    },
+    {
+      "locales": {
+        "en-US": {
+          "q": "How do I find a category quickly?",
+          "a": "Type in the “Search categories...” box at the top of the page. The search covers subcategories too, so you can type something specific, such as a type of dental treatment or accommodation, without opening each level in turn. Clear the box to get the full list back."
+        },
+        "fa-IR": {
+          "q": "چطور سریع یک دسته را پیدا کنم؟",
+          "a": "در کادر «جستجوی دسته‌ها...» بالای صفحه تایپ کنید. این جست‌وجو زیردسته‌ها را هم در بر می‌گیرد، پس می‌توانید چیزی دقیق، مثل نوعی درمان دندان یا نوعی اقامتگاه، را بدون باز کردن تک‌تک سطح‌ها پیدا کنید. با پاک کردن کادر، فهرست کامل دوباره نمایش داده می‌شود."
+        },
+        "ar-SA": {
+          "q": "كيف أجد فئة بسرعة؟",
+          "a": "اكتب في مربع البحث عن الفئات أعلى الصفحة. يشمل البحث الفئات الفرعية أيضًا، فيمكنك كتابة شيء محدد، مثل نوع من علاجات الأسنان أو نوع من أماكن الإقامة، دون فتح كل مستوى على حدة. امسح المربع لتعود القائمة الكاملة."
+        },
+        "tr-TR": {
+          "q": "Bir kategoriyi hızlıca nasıl bulurum?",
+          "a": "Sayfanın üstündeki “Kategorilerde ara...” kutusuna yazın. Arama alt kategorileri de kapsar; bu sayede her seviyeyi tek tek açmadan bir diş tedavisi türü veya konaklama türü gibi belirli bir şey yazabilirsiniz. Tam listeye geri dönmek için kutuyu temizleyin."
+        },
+        "ku-KU": {
+          "q": "چۆن بە خێرایی هاوپۆلێک بدۆزمەوە؟",
+          "a": "لە خانەی «گەڕان لە هاوپۆلەکان...» لە سەرەوەی پەڕەکەدا بنووسن. گەڕانەکە ژێرهاوپۆلەکانیش دەگرێتەوە، بۆیە دەتوانن شتێکی دیاریکراو بنووسن، وەک جۆرێک لە چارەسەری ددان یان شوێنی مانەوە، بەبێ ئەوەی یەک بە یەک هەموو ئاستەکان بکەنەوە. بۆ گەڕانەوەی لیستە تەواوەکە، خانەکە بەتاڵ بکەنەوە."
+        },
+        "ru-RU": {
+          "q": "Как быстро найти нужную категорию?",
+          "a": "Введите запрос в поле «Поиск категорий...» вверху страницы. Поиск охватывает и подкатегории, поэтому можно сразу ввести что-то конкретное, например вид стоматологического лечения или тип проживания, не открывая каждый уровень по очереди. Очистите поле, чтобы снова увидеть полный список."
+        },
+        "tg-TJ": {
+          "q": "Категорияро чӣ тавр зуд ёбам?",
+          "a": "Дар майдони «Ҷустуҷӯи категорияҳо...» дар болои саҳифа нависед. Ҷустуҷӯ зеркатегорияҳоро низ фаро мегирад, бинобар ин метавонед чизи мушаххас, масалан навъи табобати дандон ё ҷои истиқоматро нависед ва ҳар сатҳро як-як накушоед. Барои баргардонидани рӯйхати пурра майдонро тоза кунед."
+        },
+        "zh-CN": {
+          "q": "如何快速找到某个分类？",
+          "a": "在页面顶部的“搜索分类…”框中输入即可。搜索范围包括子分类，因此您可以直接输入具体内容，例如某类牙科治疗或住宿类型，无需逐级打开。清空搜索框即可恢复完整列表。"
+        },
+        "de-DE": {
+          "q": "Wie finde ich schnell eine Kategorie?",
+          "a": "Tippen Sie oben auf der Seite in das Feld „Kategorien durchsuchen...“. Die Suche umfasst auch Unterkategorien, sodass Sie etwas Konkretes eingeben können, etwa eine Art von Zahnbehandlung oder Unterkunft, ohne jede Ebene einzeln zu öffnen. Leeren Sie das Feld, um wieder die vollständige Liste zu sehen."
+        },
+        "fr-FR": {
+          "q": "Comment trouver rapidement une catégorie ?",
+          "a": "Saisissez votre recherche dans le champ « Rechercher des catégories... » en haut de la page. La recherche porte aussi sur les sous-catégories : vous pouvez donc taper un terme précis, comme un type de soin dentaire ou d’hébergement, sans ouvrir chaque niveau l’un après l’autre. Effacez le champ pour retrouver la liste complète."
+        },
+        "es-ES": {
+          "q": "¿Cómo encuentro una categoría rápidamente?",
+          "a": "Escriba en el cuadro «Buscar categorías...» de la parte superior de la página. La búsqueda incluye también las subcategorías, así que puede escribir algo concreto, como un tipo de tratamiento dental o de alojamiento, sin abrir cada nivel por separado. Vacíe el cuadro para volver a ver la lista completa."
+        }
+      }
+    },
+    {
+      "locales": {
+        "en-US": {
+          "q": "What happens when I open a category?",
+          "a": "If the category has subcategories, you see those next. If it has none, LSevin opens the list of providers in that category, where you can compare them and open each provider's page to see services and prices. Tourism works differently: it opens LSevin Tours, the separate section for day trips and multi-day tours."
+        },
+        "fa-IR": {
+          "q": "وقتی یک دسته را باز می‌کنم چه اتفاقی می‌افتد؟",
+          "a": "اگر دسته زیردسته داشته باشد، ابتدا زیردسته‌ها را می‌بینید. اگر زیردسته نداشته باشد، السوین فهرست ارائه‌دهندگان همان دسته را باز می‌کند تا آن‌ها را مقایسه کنید و با باز کردن صفحهٔ هر ارائه‌دهنده، خدمات و قیمت‌ها را ببینید. دستهٔ گردشگری متفاوت است و بخش تورهای السوین را باز می‌کند که مخصوص تورهای یک‌روزه و چندروزه است."
+        },
+        "ar-SA": {
+          "q": "ماذا يحدث عندما أفتح فئة؟",
+          "a": "إذا كانت للفئة فئات فرعية فستظهر لك أولًا. وإذا لم تكن لها فئات فرعية، تفتح لسوين قائمة مقدمي الخدمة في تلك الفئة لتقارن بينهم وتفتح صفحة كل منهم لمعرفة الخدمات والأسعار. أما فئة السياحة فتختلف، إذ تفتح قسم جولات لسوين المخصص للرحلات ليوم واحد والجولات لعدة أيام."
+        },
+        "tr-TR": {
+          "q": "Bir kategoriyi açtığımda ne olur?",
+          "a": "Kategorinin alt kategorileri varsa ardından bunları görürsünüz. Yoksa LSevin o kategorideki hizmet sağlayıcıların listesini açar; burada sağlayıcıları karşılaştırabilir, hizmetleri ve fiyatları görmek için her birinin sayfasını açabilirsiniz. Turizm farklı çalışır: Günübirlik ve çok günlü turlar için ayrı bir bölüm olan LSevin Turları'nı açar."
+        },
+        "ku-KU": {
+          "q": "کاتێک هاوپۆلێک دەکەمەوە چی ڕوو دەدات؟",
+          "a": "ئەگەر هاوپۆلەکە ژێرهاوپۆلی هەبێت، دواتر ئەوان دەبینن. ئەگەر نەیبێت، LSevin لیستی دابینکەرانی ئەو هاوپۆلە دەکاتەوە، کە دەتوانن بەراوردیان بکەن و پەڕەی هەر دابینکەرێک بکەنەوە بۆ بینینی خزمەت و نرخەکان. گەشتیاری بە شێوەیەکی تر کار دەکات: LSevin Tours دەکاتەوە، کە بەشێکی جیایە بۆ گەشتی یەک ڕۆژە و چەند ڕۆژە."
+        },
+        "ru-RU": {
+          "q": "Что происходит, когда я открываю категорию?",
+          "a": "Если у категории есть подкатегории, следующими Вы увидите их. Если подкатегорий нет, LSevin откроет список поставщиков этой категории: там их можно сравнить и открыть страницу каждого поставщика, чтобы посмотреть услуги и цены. Категория туризма работает иначе: она открывает LSevin Tours, отдельный раздел однодневных и многодневных туров."
+        },
+        "tg-TJ": {
+          "q": "Вақте ки категорияро мекушоям, чӣ мешавад?",
+          "a": "Агар категория зеркатегория дошта бошад, баъд онҳоро мебинед. Агар надошта бошад, LSevin рӯйхати хидматрасонҳои ҳамон категорияро мекушояд, ки дар он ҷо онҳоро муқоиса карда, саҳифаи ҳар яке хидматрасонро барои дидани хидматҳо ва нархҳо кушода метавонед. Сайёҳӣ дигар хел кор мекунад: он LSevin Tours, бахши алоҳида барои сафарҳои якрӯза ва турҳои чандрӯзаро мекушояд."
+        },
+        "zh-CN": {
+          "q": "打开一个分类后会显示什么？",
+          "a": "如果该分类有子分类，接下来会显示子分类。如果没有，LSevin会打开该分类下的服务商列表，您可以进行比较，并打开各服务商页面查看服务和价格。旅游分类的方式有所不同：它会打开LSevin Tours，这是专门提供一日游和多日游的独立板块。"
+        },
+        "de-DE": {
+          "q": "Was passiert, wenn ich eine Kategorie öffne?",
+          "a": "Hat die Kategorie Unterkategorien, sehen Sie als Nächstes diese. Hat sie keine, öffnet LSevin die Liste der Anbieter in dieser Kategorie. Dort können Sie die Anbieter vergleichen und die Seite jedes Anbieters öffnen, um Leistungen und Preise zu sehen. Tourismus funktioniert anders: Hier öffnet sich LSevin Tours, der eigene Bereich für Tagesausflüge und mehrtägige Touren."
+        },
+        "fr-FR": {
+          "q": "Que se passe-t-il lorsque j’ouvre une catégorie ?",
+          "a": "Si la catégorie comporte des sous-catégories, celles-ci s’affichent. Si elle n’en a pas, LSevin ouvre la liste des prestataires de cette catégorie, où vous pouvez les comparer et ouvrir la page de chacun pour consulter ses services et ses prix. Le tourisme fonctionne différemment : il ouvre LSevin Tours, la section distincte consacrée aux excursions à la journée et aux circuits de plusieurs jours."
+        },
+        "es-ES": {
+          "q": "¿Qué ocurre al abrir una categoría?",
+          "a": "Si la categoría tiene subcategorías, las verá a continuación. Si no tiene, LSevin abre la lista de proveedores de esa categoría, donde puede compararlos y abrir la página de cada uno para ver sus servicios y precios. Turismo funciona de otra manera: abre LSevin Tours, la sección independiente de excursiones de un día y tours de varios días."
+        }
+      }
+    },
+    {
+      "locales": {
+        "en-US": {
+          "q": "What if I can't find the right category?",
+          "a": "Tap “Search Now” under “Can't find what you're looking for?”. Smart search looks across services, providers, packages and specialists, so you can type a condition or treatment name directly. If you're unsure which treatment you need, send a free consultation request from any provider or service page and an LSevin advisor will call you back."
+        },
+        "fa-IR": {
+          "q": "اگر دستهٔ مناسب را پیدا نکردم چه کنم؟",
+          "a": "زیر «آنچه دنبالش هستید را پیدا نکردید؟» روی «جستجو کنید» بزنید. جست‌وجوی هوشمند در خدمات، ارائه‌دهندگان، پکیج‌ها و متخصصان می‌گردد، پس می‌توانید نام بیماری یا درمان را مستقیم وارد کنید. اگر مطمئن نیستید به چه درمانی نیاز دارید، از صفحهٔ هر ارائه‌دهنده یا خدمت درخواست مشاورهٔ رایگان بدهید تا کارشناس السوین با شما تماس بگیرد."
+        },
+        "ar-SA": {
+          "q": "ماذا أفعل إذا لم أجد الفئة المناسبة؟",
+          "a": "اضغط «ابحث الآن» أسفل عبارة «لم تجد ما تبحث عنه؟». يبحث البحث الذكي في الخدمات ومقدمي الخدمة والباقات والأخصائيين، فيمكنك كتابة اسم الحالة أو العلاج مباشرة. وإذا لم تكن متأكدًا من العلاج الذي تحتاجه، أرسل طلب استشارة مجانية من صفحة أي مقدم خدمة أو خدمة وسيتصل بك أحد مستشاري لسوين."
+        },
+        "tr-TR": {
+          "q": "Doğru kategoriyi bulamazsam ne yapmalıyım?",
+          "a": "“Aradığınızı bulamadınız mı?” başlığının altındaki “Şimdi Ara” düğmesine dokunun. Akıllı arama hizmetler, sağlayıcılar, paketler ve uzmanlar arasında arama yapar; böylece bir rahatsızlığın veya tedavinin adını doğrudan yazabilirsiniz. Hangi tedaviye ihtiyacınız olduğundan emin değilseniz herhangi bir sağlayıcı veya hizmet sayfasından ücretsiz danışmanlık talebi gönderin; bir LSevin danışmanı sizi geri arar."
+        },
+        "ku-KU": {
+          "q": "ئەگەر هاوپۆلی گونجاو نەدۆزمەوە چی بکەم؟",
+          "a": "لە ژێر «ئەوەی بەدوایدا دەگەڕێیت نایدۆزیتەوە؟» کرتە لەسەر «ئێستا بگەڕێ» بکەن. گەڕانی زیرەک لە خزمەت، دابینکەر، پاکێج و پسپۆڕاندا دەگەڕێت، بۆیە دەتوانن ڕاستەوخۆ ناوی نەخۆشییەک یان چارەسەرێک بنووسن. ئەگەر دڵنیا نین پێویستتان بە چ چارەسەرێکە، لە پەڕەی هەر دابینکەر یان خزمەتێکەوە داواکاریی ڕاوێژکاریی بەخۆڕایی بنێرن و ڕاوێژکارێکی LSevin پەیوەندیتان پێوە دەکاتەوە."
+        },
+        "ru-RU": {
+          "q": "Что делать, если я не могу найти подходящую категорию?",
+          "a": "Нажмите «Найти» под надписью «Не нашли то, что искали?». Умный поиск ищет по услугам, поставщикам, пакетам и специалистам, поэтому можно сразу ввести название заболевания или вида лечения. Если Вы не уверены, какое лечение Вам нужно, отправьте заявку на бесплатную консультацию со страницы любого поставщика или услуги, и консультант LSevin Вам перезвонит."
+        },
+        "tg-TJ": {
+          "q": "Агар категорияи лозимиро наёбам, чӣ кор кунам?",
+          "a": "Дар зери «Он чиро, ки меҷӯед, наёфтед?» тугмаи «Ҳозир ҷустуҷӯ кунед»-ро пахш кунед. Ҷустуҷӯи ҳушманд дар байни хидматҳо, хидматрасонҳо, бастаҳо ва мутахассисон ҷустуҷӯ мекунад, бинобар ин метавонед номи беморӣ ё табобатро бевосита нависед. Агар намедонед ба шумо кадом табобат лозим аст, аз саҳифаи ҳар хидматрасон ё хидмат дархости машварати ройгон фиристед ва мушовири LSevin ба шумо занг мезанад."
+        },
+        "zh-CN": {
+          "q": "找不到合适的分类怎么办？",
+          "a": "点击“没找到想要的？”下方的“立即搜索”。智能搜索会在服务、服务商、套餐和专家中查找，因此您可以直接输入病症或治疗名称。如果不确定需要哪种治疗，可以在任意服务商或服务页面提交免费咨询申请，LSevin顾问会给您回电。"
+        },
+        "de-DE": {
+          "q": "Was tue ich, wenn ich die passende Kategorie nicht finde?",
+          "a": "Tippen Sie unter „Nicht das Passende gefunden?“ auf „Jetzt suchen“. Die intelligente Suche durchsucht Leistungen, Anbieter, Pakete und Spezialisten, sodass Sie direkt eine Erkrankung oder den Namen einer Behandlung eingeben können. Wenn Sie nicht sicher sind, welche Behandlung Sie brauchen, senden Sie von einer beliebigen Anbieter- oder Leistungsseite eine Anfrage für eine kostenlose Beratung, und ein LSevin Berater ruft Sie zurück."
+        },
+        "fr-FR": {
+          "q": "Que faire si je ne trouve pas la bonne catégorie ?",
+          "a": "Touchez « Lancer la recherche » sous « Vous ne trouvez pas ce que vous cherchez ? ». La recherche intelligente couvre les services, les prestataires, les forfaits et les spécialistes : vous pouvez donc saisir directement le nom d’une pathologie ou d’un traitement. Si vous ne savez pas de quel traitement vous avez besoin, envoyez une demande de consultation gratuite depuis n’importe quelle page de prestataire ou de service, et un conseiller LSevin vous rappellera."
+        },
+        "es-ES": {
+          "q": "¿Qué hago si no encuentro la categoría adecuada?",
+          "a": "Toque «Buscar ahora», debajo de «¿No encuentras lo que buscas?». La búsqueda inteligente abarca servicios, proveedores, paquetes y especialistas, así que puede escribir directamente el nombre de una afección o de un tratamiento. Si no está seguro de qué tratamiento necesita, envíe una solicitud de consulta gratuita desde la página de cualquier proveedor o servicio y un asesor de LSevin le devolverá la llamada."
+        }
+      }
+    }
+  ]
+}

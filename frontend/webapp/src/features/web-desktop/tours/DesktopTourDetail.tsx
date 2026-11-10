@@ -203,9 +203,9 @@ export function DesktopTourDetail({
                 ) : null}
               </p>
             ) : null}
-            <h1 className="text-[44px] font-black leading-[1.2] text-[#0e1a16]">
+            <div role="heading" aria-level={1} className="text-[44px] font-black leading-[1.2] text-[#0e1a16]">
               <LocalizedText text={tx.title} badge={false} />
-            </h1>
+            </div>
             <div className="flex flex-wrap items-center gap-4 text-sm text-[#56675f]">
               <span className="rounded-full bg-[#e7f4ee] px-3 py-1 font-bold text-[#0f5a45]">{td.has(`tourTypes.${f.tourType}`) ? td(`tourTypes.${f.tourType}`) : f.tourType}</span>
               {detail.rating.count > 0 && detail.rating.avg != null ? (

@@ -25,6 +25,7 @@
     "test:watch": "vitest",
     "test:seo": "vitest run src/lib/seo",
     "test:seo:e2e": "playwright test --config playwright.seo.config.ts",
+    "seo:probe": "node scripts/seo-checklist-probe.mjs",
     "test:performance": "node --test tests/public-performance.test.mjs",
     "test:catalog-db": "node --test tests/catalog-performance.test.mjs",
     "benchmark:public": "node scripts/benchmark-public.mjs",

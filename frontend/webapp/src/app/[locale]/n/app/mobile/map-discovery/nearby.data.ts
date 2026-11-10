@@ -34,6 +34,8 @@ export type NearbyFiltersInput = {
 export type NearbyCategory = {
   image?: string;
   id: string;
+  /** Public URL segment (migration 0095); the "all" chip has none. */
+  slug?: string | null;
   label: string;
 };
 
@@ -46,6 +48,7 @@ export type NearbyCurrencyOption = {
 
 export type NearbyProvider = {
   id: string;
+  slug: string | null;
   name: string;
   image: string;
   rating: number;
@@ -508,6 +511,7 @@ export async function getNearbyPageData({
     with recursive ${categoryProviderCountsCte()}
     select distinct
       c.id::text as id,
+      c.slug,
       common.get_translation_t(c.name_translations, ${lang}, 'en') as label,
       coalesce(
         nullif(btrim(category_image_media.file_url), ''),
@@ -573,6 +577,7 @@ export async function getNearbyPageData({
     sql<any[]>`
     select
       sp.id::text as id,
+      sp.slug as slug,
       common.get_translation_t(sp.name_translations, ${lang}, 'en') as name,
       -- The provider's own featured image first. The first gallery item used to lead,
       -- so a provider that had set a picture still showed a gallery photo instead.
@@ -724,6 +729,7 @@ export async function getNearbyPageData({
 
     return {
       id: row.id,
+      slug: row.slug ?? null,
       name: row.name,
       image: coalesceImage(row.image),
       rating: Number(row.rating ?? 0),

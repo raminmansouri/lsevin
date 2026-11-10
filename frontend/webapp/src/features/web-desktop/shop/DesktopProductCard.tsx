@@ -1,4 +1,4 @@
-import { Star } from "lucide-react";
+import { Star, Store } from "lucide-react";
 
 import { shopImageSrc } from "@/features/shop/lib/image";
 import { ShopPrice } from "@/features/shop/components/ShopPrice";
@@ -27,7 +27,7 @@ export function DesktopProductCard({
   const dark = tone === "dark";
   return (
     <div className="group relative">
-      <Link href={`/n/app/mobile/shop/product/${product.slug}`} className="block">
+      <Link href={`/products/${product.slug}`} className="block">
         <div
           className={`relative aspect-square overflow-hidden rounded-[20px] ring-1 transition duration-500 group-hover:shadow-[0_22px_40px_-24px_rgba(0,0,0,0.7)] group-hover:ring-[#c9a55a] ${
             dark ? "bg-white/[0.04] ring-white/10" : "bg-gradient-to-b from-white to-[#efe6d2] ring-[#e7dcc4]"
@@ -74,6 +74,12 @@ export function DesktopProductCard({
               </>
             )}
           </div>
+          {(product.sellerCount ?? 1) > 1 ? (
+            <p className={`flex items-center gap-1 text-[11px] font-bold ${dark ? "text-[#eacb7f]" : "text-[#8c6b2c]"}`}>
+              <Store size={11} />
+              {labels.sellers(product.sellerCount!)}
+            </p>
+          ) : null}
           {product.rating > 0 ? (
             <p className={`flex items-center gap-1 text-[11px] ${dark ? "text-white/55" : "text-[#56675f]"}`}>
               <Star size={11} className="fill-[#c9a55a] text-[#c9a55a]" />

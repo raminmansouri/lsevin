@@ -1,5 +1,7 @@
 import "server-only";
 
+import { entityPath } from "@/lib/routes/public-paths";
+
 import { absoluteUrl } from "./alternates";
 import { seoOrigin } from "./origin";
 import { firstSeoPlainText } from "./plain-text";
@@ -60,9 +62,12 @@ export function businessTypeFor(...labels: (string | null | undefined)[]) {
   return "LocalBusiness";
 }
 
-export const providerUrl = (locale: string, id: string) => absoluteUrl(locale, `/n/app/mobile/provider/${id}`);
-export const serviceUrl = (locale: string, id: string) => absoluteUrl(locale, `/n/app/mobile/service/${id}`);
-export const specialistUrl = (locale: string, id: string) => absoluteUrl(locale, `/n/app/mobile/specialist/${id}`);
+/** An entity's public URL: by slug when the data has one, else by id (which redirects to the slug). */
+type EntityRef = { id: string; slug?: string | null };
+
+export const providerUrl = (locale: string, ref: EntityRef) => absoluteUrl(locale, entityPath("provider", ref));
+export const serviceUrl = (locale: string, ref: EntityRef) => absoluteUrl(locale, entityPath("service", ref));
+export const specialistUrl = (locale: string, ref: EntityRef) => absoluteUrl(locale, entityPath("specialist", ref));
 
 export function breadcrumbList(items: { name: string; url: string }[]): Node {
   return {
@@ -81,6 +86,7 @@ export function breadcrumbList(items: { name: string; url: string }[]): Node {
 export interface ProviderSchemaInput {
   locale: string;
   id: string;
+  url?: string;
   name: string;
   providerType?: string | null;
   description?: unknown;
@@ -92,12 +98,12 @@ export interface ProviderSchemaInput {
   latitude?: number | null;
   longitude?: number | null;
   languages?: string[] | null;
-  services?: { id: string; name: string }[];
-  specialists?: { id: string; name: string }[];
+  services?: { id: string; slug?: string | null; name: string }[];
+  specialists?: { id: string; slug?: string | null; name: string }[];
 }
 
 export function providerSchema(input: ProviderSchemaInput): Node {
-  const url = providerUrl(input.locale, input.id);
+  const url = input.url ?? providerUrl(input.locale, input);
   const hasGeo =
     typeof input.latitude === "number" &&
     typeof input.longitude === "number" &&
@@ -127,16 +133,16 @@ export function providerSchema(input: ProviderSchemaInput): Node {
       "@type": "Offer",
       itemOffered: {
         "@type": "Service",
-        "@id": `${serviceUrl(input.locale, service.id)}#service`,
+        "@id": `${serviceUrl(input.locale, service)}#service`,
         name: service.name,
-        url: serviceUrl(input.locale, service.id),
+        url: serviceUrl(input.locale, service),
       },
     })),
     employee: (input.specialists ?? []).slice(0, 20).map((person) => ({
       "@type": "Person",
-      "@id": `${specialistUrl(input.locale, person.id)}#person`,
+      "@id": `${specialistUrl(input.locale, person)}#person`,
       name: person.name,
-      url: specialistUrl(input.locale, person.id),
+      url: specialistUrl(input.locale, person),
     })),
   });
 }
@@ -144,18 +150,20 @@ export function providerSchema(input: ProviderSchemaInput): Node {
 export interface ServiceSchemaInput {
   locale: string;
   id: string;
+  url?: string;
   name: string;
   description?: unknown;
   category?: string | null;
   image?: string | null;
   providerId?: string | null;
+  providerSlug?: string | null;
   providerName?: string | null;
   city?: string | null;
   country?: string | null;
 }
 
 export function serviceSchema(input: ServiceSchemaInput): Node {
-  const url = serviceUrl(input.locale, input.id);
+  const url = input.url ?? serviceUrl(input.locale, input);
   return compact({
     "@type": "Service",
     "@id": `${url}#service`,
@@ -168,9 +176,9 @@ export function serviceSchema(input: ServiceSchemaInput): Node {
       input.providerId && input.providerName
         ? {
             "@type": "LocalBusiness",
-            "@id": `${providerUrl(input.locale, input.providerId)}#business`,
+            "@id": `${providerUrl(input.locale, { id: input.providerId, slug: input.providerSlug })}#business`,
             name: input.providerName,
-            url: providerUrl(input.locale, input.providerId),
+            url: providerUrl(input.locale, { id: input.providerId, slug: input.providerSlug }),
           }
         : undefined,
     areaServed: input.city || input.country ? compact({ "@type": "Place", name: [input.city, input.country].filter(Boolean).join(", ") }) : undefined,
@@ -180,16 +188,17 @@ export function serviceSchema(input: ServiceSchemaInput): Node {
 export interface PersonSchemaInput {
   locale: string;
   id: string;
+  url?: string;
   name: string;
   jobTitle?: string | null;
   description?: unknown;
   image?: string | null;
   specialties?: string[];
-  providers?: { id: string; name: string }[];
+  providers?: { id: string; slug?: string | null; name: string }[];
 }
 
 export function personSchema(input: PersonSchemaInput): Node {
-  const url = specialistUrl(input.locale, input.id);
+  const url = input.url ?? specialistUrl(input.locale, input);
   return compact({
     "@type": "Person",
     "@id": `${url}#person`,
@@ -201,9 +210,9 @@ export function personSchema(input: PersonSchemaInput): Node {
     knowsAbout: input.specialties?.filter(Boolean),
     worksFor: (input.providers ?? []).map((provider) => ({
       "@type": "LocalBusiness",
-      "@id": `${providerUrl(input.locale, provider.id)}#business`,
+      "@id": `${providerUrl(input.locale, provider)}#business`,
       name: provider.name,
-      url: providerUrl(input.locale, provider.id),
+      url: providerUrl(input.locale, provider),
     })),
   });
 }

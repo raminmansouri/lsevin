@@ -18,7 +18,7 @@
  * the same way `next dev` resolves it. Nothing here is ever run automatically —
  * deploys do not call it; a human does.
  */
-import { createHash } from "node:crypto";
+import { migrationChecksum } from "./migration-checksum.mjs";
 import fs from "node:fs";
 import { createRequire } from "node:module";
 import path from "node:path";
@@ -67,7 +67,7 @@ function loadMigrations() {
       return {
         name,
         sqlText,
-        checksum: createHash("sha256").update(sqlText).digest("hex"),
+        checksum: migrationChecksum(sqlText),
         // CREATE INDEX CONCURRENTLY and a few other statements cannot run inside a
         // transaction block. Such a file opts out with this header directive and
         // takes responsibility for its own atomicity.
@@ -85,6 +85,16 @@ async function ensureRegistry(sql) {
       duration_ms integer     not null
     )
   `;
+}
+
+// Both sites insert and SymmetricDS copies rows both ways, so each site keeps its
+// auto-numbers in its own range (0088_align_sequences_per_site.sql). Runs on every
+// deploy: tables added since, or rows replicated ahead of a sequence, are fixed here.
+async function alignSequences(sql) {
+  const [{ fn }] = await sql`select to_regprocedure('public.lsevin_align_sequences()') is not null as fn`;
+  if (!fn) return;
+  const [{ changed }] = await sql`select public.lsevin_align_sequences() as changed`;
+  console.log(`sequences aligned for this site: ${changed} moved`);
 }
 
 async function main() {
@@ -160,6 +170,7 @@ async function main() {
 
     if (!pending.length) {
       console.log(`Up to date — ${migrations.length} migration(s) already applied.`);
+      if (!isDryRun) await alignSequences(sql);
       return;
     }
 
@@ -199,6 +210,8 @@ async function main() {
 
         console.log(`  done in ${Date.now() - startedAt}ms`);
       }
+
+      await alignSequences(sql);
     } finally {
       await sql`select pg_advisory_unlock(${ADVISORY_LOCK_ID})`;
     }

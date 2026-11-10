@@ -66,13 +66,15 @@ spec:
           image: lsevin-webapp
           ports: [{name: http, containerPort: 3000}]
           envFrom: [{configMapRef: {name: platform-config}}, {secretRef: {name: webapp-secrets}}]
-          env: [{name: HOSTNAME, value: 0.0.0.0}, {name: PORT, value: "3000"}]
+          # The Node heap is set explicitly: with the 1Gi limit its default old-space cap was ~512 MB and the pod died with
+          # "JavaScript heap out of memory" (exit 139) every ~25 minutes on server B, which served Bad Gateway while it restarted (2026-11-02)
+          env: [{name: HOSTNAME, value: 0.0.0.0}, {name: PORT, value: "3000"}, {name: NODE_OPTIONS, value: "--max-old-space-size=1536"}]
           startupProbe: {httpGet: {path: /sw.js, port: http}, periodSeconds: 5, failureThreshold: 30}
           readinessProbe: {httpGet: {path: /sw.js, port: http}, periodSeconds: 10}
           livenessProbe: {httpGet: {path: /sw.js, port: http}, periodSeconds: 20}
           # 2 CPUs: with 1 the container was throttled in ~7-10 % of scheduling periods (Next.js image optimizer + SSR), which showed up
           # as slow pages and failing health probes on both servers (checked 2026-10-14)
-          resources: {requests: {cpu: 400m, memory: 384Mi}, limits: {cpu: "2", memory: 1Gi}}
+          resources: {requests: {cpu: 400m, memory: 512Mi}, limits: {cpu: "2", memory: 2Gi}}
 ---
 apiVersion: v1
 kind: Service

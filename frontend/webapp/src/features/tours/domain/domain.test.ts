@@ -309,3 +309,28 @@ describe("live tracking and weather (AT-05, AT-19, AT-20)", () => {
     expect(weatherFreshness("2026-10-24T07:45:00Z", now, 30)).toBe("fresh");
   });
 });
+
+describe("media references (2026-11-03 regression: picked images stored with one site's host)", () => {
+  it("accepts https URLs, site-root paths and media-library paths", async () => {
+    const { isMediaRef } = await import("./media");
+    expect(isMediaRef("https://cdn.example.com/a.jpg")).toBe(true);
+    expect(isMediaRef("/images/tours/kish-beach.webp")).toBe(true);
+    expect(isMediaRef("Categories/services/01a1a191-ce0a-1504-926e-34eb52cfce08.webp")).toBe(true);
+  });
+  it("rejects scheme tricks, traversal, protocol-relative and markup", async () => {
+    const { isMediaRef } = await import("./media");
+    for (const bad of ["", "javascript:alert(1)", "data:image/png;base64,AAAA", "../etc/passwd", "a/../../b.jpg", "//evil.example/x.jpg",
+      "/a/../b.jpg", "a//b.jpg", "x\"onerror=1.jpg", "<svg>", "http://insecure.example/a.jpg"]) {
+      expect(isMediaRef(bad), bad).toBe(false);
+    }
+  });
+  it("maps a stored files-host URL back to the library path, and leaves other values alone", async () => {
+    const { toLibraryPath } = await import("./media");
+    const path = "Categories/services/01a1a191-ce0a-1504-926e-34eb52cfce08.webp";
+    expect(toLibraryPath(`https://lsevin.ir/files/${path}`, "https://appmain.lsevin.com/files")).toBe(path);
+    expect(toLibraryPath(`https://appmain.lsevin.com/files/${path}`, "https://appmain.lsevin.com/files/")).toBe(path);
+    expect(toLibraryPath(path, "https://appmain.lsevin.com/files")).toBe(path);
+    expect(toLibraryPath("/images/tours/kish-beach.webp", null)).toBe("/images/tours/kish-beach.webp");
+    expect(toLibraryPath("https://cdn.example.com/a.jpg", null)).toBe("https://cdn.example.com/a.jpg");
+  });
+});

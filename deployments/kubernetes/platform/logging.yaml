@@ -71,6 +71,11 @@ data:
         # app.kubernetes.io/name). Elasticsearch 9 expands dotted keys into
         # objects, which conflicts with plain labels such as `app`.
         Replace_Dots        On
+        # The default 512 KB response buffer is smaller than Elasticsearch's answer to a large bulk request (~545 KB).
+        # Fluent Bit then logs "could not pack/validate JSON response", treats the batch as failed although Elasticsearch
+        # stored it ("errors":false), and with Retry_Limit False resends it forever: on 2026-11-02 that produced a 20 GB
+        # kubernetes-logs index (8x the normal document count), a 2.9 GB disk buffer and a full disk on server B.
+        Buffer_Size         10MB
         Retry_Limit         False
   parsers.conf: |
     [PARSER]

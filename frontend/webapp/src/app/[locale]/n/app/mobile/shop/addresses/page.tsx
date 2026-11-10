@@ -15,7 +15,7 @@ export default async function ShopAddressesPage({ params }: { params: Promise<{ 
   const t = await getTranslations("Shop");
 
   const ctx = await getShopContext();
-  if (!ctx.customerId) redirect(`/${locale}/n/app/mobile/shop`);
+  if (!ctx.customerId) redirect(`/${locale}/shop`);
 
   const [addresses, cart] = await Promise.all([listCustomerAddresses(), getCartView()]);
 

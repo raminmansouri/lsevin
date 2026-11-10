@@ -5,6 +5,7 @@ import { resolveHomeMediaUrl } from "@/features/home/components/home-media";
 import { SafePriceText } from "@/features/home/components/safe-price-text";
 import type { SpecialPackagePublicItem } from "@/features/special-packages/server/repository";
 import { Link } from "@/i18n/navigation";
+import { entityPath } from "@/lib/routes/public-paths";
 
 import { Reveal } from "../components/motion";
 
@@ -13,7 +14,7 @@ const savedPercent = (pkg: SpecialPackagePublicItem) =>
     ? Math.round((1 - pkg.priceAmount / pkg.originalPriceAmount) * 100)
     : 0;
 const checkoutHref = (pkg: SpecialPackagePublicItem) => (pkg.providerServiceId ? `/n/app/mobile/packages/${pkg.id}/checkout` : null);
-const detailHref = (pkg: SpecialPackagePublicItem) => `/n/app/mobile/packages/${pkg.id}`;
+const detailHref = (pkg: SpecialPackagePublicItem) => entityPath("package", pkg);
 
 function SaveChip({ percent, locale }: { percent: number; locale: string }) {
   if (percent <= 0) return null;
@@ -118,7 +119,7 @@ export async function DesktopPackagesList({
       <section className="lsd-container flex items-end justify-between gap-10 pt-14">
         <Reveal className="space-y-3">
           <span className="text-[10px] font-bold tracking-[0.5em] text-[#eacb7f]">THE COLLECTION</span>
-          <h1 className="text-[40px] font-black leading-tight text-white">{t("packagesPage.title")}</h1>
+          <div role="heading" aria-level={1} className="text-[40px] font-black leading-tight text-white">{t("packagesPage.title")}</div>
           <p className="max-w-md text-base leading-7 text-white/60">{t("packagesPage.subtitle")}</p>
         </Reveal>
         {packages.length ? (
@@ -182,12 +183,12 @@ export async function DesktopPackageDetail({ pkg, locale }: { pkg: SpecialPackag
         </div>
 
         <Reveal className="flex flex-col justify-center gap-6">
-          <Link href="/n/app/mobile/packages" className="inline-flex w-fit items-center gap-2 text-sm text-white/55 transition hover:text-[#eacb7f]">
+          <Link href="/packages" className="inline-flex w-fit items-center gap-2 text-sm text-white/55 transition hover:text-[#eacb7f]">
             {t("packagesPage.title")}
             <ChevronLeft size={14} className="ltr:rotate-180" />
           </Link>
           <span className="text-[10px] font-bold tracking-[0.5em] text-[#eacb7f]">L SEVIN PACKAGE</span>
-          <h1 className="text-[40px] font-black leading-[1.2] text-white">{pkg.title}</h1>
+          <div role="heading" aria-level={1} className="text-[40px] font-black leading-[1.2] text-white">{pkg.title}</div>
           {pkg.subtitle ? <p className="text-base leading-8 text-white/65">{pkg.subtitle}</p> : null}
           <div className="lsd-hairline" />
           <Prices pkg={pkg} locale={locale} large />
@@ -200,7 +201,7 @@ export async function DesktopPackageDetail({ pkg, locale }: { pkg: SpecialPackag
               <span className="rounded-full bg-white/10 px-8 py-3.5 font-bold text-white/50">به‌زودی</span>
             )}
             <Link
-              href="/n/app/mobile/packages"
+              href="/packages"
               aria-label={t("packagesPage.backAria")}
               className="grid h-12 w-12 place-items-center rounded-full ring-1 ring-white/15 transition hover:ring-[#eacb7f]/60"
             >

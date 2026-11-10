@@ -289,7 +289,7 @@ export function SponseredSliderAdminForm({ slider }: { slider?: SponseredSliderA
                   <FormItem>
                     <FormLabel>{tAdmin("mainCTALink")}</FormLabel>
                     <FormControl>
-                      <Input {...field} value={field.value || ""} disabled={isPending} placeholder="/n/app/mobile/offers" />
+                      <Input {...field} value={field.value || ""} disabled={isPending} placeholder="/offers" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

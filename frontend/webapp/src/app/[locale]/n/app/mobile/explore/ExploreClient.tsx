@@ -1,6 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
+import { entityPath, toPublicPath } from "@/lib/routes/public-paths";
+import { directoryHref, mapHref, setListingParams, slugLookup, type ListingSlugs } from "@/lib/routes/filter-paths";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
@@ -71,20 +73,21 @@ type OptimisticUiFilters = {
 };
 
 const MOBILE_BASE_PATH = "/n/app/mobile";
-const EXPLORE_PATH = `${MOBILE_BASE_PATH}/explore`;
+const EXPLORE_PATH = "/explore";
 
 export function buildMobilePath(path: string) {
-  return `${MOBILE_BASE_PATH}${path.startsWith("/") ? path : `/${path}`}`;
+  return toPublicPath(`${MOBILE_BASE_PATH}${path.startsWith("/") ? path : `/${path}`}`);
 }
 
-function buildFilteredMobilePath(path: string, next: ExploreFiltersInput) {
+/**
+ * The URL for these filters. The category and the provider type are written as
+ * slugs and a provider type is its own page (src/lib/routes/filter-paths.ts):
+ * no listing link carries a database id.
+ */
+function filterParams(next: ExploreFiltersInput) {
   const params = new URLSearchParams();
 
   if (next.q) params.set("q", next.q);
-  if (next.categoryId && next.categoryId !== "all") params.set("categoryId", next.categoryId);
-  if (next.providerTypeId && next.providerTypeId !== "all") {
-    params.set("providerTypeId", next.providerTypeId);
-  }
   if (next.countryCode) params.set("country", next.countryCode);
   if (next.cityCode) params.set("city", next.cityCode);
   if (next.minPrice > 0) params.set("minPrice", String(next.minPrice));
@@ -95,22 +98,25 @@ function buildFilteredMobilePath(path: string, next: ExploreFiltersInput) {
   if (next.languages.length > 0) params.set("languages", next.languages.join(","));
   if (next.responseTime !== "any") params.set("responseTime", next.responseTime);
   if (next.sort && next.sort !== "recommended") params.set("sort", next.sort);
+  return params;
+}
 
+function withQuery(path: string, params: URLSearchParams) {
   const query = params.toString();
-  const normalizedPath = path.startsWith("/") ? path : `/${path}`;
-  return query ? `${MOBILE_BASE_PATH}${normalizedPath}?${query}` : `${MOBILE_BASE_PATH}${normalizedPath}`;
+  return query ? `${path}?${query}` : path;
 }
 
-export function buildExploreQuery(next: ExploreFiltersInput) {
-  return buildFilteredMobilePath("/explore", next);
+/** The provider directory: /explore or /specialties/<slug>, with ?category=<slug>. */
+export function buildExploreQuery(slugs: ListingSlugs, next: ExploreFiltersInput) {
+  return directoryHref(next, slugs, filterParams(next));
 }
 
-export function buildMapDiscoveryQuery(next: ExploreFiltersInput) {
-  return buildFilteredMobilePath("/map-discovery", next);
+export function buildMapDiscoveryQuery(slugs: ListingSlugs, next: ExploreFiltersInput) {
+  return mapHref(next, slugs, filterParams(next));
 }
 
-export function buildSearchQuery(next: ExploreFiltersInput) {
-  return buildFilteredMobilePath("/search", next);
+export function buildSearchQuery(slugs: ListingSlugs, next: ExploreFiltersInput) {
+  return buildMobilePath(withQuery("/search", setListingParams(filterParams(next), next, slugs)));
 }
 
 // Intl.NumberFormat({style:"currency"}) throws for currency codes this app
@@ -118,9 +124,15 @@ export function buildSearchQuery(next: ExploreFiltersInput) {
 // catch-fallback here silently mislabeled those amounts with a "$" sign.
 // formatMoney is the finance module's canonical formatter and handles every
 // currency code in use without that crash.
-export function formatPrice(value: number | null, currency: string = "USD") {
+export function formatPrice(value: number | null, currency: string = "USD", locale = "en") {
   if (value == null) return null;
-  return formatMoney({ amount: value, currencyCode: currency }, { locale: "en-US" });
+  return formatMoney({ amount: value, currencyCode: currency }, { locale: locale === "fa" ? "fa-IR" : locale });
+}
+
+function formatNumericText(value: string, locale: string): string {
+  return value.replace(/\d+/g, (digits) =>
+    [...digits].map((digit) => Number(digit).toLocaleString(locale)).join(""),
+  );
 }
 
 
@@ -162,6 +174,11 @@ function MaybeLexicalText({
   }
 
   return <p className={className}>{value}</p>;
+}
+
+/** A click the page handles itself; modified clicks (new tab, ...) follow the link. */
+function isPlainClick(event: React.MouseEvent) {
+  return event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey;
 }
 
 export function navigateSmooth(
@@ -282,6 +299,10 @@ export default function ExploreClient({
   filters: ExploreFiltersInput;
 }) {
   const router = useRouter();
+  const slugs = useMemo<ListingSlugs>(
+    () => ({ category: slugLookup(categories), type: slugLookup(providerTypes) }),
+    [categories, providerTypes],
+  );
   const t = useTranslations("Explore");
   const tMap = useTranslations("MapDiscovery");
   const tBooking = useTranslations("Booking");
@@ -408,20 +429,12 @@ export default function ExploreClient({
     Boolean(activeUiFilters.currencyCode) ||
     activeUiFilters.maxPrice !== 5000;
 
-  const applyCategory = (categoryId: string) => {
-    const nextCategoryId = categoryId === "all" ? "all" : categoryId;
-
-    setUiFilters((prev) => ({
-      ...prev,
-      categoryId: nextCategoryId,
-    }));
-
-    navigateSmooth(
-      startTransition,
-      router,
-      buildExploreQuery({
+  // Where a category chip or a provider-type card leads. They are real links
+  // (crawlable, open in a new tab); a plain click filters in place instead.
+  const categoryTarget = (categoryId: string) =>
+    buildExploreQuery(slugs, {
         ...initialFilters,
-        categoryId: nextCategoryId === "all" ? null : nextCategoryId,
+        categoryId: categoryId === "all" ? null : categoryId,
         providerTypeId:
           activeUiFilters.providerTypeId === "all" ? null : activeUiFilters.providerTypeId,
         countryCode: activeUiFilters.countryCode,
@@ -433,7 +446,35 @@ export default function ExploreClient({
         verifiedOnly: activeUiFilters.verifiedOnly,
         languages: activeUiFilters.languages,
         responseTime: activeUiFilters.responseTime,
-      }),
+      });
+  const providerTypeTarget = (providerTypeId: string) =>
+    buildExploreQuery(slugs, {
+        ...initialFilters,
+        categoryId: activeUiFilters.categoryId === "all" ? null : activeUiFilters.categoryId,
+        providerTypeId: providerTypeId === "all" ? null : providerTypeId,
+        countryCode: activeUiFilters.countryCode,
+        cityCode: activeUiFilters.cityCode,
+        minPrice: 0,
+        maxPrice: activeUiFilters.maxPrice,
+        currencyCode: activeUiFilters.currencyCode,
+        minRating: activeUiFilters.minRating,
+        verifiedOnly: activeUiFilters.verifiedOnly,
+        languages: activeUiFilters.languages,
+        responseTime: activeUiFilters.responseTime,
+      });
+
+  const applyCategory = (categoryId: string) => {
+    const nextCategoryId = categoryId === "all" ? "all" : categoryId;
+
+    setUiFilters((prev) => ({
+      ...prev,
+      categoryId: nextCategoryId,
+    }));
+
+    navigateSmooth(
+      startTransition,
+      router,
+      categoryTarget(nextCategoryId),
     );
   };
 
@@ -448,20 +489,7 @@ export default function ExploreClient({
     navigateSmooth(
       startTransition,
       router,
-      buildExploreQuery({
-        ...initialFilters,
-        categoryId: activeUiFilters.categoryId === "all" ? null : activeUiFilters.categoryId,
-        providerTypeId: nextProviderTypeId === "all" ? null : nextProviderTypeId,
-        countryCode: activeUiFilters.countryCode,
-        cityCode: activeUiFilters.cityCode,
-        minPrice: 0,
-        maxPrice: activeUiFilters.maxPrice,
-        currencyCode: activeUiFilters.currencyCode,
-        minRating: activeUiFilters.minRating,
-        verifiedOnly: activeUiFilters.verifiedOnly,
-        languages: activeUiFilters.languages,
-        responseTime: activeUiFilters.responseTime,
-      }),
+      providerTypeTarget(nextProviderTypeId),
     );
   };
 
@@ -485,7 +513,7 @@ export default function ExploreClient({
     navigateSmooth(
       startTransition,
       router,
-      buildExploreQuery({
+      buildExploreQuery(slugs, {
         ...initialFilters,
         categoryId: nextUiFilters.categoryId === "all" ? null : nextUiFilters.categoryId,
         providerTypeId:
@@ -533,7 +561,7 @@ export default function ExploreClient({
     navigateSmooth(
       startTransition,
       router,
-      buildExploreQuery({
+      buildExploreQuery(slugs, {
         ...initialFilters,
         categoryId: cleared.categoryId === "all" ? null : cleared.categoryId,
         providerTypeId: cleared.providerTypeId === "all" ? null : cleared.providerTypeId,
@@ -575,7 +603,7 @@ export default function ExploreClient({
     : providerTypes.slice(0, 4);
 
   return (
-    <div className="relative min-h-screen bg-white pb-24">
+    <div className="relative min-h-screen bg-white pb-24" data-latin-digits>
       {isPending && <ExplorePendingOverlay />}
 
       <div className="bg-white px-5 pt-3 pb-4 border-b border-gray-100 sticky top-0 z-40 backdrop-blur-xl bg-white/95">
@@ -587,7 +615,7 @@ export default function ExploreClient({
 
           <button
             type="button"
-            onClick={() => router.push(buildMapDiscoveryQuery(currentFilters))}
+            onClick={() => router.push(buildMapDiscoveryQuery(slugs, currentFilters))}
             aria-label={tMap("title")}
             className="w-11 h-11 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200 transition-colors"
           >
@@ -597,7 +625,7 @@ export default function ExploreClient({
 
         <div className="flex gap-2">
           <button
-            onClick={() => router.push(buildSearchQuery(currentFilters))}
+            onClick={() => router.push(buildSearchQuery(slugs, currentFilters))}
             className="flex-1 h-12 bg-gray-50 rounded-xl px-4 flex items-center gap-3 border border-gray-100 hover:border-[#083f30] transition-colors"
           >
             <Search size={20} className="text-gray-400" />
@@ -619,17 +647,24 @@ export default function ExploreClient({
 
         <div className="flex gap-2 overflow-x-auto hide-scrollbar mt-3 pb-1 -mx-5 px-5">
           {categories.map((cat) => (
-            <button
+            <a
               key={`category-${cat.id}`}
-              onClick={() => applyCategory(cat.id)}
+              href={`/${locale}${categoryTarget(cat.id)}`}
+              onClick={(event) => {
+                if (isPlainClick(event)) {
+                  event.preventDefault();
+                  applyCategory(cat.id);
+                }
+              }}
+              aria-current={activeUiFilters.categoryId === cat.id ? "page" : undefined}
               className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all ${
                 activeUiFilters.categoryId === cat.id
                   ? "bg-[#083f30] text-white"
                   : "bg-gray-100 text-gray-700 hover:bg-gray-200"
               }`}
             >
-              {cat.label} <span className="opacity-70">({cat.count})</span>
-            </button>
+              {cat.label} <span className="opacity-70">({cat.count.toLocaleString(locale)})</span>
+            </a>
           ))}
         </div>
       </div>
@@ -642,7 +677,7 @@ export default function ExploreClient({
               <h2 className="text-xl font-bold text-gray-900">{t("featured.title")}</h2>
             </div>
             <button
-              onClick={() => router.push(buildMapDiscoveryQuery(currentFilters))}
+              onClick={() => router.push(buildMapDiscoveryQuery(slugs, currentFilters))}
               className="text-sm font-semibold text-[#083f30] hover:underline flex items-center gap-1"
             >
               {t("actions.viewAll")}
@@ -662,7 +697,7 @@ export default function ExploreClient({
             return (
             <div
               key={`featured-provider-${provider.id}`}
-              onClick={() => router.push(buildMobilePath(`/provider/${provider.id}`))}
+              onClick={() => router.push(entityPath("provider", provider))}
               className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-lg transition-all cursor-pointer"
             >
               
@@ -702,13 +737,13 @@ export default function ExploreClient({
                   <div className="flex items-center gap-2 mb-2">
                     <div className="flex items-center gap-1">
                       <Star size={14} className="fill-yellow-400 text-yellow-400" />
-                      <span className="font-bold text-sm text-gray-900">{provider.rating}</span>
-                      <span className="text-xs text-gray-500">({provider.reviews.toLocaleString()})</span>
+                      <span className="font-bold text-sm text-gray-900">{provider.rating.toLocaleString(locale)}</span>
+                      <span className="text-xs text-gray-500">({provider.reviews.toLocaleString(locale)})</span>
                     </div>
                     <span className="text-gray-300">•</span>
                     <div className="flex items-center gap-1">
                       <Users size={14} className="text-gray-400" />
-                      <span className="text-xs text-gray-600">{provider.bookings}</span>
+                      <span className="text-xs text-gray-600">{formatNumericText(provider.bookings, locale)}</span>
                     </div>
                   </div>
 
@@ -770,14 +805,14 @@ export default function ExploreClient({
               />
               <div className="flex items-center gap-3">
                 <button
-                  onClick={() => router.push(buildMobilePath(`/provider/${sponsoredProviders[0].id}`))}
+                  onClick={() => router.push(entityPath("provider", sponsoredProviders[0]))}
                   className="bg-white text-purple-900 px-6 py-3 rounded-xl font-bold text-sm hover:bg-gray-100 transition-all shadow-lg"
                 >
                   {t("actions.learnMore")}
                 </button>
                 {sponsoredProviders[0].price != null && (
                   <span className="text-2xl font-bold text-white">
-                    {formatPrice(sponsoredProviders[0].price, sponsoredProviders[0].currency)}
+                    {formatPrice(sponsoredProviders[0].price, sponsoredProviders[0].currency, locale)}
                   </span>
                 )}
               </div>
@@ -807,7 +842,7 @@ export default function ExploreClient({
             return (
             <div
               key={`trending-service-${service.id}`}
-              onClick={() => router.push(buildMobilePath(`/service/${service.id}`))}
+              onClick={() => router.push(entityPath("service", service))}
               className="flex-none w-64 bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all cursor-pointer border border-gray-100"
             >
               
@@ -855,15 +890,15 @@ export default function ExploreClient({
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1">
                     <Star size={14} className="fill-yellow-400 text-yellow-400" />
-                    <span className="font-bold text-sm">{service.rating}</span>
-                    <span className="text-xs text-gray-500">({service.reviews})</span>
+                    <span className="font-bold text-sm">{service.rating.toLocaleString(locale)}</span>
+                    <span className="text-xs text-gray-500">({service.reviews.toLocaleString(locale)})</span>
                   </div>
 
                   <div className="text-right">
                     {service.originalPrice && (
-                      <div className="text-xs text-gray-400 line-through">{formatPrice(service.originalPrice, service.currency)}</div>
+                      <div className="text-xs text-gray-400 line-through">{formatPrice(service.originalPrice, service.currency, locale)}</div>
                     )}
-                    <div className="font-bold text-[#083f30]">{formatPrice(service.price, service.currency)}</div>
+                    <div className="font-bold text-[#083f30]">{formatPrice(service.price, service.currency, locale)}</div>
                   </div>
                 </div>
               </div>
@@ -902,17 +937,16 @@ export default function ExploreClient({
         ) : (
           <div className="grid grid-cols-2 gap-3">
             {visibleProviderTypes.map((providerType) => (
-              <article
+              <a
                 key={`provider-type-${providerType.id}`}
-                role="button"
-                tabIndex={0}
-                onClick={() => applyProviderType(providerType.id)}
-                onKeyDown={(event) => {
-                  if (event.key === "Enter" || event.key === " ") {
+                href={`/${locale}${providerTypeTarget(providerType.id)}`}
+                onClick={(event) => {
+                  if (isPlainClick(event)) {
                     event.preventDefault();
                     applyProviderType(providerType.id);
                   }
                 }}
+                aria-current={activeUiFilters.providerTypeId === providerType.id ? "page" : undefined}
                 className={`flex cursor-pointer items-center gap-3 rounded-2xl border border-gray-100 bg-white p-3 shadow-sm transition-all hover:shadow-lg ${
                   activeUiFilters.providerTypeId === providerType.id ? "ring-2 ring-[#eacb7f]" : ""
                 }`}
@@ -939,9 +973,9 @@ export default function ExploreClient({
                       className="line-clamp-2 text-gray-600"
                     />
                   </div>
-                  <p className="text-xs font-medium text-[#083f30]">{t("counts.providers", { count: providerType.count })}</p>
+                  <p className="text-xs font-medium text-[#083f30]">{formatNumericText(t("counts.providers", { count: providerType.count }), locale)}</p>
                 </div>
-              </article>
+              </a>
             ))}
           </div>
         )}
@@ -1068,7 +1102,7 @@ export default function ExploreClient({
                     <option value="">{t("filters.allCurrencies")}</option>
                     {availableCurrencies.map((currency) => (
                       <option key={currency.code} value={currency.code}>
-                        {currency.symbol} {currency.code} — {currency.label} ({currency.count})
+                        {currency.symbol} {currency.code} — {currency.label} ({currency.count.toLocaleString(locale)})
                       </option>
                     ))}
                   </select>
@@ -1210,7 +1244,7 @@ export default function ExploreClient({
                   <option value="">{t("filters.selectLanguage")}</option>
                   {availableLanguages.map((language) => (
                     <option key={language.value} value={language.value}>
-                      {language.label} ({language.count})
+                      {language.label} ({language.count.toLocaleString(locale)})
                     </option>
                   ))}
                 </select>

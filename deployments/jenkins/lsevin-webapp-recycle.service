@@ -1,0 +1,7 @@
+[Unit]
+Description=Rolling restart of the webapp (empties the ISR page cache that grows inside the pods)
+
+[Service]
+Type=oneshot
+Nice=10
+ExecStart=/usr/local/sbin/lsevin-webapp-recycle

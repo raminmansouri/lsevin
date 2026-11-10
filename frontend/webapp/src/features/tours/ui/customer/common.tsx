@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { ImageOff } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 
+import { resolveMediaUrl } from "@/features/service-providers/lib/media-url";
 import { cn } from "@/lib/utils";
 
 import { calendarDisplayName, formatInstant, formatIsoDate, type CalendarId } from "../../domain/calendar";
@@ -154,7 +155,7 @@ export function TourImage({
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         ref={imgRef}
-        src={src}
+        src={resolveMediaUrl(src)}
         alt={alt}
         loading={eager ? "eager" : "lazy"}
         decoding="async"

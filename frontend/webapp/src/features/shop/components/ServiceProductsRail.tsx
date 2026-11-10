@@ -82,7 +82,7 @@ export function ServiceProductsRail({
             {g.products.map((p) => (
               <Link
                 key={p.id}
-                href={`/n/app/mobile/shop/product/${p.slug}`}
+                href={`/products/${p.slug}`}
                 onClick={() => {
                   if (serviceDefinitionId) {
                     void logServiceRelationClickAction({ serviceDefinitionId, productId: p.id });

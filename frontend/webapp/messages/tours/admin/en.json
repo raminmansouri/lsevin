@@ -31,7 +31,9 @@
       "search": "Search…",
       "noMatches": "Nothing found",
       "choose": "Choose…",
-      "sourceLanguage": "Tour's own language (source)"
+      "sourceLanguage": "Tour's own language (source)",
+      "unsavedChanges": "Unsaved changes",
+      "leaveUnsaved": "You have unsaved changes. Leave without saving?"
     },
     "calendarField": {
       "placeholder": "YYYY-MM-DD",

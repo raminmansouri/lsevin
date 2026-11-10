@@ -1,0 +1,307 @@
+{
+  "scope": "app",
+  "entityKey": "tours",
+  "sources": [
+    "messages/tours/app/en.json TourApp.booking.steps (date, travelers, details, review, payment) + calendarGuide 'Prices are per adult and depend on the date'",
+    "messages/tours/app/en.json TourApp.booking.hold.* : seats reserved for a limited time; signInToContinue / signInNote: selection restored after sign-in",
+    "messages/tours/app/en.json TourApp.card.instant / card.request + booking.review.requestNote / result.requestedBody: operator-confirmed request, no charge until accepted, auto-cancel if no reply",
+    "messages/tours/app/en.json TourApp.voucher.requestPending: waiting for operator until deadline",
+    "messages/tours/app/en.json TourApp.booking.payment.* : methods available for the account, wallet, gateway redirect, deadline, pay later from My bookings, payment under review",
+    "messages/tours/app/en.json TourApp.booking.summary.fee / liveNote: price summary lists service fee",
+    "messages/tours/app/en.json TourApp.detail.policies.* (rule hours before departure, refund percent, no-show, minimum participants full refund) + booking.review.accept",
+    "messages/tours/app/en.json TourApp.voucher.cancel.* + refund.* : cancel shows refund under accepted rules, refund trackable, no refund after departure",
+    "messages/tours/app/en.json TourApp.voucher.qrHint / qrPending + detail.meeting.approximate + booking.details.idHint: check-in code, exact meeting point after confirmation, last 4 ID characters",
+    "messages/tours/app/en.json TourApp.detail.whatToBring / documents",
+    "messages/tours/app/en.json TourApp.booking.option / optionKinds / optionPrivatePrice / guideLanguage / pickupIncluded + detail.facts.languages + booking.waitlist.*"
+  ],
+  "items": [
+    {
+      "locales": {
+        "en-US": {
+          "q": "How do I book a tour on LSevin Tours?",
+          "a": "Open the tour and go to “Booking”. Choose a departure date (prices are per adult and vary by date), set the number of travelers, enter your contact and traveler details, review the rules, then pay. Your seats are held for a limited time while you finish. You'll be asked to sign in to continue; your selection is saved and restored after you sign in."
+        },
+        "fa-IR": {
+          "q": "چطور در تورهای السوین تور رزرو کنم؟",
+          "a": "صفحهٔ تور را باز کنید و به بخش «رزرو» بروید. تاریخ حرکت را انتخاب کنید (قیمت‌ها برای هر بزرگسال است و به تاریخ بستگی دارد)، تعداد مسافران را مشخص کنید، اطلاعات تماس و مشخصات مسافران را وارد کنید، قوانین را مرور کنید و پرداخت را انجام دهید. تا پایان این مراحل، جاهای شما مدت محدودی نگه داشته می‌شود. برای ادامه باید وارد حساب شوید و انتخاب‌هایتان پس از ورود بازیابی می‌شود."
+        },
+        "ar-SA": {
+          "q": "كيف أحجز جولة عبر جولات لسوين؟",
+          "a": "افتح صفحة الجولة وانتقل إلى قسم «الحجز». اختر تاريخ الانطلاق (الأسعار للبالغ الواحد وتختلف حسب التاريخ)، وحدد عدد المسافرين، وأدخل بيانات التواصل وبيانات المسافرين، وراجع القواعد ثم ادفع. تبقى مقاعدك محجوزة لمدة محدودة حتى تُكمل الخطوات. سيُطلب منك تسجيل الدخول للمتابعة، ويُحفظ اختيارك ويُستعاد بعد تسجيل الدخول."
+        },
+        "tr-TR": {
+          "q": "LSevin Turları'nda nasıl tur rezervasyonu yaparım?",
+          "a": "Turu açın ve “Rezervasyon” bölümüne gidin. Bir kalkış tarihi seçin (fiyatlar yetişkin başınadır ve tarihe göre değişir), katılımcı sayısını belirleyin, iletişim ve katılımcı bilgilerinizi girin, kuralları gözden geçirin ve ardından ödeme yapın. İşlemi tamamlarken yerleriniz sınırlı bir süre için ayrılır. Devam etmek için giriş yapmanız istenir; seçiminiz kaydedilir ve giriş yaptıktan sonra geri yüklenir."
+        },
+        "ku-KU": {
+          "q": "چۆن گەشتێک لە LSevin Tours حجز بکەم؟",
+          "a": "گەشتەکە بکەنەوە و بچنە بەشی «حجزکردن». بەروارێکی بەڕێکەوتن هەڵبژێرن (نرخەکان بۆ هەر گەورەساڵێکن و بەپێی بەروار دەگۆڕێن)، ژمارەی گەشتیاران دیاری بکەن، زانیاریی پەیوەندی و زانیاریی گەشتیاران بنووسن، یاساکان بخوێننەوە، پاشان پارە بدەن. لە کاتی تەواوکردنی هەنگاوەکاندا کورسییەکانتان بۆ ماوەیەکی سنووردار ڕادەگیرێن. بۆ بەردەوامبوون داواتان لێ دەکرێت بچنە ژوورەوە؛ هەڵبژاردنەکەتان پاشەکەوت دەکرێت و دوای چوونەژوورەوە دەگەڕێتەوە."
+        },
+        "ru-RU": {
+          "q": "Как забронировать тур в LSevin Tours?",
+          "a": "Откройте тур и перейдите на вкладку «Бронирование». Выберите дату отправления (цены указаны за одного взрослого и зависят от даты), укажите число путешественников, введите свои контактные данные и данные путешественников, ознакомьтесь с правилами и оплатите. Пока Вы завершаете оформление, места удерживаются за Вами ограниченное время. Чтобы продолжить, нужно будет войти в аккаунт; Ваш выбор сохранится и восстановится после входа."
+        },
+        "tg-TJ": {
+          "q": "Чӣ тавр дар LSevin Tours тур брон кунам?",
+          "a": "Турро кушоед ва ба бахши «Брон» гузаред. Санаи ҳаракатро интихоб кунед (нархҳо барои ҳар як калонсол аст ва вобаста ба сана фарқ мекунанд), шумораи сайёҳонро муайян кунед, маълумоти тамос ва маълумоти сайёҳонро ворид намоед, қоидаҳоро бинед ва баъд пардохт кунед. То анҷоми ин корҳо ҷойҳои шумо барои муддати маҳдуд нигоҳ дошта мешаванд. Барои идома аз шумо воридшавӣ талаб карда мешавад; интихоби шумо нигоҳ дошта мешавад ва пас аз воридшавӣ барқарор мегардад."
+        },
+        "zh-CN": {
+          "q": "如何在LSevin Tours上预订旅游团？",
+          "a": "打开旅游团页面，进入“预约”。选择出发日期（价格按每位成人计算，并因日期而异），设置出行人数，填写联系人和出行人信息，阅读相关规则，然后付款。在您完成预订期间，座位会保留一段有限的时间。系统会要求您登录后继续；您的选择会被保存，并在登录后自动恢复。"
+        },
+        "de-DE": {
+          "q": "Wie buche ich eine Tour bei LSevin Tours?",
+          "a": "Öffnen Sie die Tour und gehen Sie zu „Buchung“. Wählen Sie ein Abfahrtsdatum (die Preise gelten pro Erwachsenem und variieren je nach Datum), legen Sie die Zahl der Reisenden fest, geben Sie Ihre Kontaktdaten und die Angaben zu den Reisenden ein, prüfen Sie die Bedingungen und bezahlen Sie dann. Ihre Plätze werden für begrenzte Zeit reserviert, während Sie die Buchung abschließen. Sie werden gebeten, sich anzumelden, um fortzufahren; Ihre Auswahl wird gespeichert und nach der Anmeldung wiederhergestellt."
+        },
+        "fr-FR": {
+          "q": "Comment réserver un circuit sur LSevin Tours ?",
+          "a": "Ouvrez le circuit et allez dans « Réservation ». Choisissez une date de départ (les prix sont indiqués par adulte et varient selon la date), indiquez le nombre de voyageurs, saisissez vos coordonnées et celles des voyageurs, prenez connaissance des règles, puis payez. Vos places sont bloquées pendant une durée limitée le temps de finaliser. Il vous sera demandé de vous connecter pour continuer ; votre sélection est enregistrée et restaurée après la connexion."
+        },
+        "es-ES": {
+          "q": "¿Cómo reservo un tour en LSevin Tours?",
+          "a": "Abra el tour y vaya a «Reserva». Elija una fecha de salida (los precios son por adulto y varían según la fecha), indique el número de viajeros, introduzca sus datos de contacto y los de los viajeros, revise las normas y pague. Sus plazas se reservan durante un tiempo limitado mientras termina. Se le pedirá que inicie sesión para continuar; su selección se guarda y se recupera después de iniciar sesión."
+        }
+      }
+    },
+    {
+      "locales": {
+        "en-US": {
+          "q": "What is the difference between “Instant confirmation” and “Operator confirms”?",
+          "a": "With “Instant confirmation”, the booking is confirmed when you complete it. With “Operator confirms”, you send a booking request and the tour operator accepts or declines it, and you pay nothing until they accept. The operator has to reply by the time shown on your booking; if they don't, the request is cancelled and you aren't charged."
+        },
+        "fa-IR": {
+          "q": "فرق «تأیید فوری» با «با تأیید برگزارکننده» چیست؟",
+          "a": "در تورهای «تأیید فوری»، رزرو همان لحظه که مراحل را تمام کنید تأیید می‌شود. در تورهای «با تأیید برگزارکننده»، درخواست رزرو می‌فرستید و برگزارکننده آن را می‌پذیرد یا رد می‌کند و تا درخواست شما را نپذیرد، پولی از شما کم نمی‌شود. برگزارکننده باید تا زمانی که در رزرو شما نوشته شده پاسخ دهد؛ اگر پاسخ ندهد، درخواست لغو می‌شود و مبلغی پرداخت نمی‌کنید."
+        },
+        "ar-SA": {
+          "q": "ما الفرق بين «تأكيد فوري» و«يؤكده منظم الجولة»؟",
+          "a": "في جولات «تأكيد فوري» يُؤكَّد الحجز فور إكمال الخطوات. أما في جولات «يؤكده منظم الجولة» فترسل طلب حجز، ويقبله منظم الجولة أو يرفضه، ولا تدفع شيئًا حتى يوافق. وعلى المنظم أن يرد قبل الموعد المذكور في حجزك، وإن لم يرد يُلغى الطلب ولا يُخصم منك أي مبلغ."
+        },
+        "tr-TR": {
+          "q": "“Anında onay” ile “Tur operatörü tarafından onaylanır” arasındaki fark nedir?",
+          "a": "“Anında onay” seçeneğinde rezervasyon, siz tamamladığınızda onaylanır. “Tur operatörü tarafından onaylanır” seçeneğinde bir rezervasyon talebi gönderirsiniz ve tur operatörü bunu kabul eder ya da reddeder; operatör kabul edene kadar hiçbir ödeme yapmazsınız. Operatörün rezervasyonunuzda gösterilen saate kadar yanıt vermesi gerekir; yanıt vermezse talep iptal edilir ve sizden ücret alınmaz."
+        },
+        "ku-KU": {
+          "q": "جیاوازیی نێوان «پشتڕاستکردنەوەی دەستبەجێ» و «ڕێکخەر پشتڕاستی دەکاتەوە» چییە؟",
+          "a": "بە «پشتڕاستکردنەوەی دەستبەجێ»، حجزەکە هەر کە تەواوی دەکەن پشتڕاست دەبێتەوە. بە «ڕێکخەر پشتڕاستی دەکاتەوە»، داواکاریی حجز دەنێرن و ڕێکخەری گەشت قبوڵی دەکات یان ڕەتی دەکاتەوە، و تا قبوڵی نەکات هیچ پارەیەک نادەن. ڕێکخەر دەبێت تا ئەو کاتەی لەسەر حجزەکەتان پیشان دراوە وەڵام بداتەوە؛ ئەگەر وەڵام نەداتەوە، داواکارییەکە هەڵدەوەشێتەوە و هیچ پارەیەکتان لێ وەرناگیرێت."
+        },
+        "ru-RU": {
+          "q": "Чем «Мгновенное подтверждение» отличается от «Подтверждения оператором»?",
+          "a": "При «Мгновенном подтверждении» бронирование подтверждается сразу после оформления. При «Подтверждении оператором» Вы отправляете запрос на бронирование, а туроператор принимает или отклоняет его; пока он не примет запрос, Вы ничего не платите. Оператор должен ответить до срока, указанного в Вашем бронировании; если он этого не сделает, запрос отменяется, и деньги с Вас не списываются."
+        },
+        "tg-TJ": {
+          "q": "Фарқи «Тасдиқи фаврӣ» ва «Ташкилкунанда тасдиқ мекунад» дар чист?",
+          "a": "Бо «Тасдиқи фаврӣ» брон ҳамон лаҳзае, ки онро анҷом медиҳед, тасдиқ мешавад. Бо «Ташкилкунанда тасдиқ мекунад» шумо дархости брон мефиристед ва ташкилкунандаи тур онро қабул ё рад мекунад ва то қабули он шумо ҳеҷ чиз пардохт намекунед. Ташкилкунанда бояд то вақте, ки дар брони шумо нишон дода шудааст, ҷавоб диҳад; агар ҷавоб надиҳад, дархост бекор мешавад ва аз шумо маблағ гирифта намешавад."
+        },
+        "zh-CN": {
+          "q": "“即时确认”和“运营方确认”有什么区别？",
+          "a": "选择“即时确认”时，完成预订即获确认。选择“运营方确认”时，您提交的是预订申请，由旅游运营方接受或拒绝；在对方接受之前，您无需付款。运营方必须在预订中显示的时间之前答复；如未答复，申请将被取消，您也不会被扣款。"
+        },
+        "de-DE": {
+          "q": "Was ist der Unterschied zwischen „Sofortbestätigung“ und „Bestätigung durch den Veranstalter“?",
+          "a": "Bei „Sofortbestätigung“ ist die Buchung bestätigt, sobald Sie sie abschließen. Bei „Bestätigung durch den Veranstalter“ senden Sie eine Buchungsanfrage, die der Reiseveranstalter annimmt oder ablehnt, und Sie zahlen nichts, bis er sie annimmt. Der Veranstalter muss bis zu der in Ihrer Buchung angegebenen Zeit antworten; tut er das nicht, wird die Anfrage storniert, und Ihnen wird nichts berechnet."
+        },
+        "fr-FR": {
+          "q": "Quelle différence entre « Confirmation immédiate » et « Confirmation par l’organisateur » ?",
+          "a": "Avec « Confirmation immédiate », la réservation est confirmée dès que vous la finalisez. Avec « Confirmation par l’organisateur », vous envoyez une demande de réservation que l’organisateur du circuit accepte ou refuse, et vous ne payez rien tant qu’il ne l’a pas acceptée. L’organisateur doit répondre avant l’échéance indiquée sur votre réservation ; à défaut, la demande est annulée et rien ne vous est facturé."
+        },
+        "es-ES": {
+          "q": "¿Qué diferencia hay entre «Confirmación inmediata» y «Confirma el operador»?",
+          "a": "Con «Confirmación inmediata», la reserva se confirma al completarla. Con «Confirma el operador», usted envía una solicitud de reserva y el operador turístico la acepta o la rechaza, y no paga nada hasta que la acepte. El operador debe responder antes de la hora que figura en su reserva; si no lo hace, la solicitud se cancela y no se le cobra nada."
+        }
+      }
+    },
+    {
+      "locales": {
+        "en-US": {
+          "q": "How do I pay for a tour?",
+          "a": "At the “Payment” step you see the methods available for your account, such as your LSevin wallet or online payment through a gateway. Pay by the time shown to keep the booking, or choose “Pay later from My bookings” and pay there before that deadline. Some methods are checked by hand, and the booking is confirmed once the payment is approved. The price details list every charge, including any service fee."
+        },
+        "fa-IR": {
+          "q": "هزینهٔ تور را چطور پرداخت کنم؟",
+          "a": "در مرحلهٔ «پرداخت» روش‌هایی را می‌بینید که برای حساب شما در دسترس است، مثل کیف پول السوین یا پرداخت آنلاین از طریق درگاه. برای حفظ رزرو تا زمان اعلام‌شده پرداخت کنید یا گزینهٔ «پرداخت بعداً از بخش رزروهای من» را بزنید و پیش از همان مهلت از آنجا پرداخت کنید. برخی روش‌ها به بررسی دستی نیاز دارند و رزرو پس از تأیید پرداخت قطعی می‌شود. در «جزئیات قیمت» همهٔ هزینه‌ها، از جمله کارمزد خدمات در صورت وجود، آمده است."
+        },
+        "ar-SA": {
+          "q": "كيف أدفع ثمن الجولة؟",
+          "a": "في خطوة «الدفع» تظهر الطرق المتاحة لحسابك، مثل محفظة لسوين أو الدفع الإلكتروني عبر بوابة دفع. ادفع قبل الموعد المعروض للاحتفاظ بالحجز، أو اختر «ادفع لاحقًا من حجوزاتي» وادفع من هناك قبل الموعد نفسه. بعض الطرق تخضع لمراجعة يدوية، ويُؤكَّد الحجز بعد الموافقة على الدفع. وتعرض «تفاصيل السعر» كل الرسوم، بما فيها رسوم الخدمة إن وُجدت."
+        },
+        "tr-TR": {
+          "q": "Bir turun ödemesini nasıl yaparım?",
+          "a": "“Ödeme” adımında hesabınız için kullanılabilen yöntemleri görürsünüz; örneğin LSevin cüzdanınız veya bir ödeme altyapısı üzerinden online ödeme. Rezervasyonu korumak için gösterilen saate kadar ödeme yapın ya da “Daha sonra Rezervasyonlarım'dan öde” seçeneğini seçip bu süre dolmadan orada ödeyin. Bazı yöntemler elle kontrol edilir; rezervasyon, ödeme onaylandığında onaylanır. Fiyat ayrıntıları, varsa hizmet bedeli dahil her ücreti listeler."
+        },
+        "ku-KU": {
+          "q": "چۆن پارەی گەشتێک بدەم؟",
+          "a": "لە هەنگاوی «پارەدان»دا ئەو شێوازانە دەبینن کە بۆ هەژمارەکەتان بەردەستن، وەک جزدانی LSevin یان پارەدانی ئۆنلاین لە ڕێگەی دەروازەیەکەوە. بۆ پاراستنی حجزەکە تا ئەو کاتەی پیشان دراوە پارە بدەن، یان «دواتر لە حجزەکانمەوە پارە دەدەم» هەڵبژێرن و پێش ئەو وادەیە لەوێ پارە بدەن. هەندێک شێواز بە دەستی دەپشکنرێن، و حجزەکە دوای پەسەندکردنی پارەدانەکە پشتڕاست دەبێتەوە. وردەکاریی نرخ هەموو تێچوونێک دەخاتە ڕوو، لەوانە هەر کرێیەکی خزمەتگوزاری."
+        },
+        "ru-RU": {
+          "q": "Как оплатить тур?",
+          "a": "На шаге «Оплата» показаны способы, доступные для Вашего аккаунта, например кошелёк LSevin или онлайн-оплата через платёжный шлюз. Чтобы сохранить бронирование, оплатите до указанного срока или выберите «Оплатить позже в разделе „Мои бронирования“» и оплатите там до этого срока. Некоторые способы оплаты проверяются вручную, и бронирование подтверждается после одобрения платежа. В детализации цены перечислены все начисления, включая сервисный сбор, если он есть."
+        },
+        "tg-TJ": {
+          "q": "Барои тур чӣ тавр пардохт кунам?",
+          "a": "Дар қадами «Пардохт» усулҳои барои ҳисоби шумо дастрасро мебинед, масалан ҳамёни LSevin ё пардохти онлайн тавассути дарвоза. Барои нигоҳ доштани брон то вақти нишондодашуда пардохт кунед ё «Баъдтар аз Бронҳои ман пардохт кардан»-ро интихоб намоед ва то ҳамон мӯҳлат дар он ҷо пардохт кунед. Баъзе усулҳо дастӣ санҷида мешаванд ва брон пас аз тасдиқи пардохт тасдиқ мегардад. Дар тафсилоти нарх ҳар як пардохт, аз ҷумла ҳаққи хизматрасонӣ, агар бошад, нишон дода мешавад."
+        },
+        "zh-CN": {
+          "q": "如何支付旅游团费用？",
+          "a": "在“付款”步骤中，您会看到您的账户可用的支付方式，例如LSevin钱包或通过支付网关在线支付。请在显示的时间之前付款以保留预订，或选择“稍后在我的预约中付款”，并在截止时间前在那里完成付款。部分支付方式需要人工核查，付款获批后预订即被确认。价格明细会列出每一项费用，包括服务费（如有）。"
+        },
+        "de-DE": {
+          "q": "Wie bezahle ich eine Tour?",
+          "a": "Im Schritt „Zahlung“ sehen Sie die für Ihr Konto verfügbaren Methoden, etwa Ihr LSevin Wallet oder die Online-Zahlung über ein Zahlungsgateway. Zahlen Sie bis zur angegebenen Zeit, um die Buchung zu behalten, oder wählen Sie „Später über Meine Buchungen bezahlen“ und zahlen Sie dort vor Ablauf dieser Frist. Manche Methoden werden manuell geprüft, und die Buchung wird bestätigt, sobald die Zahlung genehmigt ist. Die Preisdetails führen jede Gebühr auf, einschließlich einer etwaigen Servicegebühr."
+        },
+        "fr-FR": {
+          "q": "Comment payer un circuit ?",
+          "a": "À l’étape « Paiement », vous voyez les moyens disponibles pour votre compte, comme votre portefeuille LSevin ou le paiement en ligne via une passerelle. Payez avant l’échéance indiquée pour conserver la réservation, ou choisissez « Payer plus tard depuis Mes réservations » et réglez-la depuis cet espace avant cette échéance. Certains moyens de paiement sont vérifiés manuellement, et la réservation est confirmée une fois le paiement approuvé. Le détail du prix énumère tous les frais, y compris les éventuels frais de service."
+        },
+        "es-ES": {
+          "q": "¿Cómo pago un tour?",
+          "a": "En el paso «Pago» verá los métodos disponibles para su cuenta, como su monedero de LSevin o el pago en línea a través de una pasarela. Pague antes de la hora indicada para mantener la reserva, o elija «Pagar más tarde desde Mis reservas» y pague allí antes de ese plazo. Algunos métodos se revisan manualmente, y la reserva se confirma una vez aprobado el pago. El desglose del precio detalla todos los cargos, incluida la tarifa de servicio, si la hay."
+        }
+      }
+    },
+    {
+      "locales": {
+        "en-US": {
+          "q": "Can I cancel a tour and get a refund?",
+          "a": "Each tour sets its own rules under “Cancellation and rules”: how many hours before departure you can cancel and what percentage comes back. You accept them before you book. To cancel, open the booking and tap “Cancel booking”. LSevin shows the exact refund under the rules you accepted, and you can follow the refund on the same page. Once the departure time has passed, cancelling gives no refund."
+        },
+        "fa-IR": {
+          "q": "آیا می‌توانم تور را لغو کنم و پولم را پس بگیرم؟",
+          "a": "هر تور قوانین خودش را در بخش «لغو و قوانین» دارد: تا چند ساعت پیش از حرکت می‌توانید لغو کنید و چند درصد مبلغ بازگردانده می‌شود. این قوانین را پیش از رزرو می‌پذیرید. برای لغو، رزرو را باز کنید و «لغو رزرو» را بزنید. السوین مبلغ دقیق بازپرداخت را بر اساس قوانینی که پذیرفته‌اید نشان می‌دهد و وضعیت بازپرداخت را در همان صفحه پیگیری می‌کنید. پس از گذشتن زمان حرکت، لغو رزرو شامل بازپرداخت نمی‌شود."
+        },
+        "ar-SA": {
+          "q": "هل يمكنني إلغاء الجولة واسترداد المبلغ؟",
+          "a": "لكل جولة قواعدها الخاصة في قسم «الإلغاء والقواعد»: كم ساعة قبل الانطلاق يمكنك الإلغاء، وما النسبة التي تُسترد. وتوافق على هذه القواعد قبل الحجز. للإلغاء افتح الحجز واضغط «إلغاء الحجز»، وستعرض لك لسوين قيمة الاسترداد الدقيقة وفق القواعد التي وافقت عليها، ويمكنك متابعة الاسترداد في الصفحة نفسها. وبعد مرور موعد الانطلاق لا يمنح الإلغاء أي استرداد."
+        },
+        "tr-TR": {
+          "q": "Bir turu iptal edip geri ödeme alabilir miyim?",
+          "a": "Her tur kendi kurallarını “İptal ve kurallar” altında belirler: Kalkıştan kaç saat öncesine kadar iptal edebileceğiniz ve yüzde kaçının geri ödeneceği. Bu kuralları rezervasyondan önce kabul edersiniz. İptal etmek için rezervasyonu açın ve “Rezervasyonu iptal et”e dokunun. LSevin, kabul ettiğiniz kurallara göre kesin geri ödeme tutarını gösterir ve geri ödemeyi aynı sayfadan takip edebilirsiniz. Kalkış saati geçtikten sonra yapılan iptallerde geri ödeme yapılmaz."
+        },
+        "ku-KU": {
+          "q": "دەتوانم گەشتێک هەڵبوەشێنمەوە و پارەکەم وەربگرمەوە؟",
+          "a": "هەر گەشتێک یاساکانی خۆی لە ژێر «هەڵوەشاندنەوە و یاساکان» دادەنێت: چەند کاتژمێر پێش کاتی بەڕێکەوتن دەتوانن هەڵیبوەشێننەوە و چ ڕێژەیەک دەگەڕێتەوە. پێش حجزکردن پەسەندیان دەکەن. بۆ هەڵوەشاندنەوە، حجزەکە بکەنەوە و کرتە لەسەر «هەڵوەشاندنەوەی حجز» بکەن. LSevin بڕی وردی گەڕاوە بەپێی ئەو یاسایانەی پەسەندتان کردووە پیشان دەدات، و دەتوانن لە هەمان پەڕەدا بەدواداچوون بۆ گەڕاندنەوەکە بکەن. کاتێک کاتی بەڕێکەوتن تێپەڕی، هەڵوەشاندنەوە هیچ پارەیەک ناگەڕێنێتەوە."
+        },
+        "ru-RU": {
+          "q": "Можно ли отменить тур и получить возврат средств?",
+          "a": "Каждый тур устанавливает свои правила в разделе «Отмена и правила»: за сколько часов до отправления можно отменить поездку и какой процент суммы возвращается. Вы принимаете их до бронирования. Чтобы отменить тур, откройте бронирование и нажмите «Отменить бронирование». LSevin покажет точную сумму возврата по принятым Вами правилам, а следить за возвратом можно на той же странице. После наступления времени отправления отмена не даёт права на возврат."
+        },
+        "tg-TJ": {
+          "q": "Оё турро бекор карда, маблағро баргардонида метавонам?",
+          "a": "Ҳар тур дар бахши «Бекоркунӣ ва қоидаҳо» қоидаҳои худро дорад: то чанд соат пеш аз ҳаракат бекор кардан мумкин аст ва чанд фоиз баргардонида мешавад. Шумо онҳоро пеш аз брон қабул мекунед. Барои бекор кардан бронро кушоед ва «Бекор кардани брон»-ро пахш кунед. LSevin маблағи дақиқи баргардонидашавандаро тибқи қоидаҳои қабулкардаатон нишон медиҳад ва шумо ҷараёни бозгардониро дар ҳамон саҳифа пайгирӣ карда метавонед. Пас аз гузаштани вақти ҳаракат бекоркунӣ ҳуқуқи бозгардонии маблағро намедиҳад."
+        },
+        "zh-CN": {
+          "q": "可以取消旅游团并获得退款吗？",
+          "a": "每个旅游团都在“取消与规则”中设定了自己的规则：出发前多少小时内可以取消，以及可退还的比例。您在预订前需要接受这些规则。如需取消，请打开该预订并点击“取消预约”。LSevin会根据您所接受的规则显示确切的退款金额，您也可以在同一页面跟踪退款进度。出发时间过后取消，将不予退款。"
+        },
+        "de-DE": {
+          "q": "Kann ich eine Tour stornieren und eine Erstattung erhalten?",
+          "a": "Jede Tour legt unter „Stornierung und Bedingungen“ ihre eigenen Regeln fest: bis wie viele Stunden vor der Abfahrt Sie stornieren können und welcher Prozentsatz erstattet wird. Sie akzeptieren diese Regeln vor der Buchung. Zum Stornieren öffnen Sie die Buchung und tippen auf „Buchung stornieren“. LSevin zeigt die genaue Erstattung nach den von Ihnen akzeptierten Regeln an, und Sie können die Erstattung auf derselben Seite verfolgen. Nach dem Abfahrtszeitpunkt führt eine Stornierung zu keiner Erstattung."
+        },
+        "fr-FR": {
+          "q": "Puis-je annuler un circuit et être remboursé ?",
+          "a": "Chaque circuit fixe ses propres règles sous « Annulation et règles » : jusqu’à combien d’heures avant le départ vous pouvez annuler, et quel pourcentage vous est remboursé. Vous les acceptez avant de réserver. Pour annuler, ouvrez la réservation et touchez « Annuler la réservation ». LSevin affiche le montant exact du remboursement selon les règles que vous avez acceptées, et vous pouvez suivre le remboursement sur la même page. Une fois l’heure de départ passée, l’annulation ne donne lieu à aucun remboursement."
+        },
+        "es-ES": {
+          "q": "¿Puedo cancelar un tour y obtener un reembolso?",
+          "a": "Cada tour establece sus propias normas en «Cancelación y normas»: con cuántas horas de antelación a la salida puede cancelar y qué porcentaje se le devuelve. Usted las acepta antes de reservar. Para cancelar, abra la reserva y toque «Cancelar reserva». LSevin le muestra el reembolso exacto según las normas que aceptó, y puede seguir el reembolso en esa misma página. Una vez pasada la hora de salida, la cancelación no da derecho a reembolso."
+        }
+      }
+    },
+    {
+      "locales": {
+        "en-US": {
+          "q": "What do I need on the day of the tour?",
+          "a": "Open your booking to see the voucher. Once the booking is confirmed it shows a check-in code to show at the meeting point. The exact meeting point is also shared after confirmation; before that the map shows only the general area. Bring the ID or passport whose last 4 characters you entered, as they are used to check identity. Read “What to bring” and “Documents and visas” on the tour page too."
+        },
+        "fa-IR": {
+          "q": "روز تور به چه چیزهایی نیاز دارم؟",
+          "a": "رزرو خود را باز کنید تا واچر را ببینید. پس از تأیید رزرو، کد پذیرش در آن نمایش داده می‌شود که باید در محل قرار نشان دهید. نشانی دقیق محل قرار هم بعد از تأیید فرستاده می‌شود و پیش از آن نقشه فقط محدودهٔ تقریبی را نشان می‌دهد. کارت شناسایی یا گذرنامه‌ای را همراه داشته باشید که ۴ نویسهٔ آخرش را وارد کرده‌اید، چون برای بررسی هویت از آن استفاده می‌شود. بخش‌های «چه چیزهایی همراه داشته باشید» و «مدارک و روادید» را هم در صفحهٔ تور بخوانید."
+        },
+        "ar-SA": {
+          "q": "ماذا أحتاج في يوم الجولة؟",
+          "a": "افتح حجزك لعرض القسيمة. بعد تأكيد الحجز يظهر فيها رمز تسجيل الحضور الذي تعرضه عند نقطة الالتقاء. وتُرسل نقطة الالتقاء الدقيقة بعد التأكيد أيضًا، وقبل ذلك تعرض الخريطة منطقة تقريبية فقط. أحضر الهوية أو جواز السفر الذي أدخلت آخر 4 أحرف منه، لأنها تُستخدم للتحقق من الهوية. واقرأ قسمي «ما يجب إحضاره» و«الوثائق والتأشيرات» في صفحة الجولة."
+        },
+        "tr-TR": {
+          "q": "Tur günü neye ihtiyacım var?",
+          "a": "Voucher'ınızı görmek için rezervasyonunuzu açın. Rezervasyon onaylandıktan sonra voucher'da buluşma noktasında göstereceğiniz bir giriş kodu yer alır. Kesin buluşma noktası da onaydan sonra paylaşılır; öncesinde harita yalnızca genel bölgeyi gösterir. Kimlik kontrolünde kullanıldığı için son 4 karakterini girdiğiniz kimlik kartını veya pasaportu yanınızda getirin. Tur sayfasındaki “Yanınıza alın” ve “Belgeler ve vizeler” bölümlerini de okuyun."
+        },
+        "ku-KU": {
+          "q": "لە ڕۆژی گەشتەکەدا پێویستم بە چییە؟",
+          "a": "حجزەکەتان بکەنەوە بۆ بینینی پسوولەی گەشت (ڤاوچەر). کاتێک حجزەکە پشتڕاست بووەوە، کۆدێکی هاتن پیشان دەدات کە لە شوێنی کۆبوونەوەدا پیشانی بدەن. شوێنی وردی کۆبوونەوەش دوای پشتڕاستکردنەوە هاوبەش دەکرێت؛ پێش ئەوە نەخشەکە تەنها ناوچە گشتییەکە پیشان دەدات. ئەو ناسنامە یان پاسپۆرتەی 4 پیتی کۆتاییتان لێ نووسیوە لەگەڵ خۆتان بهێنن، چونکە بۆ پشکنینی ناسنامە بەکاردێن. «چی لەگەڵ خۆتان بهێنن» و «بەڵگەنامە و ڤیزا»ش لە پەڕەی گەشتەکەدا بخوێننەوە."
+        },
+        "ru-RU": {
+          "q": "Что нужно в день тура?",
+          "a": "Откройте бронирование, чтобы увидеть ваучер. После подтверждения бронирования в нём появляется код регистрации, который нужно показать в месте сбора. Точное место сбора также сообщается после подтверждения; до этого на карте показан только общий район. Возьмите с собой удостоверение личности или паспорт, последние 4 символа номера которого Вы указали: по ним проверяется личность. Также прочитайте разделы «Что взять с собой» и «Документы и визы» на странице тура."
+        },
+        "tg-TJ": {
+          "q": "Дар рӯзи тур ба ман чӣ лозим аст?",
+          "a": "Бронро кушоед, то ваучерро бинед. Пас аз тасдиқи брон дар он рамзи бақайдгирӣ пайдо мешавад, ки онро дар ҷои вохӯрӣ нишон медиҳед. Ҷои дақиқи вохӯрӣ низ пас аз тасдиқ гуфта мешавад; то он вақт харита танҳо минтақаи умумиро нишон медиҳад. Ҳуҷҷати шахсият ё шиносномаеро, ки 4 аломати охири онро ворид кардаед, ҳамроҳ гиред, зеро онҳо барои санҷиши шахсият истифода мешаванд. Бахшҳои «Чӣ бояд гирифт» ва «Ҳуҷҷатҳо ва раводид»-ро дар саҳифаи тур низ хонед."
+        },
+        "zh-CN": {
+          "q": "旅游当天需要准备什么？",
+          "a": "打开您的预订即可查看凭证。预订确认后，凭证上会显示签到码，请在集合地点出示。确切的集合地点也会在确认后告知；在此之前，地图只显示大致区域。请携带您填写了后4位字符的身份证件或护照，这些字符会用于核验身份。另请阅读旅游团页面上的“携带物品”和“证件与签证”。"
+        },
+        "de-DE": {
+          "q": "Was brauche ich am Tag der Tour?",
+          "a": "Öffnen Sie Ihre Buchung, um den Voucher zu sehen. Sobald die Buchung bestätigt ist, zeigt er einen Check-in-Code, den Sie am Treffpunkt vorzeigen. Der genaue Treffpunkt wird ebenfalls nach der Bestätigung mitgeteilt; vorher zeigt die Karte nur die ungefähre Gegend. Bringen Sie den Ausweis oder Reisepass mit, dessen letzte 4 Zeichen Sie angegeben haben, denn damit wird Ihre Identität geprüft. Lesen Sie auf der Tourseite auch „Was Sie mitbringen sollten“ und „Dokumente und Visa“."
+        },
+        "fr-FR": {
+          "q": "De quoi ai-je besoin le jour du circuit ?",
+          "a": "Ouvrez votre réservation pour afficher le bon d’échange. Une fois la réservation confirmée, il comporte un code d’enregistrement à présenter au point de rendez-vous. Le point de rendez-vous exact est également communiqué après la confirmation ; auparavant, la carte n’indique que le secteur général. Munissez-vous de la pièce d’identité ou du passeport dont vous avez saisi les 4 derniers caractères, car ils servent à vérifier votre identité. Lisez aussi « À apporter » et « Documents et visas » sur la page du circuit."
+        },
+        "es-ES": {
+          "q": "¿Qué necesito el día del tour?",
+          "a": "Abra su reserva para ver el bono. Una vez confirmada la reserva, el bono muestra un código de check-in que debe presentar en el punto de encuentro. El punto de encuentro exacto también se comunica después de la confirmación; hasta entonces, el mapa solo muestra la zona general. Lleve el documento de identidad o el pasaporte cuyos 4 últimos caracteres introdujo, ya que se utilizan para comprobar su identidad. Lea también «Qué llevar» y «Documentos y visados» en la página del tour."
+        }
+      }
+    },
+    {
+      "locales": {
+        "en-US": {
+          "q": "Can I book a private tour or choose the guide's language?",
+          "a": "Where the operator offers it, “Tour option” lets you pick “Join a group” or “Private tour”; a private tour is priced per group up to a set number of people. Each option shows its guide language and whether pickup is included, and the tour's guide languages are also listed under “At a glance”. If your date is sold out, join the waitlist and you'll be told when a seat opens."
+        },
+        "fa-IR": {
+          "q": "آیا می‌توانم تور خصوصی رزرو کنم یا زبان راهنما را انتخاب کنم؟",
+          "a": "اگر برگزارکننده این امکان را داده باشد، در «گزینهٔ تور» می‌توانید «پیوستن به گروه» یا «تور خصوصی» را انتخاب کنید؛ قیمت تور خصوصی برای هر گروه تا سقف مشخصی از نفرات است. هر گزینه زبان راهنما و شامل بودن یا نبودن ترانسفر رفت را نشان می‌دهد و زبان‌های راهنمای تور در بخش «در یک نگاه» هم آمده است. اگر ظرفیت تاریخ موردنظرتان تکمیل باشد، به فهرست انتظار بپیوندید تا در صورت خالی شدن جا خبرتان کنیم."
+        },
+        "ar-SA": {
+          "q": "هل يمكنني حجز جولة خاصة أو اختيار لغة المرشد؟",
+          "a": "إذا وفّر منظم الجولة ذلك، يمكنك في «خيار الجولة» اختيار «انضم إلى مجموعة» أو «جولة خاصة»، ويُحسب سعر الجولة الخاصة للمجموعة حتى عدد محدد من الأشخاص. ويعرض كل خيار لغة المرشد وما إذا كان الاصطحاب مشمولًا، كما تُدرج لغات المرشدين في قسم «لمحة سريعة». وإذا نفدت المقاعد في تاريخك، انضم إلى قائمة الانتظار وسنُعلمك عند توفر مقعد."
+        },
+        "tr-TR": {
+          "q": "Özel tur ayırtabilir veya rehberin dilini seçebilir miyim?",
+          "a": "Operatörün sunduğu durumlarda “Tur seçeneği” ile “Gruba katıl” veya “Özel tur” seçebilirsiniz; özel tur, belirli bir kişi sayısına kadar grup başına fiyatlandırılır. Her seçenek rehber dilini ve alım servisinin dahil olup olmadığını gösterir; turun rehber dilleri ayrıca “Bir bakışta” altında da listelenir. Seçtiğiniz tarih doluysa bekleme listesine katılın; bir yer açıldığında size haber verilir."
+        },
+        "ku-KU": {
+          "q": "دەتوانم گەشتێکی تایبەت حجز بکەم یان زمانی ڕێبەر هەڵبژێرم؟",
+          "a": "لەو شوێنانەی ڕێکخەر پێشکەشی دەکات، «جۆری گەشت» ڕێگەتان پێ دەدات «بەشداری لە گرووپێک» یان «گەشتی تایبەت» هەڵبژێرن؛ نرخی گەشتی تایبەت بۆ هەر گرووپێکە تا ژمارەیەکی دیاریکراوی کەس. هەر بژاردەیەک زمانی ڕێبەرەکەی و ئەوەی ئایا هێنانی گەشتیار لە شوێنەکەیەوە لەخۆ دەگرێت پیشان دەدات، و زمانەکانی ڕێبەری گەشتەکە لە ژێر «بە کورتی»ش نووسراون. ئەگەر بەروارەکەتان پڕ بووبێت، بچنە لیستی چاوەڕوانییەوە و کاتێک کورسییەک بەتاڵ بوو ئاگادار دەکرێنەوە."
+        },
+        "ru-RU": {
+          "q": "Можно ли забронировать индивидуальный тур или выбрать язык гида?",
+          "a": "Если оператор это предлагает, в поле «Вариант тура» можно выбрать «В составе группы» или «Индивидуальный тур»; цена индивидуального тура указывается за группу до определённого числа человек. Для каждого варианта указаны язык гида и то, включён ли трансфер от места проживания, а языки гидов тура также перечислены в блоке «Коротко о туре». Если на выбранную дату мест нет, запишитесь в лист ожидания, и Вам сообщат, когда место освободится."
+        },
+        "tg-TJ": {
+          "q": "Оё метавонам тури хусусӣ брон кунам ё забони роҳбаладро интихоб намоям?",
+          "a": "Дар ҷое ки ташкилкунанда пешниҳод мекунад, «Варианти тур» ба шумо имкон медиҳад «Ҳамроҳ шудан ба гурӯҳ» ё «Тури хусусӣ»-ро интихоб кунед; нархи тури хусусӣ барои гурӯҳ то шумораи муайяни одамон аст. Ҳар вариант забони роҳбалад ва дохил будан ё набудани овардан аз ҷои истиқоматро нишон медиҳад ва забонҳои роҳбаладони тур инчунин дар бахши «Мухтасар» оварда шудаанд. Агар ҷойҳои санаи шумо тамом шуда бошанд, ба рӯйхати интизорӣ ҳамроҳ шавед ва вақте ки ҷой холӣ шавад, ба шумо хабар дода мешавад."
+        },
+        "zh-CN": {
+          "q": "可以预订私人团或选择导游语言吗？",
+          "a": "在运营方提供的情况下，您可以在“旅游团选项”中选择“拼团出行”或“私人团”；私人团按团计价，人数上限有规定。每个选项都会显示导游语言以及是否包含接送，旅游团的导游语言也列在“概览”中。如果您选择的日期已售罄，可以加入候补名单，有空位时会通知您。"
+        },
+        "de-DE": {
+          "q": "Kann ich eine Privattour buchen oder die Sprache des Reiseleiters wählen?",
+          "a": "Wo der Veranstalter es anbietet, können Sie unter „Touroption“ zwischen „Gruppe beitreten“ und „Privattour“ wählen; eine Privattour wird pro Gruppe bis zu einer festgelegten Personenzahl berechnet. Jede Option zeigt die Sprache des Reiseleiters und ob eine Abholung enthalten ist; die Reiseleitersprachen der Tour stehen außerdem unter „Auf einen Blick“. Ist Ihr Termin ausgebucht, tragen Sie sich in die Warteliste ein, und Sie werden benachrichtigt, sobald ein Platz frei wird."
+        },
+        "fr-FR": {
+          "q": "Puis-je réserver un circuit privé ou choisir la langue du guide ?",
+          "a": "Lorsque l’organisateur le propose, « Option du circuit » vous permet de choisir « Rejoindre un groupe » ou « Circuit privé » ; un circuit privé est facturé par groupe, jusqu’à un nombre de personnes défini. Chaque option indique la langue du guide et si la prise en charge est incluse, et les langues des guides du circuit figurent aussi sous « En bref ». Si votre date est complète, inscrivez-vous sur la liste d’attente : vous serez prévenu dès qu’une place se libère."
+        },
+        "es-ES": {
+          "q": "¿Puedo reservar un tour privado o elegir el idioma del guía?",
+          "a": "Cuando el operador lo ofrece, «Opción de tour» le permite elegir «Unirse a un grupo» o «Tour privado»; el tour privado tiene un precio por grupo, hasta un número determinado de personas. Cada opción indica el idioma del guía y si incluye la recogida, y los idiomas de los guías del tour también aparecen en «De un vistazo». Si su fecha está completa, apúntese a la lista de espera y se le avisará cuando quede una plaza libre."
+        }
+      }
+    }
+  ]
+}

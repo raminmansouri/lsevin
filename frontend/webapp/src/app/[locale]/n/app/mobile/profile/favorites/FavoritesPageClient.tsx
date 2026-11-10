@@ -67,7 +67,7 @@ export default function FavoritesPageClient({
   };
 
   const handleCardClick = (item: FavoriteCard) => {
-    navigate(resolveFavoriteHref(item.favoriteType, item.entityId));
+    navigate(resolveFavoriteHref(item.favoriteType, item.entityId, item.entitySlug));
   };
 
   return (
@@ -177,7 +177,7 @@ export default function FavoritesPageClient({
             <h3 className="text-lg font-bold text-gray-900 mb-2">{t("emptyTitle")}</h3>
             <p className="text-gray-600 mb-6">{t("emptyDescription")}</p>
             <button
-              onClick={() => navigate("/n/app/mobile/explore")}
+              onClick={() => navigate("/explore")}
               className="px-6 py-3 bg-[#083f30] text-white rounded-xl font-medium"
             >
               {t("exploreServices")}
@@ -196,7 +196,7 @@ export default function FavoritesPageClient({
       pending={pendingFavoriteId}
       onRemove={handleRemoveFavorite}
       onOpen={handleCardClick}
-      onExplore={() => navigate("/n/app/mobile/explore")}
+      onExplore={() => navigate("/explore")}
     />
     </>
   );

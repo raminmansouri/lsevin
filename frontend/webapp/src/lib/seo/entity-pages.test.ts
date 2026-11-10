@@ -7,16 +7,16 @@ import CategoriesPage, {
 } from "@/app/[locale]/n/app/mobile/categories/page";
 import ProviderPage, {
   generateMetadata as providerMetadata,
-} from "@/app/[locale]/n/app/mobile/provider/[id]/page";
+} from "@/app/[locale]/(site)/providers/[slug]/page";
 import ServicePage, {
   generateMetadata as serviceMetadata,
-} from "@/app/[locale]/n/app/mobile/service/[id]/page";
+} from "@/app/[locale]/(site)/services/[slug]/page";
 import ProductPage, {
   generateMetadata as productMetadata,
 } from "@/app/[locale]/n/app/mobile/shop/product/[slug]/page";
 import SpecialistPage, {
   generateMetadata as specialistMetadata,
-} from "@/app/[locale]/n/app/mobile/specialist/[id]/page";
+} from "@/app/[locale]/(site)/specialists/[slug]/page";
 
 const mocks = vi.hoisted(() => ({
   product: vi.fn(),
@@ -34,6 +34,19 @@ vi.mock("next/navigation", () => ({
   notFound: () => {
     throw new Error("NEXT_HTTP_ERROR_FALLBACK;404");
   },
+  permanentRedirect: () => {
+    throw new Error("NEXT_REDIRECT;308");
+  },
+}));
+vi.mock("@/lib/seo/public-slugs", () => ({
+  // "slug-*" segments resolve as slugs, "id-with-slug" as an id whose row has a
+  // slug (the page redirects it), anything else as an id without a slug.
+  resolvePublicEntity: async (_kind: string, identifier: string) =>
+    identifier.startsWith("slug-")
+      ? { id: "fixture-id", slug: identifier }
+      : identifier === "id-with-slug"
+        ? { id: identifier, slug: "slug-fixture" }
+        : { id: identifier, slug: null },
 }));
 vi.mock("next-intl/server", () => ({
   setRequestLocale: vi.fn(),
@@ -78,10 +91,10 @@ vi.mock(
   "@/features/service-providers/components/categories/category-browser-client",
   () => ({ CategoryBrowserClient: () => null })
 );
-vi.mock("@/app/[locale]/n/app/mobile/service/[id]/service-page", () => ({
+vi.mock("@/app/[locale]/(site)/services/[slug]/service-page", () => ({
   default: () => null,
 }));
-vi.mock("@/app/[locale]/n/app/mobile/specialist/[id]/specialist-page", () => ({
+vi.mock("@/app/[locale]/(site)/specialists/[slug]/specialist-page", () => ({
   default: () => null,
 }));
 vi.mock("@/i18n/navigation", () => ({ Link: () => null }));
@@ -118,7 +131,7 @@ vi.mock(
   () => ({ SponsoredPlacementSlot: () => null })
 );
 vi.mock(
-  "@/app/[locale]/n/app/mobile/provider/[id]/provider-detail-view",
+  "@/app/[locale]/(site)/providers/[slug]/provider-detail-view",
   () => ({ ProviderDetailView: () => null })
 );
 
@@ -130,7 +143,7 @@ const productParams = {
   params: Promise.resolve({ locale: "en", slug: "fixture" }),
 };
 const providerParams = {
-  params: Promise.resolve({ locale: "en", id: "fixture" }),
+  params: Promise.resolve({ locale: "en", slug: "fixture" }),
 };
 describe("entity page status contract", () => {
   it.each([
@@ -206,6 +219,23 @@ describe("entity page status contract", () => {
     expect(await providerMetadata(providerParams)).toMatchObject({
       title: { absolute: "Provider fixture" },
     });
+  });
+  it.each([
+    ["providers", mocks.provider, providerMetadata, { data: { provider: { name: "Provider fixture" } } }],
+    ["services", mocks.service, serviceMetadata, { service: { name: "Service fixture" } }],
+    ["specialists", mocks.specialist, specialistMetadata, { specialist: { name: "Specialist fixture" } }],
+  ] as const)("%s canonical is the slug URL", async (section, read, metadata, data) => {
+    read.mockResolvedValue(data);
+    const result = await metadata({ params: Promise.resolve({ locale: "en", slug: "slug-fixture" }) });
+    expect(String(result.alternates?.canonical)).toMatch(new RegExp(`/en/${section}/slug-fixture$`));
+    expect(read).toHaveBeenCalledWith(expect.objectContaining({ locale: "en" }));
+  });
+  it.each([
+    ["provider", ProviderPage],
+    ["service", ServicePage],
+    ["specialist", SpecialistPage],
+  ] as const)("%s page reached by id redirects to its slug", async (_, page) => {
+    await expect(page({ params: Promise.resolve({ locale: "en", slug: "id-with-slug" }) })).rejects.toThrow(";308");
   });
 });
 

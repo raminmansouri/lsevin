@@ -20,14 +20,14 @@ export default async function ShopComparePage({ params }: { params: Promise<{ lo
 
   return (
     <div className="min-h-screen bg-neutral-50">
-      <ShopHeader cartCount={cart.itemCount} back="/n/app/mobile/shop" />
+      <ShopHeader cartCount={cart.itemCount} back="/shop" />
       <h1 className="px-4 pt-3 text-lg font-extrabold text-neutral-900">{t("compareTitle")}</h1>
 
       {!products.length ? (
         <div className="m-4 rounded-2xl bg-white p-10 text-center">
           <div className="text-4xl">⚖️</div>
           <p className="mt-3 text-sm font-semibold text-neutral-700">{t("compareEmpty")}</p>
-          <Link href="/n/app/mobile/shop" className="mt-3 inline-block text-xs font-semibold text-[#083f30]">
+          <Link href="/shop" className="mt-3 inline-block text-xs font-semibold text-[#083f30]">
             {t("startShopping")}
           </Link>
         </div>
@@ -39,7 +39,7 @@ export default async function ShopComparePage({ params }: { params: Promise<{ lo
                 <th />
                 {products.map((p) => (
                   <th key={p.id} className="w-40 align-top">
-                    <Link href={`/n/app/mobile/shop/product/${p.slug}`} className="block rounded-xl bg-white p-2 ring-1 ring-black/[0.04]">
+                    <Link href={`/products/${p.slug}`} className="block rounded-xl bg-white p-2 ring-1 ring-black/[0.04]">
                       <div className="aspect-square w-full overflow-hidden rounded-lg bg-neutral-100">
                         {p.imageUrl ? (
                           // eslint-disable-next-line @next/next/no-img-element

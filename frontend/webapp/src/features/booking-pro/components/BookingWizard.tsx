@@ -354,6 +354,12 @@ export function BookingWizard() {
     const seededProviderId = searchParams.get('providerId') ?? searchParams.get('id') ?? undefined;
     const seededServiceId = searchParams.get('serviceId') ?? undefined;
     const seededSpecialistId = searchParams.get('specialistId') ?? undefined;
+    // A day and time chosen in the assistant (start_booking): pre-selected once, if still free.
+    // If the user then picks something else, we never switch back.
+    const seededDate = /^\d{4}-\d{2}-\d{2}$/.test(searchParams.get('date') ?? '') ? searchParams.get('date')! : undefined;
+    const seededTime = /^\d{2}:\d{2}$/.test(searchParams.get('time') ?? '') ? searchParams.get('time')! : undefined;
+    const seededDateUsed = useRef(false);
+    const seededTimeUsed = useRef(false);
 
     // Gateways redirect back to this page with the outcome in the query string.
     // 'pending' is the normal crypto case — BTCPay's return fires before the
@@ -814,6 +820,17 @@ export function BookingWizard() {
                     return;
                 const dates = data.dates ?? [];
                 setAvailableDates(dates);
+                // The assistant's chosen day wins once, if it is still free.
+                if (!seededDateUsed.current && seededDate) {
+                    seededDateUsed.current = true;
+                    const seededDay = dates.find((item) => item.available && item.date === seededDate);
+                    if (seededDay) {
+                        if (draft.selectedDate !== seededDay.date) {
+                            patchDraft({ selectedDate: seededDay.date, selectedDateFrom: seededDay.date as any, selectedDateTo: seededDay.date as any, selectedTime: undefined, selectedTimeFrom: undefined, selectedTimeTo: undefined }).catch((e) => setError(e.message));
+                        }
+                        return;
+                    }
+                }
                 const selectedIsStillAvailable = Boolean(draft.selectedDate && dates.some((item) => item.date === draft.selectedDate && item.available));
                 if (!selectedIsStillAvailable) {
                     const today = new Date().toISOString().slice(0, 10);
@@ -851,8 +868,20 @@ export function BookingWizard() {
         getJson<{
             timeSlots: TimeSlotItem[];
         }>(`/api/booking-pro/availability/timeslots?${params.toString()}`)
-            .then((data) => { if (!cancelled && timeSlotsRequestSeq.current === requestId)
-                setTimeSlots(data.timeSlots ?? []); })
+            .then((data) => {
+                if (cancelled || timeSlotsRequestSeq.current !== requestId)
+                    return;
+                const slots = data.timeSlots ?? [];
+                setTimeSlots(slots);
+                // The assistant's chosen time, once, with its real end time, if it is still free.
+                if (!seededTimeUsed.current && seededTime && draft.selectedDate === seededDate) {
+                    seededTimeUsed.current = true;
+                    const slot = slots.find((item) => item.available && String(item.time).slice(0, 5) === seededTime);
+                    if (slot) {
+                        patchDraft({ selectedTime: slot.time, selectedTimeFrom: slot.time, selectedTimeTo: slot.endTime }).catch((e) => setError(e.message));
+                    }
+                }
+            })
             .catch((e) => { if (!cancelled && timeSlotsRequestSeq.current === requestId) setError(e.message); });
         return () => { cancelled = true; };
     }, [draft?.providerId, draft?.serviceId, draft?.specialistId, draft?.selectedDate, draft?.bookingUiMode, locale, resumeChoiceRequired]);

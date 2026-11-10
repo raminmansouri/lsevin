@@ -8,6 +8,8 @@ import {
   getAdminProductForEdit,
   listAdminCategories,
   listAttributesAdmin,
+  listProductOffersAdmin,
+  listSellersForPicker,
   listServiceDefinitionsForPicker,
 } from "@/features/shop/api/admin.repository";
 import {
@@ -16,6 +18,8 @@ import {
   unlinkProductServiceForm,
 } from "@/features/shop/actions/admin.actions";
 import {
+  deleteOfferForm,
+  upsertOfferForm,
   deleteVariantForm,
   removeProductAttributeForm,
   setProductAttributeForm,
@@ -36,11 +40,13 @@ export default async function AdminProductEditPage({ params }: { params: Promise
   const t = await getTranslations("ShopAdmin");
   const locale = await getLocale();
   const { id } = await params;
-  const [product, categories, services, allAttributes] = await Promise.all([
+  const [product, categories, services, allAttributes, offers, sellers] = await Promise.all([
     getAdminProductForEdit(id, locale),
     listAdminCategories(),
     listServiceDefinitionsForPicker(),
     listAttributesAdmin(locale),
+    listProductOffersAdmin(id),
+    listSellersForPicker(),
   ]);
   if (!product) notFound();
   const attachedIds = new Set((product.attributes ?? []).map((a: any) => a.attribute_id));
@@ -91,6 +97,115 @@ export default async function AdminProductEditPage({ params }: { params: Promise
         />
 
         <div className="space-y-4">
+          {/* Sellers: one offer per seller per item. Content (title, images, specs) stays on the product. */}
+          <section className="rounded-2xl border-2 border-[#083f30]/15 bg-white p-5 shadow-sm">
+            <h2 className="text-sm font-bold text-gray-900">{t("offers.title")}</h2>
+            <p className="mb-3 text-xs text-gray-500">{t("offers.hint")}</p>
+
+            <ul className="mb-4 space-y-2">
+              {offers.map((o: any) => (
+                <li key={o.id} className="rounded-xl border border-gray-100 p-3">
+                  <div className="mb-2 flex items-center justify-between gap-2 text-sm">
+                    <span>
+                      <span className="font-semibold text-gray-900">{o.seller_name}</span>
+                      {o.seller_is_default ? <span className="ms-2 rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-semibold text-amber-800">{t("sellers.default")}</span> : null}
+                      {o.variant_id ? <span className="ms-2 text-xs text-gray-500">{o.variant_title || o.variant_sku}</span> : null}
+                    </span>
+                    <form action={deleteOfferForm}>
+                      <input type="hidden" name="id" value={o.id} />
+                      <input type="hidden" name="productId" value={product.id} />
+                      <PendingSubmitButton className="text-xs text-red-600">{t("common.remove")}</PendingSubmitButton>
+                    </form>
+                  </div>
+                  <form action={upsertOfferForm} className="grid grid-cols-2 gap-2 sm:grid-cols-6 sm:items-end">
+                    <input type="hidden" name="id" value={o.id} />
+                    <input type="hidden" name="productId" value={product.id} />
+                    <input type="hidden" name="currency" value={o.currency} />
+                    <label className="text-[11px] text-gray-500 sm:col-span-2">{t("offers.price")} ({o.currency})
+                      <input name="price" type="number" step="0.01" min="0" required defaultValue={o.price} className={input} />
+                    </label>
+                    <label className="text-[11px] text-gray-500">{t("offers.compareAt")}
+                      <input name="compareAtPrice" type="number" step="0.01" min="0" defaultValue={o.compare_at_price ?? ""} className={input} />
+                    </label>
+                    <label className="text-[11px] text-gray-500">{t("offers.stock")}
+                      <input name="stockQuantity" type="number" min="0" defaultValue={o.stock_quantity ?? ""} placeholder="—" className={input} />
+                    </label>
+                    <label className="text-[11px] text-gray-500">{t("offers.handlingDays")}
+                      <input name="handlingDays" type="number" min="0" defaultValue={o.handling_days ?? ""} className={input} />
+                    </label>
+                    <label className="text-[11px] text-gray-500 sm:col-span-2">{t("offers.sellerSku")}
+                      <input name="sellerSku" defaultValue={o.seller_sku ?? ""} dir="ltr" className={input} />
+                    </label>
+                    <label className="text-[11px] text-gray-500 sm:col-span-2">{t("offers.warrantyFa")}
+                      <input name="warrantyFa" defaultValue={o.warranty_translations?.fa ?? ""} dir="rtl" className={input} />
+                    </label>
+                    <label className="text-[11px] text-gray-500 sm:col-span-2">{t("offers.warrantyEn")}
+                      <input name="warrantyEn" defaultValue={o.warranty_translations?.en ?? ""} dir="ltr" className={input} />
+                    </label>
+                    <div className="flex items-center justify-between gap-2">
+                      <label className="flex items-center gap-1 text-xs"><input type="checkbox" name="isActive" defaultChecked={o.is_active} /> {t("common.activeShort")}</label>
+                      <PendingSubmitButton className="rounded bg-[#083f30] px-3 py-1.5 text-xs font-semibold text-white">{t("common.save")}</PendingSubmitButton>
+                    </div>
+                  </form>
+                  {(o.history ?? []).length ? (
+                    <details className="mt-2">
+                      <summary className="cursor-pointer text-[11px] font-medium text-gray-500">
+                        {t("offers.priceHistory", { count: o.history.length })}
+                      </summary>
+                      <ul className="mt-1 space-y-0.5 text-[11px] text-gray-600">
+                        {o.history.map((h: any, i: number) => (
+                          <li key={`${h.recorded_at}-${i}`} className="flex justify-between gap-3">
+                            <span>{new Date(h.recorded_at).toLocaleString(locale)}</span>
+                            <span className="font-mono">{formatMoney({ amount: Number(h.price), currencyCode: o.currency }, { locale, showCode: true })}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </details>
+                  ) : null}
+                </li>
+              ))}
+              {!offers.length ? <li className="text-xs text-gray-400">{t("offers.none")}</li> : null}
+            </ul>
+
+            <details className="rounded-xl border border-dashed border-[#083f30]/30 p-3">
+              <summary className="cursor-pointer text-sm font-semibold text-[#083f30]">+ {t("offers.add")}</summary>
+              <form action={upsertOfferForm} className="mt-3 space-y-2">
+                <input type="hidden" name="productId" value={product.id} />
+                <div className="grid grid-cols-2 gap-2">
+                  <select name="sellerId" required className={input} defaultValue="">
+                    <option value="" disabled>{t("offers.pickSeller")}</option>
+                    {sellers.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
+                  </select>
+                  {(product.variants ?? []).length ? (
+                    <select name="variantId" required className={input} defaultValue="">
+                      <option value="" disabled>{t("offers.pickVariant")}</option>
+                      {(product.variants ?? []).map((v: any) => <option key={v.id} value={v.id}>{v.title || v.option_key} · {v.sku}</option>)}
+                    </select>
+                  ) : (
+                    <input name="sellerSku" placeholder={t("offers.sellerSku")} className={input} />
+                  )}
+                </div>
+                {/* An offer is always priced in its product's currency (the database enforces it). */}
+                <input type="hidden" name="currency" value={product.base_currency} />
+                <div className="grid grid-cols-2 gap-2">
+                  <input name="price" type="number" step="0.01" min="0" required placeholder={`${t("offers.price")} (${product.base_currency})`} className={input} />
+                  <input name="compareAtPrice" type="number" step="0.01" min="0" placeholder={`${t("offers.compareAt")} (${product.base_currency})`} className={input} />
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <input name="stockQuantity" type="number" min="0" placeholder={t("offers.stock")} className={input} />
+                  <input name="handlingDays" type="number" min="0" placeholder={t("offers.handlingDays")} className={input} />
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <input name="warrantyFa" dir="rtl" placeholder={t("offers.warrantyFa")} className={input} />
+                  <input name="warrantyEn" dir="ltr" placeholder={t("offers.warrantyEn")} className={input} />
+                </div>
+                <label className="flex items-center gap-1 text-sm"><input type="checkbox" name="isActive" defaultChecked /> {t("common.activeShort")}</label>
+                <PendingSubmitButton className="w-full rounded bg-[#083f30] px-3 py-2 text-sm font-semibold text-white">{t("offers.add")}</PendingSubmitButton>
+                <p className="text-xs text-gray-400">{t("offers.addNote")}</p>
+              </form>
+            </details>
+          </section>
+
           <section className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
             <h2 className="mb-2 text-sm font-bold text-gray-900">{e("imagesTitle")}</h2>
             <ProductGalleryEditor key={JSON.stringify(product.galleryUrls)} productId={product.id} initialUrls={product.galleryUrls} />

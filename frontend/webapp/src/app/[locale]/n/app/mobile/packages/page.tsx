@@ -5,6 +5,7 @@ import { ReserveButton } from './reserve-button';
 
 import { ImageWithFallback } from '@/components/ui/image-with-fallback';
 import { Link } from '@/i18n/navigation';
+import { entityPath } from '@/lib/routes/public-paths';
 import type { PageProps } from '@/types/next';
 import { resolveHomeMediaUrl } from '@/features/home/components/home-media';
 import { SafePriceText } from '@/features/home/components/safe-price-text';
@@ -16,6 +17,8 @@ import {
 
 import { DesktopPackagesList } from '@/features/web-desktop/packages/DesktopPackages';
 import { DesktopSponsoredSection } from '@/features/web-desktop/home/DesktopSponsoredSection';
+import { buildPublicMetadata } from '@/lib/seo/metadata';
+import { INDEXABLE_SHOP_LOCALES } from '@/lib/seo/locale-eligibility';
 
 // Static / ISR — the package list is the same for every visitor of a locale.
 export const dynamic = 'force-dynamic';
@@ -23,6 +26,18 @@ export const dynamic = 'force-dynamic';
 async function getLocaleFromParams(params: PageProps['params']) {
   const resolved = await params;
   return String((resolved as { locale?: string } | undefined)?.locale || 'fa-IR');
+}
+
+export async function generateMetadata({ params }: Pick<PageProps, 'params'>) {
+  const locale = await getLocaleFromParams(params);
+  const t = await getTranslations({ locale, namespace: 'Home' });
+  return buildPublicMetadata({
+    locale,
+    path: '/packages',
+    title: t('packagesPage.title'),
+    descriptions: [t('packagesPage.subtitle')],
+    eligibleLocales: INDEXABLE_SHOP_LOCALES,
+  });
 }
 
 export default async function SpecialPackagesPage({ params }: PageProps) {
@@ -37,7 +52,7 @@ export default async function SpecialPackagesPage({ params }: PageProps) {
       <div className="sticky top-0 z-40 border-b border-gray-100 bg-white px-5 pb-4 pt-3">
         <div className="flex items-center gap-3">
           <Link
-            href="/n/app/mobile/home"
+            href="/"
             className="flex h-10 w-10 items-center justify-center rounded-full transition-colors hover:bg-gray-100"
             aria-label={t('packagesPage.backAria')}
           >
@@ -99,7 +114,7 @@ function SpecialPackageCard({
 
   return (
     <div className="group relative flex flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all hover:shadow-md active:scale-[0.99]">
-      <Link href={`/n/app/mobile/packages/${pkg.id}`} aria-label={pkg.title} className="absolute inset-0 z-[1]" />
+      <Link href={entityPath('package', pkg)} aria-label={pkg.title} className="absolute inset-0 z-[1]" />
       <div className="relative h-40 w-full overflow-hidden bg-gray-100">
         {mediaUrl ? (
           <ImageWithFallback

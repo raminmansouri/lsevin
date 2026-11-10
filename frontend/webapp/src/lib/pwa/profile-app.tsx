@@ -1,5 +1,7 @@
 import { createRoot } from "react-dom/client";
 
+import { routeLocaleFor } from "../seo/language-tags";
+
 import { ProfileOverviewView } from "../../features/profile/components/profile-overview-view";
 import {
   parseProfileProjection,
@@ -19,7 +21,7 @@ async function start() {
     ))
   ) {
     document.body.replaceChildren();
-    location.replace(`/${document.documentElement.lang}/n/app/mobile/home`);
+    location.replace(`/${routeLocaleFor(document.documentElement.lang)}`);
     return;
   }
   createRoot(root).render(

@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
-
-import { listAdminOrders } from "@/features/shop/api/admin.repository";
+import { listAdminOrders, listSellersAdmin } from "@/features/shop/api/admin.repository";
 
 export const dynamic = "force-dynamic";
 
@@ -35,8 +34,9 @@ export default async function AdminOrdersPage({
     status: val("status") || undefined,
     paymentStatus: val("paymentStatus") || undefined,
     fulfillmentStatus: val("fulfillmentStatus") || undefined,
+    seller: val("seller") || undefined,
   };
-  const rows = await listAdminOrders(filters);
+  const [rows, sellers] = await Promise.all([listAdminOrders(filters), listSellersAdmin()]);
 
   const orderStatus = (v: string) => (t.has(`enum.orderStatus.${v}` as never) ? t(`enum.orderStatus.${v}` as never) : v);
   const paymentStatus = (v: string) => (t.has(`enum.paymentStatus.${v}` as never) ? t(`enum.paymentStatus.${v}` as never) : v);
@@ -67,6 +67,12 @@ export default async function AdminOrdersPage({
             <option key={s} value={s}>{s ? paymentStatus(s) : t("orders.anyPayment")}</option>
           ))}
         </select>
+        <select name="seller" defaultValue={filters.seller ?? ""} className="h-9 rounded-lg border border-gray-200 px-2 text-sm">
+          <option value="">{t("orders.anySeller")}</option>
+          {sellers.map((s: any) => (
+            <option key={s.id} value={s.slug}>{s.name}</option>
+          ))}
+        </select>
         <button className="h-9 rounded-lg bg-[#083f30] px-4 text-sm font-semibold text-white">{t("common.filter")}</button>
       </form>
 
@@ -94,7 +100,14 @@ export default async function AdminOrdersPage({
                   </Link>
                 </td>
                 <td className="px-4 py-3 text-gray-600">{o.email}</td>
-                <td className="px-4 py-3">{o.item_count}</td>
+                <td className="px-4 py-3">
+                  {o.item_count}
+                  {o.seller_count > 1 ? (
+                    <span className="ms-2 rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-semibold text-amber-800">
+                      {t("orders.sellers", { count: o.seller_count })}
+                    </span>
+                  ) : null}
+                </td>
                 <td className="px-4 py-3">{orderStatus(o.status)}</td>
                 <td className="px-4 py-3">{paymentStatus(o.payment_status)}</td>
                 <td className="px-4 py-3">{shipmentStatus(o.fulfillment_status)}</td>

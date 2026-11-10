@@ -37,6 +37,8 @@ export interface ProviderBeforeAfter {
 
 export interface Provider {
   id: string;
+  /** Public URL segment; null for rows that predate slugs. */
+  slug?: string | null;
   name: string;
   providerType?: string | null;
   tagline: string;
@@ -71,6 +73,8 @@ export interface Provider {
 
 export interface Service {
   id: string;
+  /** Public URL segment; null for rows that predate slugs. */
+  slug?: string | null;
   name: string;
   description?: string | null;
   price: number;
@@ -92,6 +96,8 @@ export interface Service {
 
 export interface Specialist {
   id: string;
+  /** Public URL segment; null for rows that predate slugs. */
+  slug?: string | null;
   name: string;
   specialty: string;
   experience: string;

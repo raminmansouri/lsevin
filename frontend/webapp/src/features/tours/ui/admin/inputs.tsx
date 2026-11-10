@@ -22,12 +22,13 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { getLocaleDisplayName, SUPPORTED_LOCALE_HEADERS } from "@/config/locales";
 import { SingleMediaPickerInput } from "@/features/media-picker-addon";
 import { formatMoney } from "@/features/finance/lib/money";
-import { resolveMediaUrl } from "@/features/service-providers/lib/media-url";
+import { env } from "@/config/env/client";
 import { LocalizedInput } from "@/features/shared/components/LocalizedInput";
 import { cn } from "@/lib/utils";
 import type { LocaleHeaderTypes, LocaleTypes } from "@/types/common";
 
 import { formatInstant, formatIsoDate, isIsoDate } from "../../domain/calendar";
+import { toLibraryPath } from "../../domain/media";
 
 // ---------------------------------------------------------------------------
 // Labels stored per language ("fa-IR": "...") read with the UI locale ("fa").
@@ -295,16 +296,17 @@ export function MoneyInput({ id, value, onChange, currency, disabled, decimals =
 // ---------------------------------------------------------------------------
 
 /**
- * Picks a file from the media library (or uploads one) and stores its public URL.
- * Library entries can hold a storage-relative path; tours store absolute (or site-root)
- * URLs because customer pages and the server's URL check need them, so it is resolved here.
+ * Picks a file from the media library (or uploads one) and stores the library's own
+ * path ("Categories/…/x.webp"), resolved per site only when displayed (see domain/media.ts).
+ * Older rows hold "https://<files host>/files/<path>"; they are mapped back so the
+ * picker still recognises and previews them.
  */
 export function MediaUrlInput({ id, value, onChange, disabled, mediaType = "image", placeholder }: {
   id?: string; value: string; onChange: (url: string) => void; disabled?: boolean; mediaType?: "image" | "video" | "all"; placeholder?: string;
 }) {
   return (
     <div id={id}>
-      <SingleMediaPickerInput name={id ?? "media"} value={value} onValueChange={(v) => onChange(resolveMediaUrl(v ?? ""))}
+      <SingleMediaPickerInput name={id ?? "media"} value={value ? toLibraryPath(value, env.NEXT_PUBLIC_FILES_URL) : ""} onValueChange={(v) => onChange(v ?? "")}
         valueField="fileUrl" mediaType={mediaType} disabled={disabled} placeholder={placeholder} />
     </div>
   );

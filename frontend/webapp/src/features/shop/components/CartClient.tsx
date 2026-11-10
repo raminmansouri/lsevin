@@ -53,7 +53,7 @@ export function CartClient({
       return (
         <div className="px-4 py-6">
           <Link
-            href="/n/app/mobile/shop"
+            href="/shop"
             className="inline-flex min-h-11 items-center rounded-xl border border-neutral-300 px-4 text-sm font-semibold text-[#083f30]"
           >
             {t("startShopping")}
@@ -68,7 +68,7 @@ export function CartClient({
         </p>
         <p className="mt-1 text-sm text-neutral-500">{t("cartEmptyHint")}</p>
         <Link
-          href="/n/app/mobile/shop"
+          href="/shop"
           className="mt-5 rounded-full bg-[#083f30] px-6 py-2.5 text-sm font-bold text-white"
         >
           {t("startShopping")}
@@ -91,7 +91,7 @@ export function CartClient({
           className="flex gap-3 rounded-2xl bg-white p-3 shadow-sm ring-1 ring-black/[0.04]"
         >
           <Link
-            href={`/n/app/mobile/shop/product/${item.slug}`}
+            href={`/products/${item.slug}`}
             className="h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-neutral-100"
           >
             {item.imageUrl ? (
@@ -107,6 +107,9 @@ export function CartClient({
             <p className="line-clamp-2 text-[13px] font-medium text-neutral-800">
               {item.name}
             </p>
+            {item.sellerName ? (
+              <p className="text-xs font-medium text-[#083f30]">🏪 {item.sellerName}</p>
+            ) : null}
             {item.variantTitle ? (
               <p className="text-xs text-neutral-500">{item.variantTitle}</p>
             ) : null}

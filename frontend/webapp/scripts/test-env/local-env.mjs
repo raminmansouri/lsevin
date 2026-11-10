@@ -5,7 +5,7 @@
  *
  *   pnpm test:local-env                       # every suite; reuse the test database if it exists
  *   pnpm test:local-env --reset               # rebuild the test database from the local dev database
- *   pnpm test:local-env --suite categories    # one suite (itinerary | categories); repeatable
+ *   pnpm test:local-env --suite categories    # one suite (itinerary | categories | site-chrome); repeatable
  *   pnpm test:local-env --unit                # unit tests only (no database, no server)
  *   pnpm test:local-env --e2e-only            # skip unit + integration (e.g. after they passed)
  *   pnpm test:itinerary                       # = --suite itinerary
@@ -53,6 +53,18 @@ const SUITES = {
     unit: ['src/features/categories'],
     integration: ['src/features/categories/server/category-landing.int.test.ts'],
     e2e: 'playwright.category-landing.config.ts',
+    warmup: [{ path: '/fa/n/app/mobile/home', signedIn: false }, { path: '/fa/n/app/mobile/categories', signedIn: false }],
+  },
+  'shop-api': {
+    unit: ['src/features/shop-api/shop-api.test.ts'],
+    integration: ['src/features/shop-api/shop-api.int.test.ts'],
+    e2e: 'playwright.shop-api.config.ts',
+    warmup: [{ path: '/fa/developers/shop-api', signedIn: false }],
+  },
+  'site-chrome': {
+    unit: [],
+    integration: [],
+    e2e: 'playwright.site-chrome.config.ts',
     warmup: [{ path: '/fa/n/app/mobile/home', signedIn: false }, { path: '/fa/n/app/mobile/categories', signedIn: false }],
   },
 };
@@ -192,7 +204,9 @@ function stop(child) {
 async function main() {
   log(`suites: ${suites.join(', ')}`);
   const e2eOnly = args.has('--e2e-only');
-  if (!e2eOnly) run(`unit tests (${suites.join(', ')})`, 'npx', ['vitest', 'run', ...suites.flatMap((name) => SUITES[name].unit)], {});
+  const unitPaths = suites.flatMap((name) => SUITES[name].unit);
+  // An empty list would make `vitest run` run every test in the repository.
+  if (!e2eOnly && unitPaths.length) run(`unit tests (${suites.join(', ')})`, 'npx', ['vitest', 'run', ...unitPaths], {});
   if (args.has('--unit')) return;
 
   prepareDatabase();
@@ -200,7 +214,8 @@ async function main() {
   const secret = process.env.AUTH_SECRET || readEnvLocal('AUTH_SECRET');
   if (!secret) throw new Error('AUTH_SECRET not found (environment or .env.local)');
 
-  if (!e2eOnly) run('integration tests (real database)', 'npx', ['vitest', 'run', ...suites.flatMap((name) => SUITES[name].integration)], { ACCOUNTING_TEST_DATABASE_URL: databaseUrl });
+  const integrationPaths = suites.flatMap((name) => SUITES[name].integration);
+  if (!e2eOnly && integrationPaths.length) run('integration tests (real database)', 'npx', ['vitest', 'run', ...integrationPaths], { ACCOUNTING_TEST_DATABASE_URL: databaseUrl });
 
   const filesPort = await freePort(3901);
   const stubPort = await freePort(3911);

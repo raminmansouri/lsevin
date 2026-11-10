@@ -13,9 +13,9 @@ export function BottomTabBar() {
 
 
   const tabs = [
-    { icon: Home, label: t('Home'), path: '/n/app/mobile/home' },
-    { icon: Search, label: t('Explore'), path: '/n/app/mobile/explore' },
-    { icon: ShoppingBag, label: t('Shop'), path: '/n/app/mobile/shop' },
+    { icon: Home, label: t('Home'), path: '/' },
+    { icon: Search, label: t('Explore'), path: '/explore' },
+    { icon: ShoppingBag, label: t('Shop'), path: '/shop', also: ['/products', '/n/app/mobile/shop'] },
     { icon: Calendar, label: t('Bookings'), path: '/n/app/mobile/bookings' },
     { icon: User, label: t('Profile'), path: '/n/app/mobile/profile' },
   ];
@@ -24,7 +24,7 @@ export function BottomTabBar() {
     <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-2 safe-area-bottom z-50">
       <div className={`flex items-center justify-around max-w-md mx-auto ${isRTL ? 'flex-row-reverse' : ''}`}>
         {tabs.map(tab => {
-          const isActive = pathname?.startsWith(tab.path);
+          const isActive = [tab.path, ...(('also' in tab && tab.also) || [])].some((path) => (path === '/' ? pathname === '/' : pathname?.startsWith(path)));
           const Icon = tab.icon;
           
           return (

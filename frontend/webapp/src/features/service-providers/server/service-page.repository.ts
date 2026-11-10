@@ -29,6 +29,7 @@ import type {
   StaffEducation,
   TopReview,
 } from '../types/service-page.types';
+import { entityPath } from '@/lib/routes/public-paths';
 
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{12}$/i;
@@ -215,10 +216,12 @@ function pickConvertedPrice(prices: ConvertedMoney[], preferredCurrencyCode: str
 
 type PrimaryServiceRow = {
   provider_service_id: string;
+  provider_service_slug: string | null;
   service_definition_id: string;
   category_id: string | null;
   category_name: string | null;
   provider_id: string;
+  provider_slug: string | null;
   provider_type_id: string;
   provider_type_name: string | null;
   provider_grade_name: string | null;
@@ -284,6 +287,7 @@ type GalleryRow = {
 
 type ProviderOfferingRow = {
   provider_service_id: string;
+  provider_service_slug: string | null;
   service_definition_id: string;
   provider_id: string;
   provider_type_name: string | null;
@@ -404,6 +408,7 @@ type PolicyRow = {
 type SpecialistRow = {
   id: string;
   staff_id: string;
+  staff_slug: string | null;
   name: string;
   title: string | null;
   biography: string | null;
@@ -457,6 +462,7 @@ async function mapOffering(row: ProviderOfferingRow, options: { preferredCurrenc
   return {
     id: row.provider_id,
     providerServiceId: row.provider_service_id,
+    slug: row.provider_service_slug,
     serviceDefinitionId: row.service_definition_id,
     providerTypeName: asString(row.provider_type_name),
     image,
@@ -478,7 +484,7 @@ async function mapOffering(row: ProviderOfferingRow, options: { preferredCurrenc
     sponsored: Boolean(row.sponsored),
     durationMinutes: asNumber(row.duration_minutes, 0),
     isFavorite,
-    link: `/service/${row.provider_service_id}`,
+    link: entityPath('service', { id: row.provider_service_id, slug: row.provider_service_slug }),
   };
 }
 
@@ -509,7 +515,7 @@ function splitRecommendations(providers: ServiceProviderOffering[], currentProvi
       price: item.displayPrice.amount,
       currency: item.displayPrice.symbol || item.displayPrice.code,
       verified: item.verified,
-      link: `/service/${item.providerServiceId}`,
+      link: entityPath('service', { id: item.providerServiceId, slug: item.slug }),
     })),
     internationalRecommendations: internationalRecommendations.map((item) => ({
       id: item.providerServiceId,
@@ -523,7 +529,7 @@ function splitRecommendations(providers: ServiceProviderOffering[], currentProvi
       price: item.displayPrice.amount,
       currency: item.displayPrice.symbol || item.displayPrice.code,
       verified: item.verified,
-      link: `/service/${item.providerServiceId}`,
+      link: entityPath('service', { id: item.providerServiceId, slug: item.slug }),
     })),
   };
 }
@@ -557,10 +563,12 @@ async function getPrimaryServiceRow(serviceId: string, locale: string) {
     )
     select
       ps.id::text as provider_service_id,
+      ps.slug as provider_service_slug,
       sd.id::text as service_definition_id,
       c.id::text as category_id,
       common.get_translation_t(c.name_translations, ${locale}, ${DEFAULT_FALLBACK_LOCALE}) as category_name,
       sp.id::text as provider_id,
+      sp.slug as provider_slug,
       sp.provider_type_id::text as provider_type_id,
       common.get_translation_t(pt.name_translations, ${locale}, ${DEFAULT_FALLBACK_LOCALE}) as provider_type_name,
       spg.name as provider_grade_name,
@@ -819,6 +827,7 @@ async function getProvidersForService(serviceDefinitionId: string, locale: strin
   const rows = await sql<ProviderOfferingRow[]>`
     select
       ps.id::text as provider_service_id,
+      ps.slug as provider_service_slug,
       ps.service_definition_id::text as service_definition_id,
       sp.id::text as provider_id,
       common.get_translation_t(pt.name_translations, ${locale}, ${DEFAULT_FALLBACK_LOCALE}) as provider_type_name,
@@ -1190,6 +1199,7 @@ async function getSpecialists(providerId: string, serviceDefinitionId: string, l
     select
       ps.id::text as id,
       s.id::text as staff_id,
+      s.slug as staff_slug,
       common.get_translation_t(s.name_translations, ${locale}, ${DEFAULT_FALLBACK_LOCALE}) as name,
       common.get_translation_t(s.title_translations, ${locale}, ${DEFAULT_FALLBACK_LOCALE}) as title,
       common.get_translation_t(s.biography_translations, ${locale}, ${DEFAULT_FALLBACK_LOCALE}) as biography,
@@ -1277,6 +1287,7 @@ async function getSpecialists(providerId: string, serviceDefinitionId: string, l
     return {
       id: row.id,
       staffId: row.staff_id,
+      staffSlug: row.staff_slug,
       name: row.name,
       title: asString(row.title),
       biography: asString(row.biography),
@@ -1435,6 +1446,7 @@ export async function getServicePageByIdFromDb({
 
   const providerProfile = {
     id: row.provider_id,
+    slug: row.provider_slug,
     name: row.provider_name,
     description: asString(row.provider_description),
     image: normalizeStoredMediaUrl(row.provider_image_url),
@@ -1465,6 +1477,7 @@ export async function getServicePageByIdFromDb({
 
   const service: Service = {
     id: row.provider_service_id,
+    slug: row.provider_service_slug,
     providerServiceId: row.provider_service_id,
     serviceDefinitionId: row.service_definition_id,
     categoryId: row.category_id,
@@ -1475,6 +1488,7 @@ export async function getServicePageByIdFromDb({
     definitionDescription: asString(row.service_definition_description),
     clinic: row.provider_name,
     clinicId: row.provider_id,
+    clinicSlug: row.provider_slug,
     providerDescription: asString(row.provider_description),
     providerProfile,
     location: [row.provider_city, row.provider_country].filter(Boolean).join(', '),

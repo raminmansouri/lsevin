@@ -1,7 +1,19 @@
+import { RouteMessages } from "@/app/[locale]/n/route-messages";
 import { privateMetadata } from "@/lib/seo/robots-policy";
 
 export const metadata = privateMetadata;
 
-export default function Layout({ children }: { children: React.ReactNode }) {
-  return children;
+export default async function Layout({
+  children,
+  params,
+}: {
+  children: React.ReactNode;
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  return (
+    <RouteMessages route="n/app/mobile/booking-v2" locale={locale}>
+      {children}
+    </RouteMessages>
+  );
 }

@@ -1,0 +1,1256 @@
+{
+  "slug": "about-us",
+  "status": "publish",
+  "needsConfirmation": [
+    "Registered legal entity name, registration number and registered address (not present in the codebase; not stated on the page)",
+    "Which domain the Enamad seal 7764782 was issued for (lsevin.com or lsevincare.com); the seal is rendered in src/app/[locale]/n/app/mobile/home/page.tsx",
+    "Whether LSevin itself holds a health tourism licence (the guides say LSevin works with licensed health tourism companies; the page does not claim a licence of its own)",
+    "Founding year, team and office location, if the business wants them on the page"
+  ],
+  "sources": [
+    "src/app/[locale]/n/app/mobile/home/page.tsx (Enamad trust seal id 7764782 linking to trustseal.enamad.ir)",
+    "src/app/layout.tsx (enamad domain-verification meta tag; brand name LSevin)",
+    "src/i18n/routing.ts (11 interface locales: en, fa, tr, es, ar, ku, de, fr, ru, tg, zh)",
+    "messages/en.json Consultation.homeCard/cta/success/form (free callback consultation; paid video consultation with price and length shown)",
+    "messages/en.json MobileProfile.privacyPolicy (phone + OTP sign-in, 18+ only, contact email lsevin.turkiye@gmail.com, marketplace of independent providers)",
+    "src/features/service-providers/actions/admin/index.ts and src/features/provider-portal/components/settings-manager.tsx (accredited flag is set by admins only, providers cannot change it)",
+    "src/features/booking-pro/utils/pay-in-place-plans.ts and src/features/commercial/lib/server/payment-policy-engine.ts (full, partial or no advance payment depending on service)",
+    "src/features/wallet/payment-gateway.ts (Zarinpal online gateway for IRR/IRT)",
+    "src/features/finance/lib/server/viewer-pricing.ts (rial/toman for visitors in Iran, another currency for visitors abroad)",
+    "src/features/guides/content/hub.ts, visa.ts, medical-hotels.ts, licensed-hospitals.ts (LSevin does not issue visas or invitations; IPD list at iht.behdasht.gov.ir; Tehran, Mashhad, Shiraz; in-hotel care where available)"
+  ],
+  "locales": {
+    "en-US": {
+      "title": "About LSevin",
+      "metaDescription": "LSevin helps you book clinics, specialists, hotels near hospitals, tours and gyms in Iran, and buy health products, with a free consultation before you book.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "LSevin (السوین in Persian) is a booking platform for health travel and wellness in Iran. On one site you can find clinics, hospitals and specialists, book a hotel close to your hospital, add care during your stay, join a tour, pay for a gym membership and order products from the LSevin shop. The service runs at lsevin.com and is also available at lsevincare.com."
+        },
+        {
+          "type": "h2",
+          "text": "Who LSevin is for"
+        },
+        {
+          "type": "p",
+          "text": "Patients travelling to Iran from abroad, including Iraq, the Gulf states and Afghanistan, who need treatment, accommodation and local transport to fit together on the same dates."
+        },
+        {
+          "type": "p",
+          "text": "Patients inside Iran who travel from their own city to Tehran, Mashhad or Shiraz for treatment and need a hotel for the follow-up visits."
+        },
+        {
+          "type": "p",
+          "text": "Companions travelling with a patient, and anyone who wants to book a hotel, a tour, a gym or a wellness service in Iran."
+        },
+        {
+          "type": "h2",
+          "text": "What LSevin does"
+        },
+        {
+          "type": "p",
+          "text": "LSevin is an intermediary. The clinics, hospitals, doctors, hotels, tour operators and gyms on the platform are independent providers. They deliver the service, set their own prices and policies, and remain responsible for the care or service they give you."
+        },
+        {
+          "type": "p",
+          "text": "LSevin publishes their information, takes your booking, collects payment where online payment is offered, and coordinates between you and the provider. When something goes wrong with a booking, LSevin support is your first point of contact."
+        },
+        {
+          "type": "p",
+          "text": "LSevin does not give medical advice and does not choose your treatment. Your treating physician makes that decision. LSevin also does not issue visas or medical invitation letters. For international patients the invitation comes from a facility licensed by Iran's Ministry of Health, and travel arrangements go through a licensed health tourism company."
+        },
+        {
+          "type": "h2",
+          "text": "How a booking works"
+        },
+        {
+          "type": "p",
+          "text": "Ask first. The free consultation request takes your name, phone number and a preferred time to talk. An LSevin advisor calls you back. Sending the request does not change any booking you have already started."
+        },
+        {
+          "type": "p",
+          "text": "Choose a provider. Provider and service pages show the price, the location and the policies the provider has published, such as its cancellation terms. Some providers carry an Accredited badge. Only LSevin administrators can set that badge; providers cannot add it to their own profile."
+        },
+        {
+          "type": "p",
+          "text": "Book and pay. You see the total before you pay. Depending on the service, you pay the full amount online, pay part now and the rest at the place, or book without paying in advance. Online payments in Iranian rial go through the Zarinpal gateway, and you can also pay from your LSevin wallet."
+        },
+        {
+          "type": "p",
+          "text": "Keep track. Your bookings, invoices, wallet history and support conversations are kept in your account. You sign in with your phone number and a one-time code sent to it."
+        },
+        {
+          "type": "h2",
+          "text": "Trust and verification"
+        },
+        {
+          "type": "p",
+          "text": "LSevin displays the Enamad electronic trust seal, ID 7764782. Enamad is the trust-seal programme for online businesses in Iran. Click the seal on the site to open its record on trustseal.enamad.ir."
+        },
+        {
+          "type": "p",
+          "text": "If you are travelling from abroad for treatment, check that your hospital or clinic appears on the Ministry of Health list of facilities licensed to admit international patients (IPD licence) at iht.behdasht.gov.ir. Our guide to licensed hospitals walks through the check step by step."
+        },
+        {
+          "type": "h2",
+          "text": "Languages and currencies"
+        },
+        {
+          "type": "p",
+          "text": "You can use LSevin in Persian, English and Arabic. The interface is also available in Turkish, Kurdish, German, French, Spanish, Russian, Tajik and Chinese. Visitors in Iran see prices in rial or toman. Visitors from other countries see prices in another currency, usually the currency of the country linked to their phone number."
+        },
+        {
+          "type": "h2",
+          "text": "Contact"
+        },
+        {
+          "type": "p",
+          "text": "For questions about a booking, an order or your account, open Support in your LSevin account and start a conversation. For questions about your personal data, email lsevin.turkiye@gmail.com."
+        }
+      ],
+      "faq": [
+        {
+          "q": "Is LSevin a hospital or a clinic?",
+          "a": "No. LSevin is a booking platform. The treatment, stay or service is provided by the independent clinic, hospital, hotel or other provider you book with."
+        },
+        {
+          "q": "Does LSevin issue visas or invitation letters?",
+          "a": "No. For a medical visa, the invitation comes from a facility licensed by Iran's Ministry of Health, and a licensed health tourism company handles the travel side. LSevin helps you line up the dates for treatment, hotel and transfers."
+        },
+        {
+          "q": "Is the consultation free?",
+          "a": "The consultation request, where an LSevin advisor calls you back, is free. A video consultation with a doctor is a separate paid service, and its length and price are shown before you book."
+        },
+        {
+          "q": "What does the Accredited badge on a provider mean?",
+          "a": "It is a flag that LSevin administrators set on a provider profile. Providers cannot set it themselves. For international treatment, also check the facility on the Ministry of Health IPD list at iht.behdasht.gov.ir."
+        },
+        {
+          "q": "How do I sign in?",
+          "a": "With your phone number. LSevin sends a one-time code to that number, and there is no separate password to remember."
+        }
+      ]
+    },
+    "fa-IR": {
+      "title": "درباره السوین",
+      "metaDescription": "السوین پلتفرم رزرو کلینیک، پزشک متخصص، هتل نزدیک بیمارستان، تور و باشگاه ورزشی و خرید محصولات سلامت در ایران است؛ پیش از رزرو مشاوره رایگان بگیرید.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "السوین پلتفرم رزرو خدمات گردشگری سلامت و تندرستی در ایران است. در یک سایت می‌توانید کلینیک، بیمارستان و پزشک متخصص پیدا کنید، هتلی نزدیک بیمارستان رزرو کنید، برای دوران اقامت خدمات مراقبتی اضافه کنید، در تور شرکت کنید، عضویت باشگاه ورزشی بخرید و از فروشگاه السوین محصول سفارش دهید. این سرویس روی lsevin.com کار می‌کند و از نشانی lsevincare.com هم در دسترس است."
+        },
+        {
+          "type": "h2",
+          "text": "السوین برای چه کسانی است"
+        },
+        {
+          "type": "p",
+          "text": "بیمارانی که از خارج از کشور، از جمله عراق، کشورهای حاشیه خلیج فارس و افغانستان، برای درمان به ایران می‌آیند و باید درمان، اقامت و جابه‌جایی را در همان تاریخ‌ها با هم هماهنگ کنند."
+        },
+        {
+          "type": "p",
+          "text": "بیمارانی که از شهر خود برای درمان به تهران، مشهد یا شیراز سفر می‌کنند و برای ویزیت‌های پیگیری به هتل نیاز دارند."
+        },
+        {
+          "type": "p",
+          "text": "همراهان بیمار، و هر کسی که می‌خواهد در ایران هتل، تور، باشگاه یا خدمات تندرستی رزرو کند."
+        },
+        {
+          "type": "h2",
+          "text": "السوین چه کاری انجام می‌دهد"
+        },
+        {
+          "type": "p",
+          "text": "السوین واسطه است. کلینیک‌ها، بیمارستان‌ها، پزشکان، هتل‌ها، برگزارکنندگان تور و باشگاه‌هایی که در پلتفرم می‌بینید ارائه‌دهندگان مستقل هستند. خدمت را خودشان ارائه می‌کنند، قیمت و قوانین خود را تعیین می‌کنند و مسئولیت درمان یا خدمتی که به شما می‌دهند با خودشان است."
+        },
+        {
+          "type": "p",
+          "text": "السوین اطلاعات آن‌ها را منتشر می‌کند، رزرو شما را ثبت می‌کند، در جایی که پرداخت آنلاین فعال است مبلغ را دریافت می‌کند و میان شما و ارائه‌دهنده هماهنگی می‌کند. اگر در رزرو مشکلی پیش بیاید، اولین جایی که باید به آن مراجعه کنید پشتیبانی السوین است."
+        },
+        {
+          "type": "p",
+          "text": "السوین توصیه پزشکی نمی‌دهد و درمان شما را انتخاب نمی‌کند؛ این تصمیم با پزشک معالج است. السوین ویزا یا دعوت‌نامه درمانی هم صادر نمی‌کند. برای بیماران خارجی، دعوت‌نامه را مرکز درمانی دارای مجوز وزارت بهداشت صادر می‌کند و امور سفر از طریق شرکت گردشگری سلامت دارای مجوز انجام می‌شود."
+        },
+        {
+          "type": "h2",
+          "text": "رزرو در السوین چطور انجام می‌شود"
+        },
+        {
+          "type": "p",
+          "text": "اول بپرسید. در فرم درخواست مشاوره رایگان، نام، شماره تلفن و زمان مناسب برای تماس را وارد می‌کنید و کارشناس السوین با شما تماس می‌گیرد. ثبت این درخواست هیچ تغییری در رزروی که شروع کرده‌اید ایجاد نمی‌کند."
+        },
+        {
+          "type": "p",
+          "text": "ارائه‌دهنده را انتخاب کنید. در صفحه هر ارائه‌دهنده و هر خدمت، قیمت، موقعیت و قوانینی که ارائه‌دهنده منتشر کرده، مثل شرایط لغو، نمایش داده می‌شود. برخی ارائه‌دهندگان نشان «معتبر» دارند. این نشان را فقط مدیران السوین می‌توانند فعال کنند و ارائه‌دهنده نمی‌تواند آن را روی پروفایل خودش بگذارد."
+        },
+        {
+          "type": "p",
+          "text": "رزرو و پرداخت کنید. مبلغ کل را پیش از پرداخت می‌بینید. بسته به نوع خدمت، کل مبلغ را آنلاین می‌پردازید، بخشی را الان و باقی را در محل می‌پردازید، یا بدون پیش‌پرداخت رزرو می‌کنید. پرداخت آنلاین ریالی از درگاه زرین‌پال انجام می‌شود و از کیف پول السوین هم می‌توانید پرداخت کنید."
+        },
+        {
+          "type": "p",
+          "text": "پیگیری کنید. رزروها، فاکتورها، تاریخچه کیف پول و گفت‌وگوهای پشتیبانی در حساب کاربری شما ذخیره می‌شوند. ورود با شماره تلفن و کد یک‌بارمصرفی است که به همان شماره پیامک می‌شود."
+        },
+        {
+          "type": "h2",
+          "text": "اعتماد و استعلام"
+        },
+        {
+          "type": "p",
+          "text": "السوین نماد اعتماد الکترونیکی (اینماد) با شناسه ۷۷۶۴۷۸۲ را نمایش می‌دهد. اینماد نماد اعتماد کسب‌وکارهای اینترنتی در ایران است. با کلیک روی نماد در سایت، سابقه آن در trustseal.enamad.ir باز می‌شود."
+        },
+        {
+          "type": "p",
+          "text": "اگر از خارج از کشور برای درمان می‌آیید، مطمئن شوید نام بیمارستان یا کلینیک شما در فهرست مراکز دارای مجوز پذیرش بیمار بین‌الملل (مجوز IPD) وزارت بهداشت در iht.behdasht.gov.ir آمده است. راهنمای بیمارستان‌های دارای مجوز السوین مراحل این استعلام را توضیح می‌دهد."
+        },
+        {
+          "type": "h2",
+          "text": "زبان‌ها و واحد پول"
+        },
+        {
+          "type": "p",
+          "text": "السوین به فارسی، انگلیسی و عربی قابل استفاده است و رابط کاربری آن به ترکی، کردی، آلمانی، فرانسوی، اسپانیایی، روسی، تاجیکی و چینی هم ترجمه شده است. بازدیدکنندگان داخل ایران قیمت‌ها را به ریال یا تومان می‌بینند. بازدیدکنندگان کشورهای دیگر قیمت را به ارز دیگری می‌بینند که معمولاً ارز کشوری است که شماره تلفنشان به آن تعلق دارد."
+        },
+        {
+          "type": "h2",
+          "text": "تماس با ما"
+        },
+        {
+          "type": "p",
+          "text": "برای پرسش درباره رزرو، سفارش یا حساب کاربری، بخش پشتیبانی را در حساب السوین خود باز کنید و گفت‌وگو را شروع کنید. برای پرسش درباره اطلاعات شخصی، به lsevin.turkiye@gmail.com ایمیل بزنید."
+        }
+      ],
+      "faq": [
+        {
+          "q": "آیا السوین بیمارستان یا کلینیک است؟",
+          "a": "خیر. السوین پلتفرم رزرو است. درمان، اقامت یا خدمت را کلینیک، بیمارستان، هتل یا ارائه‌دهنده مستقلی که رزرو می‌کنید ارائه می‌دهد."
+        },
+        {
+          "q": "آیا السوین ویزا یا دعوت‌نامه صادر می‌کند؟",
+          "a": "خیر. برای ویزای درمان، دعوت‌نامه را مرکز درمانی دارای مجوز وزارت بهداشت صادر می‌کند و امور سفر با شرکت گردشگری سلامت دارای مجوز است. السوین کمک می‌کند تاریخ درمان، هتل و ترانسفر با هم جور شوند."
+        },
+        {
+          "q": "آیا مشاوره رایگان است؟",
+          "a": "درخواست مشاوره که در آن کارشناس السوین با شما تماس می‌گیرد رایگان است. مشاوره تصویری با پزشک خدمت جداگانه و پولی است و مدت و قیمت آن پیش از رزرو نمایش داده می‌شود."
+        },
+        {
+          "q": "نشان «معتبر» روی پروفایل ارائه‌دهنده یعنی چه؟",
+          "a": "این نشان را مدیران السوین روی پروفایل ارائه‌دهنده فعال می‌کنند و ارائه‌دهنده خودش نمی‌تواند آن را اضافه کند. برای درمان بیمار بین‌الملل، نام مرکز را در فهرست IPD وزارت بهداشت در iht.behdasht.gov.ir هم بررسی کنید."
+        },
+        {
+          "q": "چطور وارد حساب شوم؟",
+          "a": "با شماره تلفن. السوین یک کد یک‌بارمصرف به همان شماره می‌فرستد و رمز عبور جداگانه‌ای لازم نیست."
+        }
+      ]
+    },
+    "ar-SA": {
+      "title": "عن لسوين",
+      "metaDescription": "لسوين منصة لحجز العيادات والأطباء المختصين والفنادق القريبة من المستشفيات والجولات والنوادي الرياضية في إيران وشراء منتجات صحية، مع استشارة مجانية قبل الحجز.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "لسوين (السوین بالفارسية) منصة حجز للسياحة العلاجية وخدمات العافية في إيران. من موقع واحد يمكنك أن تجد العيادات والمستشفيات والأطباء المختصين، وأن تحجز فندقاً قريباً من مستشفاك، وتضيف خدمات رعاية خلال إقامتك، وتشارك في جولة سياحية، وتدفع اشتراك نادٍ رياضي، وتطلب منتجات من متجر لسوين. تعمل الخدمة على lsevin.com وهي متاحة أيضاً على lsevincare.com."
+        },
+        {
+          "type": "h2",
+          "text": "لمن صُممت لسوين"
+        },
+        {
+          "type": "p",
+          "text": "للمرضى القادمين إلى إيران من الخارج، ومنهم القادمون من العراق ودول الخليج وأفغانستان، الذين يحتاجون إلى تنسيق العلاج والإقامة والتنقل في التواريخ نفسها."
+        },
+        {
+          "type": "p",
+          "text": "للمرضى داخل إيران الذين يسافرون من مدنهم إلى طهران أو مشهد أو شيراز للعلاج ويحتاجون إلى فندق خلال زيارات المتابعة."
+        },
+        {
+          "type": "p",
+          "text": "للمرافقين، ولكل من يريد حجز فندق أو جولة أو نادٍ رياضي أو خدمة عافية في إيران."
+        },
+        {
+          "type": "h2",
+          "text": "ما الذي تقوم به لسوين"
+        },
+        {
+          "type": "p",
+          "text": "لسوين وسيط. العيادات والمستشفيات والأطباء والفنادق ومنظمو الجولات والنوادي المعروضة على المنصة مقدمو خدمات مستقلون. هم من يقدمون الخدمة ويحددون أسعارهم وسياساتهم، ويتحملون مسؤولية الرعاية أو الخدمة التي يقدمونها لك."
+        },
+        {
+          "type": "p",
+          "text": "تنشر لسوين معلوماتهم، وتسجل حجزك، وتستلم الدفع حيث يتوفر الدفع الإلكتروني، وتنسق بينك وبين مقدم الخدمة. وإذا واجهت مشكلة في حجزك فدعم لسوين هو أول جهة تتواصل معها."
+        },
+        {
+          "type": "p",
+          "text": "لا تقدم لسوين نصائح طبية ولا تختار علاجك، فهذا قرار طبيبك المعالج. ولا تصدر لسوين تأشيرات أو رسائل دعوة علاجية. بالنسبة للمرضى الدوليين تصدر الدعوة من منشأة طبية مرخصة من وزارة الصحة الإيرانية، وتتولى شركة سياحة علاجية مرخصة ترتيبات السفر."
+        },
+        {
+          "type": "h2",
+          "text": "كيف يتم الحجز"
+        },
+        {
+          "type": "p",
+          "text": "اسأل أولاً. في طلب الاستشارة المجانية تكتب اسمك ورقم هاتفك والوقت المناسب للتواصل، ثم يتصل بك أحد مستشاري لسوين. إرسال الطلب لا يغير أي حجز بدأته."
+        },
+        {
+          "type": "p",
+          "text": "اختر مقدم الخدمة. تعرض صفحة كل مقدم خدمة وكل خدمة السعر والموقع والسياسات التي نشرها مقدم الخدمة، مثل شروط الإلغاء. يحمل بعض مقدمي الخدمات شارة «معتمد»، ولا يملك صلاحية تفعيلها إلا مشرفو لسوين، فلا يستطيع مقدم الخدمة إضافتها إلى ملفه بنفسه."
+        },
+        {
+          "type": "p",
+          "text": "احجز وادفع. ترى المبلغ الإجمالي قبل الدفع. وبحسب الخدمة، تدفع المبلغ كاملاً عبر الإنترنت، أو تدفع جزءاً الآن والباقي في المكان، أو تحجز دون دفع مسبق. تتم المدفوعات الإلكترونية بالريال الإيراني عبر بوابة زرين‌بال، ويمكنك الدفع أيضاً من محفظة لسوين."
+        },
+        {
+          "type": "p",
+          "text": "تابع حجزك. تُحفظ حجوزاتك وفواتيرك وسجل محفظتك ومحادثات الدعم في حسابك. تسجّل الدخول برقم هاتفك ورمز يُرسل إليه لمرة واحدة."
+        },
+        {
+          "type": "h2",
+          "text": "الثقة والتحقق"
+        },
+        {
+          "type": "p",
+          "text": "تعرض لسوين ختم الثقة الإلكتروني «إي‌نماد» برقم 7764782. وإي‌نماد هو برنامج ختم الثقة للأعمال الإلكترونية في إيران. اضغط على الختم في الموقع لفتح سجله على trustseal.enamad.ir."
+        },
+        {
+          "type": "p",
+          "text": "إذا كنت قادماً من الخارج للعلاج، فتأكد من أن مستشفاك أو عيادتك مدرجة في قائمة وزارة الصحة للمنشآت المرخصة لاستقبال المرضى الدوليين (ترخيص IPD) على iht.behdasht.gov.ir. ويشرح دليل لسوين عن المستشفيات المرخصة خطوات هذا التحقق."
+        },
+        {
+          "type": "h2",
+          "text": "اللغات والعملات"
+        },
+        {
+          "type": "p",
+          "text": "يمكنك استخدام لسوين بالعربية والفارسية والإنجليزية، كما أن الواجهة مترجمة إلى التركية والكردية والألمانية والفرنسية والإسبانية والروسية والطاجيكية والصينية. يرى الزوار داخل إيران الأسعار بالريال أو التومان، ويراها الزوار من الدول الأخرى بعملة أخرى، غالباً عملة الدولة التي يتبع لها رقم هاتفهم."
+        },
+        {
+          "type": "h2",
+          "text": "التواصل"
+        },
+        {
+          "type": "p",
+          "text": "لأي سؤال عن حجز أو طلب أو حسابك، افتح قسم الدعم في حسابك على لسوين وابدأ محادثة. ولأسئلة بياناتك الشخصية، راسلنا على lsevin.turkiye@gmail.com."
+        }
+      ],
+      "faq": [
+        {
+          "q": "هل لسوين مستشفى أو عيادة؟",
+          "a": "لا. لسوين منصة حجز، والعلاج أو الإقامة أو الخدمة يقدمها المستشفى أو العيادة أو الفندق أو مقدم الخدمة المستقل الذي تحجز لديه."
+        },
+        {
+          "q": "هل تصدر لسوين التأشيرات أو رسائل الدعوة؟",
+          "a": "لا. في التأشيرة العلاجية تصدر الدعوة من منشأة مرخصة من وزارة الصحة الإيرانية، وتتولى شركة سياحة علاجية مرخصة جانب السفر. تساعدك لسوين على تنسيق مواعيد العلاج والفندق والتنقلات."
+        },
+        {
+          "q": "هل الاستشارة مجانية؟",
+          "a": "طلب الاستشارة الذي يتصل فيه بك مستشار من لسوين مجاني. أما الاستشارة المرئية مع طبيب فخدمة مدفوعة منفصلة، وتظهر مدتها وسعرها قبل الحجز."
+        },
+        {
+          "q": "ماذا تعني شارة «معتمد» على ملف مقدم الخدمة؟",
+          "a": "هي علامة يفعّلها مشرفو لسوين على ملف مقدم الخدمة، ولا يستطيع مقدم الخدمة تفعيلها بنفسه. وللعلاج الدولي تحقق أيضاً من المنشأة في قائمة IPD لوزارة الصحة على iht.behdasht.gov.ir."
+        },
+        {
+          "q": "كيف أسجّل الدخول؟",
+          "a": "برقم هاتفك. ترسل لسوين رمزاً لمرة واحدة إلى هذا الرقم، ولا تحتاج إلى كلمة مرور منفصلة."
+        }
+      ]
+    },
+    "tr-TR": {
+      "title": "LSevin Hakkında",
+      "metaDescription": "LSevin ile İran'da klinik, uzman doktor, hastaneye yakın otel, tur ve spor salonu ayırtın, sağlık ürünleri sipariş edin; rezervasyondan önce ücretsiz danışmanlık alın.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "LSevin (Farsça adıyla السوین), İran'da sağlık turizmi ve sağlıklı yaşam hizmetleri için bir rezervasyon platformudur. Tek bir sitede klinik, hastane ve uzman doktor bulabilir, hastanenize yakın bir otel ayırtabilir, konaklamanız sırasında bakım hizmeti ekleyebilir, bir tura katılabilir, spor salonu üyeliği ödeyebilir ve LSevin mağazasından ürün sipariş edebilirsiniz. Hizmet lsevin.com adresinde çalışır ve lsevincare.com adresinden de erişilebilir."
+        },
+        {
+          "type": "h2",
+          "text": "LSevin kimler için"
+        },
+        {
+          "type": "p",
+          "text": "Irak, Körfez ülkeleri ve Afganistan dahil yurt dışından İran'a gelen ve tedavi, konaklama ile şehir içi ulaşımın aynı tarihlerde uyumlu olması gereken hastalar."
+        },
+        {
+          "type": "p",
+          "text": "İran içinde kendi şehrinden tedavi için Tahran, Meşhed veya Şiraz'a giden ve kontrol randevuları için otele ihtiyaç duyan hastalar."
+        },
+        {
+          "type": "p",
+          "text": "Hastaya eşlik eden refakatçiler ve İran'da otel, tur, spor salonu veya sağlıklı yaşam hizmeti ayırtmak isteyen herkes."
+        },
+        {
+          "type": "h2",
+          "text": "LSevin ne yapar"
+        },
+        {
+          "type": "p",
+          "text": "LSevin bir aracıdır. Platformdaki klinikler, hastaneler, doktorlar, oteller, tur operatörleri ve spor salonları bağımsız hizmet sağlayıcılardır. Hizmeti onlar verir, fiyatlarını ve politikalarını kendileri belirler ve size sundukları bakım ya da hizmetten kendileri sorumludur."
+        },
+        {
+          "type": "p",
+          "text": "LSevin bu sağlayıcıların bilgilerini yayımlar, rezervasyonunuzu alır, online ödeme sunulan durumlarda ödemeyi tahsil eder ve sizinle sağlayıcı arasındaki koordinasyonu üstlenir. Bir rezervasyonda sorun çıktığında ilk başvuracağınız yer LSevin desteğidir."
+        },
+        {
+          "type": "p",
+          "text": "LSevin tıbbi tavsiye vermez ve tedavinizi seçmez. Bu kararı sizi tedavi eden hekim verir. LSevin ayrıca vize veya tıbbi davet mektubu düzenlemez. Uluslararası hastalar için davet, İran Sağlık Bakanlığı'ndan lisanslı bir sağlık kuruluşundan gelir; seyahat düzenlemeleri ise lisanslı bir sağlık turizmi şirketi aracılığıyla yapılır."
+        },
+        {
+          "type": "h2",
+          "text": "Rezervasyon nasıl işler"
+        },
+        {
+          "type": "p",
+          "text": "Önce sorun. Ücretsiz danışmanlık talebi için adınızı, telefon numaranızı ve görüşmek istediğiniz zamanı girmeniz yeterlidir. Bir LSevin danışmanı sizi geri arar. Talebi göndermek, başlattığınız bir rezervasyonu değiştirmez."
+        },
+        {
+          "type": "p",
+          "text": "Sağlayıcı seçin. Sağlayıcı ve hizmet sayfalarında fiyat, konum ve sağlayıcının yayımladığı iptal koşulları gibi politikalar yer alır. Bazı sağlayıcılarda Akredite rozeti bulunur. Bu rozeti yalnızca LSevin yöneticileri tanımlayabilir; sağlayıcılar kendi profillerine ekleyemez."
+        },
+        {
+          "type": "p",
+          "text": "Rezervasyon yapın ve ödeyin. Ödemeden önce toplam tutarı görürsünüz. Hizmete göre tutarın tamamını online ödeyebilir, bir kısmını şimdi ve kalanını yerinde ödeyebilir ya da önceden ödeme yapmadan rezervasyon yapabilirsiniz. İran riyali ile yapılan online ödemeler Zarinpal ödeme altyapısı üzerinden geçer; LSevin cüzdanınızdan da ödeme yapabilirsiniz."
+        },
+        {
+          "type": "p",
+          "text": "Takip edin. Rezervasyonlarınız, faturalarınız, cüzdan geçmişiniz ve destek görüşmeleriniz hesabınızda saklanır. Telefon numaranız ve bu numaraya gönderilen tek kullanımlık kodla giriş yaparsınız."
+        },
+        {
+          "type": "h2",
+          "text": "Güven ve doğrulama"
+        },
+        {
+          "type": "p",
+          "text": "LSevin, 7764782 numaralı Enamad elektronik güven mührünü gösterir. Enamad, İran'daki online işletmeler için güven mührü programıdır. Sitedeki mühre tıkladığınızda trustseal.enamad.ir üzerindeki kaydı açılır."
+        },
+        {
+          "type": "p",
+          "text": "Tedavi için yurt dışından geliyorsanız, hastanenizin veya kliniğinizin Sağlık Bakanlığı'nın uluslararası hasta kabul etmeye lisanslı kuruluşlar listesinde (IPD lisansı) yer aldığını iht.behdasht.gov.ir adresinden kontrol edin. Lisanslı hastaneler rehberimiz bu kontrolü adım adım anlatır."
+        },
+        {
+          "type": "h2",
+          "text": "Diller ve para birimleri"
+        },
+        {
+          "type": "p",
+          "text": "LSevin'i Farsça, İngilizce ve Arapça kullanabilirsiniz. Arayüz ayrıca Türkçe, Kürtçe, Almanca, Fransızca, İspanyolca, Rusça, Tacikçe ve Çince olarak da sunulur. İran'daki ziyaretçiler fiyatları riyal veya tümen olarak görür. Diğer ülkelerden gelen ziyaretçiler fiyatları başka bir para biriminde, genellikle telefon numaralarının bağlı olduğu ülkenin para biriminde görür."
+        },
+        {
+          "type": "h2",
+          "text": "İletişim"
+        },
+        {
+          "type": "p",
+          "text": "Bir rezervasyon, sipariş veya hesabınızla ilgili sorularınız için LSevin hesabınızda Destek bölümünü açıp bir görüşme başlatın. Kişisel verilerinizle ilgili sorularınız için lsevin.turkiye@gmail.com adresine e-posta gönderin."
+        }
+      ],
+      "faq": [
+        {
+          "q": "LSevin bir hastane veya klinik mi?",
+          "a": "Hayır. LSevin bir rezervasyon platformudur. Tedavi, konaklama veya hizmet, rezervasyon yaptığınız bağımsız klinik, hastane, otel ya da diğer sağlayıcı tarafından verilir."
+        },
+        {
+          "q": "LSevin vize veya davet mektubu düzenliyor mu?",
+          "a": "Hayır. Tıbbi vize için davet, İran Sağlık Bakanlığı'ndan lisanslı bir kuruluştan gelir; seyahat tarafını ise lisanslı bir sağlık turizmi şirketi yürütür. LSevin tedavi, otel ve transfer tarihlerini birbirine uyumlu hale getirmenize yardımcı olur."
+        },
+        {
+          "q": "Danışmanlık ücretsiz mi?",
+          "a": "Bir LSevin danışmanının sizi geri aradığı danışmanlık talebi ücretsizdir. Doktorla görüntülü danışma ayrı ve ücretli bir hizmettir; süresi ve fiyatı rezervasyondan önce gösterilir."
+        },
+        {
+          "q": "Sağlayıcı profilindeki Akredite rozeti ne anlama geliyor?",
+          "a": "Bu, LSevin yöneticilerinin sağlayıcı profiline tanımladığı bir işarettir. Sağlayıcılar bunu kendileri tanımlayamaz. Uluslararası tedavi için kuruluşu ayrıca iht.behdasht.gov.ir adresindeki Sağlık Bakanlığı IPD listesinde de kontrol edin."
+        },
+        {
+          "q": "Nasıl giriş yaparım?",
+          "a": "Telefon numaranızla. LSevin bu numaraya tek kullanımlık bir kod gönderir; ayrıca hatırlamanız gereken bir şifre yoktur."
+        }
+      ]
+    },
+    "ku-KU": {
+      "title": "دەربارەی LSevin",
+      "metaDescription": "LSevin یارمەتیتان دەدات کلینیک، پسپۆڕ، هوتێلی نزیک نەخۆشخانە، گەشت و جیم لە ئێران حجز بکەن و بەرهەمی تەندروستی بکڕن، لەگەڵ ڕاوێژکاریی بەخۆڕایی پێش حجز.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "LSevin (بە فارسی «السوین») پلاتفۆرمێکی حجزە بۆ گەشتی چارەسەری و خزمەتگوزارییەکانی تەندروستی و ئاسوودەیی لە ئێران. لە یەک ماڵپەڕدا دەتوانن کلینیک، نەخۆشخانە و پسپۆڕ بدۆزنەوە، هوتێلێکی نزیک نەخۆشخانەکەتان حجز بکەن، لە ماوەی مانەوەتاندا چاودێری زیاد بکەن، بەشداری گەشتێک بن، پارەی ئەندامێتیی جیم بدەن و لە فرۆشگای LSevin بەرهەم داوا بکەن. خزمەتگوزارییەکە لە lsevin.com کار دەکات و لە lsevincare.com یشەوە بەردەستە."
+        },
+        {
+          "type": "h2",
+          "text": "LSevin بۆ کێیە"
+        },
+        {
+          "type": "p",
+          "text": "ئەو نەخۆشانەی لە دەرەوەی وڵاتەوە بۆ ئێران دێن، لەوانە لە عێراق، وڵاتانی کەنداو و ئەفغانستانەوە، و پێویستیانە چارەسەر، شوێنی مانەوە و گواستنەوەی ناوخۆیی لە هەمان بەرواردا لەگەڵ یەک بگونجێن."
+        },
+        {
+          "type": "p",
+          "text": "ئەو نەخۆشانەی لەناو ئێراندا لە شاری خۆیانەوە بۆ چارەسەر دەچنە تاران، مەشهەد یان شیراز و بۆ سەردانەکانی بەدواداچوون پێویستیان بە هوتێل هەیە."
+        },
+        {
+          "type": "p",
+          "text": "ئەو یاوەرانەی لەگەڵ نەخۆشدا گەشت دەکەن، و هەر کەسێک کە بیەوێت لە ئێران هوتێل، گەشت، جیم یان خزمەتێکی ئاسوودەیی حجز بکات."
+        },
+        {
+          "type": "h2",
+          "text": "LSevin چی دەکات"
+        },
+        {
+          "type": "p",
+          "text": "LSevin نێوەندگیرە. ئەو کلینیک، نەخۆشخانە، پزیشک، هوتێل، ڕێکخەری گەشت و جیمانەی لەسەر پلاتفۆرمەکەن دابینکەری سەربەخۆن. ئەوان خزمەتەکە پێشکەش دەکەن، نرخ و سیاسەتەکانی خۆیان دیاری دەکەن و بەرپرسیارێتیی ئەو چاودێری یان خزمەتەی پێتانی دەدەن هەر لەسەر خۆیانە."
+        },
+        {
+          "type": "p",
+          "text": "LSevin زانیارییەکانیان بڵاو دەکاتەوە، حجزەکەتان وەردەگرێت، لەو شوێنانەی پارەدانی ئۆنلاین هەیە پارەکە وەردەگرێت و لە نێوان ئێوە و دابینکەردا هەماهەنگی دەکات. ئەگەر کێشەیەک لە حجزێکدا ڕووی دا، پشتگیریی LSevin یەکەم شوێنی پەیوەندیکردنتانە."
+        },
+        {
+          "type": "p",
+          "text": "LSevin ئامۆژگاریی پزیشکی نادات و چارەسەرەکەتان هەڵنابژێرێت؛ ئەو بڕیارە لای پزیشکی چارەسەرکەرتانە. هەروەها LSevin ڤیزا یان بانگهێشتنامەی پزیشکی دەرناکات. بۆ نەخۆشانی نێودەوڵەتی، بانگهێشتنامەکە لە دامەزراوەیەکەوە دێت کە وەزارەتی تەندروستیی ئێران مۆڵەتی پێداوە، و ڕێکخستنەکانی گەشتیش لە ڕێگەی کۆمپانیایەکی مۆڵەتداری گەشتیاریی تەندروستییەوە دەکرێن."
+        },
+        {
+          "type": "h2",
+          "text": "حجزکردن چۆن کار دەکات"
+        },
+        {
+          "type": "p",
+          "text": "سەرەتا بپرسن. بۆ داواکاریی ڕاوێژکاریی بەخۆڕایی، ناو، ژمارەی تەلەفۆن و کاتێکی گونجاو بۆ قسەکردن دەنووسن و ڕاوێژکارێکی LSevin پەیوەندیتان پێوە دەکاتەوە. ناردنی ئەم داواکارییە هیچ گۆڕانێک لەو حجزەدا ناکات کە پێشتر دەستتان پێکردووە."
+        },
+        {
+          "type": "p",
+          "text": "دابینکەر هەڵبژێرن. پەڕەکانی دابینکەر و خزمەت نرخ، شوێن و ئەو سیاسەتانە پیشان دەدەن کە دابینکەر بڵاوی کردوونەتەوە، وەک مەرجەکانی هەڵوەشاندنەوە. هەندێک دابینکەر نیشانەی «پەسەندکراو» یان هەیە. تەنها بەڕێوەبەرانی LSevin دەتوانن ئەم نیشانەیە دابنێن و دابینکەر ناتوانێت خۆی بیخاتە سەر پرۆفایلەکەی."
+        },
+        {
+          "type": "p",
+          "text": "حجز بکەن و پارە بدەن. پێش پارەدان کۆی گشتی دەبینن. بەپێی خزمەتەکە، یان هەموو بڕەکە بە ئۆنلاین دەدەن، یان بەشێکی ئێستا و ئەوی دیکە لە شوێنەکە دەدەن، یان بەبێ پارەدانی پێشەکی حجز دەکەن. پارەدانی ئۆنلاین بە ڕیاڵی ئێرانی لە ڕێگەی دەروازەی زەڕینپاڵەوە دەکرێت و دەتوانن لە جزدانی LSevinیشەوە پارە بدەن."
+        },
+        {
+          "type": "p",
+          "text": "بەدواداچوون بکەن. حجزەکان، پسووڵەکان، مێژووی جزدان و گفتوگۆکانی پشتگیری لە هەژمارەکەتاندا دەمێننەوە. بە ژمارەی تەلەفۆنەکەتان و کۆدێکی یەکجاری کە بۆ هەمان ژمارە دەنێردرێت دەچنە ژوورەوە."
+        },
+        {
+          "type": "h2",
+          "text": "متمانە و پشتڕاستکردنەوە"
+        },
+        {
+          "type": "p",
+          "text": "LSevin نیشانەی متمانەی ئەلیکترۆنیی ئینماد بە ژمارەی ناسنامەی 7764782 پیشان دەدات. ئینماد بەرنامەی نیشانەی متمانەیە بۆ کارە ئۆنلاینەکان لە ئێران. لە ماڵپەڕەکەدا کرتە لەسەر نیشانەکە بکەن بۆ ئەوەی تۆمارەکەی لە trustseal.enamad.ir بکرێتەوە."
+        },
+        {
+          "type": "p",
+          "text": "ئەگەر بۆ چارەسەر لە دەرەوەی وڵاتەوە دێن، دڵنیا ببنەوە کە نەخۆشخانە یان کلینیکەکەتان لە لیستی وەزارەتی تەندروستیدا هەیە بۆ ئەو دامەزراوانەی مۆڵەتی وەرگرتنی نەخۆشی نێودەوڵەتییان (مۆڵەتی IPD) هەیە، لە iht.behdasht.gov.ir. ڕێبەرەکەمان دەربارەی نەخۆشخانە مۆڵەتدارەکان هەنگاو بە هەنگاو ئەم پشکنینەتان بۆ ڕوون دەکاتەوە."
+        },
+        {
+          "type": "h2",
+          "text": "زمان و دراوەکان"
+        },
+        {
+          "type": "p",
+          "text": "دەتوانن LSevin بە فارسی، ئینگلیزی و عەرەبی بەکاربهێنن. ڕووکارەکە بە تورکی، کوردی، ئەڵمانی، فەرەنسی، ئیسپانی، ڕووسی، تاجیکی و چینیش بەردەستە. سەردانکەرانی ناو ئێران نرخەکان بە ڕیاڵ یان تمەن دەبینن. سەردانکەرانی وڵاتانی دیکە نرخەکان بە دراوێکی تر دەبینن، کە زۆربەی جار دراوی ئەو وڵاتەیە کە ژمارەی تەلەفۆنەکەیانی پێوە بەستراوە."
+        },
+        {
+          "type": "h2",
+          "text": "پەیوەندی"
+        },
+        {
+          "type": "p",
+          "text": "بۆ پرسیار دەربارەی حجز، داواکاری یان هەژمارەکەتان، لە هەژماری LSevinەکەتاندا «پشتگیری» بکەنەوە و گفتوگۆیەک دەست پێ بکەن. بۆ پرسیار دەربارەی زانیارییە کەسییەکانتان، ئیمەیڵ بنێرن بۆ lsevin.turkiye@gmail.com."
+        }
+      ],
+      "faq": [
+        {
+          "q": "ئایا LSevin نەخۆشخانە یان کلینیکە؟",
+          "a": "نەخێر. LSevin پلاتفۆرمێکی حجزە. چارەسەر، مانەوە یان خزمەتەکە لەلایەن ئەو کلینیک، نەخۆشخانە، هوتێل یان دابینکەرە سەربەخۆیەوە پێشکەش دەکرێت کە حجزتان لەلای کردووە."
+        },
+        {
+          "q": "ئایا LSevin ڤیزا یان بانگهێشتنامە دەردەکات؟",
+          "a": "نەخێر. بۆ ڤیزای پزیشکی، بانگهێشتنامەکە لە دامەزراوەیەکەوە دێت کە وەزارەتی تەندروستیی ئێران مۆڵەتی پێداوە، و کۆمپانیایەکی مۆڵەتداری گەشتیاریی تەندروستی لایەنی گەشتەکە ڕێک دەخات. LSevin یارمەتیتان دەدات بەروارەکانی چارەسەر، هوتێل و گواستنەوە لەگەڵ یەک ڕێک بخەن."
+        },
+        {
+          "q": "ئایا ڕاوێژکارییەکە بەخۆڕاییە؟",
+          "a": "داواکاریی ڕاوێژکاری، کە تێیدا ڕاوێژکارێکی LSevin پەیوەندیتان پێوە دەکاتەوە، بەخۆڕاییە. ڕاوێژی ڤیدیۆیی لەگەڵ پزیشک خزمەتێکی جیاوازی بەپارەیە و ماوە و نرخەکەی پێش حجزکردن پیشان دەدرێت."
+        },
+        {
+          "q": "نیشانەی «پەسەندکراو» لەسەر دابینکەر واتای چییە؟",
+          "a": "نیشانەیەکە کە بەڕێوەبەرانی LSevin لەسەر پرۆفایلی دابینکەر دایدەنێن و دابینکەران خۆیان ناتوانن دایبنێن. بۆ چارەسەری نێودەوڵەتی، دامەزراوەکە لە لیستی IPDی وەزارەتی تەندروستیش لە iht.behdasht.gov.ir بپشکنن."
+        },
+        {
+          "q": "چۆن بچمە ژوورەوە؟",
+          "a": "بە ژمارەی تەلەفۆنەکەتان. LSevin کۆدێکی یەکجاری بۆ ئەو ژمارەیە دەنێرێت و هیچ وشەی نهێنییەکی جیاتان نییە کە لەبیرتان بێت."
+        }
+      ]
+    },
+    "ru-RU": {
+      "title": "О LSevin",
+      "metaDescription": "LSevin помогает забронировать клиники, врачей, отели у больниц, туры и спортзалы в Иране и купить товары для здоровья. Перед бронированием — бесплатная консультация.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "LSevin (по-персидски «السوین») — платформа бронирования для медицинских и оздоровительных поездок в Иран. На одном сайте можно найти клиники, больницы и врачей, забронировать отель рядом с больницей, добавить уход на время пребывания, записаться в тур, оплатить абонемент в спортзал и заказать товары в магазине LSevin. Сервис работает на lsevin.com, а также доступен на lsevincare.com."
+        },
+        {
+          "type": "h2",
+          "text": "Для кого LSevin"
+        },
+        {
+          "type": "p",
+          "text": "Для пациентов, которые едут в Иран из-за рубежа, в том числе из Ирака, стран Персидского залива и Афганистана, и которым нужно согласовать лечение, проживание и местный транспорт на одни и те же даты."
+        },
+        {
+          "type": "p",
+          "text": "Для пациентов внутри Ирана, которые едут на лечение из своего города в Тегеран, Мешхед или Шираз и нуждаются в отеле на время повторных визитов."
+        },
+        {
+          "type": "p",
+          "text": "Для сопровождающих, которые едут вместе с пациентом, и для всех, кто хочет забронировать в Иране отель, тур, спортзал или оздоровительную услугу."
+        },
+        {
+          "type": "h2",
+          "text": "Чем занимается LSevin"
+        },
+        {
+          "type": "p",
+          "text": "LSevin — посредник. Клиники, больницы, врачи, отели, туроператоры и спортзалы на платформе являются независимыми поставщиками. Они оказывают услугу, сами устанавливают цены и правила и несут ответственность за предоставленное Вам лечение или обслуживание."
+        },
+        {
+          "type": "p",
+          "text": "LSevin публикует информацию о них, принимает Ваше бронирование, принимает оплату там, где доступна онлайн-оплата, и координирует взаимодействие между Вами и поставщиком. Если с бронированием что-то пошло не так, в первую очередь обращайтесь в службу поддержки LSevin."
+        },
+        {
+          "type": "p",
+          "text": "LSevin не даёт медицинских советов и не выбирает для Вас лечение. Это решение принимает Ваш лечащий врач. LSevin также не оформляет визы и медицинские приглашения. Для иностранных пациентов приглашение выдаёт учреждение, имеющее лицензию Министерства здравоохранения Ирана, а поездку организует лицензированная компания медицинского туризма."
+        },
+        {
+          "type": "h2",
+          "text": "Как проходит бронирование"
+        },
+        {
+          "type": "p",
+          "text": "Сначала задайте вопрос. В заявке на бесплатную консультацию нужно указать имя, номер телефона и удобное время для разговора. Консультант LSevin Вам перезвонит. Отправка заявки никак не влияет на уже начатое бронирование."
+        },
+        {
+          "type": "p",
+          "text": "Выберите поставщика. На страницах поставщиков и услуг указаны цена, адрес и опубликованные поставщиком правила, например условия отмены. У некоторых поставщиков есть отметка «Аккредитован». Её могут установить только администраторы LSevin; сами поставщики не могут добавить её в свой профиль."
+        },
+        {
+          "type": "p",
+          "text": "Забронируйте и оплатите. Итоговую сумму Вы видите до оплаты. В зависимости от услуги можно оплатить всю сумму онлайн, внести часть сейчас, а остаток на месте, или забронировать без предоплаты. Онлайн-платежи в иранских риалах проходят через платёжный шлюз Zarinpal; также можно оплатить с кошелька LSevin."
+        },
+        {
+          "type": "p",
+          "text": "Следите за всем в одном месте. Ваши бронирования, счета, история кошелька и переписка с поддержкой хранятся в Вашем аккаунте. Вход выполняется по номеру телефона и одноразовому коду, который приходит на этот номер."
+        },
+        {
+          "type": "h2",
+          "text": "Доверие и проверка"
+        },
+        {
+          "type": "p",
+          "text": "На сайте LSevin размещён электронный знак доверия Enamad, ID 7764782. Enamad — программа знаков доверия для интернет-компаний в Иране. Нажмите на знак на сайте, чтобы открыть его запись на trustseal.enamad.ir."
+        },
+        {
+          "type": "p",
+          "text": "Если Вы едете на лечение из-за рубежа, убедитесь, что Ваша больница или клиника есть в списке Министерства здравоохранения учреждений, имеющих лицензию на приём иностранных пациентов (лицензия IPD), на сайте iht.behdasht.gov.ir. В нашем руководстве по лицензированным больницам эта проверка описана шаг за шагом."
+        },
+        {
+          "type": "h2",
+          "text": "Языки и валюты"
+        },
+        {
+          "type": "p",
+          "text": "LSevin доступен на персидском, английском и арабском языках. Интерфейс также переведён на турецкий, курдский, немецкий, французский, испанский, русский, таджикский и китайский. Посетители из Ирана видят цены в риалах или туманах. Посетители из других стран видят цены в другой валюте, как правило в валюте страны, к которой привязан их номер телефона."
+        },
+        {
+          "type": "h2",
+          "text": "Контакты"
+        },
+        {
+          "type": "p",
+          "text": "По вопросам бронирования, заказа или аккаунта откройте раздел «Поддержка» в своём аккаунте LSevin и начните переписку. По вопросам, связанным с Вашими персональными данными, пишите на lsevin.turkiye@gmail.com."
+        }
+      ],
+      "faq": [
+        {
+          "q": "LSevin — это больница или клиника?",
+          "a": "Нет. LSevin — платформа бронирования. Лечение, проживание или услугу предоставляет независимая клиника, больница, отель или другой поставщик, у которого Вы бронируете."
+        },
+        {
+          "q": "Оформляет ли LSevin визы или приглашения?",
+          "a": "Нет. Для медицинской визы приглашение выдаёт учреждение, имеющее лицензию Министерства здравоохранения Ирана, а организацией поездки занимается лицензированная компания медицинского туризма. LSevin помогает согласовать даты лечения, проживания в отеле и трансферов."
+        },
+        {
+          "q": "Консультация бесплатная?",
+          "a": "Заявка на консультацию, по которой Вам перезванивает консультант LSevin, бесплатна. Видеоконсультация с врачом — отдельная платная услуга; её продолжительность и стоимость указываются до бронирования."
+        },
+        {
+          "q": "Что означает отметка «Аккредитован» у поставщика?",
+          "a": "Это отметка, которую администраторы LSevin устанавливают в профиле поставщика. Сами поставщики установить её не могут. Если Вы едете на лечение из-за рубежа, также проверьте учреждение в списке IPD Министерства здравоохранения на iht.behdasht.gov.ir."
+        },
+        {
+          "q": "Как войти в аккаунт?",
+          "a": "По номеру телефона. LSevin отправляет на этот номер одноразовый код, поэтому отдельный пароль запоминать не нужно."
+        }
+      ]
+    },
+    "tg-TJ": {
+      "title": "Дар бораи LSevin",
+      "metaDescription": "Бо LSevin дар Эрон клиника, мутахассис, меҳмонхонаи назди беморхона, тур ва варзишгоҳ брон кунед, маҳсулоти тандурустӣ харед ва пеш аз брон машварати ройгон гиред.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "LSevin (ба форсӣ السوین) платформаи брон барои сафари табобатӣ ва солимӣ дар Эрон аст. Дар як сайт шумо метавонед клиника, беморхона ва мутахассисонро ёбед, меҳмонхонаи наздики беморхонаи худро брон кунед, ба муддати иқомат нигоҳубин илова намоед, ба тур ҳамроҳ шавед, аъзогии варзишгоҳро пардохт кунед ва аз мағозаи LSevin маҳсулот фармоиш диҳед. Хидмат дар lsevin.com кор мекунад ва дар lsevincare.com низ дастрас аст."
+        },
+        {
+          "type": "h2",
+          "text": "LSevin барои кист"
+        },
+        {
+          "type": "p",
+          "text": "Барои беморон, ки аз хориҷа, аз ҷумла аз Ироқ, кишварҳои Халиҷи Форс ва Афғонистон, ба Эрон меоянд ва бояд табобат, ҷои истиқомат ва нақлиёти маҳаллиро дар ҳамон санаҳо ба ҳам мувофиқ кунанд."
+        },
+        {
+          "type": "p",
+          "text": "Барои беморони дохили Эрон, ки аз шаҳри худ барои табобат ба Теҳрон, Машҳад ё Шероз мераванд ва барои ташрифҳои такрорӣ ба меҳмонхона ниёз доранд."
+        },
+        {
+          "type": "p",
+          "text": "Барои ҳамроҳони бемор ва ҳар касе, ки мехоҳад дар Эрон меҳмонхона, тур, варзишгоҳ ё хидмати солимиро брон кунад."
+        },
+        {
+          "type": "h2",
+          "text": "LSevin чӣ кор мекунад"
+        },
+        {
+          "type": "p",
+          "text": "LSevin миёнарав аст. Клиникаҳо, беморхонаҳо, духтурон, меҳмонхонаҳо, ташкилкунандагони тур ва варзишгоҳҳои платформа хидматрасонҳои мустақиланд. Онҳо хидматро анҷом медиҳанд, нарх ва қоидаҳои худро муайян мекунанд ва барои табобат ё хидмате, ки ба шумо мерасонанд, масъул мемонанд."
+        },
+        {
+          "type": "p",
+          "text": "LSevin маълумоти онҳоро нашр мекунад, брони шуморо қабул мекунад, дар ҷое ки пардохти онлайн пешниҳод шудааст, маблағро мегирад ва байни шумо ва хидматрасон ҳамоҳангӣ мекунад. Агар дар брон мушкиле пеш ояд, аввал ба дастгирии LSevin муроҷиат кунед."
+        },
+        {
+          "type": "p",
+          "text": "LSevin маслиҳати тиббӣ намедиҳад ва табобати шуморо интихоб намекунад. Ин қарорро духтури муолиҷи шумо қабул мекунад. LSevin инчунин раводид ё даъватномаи тиббӣ намедиҳад. Барои беморони хориҷӣ даъватнома аз муассисае меояд, ки аз Вазорати тандурустии Эрон иҷозатнома дорад, ва корҳои сафар тавассути ширкати иҷозатноманоки сайёҳии тиббӣ анҷом дода мешаванд."
+        },
+        {
+          "type": "h2",
+          "text": "Брон чӣ тавр сурат мегирад"
+        },
+        {
+          "type": "p",
+          "text": "Аввал пурсед. Барои дархости машварати ройгон ном, рақами телефон ва вақти мувофиқи сӯҳбатро нависед. Мушовири LSevin ба шумо занг мезанад. Фиристодани дархост ба броне, ки шумо аллакай оғоз кардаед, таъсир намерасонад."
+        },
+        {
+          "type": "p",
+          "text": "Хидматрасонро интихоб кунед. Дар саҳифаҳои хидматрасон ва хидмат нарх, ҷойгиршавӣ ва қоидаҳое, ки хидматрасон нашр кардааст, масалан шартҳои бекоркунӣ, нишон дода мешаванд. Баъзе хидматрасонҳо нишони «Аккредитатсияшуда» доранд. Ин нишонро танҳо маъмурони LSevin гузошта метавонанд; хидматрасонҳо онро ба профили худ илова карда наметавонанд."
+        },
+        {
+          "type": "p",
+          "text": "Брон кунед ва пардохт намоед. Пеш аз пардохт маблағи умумиро мебинед. Вобаста ба хидмат, шумо тамоми маблағро онлайн месупоред, як қисмашро ҳозир ва боқимондаро дар ҷой пардохт мекунед ё бе пешпардохт брон мекунед. Пардохтҳои онлайн бо риёли Эрон тавассути дарвозаи Zarinpal мегузаранд ва шумо метавонед аз ҳамёни LSevin низ пардохт кунед."
+        },
+        {
+          "type": "p",
+          "text": "Назорат кунед. Бронҳо, ҳисобномаҳо, таърихи ҳамён ва сӯҳбатҳои дастгирӣ дар ҳисоби шумо нигоҳ дошта мешаванд. Шумо бо рақами телефон ва рамзи яккаратае, ки ба он фиристода мешавад, ворид мешавед."
+        },
+        {
+          "type": "h2",
+          "text": "Эътимод ва санҷиш"
+        },
+        {
+          "type": "p",
+          "text": "LSevin мӯҳри электронии эътимоди Enamad бо рақами 7764782-ро нишон медиҳад. Enamad барномаи мӯҳри эътимод барои тиҷорати онлайн дар Эрон аст. Мӯҳрро дар сайт пахш кунед, то сабти он дар trustseal.enamad.ir кушода шавад."
+        },
+        {
+          "type": "p",
+          "text": "Агар барои табобат аз хориҷа меоед, санҷед, ки беморхона ё клиникаи шумо дар рӯйхати муассисаҳои дорои иҷозатномаи қабули беморони хориҷӣ (иҷозатномаи IPD)-и Вазорати тандурустӣ дар iht.behdasht.gov.ir ҳаст. Дастури мо дар бораи беморхонаҳои иҷозатноманок ин санҷишро қадам ба қадам шарҳ медиҳад."
+        },
+        {
+          "type": "h2",
+          "text": "Забонҳо ва асъорҳо"
+        },
+        {
+          "type": "p",
+          "text": "LSevin-ро бо забонҳои форсӣ, англисӣ ва арабӣ истифода бурдан мумкин аст. Интерфейс инчунин бо забонҳои туркӣ, курдӣ, олмонӣ, фаронсавӣ, испанӣ, русӣ, тоҷикӣ ва чинӣ дастрас аст. Меҳмонони дохили Эрон нархҳоро бо риёл ё туман мебинанд. Меҳмонони кишварҳои дигар нархҳоро бо асъори дигар мебинанд, одатан бо асъори кишваре, ки рақами телефонашон ба он тааллуқ дорад."
+        },
+        {
+          "type": "h2",
+          "text": "Тамос"
+        },
+        {
+          "type": "p",
+          "text": "Барои саволҳо дар бораи брон, фармоиш ё ҳисоби худ дар ҳисоби LSevin бахши «Дастгирӣ»-ро кушоед ва сӯҳбат оғоз кунед. Барои саволҳо дар бораи маълумоти шахсӣ ба lsevin.turkiye@gmail.com нависед."
+        }
+      ],
+      "faq": [
+        {
+          "q": "Оё LSevin беморхона ё клиника аст?",
+          "a": "Не. LSevin платформаи брон аст. Табобат, иқомат ё хидматро клиника, беморхона, меҳмонхона ё дигар хидматрасони мустақиле, ки шумо бо он брон кардаед, анҷом медиҳад."
+        },
+        {
+          "q": "Оё LSevin раводид ё даъватнома медиҳад?",
+          "a": "Не. Барои раводиди тиббӣ даъватнома аз муассисае меояд, ки аз Вазорати тандурустии Эрон иҷозатнома дорад, ва корҳои сафарро ширкати иҷозатноманоки сайёҳии тиббӣ иҷро мекунад. LSevin ба шумо кӯмак мекунад, ки санаҳои табобат, меҳмонхона ва интиқолро ба ҳам мувофиқ кунед."
+        },
+        {
+          "q": "Оё машварат ройгон аст?",
+          "a": "Дархости машварат, ки пас аз он мушовири LSevin ба шумо занг мезанад, ройгон аст. Машварати видеоӣ бо духтур хидмати алоҳидаи пулакӣ аст ва давомнокию нархи он пеш аз брон нишон дода мешавад."
+        },
+        {
+          "q": "Нишони «Аккредитатсияшуда» дар профили хидматрасон чӣ маъно дорад?",
+          "a": "Ин нишонаест, ки маъмурони LSevin дар профили хидматрасон мегузоранд. Хидматрасонҳо онро худашон гузошта наметавонанд. Барои табобати хориҷӣ муассисаро дар рӯйхати IPD-и Вазорати тандурустӣ дар iht.behdasht.gov.ir низ санҷед."
+        },
+        {
+          "q": "Чӣ тавр ворид шавам?",
+          "a": "Бо рақами телефони худ. LSevin ба ин рақам рамзи яккарата мефиристад ва ба хотир нигоҳ доштани пароли алоҳида лозим нест."
+        }
+      ]
+    },
+    "zh-CN": {
+      "title": "关于LSevin",
+      "metaDescription": "通过LSevin预约伊朗的诊所、专科医生、医院附近的酒店、旅游线路和健身房，选购健康产品；预约前可先申请免费咨询。",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "LSevin（波斯语名称为 السوین）是一个面向伊朗医疗旅行与健康养生的预约平台。在同一个网站上，您可以查找诊所、医院和专科医生，预订离就诊医院较近的酒店，为住宿期间添加护理服务，报名参加旅游团，办理健身房会员，还可以在LSevin商店下单购买产品。服务网址为 lsevin.com，也可通过 lsevincare.com 访问。"
+        },
+        {
+          "type": "h2",
+          "text": "LSevin适合哪些人"
+        },
+        {
+          "type": "p",
+          "text": "从国外前往伊朗的患者，包括来自伊拉克、海湾国家和阿富汗的患者，他们需要让治疗、住宿和当地交通安排在同一时间段内衔接起来。"
+        },
+        {
+          "type": "p",
+          "text": "伊朗国内从所在城市前往德黑兰、马什哈德或设拉子就医，并需要在复诊期间入住酒店的患者。"
+        },
+        {
+          "type": "p",
+          "text": "陪同患者出行的家属或陪护人员，以及任何想在伊朗预订酒店、旅游线路、健身房或健康养生服务的人。"
+        },
+        {
+          "type": "h2",
+          "text": "LSevin做什么"
+        },
+        {
+          "type": "p",
+          "text": "LSevin是中介平台。平台上的诊所、医院、医生、酒店、旅行社和健身房都是独立的服务商。服务由他们提供，价格和政策由他们自行制定，他们也对向您提供的医疗或其他服务负责。"
+        },
+        {
+          "type": "p",
+          "text": "LSevin负责发布服务商信息、受理您的预约、在提供在线支付的情况下代收款项，并在您与服务商之间进行协调。预约出现问题时，请首先联系LSevin客服。"
+        },
+        {
+          "type": "p",
+          "text": "LSevin不提供医疗建议，也不替您选择治疗方案，治疗决定由您的主治医生作出。LSevin同样不签发签证或医疗邀请函。对于国际患者，邀请函由获得伊朗卫生部许可的医疗机构出具，出行安排则由持证的医疗旅游公司办理。"
+        },
+        {
+          "type": "h2",
+          "text": "预约流程"
+        },
+        {
+          "type": "p",
+          "text": "先咨询。申请免费咨询时，只需填写姓名、电话号码和方便沟通的时间，LSevin顾问会给您回电。提交申请不会影响您已开始的任何预约。"
+        },
+        {
+          "type": "p",
+          "text": "选择服务商。服务商页面和服务页面会显示价格、地点以及服务商公布的政策，例如取消条款。部分服务商带有“已获资质认可”标识。该标识只能由LSevin管理员设置，服务商无法自行添加到自己的资料中。"
+        },
+        {
+          "type": "p",
+          "text": "预约并付款。付款前您会看到总金额。根据服务不同，您可以在线全额支付，也可以现在支付一部分、其余款项到店支付，或无需预付直接预约。以伊朗里亚尔进行的在线支付通过Zarinpal支付网关完成，您也可以使用LSevin钱包付款。"
+        },
+        {
+          "type": "p",
+          "text": "随时查看。您的预约、账单、钱包记录和客服对话都保存在您的账户中。登录时使用您的手机号码以及发送到该号码的一次性验证码。"
+        },
+        {
+          "type": "h2",
+          "text": "信任与核验"
+        },
+        {
+          "type": "p",
+          "text": "LSevin展示了Enamad电子信任标识，编号7764782。Enamad是伊朗面向网上商家的信任标识认证项目。点击网站上的标识，即可在 trustseal.enamad.ir 上查看其备案记录。"
+        },
+        {
+          "type": "p",
+          "text": "如果您从国外前来就医，请在 iht.behdasht.gov.ir 上确认您选择的医院或诊所是否列入卫生部公布的可接收国际患者的医疗机构名单（IPD许可）。我们的持证医院指南会一步步介绍如何查询。"
+        },
+        {
+          "type": "h2",
+          "text": "语言与货币"
+        },
+        {
+          "type": "p",
+          "text": "LSevin支持波斯语、英语和阿拉伯语，界面另提供土耳其语、库尔德语、德语、法语、西班牙语、俄语、塔吉克语和中文版本。伊朗境内的访客看到的是以里亚尔或托曼标示的价格。其他国家的访客看到的是另一种货币的价格，通常是与其手机号码所属国家对应的货币。"
+        },
+        {
+          "type": "h2",
+          "text": "联系我们"
+        },
+        {
+          "type": "p",
+          "text": "如对预约、订单或账户有疑问，请在LSevin账户中打开“客服”并发起对话。如对个人数据有疑问，请发送邮件至 lsevin.turkiye@gmail.com。"
+        }
+      ],
+      "faq": [
+        {
+          "q": "LSevin是医院或诊所吗？",
+          "a": "不是。LSevin是预约平台。治疗、住宿或其他服务由您所预约的独立诊所、医院、酒店或其他服务商提供。"
+        },
+        {
+          "q": "LSevin会签发签证或邀请函吗？",
+          "a": "不会。办理医疗签证时，邀请函由获得伊朗卫生部许可的医疗机构出具，出行事宜由持证的医疗旅游公司办理。LSevin可以帮您把治疗、酒店和接送的日期安排妥当。"
+        },
+        {
+          "q": "咨询是免费的吗？",
+          "a": "由LSevin顾问回电的咨询申请是免费的。与医生进行的视频问诊是另外收费的服务，时长和价格会在预约前显示。"
+        },
+        {
+          "q": "服务商资料上的“已获资质认可”标识是什么意思？",
+          "a": "这是LSevin管理员在服务商资料上设置的标识，服务商无法自行设置。如需出国就医，还请在 iht.behdasht.gov.ir 上查询该机构是否列入卫生部的IPD名单。"
+        },
+        {
+          "q": "如何登录？",
+          "a": "使用您的手机号码登录。LSevin会向该号码发送一次性验证码，无需另外记住密码。"
+        }
+      ]
+    },
+    "de-DE": {
+      "title": "Über LSevin",
+      "metaDescription": "Mit LSevin buchen Sie Kliniken, Fachärzte, Hotels nahe Krankenhäusern, Touren und Fitnessstudios im Iran und kaufen Gesundheitsprodukte, mit kostenloser Beratung vorab.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "LSevin (auf Persisch السوین) ist eine Buchungsplattform für Gesundheitsreisen und Wellness im Iran. Auf einer Website finden Sie Kliniken, Krankenhäuser und Fachärzte, buchen ein Hotel in der Nähe Ihres Krankenhauses, ergänzen Betreuung während Ihres Aufenthalts, nehmen an einer Tour teil, bezahlen eine Fitnessstudio-Mitgliedschaft und bestellen Produkte im LSevin Shop. Der Dienst läuft unter lsevin.com und ist auch unter lsevincare.com erreichbar."
+        },
+        {
+          "type": "h2",
+          "text": "Für wen LSevin gedacht ist"
+        },
+        {
+          "type": "p",
+          "text": "Für Patientinnen und Patienten, die aus dem Ausland in den Iran reisen, etwa aus dem Irak, den Golfstaaten oder Afghanistan, und bei denen Behandlung, Unterkunft und Transport vor Ort zu denselben Terminen zusammenpassen müssen."
+        },
+        {
+          "type": "p",
+          "text": "Für Patientinnen und Patienten im Iran, die aus ihrer eigenen Stadt zur Behandlung nach Teheran, Maschhad oder Schiras reisen und für die Nachsorgetermine ein Hotel brauchen."
+        },
+        {
+          "type": "p",
+          "text": "Für Begleitpersonen, die mit einem Patienten reisen, und für alle, die im Iran ein Hotel, eine Tour, ein Fitnessstudio oder eine Wellnessleistung buchen möchten."
+        },
+        {
+          "type": "h2",
+          "text": "Was LSevin macht"
+        },
+        {
+          "type": "p",
+          "text": "LSevin ist ein Vermittler. Die Kliniken, Krankenhäuser, Ärzte, Hotels, Reiseveranstalter und Fitnessstudios auf der Plattform sind unabhängige Anbieter. Sie erbringen die Leistung, legen ihre eigenen Preise und Richtlinien fest und bleiben für die Behandlung oder Leistung verantwortlich, die Sie erhalten."
+        },
+        {
+          "type": "p",
+          "text": "LSevin veröffentlicht ihre Angaben, nimmt Ihre Buchung entgegen, zieht die Zahlung ein, sofern Online-Zahlung angeboten wird, und koordiniert zwischen Ihnen und dem Anbieter. Wenn bei einer Buchung etwas schiefgeht, ist der LSevin Support Ihre erste Anlaufstelle."
+        },
+        {
+          "type": "p",
+          "text": "LSevin gibt keine medizinischen Ratschläge und wählt Ihre Behandlung nicht aus. Diese Entscheidung trifft Ihr behandelnder Arzt. LSevin stellt auch keine Visa oder medizinischen Einladungsschreiben aus. Für internationale Patienten kommt die Einladung von einer Einrichtung, die vom iranischen Gesundheitsministerium zugelassen ist, und die Reiseorganisation läuft über ein lizenziertes Unternehmen für Gesundheitstourismus."
+        },
+        {
+          "type": "h2",
+          "text": "So funktioniert eine Buchung"
+        },
+        {
+          "type": "p",
+          "text": "Zuerst fragen. Für die Anfrage einer kostenlosen Beratung geben Sie Ihren Namen, Ihre Telefonnummer und eine bevorzugte Gesprächszeit an. Eine Beraterin oder ein Berater von LSevin ruft Sie zurück. Die Anfrage ändert nichts an einer Buchung, die Sie bereits begonnen haben."
+        },
+        {
+          "type": "p",
+          "text": "Anbieter wählen. Anbieter- und Leistungsseiten zeigen den Preis, den Standort und die Richtlinien, die der Anbieter veröffentlicht hat, zum Beispiel seine Stornierungsbedingungen. Manche Anbieter tragen das Abzeichen „Akkreditiert“. Nur Administratoren von LSevin können dieses Abzeichen vergeben; Anbieter können es ihrem eigenen Profil nicht hinzufügen."
+        },
+        {
+          "type": "p",
+          "text": "Buchen und bezahlen. Sie sehen den Gesamtbetrag, bevor Sie bezahlen. Je nach Leistung zahlen Sie den vollen Betrag online, zahlen einen Teil jetzt und den Rest vor Ort oder buchen ohne Vorauszahlung. Online-Zahlungen in iranischen Rial laufen über das Zahlungsgateway Zarinpal, und Sie können auch aus Ihrem LSevin Wallet bezahlen."
+        },
+        {
+          "type": "p",
+          "text": "Den Überblick behalten. Ihre Buchungen, Rechnungen, Ihr Wallet-Verlauf und Ihre Support-Gespräche werden in Ihrem Konto gespeichert. Sie melden sich mit Ihrer Telefonnummer und einem Einmalcode an, der an diese Nummer gesendet wird."
+        },
+        {
+          "type": "h2",
+          "text": "Vertrauen und Überprüfung"
+        },
+        {
+          "type": "p",
+          "text": "LSevin zeigt das elektronische Vertrauenssiegel Enamad mit der ID 7764782. Enamad ist das Vertrauenssiegel-Programm für Online-Unternehmen im Iran. Klicken Sie auf der Website auf das Siegel, um den zugehörigen Eintrag auf trustseal.enamad.ir zu öffnen."
+        },
+        {
+          "type": "p",
+          "text": "Wenn Sie zur Behandlung aus dem Ausland anreisen, prüfen Sie, ob Ihr Krankenhaus oder Ihre Klinik auf der Liste des Gesundheitsministeriums der Einrichtungen steht, die internationale Patienten aufnehmen dürfen (IPD-Lizenz), unter iht.behdasht.gov.ir. Unser Leitfaden zu zugelassenen Krankenhäusern führt Schritt für Schritt durch diese Prüfung."
+        },
+        {
+          "type": "h2",
+          "text": "Sprachen und Währungen"
+        },
+        {
+          "type": "p",
+          "text": "Sie können LSevin auf Persisch, Englisch und Arabisch nutzen. Die Oberfläche gibt es außerdem auf Türkisch, Kurdisch, Deutsch, Französisch, Spanisch, Russisch, Tadschikisch und Chinesisch. Besucher im Iran sehen Preise in Rial oder Toman. Besucher aus anderen Ländern sehen Preise in einer anderen Währung, in der Regel in der Währung des Landes, das mit ihrer Telefonnummer verknüpft ist."
+        },
+        {
+          "type": "h2",
+          "text": "Kontakt"
+        },
+        {
+          "type": "p",
+          "text": "Bei Fragen zu einer Buchung, einer Bestellung oder Ihrem Konto öffnen Sie in Ihrem LSevin Konto den Bereich Support und beginnen ein Gespräch. Bei Fragen zu Ihren personenbezogenen Daten schreiben Sie an lsevin.turkiye@gmail.com."
+        }
+      ],
+      "faq": [
+        {
+          "q": "Ist LSevin ein Krankenhaus oder eine Klinik?",
+          "a": "Nein. LSevin ist eine Buchungsplattform. Die Behandlung, der Aufenthalt oder die Leistung wird von der unabhängigen Klinik, dem Krankenhaus, dem Hotel oder dem anderen Anbieter erbracht, bei dem Sie buchen."
+        },
+        {
+          "q": "Stellt LSevin Visa oder Einladungsschreiben aus?",
+          "a": "Nein. Für ein medizinisches Visum kommt die Einladung von einer Einrichtung, die vom iranischen Gesundheitsministerium zugelassen ist, und ein lizenziertes Unternehmen für Gesundheitstourismus übernimmt die Reiseseite. LSevin hilft Ihnen, die Termine für Behandlung, Hotel und Transfers aufeinander abzustimmen."
+        },
+        {
+          "q": "Ist die Beratung kostenlos?",
+          "a": "Die Beratungsanfrage, bei der Sie ein LSevin Berater zurückruft, ist kostenlos. Eine Videosprechstunde mit einem Arzt ist eine separate, kostenpflichtige Leistung; Dauer und Preis werden vor der Buchung angezeigt."
+        },
+        {
+          "q": "Was bedeutet das Abzeichen „Akkreditiert“ bei einem Anbieter?",
+          "a": "Es ist eine Markierung, die Administratoren von LSevin im Profil eines Anbieters setzen. Anbieter können sie nicht selbst setzen. Prüfen Sie für eine Behandlung als internationaler Patient die Einrichtung zusätzlich auf der IPD-Liste des Gesundheitsministeriums unter iht.behdasht.gov.ir."
+        },
+        {
+          "q": "Wie melde ich mich an?",
+          "a": "Mit Ihrer Telefonnummer. LSevin sendet einen Einmalcode an diese Nummer; ein separates Passwort, das Sie sich merken müssten, gibt es nicht."
+        }
+      ]
+    },
+    "fr-FR": {
+      "title": "À propos de LSevin",
+      "metaDescription": "LSevin vous aide à réserver cliniques, spécialistes, hôtels proches des hôpitaux, circuits et salles de sport en Iran, avec une consultation gratuite avant réservation.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "LSevin (السوین en persan) est une plateforme de réservation dédiée au voyage de santé et au bien-être en Iran. Sur un seul site, vous trouvez des cliniques, des hôpitaux et des spécialistes, vous réservez un hôtel proche de votre hôpital, vous ajoutez des soins pendant votre séjour, vous participez à un circuit, vous réglez un abonnement de salle de sport et vous commandez des produits dans la boutique LSevin. Le service est accessible sur lsevin.com ainsi que sur lsevincare.com."
+        },
+        {
+          "type": "h2",
+          "text": "À qui s’adresse LSevin"
+        },
+        {
+          "type": "p",
+          "text": "Aux patients qui se rendent en Iran depuis l’étranger, notamment depuis l’Irak, les pays du Golfe et l’Afghanistan, et qui ont besoin que le traitement, l’hébergement et les déplacements sur place s’organisent aux mêmes dates."
+        },
+        {
+          "type": "p",
+          "text": "Aux patients résidant en Iran qui quittent leur ville pour se faire soigner à Téhéran, Mashhad ou Chiraz et qui ont besoin d’un hôtel pour les visites de suivi."
+        },
+        {
+          "type": "p",
+          "text": "Aux accompagnants qui voyagent avec un patient, et à toute personne souhaitant réserver un hôtel, un circuit, une salle de sport ou un service de bien-être en Iran."
+        },
+        {
+          "type": "h2",
+          "text": "Ce que fait LSevin"
+        },
+        {
+          "type": "p",
+          "text": "LSevin est un intermédiaire. Les cliniques, hôpitaux, médecins, hôtels, organisateurs de circuits et salles de sport présents sur la plateforme sont des prestataires indépendants. Ils fournissent le service, fixent leurs propres prix et conditions, et restent responsables des soins ou du service qu’ils vous apportent."
+        },
+        {
+          "type": "p",
+          "text": "LSevin publie leurs informations, enregistre votre réservation, encaisse le paiement lorsque le paiement en ligne est proposé et assure la coordination entre vous et le prestataire. En cas de problème avec une réservation, l’assistance LSevin est votre premier interlocuteur."
+        },
+        {
+          "type": "p",
+          "text": "LSevin ne donne pas d’avis médical et ne choisit pas votre traitement : cette décision revient à votre médecin traitant. LSevin ne délivre pas non plus de visas ni de lettres d’invitation médicale. Pour les patients internationaux, l’invitation émane d’un établissement agréé par le ministère iranien de la Santé, et l’organisation du voyage passe par une agence de tourisme médical agréée."
+        },
+        {
+          "type": "h2",
+          "text": "Comment se déroule une réservation"
+        },
+        {
+          "type": "p",
+          "text": "Posez d’abord vos questions. La demande de consultation gratuite vous demande votre nom, votre numéro de téléphone et le moment qui vous convient pour échanger. Un conseiller LSevin vous rappelle. L’envoi de cette demande ne modifie aucune réservation déjà commencée."
+        },
+        {
+          "type": "p",
+          "text": "Choisissez un prestataire. Les pages des prestataires et des services indiquent le prix, l’adresse et les conditions publiées par le prestataire, comme ses conditions d’annulation. Certains prestataires portent le badge Accrédité. Seuls les administrateurs de LSevin peuvent attribuer ce badge ; les prestataires ne peuvent pas l’ajouter eux-mêmes à leur profil."
+        },
+        {
+          "type": "p",
+          "text": "Réservez et payez. Le montant total s’affiche avant le paiement. Selon le service, vous réglez la totalité en ligne, vous payez une partie maintenant et le reste sur place, ou vous réservez sans paiement préalable. Les paiements en ligne en rials iraniens passent par la passerelle Zarinpal, et vous pouvez aussi payer depuis votre portefeuille LSevin."
+        },
+        {
+          "type": "p",
+          "text": "Suivez tout au même endroit. Vos réservations, factures, l’historique de votre portefeuille et vos échanges avec l’assistance sont conservés dans votre compte. Vous vous connectez avec votre numéro de téléphone et un code à usage unique envoyé sur ce numéro."
+        },
+        {
+          "type": "h2",
+          "text": "Confiance et vérification"
+        },
+        {
+          "type": "p",
+          "text": "LSevin affiche le sceau de confiance électronique Enamad, ID 7764782. Enamad est le programme de sceaux de confiance destiné aux entreprises en ligne en Iran. Cliquez sur le sceau affiché sur le site pour ouvrir sa fiche sur trustseal.enamad.ir."
+        },
+        {
+          "type": "p",
+          "text": "Si vous venez de l’étranger pour vous faire soigner, vérifiez que votre hôpital ou votre clinique figure sur la liste du ministère de la Santé des établissements autorisés à accueillir des patients internationaux (licence IPD), sur iht.behdasht.gov.ir. Notre guide des hôpitaux agréés décrit cette vérification étape par étape."
+        },
+        {
+          "type": "h2",
+          "text": "Langues et devises"
+        },
+        {
+          "type": "p",
+          "text": "Vous pouvez utiliser LSevin en persan, en anglais et en arabe. L’interface est également disponible en turc, en kurde, en allemand, en français, en espagnol, en russe, en tadjik et en chinois. Les visiteurs en Iran voient les prix en rials ou en tomans. Les visiteurs d’autres pays voient les prix dans une autre devise, généralement celle du pays associé à leur numéro de téléphone."
+        },
+        {
+          "type": "h2",
+          "text": "Contact"
+        },
+        {
+          "type": "p",
+          "text": "Pour toute question concernant une réservation, une commande ou votre compte, ouvrez Assistance dans votre compte LSevin et lancez une conversation. Pour toute question relative à vos données personnelles, écrivez à lsevin.turkiye@gmail.com."
+        }
+      ],
+      "faq": [
+        {
+          "q": "LSevin est-il un hôpital ou une clinique ?",
+          "a": "Non. LSevin est une plateforme de réservation. Le traitement, le séjour ou le service est fourni par la clinique, l’hôpital, l’hôtel ou l’autre prestataire indépendant auprès duquel vous réservez."
+        },
+        {
+          "q": "LSevin délivre-t-il des visas ou des lettres d’invitation ?",
+          "a": "Non. Pour un visa médical, l’invitation émane d’un établissement agréé par le ministère iranien de la Santé, et une agence de tourisme médical agréée prend en charge l’aspect voyage. LSevin vous aide à faire coïncider les dates du traitement, de l’hôtel et des transferts."
+        },
+        {
+          "q": "La consultation est-elle gratuite ?",
+          "a": "La demande de consultation, pour laquelle un conseiller LSevin vous rappelle, est gratuite. La consultation vidéo avec un médecin est un service payant distinct, dont la durée et le prix s’affichent avant la réservation."
+        },
+        {
+          "q": "Que signifie le badge Accrédité sur un prestataire ?",
+          "a": "Il s’agit d’un indicateur que les administrateurs de LSevin attribuent à un profil de prestataire. Les prestataires ne peuvent pas l’activer eux-mêmes. Pour un traitement en tant que patient international, vérifiez aussi l’établissement sur la liste IPD du ministère de la Santé, sur iht.behdasht.gov.ir."
+        },
+        {
+          "q": "Comment me connecter ?",
+          "a": "Avec votre numéro de téléphone. LSevin envoie un code à usage unique sur ce numéro : vous n’avez aucun mot de passe distinct à retenir."
+        }
+      ]
+    },
+    "es-ES": {
+      "title": "Acerca de LSevin",
+      "metaDescription": "LSevin le ayuda a reservar clínicas, especialistas, hoteles cerca de hospitales, tours y gimnasios en Irán, y a comprar productos de salud, con consulta gratuita previa.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "LSevin (السوین en persa) es una plataforma de reservas para viajes de salud y bienestar en Irán. En un mismo sitio puede encontrar clínicas, hospitales y especialistas, reservar un hotel cerca de su hospital, añadir atención durante su estancia, apuntarse a un tour, pagar la membresía de un gimnasio y pedir productos en la tienda de LSevin. El servicio funciona en lsevin.com y también está disponible en lsevincare.com."
+        },
+        {
+          "type": "h2",
+          "text": "Para quién es LSevin"
+        },
+        {
+          "type": "p",
+          "text": "Pacientes que viajan a Irán desde el extranjero, por ejemplo desde Irak, los países del Golfo o Afganistán, y necesitan que el tratamiento, el alojamiento y el transporte local coincidan en las mismas fechas."
+        },
+        {
+          "type": "p",
+          "text": "Pacientes dentro de Irán que se desplazan desde su ciudad a Teherán, Mashhad o Shiraz para recibir tratamiento y necesitan un hotel para las visitas de seguimiento."
+        },
+        {
+          "type": "p",
+          "text": "Acompañantes que viajan con un paciente y cualquier persona que quiera reservar un hotel, un tour, un gimnasio o un servicio de bienestar en Irán."
+        },
+        {
+          "type": "h2",
+          "text": "Qué hace LSevin"
+        },
+        {
+          "type": "p",
+          "text": "LSevin es un intermediario. Las clínicas, hospitales, médicos, hoteles, operadores turísticos y gimnasios de la plataforma son proveedores independientes. Ellos prestan el servicio, fijan sus propios precios y políticas, y siguen siendo responsables de la atención o el servicio que usted recibe."
+        },
+        {
+          "type": "p",
+          "text": "LSevin publica su información, registra su reserva, cobra el pago cuando se ofrece el pago en línea y coordina la comunicación entre usted y el proveedor. Si surge un problema con una reserva, el soporte de LSevin es su primer punto de contacto."
+        },
+        {
+          "type": "p",
+          "text": "LSevin no ofrece asesoramiento médico ni elige su tratamiento. Esa decisión corresponde a su médico tratante. LSevin tampoco emite visados ni cartas de invitación médica. Para los pacientes internacionales, la invitación procede de un centro autorizado por el Ministerio de Salud de Irán, y los trámites del viaje se gestionan a través de una empresa de turismo de salud con licencia."
+        },
+        {
+          "type": "h2",
+          "text": "Cómo funciona una reserva"
+        },
+        {
+          "type": "p",
+          "text": "Consulte primero. La solicitud de consulta gratuita solo le pide su nombre, su número de teléfono y el horario que prefiere para hablar. Un asesor de LSevin le devuelve la llamada. Enviar la solicitud no modifica ninguna reserva que ya haya iniciado."
+        },
+        {
+          "type": "p",
+          "text": "Elija un proveedor. Las páginas de proveedores y servicios muestran el precio, la ubicación y las políticas que el proveedor ha publicado, como sus condiciones de cancelación. Algunos proveedores llevan la insignia Acreditado. Solo los administradores de LSevin pueden asignarla; los proveedores no pueden añadirla a su propio perfil."
+        },
+        {
+          "type": "p",
+          "text": "Reserve y pague. Usted ve el total antes de pagar. Según el servicio, paga el importe completo en línea, paga una parte ahora y el resto en el lugar, o reserva sin pago anticipado. Los pagos en línea en riales iraníes se realizan a través de la pasarela Zarinpal, y también puede pagar con su monedero de LSevin."
+        },
+        {
+          "type": "p",
+          "text": "Haga el seguimiento. Sus reservas, facturas, movimientos del monedero y conversaciones con soporte quedan guardados en su cuenta. Para iniciar sesión utiliza su número de teléfono y un código de un solo uso que se envía a ese número."
+        },
+        {
+          "type": "h2",
+          "text": "Confianza y verificación"
+        },
+        {
+          "type": "p",
+          "text": "LSevin muestra el sello electrónico de confianza Enamad, con ID 7764782. Enamad es el programa de sellos de confianza para comercios en línea en Irán. Haga clic en el sello del sitio para abrir su registro en trustseal.enamad.ir."
+        },
+        {
+          "type": "p",
+          "text": "Si viaja desde el extranjero para recibir tratamiento, compruebe que su hospital o clínica figura en la lista del Ministerio de Salud de centros autorizados para atender a pacientes internacionales (licencia IPD), en iht.behdasht.gov.ir. Nuestra guía sobre hospitales autorizados explica la comprobación paso a paso."
+        },
+        {
+          "type": "h2",
+          "text": "Idiomas y monedas"
+        },
+        {
+          "type": "p",
+          "text": "Puede usar LSevin en persa, inglés y árabe. La interfaz también está disponible en turco, kurdo, alemán, francés, español, ruso, tayiko y chino. Los visitantes en Irán ven los precios en riales o tomanes. Los visitantes de otros países ven los precios en otra moneda, normalmente la del país asociado a su número de teléfono."
+        },
+        {
+          "type": "h2",
+          "text": "Contacto"
+        },
+        {
+          "type": "p",
+          "text": "Para preguntas sobre una reserva, un pedido o su cuenta, abra Soporte en su cuenta de LSevin e inicie una conversación. Para preguntas sobre sus datos personales, escriba a lsevin.turkiye@gmail.com."
+        }
+      ],
+      "faq": [
+        {
+          "q": "¿LSevin es un hospital o una clínica?",
+          "a": "No. LSevin es una plataforma de reservas. El tratamiento, la estancia o el servicio los presta la clínica, el hospital, el hotel u otro proveedor independiente con el que usted reserva."
+        },
+        {
+          "q": "¿LSevin emite visados o cartas de invitación?",
+          "a": "No. Para un visado médico, la invitación procede de un centro autorizado por el Ministerio de Salud de Irán, y una empresa de turismo de salud con licencia se encarga de la parte del viaje. LSevin le ayuda a coordinar las fechas del tratamiento, el hotel y los traslados."
+        },
+        {
+          "q": "¿La consulta es gratuita?",
+          "a": "La solicitud de consulta, en la que un asesor de LSevin le devuelve la llamada, es gratuita. La videoconsulta con un médico es un servicio de pago aparte, y su duración y precio se muestran antes de reservar."
+        },
+        {
+          "q": "¿Qué significa la insignia Acreditado en un proveedor?",
+          "a": "Es una marca que los administradores de LSevin asignan en el perfil de un proveedor. Los proveedores no pueden asignársela ellos mismos. Para un tratamiento internacional, compruebe además el centro en la lista IPD del Ministerio de Salud, en iht.behdasht.gov.ir."
+        },
+        {
+          "q": "¿Cómo inicio sesión?",
+          "a": "Con su número de teléfono. LSevin envía un código de un solo uso a ese número y no necesita recordar ninguna contraseña aparte."
+        }
+      ]
+    }
+  }
+}

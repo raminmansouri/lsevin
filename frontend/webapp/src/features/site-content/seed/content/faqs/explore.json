@@ -1,0 +1,206 @@
+{
+  "scope": "explore",
+  "entityKey": null,
+  "sources": [
+    "src/app/[locale]/n/app/mobile/explore/ExploreClient.tsx + messages Explore.featured/trending/providerTypes/header.browseCategories: page sections",
+    "messages/en.json Explore.badges (verified, featured, sponsored, newProvider) + Home.trusted.subtitle 'Verified by our quality team': badge meaning",
+    "src/app/[locale]/n/app/mobile/explore/ExploreFilters.tsx + Explore.filters.*: country/city, price range + currency, minimum rating, response time (<1 hour, <30 min), verified only, languages",
+    "messages/en.json Explore.sort.*: Recommended, Price low-high, Price high-low, Highest rated, Newest",
+    "src/app/[locale]/n/app/mobile/explore/explore.data.ts: response-time filter matches the provider's own response_time profile field",
+    "messages/en.json Explore.provider.responds + badges.responseTimeUnavailable"
+  ],
+  "items": [
+    {
+      "locales": {
+        "en-US": {
+          "q": "What can I find on the Explore page?",
+          "a": "Explore puts several ways to browse in one place: “Featured Providers”, “Trending Services”, “Browse Provider Types” to pick the kind of provider you need, and “Browse Categories” for the full category list. There is also a search box at the top. Cards marked “Sponsored” are paid placements. “Verified” and “Featured” are badges the LSevin team assigns."
+        },
+        "fa-IR": {
+          "q": "در صفحهٔ «کاوش» چه چیزهایی پیدا می‌کنم؟",
+          "a": "صفحهٔ «کاوش» چند راه مرور را یکجا جمع کرده است: «ارائه‌دهندگان ویژه»، «خدمات پرطرفدار»، «مرور نوع ارائه‌دهندگان» برای انتخاب نوع ارائه‌دهندهٔ موردنیاز، و «مرور دسته‌بندی‌ها» برای دیدن همهٔ دسته‌ها. بالای صفحه هم کادر جست‌وجو هست. کارت‌هایی که برچسب «تبلیغاتی» دارند جایگاه پولی هستند و برچسب‌های «تأیید شده» و «ویژه» را تیم السوین تعیین می‌کند."
+        },
+        "ar-SA": {
+          "q": "ماذا أجد في صفحة «استكشف»؟",
+          "a": "تجمع صفحة «استكشف» عدة طرق للتصفح في مكان واحد: «المزوّدون المميزون»، و«الخدمات الرائجة»، وأنواع المزوّدين لاختيار نوع مقدم الخدمة الذي تحتاجه، و«تصفح الفئات» لعرض الفئات كلها. وفي أعلى الصفحة مربع للبحث. البطاقات التي تحمل وسم «مدعوم» مواضع إعلانية مدفوعة، أما وسما «موثّق» و«مميز» فيحددهما فريق لسوين."
+        },
+        "tr-TR": {
+          "q": "Keşfet sayfasında neler bulabilirim?",
+          "a": "Keşfet, farklı göz atma yollarını tek bir yerde toplar: “Öne Çıkan Hizmet Sağlayıcılar”, “Trend Hizmetler”, ihtiyacınız olan sağlayıcı türünü seçmek için “Hizmet Sağlayıcı Türlerine Göz Atın” ve tam kategori listesi için “Kategorilere Göz At”. Üstte bir arama kutusu da bulunur. “Sponsorlu” işaretli kartlar ücretli yerleşimlerdir. “Onaylı” ve “Öne Çıkan” ise LSevin ekibinin verdiği rozetlerdir."
+        },
+        "ku-KU": {
+          "q": "لە پەڕەی «کەشفکردن»دا چی دەدۆزمەوە؟",
+          "a": "«کەشفکردن» چەند ڕێگایەکی گەڕان لە یەک شوێندا کۆ دەکاتەوە: «دابینکەرە دیارەکان»، «خزمەتە پڕخواستەکان»، «گەڕان بەناو جۆرەکانی دابینکەردا» بۆ هەڵبژاردنی ئەو جۆرە دابینکەرەی پێویستتانە، و «گەڕان بەناو هاوپۆلەکاندا» بۆ لیستی تەواوی هاوپۆلەکان. لە سەرەوەش خانەیەکی گەڕان هەیە. ئەو کارتانەی نیشانەی «سپۆنسەرکراو» یان لەسەرە، شوێنی ڕیکلامی بەپارەن. «پشتڕاستکراو» و «هەڵبژێردراو» نیشانەن کە تیمی LSevin دایاندەنێت."
+        },
+        "ru-RU": {
+          "q": "Что можно найти на странице «Обзор»?",
+          "a": "На этой странице собраны несколько способов поиска: «Рекомендуемые специалисты», «Популярные услуги», «Категории специалистов», где можно выбрать нужный тип поставщика, и «Просмотр категорий» с полным списком категорий. Вверху также есть поле поиска. Карточки с пометкой «Реклама» — платные размещения. Отметки «Проверено» и «Рекомендуем» присваивает команда LSevin."
+        },
+        "tg-TJ": {
+          "q": "Дар саҳифаи «Кашф» чиро ёфтан мумкин аст?",
+          "a": "Саҳифаи «Кашф» якчанд роҳи дидани хидматҳоро дар як ҷо ҷамъ меорад: «Хидматрасонҳои интихобӣ», «Хидматҳои маъмул», «Намудҳои хидматрасонҳо» барои интихоби навъи хидматрасони лозимӣ ва «Категорияҳо» барои рӯйхати пурраи категорияҳо. Дар боло майдони ҷустуҷӯ низ ҳаст. Кортҳое, ки нишони «Таблиғотӣ» доранд, ҷойгиркунии пулакӣ мебошанд. «Тасдиқшуда» ва «Тавсияшуда» нишонҳое мебошанд, ки гурӯҳи LSevin медиҳад."
+        },
+        "zh-CN": {
+          "q": "在“探索”页面可以找到什么？",
+          "a": "“探索”页面汇集了多种浏览方式：“精选服务商”、“热门服务”、用于选择所需服务商类型的“浏览服务商类型”，以及查看完整分类列表的“浏览分类”。页面顶部还有搜索框。标有“赞助”的卡片是付费推广位。“已认证”和“精选”是由LSevin团队授予的标识。"
+        },
+        "de-DE": {
+          "q": "Was finde ich auf der Seite „Entdecken“?",
+          "a": "„Entdecken“ bündelt mehrere Möglichkeiten zum Stöbern: „Empfohlene Anbieter“, „Beliebte Leistungen“, „Anbietertypen durchsuchen“, um die gewünschte Art von Anbieter auszuwählen, und „Kategorien durchsuchen“ für die vollständige Kategorienliste. Oben gibt es außerdem ein Suchfeld. Mit „Gesponsert“ gekennzeichnete Karten sind bezahlte Platzierungen. „Verifiziert“ und „Empfohlen“ sind Abzeichen, die das LSevin Team vergibt."
+        },
+        "fr-FR": {
+          "q": "Que puis-je trouver sur la page Explorer ?",
+          "a": "Explorer réunit plusieurs façons de parcourir l’offre : « Prestataires en vedette », « Services tendance », « Parcourir les types de prestataires » pour choisir le type de prestataire dont vous avez besoin, et « Parcourir les catégories » pour la liste complète des catégories. Un champ de recherche est également disponible en haut de la page. Les fiches marquées « Sponsorisé » sont des emplacements payants. « Vérifié » et « En vedette » sont des badges attribués par l’équipe LSevin."
+        },
+        "es-ES": {
+          "q": "¿Qué puedo encontrar en la página Explorar?",
+          "a": "Explorar reúne varias formas de navegar en un solo lugar: «Proveedores destacados», «Servicios en tendencia», «Explorar tipos de proveedor» para elegir el tipo de proveedor que necesita y «Explorar categorías» para ver la lista completa de categorías. También hay un cuadro de búsqueda en la parte superior. Las tarjetas marcadas como «Patrocinado» son espacios de pago. «Verificado» y «Destacado» son insignias que asigna el equipo de LSevin."
+        }
+      }
+    },
+    {
+      "locales": {
+        "en-US": {
+          "q": "How do I filter Explore results?",
+          "a": "Open “Filters”. You can set a country and city, a price range with its currency, a minimum rating, a response time (under 1 hour or under 30 minutes), “Verified Providers Only”, and the languages the provider speaks. Tap “Apply Filters” to update the results, or “Clear All” to start over. The city list loads once you pick a country."
+        },
+        "fa-IR": {
+          "q": "چطور نتایج صفحهٔ «کاوش» را فیلتر کنم؟",
+          "a": "بخش «فیلترها» را باز کنید. در آن می‌توانید کشور و شهر، «محدوده قیمت» همراه با ارز، «حداقل امتیاز»، «زمان پاسخ‌گویی» (کمتر از ۱ ساعت یا کمتر از ۳۰ دقیقه)، گزینهٔ «فقط ارائه‌دهندگان تأییدشده» و زبان‌هایی را که ارائه‌دهنده به آن‌ها صحبت می‌کند انتخاب کنید. با «اعمال فیلترها» نتایج به‌روز می‌شود و با «پاک کردن همه» از نو شروع می‌کنید. فهرست شهرها بعد از انتخاب کشور نمایش داده می‌شود."
+        },
+        "ar-SA": {
+          "q": "كيف أصفّي نتائج صفحة «استكشف»؟",
+          "a": "افتح «الفلاتر». يمكنك تحديد الدولة والمدينة، ونطاق السعر مع العملة، والحد الأدنى للتقييم، ووقت الاستجابة (أقل من ساعة أو أقل من 30 دقيقة)، وعرض المزوّدين الموثّقين فقط، واللغات التي يتحدثها مقدم الخدمة. اضغط «تطبيق الفلاتر» لتحديث النتائج أو «مسح الكل» للبدء من جديد. تظهر قائمة المدن بعد اختيار الدولة."
+        },
+        "tr-TR": {
+          "q": "Keşfet sonuçlarını nasıl filtrelerim?",
+          "a": "“Filtreler” bölümünü açın. Ülke ve şehir, para birimiyle birlikte fiyat aralığı, en düşük puan, yanıt süresi (1 saatin altında veya 30 dakikanın altında), “Yalnızca doğrulanmış hizmet sağlayıcılar” ve sağlayıcının konuştuğu dilleri seçebilirsiniz. Sonuçları güncellemek için “Filtreleri uygula”ya, baştan başlamak için “Tümünü temizle”ye dokunun. Şehir listesi siz bir ülke seçtiğinizde yüklenir."
+        },
+        "ku-KU": {
+          "q": "چۆن ئەنجامەکانی «کەشفکردن» فلتەر بکەم؟",
+          "a": "«فلتەرەکان» بکەنەوە. دەتوانن وڵات و شار، مەودای نرخ لەگەڵ دراوەکەی، کەمترین هەڵسەنگاندن، کاتی وەڵامدانەوە (کەمتر لە 1 کاتژمێر یان کەمتر لە 30 خولەک)، «تەنها دابینکەرە پشتڕاستکراوەکان» و ئەو زمانانەی دابینکەر قسەیان پێ دەکات دیاری بکەن. بۆ نوێکردنەوەی ئەنجامەکان کرتە لەسەر «جێبەجێکردنی فلتەرەکان» بکەن، یان بۆ دەستپێکردنەوە لەسەر «پاکردنەوەی هەموو». لیستی شارەکان دوای هەڵبژاردنی وڵات بار دەبێت."
+        },
+        "ru-RU": {
+          "q": "Как отфильтровать результаты?",
+          "a": "Откройте «Фильтры». Можно указать страну и город, диапазон цен и его валюту, минимальный рейтинг, время ответа (до 1 часа или до 30 минут), включить «Только проверенные специалисты» и выбрать языки, на которых говорит поставщик. Нажмите «Применить фильтры», чтобы обновить результаты, или «Сбросить все», чтобы начать заново. Список городов загружается после выбора страны."
+        },
+        "tg-TJ": {
+          "q": "Натиҷаҳои «Кашф»-ро чӣ тавр филтр кунам?",
+          "a": "«Филтрҳо»-ро кушоед. Шумо метавонед кишвар ва шаҳр, диапазони нарх бо асъори он, баҳои ҳадди ақал, вақти посух (камтар аз 1 соат ё камтар аз 30 дақиқа), «Танҳо хидматрасонҳои тасдиқшуда» ва забонҳое, ки хидматрасон бо онҳо гап мезанад, интихоб кунед. Барои навсозии натиҷаҳо «Татбиқи филтрҳо»-ро пахш кунед ё барои аз нав сар кардан «Тоза кардани ҳама»-ро. Рӯйхати шаҳрҳо пас аз интихоби кишвар бор мешавад."
+        },
+        "zh-CN": {
+          "q": "如何筛选“探索”页面的结果？",
+          "a": "打开“筛选”。您可以设置国家和城市、价格区间及其货币、最低评分、响应时间（1小时内或30分钟内）、“仅看已认证服务商”，以及服务商使用的语言。点击“应用筛选”更新结果，或点击“清空全部”重新开始。选择国家后，城市列表才会加载。"
+        },
+        "de-DE": {
+          "q": "Wie filtere ich die Ergebnisse auf „Entdecken“?",
+          "a": "Öffnen Sie „Filter“. Sie können Land und Stadt festlegen, eine Preisspanne mit Währung, eine Mindestbewertung, eine Antwortzeit (unter 1 Stunde oder unter 30 Minuten), „Nur geprüfte Anbieter“ und die Sprachen, die der Anbieter spricht. Tippen Sie auf „Filter anwenden“, um die Ergebnisse zu aktualisieren, oder auf „Alle zurücksetzen“, um neu zu beginnen. Die Städteliste wird geladen, sobald Sie ein Land ausgewählt haben."
+        },
+        "fr-FR": {
+          "q": "Comment filtrer les résultats d’Explorer ?",
+          "a": "Ouvrez « Filtres ». Vous pouvez définir un pays et une ville, une fourchette de prix avec sa devise, une note minimale, un délai de réponse (moins d’une heure ou moins de 30 minutes), « Prestataires vérifiés uniquement » et les langues parlées par le prestataire. Touchez « Appliquer les filtres » pour mettre à jour les résultats, ou « Tout effacer » pour recommencer. La liste des villes se charge une fois le pays choisi."
+        },
+        "es-ES": {
+          "q": "¿Cómo filtro los resultados de Explorar?",
+          "a": "Abra «Filtros». Puede indicar un país y una ciudad, un rango de precios con su moneda, una valoración mínima, un tiempo de respuesta (menos de 1 hora o menos de 30 minutos), «Solo proveedores verificados» y los idiomas que habla el proveedor. Toque «Aplicar filtros» para actualizar los resultados o «Borrar todo» para empezar de nuevo. La lista de ciudades se carga después de elegir un país."
+        }
+      }
+    },
+    {
+      "locales": {
+        "en-US": {
+          "q": "Can I sort results by price or rating?",
+          "a": "Yes. Under “Sort order” choose “Recommended”, “Price: low to high”, “Price: high to low”, “Highest rated” or “Newest”. Providers may list prices in different currencies, so set a currency in the price filter if you want to compare like for like. The price on a card is a starting point; the total for your dates and options appears during booking."
+        },
+        "fa-IR": {
+          "q": "آیا می‌توانم نتایج را بر اساس قیمت یا امتیاز مرتب کنم؟",
+          "a": "بله. در «ترتیب نمایش» یکی از گزینه‌های «پیشنهادی»، «قیمت: کم به زیاد»، «قیمت: زیاد به کم»، «بالاترین امتیاز» یا «جدیدترین» را انتخاب کنید. ارائه‌دهندگان ممکن است قیمت را با ارزهای مختلف ثبت کرده باشند؛ برای مقایسهٔ دقیق، در فیلتر قیمت یک ارز مشخص کنید. قیمت روی کارت نقطهٔ شروع است و مبلغ نهایی برای تاریخ و گزینه‌های شما در مراحل رزرو مشخص می‌شود."
+        },
+        "ar-SA": {
+          "q": "هل يمكنني ترتيب النتائج حسب السعر أو التقييم؟",
+          "a": "نعم. من «ترتيب الفرز» اختر «موصى به» أو «السعر: منخفض إلى عالٍ» أو «السعر: عالٍ إلى منخفض» أو «الأعلى تقييماً» أو «الأحدث». قد يسجّل مقدمو الخدمة أسعارهم بعملات مختلفة، لذا حدّد عملة في فلتر السعر إذا أردت مقارنة دقيقة. السعر على البطاقة نقطة بداية، ويظهر الإجمالي لتواريخك وخياراتك أثناء خطوات الحجز."
+        },
+        "tr-TR": {
+          "q": "Sonuçları fiyata veya puana göre sıralayabilir miyim?",
+          "a": "Evet. “Sıralama” altında “Önerilen”, “Fiyat: düşükten yükseğe”, “Fiyat: yüksekten düşüğe”, “En yüksek puanlı” veya “En yeni” seçeneğini belirleyin. Sağlayıcılar fiyatları farklı para birimlerinde listeleyebilir; aynı ölçüde karşılaştırmak istiyorsanız fiyat filtresinde bir para birimi seçin. Karttaki fiyat bir başlangıç fiyatıdır; tarihleriniz ve seçenekleriniz için toplam tutar rezervasyon sırasında görünür."
+        },
+        "ku-KU": {
+          "q": "دەتوانم ئەنجامەکان بەپێی نرخ یان هەڵسەنگاندن ڕیز بکەم؟",
+          "a": "بەڵێ. لە ژێر «ڕیزبەندی» یەکێک لەمانە هەڵبژێرن: «پێشنیارکراو»، «نرخ: لە نزمەوە بۆ بەرز»، «نرخ: لە بەرزەوە بۆ نزم»، «بەرزترین هەڵسەنگاندن» یان «نوێترین». لەوانەیە دابینکەران نرخەکانیان بە دراوی جیاواز دابنێن، بۆیە ئەگەر دەتانەوێت بەراوردێکی یەکسان بکەن، لە فلتەری نرخدا دراوێک دیاری بکەن. نرخی سەر کارت نرخی دەستپێکە؛ کۆی گشتی بۆ بەروار و بژاردەکانتان لە کاتی حجزکردندا دەردەکەوێت."
+        },
+        "ru-RU": {
+          "q": "Можно ли отсортировать результаты по цене или рейтингу?",
+          "a": "Да. В разделе «Сортировка» выберите «Рекомендуемые», «Цена: по возрастанию», «Цена: по убыванию», «Высокий рейтинг» или «Сначала новые». Поставщики могут указывать цены в разных валютах, поэтому, чтобы сравнивать сопоставимые цены, задайте валюту в фильтре цены. Цена на карточке — начальная; итоговая сумма для Ваших дат и выбранных опций появляется при бронировании."
+        },
+        "tg-TJ": {
+          "q": "Оё натиҷаҳоро аз рӯи нарх ё баҳо мураттаб карда метавонам?",
+          "a": "Бале. Дар «Тартиби мураттабсозӣ» «Тавсияшуда», «Нарх: аз паст ба баланд», «Нарх: аз баланд ба паст», «Баҳои баландтарин» ё «Навтарин»-ро интихоб кунед. Хидматрасонҳо метавонанд нархҳоро бо асъорҳои гуногун нишон диҳанд, бинобар ин барои муқоисаи баробар дар филтри нарх асъорро муайян кунед. Нархи рӯи корт нархи ибтидоӣ аст; маблағи умумӣ барои санаҳо ва имконоти шумо ҳангоми брон нишон дода мешавад."
+        },
+        "zh-CN": {
+          "q": "可以按价格或评分排序吗？",
+          "a": "可以。在“排序方式”下选择“推荐”、“价格从低到高”、“价格从高到低”、“评分最高”或“最新”。服务商可能使用不同货币标价，如需在同一标准下比较，请在价格筛选中设置货币。卡片上的价格是起价，您所选日期和选项的总价会在预约过程中显示。"
+        },
+        "de-DE": {
+          "q": "Kann ich die Ergebnisse nach Preis oder Bewertung sortieren?",
+          "a": "Ja. Wählen Sie unter „Sortierung“ die Option „Empfohlen“, „Preis: aufsteigend“, „Preis: absteigend“, „Beste Bewertung“ oder „Neueste“. Anbieter können Preise in unterschiedlichen Währungen angeben; legen Sie daher im Preisfilter eine Währung fest, wenn Sie direkt vergleichen möchten. Der Preis auf einer Karte ist ein Ab-Preis; der Gesamtbetrag für Ihre Termine und Optionen erscheint während der Buchung."
+        },
+        "fr-FR": {
+          "q": "Puis-je trier les résultats par prix ou par note ?",
+          "a": "Oui. Sous « Trier par », choisissez « Recommandés », « Prix : du plus bas au plus élevé », « Prix : du plus élevé au plus bas », « Les mieux notés » ou « Les plus récents ». Les prestataires peuvent afficher leurs prix dans des devises différentes : définissez une devise dans le filtre de prix si vous souhaitez comparer sur une même base. Le prix indiqué sur une fiche est un prix de départ ; le total pour vos dates et vos options s’affiche lors de la réservation."
+        },
+        "es-ES": {
+          "q": "¿Puedo ordenar los resultados por precio o valoración?",
+          "a": "Sí. En «Ordenar por», elija «Recomendados», «Precio: de menor a mayor», «Precio: de mayor a menor», «Mejor valorados» o «Más recientes». Los proveedores pueden indicar sus precios en monedas distintas, así que fije una moneda en el filtro de precio si quiere comparar en igualdad de condiciones. El precio de una tarjeta es un precio de partida; el total para sus fechas y opciones aparece durante la reserva."
+        }
+      }
+    },
+    {
+      "locales": {
+        "en-US": {
+          "q": "What does “Responds” or “Response time unavailable” mean on a provider card?",
+          "a": "“Responds” shows the reply time the provider states in its LSevin profile. It is the provider's own figure, not a guarantee. A provider that hasn't set one shows “Response time unavailable”. If a quick reply matters, for example to confirm dates before you travel, use the “Response Time” filter, or send a free consultation request and an LSevin advisor will call you."
+        },
+        "fa-IR": {
+          "q": "عبارت «پاسخ‌گویی» یا «زمان پاسخ‌دهی موجود نیست» روی کارت ارائه‌دهنده یعنی چه؟",
+          "a": "«پاسخ‌گویی» زمانی را نشان می‌دهد که خود ارائه‌دهنده در پروفایلش در السوین برای پاسخ دادن اعلام کرده است؛ این عدد ادعای ارائه‌دهنده است و تضمین نیست. اگر ارائه‌دهنده‌ای آن را ثبت نکرده باشد، «زمان پاسخ‌دهی موجود نیست» نمایش داده می‌شود. اگر پاسخ سریع برایتان مهم است، مثلاً برای قطعی کردن تاریخ پیش از سفر، از فیلتر «زمان پاسخ‌گویی» استفاده کنید یا درخواست مشاورهٔ رایگان بدهید تا کارشناس السوین با شما تماس بگیرد."
+        },
+        "ar-SA": {
+          "q": "ماذا تعني عبارة «يرد خلال» أو «وقت الاستجابة غير متاح» على بطاقة مقدم الخدمة؟",
+          "a": "تعرض «يرد خلال» وقت الرد الذي يذكره مقدم الخدمة في ملفه على لسوين، وهو رقم يحدده مقدم الخدمة بنفسه وليس ضمانًا. وإذا لم يحدده تظهر عبارة «وقت الاستجابة غير متاح». إذا كان الرد السريع مهمًا لك، مثل تأكيد المواعيد قبل السفر، فاستخدم فلتر «وقت الاستجابة» أو أرسل طلب استشارة مجانية وسيتصل بك أحد مستشاري لسوين."
+        },
+        "tr-TR": {
+          "q": "Sağlayıcı kartındaki “… içinde yanıt verir” veya “Yanıt süresi mevcut değil” ne anlama geliyor?",
+          "a": "“… içinde yanıt verir” ifadesi, sağlayıcının LSevin profilinde belirttiği yanıt süresini gösterir. Bu, sağlayıcının kendi verdiği bir rakamdır, garanti değildir. Yanıt süresi belirlemeyen bir sağlayıcıda “Yanıt süresi mevcut değil” yazar. Hızlı yanıt sizin için önemliyse, örneğin yola çıkmadan önce tarihleri netleştirmek istiyorsanız “Yanıt süresi” filtresini kullanın ya da ücretsiz danışmanlık talebi gönderin; bir LSevin danışmanı sizi arar."
+        },
+        "ku-KU": {
+          "q": "«وەڵام دەداتەوە» یان «کاتی وەڵامدانەوە بەردەست نییە» لەسەر کارتی دابینکەر واتای چییە؟",
+          "a": "«وەڵام دەداتەوە» ئەو کاتی وەڵامدانەوەیە پیشان دەدات کە دابینکەر لە پرۆفایلی LSevinی خۆیدا نووسیویەتی. ئەمە ژمارەی خودی دابینکەرە و گەرەنتی نییە. دابینکەرێک کە ئەم کاتەی دیاری نەکردبێت «کاتی وەڵامدانەوە بەردەست نییە» پیشان دەدات. ئەگەر وەڵامی خێرا بۆتان گرنگە، بۆ نموونە بۆ پشتڕاستکردنەوەی بەروارەکان پێش گەشت، فلتەری «کاتی وەڵامدانەوە» بەکاربهێنن، یان داواکاریی ڕاوێژکاریی بەخۆڕایی بنێرن و ڕاوێژکارێکی LSevin پەیوەندیتان پێوە دەکات."
+        },
+        "ru-RU": {
+          "q": "Что означают надписи «Отвечает» или «Время ответа не указано» на карточке поставщика?",
+          "a": "«Отвечает» показывает время ответа, которое поставщик указал в своём профиле на LSevin. Это собственная оценка поставщика, а не гарантия. Если поставщик её не указал, на карточке написано «Время ответа не указано». Если Вам важен быстрый ответ, например чтобы подтвердить даты до поездки, воспользуйтесь фильтром «Время ответа» или отправьте заявку на бесплатную консультацию, и консультант LSevin Вам позвонит."
+        },
+        "tg-TJ": {
+          "q": "«Посух медиҳад» ё «Вақти посух маълум нест» дар корти хидматрасон чӣ маъно дорад?",
+          "a": "«Посух медиҳад» вақти ҷавобро нишон медиҳад, ки хидматрасон дар профили LSevin-и худ навиштааст. Ин рақами худи хидматрасон аст, на кафолат. Хидматрасоне, ки онро муайян накардааст, «Вақти посух маълум нест»-ро нишон медиҳад. Агар ҷавоби зуд муҳим бошад, масалан барои тасдиқи санаҳо пеш аз сафар, филтри «Вақти посух»-ро истифода баред ё дархости машварати ройгон фиристед ва мушовири LSevin ба шумо занг мезанад."
+        },
+        "zh-CN": {
+          "q": "服务商卡片上的“回复”或“暂无响应时间”是什么意思？",
+          "a": "“回复”显示的是服务商在其LSevin资料中填写的回复时间。这是服务商自己提供的数据，并非保证。未填写该信息的服务商会显示“暂无响应时间”。如果您需要快速得到回复，例如需要在出行前确认日期，可以使用“响应时间”筛选，或提交免费咨询申请，LSevin顾问会给您回电。"
+        },
+        "de-DE": {
+          "q": "Was bedeuten „Antwortet“ und „Antwortzeit nicht verfügbar“ auf einer Anbieterkarte?",
+          "a": "„Antwortet“ zeigt die Antwortzeit, die der Anbieter in seinem LSevin Profil angibt. Es ist die eigene Angabe des Anbieters und keine Garantie. Ein Anbieter, der keine Angabe gemacht hat, zeigt „Antwortzeit nicht verfügbar“. Wenn Ihnen eine schnelle Antwort wichtig ist, etwa um Termine vor der Reise zu bestätigen, nutzen Sie den Filter „Antwortzeit“ oder senden Sie eine Anfrage für eine kostenlose Beratung, und ein LSevin Berater ruft Sie an."
+        },
+        "fr-FR": {
+          "q": "Que signifient « Répond » ou « Délai de réponse non disponible » sur la fiche d’un prestataire ?",
+          "a": "« Répond » indique le délai de réponse que le prestataire déclare dans son profil LSevin. Il s’agit du chiffre fourni par le prestataire lui-même, et non d’une garantie. Un prestataire qui n’en a pas indiqué affiche « Délai de réponse non disponible ». Si une réponse rapide compte pour vous, par exemple pour confirmer des dates avant votre départ, utilisez le filtre « Délai de réponse » ou envoyez une demande de consultation gratuite : un conseiller LSevin vous appellera."
+        },
+        "es-ES": {
+          "q": "¿Qué significa «Responde» o «Tiempo de respuesta no disponible» en la tarjeta de un proveedor?",
+          "a": "«Responde» muestra el tiempo de respuesta que el proveedor indica en su perfil de LSevin. Es un dato del propio proveedor, no una garantía. Si un proveedor no lo ha indicado, aparece «Tiempo de respuesta no disponible». Si necesita una respuesta rápida, por ejemplo para confirmar fechas antes de viajar, use el filtro «Tiempo de respuesta» o envíe una solicitud de consulta gratuita y un asesor de LSevin le llamará."
+        }
+      }
+    }
+  ]
+}

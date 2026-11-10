@@ -47,7 +47,7 @@ function guideSchema(guide: Guide, copy: GuideCopy, locale: GuideLocale, brand: 
   const url = absoluteUrl(locale, guidePath(guide.slug));
   const hub = findGuide(locale, "");
   const crumbs = [
-    { name: brand, url: absoluteUrl(locale, "/n/app/mobile/home") },
+    { name: brand, url: absoluteUrl(locale) },
     { name: hub?.copy.navLabel ?? sectionName, url: absoluteUrl(locale, GUIDE_BASE_PATH) },
     ...(guide.slug ? [{ name: copy.navLabel, url }] : []),
   ];
@@ -169,7 +169,7 @@ export default async function GuidePage({ params }: PageProps) {
 
       <header className="sticky top-0 z-20 bg-[#083f30] text-white shadow">
         <div className="mx-auto flex max-w-3xl items-center justify-between gap-3 px-4 py-3">
-          <Link href="/n/app/mobile/home" className="text-lg font-extrabold tracking-tight">
+          <Link href="/" className="text-lg font-extrabold tracking-tight">
             {labels.brand}
           </Link>
           <Link
@@ -185,7 +185,7 @@ export default async function GuidePage({ params }: PageProps) {
         <nav aria-label="breadcrumb" className="mb-4 text-sm text-neutral-500">
           <ol className="flex flex-wrap items-center gap-1.5">
             <li>
-              <Link href="/n/app/mobile/home" className="hover:underline">
+              <Link href="/" className="hover:underline">
                 {labels.home}
               </Link>
             </li>
@@ -303,7 +303,7 @@ export default async function GuidePage({ params }: PageProps) {
             <h2 className="mb-3 font-bold text-neutral-900">{labels.explore}</h2>
             <ul className="space-y-2">
               <li>
-                <Link href="/n/app/mobile/categories" className="text-[#083f30] hover:underline">
+                <Link href="/categories" className="text-[#083f30] hover:underline">
                   {labels.categories}
                 </Link>
               </li>

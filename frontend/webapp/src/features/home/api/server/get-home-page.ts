@@ -15,6 +15,8 @@ export type HomeQueryInput = {
 
 export type HomeCategory = {
   id: string;
+  /** Public URL segment: /categories/<slug> (migration 0095). */
+  slug: string | null;
   label: string;
   imageUrl: string | null;
   gradient: string | null;
@@ -26,6 +28,7 @@ export type HomeCategory = {
 
 export type HomeFeaturedService = {
   id: string;
+  slug: string | null;
   providerId: string;
   displayName: string;
   description: string;
@@ -44,6 +47,7 @@ export type HomeFeaturedService = {
 
 export type HomeTrendingService = {
   id: string;
+  slug: string | null;
   displayName: string;
   imageUrl: string | null;
   bookingCount: number;
@@ -53,6 +57,7 @@ export type HomeTrendingService = {
 
 export type HomeTrustedProvider = {
   id: string;
+  slug: string | null;
   name: string;
   description: string;
   imageUrl: string | null;
@@ -70,6 +75,7 @@ export type HomeHeroOffer = {
   discountPercent: number | null;
   validUntil: string | null;
   serviceId: string | null;
+  serviceSlug: string | null;
   imageUrl: string | null;
 };
 
@@ -174,13 +180,14 @@ export async function getHomeCategories(input: HomeQueryInput, limit = 6): Promi
   const locale = normalizeLocale(input.locale);
   const rows = await sql<{
     id: string;
+    slug: string | null;
     label: string;
     imageUrl: string | null;
     gradient: string | null;
     providerCount: string | number;
     childCount: string | number;
   }[]>`
-    -- The top of the category tree, which is the same tree /n/app/mobile/categories
+    -- The top of the category tree, which is the same tree /categories
     -- browses. That is the point: a card here is a node there, so tapping Clinic
     -- descends into its subcategories exactly as it would from the browser, and a
     -- subcategory added in the admin panel shows up on both without further work.
@@ -194,6 +201,7 @@ export async function getHomeCategories(input: HomeQueryInput, limit = 6): Promi
     with recursive ${categoryProviderCountsCte()}
     select
       c.id::text as id,
+      c.slug,
       common.get_translation_t(c.name_translations, ${locale}::text, 'en-US') as label,
       -- icon_url may hold a lucide icon NAME rather than a path, so only image_url
       -- is safe to use as an image source.
@@ -225,6 +233,7 @@ export async function getHomeCategories(input: HomeQueryInput, limit = 6): Promi
 
   return rows.map((row, index) => ({
     id: row.id,
+    slug: row.slug ?? null,
     label: row.label,
     imageUrl: row.imageUrl,
     gradient: row.gradient || FALLBACK_GRADIENTS[index % FALLBACK_GRADIENTS.length],
@@ -241,6 +250,7 @@ export async function getFeaturedHomeServices(input: HomeQueryInput, limit = 8):
 
   const rows = await sql<{
     id: string;
+    slug: string | null;
     providerId: string;
     displayName: string;
     description: string;
@@ -264,6 +274,7 @@ export async function getFeaturedHomeServices(input: HomeQueryInput, limit = 8):
   }[]>`
     select
       ps.id::text as id,
+      ps.slug,
       sp.id::text as "providerId",
       coalesce(
         nullif(common.get_translation_t(sd.name_translations, ${locale}::text, 'en-US'), ''),
@@ -374,6 +385,7 @@ export async function getFeaturedHomeServices(input: HomeQueryInput, limit = 8):
 
     return {
       id: row.id,
+      slug: row.slug,
       providerId: row.providerId,
       displayName: row.displayName,
       description: row.description,
@@ -404,6 +416,7 @@ export async function getTrendingHomeServices(input: HomeQueryInput, limit = 8):
 
   const rows = await sql<{
     id: string;
+    slug: string | null;
     displayName: string;
     imageUrl: string | null;
     bookingCount: string | number | null;
@@ -412,6 +425,7 @@ export async function getTrendingHomeServices(input: HomeQueryInput, limit = 8):
   }[]>`
     select
       ps.id::text as id,
+      ps.slug,
       coalesce(
         nullif(common.get_translation_t(sd.name_translations, ${locale}::text, 'en-US'), ''),
         common.get_translation_t(ps.display_name_translations, ${locale}::text, 'en-US')
@@ -463,6 +477,7 @@ export async function getTrendingHomeServices(input: HomeQueryInput, limit = 8):
 
     return {
       id: row.id,
+      slug: row.slug,
       displayName: row.displayName,
       imageUrl: row.imageUrl,
       bookingCount,
@@ -480,6 +495,7 @@ export async function getTrustedHomeProviders(input: HomeQueryInput, limit = 8):
 
   const rows = await sql<{
     id: string;
+    slug: string | null;
     name: string;
     description: string;
     imageUrl: string | null;
@@ -492,6 +508,7 @@ export async function getTrustedHomeProviders(input: HomeQueryInput, limit = 8):
   }[]>`
     select
       sp.id::text as id,
+      sp.slug,
       common.get_translation_t(sp.name_translations, ${locale}::text, 'en-US') as name,
       common.get_translation_t(sp.description_translations, ${locale}::text, 'en-US') as description,
       -- The provider's own picture first. The gallery used to lead this chain, so
@@ -532,6 +549,7 @@ export async function getTrustedHomeProviders(input: HomeQueryInput, limit = 8):
 
   return rows.map((row) => ({
     id: row.id,
+    slug: row.slug,
     name: row.name,
     description: row.description,
     imageUrl: row.imageUrl,
@@ -555,6 +573,7 @@ export async function getHomeHeroOffer(input: HomeQueryInput): Promise<HomeHeroO
     discountPercent: string | number | null;
     validUntil: string | null;
     serviceId: string | null;
+    serviceSlug: string | null;
     imageUrl: string | null;
   }[]>`
     select
@@ -564,6 +583,7 @@ export async function getHomeHeroOffer(input: HomeQueryInput): Promise<HomeHeroO
       o.discount_percent as "discountPercent",
       o.valid_until::text as "validUntil",
       ps.id::text as "serviceId",
+      ps.slug as "serviceSlug",
       -- The service's own featured image first; see the featured shelf above.
       nullif(coalesce(psm.file_url, ps.image_url, sdm.file_url, sd.image_url, gm.file_url, gallery.url, spm.file_url, sp.image_url, ''), '') as "imageUrl"
     from marketing.offers o
@@ -606,6 +626,7 @@ export async function getHomeHeroOffer(input: HomeQueryInput): Promise<HomeHeroO
     discountPercent: row.discountPercent == null ? null : numberValue(row.discountPercent),
     validUntil: row.validUntil,
     serviceId: row.serviceId,
+    serviceSlug: row.serviceSlug,
     imageUrl: row.imageUrl,
   };
 }

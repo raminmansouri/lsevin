@@ -9,31 +9,28 @@ async function headingLevels(page: Page) {
     .evaluateAll((els) => els.map((el) => Number(el.tagName.slice(1))));
 }
 
-test.describe("locale root redirect (redirect-chains)", () => {
-  // The locale root used to answer 200 with a 1s meta refresh to the
-  // unprefixed /n/app/mobile/home, which the middleware sent to /fa — so an
-  // /en visitor landed on the Persian site.
+test.describe("locale root is the home page (redirect-chains)", () => {
+  // The locale root used to answer 200 with a 1s meta refresh, and later a 307 to
+  // /n/app/mobile/home. Home now lives at /<locale> itself (lsevin-url-tasks.md T8).
   for (const locale of ["en", "de", "fa"]) {
-    test(`/${locale} redirects over HTTP and keeps the locale`, async ({ request }) => {
+    test(`/${locale} is the home page and keeps the locale`, async ({ request }) => {
       const response = await request.get(`/${locale}`, { maxRedirects: 0 });
-      expect(response.status()).toBe(307);
-      expect(new URL(response.headers().location!, "http://x").pathname).toBe(
-        `/${locale}/n/app/mobile/home`
-      );
+      expect(response.status()).toBe(200);
+      const old = await request.get(`/${locale}/n/app/mobile/home`, { maxRedirects: 0 });
+      expect(old.status()).toBe(308);
+      expect(new URL(old.headers().location!, "http://x").pathname).toBe(`/${locale}`);
     });
   }
 
   test("/ redirects to the default locale home", async ({ request }) => {
     const response = await request.get("/", { maxRedirects: 0 });
     expect(response.status()).toBe(307);
-    expect(new URL(response.headers().location!, "http://x").pathname).toBe(
-      "/fa/n/app/mobile/home"
-    );
+    expect(new URL(response.headers().location!, "http://x").pathname).toBe("/fa");
   });
 
   test("a visitor opening /en ends on the English home", async ({ page }) => {
     await page.goto("/en");
-    await expect(page).toHaveURL(/\/en\/n\/app\/mobile\/home$/);
+    await expect(page).toHaveURL(/\/en(\?|$)/);
     await expect(page.locator("html")).toHaveAttribute("lang", "en");
   });
 });
@@ -106,7 +103,7 @@ test.describe("mobile home (button-name, empty-heading, h1, new-tab)", () => {
   });
 
   test("the server HTML already contains the h1 (static shell)", async ({ request }) => {
-    const html = await (await request.get("/en/n/app/mobile/home")).text();
+    const html = await (await request.get("/en")).text();
     expect(html).toMatch(/<h1[^>]*>[^<]+<\/h1>/);
   });
 });

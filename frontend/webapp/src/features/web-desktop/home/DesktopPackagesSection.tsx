@@ -9,6 +9,7 @@ import { resolveHomeMediaUrl } from "@/features/home/components/home-media";
 import { SafePriceText } from "@/features/home/components/safe-price-text";
 import { getActiveSpecialPackages } from "@/features/special-packages/server/repository";
 import { Link } from "@/i18n/navigation";
+import { entityPath } from "@/lib/routes/public-paths";
 
 import { CountUp, Magnetic, Reveal } from "../components/motion";
 
@@ -38,12 +39,12 @@ export async function DesktopPackagesSection({
   activeCount: number;
   selectedCountryCode?: string;
 }) {
-  const usesDefaultHref = !section.buttonHref || section.buttonHref === "/n/app/mobile/packages";
+  const usesDefaultHref = !section.buttonHref || section.buttonHref === "/packages";
   if (activeCount <= 0 && usesDefaultHref) return null;
 
   const t = await getTranslations({ locale, namespace: "Home" });
   const packages = (await getActiveSpecialPackages(locale).catch(() => [])).slice(0, 3);
-  const href = section.buttonHref || "/n/app/mobile/packages";
+  const href = section.buttonHref || "/packages";
 
   return (
     <section className="relative my-8 overflow-hidden bg-gradient-to-br from-[#0f5a45] via-[#083f30] to-[#062a20] py-20 text-white">
@@ -115,7 +116,7 @@ export async function DesktopPackagesSection({
 
             return (
               <Reveal key={item.id} delay={index * 140} direction="zoom">
-                <Link href={`/n/app/mobile/packages/${item.id}`} className="lsd-gift group relative block h-[480px] overflow-hidden rounded-[32px] bg-[#062a20] shadow-[0_40px_80px_-35px_rgba(0,0,0,0.7)] ring-1 ring-[#eacb7f]/25">
+                <Link href={entityPath("package", item)} className="lsd-gift group relative block h-[480px] overflow-hidden rounded-[32px] bg-[#062a20] shadow-[0_40px_80px_-35px_rgba(0,0,0,0.7)] ring-1 ring-[#eacb7f]/25">
                   {image ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={image} alt={item.title} className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1.4s] group-hover:scale-110" />

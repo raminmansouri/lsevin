@@ -36,7 +36,7 @@ export async function DesktopProductPage({ product, locale }: { product: Product
     <div className="lsd hidden pb-14 xl:block">
       {/* Breadcrumb */}
       <nav className="lsd-container flex items-center gap-2 pt-6 text-sm text-[#56675f]">
-        <Link href="/n/app/mobile/shop" className="transition hover:text-[#083f30]">
+        <Link href="/shop" className="transition hover:text-[#083f30]">
           {t("title")}
         </Link>
         <ChevronLeft size={14} className="ltr:rotate-180" />
@@ -51,7 +51,7 @@ export async function DesktopProductPage({ product, locale }: { product: Product
 
         <div className="sticky top-28 space-y-5">
           {brandName ? <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-[#c9a55a]">{brandName}</p> : null}
-          <h1 className="text-[30px] font-black leading-snug text-[#0e1a16]">{product.name}</h1>
+          <div role="heading" aria-level={1} className="text-[30px] font-black leading-snug text-[#0e1a16]">{product.name}</div>
 
           <div className="flex flex-wrap items-center gap-4 text-sm text-[#56675f]">
             {product.rating > 0 ? (
@@ -141,7 +141,7 @@ export async function DesktopProductPage({ product, locale }: { product: Product
             {product.relatedServices.map((service) => (
               <Link
                 key={service.serviceDefinitionId}
-                href={`/n/app/mobile/service/${service.serviceDefinitionId}`}
+                href={`/services/${service.serviceDefinitionId}`}
                 className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-[#083f30] ring-1 ring-[#dce4e0] transition hover:ring-[#c9a55a]"
               >
                 {service.name || service.relationType}

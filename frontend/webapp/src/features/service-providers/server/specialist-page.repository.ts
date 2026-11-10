@@ -177,6 +177,7 @@ type SpecialistRow = {
 
 type ProviderRow = {
   id: string;
+  slug: string | null;
   providerStaffId: string;
   name: string;
   description: string | null;
@@ -193,8 +194,10 @@ type ProviderRow = {
 
 type ServiceRow = {
   providerServiceId: string;
+  slug: string | null;
   serviceDefinitionId: string;
   providerId: string;
+  providerSlug: string | null;
   providerName: string;
   name: string;
   description: string | null;
@@ -290,6 +293,7 @@ async function getSpecialistProviders(specialistId: string, locale: string): Pro
   const rows = await sql<ProviderRow[]>`
     select
       sp.id::text as id,
+      sp.slug,
       ps.id::text as "providerStaffId",
       common.get_translation_t(sp.name_translations, ${locale}, ${DEFAULT_FALLBACK_LOCALE}) as name,
       common.get_translation_t(sp.description_translations, ${locale}, ${DEFAULT_FALLBACK_LOCALE}) as description,
@@ -324,6 +328,7 @@ async function getSpecialistProviders(specialistId: string, locale: string): Pro
 
   return rows.map((row) => ({
     id: row.id,
+    slug: row.slug,
     providerStaffId: row.providerStaffId,
     name: asString(row.name, "Provider"),
     description: asString(row.description),
@@ -359,8 +364,10 @@ async function getSpecialistServiceRows(specialistId: string, locale: string): P
     )
     select
       ps.id::text as "providerServiceId",
+      ps.slug,
       ps.service_definition_id::text as "serviceDefinitionId",
       sp.id::text as "providerId",
+      sp.slug as "providerSlug",
       common.get_translation_t(sp.name_translations, ${locale}, ${DEFAULT_FALLBACK_LOCALE}) as "providerName",
       coalesce(
         nullif(common.get_translation_t(ps.display_name_translations, ${locale}, ${DEFAULT_FALLBACK_LOCALE}), ''),
@@ -444,9 +451,11 @@ async function mapServices(rows: ServiceRow[], targetCurrencyCode: string, isIra
 
       return {
         id: row.providerServiceId,
+        slug: row.slug,
         providerServiceId: row.providerServiceId,
         serviceDefinitionId: row.serviceDefinitionId,
         providerId: row.providerId,
+        providerSlug: row.providerSlug,
         providerName: asString(row.providerName, "Provider"),
         name: asString(row.name, "Service"),
         description: asString(row.description),

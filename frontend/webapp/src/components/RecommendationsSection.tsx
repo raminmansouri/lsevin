@@ -45,7 +45,7 @@ export default function RecommendationsSection({
   void _type;
 
   const openProvider = (provider: Recommendation) => {
-    navigate(provider.link || `/n/app/mobile/provider/${provider.id}`);
+    navigate(provider.link || `/providers/${provider.id}`);
   };
 
   const viewAllLocalProviders = () => {

@@ -203,7 +203,7 @@ export function HomeSectionForm({ section }: { section: AdminHomeSection }) {
                   <FormItem>
                     <FormLabel>{tAdmin("buttonLinkHref")}</FormLabel>
                     <FormControl>
-                      <Input {...field} value={field.value || ''} placeholder="/n/app/mobile/offers" disabled={isPending} />
+                      <Input {...field} value={field.value || ''} placeholder="/offers" disabled={isPending} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

@@ -200,7 +200,7 @@ function MobileBookings() {
                     ? tBooking("completedBookingsWillAppearHere")
                     : tBooking("cancelledBookingsWillAppearHere")}
           </p>
-          {activeTab === "upcoming" && (<button type="button" onClick={() => navigate("/n/app/mobile/explore")} className="rounded-xl bg-[#083f30] px-6 py-3 font-semibold text-white transition-colors hover:bg-[#0a5a44]" style={{ backgroundColor: BRAND_GREEN }}>{tBooking("exploreServices")}</button>)}
+          {activeTab === "upcoming" && (<button type="button" onClick={() => navigate("/explore")} className="rounded-xl bg-[#083f30] px-6 py-3 font-semibold text-white transition-colors hover:bg-[#0a5a44]" style={{ backgroundColor: BRAND_GREEN }}>{tBooking("exploreServices")}</button>)}
         </div>)}
     </div>);
 }

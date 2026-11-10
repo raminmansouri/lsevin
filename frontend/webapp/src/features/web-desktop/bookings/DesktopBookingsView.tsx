@@ -265,7 +265,7 @@ export function DesktopBookingsView() {
             <h3 className="text-xl font-black text-[#0e1a16]">{emptyTitle}</h3>
             <p className="mt-2 text-sm leading-7 text-[#56675f]">{emptyText}</p>
             {tab === "upcoming" ? (
-              <Link href="/n/app/mobile/explore" className="lsd-btn lsd-btn-gold mt-6 h-12 px-8 text-sm">
+              <Link href="/explore" className="lsd-btn lsd-btn-gold mt-6 h-12 px-8 text-sm">
                 {t("exploreServices")}
               </Link>
             ) : null}

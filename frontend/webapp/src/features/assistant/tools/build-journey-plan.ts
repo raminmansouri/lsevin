@@ -5,6 +5,7 @@ import { z } from "zod";
 import sql from "@/config/database/db";
 import { convertMoney } from "@/features/finance/lib/server/currency-queries";
 import { searchProducts } from "@/features/shop/api/catalog.repository";
+import { entityPath } from "@/lib/routes/public-paths";
 
 import type { JourneyItem, JourneyPlan, JourneyStop } from "../types";
 import { DISPLAY_CURRENCY } from "./search-products";
@@ -15,7 +16,7 @@ export const BUILD_JOURNEY_PLAN_DESCRIPTION =
   "Pass the ids the user chose from search_services (type service), search_hotels, get_transfer_options and search_products. " +
   "All prices are loaded and converted on the server; never invent prices. Only serviceId is required.";
 
-const uuid = z.string().uuid();
+const uuid = z.guid();
 
 export const buildJourneyPlanInputSchema = z.object({
   serviceId: uuid.describe("The treatment: id of a search_services result whose type is 'service'."),
@@ -35,6 +36,7 @@ export type BuildJourneyPlanInput = z.infer<typeof buildJourneyPlanInputSchema>;
 
 type ServiceRow = {
   id: string;
+  slug: string | null;
   name: string | null;
   provider: string | null;
   city: string | null;
@@ -47,6 +49,7 @@ async function loadServices(ids: string[], storedLocale: string): Promise<Map<st
   const rows = await sql<ServiceRow[]>`
     select
       ps.id::text as id,
+      ps.slug,
       coalesce(
         nullif(common.get_translation_t(ps.display_name_translations, ${storedLocale}, 'en-US'), ''),
         common.get_translation_t(sd.name_translations, ${storedLocale}, 'en-US')
@@ -108,7 +111,7 @@ export async function buildJourneyPlan(
     subtitle: [row.provider, row.city].filter(Boolean).join(" · "),
     price: (await toPlanCurrency(Number(row.price ?? 0), row.currency)) * multiplier,
     showPrice: true,
-    href: `/n/app/mobile/service/${row.id}`,
+    href: entityPath("service", row),
   });
 
   const hotel = input.hotelServiceId ? services.get(input.hotelServiceId) : undefined;
@@ -131,7 +134,7 @@ export async function buildJourneyPlan(
         subtitle: product.brandName ?? "",
         price: product.priceUnavailable ? 0 : Math.round(product.price),
         showPrice: true,
-        href: `/n/app/mobile/shop/product/${product.slug}`,
+        href: `/products/${product.slug}`,
       });
     }
   }

@@ -1,3 +1,5 @@
+import { entityPath } from "@/lib/routes/public-paths";
+
 import type { FavoriteCard, FavoriteEntityType, FavoritesPageData, FavoritesTabId } from "./types";
 
 export function buildFavoriteTabs(favorites: FavoriteCard[]): FavoritesPageData["tabs"] {
@@ -22,15 +24,16 @@ export function buildFavoriteTabs(favorites: FavoriteCard[]): FavoritesPageData[
   ];
 }
 
-export function resolveFavoriteHref(favoriteType: FavoriteEntityType, entityId: string) {
+export function resolveFavoriteHref(favoriteType: FavoriteEntityType, entityId: string, entitySlug?: string | null) {
+  const entity = { slug: entitySlug, id: entityId };
   switch (favoriteType) {
     case "service":
-      return `/n/app/mobile/service/${entityId}`;
+      return entityPath("service", entity);
     case "specialist":
-      return `/n/app/mobile/specialist/${entityId}`;
+      return entityPath("specialist", entity);
     case "provider":
     default:
-      return `/n/app/mobile/provider/${entityId}`;
+      return entityPath("provider", entity);
   }
 }
 

@@ -73,6 +73,14 @@ const nextConfig: NextConfig = {
   },
   output: "standalone",
 
+  // No in-memory ISR/data cache. A heap profile of the live pod on server B (2026-11-02) showed the memory that kept growing was
+  // Next's own response cache (handleRevalidate -> set, plus the retained render results): every locale x service page the
+  // crawlers (ClaudeBot, Amazonbot, Googlebot ...) fetched stayed in the Node process, the pod reached its 2Gi limit every
+  // 25-40 minutes and was OOM-killed, which served Bad Gateway while it restarted. Entries are still cached, on disk - inside the
+  // pod's writable layer (~3 GB per pod per day, 94% disk on server B on 2026-11-07): deployments/jenkins/lsevin-webapp-recycle
+  // empties it with a nightly rolling restart.
+  cacheMaxMemorySize: 0,
+
   // Next compresses with gzip by default. Caddy sits in front of it with
   // `encode zstd gzip` (deployments/docker/Caddyfile.server) but will not
   // re-compress a response that already carries a Content-Encoding, so every
@@ -156,36 +164,62 @@ const nextConfig: NextConfig = {
   // working. Both the bare and the locale-prefixed form are covered, because the
   // intl middleware only adds the prefix on a plain page request.
   async redirects() {
+    const localePattern = routing.locales.join("|");
+    // Public pages that moved off /n/app/mobile (docs/seo/lsevin-url-tasks.md).
+    // Pages without an id move by config; entity pages (provider, service,
+    // specialist, package, type) redirect in their old route, which looks up
+    // the slug so a UUID link reaches the final URL in one response.
+    const publicMoves = [
+      ['explore', 'explore'],
+      ['categories', 'categories'],
+      ['offers', 'offers'],
+      ['featured', 'featured'],
+      ['packages', 'packages'],
+      ['providers', 'providers'],
+      ['shop', 'shop'],
+      ['map-discovery', 'map'],
+      ['shop/category/:slug', 'shop/:slug'],
+      ['shop/product/:slug', 'products/:slug'],
+      ['medical/clinics', 'clinics'],
+    ] as const;
     return [
-      // The locale root is not a real page: it forwards to the mobile home. Doing
-      // that here gives a real 307 that keeps the locale. The page-level redirect()
-      // ran after the layout had started streaming, so it became a 200 with a
-      // 1-second meta refresh to the unprefixed /n/app/mobile/home, and the
-      // middleware then sent every visitor to /fa — /en visitors included.
+      // The home page's address is the locale root (/fa); its file still lives at
+      // n/app/mobile/home and a beforeFiles rewrite serves it there. "/" picks the
+      // default locale; the old /n/app/mobile/home moves permanently, query kept.
+      //
+      // The financial panel host is excluded: config redirects run before the
+      // middleware, so without `missing` its "/" was sent to the customer home
+      // instead of being rewritten to /financial.
       {
         source: "/",
-        destination: `/${routing.defaultLocale}/n/app/mobile/home`,
+        missing: [{ type: "host", value: "financial\\..*" }],
+        destination: `/${routing.defaultLocale}`,
         permanent: false,
       },
       {
-        source: `/:locale(${routing.locales.join("|")})`,
-        destination: "/:locale/n/app/mobile/home",
-        permanent: false,
-      },
-      // Legacy marketing templates. The provider page is the same entity (same
-      // id) on the mobile template; there is no per-type listing any more, so a
-      // type page goes to the category browser. Permanent, so search engines
-      // move the signals the old URLs collected to the current pages.
-      {
-        source: `/:locale(${routing.locales.join("|")})/service-providers/:id`,
-        destination: "/:locale/n/app/mobile/provider/:id",
+        source: `/:locale(${localePattern})/n/app/mobile/home`,
+        destination: "/:locale",
         permanent: true,
       },
       {
-        source: `/:locale(${routing.locales.join("|")})/type/:id`,
-        destination: "/:locale/n/app/mobile/categories",
+        source: "/n/app/mobile/home",
+        destination: `/${routing.defaultLocale}`,
         permanent: true,
       },
+      ...publicMoves.flatMap(([oldPath, newPath]) => [
+        {
+          source: `/:locale(${localePattern})/n/app/mobile/${oldPath}`,
+          destination: `/:locale/${newPath}`,
+          permanent: true,
+        },
+        // Without a locale: straight to the default-locale page, not via the
+        // middleware's locale redirect (no chain).
+        {
+          source: `/n/app/mobile/${oldPath}`,
+          destination: `/${routing.defaultLocale}/${newPath}`,
+          permanent: true,
+        },
+      ]),
       {
         source: "/admin/sponsered-slider/:path*",
         destination: "/admin/sponsored-slider/:path*",
@@ -200,15 +234,80 @@ const nextConfig: NextConfig = {
   },
 
   async rewrites() {
-    const localePattern = "en|fa|tr|ar|es|ku|de|fr";
+    const localePattern = routing.locales.join("|");
+    // The new public paths of pages that still live under /n/app/mobile. Entity
+    // pages (providers, services, specialists, packages, specialties) are real
+    // routes in app/[locale]/(site) and need no rewrite.
+    const seoRewrites = [
+      ['explore', 'explore'],
+      ['categories', 'categories'],
+      // A category's subcategories and its providers (src/lib/routes/filter-paths.ts).
+      ['categories/:slug', 'categories/:slug'],
+      ['categories/:slug/providers', 'categories/:slug/providers'],
+      ['offers', 'offers'],
+      ['featured', 'featured'],
+      ['packages', 'packages'],
+      ['providers', 'providers'],
+      ['shop', 'shop'],
+      ['map', 'map-discovery'],
+      ['shop/:slug', 'shop/category/:slug'],
+      ['products/:slug', 'shop/product/:slug'],
+      // Sample data for now: noindex (medical/layout.tsx) and not in the sitemap.
+      ['clinics', 'medical/clinics'],
+    ].map(([newPath, oldPath]) => ({
+      source: `/:locale(${localePattern})/${newPath}`,
+      destination: `/:locale/n/app/mobile/${oldPath}`,
+    }));
 
     // Only use Next rewrites locally (or whenever you explicitly set BOOKING_ORIGIN)
     // In production behind Caddy, leave BOOKING_ORIGIN empty and rewrites will be disabled.
     const bookingOrigin = process.env.BOOKING_ORIGIN;
 
-    if (!bookingOrigin) return [];
+    // A UUID on a new entity path (/fa/providers/<uuid>, from an old link or
+    // bookmark) is served by the dynamic legacy route, which looks up the slug
+    // and answers one clean 308. The static slug pages would redirect too, but
+    // a first, uncached render repeats the Location header.
+    const uuid = "[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}";
+    const entityRewrites = [
+      ['providers/:id', 'provider/:id'],
+      ['services/:id/gallery', 'service/:id/gallery'],
+      ['services/:id', 'service/:id'],
+      ['specialists/:id', 'specialist/:id'],
+      ['packages/:id', 'packages/:id'],
+    ].map(([newPath, oldPath]) => ({
+      source: `/:locale(${localePattern})/${newPath.replace(':id', `:id(${uuid})`)}`,
+      destination: `/:locale/n/app/mobile/${oldPath}`,
+    }));
+    // Old listing links with ids (/fa/map?categoryId=<uuid>, /fa/explore?providerTypeId=<uuid>,
+    // /fa/offers?categoryId=<uuid>) go to a route handler that answers one 308 to
+    // the slug address. Those pages stream, so a redirect inside them would be a
+    // 200 with a meta refresh.
+    const legacyListingRewrites = [
+      ['explore', 'categoryId'],
+      ['explore', 'providerTypeId'],
+      ['map', 'categoryId'],
+      ['map', 'providerTypeId'],
+      ['offers', 'categoryId'],
+    ].map(([page, key]) => ({
+      source: `/:locale(${localePattern})/${page}`,
+      has: [{ type: "query" as const, key }],
+      destination: `/:locale/legacy-listing/${page}`,
+    }));
+    const beforeFiles = [
+      ...legacyListingRewrites,
+      // Home: the locale root serves the mobile home page (see redirects()).
+      {
+        source: `/:locale(${localePattern})`,
+        missing: [{ type: "host" as const, value: "financial\\..*" }],
+        destination: "/:locale/n/app/mobile/home",
+      },
+      ...entityRewrites,
+    ];
 
-    return [
+    if (!bookingOrigin) return { beforeFiles, afterFiles: seoRewrites, fallback: [] };
+
+    return { beforeFiles, fallback: [], afterFiles: [
+      ...seoRewrites,
       // locale assets
       {
         source: `/:locale(${localePattern})/booking/assets/:path*`,
@@ -238,7 +337,7 @@ const nextConfig: NextConfig = {
         source: `/:locale(${localePattern})/booking`,
         destination: `${bookingOrigin}/booking/`,
       },
-    ];
+    ] };
   },
 };
 

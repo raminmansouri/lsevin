@@ -38,7 +38,7 @@ export default async function OrderConfirmationPage({
 
   return (
     <div className="min-h-screen bg-neutral-50">
-      <ShopHeader cartCount={cart.itemCount} back="/n/app/mobile/shop" />
+      <ShopHeader cartCount={cart.itemCount} back="/shop" />
       <OrderDetailView
         order={order}
         locale={locale}

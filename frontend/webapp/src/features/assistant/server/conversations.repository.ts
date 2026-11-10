@@ -24,27 +24,32 @@ export function messageText(message: UIMessage): string {
 }
 
 /**
- * Makes sure the chat exists and belongs to this user. Creates it on the first message.
- * Returns false when the id is already used by someone else's chat, so nothing gets saved
- * into another user's history.
+ * Makes sure the chat exists and belongs to this user (or, for guests, this guest cookie id).
+ * Creates it on the first message. Returns false when the id is already used by someone else's
+ * chat, so nothing gets saved into another person's history.
  */
 export async function ensureConversation(input: {
   id: string;
-  userId: string;
+  userId?: string | null;
+  guestId?: string | null;
   locale: string;
   firstMessage?: UIMessage;
 }): Promise<boolean> {
+  const userId = input.userId ?? null;
+  const guestId = userId ? null : (input.guestId ?? null);
+  if (!userId && !guestId) return false;
   const title = input.firstMessage ? messageText(input.firstMessage).slice(0, TITLE_MAX_LENGTH) || null : null;
 
-  const rows = await sql<{ userId: string }[]>`
-    insert into ai.conversations (id, user_id, locale, title)
-    values (${input.id}::uuid, ${input.userId}::uuid, ${input.locale}, ${title})
+  const rows = await sql<{ userId: string | null; guestId: string | null }[]>`
+    insert into ai.conversations (id, user_id, guest_id, locale, title)
+    values (${input.id}::uuid, ${userId}::uuid, ${guestId}::uuid, ${input.locale}, ${title})
     on conflict (id) do update set updated_at = now()
-      where ai.conversations.user_id = excluded.user_id
-    returning user_id::text as "userId"
+      where ai.conversations.user_id is not distinct from excluded.user_id
+        and ai.conversations.guest_id is not distinct from excluded.guest_id
+    returning user_id::text as "userId", guest_id::text as "guestId"
   `;
 
-  return rows[0]?.userId === input.userId;
+  return Boolean(rows[0]) && (rows[0].userId ?? null) === userId && (rows[0].guestId ?? null) === guestId;
 }
 
 /** Saves messages; a message that is already saved (same chat and message id) is updated. */

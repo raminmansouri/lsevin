@@ -237,7 +237,7 @@ export async function OrderDetailView({
         </Link>
       ) : (
         <Link
-          href="/n/app/mobile/shop"
+          href="/shop"
           className="block rounded-full border-2 border-[#083f30] px-6 py-3 text-center text-sm font-bold text-[#083f30]"
         >
           {t("continueShopping")}

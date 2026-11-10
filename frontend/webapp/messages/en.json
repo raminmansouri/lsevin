@@ -56,6 +56,11 @@
         "hotel": "Hotel",
         "transfer": "Transfer"
       }
+    },
+    "nudge": {
+      "title": "Online support",
+      "body": "How can I help you?",
+      "close": "Close"
     }
   },
   "ShopMedia": {
@@ -413,7 +418,19 @@
     "smartDiscovery": "Smart discovery",
     "cantFindTitle": "Can't find what you're looking for?",
     "cantFindDescription": "Use smart search to find services, providers, packages, and nearby specialists.",
-    "searchNow": "Search Now"
+    "searchNow": "Search Now",
+    "otherServices": "Other services",
+    "subcategoriesCount": "{count, plural, one {# subcategory} other {# subcategories}}",
+    "openCategory": "Open {name}",
+    "openSubcategories": "Open {name} subcategories",
+    "noMatchingCategories": "No matching categories",
+    "noCategoriesAvailable": "No categories available",
+    "tryDifferentKeyword": "Try a different keyword or browse all available categories.",
+    "categoriesAppear": "Active categories will appear here once they are added.",
+    "searchResults": "Search results",
+    "goBack": "Go back",
+    "viewAllProviders": "View all {count} providers in {name}",
+    "providersIn": "{name} providers"
   },
   "Booking": {
     "dayParts": {
@@ -3200,7 +3217,10 @@
     "placementNotMounted": "No page renders this placement yet",
     "allPlacements": "All placements",
     "slidesPerPlacement": "Slides are shown only on the placement selected here.",
-    "renderedOn": "Rendered on"
+    "renderedOn": "Rendered on",
+    "staffOrder": "Order",
+    "staffOrderHint": "1 = first on the provider's page; 0 = no position",
+    "staffOrderSaved": "Order saved"
   },
   "HomeHero": {
     "title": "Health and beauty without borders, all in one place",
@@ -3225,7 +3245,8 @@
           "categories": "Categories",
           "map": "Map",
           "packages": "Packages",
-          "providers": "Providers"
+          "providers": "Providers",
+          "guides": "Medical treatment guide"
         }
       },
       "company": {
@@ -3236,6 +3257,9 @@
           "terms": "Terms of service",
           "privacy": "Privacy policy"
         }
+      },
+      "policies": {
+        "title": "Policies"
       }
     }
   },
@@ -5618,7 +5642,9 @@
       "toursPlatformTranslations": "5. Tour translations",
       "toursPlatformReports": "Tour reports",
       "toursPlatformSettings": "1. Tours settings",
-      "toursPlatformTaxonomy": "2. Categories & tags"
+      "toursPlatformTaxonomy": "2. Categories & tags",
+      "editorial": "Editorial",
+      "assistant": "AI assistant"
     }
   },
   "HomePage": {
@@ -12494,7 +12520,7 @@
     },
     "sections": {
       "languages": "Languages",
-      "about": "Address",
+      "about": "About",
       "gallery": "Gallery",
       "providerDetails": "Provider details",
       "certifications": "Certifications",
@@ -16271,11 +16297,105 @@
     "returnSubmitted": "Return request submitted — we'll review it shortly.",
     "returnsHeading": "Returns",
     "returnStatusLabel": "Status",
-    "qty": "Qty"
+    "qty": "Qty",
+    "sellers": "{count} sellers",
+    "sellerOffers": {
+      "soldBy": "Sold by {name}",
+      "title": "Sellers of this product ({count})",
+      "best": "Best offer",
+      "shipsIn": "Ships in {days} business days",
+      "shipsToday": "Ships today",
+      "outOfStock": "Out of stock",
+      "add": "Add",
+      "others": "{count} other sellers"
+    },
+    "sellerPage": {
+      "products": "{count} products",
+      "yearsOnSite": "{count}+ years on L Sevin",
+      "newSeller": "New on L Sevin",
+      "eyebrow": "BOUTIQUE",
+      "productsLabel": "PRODUCTS",
+      "warrantyTitle": "Seller's guarantee"
+    }
   },
   "ShopAdmin": {
+    "apiTokens": {
+      "title": "API tokens for client websites",
+      "intro": "Each token belongs to one seller and can only reach that seller's data: the products it created and its own prices and stock. New products, and edits of approved products, stay out of the storefront until you approve them; prices and stock apply immediately.",
+      "helpPage": "API guide for clients",
+      "createTitle": "New token",
+      "name": "Token name",
+      "namePlaceholder": "e.g. Mehr pharmacy website",
+      "seller": "Seller",
+      "sellerHint": "The token only sees and changes this seller's data.",
+      "noSellers": "There is no seller for a client yet. Create a seller for each client website first.",
+      "createSeller": "Create a seller",
+      "scopes": "Permissions",
+      "expiry": "Valid for",
+      "expiryNever": "No expiry",
+      "expiryDays": "{days, number} days",
+      "create": "Create token",
+      "creating": "Creating…",
+      "issuedTitle": "Token created. Copy it now.",
+      "issuedHint": "It is shown only once; we keep only a hash of it. Give it to the client through a secure channel. If it is lost, revoke it and create a new one.",
+      "copy": "Copy",
+      "copied": "Copied",
+      "issuedDone": "I copied it, close",
+      "colName": "Name",
+      "colSeller": "Seller",
+      "colScopes": "Permissions",
+      "colLastUsed": "Last used",
+      "colStatus": "Status",
+      "created": "Created",
+      "expires": "Expires",
+      "empty": "No tokens yet.",
+      "status": {
+        "active": "Active",
+        "revoked": "Revoked",
+        "expired": "Expired"
+      },
+      "revoke": "Revoke",
+      "revokeConfirm": "Click again to revoke",
+      "revoking": "Revoking…",
+      "error": "That did not work. Please try again.",
+      "scope": {
+        "products_read": "Read its own products",
+        "products_write": "Create and edit its own products",
+        "products_delete": "Delete its own products",
+        "offers_read": "Read its own prices and stock",
+        "offers_write": "Set prices and stock",
+        "offers_delete": "Remove prices and stock",
+        "catalog_read": "Browse the catalog and categories"
+      }
+    },
+    "apiReview": {
+      "title": "API product review",
+      "intro": "Products sellers created through the API, and edits of their approved products. New products stay out of the storefront, and approved products keep their current version, until you approve. A rejection reason is shown to the seller through the API.",
+      "newProducts": "New products",
+      "changes": "Pending edits",
+      "emptyProducts": "No new products are waiting.",
+      "emptyChanges": "No edits are waiting.",
+      "seller": "Seller",
+      "price": "Price",
+      "approve": "Approve and publish",
+      "reject": "Reject",
+      "reason": "Reason (shown to the seller)",
+      "confirmReject": "Reject",
+      "error": "That did not work. Please try again.",
+      "field": {
+        "name": "Name",
+        "shortDescription": "Short description",
+        "description": "Description",
+        "slug": "Slug",
+        "primaryCategoryId": "Primary category",
+        "categoryIds": "Categories",
+        "images": "Images"
+      }
+    },
     "acmeHealth": "acme-health",
     "nav": {
+      "apiTokens": "API tokens",
+      "apiReview": "API product review",
       "dashboard": "Dashboard",
       "orders": "Orders",
       "products": "Products",
@@ -16293,7 +16413,9 @@
       "settings": "Settings",
       "backToDashboard": "← Dashboard",
       "backToProducts": "← Products",
-      "backToCategories": "← Categories"
+      "backToCategories": "← Categories",
+      "warehouses": "Warehouses",
+      "sellers": "Sellers"
     },
     "common": {
       "save": "Save",
@@ -16365,7 +16487,9 @@
       "colReview": "Review",
       "colTotal": "Total",
       "colPlaced": "Placed",
-      "noneMatch": "No orders match."
+      "noneMatch": "No orders match.",
+      "anySeller": "Any seller",
+      "sellers": "{count} sellers"
     },
     "orderDetail": {
       "items": "Items",
@@ -16834,6 +16958,67 @@
         "hidden": "Hidden",
         "all": "All"
       }
+    },
+    "sellers": {
+      "title": "Sellers",
+      "add": "Add seller",
+      "nameEn": "Name (English)",
+      "nameFa": "Name (Persian)",
+      "nameAr": "Name (Arabic)",
+      "slug": "Slug",
+      "phone": "Phone",
+      "email": "Email",
+      "warrantyEn": "Warranty (English)",
+      "warrantyFa": "Warranty (Persian)",
+      "warrantyAr": "Warranty (Arabic)",
+      "warrantyHint": "This seller's default warranty text; each offer can set its own.",
+      "logo": "Logo",
+      "save": "Save seller",
+      "archive": "Delete",
+      "noSellers": "No sellers yet.",
+      "colSeller": "Seller",
+      "colOffers": "Active offers",
+      "colStatus": "Status",
+      "default": "Default",
+      "defaultHint": "The default seller is always active.",
+      "descEn": "Description (English)",
+      "descFa": "Description (Persian)",
+      "descAr": "Description (Arabic)",
+      "deleteBlocked": "This seller still has active products; move or remove them first."
+    },
+    "offers": {
+      "title": "Sellers of this product",
+      "hint": "Title, images and specs belong to the product; each seller only has its own price, stock and terms.",
+      "price": "Price",
+      "compareAt": "Compare-at price",
+      "stock": "Stock",
+      "handlingDays": "Ships in (days)",
+      "none": "No seller offers this product yet.",
+      "add": "Add seller",
+      "pickSeller": "Pick a seller",
+      "pickVariant": "Pick a variant",
+      "sellerSku": "Seller SKU",
+      "warrantyFa": "Warranty (Persian)",
+      "warrantyEn": "Warranty (English)",
+      "addNote": "Empty stock means stock is read from the shop's current inventory. A seller can have one offer per item.",
+      "priceHistory": "Price history ({count})"
+    },
+    "similar": {
+      "title": "This product may already exist",
+      "hint": "If it's the same product, add the seller to it instead of creating a duplicate.",
+      "addSeller": "Add seller to this product",
+      "sellers": "{count} sellers"
+    },
+    "sellerOffers": {
+      "title": "{name}'s products",
+      "editSeller": "Edit seller",
+      "back": "← Sellers",
+      "colProduct": "Product",
+      "colTerms": "Price, stock and shipping",
+      "lowStock": "Running out",
+      "none": "This seller has no products yet.",
+      "manage": "{count} products",
+      "lowStockCount": "{count} low stock"
     }
   },
   "Patients": {
@@ -17850,5 +18035,143 @@
     "providerText": "If you own or manage this center, ask to manage its page in the LSevin panel.",
     "staffText": "If you are this doctor, ask to manage your profile in the LSevin panel.",
     "button": "This page is mine"
+  },
+  "SitePages": {
+    "faqTitle": "Frequently asked questions",
+    "updated": "Last updated",
+    "home": "Home",
+    "more": "About LSevin"
+  },
+  "AdminEditorial": {
+    "heading": "Editorial",
+    "intro": "Site pages (About, Contact, policies) and the FAQs shown across the site, in every language.",
+    "tabs": {
+      "pages": "Site pages",
+      "faqs": "FAQs"
+    },
+    "pagesHelp": "A page appears on the site once it is published. Languages without a translation show the English version and are kept out of search results.",
+    "faqsHelp": "Each FAQ shows on one kind of page. Leave the specific item empty to show it on every page of that kind.",
+    "page": "Page",
+    "languages": "Languages",
+    "status": "Status",
+    "actions": "Actions",
+    "edit": "Edit",
+    "delete": "Delete",
+    "confirmDelete": "Delete this FAQ in every language? This cannot be undone.",
+    "deleted": "FAQ deleted.",
+    "published": "Published",
+    "publishedHelp": "Visible on the site and in search results.",
+    "draft": "Draft",
+    "notCreated": "Not created",
+    "inFooter": "In footer",
+    "showInFooter": "Show in footer",
+    "showInFooterHelp": "Link to this page from the site footer.",
+    "displayOrder": "Order",
+    "editPage": "Edit page",
+    "pageUrl": "Address",
+    "title": "Title",
+    "summary": "Summary",
+    "summaryHelp": "One or two sentences. Used as the search result description.",
+    "body": "Page text",
+    "bodyHelp": "Use headings for sections. Write each language separately; do not paste machine translations unchecked.",
+    "heroImage": "Header image",
+    "heroImageHelp": "Optional. Choose from the media library.",
+    "pickImage": "Choose image",
+    "save": "Save",
+    "saving": "Saving...",
+    "saved": "Saved.",
+    "back": "Back",
+    "viewPage": "View page",
+    "newFaq": "New FAQ",
+    "editFaq": "Edit FAQ",
+    "faqHelp": "Write the question and the answer in each language you want it to appear in. A language with only a question or only an answer cannot be saved.",
+    "showOn": "Show on",
+    "section": "Section",
+    "choose": "Choose...",
+    "specificItem": "Specific item (optional)",
+    "specificItemHelp": "Items with their own FAQ show only that FAQ; all others show the general one.",
+    "allItems": "All of this kind",
+    "currentItem": "Current",
+    "question": "Question",
+    "answer": "Answer",
+    "active": "Active",
+    "inactive": "Hidden",
+    "all": "All",
+    "noFaqs": "No FAQs here yet.",
+    "scopes": {
+      "home": "Home page",
+      "explore": "Explore",
+      "search": "Search",
+      "map": "Map",
+      "categories": "Categories page",
+      "provider": "Provider pages",
+      "specialist": "Specialist pages",
+      "service": "Service pages",
+      "category": "A category",
+      "provider_type": "A provider type",
+      "app": "Section (shop, tours, gym...)",
+      "site_page": "A site page"
+    },
+    "apps": {
+      "shop": "Shop",
+      "tours": "Tours",
+      "gym": "Gyms and fitness",
+      "transfers": "Airport transfers"
+    },
+    "pages": {
+      "about-us": "About us",
+      "services": "Services",
+      "contact-us": "Contact us",
+      "licenses-certifications": "Licenses and certifications",
+      "pricing-fees": "Pricing and fees",
+      "shipping-delivery": "Shipping and delivery",
+      "returns-refunds": "Returns and refunds",
+      "terms-conditions": "Terms and conditions",
+      "privacy-policy": "Privacy policy"
+    }
+  },
+  "AdminAssistant": {
+    "title": "AI assistant",
+    "stats": {
+      "messages": "Messages today",
+      "conversations": "Chats today",
+      "users": "Users",
+      "guests": "Guests"
+    },
+    "settings": {
+      "title": "Settings and limits",
+      "hint": "0 means no limit. Changes apply at once.",
+      "guests": "Guest",
+      "users": "Signed-in user",
+      "daily": "Messages per day",
+      "perChat": "Messages per chat",
+      "maxChars": "Max message length (characters)",
+      "saveGuestChats": "Save guests' chats too",
+      "save": "Save"
+    },
+    "list": {
+      "title": "Chats",
+      "search": "Search titles and message text…",
+      "all": "All",
+      "users": "Users",
+      "guests": "Guests",
+      "filter": "Filter",
+      "colTitle": "First question",
+      "colWho": "User",
+      "colMessages": "Messages",
+      "colLocale": "Language",
+      "colUpdated": "Last message",
+      "untitled": "(untitled)",
+      "user": "User",
+      "guest": "Guest",
+      "none": "No chats found.",
+      "prev": "← Previous",
+      "next": "Next →"
+    },
+    "detail": {
+      "back": "← All chats",
+      "user": "User",
+      "assistant": "Assistant"
+    }
   }
 }

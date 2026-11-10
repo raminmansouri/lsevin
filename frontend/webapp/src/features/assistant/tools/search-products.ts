@@ -47,7 +47,7 @@ export async function searchProductsForAssistant(
     price: product.priceUnavailable ? 0 : product.price,
     currency: product.currency,
     image: product.imageUrl ?? "",
-    href: `/n/app/mobile/shop/product/${product.slug}`,
+    href: `/products/${product.slug}`,
   }));
 
   return { count: results.length, results };

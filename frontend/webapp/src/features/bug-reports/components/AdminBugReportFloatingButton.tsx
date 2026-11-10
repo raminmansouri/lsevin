@@ -22,6 +22,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { routeLocaleFor } from "@/lib/seo/language-tags";
 
 import { createBugReportAction } from "../actions";
 import {
@@ -193,7 +194,7 @@ export function AdminBugReportFloatingButton() {
     formData.set("sourceUrl", window.location.href);
     formData.set("priority", "normal");
     formData.set("captureAdminDiagnostics", "true");
-    formData.set("locale", document.documentElement.lang || "en");
+    formData.set("locale", routeLocaleFor(document.documentElement.lang || "en"));
     formData.set("browserName", detectBrowserName());
     formData.set("operatingSystem", navigator.platform || "unknown");
     formData.set(

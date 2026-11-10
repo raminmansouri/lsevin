@@ -1,10 +1,8 @@
 "use client";
 
-import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight, Search, Sparkles } from "lucide-react";
-
-import { useTranslations } from "next-intl";
-import { useSearchParams } from "next/navigation";
+import { useLocale, useTranslations } from "next-intl";
 
 import {
   hasLexicalContent,
@@ -12,15 +10,22 @@ import {
 } from "@/components/editor/lexical-renderer";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { env } from "@/config/env/client";
-import { Link, useRouter } from "@/i18n/navigation";
-import { getCategoryOverlayClassName, getCategoryOverlayStyle } from "@/features/categories/utils/category-overlay";
-import { TOURS_HOME_PATH, categoryProvidersHref, isTourismCategory } from "@/features/categories/utils/category-href";
+import {
+  categoryBrowserHref,
+  categoryProvidersHref,
+  isTourismCategory,
+  TOURS_HOME_PATH,
+} from "@/features/categories/utils/category-href";
+import {
+  getCategoryOverlayClassName,
+  getCategoryOverlayStyle,
+} from "@/features/categories/utils/category-overlay";
 import { compareByPriority } from "@/features/categories/utils/priority";
 import type {
   CategoryBrowserCategory,
   CategoryBrowserGroup,
 } from "@/features/service-providers/actions/categories/get-category-browser-groups";
-
+import { Link, useRouter } from "@/i18n/navigation";
 
 const ALLOWED_GRADIENTS = [
   "from-red-500/90 to-red-600/90",
@@ -49,16 +54,6 @@ const ALLOWED_GRADIENTS = [
 const FALLBACK_GRADIENTS = ALLOWED_GRADIENTS.slice(0, 8);
 const ROOT_PARENT_KEY = "__root__";
 
-// Only this small leaf reads request-time URL state. Keeping useSearchParams
-// out of the catalog component lets ISR emit the category links in HTML rather
-// than replacing the entire tree with a client-render-only Suspense fallback.
-function CategoryUrlState({ onChange }: { onChange: (query: string) => void }) {
-  const searchParams = useSearchParams();
-  const query = searchParams.toString();
-  useEffect(() => onChange(query), [query, onChange]);
-  return null;
-}
-
 function parentKey(parentId?: string | null) {
   return parentId || ROOT_PARENT_KEY;
 }
@@ -76,7 +71,7 @@ function getCategoryHref(category: CategoryBrowserCategory) {
   // Reached only for a category with nothing under it — anything with children is
   // a button that descends a level instead. Opens the list; the destination's own
   // toggle switches to the map.
-  return categoryProvidersHref(category.id);
+  return categoryProvidersHref(category);
 }
 
 function getGradientClass(category: CategoryBrowserCategory, index: number) {
@@ -92,7 +87,11 @@ function getGradientStyle(category: CategoryBrowserCategory) {
 
 export function sortCategories(categories: CategoryBrowserCategory[]) {
   // Admin priority first (1, 2, …); categories without one (0) follow, by name.
-  return [...categories].sort(compareByPriority<CategoryBrowserCategory>((a, b) => a.name.localeCompare(b.name)));
+  return [...categories].sort(
+    compareByPriority<CategoryBrowserCategory>((a, b) =>
+      a.name.localeCompare(b.name)
+    )
+  );
 }
 
 function CategoryMedia({ category }: { category: CategoryBrowserCategory }) {
@@ -157,15 +156,18 @@ function CategoryCardContent({
   hasChildren: boolean;
   index: number;
 }) {
+  const locale = useLocale();
+  const t = useTranslations("CategoryBrowser");
   const gradientClass = getGradientClass(category, index);
   const gradientStyle = getGradientStyle(category);
   const childCount = Math.max(category.childCount, 0);
   // Providers, never services. The old fallback swapped in a service count
   // whenever the provider count was zero, so one shelf mixed "70 providers" with
   // "121 services" and neither number could be read against the other.
-  const metaLabel = hasChildren
-    ? `${childCount.toLocaleString()} subcategories`
-    : `${Math.max(category.count, 0).toLocaleString()} providers`;
+  const metaLabel = (hasChildren
+    ? t("subcategoriesCount", { count: childCount })
+    : t("providersCount", { count: Math.max(category.count, 0) }))
+    .replace(/\d+/g, (digits) => [...digits].map((digit) => Number(digit).toLocaleString(locale)).join(""));
 
   return (
     <>
@@ -210,35 +212,47 @@ function CategoryCard({
   category: CategoryBrowserCategory;
   hasChildren: boolean;
   index: number;
-  onOpenCategory: (category: CategoryBrowserCategory) => void;
+  onOpenCategory: () => void;
   opensTours?: boolean;
 }) {
+  const t = useTranslations("CategoryBrowser");
   const className =
     "group relative block aspect-[4/3] w-full overflow-hidden rounded-2xl shadow-sm transition-all hover:shadow-xl active:scale-95";
 
   // Tourism (and its subcategories) is its own sub-application (C-001).
   if (opensTours) {
     return (
-      <Link href={TOURS_HOME_PATH} className={className} aria-label={`Open ${category.name}`} data-opens-tours="true">
-        <CategoryCardContent category={category} hasChildren={hasChildren} index={index} />
-      </Link>
-    );
-  }
-
-  if (hasChildren) {
-    return (
-      <button
-        type="button"
-        onClick={() => onOpenCategory(category)}
+      <Link
+        href={TOURS_HOME_PATH}
         className={className}
-        aria-label={`Open ${category.name} subcategories`}
+        aria-label={t("openCategory", { name: category.name })}
+        data-opens-tours="true"
       >
         <CategoryCardContent
           category={category}
           hasChildren={hasChildren}
           index={index}
         />
-      </button>
+      </Link>
+    );
+  }
+
+  if (hasChildren) {
+    // A link to /categories/<slug>, so crawlers and new tabs reach the level too.
+    return (
+      <Link
+        href={categoryBrowserHref(category)}
+        onClick={onOpenCategory}
+        scroll={false}
+        className={className}
+        aria-label={t("openSubcategories", { name: category.name })}
+      >
+        <CategoryCardContent
+          category={category}
+          hasChildren={hasChildren}
+          index={index}
+        />
+      </Link>
     );
   }
 
@@ -246,7 +260,7 @@ function CategoryCard({
     <Link
       href={getCategoryHref(category)}
       className={className}
-      aria-label={`Open ${category.name}`}
+      aria-label={t("openCategory", { name: category.name })}
     >
       <CategoryCardContent
         category={category}
@@ -258,18 +272,17 @@ function CategoryCard({
 }
 
 function EmptyState({ hasQuery }: { hasQuery: boolean }) {
+  const t = useTranslations("CategoryBrowser");
   return (
     <div className="rounded-3xl border border-dashed border-gray-200 bg-gray-50 px-5 py-12 text-center">
       <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-white shadow-sm">
         <Search className="h-6 w-6 text-[#083f30]" />
       </div>
       <h2 className="mb-2 text-lg font-bold text-gray-900">
-        {hasQuery ? "No matching categories" : "No categories available"}
+        {hasQuery ? t("noMatchingCategories") : t("noCategoriesAvailable")}
       </h2>
       <p className="mx-auto max-w-xs text-sm leading-6 text-gray-600">
-        {hasQuery
-          ? "Try a different keyword or browse all available categories."
-          : "Active categories will appear here once they are configured in the admin panel."}
+        {hasQuery ? t("tryDifferentKeyword") : t("categoriesAppear")}
       </p>
     </div>
   );
@@ -280,19 +293,19 @@ export function CategoryBrowserClient({
   totalCategories,
   totalProviders,
   tourismCategoryId = null,
+  parentId = null,
 }: {
   categoryGroups: CategoryBrowserGroup[];
   totalCategories: number;
   totalProviders: number;
   tourismCategoryId?: string | null;
+  /** The category whose subcategories are shown (/categories/<slug>); null at the root. */
+  parentId?: string | null;
 }) {
   const t = useTranslations("CategoryBrowser");
   const router = useRouter();
-  // `?parent=` deep-links straight onto a node's subcategories (home-shelf
-  // links). Read on the client so the page itself stays statically rendered.
-  const [queryString, setQueryString] = useState("");
-  const selectedParentId =
-    new URLSearchParams(queryString).get("parent")?.trim() || null;
+  // /categories/<slug> opens a node's subcategories; the page resolves the slug.
+  const selectedParentId = parentId;
   const [query, setQuery] = useState("");
 
   const allCategories = useMemo(
@@ -340,7 +353,7 @@ export function CategoryBrowserClient({
     [categoryById]
   );
 
-  // A ?parent= link lands mid-tree, so the breadcrumb has to be reconstructed from
+  // A /categories/<slug> link lands mid-tree, so the breadcrumb has to be reconstructed from
   // the node up rather than started empty — otherwise "All categories" is the only
   // way back out of a screen the visitor entered three levels down.
   const path = useMemo(() => {
@@ -349,20 +362,25 @@ export function CategoryBrowserClient({
       : undefined;
     return target ? buildPathToCategory(target) : [];
   }, [selectedParentId, categoryById, buildPathToCategory]);
+  function parentHref(id?: string) {
+    const category = id ? categoryById.get(id) : undefined;
+    return category ? categoryBrowserHref(category) : "/categories";
+  }
   function navigateToParent(id?: string) {
-    const nextParams = new URLSearchParams(queryString);
-    if (id) nextParams.set("parent", id);
-    else nextParams.delete("parent");
-    const query = nextParams.toString();
-    router.push(`/n/app/mobile/categories${query ? `?${query}` : ""}`, {
-      scroll: false,
-    });
+    router.push(parentHref(id), { scroll: false });
   }
   const currentParent = path.length > 0 ? path[path.length - 1] : null;
 
   // Tourism has no category screen of its own: the Tours app is its home.
   useEffect(() => {
-    if (currentParent && isTourismCategory(currentParent.id, (id) => categoryById.get(id)?.parentId, tourismCategoryId)) {
+    if (
+      currentParent &&
+      isTourismCategory(
+        currentParent.id,
+        (id) => categoryById.get(id)?.parentId,
+        tourismCategoryId
+      )
+    ) {
       router.replace(TOURS_HOME_PATH);
     }
   }, [categoryById, currentParent, router, tourismCategoryId]);
@@ -387,7 +405,7 @@ export function CategoryBrowserClient({
         ? [
             {
               id: "search",
-              title: "Search results",
+              title: t("searchResults"),
               categories: searchedCategories,
             },
           ]
@@ -418,11 +436,12 @@ export function CategoryBrowserClient({
     currentParent,
     hasQuery,
     searchedCategories,
+    t,
   ]);
 
-  function openCategory(category: CategoryBrowserCategory) {
+  // The card is a link to the category; leaving a search on the way.
+  function openCategory() {
     setQuery("");
-    navigateToParent(category.id);
   }
 
   function handleBack() {
@@ -440,17 +459,14 @@ export function CategoryBrowserClient({
   }
 
   return (
-    <div className="min-h-screen bg-white pb-24">
-      <Suspense fallback={null}>
-        <CategoryUrlState onChange={setQueryString} />
-      </Suspense>
+    <div className="min-h-screen bg-white pb-24" data-latin-digits>
       <div className="sticky top-0 z-40 border-b border-gray-100 bg-white/95 px-5 pt-3 pb-4 backdrop-blur-xl">
         <div className="flex items-center gap-3">
           <button
             type="button"
             onClick={handleBack}
             className="flex h-10 w-10 items-center justify-center rounded-full transition-colors hover:bg-gray-100"
-            aria-label="Go back"
+            aria-label={t("goBack")}
           >
             <ChevronLeft size={24} className="text-gray-700" />
           </button>
@@ -470,22 +486,23 @@ export function CategoryBrowserClient({
 
         {path.length > 0 ? (
           <div className="mt-3 flex flex-wrap items-center gap-2 text-xs font-semibold text-gray-500">
-            <button
-              type="button"
-              onClick={() => navigateToParent()}
+            <Link
+              href={parentHref()}
+              scroll={false}
               className="rounded-full bg-gray-100 px-3 py-1 text-[#083f30]"
             >
               {t("allCategories")}
-            </button>
-            {path.map((category, index) => (
-              <button
+            </Link>
+            {path.map((category) => (
+              <Link
                 key={category.id}
-                type="button"
-                onClick={() => navigateToParent(path[index].id)}
+                href={parentHref(category.id)}
+                scroll={false}
+                aria-current={category.id === currentParent?.id ? "page" : undefined}
                 className="rounded-full bg-gray-100 px-3 py-1 text-gray-700"
               >
                 {category.name}
-              </button>
+              </Link>
             ))}
           </div>
         ) : null}
@@ -512,15 +529,21 @@ export function CategoryBrowserClient({
         {currentParent && !hasQuery && currentParent.count > 0 ? (
           <Link
             href={
-              isTourismCategory(currentParent.id, (id) => categoryById.get(id)?.parentId, tourismCategoryId)
+              isTourismCategory(
+                currentParent.id,
+                (id) => categoryById.get(id)?.parentId,
+                tourismCategoryId
+              )
                 ? TOURS_HOME_PATH
-                : categoryProvidersHref(currentParent.id)
+                : categoryProvidersHref(currentParent)
             }
             className="mb-6 flex items-center justify-between gap-3 rounded-2xl border border-gray-100 bg-gray-50 px-4 py-3 transition-colors hover:bg-gray-100"
           >
             <span className="min-w-0 text-sm font-semibold text-[#083f30]">
-              View all {currentParent.count.toLocaleString()} providers in{" "}
-              {currentParent.name}
+              {t("viewAllProviders", {
+                count: currentParent.count,
+                name: currentParent.name,
+              })}
             </span>
             <ChevronRight size={18} className="shrink-0 text-[#083f30]" />
           </Link>
@@ -541,7 +564,9 @@ export function CategoryBrowserClient({
                   <div className="mb-4 flex items-center justify-between gap-4">
                     <div className="min-w-0">
                       <h2 className="truncate text-xl font-bold text-gray-900">
-                        {group.title}
+                        {group.title === "Other Services"
+                          ? t("otherServices")
+                          : group.title}
                       </h2>
                       <p className="text-xs font-medium text-gray-500">
                         {t("categoriesCount", {
@@ -566,7 +591,11 @@ export function CategoryBrowserClient({
                           hasChildren={hasChildren}
                           index={categoryIndex}
                           onOpenCategory={openCategory}
-                          opensTours={isTourismCategory(category.id, (id) => categoryById.get(id)?.parentId, tourismCategoryId)}
+                          opensTours={isTourismCategory(
+                            category.id,
+                            (id) => categoryById.get(id)?.parentId,
+                            tourismCategoryId
+                          )}
                         />
                       );
                     })}

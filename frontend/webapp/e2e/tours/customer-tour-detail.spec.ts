@@ -59,19 +59,19 @@ test("AT-03/AT-04: published content, gallery, itinerary order, rules, price, lo
   await expect(page.getByTestId("verified-provider")).toBeVisible();
 
   // AT-04: two days, stops in the saved order, meeting and finish distinguished.
-  const days = page.getByTestId("itinerary-day");
+  const days = page.getByTestId("itinerary-day").filter({ visible: true });
   await expect(days).toHaveCount(2);
-  const titles = await page.getByTestId("itinerary-stop").getByTestId("stop-title").allInnerTexts();
+  const titles = await page.getByTestId("itinerary-stop").filter({ visible: true }).getByTestId("stop-title").allInnerTexts();
   expect(titles.map((s) => s.trim())).toEqual(["Eram Square", "Persepolis", "Naqsh-e Rostam", "Pasargadae", "Return to Shiraz"]);
-  const types = await page.getByTestId("itinerary-stop").evaluateAll((els) => els.map((e) => e.getAttribute("data-stop-type")));
+  const types = await page.getByTestId("itinerary-stop").filter({ visible: true }).evaluateAll((els) => els.map((e) => e.getAttribute("data-stop-type")));
   expect(types[0]).toBe("meeting");
   expect(types[types.length - 1]).toBe("finish");
   // No routing data was saved: travel time is labelled as not provided, never invented.
   await expect(page.getByTestId("travel-not-provided").first()).toBeVisible();
-  await expect(page.getByTestId("itinerary").getByText(/\d+(\.\d+)?\s?km/)).toHaveCount(0);
+  await expect(page.getByTestId("itinerary").filter({ visible: true }).getByText(/\d+(\.\d+)?\s?km/)).toHaveCount(0);
 
   // Rules: the published cancellation table and texts.
-  const rules = page.getByTestId("cancellation-rules");
+  const rules = page.getByTestId("cancellation-rules").filter({ visible: true });
   await expect(rules).toContainText("72 hours");
   await expect(rules).toContainText("100% refund");
   await expect(rules).toContainText("24 hours");
@@ -103,7 +103,7 @@ test("AT-33/AT-39: German UI shows labelled fallback content, no blanks or raw k
   await expect(page.getByTestId("tour-detail")).toBeVisible();
   await expect(page.getByTestId("fallback-badge").first()).toBeVisible();
   // Mandatory disclosures still present (source-language content) and no raw message keys.
-  await expect(page.getByTestId("cancellation-rules")).toBeVisible();
+  await expect(page.getByTestId("cancellation-rules").filter({ visible: true })).toBeVisible();
   const text = await page.locator("main").innerText();
   expect(text).not.toMatch(/TourApp\.|TourShared\.|MISSING_MESSAGE/);
   // The same fallback is labelled on Home cards.
@@ -116,7 +116,7 @@ test("AT-05: weather forecast, beyond-horizon, stale and unavailable states", as
   const near = await seedCatalog([{ firstDepartureInDays: 3 }]);
   const loc = await uniqueLocation(near.tours[0].id);
   await page.goto(`/en/tours/t/${near.tours[0].slug}`);
-  const card = page.getByTestId("weather-card");
+  const card = page.getByTestId("weather-card").filter({ visible: true });
   await expect(card).toHaveAttribute("data-weather-status", "ok");
   await expect(card).toHaveAttribute("data-weather-mode", "forecast");
   await expect(card.getByTestId("weather-forecast")).toContainText("°");
@@ -134,9 +134,9 @@ test("AT-05: weather forecast, beyond-horizon, stale and unavailable states", as
   const far = await seedCatalog([{ firstDepartureInDays: 40 }]);
   await uniqueLocation(far.tours[0].id);
   await page.goto(`/en/tours/t/${far.tours[0].slug}`);
-  await expect(page.getByTestId("weather-card")).toHaveAttribute("data-weather-mode", "climate");
-  await expect(page.getByTestId("weather-card").getByTestId("weather-climate")).toBeVisible();
-  await expect(page.getByTestId("weather-card").getByText(/°C|° \//)).toHaveCount(0);
+  await expect(page.getByTestId("weather-card").filter({ visible: true })).toHaveAttribute("data-weather-mode", "climate");
+  await expect(page.getByTestId("weather-card").filter({ visible: true }).getByTestId("weather-climate")).toBeVisible();
+  await expect(page.getByTestId("weather-card").filter({ visible: true }).getByText(/°C|° \//)).toHaveCount(0);
 
   // Provider failure with an older cached value → shown, labelled stale.
   const stale = await seedCatalog([{ firstDepartureInDays: 4 }]);
@@ -151,7 +151,7 @@ test("AT-05: weather forecast, beyond-horizon, stale and unavailable states", as
   await db()`insert into tour.weather_cache (cache_key, kind, latitude, longitude, payload, source, fetched_at, expires_at)
              values (${`fixture:fail:${sloc.lat.toFixed(3)},${sloc.lng.toFixed(3)}`}, 'daily', ${sloc.lat}, ${sloc.lng}, '{}'::jsonb, 'fixture', now(), now() + interval '1 day')`;
   await page.goto(`/en/tours/t/${stale.tours[0].slug}`);
-  const staleCard = page.getByTestId("weather-card");
+  const staleCard = page.getByTestId("weather-card").filter({ visible: true });
   await expect(staleCard).toHaveAttribute("data-weather-freshness", "stale");
   await expect(staleCard.getByTestId("weather-stale")).toBeVisible();
   await expect(staleCard.getByTestId("weather-forecast")).toContainText("3° / 9°");
@@ -162,7 +162,7 @@ test("AT-05: weather forecast, beyond-horizon, stale and unavailable states", as
   await db()`insert into tour.weather_cache (cache_key, kind, latitude, longitude, payload, source, fetched_at, expires_at)
              values (${`fixture:fail:${nloc.lat.toFixed(3)},${nloc.lng.toFixed(3)}`}, 'daily', ${nloc.lat}, ${nloc.lng}, '{}'::jsonb, 'fixture', now(), now() + interval '1 day')`;
   await page.goto(`/en/tours/t/${none.tours[0].slug}`);
-  await expect(page.getByTestId("weather-card")).toHaveAttribute("data-weather-status", "unavailable");
+  await expect(page.getByTestId("weather-card").filter({ visible: true })).toHaveAttribute("data-weather-status", "unavailable");
   // The booking CTA is unaffected by the weather outage (AT-28).
   await expect(page.getByTestId("book-now")).toBeVisible();
 });

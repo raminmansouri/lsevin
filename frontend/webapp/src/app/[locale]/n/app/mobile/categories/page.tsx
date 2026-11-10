@@ -1,15 +1,12 @@
-import { Suspense } from "react";
+import { permanentRedirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
-import { getCategoryBrowserGroups } from "@/features/service-providers/actions/categories/get-category-browser-groups";
-import { CategoryBrowserClient } from "@/features/service-providers/components/categories/category-browser-client";
-import { SponsoredPlacementSlot } from "@/features/sponsered-slider/components/sponsored-placement-slot";
+import { categoryBrowserHref } from "@/features/categories/utils/category-href";
 import { buildPublicMetadata } from "@/lib/seo/metadata";
-import { getTourSettings } from "@/features/tours/server/platform/settings";
+import { INDEXABLE_CATEGORY_LOCALES } from "@/lib/seo/locale-eligibility";
+import { resolvePublicEntity } from "@/lib/seo/public-slugs";
 
-import { DesktopCategoryBrowser } from "@/features/web-desktop/categories/DesktopCategoryBrowser";
-import { DesktopSponsoredSection } from "@/features/web-desktop/home/DesktopSponsoredSection";
-
+import { CategoryBrowserScreen, loadCategoryBrowser } from "./category-browser-screen";
 
 export async function generateMetadata({
   params,
@@ -19,12 +16,15 @@ export async function generateMetadata({
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "CategoryBrowser" });
   // Localized brand (السوین on Persian pages), not a hard-coded Latin name.
-  const brand = (await getTranslations({ locale, namespace: "LocaleLayout" }))("title");
+  const brand = (await getTranslations({ locale, namespace: "LocaleLayout" }))(
+    "title"
+  );
   return buildPublicMetadata({
     locale,
-    path: "/n/app/mobile/categories",
+    path: "/categories",
     title: `${t("allCategories")} | ${brand}`,
     descriptions: [t("cantFindDescription")],
+    eligibleLocales: INDEXABLE_CATEGORY_LOCALES,
   });
 }
 
@@ -36,45 +36,22 @@ export const dynamic = "force-dynamic";
 
 export default async function CategoryBrowserPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string }>;
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
 
-  // A database hiccup shows an empty tree for that one request only: the page
-  // is dynamic, so nothing empty is cached, and the data cache rejects failures.
-  const data = await getCategoryBrowserGroups(locale).catch(() => ({
-    groups: [],
-    totalCategories: 0,
-    totalProviders: 0,
-  }));
+  // The old ?parent=<uuid> deep link: each category has its own address now.
+  const rawParent = (await searchParams)?.parent;
+  const parentValue = (Array.isArray(rawParent) ? rawParent[0] : rawParent)?.trim();
+  if (parentValue) {
+    const ref = await resolvePublicEntity("category", parentValue.toLowerCase());
+    permanentRedirect(ref ? `/${locale}${categoryBrowserHref(ref)}` : `/${locale}/categories`);
+  }
 
-  // Tourism opens the Tours sub-application (C-001); its id is configuration, not code.
-  const tourismCategoryId = await getTourSettings()
-    .then((s) => s.tourismCategoryId)
-    .catch(() => null);
-
-  return (
-    <Suspense fallback={null}>
-      <div className="xl:hidden">
-        <CategoryBrowserClient
-          categoryGroups={data.groups}
-          totalCategories={data.totalCategories}
-          totalProviders={data.totalProviders}
-          tourismCategoryId={tourismCategoryId}
-        />
-        <SponsoredPlacementSlot locale={locale} placement="categories" />
-      </div>
-      <DesktopCategoryBrowser
-        categoryGroups={data.groups}
-        totalCategories={data.totalCategories}
-        totalProviders={data.totalProviders}
-        tourismCategoryId={tourismCategoryId}
-      />
-      <div className="lsd hidden pb-14 xl:block">
-        <DesktopSponsoredSection locale={locale} placement="categories" />
-      </div>
-    </Suspense>
-  );
+  const { data, tourismCategoryId } = await loadCategoryBrowser(locale);
+  return <CategoryBrowserScreen locale={locale} data={data} tourismCategoryId={tourismCategoryId} parent={null} />;
 }

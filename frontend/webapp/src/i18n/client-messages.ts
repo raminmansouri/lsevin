@@ -1,6 +1,10 @@
 import { getMessages } from "next-intl/server";
 
-import { MOBILE_ADMIN_GENERATED_KEYS } from "./partial-namespaces";
+import {
+  MOBILE_ADMIN_GENERATED_KEYS,
+  MOBILE_BOOKING_KEYS,
+  MOBILE_CONSULTATION_KEYS,
+} from "./partial-namespaces";
 
 /**
  * Which translation namespaces each route segment hands to the browser.
@@ -60,19 +64,22 @@ export const CORE_NAMESPACES = [
  * string and so cannot be spotted by reading the call site alone.
  */
 export const SEGMENT_NAMESPACES = {
-  /** The mobile app shell — appmain.lsevin.com's customer-facing product. */
+  /**
+   * The mobile app shell — appmain.lsevin.com's customer-facing product.
+   * Booking, Consultation, FormBuilder, MobileProfile and ProviderOnboarding are
+   * deliberately absent: together they were 184 KB of every public page's HTML.
+   * The routes that use them get them from `ROUTE_NAMESPACES`; public pages get
+   * the few keys they read through `SEGMENT_PARTIAL_NAMESPACES`.
+   */
   mobileApp: [
     "AsyncSelect",
-    "Booking",
     // booking-pro step 3 on phones (components/itinerary/*).
     "BookingItinerary",
     "BottomTabBar",
     // n/app/mobile/categories/page.tsx renders category-browser-client.tsx,
     // a "use client" component calling useTranslations("CategoryBrowser").
     "CategoryBrowser",
-    "Consultation",
     "Explore",
-    "FormBuilder",
     "Home",
     "LazySelect",
     "MapDiscovery",
@@ -81,12 +88,10 @@ export const SEGMENT_NAMESPACES = {
     "MobileDoctorProfile",
     "MobileNotifications",
     "MobileOffers",
-    "MobileProfile",
     "MobileSearch",
     "NearbyMap",
     "ProviderDashboardOffers",
     "ProviderDoctorProfile",
-    "ProviderOnboarding",
     "ProviderPage",
     "Assistant",
     "MapShared",
@@ -101,6 +106,8 @@ export const SEGMENT_NAMESPACES = {
   ],
   admin: [
     "Admin",
+    // admin → Editorial: page/FAQ forms and the delete button are client components.
+    "AdminEditorial",
     "ShopAdmin",
     "AdminColumn",
     "AdminGenerated",
@@ -197,6 +204,49 @@ export const SEGMENT_NAMESPACES = {
 
 export type MessageSegment = keyof typeof SEGMENT_NAMESPACES;
 
+/** Large namespaces a segment needs only some keys of (see partial-namespaces.ts). */
+const SEGMENT_PARTIAL_NAMESPACES: Partial<Record<MessageSegment, Record<string, readonly string[]>>> = {
+  mobileApp: {
+    AdminGenerated: MOBILE_ADMIN_GENERATED_KEYS,
+    Booking: MOBILE_BOOKING_KEYS,
+    Consultation: MOBILE_CONSULTATION_KEYS,
+  },
+};
+
+/**
+ * Namespaces only some routes under the mobile app shell read, keyed by the
+ * route directory under `src/app/[locale]/`. That directory's layout renders
+ * `<RouteMessages route="…">`, which hands its subtree the shell's set plus
+ * these. `src/lib/seo/route-messages.test.ts` walks every page's imports and
+ * fails when a page reads a namespace (or key) nothing above it provides.
+ */
+export const ROUTE_NAMESPACES = {
+  "n/app/mobile/booking": ["Booking", "Consultation", "FormBuilder"],
+  "n/app/mobile/booking-v2": ["Booking"],
+  "n/app/mobile/bookings": ["Booking", "Consultation"],
+  "n/app/mobile/consultation": ["Consultation"],
+  "n/app/mobile/profile": ["Consultation", "MobileProfile"],
+} as const satisfies Record<string, readonly string[]>;
+
+export type MessageRoute = keyof typeof ROUTE_NAMESPACES;
+
+// One subset object per (namespace object, key list). Nested providers on the
+// same page then pass the same object, and React's flight serializer writes it
+// once and references it afterwards instead of repeating it.
+const subsetCache = new WeakMap<object, Map<readonly string[], Record<string, unknown>>>();
+
+function subsetOf(source: Record<string, unknown>, keys: readonly string[]) {
+  let byKeys = subsetCache.get(source);
+  if (!byKeys) subsetCache.set(source, (byKeys = new Map()));
+  let subset = byKeys.get(keys);
+  if (!subset) {
+    subset = {};
+    for (const key of keys) if (key in source) subset[key] = source[key];
+    byKeys.set(keys, subset);
+  }
+  return subset;
+}
+
 /**
  * Reads the request's messages and returns only the namespaces `segment` needs.
  * Pass no segment for the root layout, which gets the core set alone.
@@ -210,15 +260,13 @@ export type MessageSegment = keyof typeof SEGMENT_NAMESPACES;
  * path that never reads the ambient request locale, so it is immune — this is
  * why `force-static` pages like home/shop used to bake the Persian bottom nav
  * and greetings onto every /tr and /en page.
+ *
+ * `route` adds that route's `ROUTE_NAMESPACES` in full.
  */
-/** Large namespaces a segment needs only some keys of (see partial-namespaces.ts). */
-const SEGMENT_PARTIAL_NAMESPACES: Partial<Record<MessageSegment, Record<string, readonly string[]>>> = {
-  mobileApp: { AdminGenerated: MOBILE_ADMIN_GENERATED_KEYS },
-};
-
 export async function getClientMessages(
   segment?: MessageSegment,
-  locale?: string
+  locale?: string,
+  route?: MessageRoute
 ) {
   const messages = (await getMessages(
     locale ? { locale } : undefined
@@ -227,6 +275,7 @@ export async function getClientMessages(
   const wanted = new Set<string>([
     ...CORE_NAMESPACES,
     ...(segment ? SEGMENT_NAMESPACES[segment] : []),
+    ...(route ? ROUTE_NAMESPACES[route] : []),
   ]);
 
   const picked: Messages = {};
@@ -241,11 +290,7 @@ export async function getClientMessages(
   )) {
     const source = messages[namespace];
     if (!source || typeof source !== "object" || namespace in picked) continue;
-    const subset: Record<string, unknown> = {};
-    for (const key of keys) {
-      if (key in (source as Record<string, unknown>)) subset[key] = (source as Record<string, unknown>)[key];
-    }
-    picked[namespace] = subset;
+    picked[namespace] = subsetOf(source as Record<string, unknown>, keys);
   }
 
   return picked;

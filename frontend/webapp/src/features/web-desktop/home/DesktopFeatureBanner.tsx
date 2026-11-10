@@ -7,6 +7,7 @@ import type { HomeManagedSection } from "@/features/home/api/server/get-home-sec
 import { HomeLexicalDescription } from "@/features/home/components/home-lexical-description";
 import { resolveHomeMediaUrl } from "@/features/home/components/home-media";
 import { Link } from "@/i18n/navigation";
+import { entityPath } from "@/lib/routes/public-paths";
 
 import { AnimatedWords, Magnetic, Reveal, ScrollParallax } from "../components/motion";
 
@@ -23,7 +24,7 @@ export async function DesktopFeatureBanner({
   const t = await getTranslations({ locale, namespace: "Home" });
 
   const mediaUrl = resolveHomeMediaUrl(section.imageUrl || offer?.imageUrl);
-  const href = section.buttonHref || (offer?.serviceId ? `/n/app/mobile/service/${offer.serviceId}` : "/n/app/mobile/offers");
+  const href = section.buttonHref || (offer?.serviceId ? entityPath("service", { slug: offer.serviceSlug, id: offer.serviceId }) : "/offers");
   const title = section.title || offer?.title || t("hero.title");
   const badge = section.badge || (offer?.discountPercent ? t("hero.limitedTime") : t("hero.featured"));
   const discount = offer?.discountPercent ? Math.round(Number(offer.discountPercent)) : null;

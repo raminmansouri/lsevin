@@ -16,6 +16,7 @@ import { resolveMediaUrl } from "@/features/service-providers/lib/media-url";
 import type { GetServicePageByIdResponse, TopReview } from "@/features/service-providers/types/service-page.types";
 import { ServiceProductsRail } from "@/features/shop/components/ServiceProductsRail";
 import { Link } from "@/i18n/navigation";
+import { entityPath } from "@/lib/routes/public-paths";
 import { DigikalaReviewCard } from "@/app/[locale]/n/app/components/DigikalaReviewCard";
 import ReviewForm, { type ReviewFormSubmitValue } from "@/app/[locale]/n/app/components/ReviewForm";
 import { useReviewEligibility } from "@/app/[locale]/n/app/components/useReviewEligibility";
@@ -31,7 +32,7 @@ import {
   RequirementsSection,
   ServiceAttributesSection,
   SpecialistsSection,
-} from "@/app/[locale]/n/app/mobile/service/[id]/service-page";
+} from "@/app/[locale]/(site)/services/[slug]/service-page";
 
 import { AnimatedWords, Magnetic, Reveal } from "../components/motion";
 
@@ -281,7 +282,7 @@ export function DesktopServiceView({ data, serviceId, locale }: { data: GetServi
             return (
               <Link
                 key={item.id}
-                href={`/n/app/mobile/service/${serviceId}/gallery`}
+                href={`${entityPath("service", { id: serviceId, slug: service.slug })}/gallery`}
                 aria-label={t("gallery.openGallery")}
                 className={`group relative overflow-hidden rounded-[26px] bg-[#0f5a45] ${index === 0 && mosaic.length > 1 ? "col-span-2 row-span-2" : ""}`}
               >
@@ -328,13 +329,13 @@ export function DesktopServiceView({ data, serviceId, locale }: { data: GetServi
               </span>
             ))}
           </div>
-          <h1 className="text-[48px] font-black leading-[1.2] text-[#0e1a16]">
+          <div role="heading" aria-level={1} className="text-[48px] font-black leading-[1.2] text-[#0e1a16]">
             <AnimatedWords text={service.name} />
-          </h1>
+          </div>
           <LexicalDescription content={service.subtitle} fallback="" className="max-w-3xl text-lg leading-9 text-[#56675f]" />
 
           <div className="flex flex-wrap items-center gap-6">
-            <Link href={`/n/app/mobile/provider/${service.clinicId}`} className="group flex items-center gap-3 rounded-full bg-white py-1.5 pe-5 ps-1.5 ring-1 ring-[#dce4e0] transition hover:ring-[#c9a55a]">
+            <Link href={entityPath("provider", { id: service.clinicId, slug: service.clinicSlug })} className="group flex items-center gap-3 rounded-full bg-white py-1.5 pe-5 ps-1.5 ring-1 ring-[#dce4e0] transition hover:ring-[#c9a55a]">
               <span className="h-11 w-11 overflow-hidden rounded-full bg-[#0f5a45]">
                 {service.providerProfile.image ? (
                   // eslint-disable-next-line @next/next/no-img-element

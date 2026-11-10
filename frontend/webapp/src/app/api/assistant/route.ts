@@ -15,6 +15,25 @@ import {
 } from "@/features/assistant/server/conversations.repository";
 import { resolveIsIranianVisitor } from "@/features/finance/lib/server/iranian-visitor";
 import { getUserId } from "@/lib/auth/session";
+import { cookies } from "next/headers";
+
+import { checkAssistantLimits, limitReply } from "@/features/assistant/server/limits";
+
+/** A guest's anonymous id (to count their messages and save their chats). */
+const GUEST_COOKIE = "lsevin_ai_guest";
+
+/** A one-off answer written straight into the chat, without calling the model. */
+function textReply(text: string) {
+  const stream = createUIMessageStream({
+    execute: ({ writer }) => {
+      const id = randomUUID();
+      writer.write({ type: "text-start", id });
+      writer.write({ type: "text-delta", id, delta: text });
+      writer.write({ type: "text-end", id });
+    },
+  });
+  return createUIMessageStreamResponse({ stream });
+}
 
 import { classifyMessage, guardReply } from "@/features/assistant/agent/topic-guard";
 
@@ -24,21 +43,24 @@ export const maxDuration = 60;
 const MAX_HISTORY = 10;
 
 /**
- * Signed-in users get their chat saved. Returns the chat id to save into (or null) and
- * what the assistant should remember from their earlier chats.
+ * Signed-in users get their chat saved, and guests too when the admin allows it (by their
+ * cookie id). Returns the chat id to save into (or null) and what the assistant should
+ * remember from the user's earlier chats (signed-in users only).
  */
 async function startSaving(
   id: unknown,
   locale: string,
-  messages: UIMessage[]
+  messages: UIMessage[],
+  owner: { userId: string | null; guestId: string | null; saveGuests: boolean }
 ): Promise<{ conversationId: string | null; earlierChats: string }> {
   const none = { conversationId: null, earlierChats: "" };
   try {
-    const userId = await getUserId();
-    if (!userId || !isValidConversationId(id)) return none;
+    const { userId } = owner;
+    const guestId = !userId && owner.saveGuests ? owner.guestId : null;
+    if ((!userId && !guestId) || !isValidConversationId(id)) return none;
 
     const firstUserMessage = messages.find((message) => message.role === "user");
-    const owned = await ensureConversation({ id, userId, locale, firstMessage: firstUserMessage });
+    const owned = await ensureConversation({ id, userId, guestId, locale, firstMessage: firstUserMessage });
     if (!owned) return none;
 
     // Save the new user message now, so it is kept even if the answer fails.
@@ -46,19 +68,22 @@ async function startSaving(
     if (last?.role === "user") await saveMessages(id, [last]);
 
     let earlierChats = "";
-    try {
-      earlierChats = await getEarlierChatsMemory(userId, id);
-    } catch (error) {
-      console.error("[assistant] could not load earlier chats", error);
+    if (userId) {
+      try {
+        earlierChats = await getEarlierChatsMemory(userId, id);
+      } catch (error) {
+        console.error("[assistant] could not load earlier chats", error);
+      }
     }
     return { conversationId: id, earlierChats };
   } catch (error) {
     // Saving must never stop the assistant from answering. "relation ai.conversations does
-    // not exist" here means migration 0073 has not been applied to this database.
+    // not exist" here means migration 0073 (or 0090) has not been applied to this database.
     console.error("[assistant] could not save the chat", error);
     return none;
   }
 }
+
 
 export async function POST(req: Request) {
   const {
@@ -75,6 +100,32 @@ export async function POST(req: Request) {
       .filter((part): part is { type: "text"; text: string } => part.type === "text")
       .map((part) => part.text)
       .join(" ") ?? "";
+
+  // Who is asking: a signed-in user, or a guest known by a cookie id (set on their first message).
+  const userId = await getUserId().catch(() => null);
+  const cookieStore = await cookies();
+  let guestId = cookieStore.get(GUEST_COOKIE)?.value ?? null;
+  if (!userId && !isValidConversationId(guestId)) {
+    guestId = randomUUID();
+    cookieStore.set(GUEST_COOKIE, guestId, {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      path: "/",
+      maxAge: 60 * 60 * 24 * 365,
+    });
+  }
+  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || req.headers.get("x-real-ip") || null;
+
+  // Admin-set limits, checked before anything that costs a model call.
+  const { verdict: limit, settings } = await checkAssistantLimits({
+    userId,
+    guestId: userId ? null : guestId,
+    ip: userId ? null : ip,
+    userMessagesInChat: Array.isArray(messages) ? messages.filter((message) => message.role === "user").length : 0,
+    textLength: lastUserText.length,
+  });
+  if (limit !== "ok") return textReply(limitReply(limit, locale, !userId, settings));
 
   // The assistant's reply just before this message, so short follow-ups are judged in context.
   const lastUserIndex = lastUserMessage ? messages.lastIndexOf(lastUserMessage) : -1;
@@ -112,7 +163,7 @@ export async function POST(req: Request) {
   }
 
   const [{ conversationId, earlierChats }, isIranianVisitor] = await Promise.all([
-    startSaving(id, locale, messages),
+    startSaving(id, locale, messages, { userId, guestId, saveGuests: settings.saveGuestChats }),
     // Decided here, from the visitor's own request, so search results show the prices the site shows them.
     resolveIsIranianVisitor().catch(() => false),
   ]);

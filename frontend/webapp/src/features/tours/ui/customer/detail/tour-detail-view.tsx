@@ -523,7 +523,7 @@ export function TourDetailView({
       </div>
 
       {/* Sticky booking bar (tour_info_1.png): "from … per person" + CTA (C-042). */}
-      <div className="fixed inset-x-0 bottom-[calc(3.5rem+env(safe-area-inset-bottom))] z-30 border-t border-slate-200 bg-white/95 px-4 py-2.5 backdrop-blur md:bottom-0  data-testid=sticky-book-bar " >
+      <div className="fixed inset-x-0 bottom-[calc(3.5rem+env(safe-area-inset-bottom))] z-30 border-t border-slate-200 bg-white/95 px-4 py-2.5 backdrop-blur md:bottom-0" data-testid="sticky-book-bar">
         <div className="mx-auto flex max-w-4xl items-center justify-between gap-3">
           <FromPrice amount={detail.fromPrice} currency={f.currency} basis={detail.fromPriceBasis} />
           {bookable.length > 0 ? (

@@ -10,6 +10,8 @@
  * keeps inventory consistent; dispute approval hierarchy; CSV escaping; a
  * commission change never alters past bookings; mass cancellation notices.
  */
+import { randomUUID } from "node:crypto";
+
 import postgres from "postgres";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 
@@ -146,6 +148,58 @@ suite("tours admin panel (real database)", () => {
       () => reports.bookingsCsv(u, reports.parseRange({})), () => preview.previewTour(u, { tourId: u.userId! }),
     ];
     for (const call of calls) await expect(call()).rejects.toMatchObject({ kind: "authorization", code: "admin_required" });
+  });
+
+  it("media-library paths are stored as picked (not one site's resolved URL) and unsafe references are refused (2026-11-03 regression)", async () => {
+    const admin = adminActor((await seedUser(sql)).id);
+    const libraryPath = `Categories/services/${randomUUID()}.webp`;
+    const slug = `media-${randomUUID().slice(0, 8)}`;
+    const saved = await catalogAdmin.upsertDestination(admin, {
+      slug, names: { "fa-IR": "مقصد آزمایشی" }, coverUrl: libraryPath, coverAlts: { "fa-IR": "تصویر" }, timezone: "Asia/Tehran",
+    });
+    const [row] = await sql<{ cover_url: string }[]>`select cover_url from tour.destinations where id = ${saved.id}`;
+    expect(row.cover_url).toBe(libraryPath);
+
+    const owner = await seedUser(sql);
+    const p = await seedProvider(sql, owner.id);
+    const t = await seedTour(sql, { providerId: p.id, images: 0 });
+    await authoring.addMedia(admin, t.id, { url: libraryPath, alt: { "fa-IR": "تصویر" } });
+    const media = await sql<{ url: string }[]>`select url from tour.media where tour_id = ${t.id}`;
+    expect(media.map((m) => m.url)).toEqual([libraryPath]);
+
+    for (const bad of ["javascript:alert(1)", "../secret.jpg", "//evil.example/x.jpg"]) {
+      await expect(catalogAdmin.upsertDestination(admin, { slug: `${slug}-x`, names: { "fa-IR": "x" }, coverUrl: bad, coverAlts: { "fa-IR": "x" } }))
+        .rejects.toMatchObject({ kind: "validation", code: "invalid_media_url" });
+      await expect(authoring.addMedia(admin, t.id, { url: bad })).rejects.toMatchObject({ kind: "validation", code: "invalid_media_url" });
+    }
+  });
+
+  it("audit rows replicated from the other site ahead of this site's sequence do not break admin saves (2026-11-04 regression)", async () => {
+    const admin = adminActor((await seedUser(sql)).id);
+    const slug = `seq-${randomUUID().slice(0, 8)}`;
+    const dest = await catalogAdmin.upsertDestination(admin, { slug, names: { "fa-IR": "مقصد" }, timezone: "Asia/Tehran" });
+    // What SymmetricDS left on B: rows copied from A that already use the next numbers of B's sequence.
+    const [{ next }] = await sql<{ next: string }[]>`select nextval('tour.audit_log_id_seq')::text as next`;
+    for (let i = 0; i < 3; i++) {
+      await sql`insert into tour.audit_log (id, actor_scope, entity_type, entity_id, action, detail)
+                values (${Number(next) + i}, 'admin', 'destination', ${dest.id}::uuid, 'replicated', '{}'::jsonb)`;
+    }
+    await sql`select setval('tour.audit_log_id_seq', ${Number(next)}::bigint)`;
+    const edit = () => catalogAdmin.upsertDestination(admin, { id: dest.id, slug, names: { "fa-IR": "مقصد ویرایش‌شده" }, timezone: "Asia/Tehran" });
+    // Reproduces the production failure ("این مورد قبلاً وجود دارد").
+    await expect(edit()).rejects.toMatchObject({ kind: "conflict", code: "duplicate" });
+
+    // The migration runner aligns sequences after every migration batch.
+    await sql`select public.lsevin_align_sequences()`;
+    await edit();
+    await edit();
+    const [row] = await sql<{ name: string }[]>`select name_translations->>'fa-IR' as name from tour.destinations where id = ${dest.id}::uuid`;
+    expect(row.name).toBe("مقصد ویرایش‌شده");
+    const [{ n }] = await sql<{ n: number }[]>`select count(*)::int as n from tour.audit_log where entity_id = ${dest.id}::uuid and action = 'updated'`;
+    expect(n).toBe(2);
+    // Running it again changes nothing (it never moves a sequence backwards).
+    const [{ changed }] = await sql<{ changed: number }[]>`select public.lsevin_align_sequences() as changed`;
+    expect(changed).toBe(0);
   });
 
   it("settings: validation rejects invalid combinations; a valid save persists, is audited and invalidates the cache", async () => {

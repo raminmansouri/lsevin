@@ -98,8 +98,12 @@ test("recent searches are kept and can be cleared", async ({ page, context }) =>
   await page.waitForTimeout(1500);
   await page.goto("/en/tours/explore");
   await expect(page.getByRole("heading", { name: "Recent searches" })).toBeVisible();
+  // The list clears at once; the server action deletes the rows in the background, so the
+  // reload waits for its response (reloading earlier raced it and showed the old searches).
+  const cleared = page.waitForResponse((r) => r.request().method() === "POST" && r.request().headers()["next-action"] !== undefined);
   await page.getByTestId("tours-shell").getByTestId("clear-recent-searches").click();
   await expect(page.getByRole("heading", { name: "Recent searches" })).toHaveCount(0);
+  await cleared;
   await page.reload();
   await expect(page.getByRole("heading", { name: "Recent searches" })).toHaveCount(0);
 });

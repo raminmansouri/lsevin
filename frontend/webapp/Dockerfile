@@ -64,7 +64,7 @@ RUN if [ -d ./app ]; then \
       rm -rf ./app; \
     fi && \
     test -f './src/app/[locale]/layout.tsx' && \
-    test -f './src/app/[locale]/(main)/page.tsx' && \
+    test -f './src/app/[locale]/n/app/mobile/home/page.tsx' && \
     test -f './src/app/api/provider-portal-sso/route.ts' && \
     test -f './src/app/api/provider-portal-sso/verify/route.ts'
 

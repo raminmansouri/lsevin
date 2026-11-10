@@ -13,6 +13,8 @@ import {
 // /n/app/mobile/...), which the middleware then resolves to the default locale,
 // silently switching the app to Farsi whenever the map navigates.
 import { useRouter } from "@/i18n/navigation";
+import { entityPath } from "@/lib/routes/public-paths";
+import { isCategoryProvidersPath, mapHref, slugLookup, type ListingSlugs } from "@/lib/routes/filter-paths";
 import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import {
@@ -83,20 +85,19 @@ type UiFilters = {
   specialties: string[];
 };
 
-export function buildNearbyQuery(next: NearbyFiltersInput, view: "map" | "list" = "map") {
+export function buildNearbyQuery(
+  next: NearbyFiltersInput,
+  view: "map" | "list" = "map",
+  /** Category and type are written as slugs (src/lib/routes/filter-paths.ts), never ids. */
+  slugs: ListingSlugs = {},
+) {
   const params = new URLSearchParams();
 
   // Every filter change and the location auto-detect rewrite this URL, so the
-  // chosen view has to be carried along or the page would snap back to the map
-  // mid-browse. Only "list" is written — the map is the default, so its URLs
-  // stay clean.
-  if (view === "list") params.set("view", "list");
-
+  // chosen view is carried along (mapHref writes it only where it is not the
+  // page's default) or the page would snap back mid-browse. A category on its
+  // own stays on its readable page, /categories/<slug>/providers.
   if (next.q) params.set("q", next.q);
-  if (next.categoryId && next.categoryId !== "all")
-    params.set("categoryId", next.categoryId);
-  if (next.providerTypeId && next.providerTypeId !== "all")
-    params.set("providerTypeId", next.providerTypeId);
   if (next.countryCode) params.set("countryCode", next.countryCode);
   if (next.cityCode) params.set("cityCode", next.cityCode);
   if (next.minPrice > 0) params.set("minPrice", String(next.minPrice));
@@ -114,10 +115,7 @@ export function buildNearbyQuery(next: NearbyFiltersInput, view: "map" | "list" 
   if (next.lat != null) params.set("lat", String(next.lat));
   if (next.lng != null) params.set("lng", String(next.lng));
 
-  const query = params.toString();
-  return query
-    ? `/n/app/mobile/map-discovery?${query}`
-    : "/n/app/mobile/map-discovery";
+  return mapHref(next, slugs, params, view);
 }
 
 export function navigateSmooth(
@@ -136,8 +134,8 @@ export function PendingOverlay() {
   );
 }
 
-export function providerHref(providerId: string) {
-  return `/n/app/mobile/provider/${providerId}`;
+export function providerHref(provider: { slug?: string | null; id: string }) {
+  return entityPath("provider", provider);
 }
 
 const BARE_UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -251,6 +249,7 @@ export default function NearbyClient({
   expandedBeyondFilters = false,
   initialView = "map",
   activeCategoryLabel = null,
+  providerTypeSlug = null,
 }: {
   locale: string;
   customerId: string | null;
@@ -270,7 +269,18 @@ export default function NearbyClient({
    * the header toggle. Landing here directly still opens the map.
    */
   initialView?: "map" | "list";
+  /** The URL slug of the provider type this request filters by, if any. */
+  providerTypeSlug?: string | null;
 }) {
+  const slugs = useMemo<ListingSlugs>(
+    () => ({
+      category: slugLookup(categories.filter((category) => category.id !== "all")),
+      type: (id) => (id === initialFilters.providerTypeId ? providerTypeSlug : null),
+    }),
+    [categories, initialFilters.providerTypeId, providerTypeSlug],
+  );
+  const nearbyQuery = (next: NearbyFiltersInput, view: "map" | "list" = "map") =>
+    buildNearbyQuery(next, view, slugs);
   const t = useTranslations("MapDiscovery");
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -293,8 +303,10 @@ export default function NearbyClient({
 
     if (typeof window === "undefined") return;
     const url = new URL(window.location.href);
-    if (next === "list") url.searchParams.set("view", "list");
-    else url.searchParams.delete("view");
+    // A category's provider page opens on the list; /map opens on the map.
+    const defaultView = isCategoryProvidersPath(url.pathname) ? "list" : "map";
+    if (next === defaultView) url.searchParams.delete("view");
+    else url.searchParams.set("view", next);
     window.history.replaceState(null, "", `${url.pathname}${url.search}`);
   }, [viewMode]);
 
@@ -344,7 +356,7 @@ export default function NearbyClient({
           navigateSmooth(
             startTransition,
             router,
-            buildNearbyQuery({ ...initialFilters, lat: stored.lat, lng: stored.lng, distanceKm: DEFAULT_DISTANCE_KM }, viewMode),
+            nearbyQuery({ ...initialFilters, lat: stored.lat, lng: stored.lng, distanceKm: DEFAULT_DISTANCE_KM }, viewMode),
           );
         }
       } else if (initialFilters.lat != null || initialFilters.lng != null) {
@@ -353,7 +365,7 @@ export default function NearbyClient({
         navigateSmooth(
           startTransition,
           router,
-          buildNearbyQuery({ ...initialFilters, lat: null, lng: null }, viewMode),
+          nearbyQuery({ ...initialFilters, lat: null, lng: null }, viewMode),
         );
       }
       return;
@@ -518,7 +530,7 @@ export default function NearbyClient({
     navigateSmooth(
       startTransition,
       router,
-      buildNearbyQuery({
+      nearbyQuery({
         ...initialFilters,
         categoryId: nextCategoryId === "all" ? null : nextCategoryId,
         providerTypeId: uiFilters.providerTypeId === "all" ? null : uiFilters.providerTypeId,
@@ -555,7 +567,7 @@ export default function NearbyClient({
     navigateSmooth(
       startTransition,
       router,
-      buildNearbyQuery({
+      nearbyQuery({
         ...initialFilters,
         categoryId: nextUi.categoryId === "all" ? null : nextUi.categoryId,
         providerTypeId: nextUi.providerTypeId === "all" ? null : nextUi.providerTypeId,
@@ -602,7 +614,7 @@ export default function NearbyClient({
     navigateSmooth(
       startTransition,
       router,
-      buildNearbyQuery({
+      nearbyQuery({
         ...initialFilters,
         categoryId: cleared.categoryId === "all" ? null : cleared.categoryId,
         providerTypeId: cleared.providerTypeId === "all" ? null : cleared.providerTypeId,
@@ -644,7 +656,7 @@ export default function NearbyClient({
         navigateSmooth(
           startTransition,
           router,
-          buildNearbyQuery({
+          nearbyQuery({
             ...initialFilters,
             categoryId:
               uiFilters.categoryId === "all" ? null : uiFilters.categoryId,
@@ -856,7 +868,7 @@ export default function NearbyClient({
           {selectedProvider && (
             <div className="absolute bottom-24 left-0 right-0 px-5 z-40">
               <div
-                onClick={() => router.push(providerHref(selectedProvider.id))}
+                onClick={() => router.push(providerHref(selectedProvider))}
                 className="bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden cursor-pointer"
               >
                 <div className="flex gap-4 p-4">
@@ -941,7 +953,7 @@ export default function NearbyClient({
           {providers.map((provider) => (
             <div
               key={provider.id}
-              onClick={() => router.push(providerHref(provider.id))}
+              onClick={() => router.push(providerHref(provider))}
               className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-lg transition-all cursor-pointer"
             >
               <div className="flex gap-4 p-4">
@@ -998,7 +1010,7 @@ export default function NearbyClient({
                   entityId={provider.id}
                   favoriteType="provider"
                   active={provider.isFavorited}
-                  path="/n/app/mobile/map-discovery"
+                  path="/map"
                 />
               </div>
             </div>

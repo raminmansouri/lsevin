@@ -20,6 +20,7 @@ import type { ProviderPageDataResponse, Review } from "@/features/service-provid
 import { ServiceProductsRail } from "@/features/shop/components/ServiceProductsRail";
 import { useCurrentSession } from "@/hooks/use-current-session";
 import { Link } from "@/i18n/navigation";
+import { entityPath } from "@/lib/routes/public-paths";
 import { DigikalaReviewCard } from "@/app/[locale]/n/app/components/DigikalaReviewCard";
 import RecommendationsSection from "@/app/[locale]/n/app/components/RecommendationsSection";
 import ReviewForm, { type ReviewFormSubmitValue } from "@/app/[locale]/n/app/components/ReviewForm";
@@ -70,7 +71,8 @@ export function DesktopProviderView({ initialData }: { initialData?: ProviderPag
   const tConsultation = useTranslations("Consultation");
   const tGallery = useTranslations("SpecialistPage");
   const { user } = useCurrentSession(false);
-  const providerId = String(Array.isArray(params.id) ? params.id[0] : params.id ?? "");
+  // The route segment is the slug now; the server-rendered data carries the id.
+  const providerId = initialData?.provider.id || String(Array.isArray(params.id) ? params.id[0] : params.id ?? "");
 
   const currencyOptions = useMemo(
     () => ({
@@ -322,9 +324,9 @@ export function DesktopProviderView({ initialData }: { initialData?: ProviderPag
                     </span>
                   ) : null}
                 </div>
-                <h1 className="text-[52px] font-black leading-[1.2]">
+                <div role="heading" aria-level={1} className="text-[52px] font-black leading-[1.2]">
                   <AnimatedWords text={provider.name} />
-                </h1>
+                </div>
                 {paragraphs(provider.tagline).length ? (
                   <p className="line-clamp-2 max-w-xl text-lg leading-8 text-white/75">{paragraphs(provider.tagline).join(" ")}</p>
                 ) : null}
@@ -440,7 +442,7 @@ export function DesktopProviderView({ initialData }: { initialData?: ProviderPag
               <div className="grid grid-cols-2 gap-6">
                 {data.services.map((service, index) => (
                   <Reveal key={service.id} delay={(index % 2) * 90}>
-                    <Link href={`/n/app/mobile/service/${service.id}`} className="group block h-full">
+                    <Link href={entityPath("service", service)} className="group block h-full">
                       <Tilt className="flex h-full flex-col">
                         <div className="relative h-52 overflow-hidden bg-[#0f5a45]">
                           {service.image ? (
@@ -512,7 +514,7 @@ export function DesktopProviderView({ initialData }: { initialData?: ProviderPag
               <div className="grid grid-cols-3 gap-6">
                 {data.specialists.map((doctor, index) => (
                   <Reveal key={doctor.id} delay={index * 80}>
-                    <Link href={`/n/app/mobile/specialist/${doctor.id}`} className="group block text-center">
+                    <Link href={entityPath("specialist", doctor)} className="group block text-center">
                       <div className="relative mx-auto h-60 w-full overflow-hidden rounded-t-full rounded-b-[28px] bg-[#0f5a45]">
                         {doctor.image ? (
                           // eslint-disable-next-line @next/next/no-img-element

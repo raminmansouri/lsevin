@@ -9,6 +9,16 @@ Status values: `VERIFIED` (exercised in that environment), `CONFIGURED`
 
 ## Tools
 
+### @next/eslint-plugin-next — Next.js lint during builds
+
+| | |
+|---|---|
+| Version | 15.5.6, pinned directly in `frontend/webapp/package.json` and `pnpm-lock.yaml` |
+| Why | `eslint-config-next` requests the plugin from the project root; a transitive pnpm installation left its root import unresolved during the production build |
+| Install | `cd frontend/webapp && pnpm install --frozen-lockfile` |
+| Verify | `pnpm exec eslint --version`, then `pnpm build:production` with the required build environment |
+| Status | Codex F: validation worktree: installed and root package path verified; Jenkins and other agents: not independently verified |
+
 ### @playwright/test — persistent E2E suites
 
 | | |
@@ -51,6 +61,17 @@ Status values: `VERIFIED` (exercised in that environment), `CONFIGURED`
 | Why | Read-only checks of production schema/data (migration level, enum values) |
 | Rule | Query tool only; never used for writes. Production writes go through migrations. |
 
+### SEO checks — lsevincare.com
+
+| | |
+|---|---|
+| Unit | `cd frontend/webapp && pnpm test:seo` (vitest, `src/lib/seo`; also runs inside the Docker image build) |
+| E2E | `SEO_E2E_BASE_URL=<url> SEO_EXPECTED_ORIGIN=https://lsevincare.com pnpm test:seo:e2e` (`playwright.seo.config.ts`, `e2e/public-seo.spec.ts`; GET-only, safe against production; `@smoke` journeys attach screenshots) |
+| Checklist probe | `pnpm seo:probe [baseUrl]` (`scripts/seo-checklist-probe.mjs`): sitemap ↔ canonical, hreflang reciprocity, one h1, JSON-LD validity, noindex on untranslated locales and private pages, response times. GET-only. |
+| Agent skills | Claude Code: `seo-audit`, `ai-seo`, `schema`, `programmatic-seo`, `site-architecture`, `link-building` in `~/.claude/skills` (from github.com/coreyhaines31/marketingskills, installed 2026-10-26). Codex: `seo-audit` only in `~/.agents/skills`. Skills are guidance; the tests and probe above are the gate. |
+| Tracker | https://claude.ai/artifact/DNg7jqCPBhP6pwA73rQ3fG |
+| Release rule | Verify from `git archive HEAD` (a working copy hides untracked/ignored files; `src/app/llms.txt` was once missing from git because of `**/*.txt` in .gitignore). |
+
 ## Per-agent matrix (this workstation, 2026-10-22)
 
 | Capability | Claude Code (CLI/VS Code) | Codex CLI 0.157.1 | CI (Jenkins) | Other machines / accounts |
@@ -59,3 +80,5 @@ Status values: `VERIFIED` (exercised in that environment), `CONFIGURED`
 | Playwright MCP | VERIFIED | CONFIGURED | n/a | NOT CONFIGURED |
 | keygen MCP | VERIFIED (`✔ Connected`, stdio smoke passed) | CONFIGURED (`enabled`; not exercised from Codex) | n/a | NOT CONFIGURED — copy `server.mjs` and run the add command |
 | postgres MCP | VERIFIED (read-only prod queries; `claude mcp list` health probe still reports a cold-start `Failed to connect`) | CONFIGURED | n/a | NOT CONFIGURED |
+| SEO skills | VERIFIED (loaded via Skill tool, 2026-10-26) | PARTIAL (`seo-audit` only) | n/a | NOT CONFIGURED |
+| SEO probe / SEO e2e | VERIFIED (run against local build and lsevincare.com) | CONFIGURED (same repo scripts) | NOT CONFIGURED (no Playwright stage in Jenkins; `pnpm test:seo` runs in the image build) | NOT CONFIGURED |

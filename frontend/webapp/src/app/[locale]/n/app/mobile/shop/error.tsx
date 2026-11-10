@@ -29,7 +29,7 @@ export default function ShopError({ error, reset }: { error: Error & { digest?: 
           {t("retry")}
         </button>
         <Link
-          href="/n/app/mobile/shop"
+          href="/shop"
           className="rounded-full bg-white px-5 py-2 text-sm font-semibold text-[#083f30] ring-1 ring-black/[0.08]"
         >
           {t("backToShop")}

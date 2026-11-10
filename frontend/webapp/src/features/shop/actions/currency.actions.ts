@@ -33,7 +33,7 @@ export async function setDisplayCurrencyAction(input: unknown) {
 
   revalidatePath("/[locale]/n/app/mobile/shop", "layout");
   for (const p of [
-    "/n/app/mobile/shop",
+    "/shop",
     "/n/app/mobile/shop/cart",
     "/n/app/mobile/shop/checkout",
     "/n/app/mobile/shop/search",

@@ -56,6 +56,11 @@
         "hotel": "Otel",
         "transfer": "Transfer"
       }
+    },
+    "nudge": {
+      "title": "Çevrimiçi destek",
+      "body": "Size nasıl yardımcı olabilirim?",
+      "close": "Kapat"
     }
   },
   "BookingCart": {
@@ -622,7 +627,10 @@
       "description": "Rezervasyona bağlı ve manuel cüzdan defter kayıtları",
       "title": "Cüzdan işlemleri"
     },
-    "consultationRequests": "Danışmanlık talepleri"
+    "consultationRequests": "Danışmanlık talepleri",
+    "nav": {
+      "editorial": "Site içeriği"
+    }
   },
   "HomePage": {
     "title": "LSevin | İran'da Doktor, Klinik ve Sağlık Oteli Rezervasyonu",
@@ -2926,7 +2934,8 @@
           "categories": "Kategoriler",
           "map": "Harita",
           "packages": "Paketler",
-          "providers": "Hizmet sağlayıcılar"
+          "providers": "Hizmet sağlayıcılar",
+          "guides": "Sağlık turizmi rehberi"
         }
       },
       "company": {
@@ -2937,6 +2946,9 @@
           "terms": "Kullanım koşulları",
           "privacy": "Gizlilik politikası"
         }
+      },
+      "policies": {
+        "title": "Politikalar"
       }
     }
   },
@@ -4637,7 +4649,10 @@
     "yearToDate": "Yıl başından bugüne",
     "yes": "Evet",
     "youHaveUnsavedChangesDonTForgetToSaveYourSettings": "Kaydedilmemiş değişiklikleriniz var. Ayarlarınızı kaydetmeyi unutmayın.",
-    "zipCode": "Posta Kodu"
+    "zipCode": "Posta Kodu",
+    "staffOrder": "Order",
+    "staffOrderHint": "1 = first on the provider's page; 0 = no position",
+    "staffOrderSaved": "Order saved"
   },
   "AdminLazySelect": {
     "emptyText": "Seçenek bulunamadı.",
@@ -6094,7 +6109,26 @@
     "returnSubmitted": "İade talebiniz alındı — kısa süre içinde inceleyeceğiz.",
     "returnsHeading": "İadeler",
     "returnStatusLabel": "Durum",
-    "qty": "Adet"
+    "qty": "Adet",
+    "sellers": "{count} satıcı",
+    "sellerOffers": {
+      "soldBy": "Sold by {name}",
+      "title": "Sellers of this product ({count})",
+      "best": "Best offer",
+      "shipsIn": "Ships in {days} business days",
+      "shipsToday": "Ships today",
+      "outOfStock": "Out of stock",
+      "add": "Add",
+      "others": "{count} other sellers"
+    },
+    "sellerPage": {
+      "products": "{count} products",
+      "yearsOnSite": "{count}+ years on L Sevin",
+      "newSeller": "New on L Sevin",
+      "eyebrow": "BOUTIQUE",
+      "productsLabel": "PRODUCTS",
+      "warrantyTitle": "Seller's guarantee"
+    }
   },
   "Categories": {
     "actions": {
@@ -8901,7 +8935,7 @@
       "writeReview": "Değerlendirme yaz"
     },
     "sections": {
-      "about": "Adres",
+      "about": "Hakkında",
       "certifications": "Sertifikalar",
       "contact": "İletişim",
       "gallery": "Galeri",
@@ -13822,7 +13856,7 @@
         "pending_review": "İnceleniyor",
         "approved": "Ödendi",
         "rejected": "Reddedildi",
-        "due": "Vadesi geçmiş",
+        "due": "Ödenecek",
         "reviewNoteLabel": "Neden"
       },
       "errors": {
@@ -14121,5 +14155,143 @@
     "providerText": "Bu kurumun sahibi veya yöneticisiyseniz, sayfayı yönetmek için LSevin panelinden talepte bulunun.",
     "staffText": "Bu doktor sizseniz, profilinizi yönetmek için LSevin panelinden talepte bulunun.",
     "button": "Bu sayfa benim"
+  },
+  "SitePages": {
+    "faqTitle": "Sıkça sorulan sorular",
+    "updated": "Son güncelleme",
+    "home": "Ana Sayfa",
+    "more": "LSevin hakkında"
+  },
+  "AdminEditorial": {
+    "heading": "Site içeriği",
+    "intro": "Site sayfaları (Hakkımızda, İletişim, politikalar) ve sitenin her yerinde gösterilen SSS'ler, tüm dillerde.",
+    "tabs": {
+      "pages": "Site sayfaları",
+      "faqs": "SSS"
+    },
+    "pagesHelp": "Bir sayfa yayınlandığında sitede görünür. Çevirisi olmayan dillerde İngilizce sürüm gösterilir ve bu diller arama sonuçlarına dahil edilmez.",
+    "faqsHelp": "Her SSS tek bir sayfa türünde gösterilir. O türdeki tüm sayfalarda göstermek için belirli öğe alanını boş bırakın.",
+    "page": "Sayfa",
+    "languages": "Diller",
+    "status": "Durum",
+    "actions": "İşlemler",
+    "edit": "Düzenle",
+    "delete": "Sil",
+    "confirmDelete": "Bu SSS tüm dillerde silinsin mi? Bu işlem geri alınamaz.",
+    "deleted": "SSS silindi.",
+    "published": "Yayınlandı",
+    "publishedHelp": "Sitede ve arama sonuçlarında görünür.",
+    "draft": "Taslak",
+    "notCreated": "Oluşturulmadı",
+    "inFooter": "Altbilgide",
+    "showInFooter": "Altbilgide göster",
+    "showInFooterHelp": "Site altbilgisinde bu sayfaya bağlantı ver.",
+    "displayOrder": "Sıra",
+    "editPage": "Sayfayı düzenle",
+    "pageUrl": "Adres",
+    "title": "Başlık",
+    "summary": "Özet",
+    "summaryHelp": "Bir iki cümle. Arama sonuçlarında açıklama olarak kullanılır.",
+    "body": "Sayfa metni",
+    "bodyHelp": "Bölümler için başlık kullanın. Her dili ayrı yazın; makine çevirilerini kontrol etmeden yapıştırmayın.",
+    "heroImage": "Üst görsel",
+    "heroImageHelp": "İsteğe bağlı. Medya kitaplığından seçin.",
+    "pickImage": "Görsel seç",
+    "save": "Kaydet",
+    "saving": "Kaydediliyor...",
+    "saved": "Kaydedildi.",
+    "back": "Geri",
+    "viewPage": "Sayfayı görüntüle",
+    "newFaq": "Yeni SSS",
+    "editFaq": "SSS'yi düzenle",
+    "faqHelp": "Soruyu ve cevabı, görünmesini istediğiniz her dilde yazın. Yalnızca sorusu veya yalnızca cevabı olan bir dil kaydedilemez.",
+    "showOn": "Gösterileceği yer",
+    "section": "Bölüm",
+    "choose": "Seçin...",
+    "specificItem": "Belirli öğe (isteğe bağlı)",
+    "specificItemHelp": "Kendi SSS'si olan öğelerde yalnızca o SSS gösterilir; diğerlerinde genel SSS gösterilir.",
+    "allItems": "Bu türün tümü",
+    "currentItem": "Mevcut",
+    "question": "Soru",
+    "answer": "Cevap",
+    "active": "Aktif",
+    "inactive": "Gizli",
+    "all": "Tümü",
+    "noFaqs": "Burada henüz SSS yok.",
+    "scopes": {
+      "home": "Ana sayfa",
+      "explore": "Keşfet",
+      "search": "Arama",
+      "map": "Harita",
+      "categories": "Kategoriler sayfası",
+      "provider": "Hizmet sağlayıcı sayfaları",
+      "specialist": "Uzman sayfaları",
+      "service": "Hizmet sayfaları",
+      "category": "Bir kategori",
+      "provider_type": "Bir sağlayıcı türü",
+      "app": "Bölüm (mağaza, turlar, spor salonu...)",
+      "site_page": "Bir site sayfası"
+    },
+    "apps": {
+      "shop": "Mağaza",
+      "tours": "Turlar",
+      "gym": "Spor salonları ve fitness",
+      "transfers": "Havalimanı transferleri"
+    },
+    "pages": {
+      "about-us": "Hakkımızda",
+      "services": "Hizmetler",
+      "contact-us": "İletişim",
+      "licenses-certifications": "Lisanslar ve sertifikalar",
+      "pricing-fees": "Fiyatlar ve ücretler",
+      "shipping-delivery": "Kargo ve teslimat",
+      "returns-refunds": "İade ve geri ödeme",
+      "terms-conditions": "Şartlar ve koşullar",
+      "privacy-policy": "Gizlilik politikası"
+    }
+  },
+  "AdminAssistant": {
+    "title": "AI assistant",
+    "stats": {
+      "messages": "Messages today",
+      "conversations": "Chats today",
+      "users": "Users",
+      "guests": "Guests"
+    },
+    "settings": {
+      "title": "Settings and limits",
+      "hint": "0 means no limit. Changes apply at once.",
+      "guests": "Guest",
+      "users": "Signed-in user",
+      "daily": "Messages per day",
+      "perChat": "Messages per chat",
+      "maxChars": "Max message length (characters)",
+      "saveGuestChats": "Save guests' chats too",
+      "save": "Save"
+    },
+    "list": {
+      "title": "Chats",
+      "search": "Search titles and message text…",
+      "all": "All",
+      "users": "Users",
+      "guests": "Guests",
+      "filter": "Filter",
+      "colTitle": "First question",
+      "colWho": "User",
+      "colMessages": "Messages",
+      "colLocale": "Language",
+      "colUpdated": "Last message",
+      "untitled": "(untitled)",
+      "user": "User",
+      "guest": "Guest",
+      "none": "No chats found.",
+      "prev": "← Previous",
+      "next": "Next →"
+    },
+    "detail": {
+      "back": "← All chats",
+      "user": "User",
+      "assistant": "Assistant"
+    }
   }
 }

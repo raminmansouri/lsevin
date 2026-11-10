@@ -66,6 +66,7 @@ export type ProviderReviewReplyInput = {
 
 type ProviderRow = {
   id: string;
+  slug: string | null;
   name: string;
   avatar: string | null;
   providerType: string | null;
@@ -103,6 +104,7 @@ type ProviderRow = {
 
 type ServiceRow = {
   id: string;
+  slug: string | null;
   name: string;
   description: string | null;
   price: number | string | null;
@@ -376,10 +378,14 @@ export async function getProviderPageDataFromDb(
     const providerRows = await sql<ProviderRow[]>`
       select
         sp.id::text,
+        sp.slug,
         common.get_translation_t(sp.name_translations, ${locale}, 'en-US') as name,
         nullif(common.get_translation_t(pt.name_translations, ${locale}, 'en-US'), '') as "providerType",
         common.get_translation_t(sp.description_translations, ${locale}, 'en-US') as tagline,
-        common.get_translation_t(coalesce(sp.detail_translations, sp.description_translations), ${locale}, 'en-US') as about,
+        -- "About" is always the description, in full. detail_translations is the admin's
+        -- "address details" field: it is joined to the street below, never shown as "About".
+        common.get_translation_t(sp.description_translations, ${locale}, 'en-US') as about,
+        nullif(common.get_translation_t(coalesce(sp.detail_translations, '{}'::jsonb), ${locale}, 'en-US'), '') as "addressDetail",
         concat_ws(', ', nullif(sp.city, ''), nullif(sp.country, '')) as location,
         sp.city,
         sp.country,
@@ -522,6 +528,7 @@ export async function getProviderPageDataFromDb(
     return ok({
       provider: {
         id: row.id,
+        slug: row.slug,
         name: row.name,
         providerType: row.providerType,
         tagline: row.tagline,
@@ -530,7 +537,7 @@ export async function getProviderPageDataFromDb(
         location: row.location,
         city: row.city,
         country: row.country,
-        street: row.street,
+        street: providerAddressLine(row.street, row.addressDetail, row.tagline || row.about),
         latitude: row.latitude,
         longitude: row.longitude,
         email: row.email || null,
@@ -563,6 +570,7 @@ export async function getProviderPageDataFromDb(
       services,
       specialists: specialistRows.map((specialist: any) => ({
         id: specialist.id,
+        slug: specialist.slug ?? null,
         name: specialist.name,
         specialty: specialist.specialty || "Specialist",
         experience: specialist.experienceYears
@@ -611,6 +619,7 @@ async function mapService(
 
   return {
     id: service.id,
+    slug: service.slug,
     name: service.name,
     description: service.description,
     price: tomanOverride.value,
@@ -638,6 +647,7 @@ async function getServiceRows(
   return sql<ServiceRow[]>`
     select
       ps.id::text,
+      ps.slug,
       coalesce(nullif(common.get_translation_t(ps.display_name_translations, ${locale}, 'en-US'), ''), common.get_translation_t(sd.name_translations, ${locale}, 'en-US')) as name,
       coalesce(
         nullif(common.get_translation_t(ps.description_translations, ${locale}, 'en-US'), ''),
@@ -758,17 +768,38 @@ async function getProviderBeforeAfter(
 }
 
 
+function providerAddressLine(
+  street: string | null | undefined,
+  detail: string | null | undefined,
+  description: string | null | undefined
+): string | null {
+  const desc = (description ?? "").trim();
+  const clean = (value: string | null | undefined) => {
+    const text = (value ?? "").trim();
+    return text && text.length <= 200 && text !== desc ? text : null;
+  };
+  const s = clean(street);
+  const d = clean(detail);
+  if (s && d) {
+    if (s.includes(d)) return s;
+    if (d.includes(s)) return d;
+    return `${s}، ${d}`;
+  }
+  return s ?? d;
+}
 
 async function getSpecialistRows(locale: string, providerId: string) {
   return sql<any[]>`
     select
       s.id::text,
+      s.slug,
       common.get_translation_t(s.name_translations, ${locale}, 'en-US') as name,
-      coalesce(
-        nullif(common.get_translation_t(coalesce(s.specialty_translations, '{}'::jsonb), ${locale}, 'en-US'), ''),
-        nullif(s.specialty, ''),
-        nullif(common.get_translation_t(s.title_translations, ${locale}, 'en-US'), '')
-      ) as specialty,
+      -- Professional title and specialty side by side ("Title · Specialty"); one of them
+      -- alone when the other is empty, and once when both say the same thing.
+      nullif(concat_ws(' · ',
+        staff_text.title,
+        case when staff_text.specialty is distinct from staff_text.title then staff_text.specialty end
+      ), '') as specialty,
       s.experience,
       s.experience_years as "experienceYears",
       s.patients,
@@ -777,6 +808,14 @@ async function getSpecialistRows(locale: string, providerId: string) {
       coalesce(psf.is_active, false) as verified
     from category.provider_staffs psf
     join category.staff s on s.id = psf.staff_id
+    cross join lateral (
+      select
+        nullif(common.get_translation_t(s.title_translations, ${locale}, 'en-US'), '') as title,
+        coalesce(
+          nullif(common.get_translation_t(coalesce(s.specialty_translations, '{}'::jsonb), ${locale}, 'en-US'), ''),
+          nullif(s.specialty, '')
+        ) as specialty
+    ) staff_text
     left join media.media_library staff_media
       on staff_media.id = case when s.profile_image_url ~* ${UUID_PATTERN} then s.profile_image_url::uuid else null end
     left join lateral (
@@ -791,7 +830,10 @@ async function getSpecialistRows(locale: string, providerId: string) {
     where psf.service_provider_id = ${providerId}::uuid
       and psf.is_active = true
       and s.is_active = true
-    order by coalesce(s.rating, 0) desc, name asc
+    -- Specialists the admin placed (1, 2, …) come first in that order; the rest follow
+    -- by rating, then name, as before.
+    order by case when psf.display_order > 0 then 0 else 1 end, psf.display_order,
+      coalesce(s.rating, 0) desc, name asc
   `;
 }
 
@@ -1051,7 +1093,7 @@ async function getRecommendationRows(
       sp.city,
       sp.country,
       coalesce(sp.accredited, false) as verified,
-      concat('/n/app/mobile/provider/', sp.id::text) as link,
+      concat('/providers/', coalesce(sp.slug, sp.id::text)) as link,
       min_service.price::float8 as "priceFrom",
       min_service.currency,
       min_service.value_toman as "valueToman"

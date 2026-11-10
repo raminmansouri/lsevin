@@ -21,6 +21,13 @@ import type { SeoLocale } from "./alternates";
  */
 export type IndexableEntity = "provider" | "service" | "specialist";
 
+// The category tree currently has complete page copy and category descriptions
+// only in Persian and English. The shop catalog is published in Persian only.
+// Keep fallback-language variants reachable, but out of search results until
+// their main content is translated and reviewed.
+export const INDEXABLE_CATEGORY_LOCALES: readonly SeoLocale[] = ["fa", "en"];
+export const INDEXABLE_SHOP_LOCALES: readonly SeoLocale[] = ["fa"];
+
 export const MIN_TRANSLATED_CHARS = 40;
 
 /** Maps translation keys found in the data (e.g. "en-US") to routed locales. */

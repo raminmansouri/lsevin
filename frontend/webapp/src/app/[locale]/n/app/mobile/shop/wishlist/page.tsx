@@ -18,7 +18,7 @@ export default async function ShopWishlistPage({ params }: { params: Promise<{ l
 
   return (
     <div className="min-h-screen bg-neutral-50">
-      <ShopHeader cartCount={cart.itemCount} back="/n/app/mobile/shop" />
+      <ShopHeader cartCount={cart.itemCount} back="/shop" />
       <h1 className="px-4 pt-3 text-lg font-extrabold text-neutral-900">{t("wishlistTitle")}</h1>
 
       <div className="p-4 pb-24">
@@ -33,7 +33,7 @@ export default async function ShopWishlistPage({ params }: { params: Promise<{ l
           <div className="rounded-2xl bg-white p-10 text-center">
             <div className="text-4xl">♡</div>
             <p className="mt-3 text-sm font-semibold text-neutral-700">{t("wishlistEmpty")}</p>
-            <Link href="/n/app/mobile/shop" className="mt-3 inline-block text-xs font-semibold text-[#083f30]">
+            <Link href="/shop" className="mt-3 inline-block text-xs font-semibold text-[#083f30]">
               {t("startShopping")}
             </Link>
           </div>

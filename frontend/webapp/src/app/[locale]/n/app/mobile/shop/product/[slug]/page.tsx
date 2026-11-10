@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { buildPublicMetadata } from "@/lib/seo/metadata";
+import { INDEXABLE_SHOP_LOCALES } from "@/lib/seo/locale-eligibility";
 import { absoluteUrl } from "@/lib/seo/alternates";
 import { breadcrumbList, graph } from "@/lib/seo/entity-schema";
 import { JsonLd } from "@/lib/seo/json-ld";
@@ -41,11 +42,12 @@ export async function generateMetadata({
 
   return buildPublicMetadata({
     locale,
-    path: `/n/app/mobile/shop/product/${encodeURIComponent(slug)}`,
+    path: `/products/${encodeURIComponent(slug)}`,
     title: product.name,
     descriptions: [product.shortDescription, product.description],
     image: product.imageUrl,
     type: "website",
+    eligibleLocales: INDEXABLE_SHOP_LOCALES,
   });
 }
 
@@ -62,7 +64,7 @@ export default async function ProductDetailPage({
   const product = await getProductBySlugCached(slug, locale);
   if (!product) notFound();
 
-  const productUrl = absoluteUrl(locale, `/n/app/mobile/shop/product/${slug}`);
+  const productUrl = absoluteUrl(locale, `/products/${slug}`);
   const productImages = [
     ...product.gallery.map((g) => g.url),
     product.imageUrl,
@@ -107,13 +109,13 @@ export default async function ProductDetailPage({
           breadcrumbList([
             {
               name: (await getTranslations({ locale, namespace: "LocaleLayout" }))("title"),
-              url: absoluteUrl(locale, "/n/app/mobile/home"),
+              url: absoluteUrl(locale),
             },
             { name: product.name, url: productUrl },
           ])
         )}
       />
-      <ShopHeader currency={product.currency} back="/n/app/mobile/shop" />
+      <ShopHeader currency={product.currency} back="/shop" />
 
       <div className="bg-white">
         <div className="no-scrollbar flex snap-x snap-mandatory overflow-x-auto">
@@ -255,7 +257,7 @@ export default async function ProductDetailPage({
       />
 
       <div className="p-4 text-center">
-        <Link href="/n/app/mobile/shop" className="text-xs font-semibold text-[#083f30]">
+        <Link href="/shop" className="text-xs font-semibold text-[#083f30]">
           ‹ {t("continueShopping")}
         </Link>
       </div>

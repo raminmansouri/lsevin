@@ -3,10 +3,12 @@
 import Image from "next/image";
 import { ArrowLeft, BadgeCheck, Clock, Map, MapPin, Search, Sparkles, Star, TrendingUp } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useState, useTransition } from "react";
+import { useMemo, useState, useTransition } from "react";
 
 import { FavoriteButton } from "@/features/favorites/components/favorite-button";
 import { Link, useRouter } from "@/i18n/navigation";
+import { entityPath } from "@/lib/routes/public-paths";
+import { slugLookup, type ListingSlugs } from "@/lib/routes/filter-paths";
 import {
   buildExploreQuery,
   buildMapDiscoveryQuery,
@@ -66,6 +68,11 @@ function SectionTitle({ title, subtitle }: { title: string; subtitle?: string })
 }
 
 /** Desktop explore (>= 1280px): same data and URL filters as the mobile page, new layout. */
+/** A click the page handles itself; modified clicks (new tab, ...) follow the link. */
+function isPlainClick(event: React.MouseEvent) {
+  return event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey;
+}
+
 export function DesktopExploreView({
   categories,
   providerTypes,
@@ -78,20 +85,32 @@ export function DesktopExploreView({
 }: Props) {
   const t = useTranslations("Explore");
   const router = useRouter();
+  const slugs = useMemo<ListingSlugs>(
+    () => ({ category: slugLookup(categories), type: slugLookup(providerTypes) }),
+    [categories, providerTypes],
+  );
   const [isPending, startTransition] = useTransition();
   // Optimistic selection, so the chosen chip lights up before the server answers.
   const [categoryId, setCategoryId] = useState(filters.categoryId ?? "all");
   const [providerTypeId, setProviderTypeId] = useState(filters.providerTypeId ?? "all");
   const number = (value: number, digits = 0) => new Intl.NumberFormat(locale, { maximumFractionDigits: digits }).format(value);
 
+  // Chips and type cards are real links (crawlable, open in a new tab); a plain
+  // click filters in place. A selected type card toggles back to all types.
+  const categoryTarget = (id: string) =>
+    buildExploreQuery(slugs, { ...filters, categoryId: id === "all" ? null : id });
+  const providerTypeTarget = (id: string) => {
+    const next = providerTypeId === id ? "all" : id;
+    return buildExploreQuery(slugs, { ...filters, providerTypeId: next === "all" ? null : next });
+  };
   const applyCategory = (id: string) => {
     setCategoryId(id);
-    navigateSmooth(startTransition, router, buildExploreQuery({ ...filters, categoryId: id === "all" ? null : id }));
+    navigateSmooth(startTransition, router, categoryTarget(id));
   };
   const applyProviderType = (id: string) => {
-    const next = providerTypeId === id ? "all" : id;
-    setProviderTypeId(next);
-    navigateSmooth(startTransition, router, buildExploreQuery({ ...filters, providerTypeId: next === "all" ? null : next }));
+    const target = providerTypeTarget(id);
+    setProviderTypeId(providerTypeId === id ? "all" : id);
+    navigateSmooth(startTransition, router, target);
   };
 
   const hasFilters =
@@ -117,16 +136,16 @@ export function DesktopExploreView({
             className="lsd-mark-bg -end-10 -top-16"
           />
           <div className="relative max-w-3xl space-y-6">
-            <h1 className="text-[56px] font-black leading-[1.2]">
+            <div role="heading" aria-level={1} className="text-[56px] font-black leading-[1.2]">
               <AnimatedWords text={t("header.title")} />
-            </h1>
+            </div>
             <Reveal delay={300}>
               <p className="text-lg leading-8 text-white/75">{t("header.subtitle")}</p>
             </Reveal>
             <Reveal delay={450} className="flex items-center gap-3">
               <button
                 type="button"
-                onClick={() => router.push(buildSearchQuery(filters))}
+                onClick={() => router.push(buildSearchQuery(slugs, filters))}
                 className="group flex h-16 flex-1 items-center gap-4 rounded-full bg-white/95 pe-2 ps-6 text-start text-[#56675f] shadow-[0_30px_70px_-25px_rgba(0,0,0,0.6)] transition hover:bg-white"
               >
                 <Search size={21} className="shrink-0 text-[#083f30]" />
@@ -138,7 +157,7 @@ export function DesktopExploreView({
               <Magnetic>
                 <button
                   type="button"
-                  onClick={() => router.push(buildMapDiscoveryQuery(filters))}
+                  onClick={() => router.push(buildMapDiscoveryQuery(slugs, filters))}
                   aria-label={t("filters.location")}
                   className="lsd-btn lsd-btn-gold h-16 w-16 !px-0"
                 >
@@ -161,23 +180,29 @@ export function DesktopExploreView({
               ].map((category) => {
                 const active = categoryId === category.id;
                 return (
-                  <button
+                  <Link
                     key={category.id}
-                    type="button"
-                    onClick={() => applyCategory(category.id)}
+                    href={categoryTarget(category.id)}
+                    onClick={(event) => {
+                      if (isPlainClick(event)) {
+                        event.preventDefault();
+                        applyCategory(category.id);
+                      }
+                    }}
+                    aria-current={active ? "page" : undefined}
                     className={`flex shrink-0 items-center gap-2 rounded-full px-5 py-2.5 text-sm font-bold transition ${
                       active ? "bg-[#083f30] text-[#eacb7f]" : "text-[#56675f] hover:bg-[#f2f5f3] hover:text-[#083f30]"
                     }`}
                   >
                     {category.label}
                     {category.count ? <span className={`text-xs ${active ? "text-white/60" : "text-[#8fa79d]"}`}>{number(category.count)}</span> : null}
-                  </button>
+                  </Link>
                 );
               })}
             </div>
             <div className="flex shrink-0 items-center gap-2">
               {hasFilters ? (
-                <Link href="/n/app/mobile/explore" className="rounded-full px-4 py-2 text-sm font-semibold text-[#8c6b2c] hover:text-[#083f30]">
+                <Link href="/explore" className="rounded-full px-4 py-2 text-sm font-semibold text-[#8c6b2c] hover:text-[#083f30]">
                   {t("actions.clearAll")}
                 </Link>
               ) : null}
@@ -196,9 +221,15 @@ export function DesktopExploreView({
               const active = providerTypeId === type.id;
               return (
                 <Reveal key={type.id} delay={(index % 4) * 80} className={index === 0 ? "col-span-2 row-span-2" : ""}>
-                  <button
-                    type="button"
-                    onClick={() => applyProviderType(type.id)}
+                  <Link
+                    href={providerTypeTarget(type.id)}
+                    onClick={(event) => {
+                      if (isPlainClick(event)) {
+                        event.preventDefault();
+                        applyProviderType(type.id);
+                      }
+                    }}
+                    aria-current={active ? "page" : undefined}
                     className={`group relative block h-full w-full overflow-hidden rounded-[28px] bg-[#062a20] text-start ring-2 transition duration-500 hover:-translate-y-1 ${
                       active ? "ring-[#eacb7f]" : "ring-transparent"
                     }`}
@@ -222,7 +253,7 @@ export function DesktopExploreView({
                         <BadgeCheck size={18} />
                       </span>
                     ) : null}
-                  </button>
+                  </Link>
                 </Reveal>
               );
             })}
@@ -239,7 +270,7 @@ export function DesktopExploreView({
           <div className="grid grid-cols-4 gap-6">
             {featuredProviders.map((provider, index) => (
               <Reveal key={provider.id} delay={(index % 4) * 80}>
-                <Link href={buildMobilePath(`/provider/${provider.id}`)} className="group block h-full">
+                <Link href={entityPath("provider", provider)} className="group block h-full">
                   <Tilt className="flex h-full flex-col">
                     <div className="relative h-48 overflow-hidden bg-[#0f5a45]">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -295,7 +326,7 @@ export function DesktopExploreView({
         <section className="lsd-container mt-20">
           <Reveal>
             <Link
-              href={buildMobilePath(`/provider/${sponsoredProviders[0].id}`)}
+              href={entityPath("provider", sponsoredProviders[0])}
               className="lsd-champagne-bg group grid grid-cols-[1.1fr_0.9fr] items-center overflow-hidden rounded-[36px] ring-1 ring-[#eacb7f]/50"
             >
               <div className="space-y-4 p-12">
@@ -330,7 +361,7 @@ export function DesktopExploreView({
           <div className="grid grid-cols-4 gap-6">
             {trendingServices.map((service, index) => (
               <Reveal key={service.id} delay={(index % 4) * 80}>
-                <Link href={buildMobilePath(`/service/${service.id}`)} className="group block h-full">
+                <Link href={entityPath("service", service)} className="group block h-full">
                   <Tilt className="flex h-full flex-col">
                     <div className="relative h-48 overflow-hidden bg-[#0f5a45]">
                       {/* eslint-disable-next-line @next/next/no-img-element */}

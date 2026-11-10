@@ -6,6 +6,7 @@ import { resolveDisplayCurrency } from "../lib/pricing";
 import { sql } from "../lib/db";
 import { searchProducts } from "./catalog.repository";
 import { getShopCategoriesCached } from "./catalog.repository.cached";
+import { toPublicPath } from "@/lib/routes/public-paths";
 
 /**
  * Data-driven Shop home composition (SHP-DB-003, SHP-UX-013, SHP-ADM-018).
@@ -100,7 +101,7 @@ export async function getShopHome(opts?: {
             imageUrl: o?.imageUrl || c.imageUrl || null,
             icon: c.icon || null,
             gradient: c.gradient || null,
-            linkUrl: o?.linkUrl || `/n/app/mobile/shop/category/${c.slug}`,
+            linkUrl: o?.linkUrl ? toPublicPath(o.linkUrl) : `/shop/${c.slug}`,
           };
         });
 
@@ -113,7 +114,7 @@ export async function getShopHome(opts?: {
           imageUrl: it.imageUrl ?? null,
           icon: null,
           gradient: null,
-          linkUrl: it.linkUrl,
+          linkUrl: toPublicPath(it.linkUrl),
         }));
 
       sections.push({
@@ -138,7 +139,7 @@ export async function getShopHome(opts?: {
         type: "promo_cards",
         title: row.title ?? "",
         subtitle: row.subtitle ?? "",
-        promos: items.map((it) => ({ id: it.id, label: it.label, imageUrl: it.imageUrl, linkUrl: it.linkUrl, badge: it.badge || null })),
+        promos: items.map((it) => ({ id: it.id, label: it.label, imageUrl: it.imageUrl, linkUrl: it.linkUrl ? toPublicPath(it.linkUrl) : null, badge: it.badge || null })),
       });
     } else if (row.section_type === "category_rail") {
       sections.push({ key: row.key, type: "category_rail", title: row.title ?? "", subtitle: row.subtitle ?? "", categories });
@@ -167,7 +168,7 @@ export async function getShopHome(opts?: {
         case "category":
           if (cfg.slug) {
             filters.category = String(cfg.slug);
-            viewAllHref = `/n/app/mobile/shop/category/${cfg.slug}`;
+            viewAllHref = `/shop/${cfg.slug}`;
           }
           break;
         default:

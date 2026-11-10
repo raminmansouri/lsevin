@@ -1,7 +1,10 @@
-import NearbyClient from "./NearbyClient";
-import { getNearbyPageData, parseNearbyFilters } from "./nearby.data";
+import { permanentRedirect } from "next/navigation";
 
-import { DesktopNearbyView } from "@/features/web-desktop/nearby/DesktopNearbyView";
+import { getNearbyPageData, parseNearbyFilters } from "./nearby.data";
+import { MapScreen, requestedView } from "./map-screen";
+
+import { mapHref } from "@/lib/routes/filter-paths";
+import { otherFilters, resolveListingParams, resolvedSlugs } from "@/lib/seo/listing-params";
 
 export const dynamic = "force-dynamic";
 
@@ -16,41 +19,28 @@ export default async function MapDiscoveryPage({
     params,
     searchParams,
   ]);
-  const filters = parseNearbyFilters(resolvedSearchParams);
-  const data = await getNearbyPageData({ locale, filters });
-
   // `view` is a presentation choice, not a filter, so it stays out of
   // parseNearbyFilters and never reaches the query.
-  const requestedView = resolvedSearchParams.view;
-  const initialView = (Array.isArray(requestedView) ? requestedView[0] : requestedView) === "list" ? "list" : "map";
+  const initialView = requestedView(resolvedSearchParams.view, "map");
+
+  // ?category=<slug>&type=<slug>. A category on its own has its own page
+  // (/categories/<slug>/providers); an old ?categoryId=<uuid> link moves once.
+  const listing = await resolveListingParams(resolvedSearchParams);
+  if (listing.stale || (listing.categoryId && !listing.providerTypeId)) {
+    permanentRedirect(
+      `/${locale}${mapHref(listing, resolvedSlugs(listing), otherFilters(resolvedSearchParams, ["view"]), initialView)}`
+    );
+  }
+  const filters = parseNearbyFilters(listing.params);
+  const data = await getNearbyPageData({ locale, filters });
 
   return (
-    <>
-    <div className="xl:hidden">
-    <NearbyClient
-      initialView={initialView}
+    <MapScreen
       locale={locale}
-      customerId={data.customerId}
-      categories={data.categories}
-      activeCategoryLabel={data.activeCategoryLabel}
-      providers={data.providers}
-      availableLanguages={data.availableLanguages}
-      availableSpecialties={data.availableSpecialties}
-      availableCurrencies={data.availableCurrencies}
       filters={filters}
-      mapCenter={data.mapCenter}
-      expandedBeyondFilters={data.expandedBeyondFilters}
-    />
-    </div>
-    <DesktopNearbyView
+      data={data}
       initialView={initialView}
-      locale={locale}
-      categories={data.categories}
-      providers={data.providers}
-      filters={filters}
-      mapCenter={data.mapCenter}
-      expandedBeyondFilters={data.expandedBeyondFilters}
+      providerTypeSlug={listing.typeSlug}
     />
-    </>
   );
 }

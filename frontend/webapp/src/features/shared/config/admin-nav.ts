@@ -9,6 +9,7 @@ import {
   Boxes,
   Briefcase,
   Bug,
+  Bot,
   Building2,
   CalendarCheck,
   CalendarDays,
@@ -35,6 +36,7 @@ import {
   Landmark,
   Layers,
   LayoutDashboard,
+  FileText,
   LayoutTemplate,
   LifeBuoy,
   MapPin,
@@ -231,6 +233,7 @@ export const ADMIN_NAV: AdminNavEntry[] = [
     titleKey: "content",
     icon: LayoutTemplate,
     items: [
+      { titleKey: "editorial", href: "/admin/editorial", icon: FileText },
       { titleKey: "homeSections", href: "/admin/home-sections", icon: LayoutTemplate },
       { titleKey: "sponsoredSlider", href: "/admin/sponsored-slider", icon: GalleryHorizontal },
       { titleKey: "specialPackages", href: "/admin/special-packages", icon: PackageOpen },
@@ -248,10 +251,9 @@ export const ADMIN_NAV: AdminNavEntry[] = [
       { titleKey: "cannedReplies", href: "/admin/support/canned-replies", icon: MessageSquareText },
       { titleKey: "supportTags", href: "/admin/support/tags", icon: Tags },
       { titleKey: "supportSettings", href: "/admin/support/settings", icon: Settings2 },
-      // Renamed from /admin/consulting; the old sidebar still pointed at the
-      // old path, which no longer has a page.tsx.
       { titleKey: "consultings", href: "/admin/consultation-requests", icon: MessageSquareQuote },
       { titleKey: "bugReports", href: "/admin/bug-reports", icon: Bug },
+      { titleKey: "assistant", href: "/admin/assistant", icon: Bot },
       { titleKey: "notificationTemplates", href: "/admin/notification-templates", icon: BellRing },
       { titleKey: "notificationChannels", href: "/admin/notification-channels", icon: Bell },
     ],

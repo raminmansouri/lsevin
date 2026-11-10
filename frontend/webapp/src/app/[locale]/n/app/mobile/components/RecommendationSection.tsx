@@ -1,6 +1,7 @@
 "use client";
 
 import { Star, MapPin, BadgeCheck, ChevronRight } from "lucide-react";
+import { toPublicPath } from "@/lib/routes/public-paths";
 import { formatCurrencyAmount } from "@/features/finance/lib/money";
 import { useNavigate } from "@/hooks/use-navigate";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
@@ -28,9 +29,11 @@ interface RecommendationSectionProps {
   userCountry?: string;
 }
 
+// Links arrive as public paths (/services/<slug>) or older mobile-relative ones.
 function getMobilePath(link: string) {
-  if (link.startsWith("/n/app/mobile")) return link;
-  return `/n/app/mobile${link.startsWith("/") ? link : `/${link}`}`;
+  if (/^\/(providers|services|specialists|packages|products)\//.test(link)) return link;
+  if (link.startsWith("/n/app/mobile")) return toPublicPath(link);
+  return toPublicPath(`/n/app/mobile${link.startsWith("/") ? link : `/${link}`}`);
 }
 
 export default function RecommendationSection({

@@ -1,33 +1,57 @@
 import Image from "next/image";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
+import { GUIDE_LOCALES } from "@/features/guides/types";
+import type { FooterPageLink, SitePageSlug } from "@/features/site-content/types";
+import { EnamadSeal } from "@/components/trust/enamad-seal";
 import { Link } from "@/i18n/navigation";
 
 import { BackToTop, Reveal } from "./motion";
 
 
 
-/** Desktop-only footer (>= 1280px). */
-export function DesktopFooter() {
+const COMPANY_PAGES: readonly SitePageSlug[] = ["about-us", "services", "contact-us", "licenses-certifications"];
+
+/**
+ * Desktop-only footer (>= 1280px). `pages` are the published editorial pages
+ * (admin → Editorial); without them the footer keeps its built-in links.
+ */
+export function DesktopFooter({ pages = [] }: { pages?: FooterPageLink[] }) {
   const t = useTranslations("Footer");
+  const locale = useLocale();
+  // The guides hub exists only in the languages the guides are written in;
+  // elsewhere the link would be a 404. It is the only site-wide link to the
+  // guides since the home block was removed (SEO tracker T40).
+  const hasGuides = (GUIDE_LOCALES as readonly string[]).includes(locale);
   const year = new Date().getFullYear();
+  const toLink = (page: FooterPageLink) => ({ href: `/${page.slug}`, label: page.title });
+  const published = new Set(pages.map((page) => page.slug));
+  const companyPages = pages.filter((page) => COMPANY_PAGES.includes(page.slug)).map(toLink);
+  const policyPages = pages.filter((page) => !COMPANY_PAGES.includes(page.slug)).map(toLink);
 
   const columns = [
     {
       title: t("columns.explore.title"),
       links: [
-        { href: "/n/app/mobile/categories", label: t("columns.explore.links.categories") },
-        { href: "/n/app/mobile/map-discovery", label: t("columns.explore.links.map") },
-        { href: "/n/app/mobile/packages", label: t("columns.explore.links.packages") },
-        { href: "/n/app/mobile/providers", label: t("columns.explore.links.providers") },
+        { href: "/categories", label: t("columns.explore.links.categories") },
+        { href: "/map", label: t("columns.explore.links.map") },
+        { href: "/packages", label: t("columns.explore.links.packages") },
+        { href: "/providers", label: t("columns.explore.links.providers") },
+        ...(hasGuides ? [{ href: "/medical-tourism", label: t("columns.explore.links.guides") }] : []),
       ],
     },
     {
       title: t("columns.company.title"),
       links: [
-        { href: "/n/app/mobile/support", label: t("columns.company.links.contact") },
-        { href: "/n/app/mobile/profile/privacy-policy", label: t("columns.company.links.privacy") },
+        ...companyPages,
+        ...(published.has("contact-us") ? [] : [{ href: "/n/app/mobile/support", label: t("columns.company.links.contact") }]),
       ],
+    },
+    {
+      title: t("columns.policies.title"),
+      links: published.has("privacy-policy")
+        ? policyPages
+        : [...policyPages, { href: "/privacy-policy", label: t("columns.company.links.privacy") }],
     },
   ];
 
@@ -41,13 +65,20 @@ export function DesktopFooter() {
         </span>
       </div>
 
-      <div className="lsd-container relative grid grid-cols-[1.5fr_1fr_1fr_auto] gap-14 pb-14 pt-14">
+      <div className="lsd-container relative grid grid-cols-[1.5fr_1fr_1fr_1fr] gap-14 pb-14 pt-14">
         <Reveal className="space-y-5">
-          <Link href="/n/app/mobile/home" className="flex w-fit items-center gap-3">
+          <Link href="/" className="flex w-fit items-center gap-3">
             <Image src="/brand/lsevin-mark-reversed.png" alt="" width={30} height={42} />
             <Image src="/brand/lsevin-wordmark.png" alt="L SEVIN" width={104} height={29} />
           </Link>
           <p className="max-w-sm text-base leading-8 text-white/75">{t("tagline")}</p>
+          {/* Inside the brand column, not as a fifth grid item: the grid has four columns, and an
+              extra item wrapped onto its own row (why the seal was taken out on 10-29). */}
+          <EnamadSeal
+            alt={t("enamadAlt")}
+            className="block w-fit rounded-2xl bg-white p-2 transition hover:-translate-y-0.5"
+            imgClassName="h-[96px] w-auto"
+          />
         </Reveal>
 
         {columns.map((column, index) => (

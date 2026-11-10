@@ -8,6 +8,9 @@ import { getClientMessages } from "@/i18n/client-messages";
 import { routing } from "@/i18n/routing";
 import { LocalePageProps } from "@/types/next";
 import { isFastBuild } from "@/lib/build-mode";
+import { contentLanguageFor, directionFor } from "@/lib/seo/language-tags";
+
+import { RootDocument } from "../root-document";
 
 // The dynamic floor used to live here (`export const dynamic = "force-dynamic"`),
 // which forced *every* localized route to render per request. It has moved down
@@ -52,8 +55,9 @@ export default async function LocaleLayout({
 
   setRequestLocale(locale);
 
-  // <html>/<body>, lang and dir live in the root layout (src/app/layout.tsx).
-  // This layout only wires up the locale providers for the segment.
+  // This layout renders the <html>/<body> document (RootDocument), so the server
+  // HTML carries the page's real lang/dir; LocaleSync keeps them in step on
+  // client-side locale switches.
   //
   // Only the core namespaces go in here. Each top-level segment mounts its own
   // provider with the full set it needs, so a customer on the mobile app never
@@ -65,8 +69,10 @@ export default async function LocaleLayout({
   const messages = await getClientMessages(undefined, locale);
 
   return (
-    <NextIntlClientProvider locale={locale} messages={messages}>
-      <Providers>{children}</Providers>
-    </NextIntlClientProvider>
+    <RootDocument lang={contentLanguageFor(locale)} dir={directionFor(locale)}>
+      <NextIntlClientProvider locale={locale} messages={messages}>
+        <Providers>{children}</Providers>
+      </NextIntlClientProvider>
+    </RootDocument>
   );
 }

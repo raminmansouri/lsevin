@@ -19,6 +19,8 @@ import {
   Globe,
 } from "lucide-react";
 
+import { entityPath } from "@/lib/routes/public-paths";
+import { setListingParams, slugLookup, type ListingSlugs } from "@/lib/routes/filter-paths";
 import type { OfferCard, OfferTab, OffersFiltersInput } from "./offers.data";
 
 const MOBILE_BASE_PATH = "/n/app/mobile";
@@ -33,8 +35,8 @@ export function offerImageUrl(value?: string | null): string {
   return resolveHomeMediaUrl(raw);
 }
 
-export function serviceHref(providerServiceId: string) {
-  return `${MOBILE_BASE_PATH}/service/${providerServiceId}`;
+export function serviceHref(providerServiceId: string, slug?: string | null) {
+  return entityPath("service", { slug, id: providerServiceId });
 }
 
 export function bookingHref(providerServiceId: string) {
@@ -63,10 +65,11 @@ type FilterFormValues = {
   languages: string[];
 };
 
-export function buildOffersQuery(next: OffersFiltersInput) {
+/** The offers URL; the category is its slug (?category=<slug>), never an id. */
+export function buildOffersQuery(next: OffersFiltersInput, slugs: ListingSlugs = {}) {
   const params = new URLSearchParams();
   if (next.q) params.set("q", next.q);
-  if (next.categoryId && next.categoryId !== "all") params.set("categoryId", next.categoryId);
+  setListingParams(params, { categoryId: next.categoryId === "uncategorized" ? null : next.categoryId }, slugs);
   if (next.maxPrice > 0 && next.maxPrice !== 5000) params.set("maxPrice", String(next.maxPrice));
   if (next.minRating > 0) params.set("minRating", String(next.minRating));
   if (next.verifiedOnly) params.set("verifiedOnly", "1");
@@ -74,7 +77,7 @@ export function buildOffersQuery(next: OffersFiltersInput) {
   if (next.responseTime !== "any") params.set("responseTime", next.responseTime);
 
   const query = params.toString();
-  return query ? `/n/app/mobile/offers?${query}` : "/n/app/mobile/offers";
+  return query ? `/offers?${query}` : "/offers";
 }
 
 export function navigateSmooth(
@@ -129,6 +132,8 @@ export default function OffersClient({
   availableLanguages: string[];
   filters: OffersFiltersInput;
 }) {
+  const slugs = useMemo<ListingSlugs>(() => ({ category: slugLookup(tabs) }), [tabs]);
+  const offersQuery = (next: OffersFiltersInput) => buildOffersQuery(next, slugs);
   const router = useRouter();
   const t = useTranslations("MobileOffers");
   const locale = useLocale();
@@ -193,7 +198,7 @@ export default function OffersClient({
     navigateSmooth(
       startTransition,
       router,
-      buildOffersQuery({
+      offersQuery({
         q: next.q,
         categoryId: tabId === "all" ? null : tabId,
         minPrice: 0,
@@ -212,7 +217,7 @@ export default function OffersClient({
     navigateSmooth(
       startTransition,
       router,
-      buildOffersQuery({
+      offersQuery({
         q: next.q,
         categoryId: next.categoryId === "all" ? null : next.categoryId,
         minPrice: 0,
@@ -240,7 +245,7 @@ export default function OffersClient({
     navigateSmooth(
       startTransition,
       router,
-      buildOffersQuery({
+      offersQuery({
         q: next.q,
         categoryId: next.categoryId === "all" ? null : next.categoryId,
         minPrice: 0,
@@ -268,7 +273,7 @@ export default function OffersClient({
     navigateSmooth(
       startTransition,
       router,
-      buildOffersQuery({
+      offersQuery({
         q: "",
         categoryId: next.categoryId === "all" ? null : next.categoryId,
         minPrice: 0,
@@ -378,7 +383,7 @@ export default function OffersClient({
         <div className="px-5 pt-4 pb-2">
           <div
             className="relative h-40 rounded-2xl overflow-hidden shadow-lg cursor-pointer"
-            onClick={() => router.push(serviceHref(featuredOffer.providerServiceId))}
+            onClick={() => router.push(serviceHref(featuredOffer.providerServiceId, featuredOffer.providerServiceSlug))}
           >
             <OfferImage src={featuredOffer.image} alt={featuredOffer.title} />
             <div className="absolute inset-0 bg-gradient-to-r from-[#083f30]/95 to-[#083f30]/60" />
@@ -426,7 +431,7 @@ export default function OffersClient({
           return (
             <div
               key={offer.id}
-              onClick={() => router.push(serviceHref(offer.providerServiceId))}
+              onClick={() => router.push(serviceHref(offer.providerServiceId, offer.providerServiceSlug))}
               className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-md transition-all active:scale-[0.98] cursor-pointer"
             >
               <div className="relative h-48">

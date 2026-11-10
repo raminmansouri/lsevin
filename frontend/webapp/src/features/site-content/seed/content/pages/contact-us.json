@@ -1,0 +1,1301 @@
+{
+  "slug": "contact-us",
+  "status": "draft",
+  "needsConfirmation": [
+    "Registered legal entity name and registration number to show as the operator of the site",
+    "Postal address of the business (none found in the codebase)",
+    "Customer support phone number and its hours (none found in the codebase)",
+    "Whether support@lsevin.com is a monitored mailbox (it is shown on the payment success screen via Booking.supportLsevinCom, but the approved privacy text uses lsevin.turkiye@gmail.com)",
+    "Support response-time target, if the business wants to publish one (no SLA is defined in the support feature)",
+    "Support working hours and time zone",
+    "Official social media or messenger accounts, if any should be listed"
+  ],
+  "sources": [
+    "messages/en.json MobileProfile.privacyPolicy.section6HowToRequest/section6TimeframeValue/section9Body (lsevin.turkiye@gmail.com; data requests processed within 30 days; subject lines for deletion requests)",
+    "messages/en.json SupportPages.mobileSupport and SupportPages.customer (support chat, file attachments, sign-in needed to continue a conversation, name plus email or phone required)",
+    "messages/en.json Support.validation (name required; email or phone required; message required)",
+    "src/app/[locale]/n/app/mobile/support/page.tsx (customer support page exists in the account area)",
+    "messages/en.json Consultation.form/contactTime/urgency/success (free callback request: name, phone, best time to call, urgency; advisors contact you on the phone you gave)",
+    "messages/en.json Consultation.errors (if a payment could not be confirmed, money that left the account usually comes back within 72 hours)",
+    "src/features/shop/server/returns.service.ts (orders are looked up by order number plus the account or order email)",
+    "src/app/[locale]/n/app/mobile/home/page.tsx (Enamad seal 7764782)"
+  ],
+  "locales": {
+    "en-US": {
+      "title": "Contact LSevin",
+      "metaDescription": "How to reach LSevin: support chat in your account, a free consultation callback, and email for privacy and data requests. What to include so we can help faster.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "LSevin runs its customer service inside the product, so your conversation stays attached to your account, your booking or your order. Choose the channel below that fits your question."
+        },
+        {
+          "type": "h2",
+          "text": "Support chat in your account"
+        },
+        {
+          "type": "p",
+          "text": "Open Support from your LSevin account and write your message. You can attach files, such as a screenshot of an error or a payment receipt. Each conversation shows its status: open, pending, resolved or closed."
+        },
+        {
+          "type": "p",
+          "text": "You can start a conversation from the support form by giving your name and either an email address or a phone number. To continue a conversation later and see the replies, sign in with the phone number on your account."
+        },
+        {
+          "type": "p",
+          "text": "Use support chat for problems with a booking, a payment, your wallet, a shop order or your account."
+        },
+        {
+          "type": "h2",
+          "text": "Free consultation callback"
+        },
+        {
+          "type": "p",
+          "text": "If you are still deciding on a clinic, a doctor, a hotel or a product, request a free consultation. Enter your name and phone number, the best time to call (any time, morning, afternoon or evening) and how soon you need an answer. An LSevin advisor contacts you on the number you entered."
+        },
+        {
+          "type": "p",
+          "text": "The callback is free and does not change a booking you have started. Advisors help you compare options and plan dates. They do not give medical advice; your treating physician decides on treatment."
+        },
+        {
+          "type": "h2",
+          "text": "Questions about a specific booking"
+        },
+        {
+          "type": "p",
+          "text": "For questions about the service itself, such as what to bring to an appointment or where to meet for a tour, message the provider from your booking page. Contact LSevin support when the problem concerns payment, cancellation, a refund or a provider you cannot reach."
+        },
+        {
+          "type": "h2",
+          "text": "Privacy and personal data"
+        },
+        {
+          "type": "p",
+          "text": "Email lsevin.turkiye@gmail.com for questions about your personal data or to ask us to delete your account. Write from the email address or phone number linked to your account, and use the subject line Account deletion request or Data deletion request."
+        },
+        {
+          "type": "p",
+          "text": "We verify the request and process it within 30 days. The privacy policy explains what is deleted and which records we must keep for legal, tax, security or fraud-prevention reasons."
+        },
+        {
+          "type": "h2",
+          "text": "What to include in your message"
+        },
+        {
+          "type": "p",
+          "text": "Booking: the booking number from My bookings and the provider's name."
+        },
+        {
+          "type": "p",
+          "text": "Shop order: the order number and the email address used on the order."
+        },
+        {
+          "type": "p",
+          "text": "Payment: the date, the amount, the payment method and the reference number shown by the bank or the gateway."
+        },
+        {
+          "type": "p",
+          "text": "Never send your one-time sign-in code, your full card number or your card PIN. LSevin staff will not ask for them."
+        },
+        {
+          "type": "h2",
+          "text": "If a payment did not go through"
+        },
+        {
+          "type": "p",
+          "text": "When the gateway cannot confirm a payment, the booking or order is not completed. If money did leave your bank account, it usually comes back within 72 hours. If it has not returned after that, open a support conversation and include the payment reference."
+        },
+        {
+          "type": "h2",
+          "text": "Verify who you are dealing with"
+        },
+        {
+          "type": "p",
+          "text": "LSevin displays the Enamad electronic trust seal, ID 7764782. Click the seal on the site to open its record on trustseal.enamad.ir. Messages that claim to be from LSevin and ask you to pay outside the site or the LSevin wallet should be reported to support before you pay."
+        }
+      ],
+      "faq": [
+        {
+          "q": "Do I need an account to contact support?",
+          "a": "You can send a first message with your name and an email address or phone number. To read replies and continue the conversation, sign in with your phone number."
+        },
+        {
+          "q": "How do I request deletion of my account?",
+          "a": "Email lsevin.turkiye@gmail.com from the email or phone number on your account with the subject Account deletion request. Requests are processed within 30 days."
+        },
+        {
+          "q": "Can LSevin advisors tell me which treatment I need?",
+          "a": "No. Advisors help you choose providers, dates and accommodation. Medical decisions are made by your treating physician."
+        },
+        {
+          "q": "My payment failed but money left my account. What should I do?",
+          "a": "Money from an unconfirmed payment usually returns within 72 hours. If it has not, contact support with the payment date, amount and reference number."
+        },
+        {
+          "q": "Who do I contact about the treatment or the hotel itself?",
+          "a": "Message the provider from your booking page. If you cannot reach them, or the issue involves payment or cancellation, contact LSevin support."
+        }
+      ]
+    },
+    "fa-IR": {
+      "title": "تماس با السوین",
+      "metaDescription": "راه‌های ارتباط با السوین: گفت‌وگوی پشتیبانی در حساب کاربری، درخواست تماس مشاوره رایگان و ایمیل برای درخواست‌های حریم خصوصی، و اطلاعاتی که باید همراه پیام بفرستید.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "پشتیبانی السوین داخل خود سرویس انجام می‌شود تا گفت‌وگوی شما به حساب کاربری، رزرو یا سفارشتان متصل بماند. بسته به نوع پرسش، یکی از راه‌های زیر را انتخاب کنید."
+        },
+        {
+          "type": "h2",
+          "text": "گفت‌وگوی پشتیبانی در حساب کاربری"
+        },
+        {
+          "type": "p",
+          "text": "از حساب السوین خود بخش پشتیبانی را باز کنید و پیامتان را بنویسید. می‌توانید فایل هم پیوست کنید، مثل تصویر صفحه خطا یا رسید پرداخت. وضعیت هر گفت‌وگو نمایش داده می‌شود: باز، در انتظار، حل‌شده یا بسته."
+        },
+        {
+          "type": "p",
+          "text": "برای شروع گفت‌وگو از فرم پشتیبانی، نام و یکی از دو مورد ایمیل یا شماره تلفن کافی است. برای ادامه گفت‌وگو و دیدن پاسخ‌ها، با شماره تلفن حساب خود وارد شوید."
+        },
+        {
+          "type": "p",
+          "text": "مشکلات رزرو، پرداخت، کیف پول، سفارش فروشگاه یا حساب کاربری را از همین مسیر مطرح کنید."
+        },
+        {
+          "type": "h2",
+          "text": "درخواست تماس برای مشاوره رایگان"
+        },
+        {
+          "type": "p",
+          "text": "اگر هنوز درباره کلینیک، پزشک، هتل یا محصول تصمیم نگرفته‌اید، مشاوره رایگان درخواست کنید. نام، شماره تلفن، زمان مناسب برای تماس (هر زمان، صبح، بعدازظهر یا عصر) و میزان فوریت را وارد کنید. کارشناس السوین با همان شماره با شما تماس می‌گیرد."
+        },
+        {
+          "type": "p",
+          "text": "این تماس رایگان است و رزروی را که شروع کرده‌اید تغییر نمی‌دهد. کارشناسان در مقایسه گزینه‌ها و برنامه‌ریزی تاریخ‌ها کمک می‌کنند و توصیه پزشکی نمی‌دهند؛ تصمیم درمانی با پزشک معالج است."
+        },
+        {
+          "type": "h2",
+          "text": "پرسش درباره یک رزرو مشخص"
+        },
+        {
+          "type": "p",
+          "text": "برای پرسش درباره خود خدمت، مثلاً اینکه برای نوبت چه همراه داشته باشید یا محل حرکت تور کجاست، از صفحه رزرو به ارائه‌دهنده پیام بدهید. اگر موضوع پرداخت، لغو، بازگشت وجه یا عدم پاسخ‌گویی ارائه‌دهنده است، با پشتیبانی السوین تماس بگیرید."
+        },
+        {
+          "type": "h2",
+          "text": "حریم خصوصی و اطلاعات شخصی"
+        },
+        {
+          "type": "p",
+          "text": "برای پرسش درباره اطلاعات شخصی یا درخواست حذف حساب، به lsevin.turkiye@gmail.com ایمیل بزنید. ایمیل را از نشانی ایمیل یا شماره تلفن مرتبط با حسابتان بفرستید و موضوع آن را «درخواست حذف حساب» یا «درخواست حذف داده» بگذارید."
+        },
+        {
+          "type": "p",
+          "text": "درخواست را تأیید می‌کنیم و ظرف ۳۰ روز رسیدگی می‌کنیم. سیاست حریم خصوصی توضیح می‌دهد چه اطلاعاتی حذف می‌شود و کدام سوابق را به دلایل قانونی، مالیاتی، امنیتی یا پیشگیری از تقلب باید نگه داریم."
+        },
+        {
+          "type": "h2",
+          "text": "چه اطلاعاتی همراه پیام بفرستید"
+        },
+        {
+          "type": "p",
+          "text": "رزرو: شماره رزرو از بخش رزروهای من و نام ارائه‌دهنده."
+        },
+        {
+          "type": "p",
+          "text": "سفارش فروشگاه: شماره سفارش و ایمیلی که در سفارش ثبت کرده‌اید."
+        },
+        {
+          "type": "p",
+          "text": "پرداخت: تاریخ، مبلغ، روش پرداخت و شماره پیگیری‌ای که بانک یا درگاه نشان داده است."
+        },
+        {
+          "type": "p",
+          "text": "کد یک‌بارمصرف ورود، شماره کامل کارت یا رمز کارت را هرگز نفرستید. کارکنان السوین این اطلاعات را از شما نمی‌خواهند."
+        },
+        {
+          "type": "h2",
+          "text": "اگر پرداخت انجام نشد"
+        },
+        {
+          "type": "p",
+          "text": "وقتی درگاه نتواند پرداخت را تأیید کند، رزرو یا سفارش تکمیل نمی‌شود. اگر مبلغ از حساب بانکی شما کم شده باشد، معمولاً ظرف ۷۲ ساعت برمی‌گردد. اگر پس از این مدت برنگشت، گفت‌وگوی پشتیبانی باز کنید و شماره پیگیری پرداخت را بنویسید."
+        },
+        {
+          "type": "h2",
+          "text": "مطمئن شوید با چه کسی در ارتباطید"
+        },
+        {
+          "type": "p",
+          "text": "السوین نماد اعتماد الکترونیکی (اینماد) با شناسه ۷۷۶۴۷۸۲ را نمایش می‌دهد. با کلیک روی نماد در سایت، سابقه آن در trustseal.enamad.ir باز می‌شود. اگر پیامی به نام السوین از شما خواست بیرون از سایت یا کیف پول السوین پرداخت کنید، پیش از پرداخت آن را به پشتیبانی گزارش دهید."
+        }
+      ],
+      "faq": [
+        {
+          "q": "برای تماس با پشتیبانی حساب کاربری لازم است؟",
+          "a": "اولین پیام را می‌توانید با نام و ایمیل یا شماره تلفن بفرستید. برای خواندن پاسخ‌ها و ادامه گفت‌وگو باید با شماره تلفن وارد شوید."
+        },
+        {
+          "q": "چطور حذف حسابم را درخواست کنم؟",
+          "a": "از ایمیل یا شماره تلفن حساب خود به lsevin.turkiye@gmail.com با موضوع «درخواست حذف حساب» ایمیل بزنید. درخواست‌ها ظرف ۳۰ روز رسیدگی می‌شوند."
+        },
+        {
+          "q": "آیا کارشناس السوین می‌گوید چه درمانی لازم دارم؟",
+          "a": "خیر. کارشناسان در انتخاب ارائه‌دهنده، تاریخ و اقامت کمک می‌کنند. تصمیم پزشکی با پزشک معالج شماست."
+        },
+        {
+          "q": "پرداختم ناموفق بود ولی پول از حسابم کم شد. چه کنم؟",
+          "a": "مبلغ پرداخت تأییدنشده معمولاً ظرف ۷۲ ساعت برمی‌گردد. اگر برنگشت، تاریخ، مبلغ و شماره پیگیری پرداخت را برای پشتیبانی بفرستید."
+        },
+        {
+          "q": "درباره خود درمان یا هتل با چه کسی تماس بگیرم؟",
+          "a": "از صفحه رزرو به ارائه‌دهنده پیام بدهید. اگر پاسخ نگرفتید یا موضوع پرداخت یا لغو است، با پشتیبانی السوین تماس بگیرید."
+        }
+      ]
+    },
+    "ar-SA": {
+      "title": "تواصل مع لسوين",
+      "metaDescription": "طرق التواصل مع لسوين: محادثة الدعم في حسابك، وطلب اتصال للاستشارة المجانية، والبريد الإلكتروني لطلبات الخصوصية والبيانات، وما ترفقه برسالتك لنساعدك أسرع.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "تقدّم لسوين خدمة العملاء من داخل المنصة، فتبقى محادثتك مرتبطة بحسابك أو حجزك أو طلبك. اختر من القنوات التالية ما يناسب سؤالك."
+        },
+        {
+          "type": "h2",
+          "text": "محادثة الدعم في حسابك"
+        },
+        {
+          "type": "p",
+          "text": "افتح قسم الدعم من حسابك على لسوين واكتب رسالتك. يمكنك إرفاق ملفات، مثل صورة لرسالة خطأ أو إيصال دفع. وتظهر حالة كل محادثة: مفتوحة أو قيد الانتظار أو تم حلها أو مغلقة."
+        },
+        {
+          "type": "p",
+          "text": "لبدء محادثة من نموذج الدعم يكفي اسمك مع بريدك الإلكتروني أو رقم هاتفك. ولمتابعة المحادثة لاحقاً وقراءة الردود، سجّل الدخول برقم الهاتف المسجل في حسابك."
+        },
+        {
+          "type": "p",
+          "text": "استخدم محادثة الدعم لمشكلات الحجز أو الدفع أو المحفظة أو طلبات المتجر أو الحساب."
+        },
+        {
+          "type": "h2",
+          "text": "طلب اتصال للاستشارة المجانية"
+        },
+        {
+          "type": "p",
+          "text": "إذا لم تحسم اختيارك بعد بين عيادة أو طبيب أو فندق أو منتج، فاطلب استشارة مجانية. اكتب اسمك ورقم هاتفك والوقت المناسب للاتصال (أي وقت، صباحاً، بعد الظهر، مساءً) ومدى استعجالك. يتصل بك أحد مستشاري لسوين على الرقم الذي أدخلته."
+        },
+        {
+          "type": "p",
+          "text": "الاتصال مجاني ولا يغيّر أي حجز بدأته. يساعدك المستشارون في مقارنة الخيارات وترتيب المواعيد، ولا يقدمون نصائح طبية، فقرار العلاج لطبيبك المعالج."
+        },
+        {
+          "type": "h2",
+          "text": "أسئلة عن حجز محدد"
+        },
+        {
+          "type": "p",
+          "text": "للأسئلة عن الخدمة نفسها، مثل ما تحضره إلى الموعد أو مكان انطلاق الجولة، راسل مقدم الخدمة من صفحة الحجز. وتواصل مع دعم لسوين إذا كان الأمر يتعلق بالدفع أو الإلغاء أو استرداد المبلغ أو تعذّر الوصول إلى مقدم الخدمة."
+        },
+        {
+          "type": "h2",
+          "text": "الخصوصية والبيانات الشخصية"
+        },
+        {
+          "type": "p",
+          "text": "راسل lsevin.turkiye@gmail.com لأسئلة بياناتك الشخصية أو لطلب حذف حسابك. أرسل الرسالة من البريد الإلكتروني أو رقم الهاتف المرتبط بحسابك، واجعل عنوانها «طلب حذف الحساب» أو «طلب حذف البيانات»."
+        },
+        {
+          "type": "p",
+          "text": "نتحقق من الطلب ونعالجه خلال 30 يوماً. وتوضح سياسة الخصوصية ما الذي يُحذف وما السجلات التي يجب أن نحتفظ بها لأسباب قانونية أو ضريبية أو أمنية أو لمنع الاحتيال."
+        },
+        {
+          "type": "h2",
+          "text": "ما الذي ترفقه برسالتك"
+        },
+        {
+          "type": "p",
+          "text": "الحجز: رقم الحجز من قسم حجوزاتي واسم مقدم الخدمة."
+        },
+        {
+          "type": "p",
+          "text": "طلب المتجر: رقم الطلب والبريد الإلكتروني المستخدم فيه."
+        },
+        {
+          "type": "p",
+          "text": "الدفع: التاريخ والمبلغ وطريقة الدفع والرقم المرجعي الذي أظهره البنك أو البوابة."
+        },
+        {
+          "type": "p",
+          "text": "لا ترسل أبداً رمز الدخول لمرة واحدة أو رقم بطاقتك كاملاً أو رمزها السري. موظفو لسوين لا يطلبون هذه البيانات."
+        },
+        {
+          "type": "h2",
+          "text": "إذا لم تكتمل عملية الدفع"
+        },
+        {
+          "type": "p",
+          "text": "عندما لا تستطيع البوابة تأكيد الدفع، لا يكتمل الحجز أو الطلب. وإذا خُصم المبلغ من حسابك البنكي، فإنه يعود عادة خلال 72 ساعة. وإذا لم يعد بعد ذلك، افتح محادثة دعم واكتب الرقم المرجعي للدفع."
+        },
+        {
+          "type": "h2",
+          "text": "تحقّق ممن تتعامل معه"
+        },
+        {
+          "type": "p",
+          "text": "تعرض لسوين ختم الثقة الإلكتروني «إي‌نماد» برقم 7764782، ويمكنك الضغط عليه في الموقع لفتح سجله على trustseal.enamad.ir. إذا وصلتك رسالة باسم لسوين تطلب منك الدفع خارج الموقع أو خارج محفظة لسوين، فأبلغ الدعم بها قبل أن تدفع."
+        }
+      ],
+      "faq": [
+        {
+          "q": "هل أحتاج إلى حساب للتواصل مع الدعم؟",
+          "a": "يمكنك إرسال الرسالة الأولى باسمك مع بريدك الإلكتروني أو رقم هاتفك. ولقراءة الردود ومتابعة المحادثة سجّل الدخول برقم هاتفك."
+        },
+        {
+          "q": "كيف أطلب حذف حسابي؟",
+          "a": "راسل lsevin.turkiye@gmail.com من البريد أو رقم الهاتف المرتبط بحسابك بعنوان «طلب حذف الحساب». تُعالج الطلبات خلال 30 يوماً."
+        },
+        {
+          "q": "هل يحدد لي مستشار لسوين العلاج الذي أحتاجه؟",
+          "a": "لا. يساعدك المستشارون في اختيار مقدم الخدمة والمواعيد والإقامة، أما القرار الطبي فلطبيبك المعالج."
+        },
+        {
+          "q": "فشل الدفع لكن المبلغ خُصم من حسابي، ماذا أفعل؟",
+          "a": "يعود مبلغ الدفع غير المؤكد عادة خلال 72 ساعة. وإذا لم يعد، أرسل إلى الدعم تاريخ الدفع ومبلغه ورقمه المرجعي."
+        },
+        {
+          "q": "بمن أتواصل بشأن العلاج أو الفندق نفسه؟",
+          "a": "راسل مقدم الخدمة من صفحة الحجز. وإذا لم تتمكن من الوصول إليه، أو كان الأمر متعلقاً بالدفع أو الإلغاء، فتواصل مع دعم لسوين."
+        }
+      ]
+    },
+    "tr-TR": {
+      "title": "LSevin ile İletişim",
+      "metaDescription": "LSevin'e nasıl ulaşılır: hesabınızdaki destek sohbeti, ücretsiz danışmanlık geri araması, gizlilik ve veri talepleri için e-posta ve mesajınıza eklemeniz gerekenler.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "LSevin müşteri hizmetlerini ürünün içinden yürütür; böylece görüşmeniz hesabınıza, rezervasyonunuza veya siparişinize bağlı kalır. Sorunuza uygun kanalı aşağıdan seçin."
+        },
+        {
+          "type": "h2",
+          "text": "Hesabınızdaki destek sohbeti"
+        },
+        {
+          "type": "p",
+          "text": "LSevin hesabınızda Destek bölümünü açın ve mesajınızı yazın. Hata ekran görüntüsü veya ödeme dekontu gibi dosyalar ekleyebilirsiniz. Her görüşmenin durumu görünür: Açık, Beklemede, Çözüldü veya Kapatıldı."
+        },
+        {
+          "type": "p",
+          "text": "Destek formunda adınızı ve bir e-posta adresi ya da telefon numarası vererek görüşme başlatabilirsiniz. Görüşmeye daha sonra devam etmek ve yanıtları görmek için hesabınızdaki telefon numarasıyla giriş yapın."
+        },
+        {
+          "type": "p",
+          "text": "Rezervasyon, ödeme, cüzdan, mağaza siparişi veya hesabınızla ilgili sorunlar için destek sohbetini kullanın."
+        },
+        {
+          "type": "h2",
+          "text": "Ücretsiz danışmanlık geri araması"
+        },
+        {
+          "type": "p",
+          "text": "Klinik, doktor, otel veya ürün konusunda henüz karar vermediyseniz ücretsiz danışmanlık isteyin. Adınızı ve telefon numaranızı, size en uygun arama zamanını (herhangi bir saat, sabah, öğleden sonra veya akşam) ve ne kadar sürede yanıt beklediğinizi girin. Bir LSevin danışmanı girdiğiniz numaradan sizinle iletişime geçer."
+        },
+        {
+          "type": "p",
+          "text": "Geri arama ücretsizdir ve başlattığınız bir rezervasyonu değiştirmez. Danışmanlar seçenekleri karşılaştırmanıza ve tarihleri planlamanıza yardımcı olur. Tıbbi tavsiye vermezler; tedaviye sizi tedavi eden hekim karar verir."
+        },
+        {
+          "type": "h2",
+          "text": "Belirli bir rezervasyonla ilgili sorular"
+        },
+        {
+          "type": "p",
+          "text": "Randevuya ne getirmeniz gerektiği veya tur için buluşma noktası gibi hizmetin kendisiyle ilgili sorular için rezervasyon sayfanızdan sağlayıcıya mesaj gönderin. Sorun ödeme, iptal, iade veya ulaşamadığınız bir sağlayıcıyla ilgiliyse LSevin desteğine başvurun."
+        },
+        {
+          "type": "h2",
+          "text": "Gizlilik ve kişisel veriler"
+        },
+        {
+          "type": "p",
+          "text": "Kişisel verilerinizle ilgili sorularınız veya hesabınızın silinmesini istemek için lsevin.turkiye@gmail.com adresine e-posta gönderin. Hesabınıza bağlı e-posta adresinden veya telefon numarasından yazın ve konu satırına “Hesap silme talebi” ya da “Veri silme talebi” yazın."
+        },
+        {
+          "type": "p",
+          "text": "Talebi doğrular ve 30 gün içinde işleme alırız. Gizlilik politikası, nelerin silindiğini ve yasal, vergisel, güvenlik veya dolandırıcılığı önleme nedenleriyle hangi kayıtları saklamak zorunda olduğumuzu açıklar."
+        },
+        {
+          "type": "h2",
+          "text": "Mesajınıza neleri eklemelisiniz"
+        },
+        {
+          "type": "p",
+          "text": "Rezervasyon: Rezervasyonlarım bölümündeki rezervasyon numarası ve sağlayıcının adı."
+        },
+        {
+          "type": "p",
+          "text": "Mağaza siparişi: sipariş numarası ve siparişte kullanılan e-posta adresi."
+        },
+        {
+          "type": "p",
+          "text": "Ödeme: tarih, tutar, ödeme yöntemi ve banka ya da ödeme altyapısının gösterdiği referans numarası."
+        },
+        {
+          "type": "p",
+          "text": "Tek kullanımlık giriş kodunuzu, kart numaranızın tamamını veya kart şifrenizi asla göndermeyin. LSevin çalışanları bunları sizden istemez."
+        },
+        {
+          "type": "h2",
+          "text": "Ödeme gerçekleşmediyse"
+        },
+        {
+          "type": "p",
+          "text": "Ödeme altyapısı bir ödemeyi onaylayamadığında rezervasyon veya sipariş tamamlanmaz. Para banka hesabınızdan çekildiyse genellikle 72 saat içinde geri gelir. Bu sürenin sonunda geri gelmediyse bir destek görüşmesi açın ve ödeme referansını ekleyin."
+        },
+        {
+          "type": "h2",
+          "text": "Kiminle muhatap olduğunuzu doğrulayın"
+        },
+        {
+          "type": "p",
+          "text": "LSevin, 7764782 numaralı Enamad elektronik güven mührünü gösterir. Sitedeki mühre tıkladığınızda trustseal.enamad.ir üzerindeki kaydı açılır. LSevin'den geldiğini iddia eden ve site ya da LSevin cüzdanı dışında ödeme yapmanızı isteyen mesajları, ödeme yapmadan önce desteğe bildirin."
+        }
+      ],
+      "faq": [
+        {
+          "q": "Desteğe ulaşmak için hesabım olması gerekiyor mu?",
+          "a": "İlk mesajı adınız ve bir e-posta adresi ya da telefon numarasıyla gönderebilirsiniz. Yanıtları okumak ve görüşmeye devam etmek için telefon numaranızla giriş yapın."
+        },
+        {
+          "q": "Hesabımın silinmesini nasıl talep ederim?",
+          "a": "Hesabınızdaki e-posta adresinden veya telefon numarasından, konu satırına “Hesap silme talebi” yazarak lsevin.turkiye@gmail.com adresine e-posta gönderin. Talepler 30 gün içinde işleme alınır."
+        },
+        {
+          "q": "LSevin danışmanları hangi tedaviye ihtiyacım olduğunu söyleyebilir mi?",
+          "a": "Hayır. Danışmanlar sağlayıcı, tarih ve konaklama seçiminde yardımcı olur. Tıbbi kararları sizi tedavi eden hekim verir."
+        },
+        {
+          "q": "Ödemem başarısız oldu ama para hesabımdan çekildi. Ne yapmalıyım?",
+          "a": "Onaylanmamış bir ödemenin tutarı genellikle 72 saat içinde geri gelir. Gelmediyse ödeme tarihi, tutarı ve referans numarasıyla desteğe başvurun."
+        },
+        {
+          "q": "Tedavinin veya otelin kendisiyle ilgili kime başvurmalıyım?",
+          "a": "Rezervasyon sayfanızdan sağlayıcıya mesaj gönderin. Sağlayıcıya ulaşamıyorsanız veya konu ödeme ya da iptalle ilgiliyse LSevin desteğine başvurun."
+        }
+      ]
+    },
+    "ku-KU": {
+      "title": "پەیوەندی لەگەڵ LSevin",
+      "metaDescription": "ڕێگاکانی پەیوەندی لەگەڵ LSevin: چاتی پشتگیری لە هەژمارەکەتان، پەیوەندیی ڕاوێژکاریی بەخۆڕایی و ئیمەیڵ بۆ داواکارییەکانی تایبەتێتی، و ئەوەی بینووسن بۆ وەڵامی خێراتر.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "LSevin خزمەتگوزاریی کڕیارانی لەناو خودی بەرهەمەکەدا بەڕێوە دەبات، بۆیە گفتوگۆکەتان بە هەژمار، حجز یان داواکارییەکەتانەوە بەستراو دەمێنێتەوە. لەم ڕێگایانەی خوارەوە ئەوە هەڵبژێرن کە لەگەڵ پرسیارەکەتان دەگونجێت."
+        },
+        {
+          "type": "h2",
+          "text": "چاتی پشتگیری لە هەژمارەکەتان"
+        },
+        {
+          "type": "p",
+          "text": "لە هەژماری LSevinەکەتاندا «پشتگیری» بکەنەوە و نامەکەتان بنووسن. دەتوانن فایل هاوپێچ بکەن، وەک وێنەی شاشەی هەڵەیەک یان پسوولەی پارەدان. هەر گفتوگۆیەک دۆخی خۆی پیشان دەدات: کراوە، چاوەڕوان، چارەسەرکراو یان داخراو."
+        },
+        {
+          "type": "p",
+          "text": "دەتوانن لە فۆرمی پشتگیرییەوە بە نووسینی ناوتان و ئیمەیڵ یان ژمارەی تەلەفۆن گفتوگۆیەک دەست پێ بکەن. بۆ ئەوەی دواتر لە گفتوگۆکە بەردەوام بن و وەڵامەکان ببینن، بە ژمارەی تەلەفۆنی هەژمارەکەتان بچنە ژوورەوە."
+        },
+        {
+          "type": "p",
+          "text": "چاتی پشتگیری بۆ کێشەکانی حجز، پارەدان، جزدان، داواکاریی فرۆشگا یان هەژمارەکەتان بەکاربهێنن."
+        },
+        {
+          "type": "h2",
+          "text": "پەیوەندیی ڕاوێژکاریی بەخۆڕایی"
+        },
+        {
+          "type": "p",
+          "text": "ئەگەر هێشتا لە هەڵبژاردنی کلینیک، پزیشک، هوتێل یان بەرهەمێکدا بڕیارتان نەداوە، داوای ڕاوێژکاریی بەخۆڕایی بکەن. ناو و ژمارەی تەلەفۆنەکەتان، باشترین کات بۆ پەیوەندی (هەر کاتێک، بەیانی، پاشنیوەڕۆ یان ئێوارە) و ئەوەی چەندە زوو پێویستتان بە وەڵامە بنووسن. ڕاوێژکارێکی LSevin بە هەمان ژمارە پەیوەندیتان پێوە دەکات."
+        },
+        {
+          "type": "p",
+          "text": "ئەم پەیوەندییە بەخۆڕاییە و ئەو حجزەی دەستتان پێکردووە ناگۆڕێت. ڕاوێژکاران یارمەتیتان دەدەن بژاردەکان بەراورد بکەن و بەروارەکان پلان بکەن. ئامۆژگاریی پزیشکی نادەن؛ بڕیاری چارەسەر لای پزیشکی چارەسەرکەرتانە."
+        },
+        {
+          "type": "h2",
+          "text": "پرسیار دەربارەی حجزێکی دیاریکراو"
+        },
+        {
+          "type": "p",
+          "text": "بۆ پرسیار دەربارەی خودی خزمەتەکە، وەک ئەوەی چی لەگەڵ خۆتان بهێنن بۆ چاوپێکەوتنێک یان لە کوێ بۆ گەشتێک کۆ ببنەوە، لە پەڕەی حجزەکەتانەوە نامە بۆ دابینکەر بنێرن. کاتێک کێشەکە پەیوەندیی بە پارەدان، هەڵوەشاندنەوە، گەڕاندنەوەی پارە یان دابینکەرێکەوە هەیە کە ناتوانن پەیوەندیی پێوە بکەن، پەیوەندی بە پشتگیریی LSevinەوە بکەن."
+        },
+        {
+          "type": "h2",
+          "text": "تایبەتێتی و زانیاریی کەسی"
+        },
+        {
+          "type": "p",
+          "text": "بۆ پرسیار دەربارەی زانیارییە کەسییەکانتان یان داواکردنی سڕینەوەی هەژمارەکەتان، ئیمەیڵ بنێرن بۆ lsevin.turkiye@gmail.com. لەو ئیمەیڵ یان ژمارە تەلەفۆنەوە بنووسن کە بە هەژمارەکەتانەوە بەستراوە، و بابەتی نامەکە بکەنە «داواکاری سڕینەوەی هەژمار» یان «داواکاری سڕینەوەی زانیاری»."
+        },
+        {
+          "type": "p",
+          "text": "داواکارییەکە پشتڕاست دەکەینەوە و لە ماوەی 30 ڕۆژدا جێبەجێی دەکەین. سیاسەتی تایبەتێتی ڕوونی دەکاتەوە چی دەسڕدرێتەوە و کام تۆمارانە بە هۆکاری یاسایی، باج، ئاسایش یان ڕێگریکردن لە فێڵ دەبێت بیانهێڵینەوە."
+        },
+        {
+          "type": "h2",
+          "text": "چی لە نامەکەتاندا بنووسن"
+        },
+        {
+          "type": "p",
+          "text": "حجز: ژمارەی حجز لە «حجزەکانم» و ناوی دابینکەر."
+        },
+        {
+          "type": "p",
+          "text": "داواکاریی فرۆشگا: ژمارەی داواکاری و ئەو ئیمەیڵەی لە داواکارییەکەدا بەکارتان هێناوە."
+        },
+        {
+          "type": "p",
+          "text": "پارەدان: بەروار، بڕ، شێوازی پارەدان و ئەو ژمارەی بەدواداچوونەی بانک یان دەروازەی پارەدان پیشانی داوە."
+        },
+        {
+          "type": "p",
+          "text": "هەرگیز کۆدی یەکجاریی چوونەژوورەوە، ژمارەی تەواوی کارت یان ژمارەی نهێنیی (PIN) کارتەکەتان مەنێرن. کارمەندانی LSevin داوای ئەمانەتان لێ ناکەن."
+        },
+        {
+          "type": "h2",
+          "text": "ئەگەر پارەدانەکە سەرکەوتوو نەبوو"
+        },
+        {
+          "type": "p",
+          "text": "کاتێک دەروازەی پارەدان نەتوانێت پارەدانێک پشتڕاست بکاتەوە، حجز یان داواکارییەکە تەواو نابێت. ئەگەر پارە لە هەژماری بانکییەکەتان کەم بووبێتەوە، زۆربەی جار لە ماوەی 72 کاتژمێردا دەگەڕێتەوە. ئەگەر دوای ئەو ماوەیە نەگەڕایەوە، گفتوگۆیەکی پشتگیری بکەنەوە و ژمارەی بەدواداچوونی پارەدانەکە بنووسن."
+        },
+        {
+          "type": "h2",
+          "text": "دڵنیا ببنەوە لەگەڵ کێ مامەڵە دەکەن"
+        },
+        {
+          "type": "p",
+          "text": "LSevin نیشانەی متمانەی ئەلیکترۆنیی ئینماد بە ژمارەی ناسنامەی 7764782 پیشان دەدات. لە ماڵپەڕەکەدا کرتە لەسەر نیشانەکە بکەن بۆ کردنەوەی تۆمارەکەی لە trustseal.enamad.ir. ئەو نامانەی بە ناوی LSevinەوە دێن و داواتان لێ دەکەن لە دەرەوەی ماڵپەڕ یان جزدانی LSevin پارە بدەن، پێش پارەدان بە پشتگیری ڕابگەیەنن."
+        }
+      ],
+      "faq": [
+        {
+          "q": "بۆ پەیوەندیکردن بە پشتگیرییەوە پێویستم بە هەژمارە؟",
+          "a": "دەتوانن یەکەم نامە بە ناوتان و ئیمەیڵ یان ژمارەی تەلەفۆن بنێرن. بۆ خوێندنەوەی وەڵامەکان و بەردەوامبوون لە گفتوگۆکە، بە ژمارەی تەلەفۆنەکەتان بچنە ژوورەوە."
+        },
+        {
+          "q": "چۆن داوای سڕینەوەی هەژمارەکەم بکەم؟",
+          "a": "لەو ئیمەیڵ یان ژمارە تەلەفۆنەی لەسەر هەژمارەکەتانە، ئیمەیڵ بنێرن بۆ lsevin.turkiye@gmail.com بە بابەتی «داواکاری سڕینەوەی هەژمار». داواکارییەکان لە ماوەی 30 ڕۆژدا جێبەجێ دەکرێن."
+        },
+        {
+          "q": "ئایا ڕاوێژکارانی LSevin دەتوانن پێم بڵێن پێویستم بە چ چارەسەرێکە؟",
+          "a": "نەخێر. ڕاوێژکاران یارمەتیتان دەدەن دابینکەر، بەروار و شوێنی مانەوە هەڵبژێرن. بڕیارە پزیشکییەکان لەلایەن پزیشکی چارەسەرکەرتانەوە دەدرێن."
+        },
+        {
+          "q": "پارەدانەکەم سەرکەوتوو نەبوو بەڵام پارە لە هەژمارەکەم کەم بووەوە. چی بکەم؟",
+          "a": "پارەی پارەدانێکی پشتڕاستنەکراوە زۆربەی جار لە ماوەی 72 کاتژمێردا دەگەڕێتەوە. ئەگەر نەگەڕایەوە، بە بەروار، بڕ و ژمارەی بەدواداچوونی پارەدانەکەوە پەیوەندی بە پشتگیرییەوە بکەن."
+        },
+        {
+          "q": "بۆ خودی چارەسەر یان هوتێلەکە پەیوەندی بە کێوە بکەم؟",
+          "a": "لە پەڕەی حجزەکەتانەوە نامە بۆ دابینکەر بنێرن. ئەگەر نەتوانن پەیوەندییان پێوە بکەن، یان کێشەکە پەیوەندیی بە پارەدان یان هەڵوەشاندنەوەوە هەیە، پەیوەندی بە پشتگیریی LSevinەوە بکەن."
+        }
+      ]
+    },
+    "ru-RU": {
+      "title": "Связаться с LSevin",
+      "metaDescription": "Как связаться с LSevin: чат поддержки в аккаунте, бесплатная консультация с обратным звонком и email по вопросам данных. Что указать, чтобы мы помогли быстрее.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Обслуживание клиентов LSevin работает внутри сервиса, поэтому переписка остаётся привязанной к Вашему аккаунту, бронированию или заказу. Выберите ниже канал, который подходит для Вашего вопроса."
+        },
+        {
+          "type": "h2",
+          "text": "Чат поддержки в аккаунте"
+        },
+        {
+          "type": "p",
+          "text": "Откройте раздел «Поддержка» в своём аккаунте LSevin и напишите сообщение. К нему можно прикрепить файлы, например снимок экрана с ошибкой или квитанцию об оплате. У каждого обращения отображается статус: открыто, в ожидании, решено или закрыто."
+        },
+        {
+          "type": "p",
+          "text": "Начать переписку можно через форму поддержки, указав имя и адрес электронной почты или номер телефона. Чтобы позже продолжить переписку и увидеть ответы, войдите по номеру телефона, привязанному к аккаунту."
+        },
+        {
+          "type": "p",
+          "text": "Пишите в чат поддержки, если возникла проблема с бронированием, оплатой, кошельком, заказом в магазине или аккаунтом."
+        },
+        {
+          "type": "h2",
+          "text": "Бесплатная консультация с обратным звонком"
+        },
+        {
+          "type": "p",
+          "text": "Если Вы ещё выбираете клинику, врача, отель или товар, оставьте заявку на бесплатную консультацию. Укажите имя и номер телефона, удобное время для звонка (любое, утром, днём или вечером) и то, как срочно Вам нужен ответ. Консультант LSevin свяжется с Вами по указанному номеру."
+        },
+        {
+          "type": "p",
+          "text": "Обратный звонок бесплатный и не влияет на уже начатое бронирование. Консультанты помогают сравнить варианты и спланировать даты. Медицинских советов они не дают: решение о лечении принимает Ваш лечащий врач."
+        },
+        {
+          "type": "h2",
+          "text": "Вопросы по конкретному бронированию"
+        },
+        {
+          "type": "p",
+          "text": "С вопросами о самой услуге, например что взять с собой на приём или где место сбора тура, пишите поставщику со страницы бронирования. В поддержку LSevin обращайтесь, если вопрос касается оплаты, отмены, возврата средств или поставщика, с которым не удаётся связаться."
+        },
+        {
+          "type": "h2",
+          "text": "Конфиденциальность и персональные данные"
+        },
+        {
+          "type": "p",
+          "text": "По вопросам, связанным с Вашими персональными данными, или чтобы попросить удалить аккаунт, пишите на lsevin.turkiye@gmail.com. Отправляйте письмо с адреса электронной почты или указывайте номер телефона, привязанные к аккаунту, и используйте тему Account deletion request или Data deletion request."
+        },
+        {
+          "type": "p",
+          "text": "Мы проверяем запрос и обрабатываем его в течение 30 дней. В политике конфиденциальности описано, что именно удаляется и какие записи мы обязаны хранить по требованиям законодательства, налогового учёта, безопасности или предотвращения мошенничества."
+        },
+        {
+          "type": "h2",
+          "text": "Что указать в сообщении"
+        },
+        {
+          "type": "p",
+          "text": "Бронирование: номер бронирования из раздела «Мои бронирования» и название поставщика."
+        },
+        {
+          "type": "p",
+          "text": "Заказ в магазине: номер заказа и адрес электронной почты, указанный в заказе."
+        },
+        {
+          "type": "p",
+          "text": "Платёж: дату, сумму, способ оплаты и номер операции, который показал банк или платёжный шлюз."
+        },
+        {
+          "type": "p",
+          "text": "Никогда не отправляйте одноразовый код для входа, полный номер карты или PIN-код карты. Сотрудники LSevin не будут их запрашивать."
+        },
+        {
+          "type": "h2",
+          "text": "Если платёж не прошёл"
+        },
+        {
+          "type": "p",
+          "text": "Если платёжный шлюз не может подтвердить оплату, бронирование или заказ не оформляется. Если деньги всё же списались с банковского счёта, обычно они возвращаются в течение 72 часов. Если по истечении этого срока средства не вернулись, откройте обращение в поддержку и укажите номер операции."
+        },
+        {
+          "type": "h2",
+          "text": "Убедитесь, с кем Вы имеете дело"
+        },
+        {
+          "type": "p",
+          "text": "На сайте LSevin размещён электронный знак доверия Enamad, ID 7764782. Нажмите на знак на сайте, чтобы открыть его запись на trustseal.enamad.ir. О сообщениях якобы от LSevin с просьбой оплатить вне сайта или кошелька LSevin сообщите в поддержку до оплаты."
+        }
+      ],
+      "faq": [
+        {
+          "q": "Нужен ли аккаунт, чтобы связаться с поддержкой?",
+          "a": "Первое сообщение можно отправить, указав имя и адрес электронной почты или номер телефона. Чтобы читать ответы и продолжать переписку, войдите по номеру телефона."
+        },
+        {
+          "q": "Как запросить удаление аккаунта?",
+          "a": "Напишите на lsevin.turkiye@gmail.com с адреса электронной почты или указав номер телефона, привязанные к аккаунту, с темой Account deletion request. Запросы обрабатываются в течение 30 дней."
+        },
+        {
+          "q": "Могут ли консультанты LSevin сказать, какое лечение мне нужно?",
+          "a": "Нет. Консультанты помогают выбрать поставщиков, даты и проживание. Медицинские решения принимает Ваш лечащий врач."
+        },
+        {
+          "q": "Платёж не прошёл, но деньги списались. Что делать?",
+          "a": "Деньги за неподтверждённый платёж обычно возвращаются в течение 72 часов. Если этого не произошло, обратитесь в поддержку и укажите дату, сумму и номер операции."
+        },
+        {
+          "q": "К кому обращаться по вопросам о самом лечении или отеле?",
+          "a": "Напишите поставщику со страницы бронирования. Если связаться с ним не удаётся или вопрос касается оплаты либо отмены, обратитесь в поддержку LSevin."
+        }
+      ]
+    },
+    "tg-TJ": {
+      "title": "Тамос бо LSevin",
+      "metaDescription": "Роҳҳои тамос бо LSevin: чати дастгирӣ дар ҳисоби шумо, занги баргашти машварати ройгон ва почтаи электронӣ барои дархостҳои маълумоти шахсӣ. Чӣ навиштан лозим аст.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "LSevin хизматрасонии муштариёнро дар дохили худи маҳсулот ба роҳ мондааст, то сӯҳбати шумо ба ҳисоб, брон ё фармоиши шумо пайваст бимонад. Аз роҳҳои зерин он чиро интихоб кунед, ки ба саволи шумо мувофиқ аст."
+        },
+        {
+          "type": "h2",
+          "text": "Чати дастгирӣ дар ҳисоби шумо"
+        },
+        {
+          "type": "p",
+          "text": "Дар ҳисоби LSevin бахши «Дастгирӣ»-ро кушоед ва паёми худро нависед. Шумо метавонед файл замима кунед, масалан скриншоти хато ё квитансияи пардохт. Ҳар сӯҳбат ҳолати худро нишон медиҳад: кушода, дар интизорӣ, ҳалшуда ё басташуда."
+        },
+        {
+          "type": "p",
+          "text": "Сӯҳбатро метавонед аз формаи дастгирӣ бо навиштани ном ва почтаи электронӣ ё рақами телефон оғоз кунед. Барои баъдтар идома додани сӯҳбат ва дидани ҷавобҳо бо рақами телефони ҳисоби худ ворид шавед."
+        },
+        {
+          "type": "p",
+          "text": "Чати дастгириро барои мушкилот бо брон, пардохт, ҳамён, фармоиши мағоза ё ҳисоби худ истифода баред."
+        },
+        {
+          "type": "h2",
+          "text": "Занги баргашти машварати ройгон"
+        },
+        {
+          "type": "p",
+          "text": "Агар ҳанӯз клиника, духтур, меҳмонхона ё маҳсулотро интихоб накарда бошед, машварати ройгон дархост кунед. Ном ва рақами телефон, вақти беҳтарини занг (ҳар вақт, саҳар, баъд аз зуҳр ё бегоҳ) ва то кай ба ҷавоб ниёз доштани худро нависед. Мушовири LSevin бо рақами воридкардаи шумо тамос мегирад."
+        },
+        {
+          "type": "p",
+          "text": "Занги баргашт ройгон аст ва ба броне, ки оғоз кардаед, таъсир намерасонад. Мушовирон ба шумо дар муқоисаи имконот ва банақшагирии санаҳо кӯмак мекунанд. Онҳо маслиҳати тиббӣ намедиҳанд; дар бораи табобат духтури муолиҷи шумо қарор мекунад."
+        },
+        {
+          "type": "h2",
+          "text": "Саволҳо дар бораи брони мушаххас"
+        },
+        {
+          "type": "p",
+          "text": "Барои саволҳо дар бораи худи хидмат, масалан чӣ бояд ба қабул овард ё вохӯрӣ барои тур дар куҷост, аз саҳифаи брони худ ба хидматрасон паём фиристед. Вақте ки мушкил ба пардохт, бекоркунӣ, бозгардонии маблағ ё хидматрасоне, ки бо он тамос гирифта наметавонед, марбут аст, ба дастгирии LSevin муроҷиат кунед."
+        },
+        {
+          "type": "h2",
+          "text": "Махфият ва маълумоти шахсӣ"
+        },
+        {
+          "type": "p",
+          "text": "Барои саволҳо дар бораи маълумоти шахсӣ ё дархости нест кардани ҳисоб ба lsevin.turkiye@gmail.com нависед. Аз почтаи электронӣ ё рақами телефоне, ки ба ҳисобатон пайваст аст, нависед ва дар мавзӯи нома «Дархости нест кардани ҳисоб» ё «Дархости нест кардани маълумот»-ро нависед."
+        },
+        {
+          "type": "p",
+          "text": "Мо дархостро месанҷем ва дар давоми 30 рӯз иҷро мекунем. Дар сиёсати махфият шарҳ дода шудааст, ки чӣ нест карда мешавад ва кадом сабтҳоро мо бояд бо сабабҳои қонунӣ, андозӣ, амниятӣ ё пешгирии қаллобӣ нигоҳ дорем."
+        },
+        {
+          "type": "h2",
+          "text": "Дар паём чӣ навиштан лозим аст"
+        },
+        {
+          "type": "p",
+          "text": "Брон: рақами брон аз бахши «Бронҳои ман» ва номи хидматрасон."
+        },
+        {
+          "type": "p",
+          "text": "Фармоиши мағоза: рақами фармоиш ва почтаи электроние, ки дар фармоиш истифода шудааст."
+        },
+        {
+          "type": "p",
+          "text": "Пардохт: сана, маблағ, усули пардохт ва рақами пайгирие, ки бонк ё дарвозаи пардохт нишон додааст."
+        },
+        {
+          "type": "p",
+          "text": "Ҳеҷ гоҳ рамзи яккаратаи воридшавӣ, рақами пурраи корт ё PIN-и корти худро нафиристед. Кормандони LSevin онҳоро аз шумо намепурсанд."
+        },
+        {
+          "type": "h2",
+          "text": "Агар пардохт анҷом наёфта бошад"
+        },
+        {
+          "type": "p",
+          "text": "Вақте ки дарвозаи пардохт пардохтро тасдиқ карда наметавонад, брон ё фармоиш анҷом намеёбад. Агар маблағ аз ҳисоби бонкии шумо хориҷ шуда бошад, одатан дар давоми 72 соат бармегардад. Агар пас аз ин муддат барнагашта бошад, сӯҳбати дастгирӣ кушоед ва рақами пайгирии пардохтро нависед."
+        },
+        {
+          "type": "h2",
+          "text": "Санҷед, ки бо кӣ сарукор доред"
+        },
+        {
+          "type": "p",
+          "text": "LSevin мӯҳри электронии эътимоди Enamad бо рақами 7764782-ро нишон медиҳад. Мӯҳрро дар сайт пахш кунед, то сабти он дар trustseal.enamad.ir кушода шавад. Дар бораи паёмҳое, ки гӯё аз номи LSevin омадаанд ва аз шумо пардохт берун аз сайт ё ҳамёни LSevin талаб мекунанд, пеш аз пардохт ба дастгирӣ хабар диҳед."
+        }
+      ],
+      "faq": [
+        {
+          "q": "Оё барои тамос бо дастгирӣ ҳисоб лозим аст?",
+          "a": "Паёми аввалро метавонед бо ном ва почтаи электронӣ ё рақами телефон фиристед. Барои хондани ҷавобҳо ва идомаи сӯҳбат бо рақами телефони худ ворид шавед."
+        },
+        {
+          "q": "Чӣ тавр нест кардани ҳисобамро дархост кунам?",
+          "a": "Аз почтаи электронӣ ё рақами телефони ҳисоби худ ба lsevin.turkiye@gmail.com бо мавзӯи «Дархости нест кардани ҳисоб» нависед. Дархостҳо дар давоми 30 рӯз иҷро мешаванд."
+        },
+        {
+          "q": "Оё мушовирони LSevin гуфта метавонанд, ки ба ман кадом табобат лозим аст?",
+          "a": "Не. Мушовирон дар интихоби хидматрасон, санаҳо ва ҷои истиқомат кӯмак мекунанд. Қарорҳои тиббиро духтури муолиҷи шумо қабул мекунад."
+        },
+        {
+          "q": "Пардохтам анҷом наёфт, вале маблағ аз ҳисобам хориҷ шуд. Чӣ кор кунам?",
+          "a": "Маблағи пардохти тасдиқнашуда одатан дар давоми 72 соат бармегардад. Агар барнагашта бошад, бо нишон додани сана, маблағ ва рақами пайгирии пардохт ба дастгирӣ муроҷиат кунед."
+        },
+        {
+          "q": "Дар бораи худи табобат ё меҳмонхона ба кӣ муроҷиат кунам?",
+          "a": "Аз саҳифаи брони худ ба хидматрасон паём фиристед. Агар бо он тамос гирифта натавонед ё масъала ба пардохт ё бекоркунӣ марбут бошад, ба дастгирии LSevin муроҷиат кунед."
+        }
+      ]
+    },
+    "zh-CN": {
+      "title": "联系LSevin",
+      "metaDescription": "联系LSevin的方式：账户内的客服聊天、免费咨询回电，以及用于隐私和数据请求的邮箱。附上哪些信息能帮助我们更快处理您的问题。",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "LSevin的客户服务在产品内进行，因此您的对话会始终与您的账户、预约或订单关联在一起。请根据您的问题选择下列合适的渠道。"
+        },
+        {
+          "type": "h2",
+          "text": "账户内的客服聊天"
+        },
+        {
+          "type": "p",
+          "text": "在LSevin账户中打开“客服”，写下您的问题即可。您可以附加文件，例如报错截图或付款凭证。每个对话都会显示当前状态：进行中、待处理、已解决或已关闭。"
+        },
+        {
+          "type": "p",
+          "text": "您可以通过客服表单发起对话，只需填写姓名以及邮箱地址或手机号码其中之一。如需稍后继续对话并查看回复，请使用账户绑定的手机号码登录。"
+        },
+        {
+          "type": "p",
+          "text": "预约、付款、钱包、商店订单或账户方面遇到问题时，请使用客服聊天。"
+        },
+        {
+          "type": "h2",
+          "text": "免费咨询回电"
+        },
+        {
+          "type": "p",
+          "text": "如果您还在考虑选择哪家诊所、哪位医生、哪家酒店或哪款产品，可以申请免费咨询。填写姓名和电话号码、方便接听电话的时间（任何时间、上午、下午或晚上）以及您希望多快得到答复。LSevin顾问会拨打您填写的号码与您联系。"
+        },
+        {
+          "type": "p",
+          "text": "回电服务免费，也不会影响您已开始的预约。顾问会帮您比较不同选择、规划日期，但不提供医疗建议；治疗方案由您的主治医生决定。"
+        },
+        {
+          "type": "h2",
+          "text": "关于某项预约的问题"
+        },
+        {
+          "type": "p",
+          "text": "如果问题涉及服务本身，例如就诊需要携带什么、旅游团在哪里集合，请在预约页面直接给服务商发消息。如果问题涉及付款、取消、退款，或者您无法联系上服务商，请联系LSevin客服。"
+        },
+        {
+          "type": "h2",
+          "text": "隐私与个人数据"
+        },
+        {
+          "type": "p",
+          "text": "如对个人数据有疑问，或希望我们删除您的账户，请发送邮件至 lsevin.turkiye@gmail.com。请使用与账户关联的邮箱地址或手机号码发送，邮件主题填写“账户删除申请”或“数据删除申请”。"
+        },
+        {
+          "type": "p",
+          "text": "我们会核实申请，并在30天内处理完毕。隐私政策中说明了哪些数据会被删除，以及出于法律、税务、安全或防范欺诈的原因我们必须保留哪些记录。"
+        },
+        {
+          "type": "h2",
+          "text": "消息中请附上的信息"
+        },
+        {
+          "type": "p",
+          "text": "预约：“我的预约”中显示的预约编号以及服务商名称。"
+        },
+        {
+          "type": "p",
+          "text": "商店订单：订单号以及下单时使用的邮箱地址。"
+        },
+        {
+          "type": "p",
+          "text": "付款：付款日期、金额、支付方式，以及银行或支付网关显示的参考号。"
+        },
+        {
+          "type": "p",
+          "text": "请勿发送您的一次性登录验证码、完整银行卡号或银行卡密码。LSevin工作人员不会向您索取这些信息。"
+        },
+        {
+          "type": "h2",
+          "text": "付款未成功时"
+        },
+        {
+          "type": "p",
+          "text": "如果支付网关无法确认付款，预约或订单不会完成。如果款项确实已从您的银行账户扣除，通常会在72小时内退回。超过这一时间仍未到账，请发起客服对话并附上付款参考号。"
+        },
+        {
+          "type": "h2",
+          "text": "核实对方身份"
+        },
+        {
+          "type": "p",
+          "text": "LSevin展示了Enamad电子信任标识，编号7764782。点击网站上的标识，即可在 trustseal.enamad.ir 上查看其备案记录。如果收到自称来自LSevin、要求您在网站或LSevin钱包之外付款的消息，请在付款前先向客服举报。"
+        }
+      ],
+      "faq": [
+        {
+          "q": "联系客服需要账户吗？",
+          "a": "您可以只填写姓名以及邮箱地址或手机号码来发送第一条消息。如需查看回复并继续对话，请使用手机号码登录。"
+        },
+        {
+          "q": "如何申请删除账户？",
+          "a": "请使用账户绑定的邮箱或手机号码发送邮件至 lsevin.turkiye@gmail.com，主题填写“账户删除申请”。申请会在30天内处理。"
+        },
+        {
+          "q": "LSevin顾问能告诉我需要哪种治疗吗？",
+          "a": "不能。顾问会帮您选择服务商、日期和住宿，医疗方面的决定由您的主治医生作出。"
+        },
+        {
+          "q": "付款失败了，但钱已经扣了，该怎么办？",
+          "a": "未确认的付款款项通常会在72小时内退回。如果仍未退回，请联系客服，并提供付款日期、金额和参考号。"
+        },
+        {
+          "q": "关于治疗或酒店本身的问题应该联系谁？",
+          "a": "请在预约页面给服务商发消息。如果无法联系上对方，或者问题涉及付款或取消，请联系LSevin客服。"
+        }
+      ]
+    },
+    "de-DE": {
+      "title": "LSevin kontaktieren",
+      "metaDescription": "So erreichen Sie LSevin: Support-Chat in Ihrem Konto, kostenloser Beratungsrückruf und E-Mail für Datenschutzanfragen. Welche Angaben uns helfen, schneller zu antworten.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "LSevin bietet den Kundenservice direkt im Produkt an, damit Ihr Gespräch mit Ihrem Konto, Ihrer Buchung oder Ihrer Bestellung verknüpft bleibt. Wählen Sie unten den Kanal, der zu Ihrer Frage passt."
+        },
+        {
+          "type": "h2",
+          "text": "Support-Chat in Ihrem Konto"
+        },
+        {
+          "type": "p",
+          "text": "Öffnen Sie in Ihrem LSevin Konto den Bereich Support und schreiben Sie Ihre Nachricht. Sie können Dateien anhängen, zum Beispiel einen Screenshot einer Fehlermeldung oder einen Zahlungsbeleg. Jedes Gespräch zeigt seinen Status: offen, ausstehend, gelöst oder geschlossen."
+        },
+        {
+          "type": "p",
+          "text": "Ein Gespräch können Sie über das Support-Formular beginnen, indem Sie Ihren Namen und entweder eine E-Mail-Adresse oder eine Telefonnummer angeben. Um ein Gespräch später fortzusetzen und die Antworten zu sehen, melden Sie sich mit der Telefonnummer Ihres Kontos an."
+        },
+        {
+          "type": "p",
+          "text": "Nutzen Sie den Support-Chat bei Problemen mit einer Buchung, einer Zahlung, Ihrem Wallet, einer Shop-Bestellung oder Ihrem Konto."
+        },
+        {
+          "type": "h2",
+          "text": "Kostenloser Beratungsrückruf"
+        },
+        {
+          "type": "p",
+          "text": "Wenn Sie sich noch für eine Klinik, einen Arzt, ein Hotel oder ein Produkt entscheiden, fordern Sie eine kostenlose Beratung an. Geben Sie Ihren Namen und Ihre Telefonnummer ein, die beste Zeit für einen Anruf (jederzeit, morgens, nachmittags oder abends) und wie schnell Sie eine Antwort benötigen. Ein LSevin Berater meldet sich unter der angegebenen Nummer bei Ihnen."
+        },
+        {
+          "type": "p",
+          "text": "Der Rückruf ist kostenlos und ändert nichts an einer Buchung, die Sie begonnen haben. Die Berater helfen Ihnen, Optionen zu vergleichen und Termine zu planen. Sie geben keine medizinischen Ratschläge; über die Behandlung entscheidet Ihr behandelnder Arzt."
+        },
+        {
+          "type": "h2",
+          "text": "Fragen zu einer bestimmten Buchung"
+        },
+        {
+          "type": "p",
+          "text": "Bei Fragen zur Leistung selbst, etwa was Sie zu einem Termin mitbringen sollen oder wo der Treffpunkt einer Tour ist, schreiben Sie dem Anbieter über Ihre Buchungsseite. Wenden Sie sich an den LSevin Support, wenn es um Zahlung, Stornierung, eine Erstattung oder einen Anbieter geht, den Sie nicht erreichen."
+        },
+        {
+          "type": "h2",
+          "text": "Datenschutz und personenbezogene Daten"
+        },
+        {
+          "type": "p",
+          "text": "Schreiben Sie an lsevin.turkiye@gmail.com, wenn Sie Fragen zu Ihren personenbezogenen Daten haben oder die Löschung Ihres Kontos wünschen. Schreiben Sie von der E-Mail-Adresse oder unter Angabe der Telefonnummer, die mit Ihrem Konto verknüpft ist, und verwenden Sie den Betreff Account deletion request oder Data deletion request."
+        },
+        {
+          "type": "p",
+          "text": "Wir prüfen die Anfrage und bearbeiten sie innerhalb von 30 Tagen. Die Datenschutzerklärung erläutert, was gelöscht wird und welche Unterlagen wir aus rechtlichen, steuerlichen, sicherheitsbezogenen Gründen oder zur Betrugsprävention aufbewahren müssen."
+        },
+        {
+          "type": "h2",
+          "text": "Was Ihre Nachricht enthalten sollte"
+        },
+        {
+          "type": "p",
+          "text": "Buchung: die Buchungsnummer aus „Meine Buchungen“ und den Namen des Anbieters."
+        },
+        {
+          "type": "p",
+          "text": "Shop-Bestellung: die Bestellnummer und die E-Mail-Adresse, die Sie bei der Bestellung verwendet haben."
+        },
+        {
+          "type": "p",
+          "text": "Zahlung: Datum, Betrag, Zahlungsmethode und die Referenznummer, die die Bank oder das Zahlungsgateway angezeigt hat."
+        },
+        {
+          "type": "p",
+          "text": "Senden Sie niemals Ihren Einmalcode für die Anmeldung, Ihre vollständige Kartennummer oder Ihre Karten-PIN. Mitarbeitende von LSevin werden Sie nicht danach fragen."
+        },
+        {
+          "type": "h2",
+          "text": "Wenn eine Zahlung nicht durchgegangen ist"
+        },
+        {
+          "type": "p",
+          "text": "Kann das Zahlungsgateway eine Zahlung nicht bestätigen, wird die Buchung oder Bestellung nicht abgeschlossen. Wurde trotzdem Geld von Ihrem Bankkonto abgebucht, kommt es in der Regel innerhalb von 72 Stunden zurück. Ist es danach noch nicht zurück, eröffnen Sie ein Support-Gespräch und geben Sie die Zahlungsreferenz an."
+        },
+        {
+          "type": "h2",
+          "text": "Prüfen Sie, mit wem Sie es zu tun haben"
+        },
+        {
+          "type": "p",
+          "text": "LSevin zeigt das elektronische Vertrauenssiegel Enamad mit der ID 7764782. Klicken Sie auf der Website auf das Siegel, um den Eintrag auf trustseal.enamad.ir zu öffnen. Nachrichten, die angeblich von LSevin stammen und Sie auffordern, außerhalb der Website oder des LSevin Wallets zu bezahlen, melden Sie bitte dem Support, bevor Sie zahlen."
+        }
+      ],
+      "faq": [
+        {
+          "q": "Brauche ich ein Konto, um den Support zu kontaktieren?",
+          "a": "Eine erste Nachricht können Sie mit Ihrem Namen und einer E-Mail-Adresse oder Telefonnummer senden. Um Antworten zu lesen und das Gespräch fortzusetzen, melden Sie sich mit Ihrer Telefonnummer an."
+        },
+        {
+          "q": "Wie beantrage ich die Löschung meines Kontos?",
+          "a": "Schreiben Sie von der E-Mail-Adresse oder unter Angabe der Telefonnummer Ihres Kontos an lsevin.turkiye@gmail.com mit dem Betreff Account deletion request. Anfragen werden innerhalb von 30 Tagen bearbeitet."
+        },
+        {
+          "q": "Können mir die LSevin Berater sagen, welche Behandlung ich brauche?",
+          "a": "Nein. Die Berater helfen Ihnen bei der Wahl von Anbietern, Terminen und Unterkunft. Medizinische Entscheidungen trifft Ihr behandelnder Arzt."
+        },
+        {
+          "q": "Meine Zahlung ist fehlgeschlagen, aber das Geld wurde abgebucht. Was soll ich tun?",
+          "a": "Geld aus einer nicht bestätigten Zahlung kommt in der Regel innerhalb von 72 Stunden zurück. Ist das nicht der Fall, wenden Sie sich mit Datum, Betrag und Referenznummer der Zahlung an den Support."
+        },
+        {
+          "q": "An wen wende ich mich bei Fragen zur Behandlung oder zum Hotel selbst?",
+          "a": "Schreiben Sie dem Anbieter über Ihre Buchungsseite. Wenn Sie ihn nicht erreichen oder es um Zahlung oder Stornierung geht, wenden Sie sich an den LSevin Support."
+        }
+      ]
+    },
+    "fr-FR": {
+      "title": "Contacter LSevin",
+      "metaDescription": "Comment joindre LSevin : chat d’assistance dans votre compte, rappel pour une consultation gratuite et e-mail pour les demandes liées à vos données personnelles.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "LSevin gère son service client directement dans la plateforme : votre conversation reste ainsi rattachée à votre compte, à votre réservation ou à votre commande. Choisissez ci-dessous le canal qui correspond à votre question."
+        },
+        {
+          "type": "h2",
+          "text": "Chat d’assistance dans votre compte"
+        },
+        {
+          "type": "p",
+          "text": "Ouvrez Assistance depuis votre compte LSevin et rédigez votre message. Vous pouvez joindre des fichiers, par exemple une capture d’écran d’une erreur ou un reçu de paiement. Chaque conversation affiche son statut : ouverte, en attente, résolue ou fermée."
+        },
+        {
+          "type": "p",
+          "text": "Vous pouvez lancer une conversation depuis le formulaire d’assistance en indiquant votre nom et une adresse e-mail ou un numéro de téléphone. Pour reprendre la conversation plus tard et lire les réponses, connectez-vous avec le numéro de téléphone de votre compte."
+        },
+        {
+          "type": "p",
+          "text": "Utilisez le chat d’assistance pour tout problème lié à une réservation, un paiement, votre portefeuille, une commande en boutique ou votre compte."
+        },
+        {
+          "type": "h2",
+          "text": "Rappel pour une consultation gratuite"
+        },
+        {
+          "type": "p",
+          "text": "Si vous hésitez encore sur une clinique, un médecin, un hôtel ou un produit, demandez une consultation gratuite. Indiquez votre nom et votre numéro de téléphone, le meilleur moment pour vous appeler (n’importe quand, le matin, l’après-midi ou le soir) et le délai dans lequel vous avez besoin d’une réponse. Un conseiller LSevin vous contacte au numéro indiqué."
+        },
+        {
+          "type": "p",
+          "text": "Le rappel est gratuit et ne modifie pas une réservation déjà commencée. Les conseillers vous aident à comparer les options et à planifier vos dates. Ils ne donnent pas d’avis médical : c’est votre médecin traitant qui décide du traitement."
+        },
+        {
+          "type": "h2",
+          "text": "Questions sur une réservation précise"
+        },
+        {
+          "type": "p",
+          "text": "Pour toute question sur le service lui-même, par exemple ce qu’il faut apporter à un rendez-vous ou le lieu de rendez-vous d’un circuit, écrivez au prestataire depuis la page de votre réservation. Contactez l’assistance LSevin lorsque le problème concerne un paiement, une annulation, un remboursement ou un prestataire que vous n’arrivez pas à joindre."
+        },
+        {
+          "type": "h2",
+          "text": "Confidentialité et données personnelles"
+        },
+        {
+          "type": "p",
+          "text": "Écrivez à lsevin.turkiye@gmail.com pour toute question sur vos données personnelles ou pour nous demander de supprimer votre compte. Envoyez votre message depuis l’adresse e-mail ou le numéro de téléphone associé à votre compte, avec pour objet « Demande de suppression de compte » ou « Demande de suppression de données »."
+        },
+        {
+          "type": "p",
+          "text": "Nous vérifions la demande et la traitons dans un délai de 30 jours. La politique de confidentialité précise ce qui est supprimé et quelles données nous devons conserver pour des raisons légales, fiscales, de sécurité ou de prévention de la fraude."
+        },
+        {
+          "type": "h2",
+          "text": "Ce qu’il faut indiquer dans votre message"
+        },
+        {
+          "type": "p",
+          "text": "Réservation : le numéro de réservation figurant dans Mes réservations et le nom du prestataire."
+        },
+        {
+          "type": "p",
+          "text": "Commande en boutique : le numéro de commande et l’adresse e-mail utilisée pour la commande."
+        },
+        {
+          "type": "p",
+          "text": "Paiement : la date, le montant, le moyen de paiement et le numéro de référence affiché par la banque ou la passerelle de paiement."
+        },
+        {
+          "type": "p",
+          "text": "N’envoyez jamais votre code de connexion à usage unique, le numéro complet de votre carte ni son code PIN. Le personnel de LSevin ne vous les demandera pas."
+        },
+        {
+          "type": "h2",
+          "text": "Si un paiement n’a pas abouti"
+        },
+        {
+          "type": "p",
+          "text": "Lorsque la passerelle ne peut pas confirmer un paiement, la réservation ou la commande n’est pas finalisée. Si la somme a bien été débitée de votre compte bancaire, elle est généralement restituée sous 72 heures. Si ce n’est pas le cas passé ce délai, ouvrez une conversation avec l’assistance en indiquant la référence du paiement."
+        },
+        {
+          "type": "h2",
+          "text": "Vérifiez à qui vous avez affaire"
+        },
+        {
+          "type": "p",
+          "text": "LSevin affiche le sceau de confiance électronique Enamad, ID 7764782. Cliquez sur le sceau affiché sur le site pour ouvrir sa fiche sur trustseal.enamad.ir. Si vous recevez un message se présentant comme venant de LSevin et vous demandant de payer en dehors du site ou du portefeuille LSevin, signalez-le à l’assistance avant de payer."
+        }
+      ],
+      "faq": [
+        {
+          "q": "Ai-je besoin d’un compte pour contacter l’assistance ?",
+          "a": "Vous pouvez envoyer un premier message en indiquant votre nom et une adresse e-mail ou un numéro de téléphone. Pour lire les réponses et poursuivre la conversation, connectez-vous avec votre numéro de téléphone."
+        },
+        {
+          "q": "Comment demander la suppression de mon compte ?",
+          "a": "Écrivez à lsevin.turkiye@gmail.com depuis l’adresse e-mail ou le numéro de téléphone de votre compte, avec pour objet « Demande de suppression de compte ». Les demandes sont traitées dans un délai de 30 jours."
+        },
+        {
+          "q": "Les conseillers LSevin peuvent-ils me dire de quel traitement j’ai besoin ?",
+          "a": "Non. Les conseillers vous aident à choisir les prestataires, les dates et l’hébergement. Les décisions médicales sont prises par votre médecin traitant."
+        },
+        {
+          "q": "Mon paiement a échoué mais la somme a été débitée. Que dois-je faire ?",
+          "a": "La somme d’un paiement non confirmé est généralement restituée sous 72 heures. Si ce n’est pas le cas, contactez l’assistance en indiquant la date, le montant et le numéro de référence du paiement."
+        },
+        {
+          "q": "Qui contacter au sujet du traitement ou de l’hôtel lui-même ?",
+          "a": "Écrivez au prestataire depuis la page de votre réservation. Si vous n’arrivez pas à le joindre, ou si le problème concerne un paiement ou une annulation, contactez l’assistance LSevin."
+        }
+      ]
+    },
+    "es-ES": {
+      "title": "Contactar con LSevin",
+      "metaDescription": "Cómo contactar con LSevin: chat de soporte en su cuenta, llamada de consulta gratuita y correo para privacidad y datos. Qué incluir para que podamos ayudarle antes.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "LSevin presta su atención al cliente dentro del propio producto, de modo que cada conversación queda vinculada a su cuenta, su reserva o su pedido. Elija a continuación el canal que mejor se ajuste a su consulta."
+        },
+        {
+          "type": "h2",
+          "text": "Chat de soporte en su cuenta"
+        },
+        {
+          "type": "p",
+          "text": "Abra Soporte desde su cuenta de LSevin y escriba su mensaje. Puede adjuntar archivos, como una captura de pantalla de un error o un comprobante de pago. Cada conversación muestra su estado: abierta, pendiente, resuelta o cerrada."
+        },
+        {
+          "type": "p",
+          "text": "Puede iniciar una conversación desde el formulario de soporte indicando su nombre y una dirección de correo electrónico o un número de teléfono. Para continuarla más tarde y ver las respuestas, inicie sesión con el número de teléfono de su cuenta."
+        },
+        {
+          "type": "p",
+          "text": "Utilice el chat de soporte para problemas con una reserva, un pago, su monedero, un pedido de la tienda o su cuenta."
+        },
+        {
+          "type": "h2",
+          "text": "Llamada de consulta gratuita"
+        },
+        {
+          "type": "p",
+          "text": "Si todavía está decidiendo qué clínica, médico, hotel o producto elegir, solicite una consulta gratuita. Indique su nombre y número de teléfono, el mejor momento para llamarle (cualquier hora, mañana, tarde o noche) y con qué urgencia necesita una respuesta. Un asesor de LSevin se pondrá en contacto con usted en el número que haya indicado."
+        },
+        {
+          "type": "p",
+          "text": "La llamada es gratuita y no modifica ninguna reserva que haya iniciado. Los asesores le ayudan a comparar opciones y a planificar fechas. No ofrecen asesoramiento médico; las decisiones sobre el tratamiento corresponden a su médico tratante."
+        },
+        {
+          "type": "h2",
+          "text": "Preguntas sobre una reserva concreta"
+        },
+        {
+          "type": "p",
+          "text": "Para preguntas sobre el servicio en sí, como qué llevar a una cita o dónde es el punto de encuentro de un tour, escriba al proveedor desde la página de su reserva. Contacte con el soporte de LSevin cuando el problema tenga que ver con un pago, una cancelación, un reembolso o un proveedor con el que no consigue comunicarse."
+        },
+        {
+          "type": "h2",
+          "text": "Privacidad y datos personales"
+        },
+        {
+          "type": "p",
+          "text": "Escriba a lsevin.turkiye@gmail.com si tiene preguntas sobre sus datos personales o desea solicitar la eliminación de su cuenta. Envíe el mensaje desde la dirección de correo o con el número de teléfono asociados a su cuenta, y utilice el asunto Account deletion request (solicitud de eliminación de cuenta) o Data deletion request (solicitud de eliminación de datos)."
+        },
+        {
+          "type": "p",
+          "text": "Verificamos la solicitud y la tramitamos en un plazo de 30 días. La política de privacidad explica qué se elimina y qué registros debemos conservar por motivos legales, fiscales, de seguridad o de prevención del fraude."
+        },
+        {
+          "type": "h2",
+          "text": "Qué incluir en su mensaje"
+        },
+        {
+          "type": "p",
+          "text": "Reserva: el número de reserva que aparece en Mis reservas y el nombre del proveedor."
+        },
+        {
+          "type": "p",
+          "text": "Pedido de la tienda: el número de pedido y la dirección de correo electrónico utilizada en el pedido."
+        },
+        {
+          "type": "p",
+          "text": "Pago: la fecha, el importe, el método de pago y el número de referencia que muestra el banco o la pasarela."
+        },
+        {
+          "type": "p",
+          "text": "No envíe nunca su código de acceso de un solo uso, el número completo de su tarjeta ni su PIN. El personal de LSevin no se los pedirá."
+        },
+        {
+          "type": "h2",
+          "text": "Si un pago no se completó"
+        },
+        {
+          "type": "p",
+          "text": "Cuando la pasarela no puede confirmar un pago, la reserva o el pedido no se completa. Si el dinero sí salió de su cuenta bancaria, normalmente se devuelve en un plazo de 72 horas. Si pasado ese tiempo no se ha devuelto, abra una conversación con soporte e incluya la referencia del pago."
+        },
+        {
+          "type": "h2",
+          "text": "Compruebe con quién está tratando"
+        },
+        {
+          "type": "p",
+          "text": "LSevin muestra el sello electrónico de confianza Enamad, con ID 7764782. Haga clic en el sello del sitio para abrir su registro en trustseal.enamad.ir. Si recibe mensajes que dicen proceder de LSevin y le piden pagar fuera del sitio o del monedero de LSevin, comuníquelo a soporte antes de pagar."
+        }
+      ],
+      "faq": [
+        {
+          "q": "¿Necesito una cuenta para contactar con soporte?",
+          "a": "Puede enviar un primer mensaje con su nombre y una dirección de correo electrónico o un número de teléfono. Para leer las respuestas y continuar la conversación, inicie sesión con su número de teléfono."
+        },
+        {
+          "q": "¿Cómo solicito la eliminación de mi cuenta?",
+          "a": "Escriba a lsevin.turkiye@gmail.com desde el correo o con el número de teléfono de su cuenta, con el asunto Account deletion request. Las solicitudes se tramitan en un plazo de 30 días."
+        },
+        {
+          "q": "¿Pueden los asesores de LSevin decirme qué tratamiento necesito?",
+          "a": "No. Los asesores le ayudan a elegir proveedores, fechas y alojamiento. Las decisiones médicas las toma su médico tratante."
+        },
+        {
+          "q": "Mi pago falló, pero el dinero salió de mi cuenta. ¿Qué hago?",
+          "a": "El dinero de un pago no confirmado suele devolverse en un plazo de 72 horas. Si no ha sido así, contacte con soporte indicando la fecha, el importe y el número de referencia del pago."
+        },
+        {
+          "q": "¿A quién me dirijo por cuestiones del tratamiento o del hotel en sí?",
+          "a": "Escriba al proveedor desde la página de su reserva. Si no consigue comunicarse con él, o si el asunto tiene que ver con un pago o una cancelación, contacte con el soporte de LSevin."
+        }
+      ]
+    }
+  }
+}

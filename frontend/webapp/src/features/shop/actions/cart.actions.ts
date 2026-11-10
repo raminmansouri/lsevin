@@ -17,7 +17,7 @@ import {
 } from "../api/cart.repository";
 
 const SHOP_PATHS = [
-  "/n/app/mobile/shop",
+  "/shop",
   "/n/app/mobile/shop/cart",
   "/n/app/mobile/shop/checkout",
 ];

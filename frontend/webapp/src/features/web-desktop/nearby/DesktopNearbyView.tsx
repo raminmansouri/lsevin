@@ -6,6 +6,7 @@ import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 
 import { FavoriteButton } from "@/features/favorites/components/favorite-button";
 import { Link, useRouter } from "@/i18n/navigation";
+import { slugLookup, type ListingSlugs } from "@/lib/routes/filter-paths";
 import NearbyMap from "@/app/[locale]/n/app/mobile/map-discovery/NearbyMap";
 import {
   buildNearbyQuery,
@@ -37,10 +38,19 @@ type Props = {
   expandedBeyondFilters: boolean;
   /** "list" when the page was opened as a provider list (e.g. from a category). */
   initialView: "map" | "list";
+  /** The URL slug of the provider type this request filters by, if any. */
+  providerTypeSlug?: string | null;
 };
 
 /** Desktop map discovery: a full-height map beside the list, kept in sync both ways. */
-export function DesktopNearbyView({ locale, categories, providers, filters, mapCenter, expandedBeyondFilters, initialView }: Props) {
+export function DesktopNearbyView({ locale, categories, providers, filters, mapCenter, expandedBeyondFilters, initialView, providerTypeSlug = null }: Props) {
+  const slugs = useMemo<ListingSlugs>(
+    () => ({
+      category: slugLookup(categories.filter((category) => category.id !== "all")),
+      type: (id) => (id === filters.providerTypeId ? providerTypeSlug : null),
+    }),
+    [categories, filters.providerTypeId, providerTypeSlug],
+  );
   const t = useTranslations(NAMESPACE);
   const tExplore = useTranslations("Explore");
   const router = useRouter();
@@ -62,7 +72,7 @@ export function DesktopNearbyView({ locale, categories, providers, filters, mapC
   const km = (value: number) => new Intl.NumberFormat(locale, { style: "unit", unit: "kilometer", maximumFractionDigits: 1 }).format(value);
 
   const apply = (changes: Partial<NearbyFiltersInput>) =>
-    navigateSmooth(startTransition, router, buildNearbyQuery({ ...filters, ...changes }, view));
+    navigateSmooth(startTransition, router, buildNearbyQuery({ ...filters, ...changes }, view, slugs));
 
   // A pin picked on the map: bring its card into view.
   const selectFromMap = (id: string | null) => {
@@ -100,7 +110,7 @@ export function DesktopNearbyView({ locale, categories, providers, filters, mapC
         <div className={view === "map" ? "flex h-[calc(100vh-136px)] min-h-[560px] flex-col" : "flex flex-col"}>
           <div className="space-y-4 pb-4">
             <div className="flex items-end justify-between gap-4">
-              <h1 className="lsd-heading text-3xl font-black text-[#0e1a16]">{t("title")}</h1>
+              <div role="heading" aria-level={1} className="lsd-heading text-3xl font-black text-[#0e1a16]">{t("title")}</div>
               <span className="flex items-center gap-3">
                 <span className="rounded-full bg-[#083f30] px-3 py-1 text-sm font-bold text-[#eacb7f]">{number(providers.length)}</span>
                 <button
@@ -206,7 +216,7 @@ export function DesktopNearbyView({ locale, categories, providers, filters, mapC
             </div>
 
             {hasCustomFilters ? (
-              <Link href="/n/app/mobile/map-discovery" className="inline-block text-sm font-semibold text-[#8c6b2c] hover:text-[#083f30]">
+              <Link href="/map" className="inline-block text-sm font-semibold text-[#8c6b2c] hover:text-[#083f30]">
                 {t("clearAll")}
               </Link>
             ) : null}
@@ -231,7 +241,7 @@ export function DesktopNearbyView({ locale, categories, providers, filters, mapC
                         selected ? "shadow-[0_20px_40px_-25px_rgba(6,42,32,0.6)] ring-2 ring-[#c9a55a]" : "ring-1 ring-[#dce4e0] hover:ring-[#c9a55a]/60"
                       }`}
                     >
-                      <Link href={providerHref(provider.id)} className="absolute inset-0 z-0 rounded-[24px]" aria-label={provider.name} />
+                      <Link href={providerHref(provider)} className="absolute inset-0 z-0 rounded-[24px]" aria-label={provider.name} />
                       <div className="relative h-28 w-28 shrink-0 overflow-hidden rounded-2xl bg-[#0f5a45]">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img src={mediaUrl(provider.image)} alt="" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110" />
