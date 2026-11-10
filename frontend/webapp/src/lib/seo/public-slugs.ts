@@ -4,7 +4,7 @@ import { cache } from 'react';
 
 import sql from '@/config/database/db';
 
-export type PublicEntityKind = 'provider' | 'specialty' | 'service' | 'specialist' | 'package';
+export type PublicEntityKind = 'provider' | 'specialty' | 'service' | 'specialist' | 'package' | 'category';
 export type PublicEntityRef = { id: string; slug: string | null };
 
 // PostgreSQL accepts historical UUID values whose version/variant bits are not RFC 4122.
@@ -25,6 +25,7 @@ const SLUG_TABLES = {
   service: 'category.provider_services',
   specialist: 'category.staff',
   package: 'marketing.special_packages',
+  category: 'category.categories',
 } as const satisfies Record<PublicEntityKind, string>;
 
 /** The public URL segment for each id, in the same order: its slug, or the id while it has none. */
@@ -71,6 +72,11 @@ export const resolvePublicEntity = cache(async (kind: PublicEntityKind, value: s
       rows = byId
         ? await sql<PublicEntityRef[]>`select id::text as id, slug from marketing.special_packages where id = ${value}::uuid and is_active = true limit 1`
         : await sql<PublicEntityRef[]>`select id::text as id, slug from marketing.special_packages where slug = ${value} and is_active = true limit 1`;
+      break;
+    case 'category':
+      rows = byId
+        ? await sql<PublicEntityRef[]>`select id::text as id, slug from category.categories where id = ${value}::uuid and is_active = true limit 1`
+        : await sql<PublicEntityRef[]>`select id::text as id, slug from category.categories where slug = ${value} and is_active = true limit 1`;
       break;
   }
   if (rows[0] || byId) return rows[0] ?? null;

@@ -40,12 +40,16 @@ export type ExploreFiltersInput = {
 
 export type ExploreCategory = {
   id: string;
+  /** Public URL segment (migration 0095). */
+  slug: string | null;
   label: string;
   count: number;
 };
 
 export type ExploreProviderType = {
   id: string;
+  /** Public URL segment: /specialties/<slug>. */
+  slug: string | null;
   label: string;
   description: string;
   image: string;
@@ -695,6 +699,7 @@ async function getExploreCatalogCached(
       with recursive ${categoryProviderCountsCte()}
       select
         c.id::text as id,
+        c.slug,
         common.get_translation_t(c.name_translations, ${lang}, 'en') as label,
         pc.provider_count as count,
         ${categoryTotalProviderCount()} as "totalProviders"
@@ -708,6 +713,7 @@ async function getExploreCatalogCached(
     sql<ExploreProviderType[]>`
     select
       pt.id::text as id,
+      pt.slug,
       common.get_translation_t(pt.name_translations, ${lang}, 'en') as label,
       common.get_translation_t(pt.description_translations, ${lang}, 'en') as description,
       coalesce(
@@ -1033,14 +1039,16 @@ async function getExploreCatalogCached(
     `,
   ]);
 
-  const categories: ExploreCategory[] = categoryRows.map(({ id, label, count }) => ({
+  const categories: ExploreCategory[] = categoryRows.map(({ id, slug, label, count }) => ({
     id,
+    slug: slug ?? null,
     label,
     count: Number(count),
   }));
 
   const providerTypes: ExploreProviderType[] = providerTypeRows.map((row) => ({
     id: row.id,
+    slug: row.slug ?? null,
     label: row.label,
     description: row.description || "",
     image: coalesceImage(row.image),
@@ -1172,7 +1180,7 @@ export async function getExplorePageData({
   return {
     customerId,
     categories: [
-      { id: "all", label: tBadges("allServices"), count: catalog.totalProviderCount },
+      { id: "all", slug: null, label: tBadges("allServices"), count: catalog.totalProviderCount },
       ...catalog.categories,
     ],
     providerTypes: catalog.providerTypes,

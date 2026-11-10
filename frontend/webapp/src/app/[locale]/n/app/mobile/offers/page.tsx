@@ -7,6 +7,9 @@ import { DesktopSponsoredSection } from "@/features/web-desktop/home/DesktopSpon
 import { getTranslations } from "next-intl/server";
 import { buildPublicMetadata } from "@/lib/seo/metadata";
 import { INDEXABLE_SHOP_LOCALES } from "@/lib/seo/locale-eligibility";
+import { permanentRedirect } from "next/navigation";
+import { setListingParams } from "@/lib/routes/filter-paths";
+import { otherFilters, resolveListingParams, resolvedSlugs } from "@/lib/seo/listing-params";
 
 export const dynamic = "force-dynamic";
 
@@ -30,7 +33,13 @@ export async function generateMetadata({ params }: Pick<PageProps, "params">) {
 export default async function Page({ params, searchParams }: PageProps) {
   const [{ locale }, resolvedSearchParams] = await Promise.all([params, searchParams]);
 
-  const filters = parseOffersFilters(resolvedSearchParams);
+  // ?category=<slug>; an old ?categoryId=<uuid> link moves there once.
+  const listing = await resolveListingParams(resolvedSearchParams);
+  if (listing.stale || listing.providerTypeId) {
+    const query = setListingParams(otherFilters(resolvedSearchParams), { categoryId: listing.categoryId }, resolvedSlugs(listing)).toString();
+    permanentRedirect(`/${locale}/offers${query ? `?${query}` : ""}`);
+  }
+  const filters = parseOffersFilters(listing.params);
   const data = await getOffersPageData({ locale, filters });
 
   return (

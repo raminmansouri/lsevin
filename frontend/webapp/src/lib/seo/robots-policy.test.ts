@@ -39,9 +39,10 @@ describe("server robots boundaries", () => {
   });
   it("limits facet headers to known queries on supported locale landings", () => {
     const headers = facetHeaders(routing.locales);
-    expect(headers).toHaveLength(22);
+    // shop 8 + specialties 15 + category providers 14 (filters and view).
+    expect(headers).toHaveLength(37);
     for (const rule of headers) {
-      expect(rule.source).toMatch(/\/(shop\/:slug|specialties\/:slug)$/);
+      expect(rule.source).toMatch(/\/(shop\/:slug|specialties\/:slug|categories\/:slug\/providers)$/);
       expect(rule.source).toContain(routing.locales.join("|"));
       expect(rule.has).toHaveLength(1);
       expect(rule.has[0].type).toBe("query");

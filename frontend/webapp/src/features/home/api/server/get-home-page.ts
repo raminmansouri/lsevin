@@ -15,6 +15,8 @@ export type HomeQueryInput = {
 
 export type HomeCategory = {
   id: string;
+  /** Public URL segment: /categories/<slug> (migration 0095). */
+  slug: string | null;
   label: string;
   imageUrl: string | null;
   gradient: string | null;
@@ -178,6 +180,7 @@ export async function getHomeCategories(input: HomeQueryInput, limit = 6): Promi
   const locale = normalizeLocale(input.locale);
   const rows = await sql<{
     id: string;
+    slug: string | null;
     label: string;
     imageUrl: string | null;
     gradient: string | null;
@@ -198,6 +201,7 @@ export async function getHomeCategories(input: HomeQueryInput, limit = 6): Promi
     with recursive ${categoryProviderCountsCte()}
     select
       c.id::text as id,
+      c.slug,
       common.get_translation_t(c.name_translations, ${locale}::text, 'en-US') as label,
       -- icon_url may hold a lucide icon NAME rather than a path, so only image_url
       -- is safe to use as an image source.
@@ -229,6 +233,7 @@ export async function getHomeCategories(input: HomeQueryInput, limit = 6): Promi
 
   return rows.map((row, index) => ({
     id: row.id,
+    slug: row.slug ?? null,
     label: row.label,
     imageUrl: row.imageUrl,
     gradient: row.gradient || FALLBACK_GRADIENTS[index % FALLBACK_GRADIENTS.length],

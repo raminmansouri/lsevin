@@ -432,7 +432,8 @@ declare const messages: {
     "categoriesAppear": "Active categories will appear here once they are added.",
     "searchResults": "Search results",
     "goBack": "Go back",
-    "viewAllProviders": "View all {count} providers in {name}"
+    "viewAllProviders": "View all {count} providers in {name}",
+    "providersIn": "{name} providers"
   },
   "Booking": {
     "dayParts": {

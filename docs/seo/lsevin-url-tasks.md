@@ -257,3 +257,25 @@ canonical هر صفحه جدید با `alternatesFor(locale, <مسیر جدید>
 ### محدودیت باقی‌مونده
 - اولین درخواست به یه slug قدیمی (قبل از cache شدن) دو هدر `Location` **یکسان** برمی‌گردونه (رفتار Next.js روی صفحه‌های static). Chrome و Firefox فقط وقتی مقدارها فرق کنن خطا می‌دن؛ درخواست‌های بعدی یه هدر دارن. برای UUID ها این مشکل با rewrite به route داینامیک حل شده.
 - `middleware.ts` فعال، فایل ریشه `frontend/webapp/middleware.ts` است، نه `src/middleware.ts`.
+
+## لینک‌های فیلتر (۱۰ نوامبر ۲۰۲۶)
+
+گزارش: لینک‌های دسته‌بندی، نقشه و کاوش هنوز id داشتن (`/fa/categories?parent=<uuid>`، `/fa/map?categoryId=<uuid>&view=list`، `/fa/explore?providerTypeId=<uuid>`).
+
+| قبلی | جدید |
+|---|---|
+| `/fa/categories?parent=<uuid>` | `/fa/categories/<slug>` (زیردسته‌ها) |
+| `/fa/map?categoryId=<uuid>&view=list` | `/fa/categories/<slug>/providers` (همون صفحه نقشه، با لیست باز می‌شه؛ `?view=map` نقشه) |
+| `/fa/explore?providerTypeId=<uuid>` | `/fa/specialties/<slug>` |
+| `/fa/explore?categoryId=<uuid>` | `/fa/explore?category=<slug>` |
+| `/fa/map?providerTypeId=<uuid>` | `/fa/map?type=<slug>` |
+| `/fa/offers?categoryId=<uuid>` | `/fa/offers?category=<slug>` |
+
+- `0095`: ستون `slug` برای `category.categories` با همون قواعد 0093/0094 (نام انگلیسی، history، رزرو slug قبلی). نوع `category` به `public_slug_history` اضافه شد.
+- قواعد آدرس در `src/lib/routes/filter-paths.ts`؛ خوندن slug و تشخیص لینک قدیمی در `src/lib/seo/listing-params.ts`. هیچ لینکی id نمی‌سازه؛ اگه رکوردی slug نداشت، id می‌ره و صفحه با 308 به slug می‌بره.
+- لینک‌های قدیمی (id یا slug قبلی) با **یه** 308 به آدرس جدید می‌رن.
+- `/fa/categories/<slug>` برای دسته بدون زیردسته با 307 به `/providers` می‌ره (موقتی، چون ممکنه بعدا زیردسته بگیره). گردشگری و زیرمجموعه‌اش به `/tours` می‌رن.
+- چیپ‌های دسته و کارت‌های نوع در کاوش حالا لینک واقعی (`<a href>`) هستن؛ کلیک ساده مثل قبل همون‌جا فیلتر می‌کنه.
+- sitemap: `/categories/<slug>` (دسته‌های دارای زیردسته) و `/categories/<slug>/providers` (دسته‌های دارای ارائه‌دهنده)، فقط fa/en، بدون گردشگری.
+- `/categories/<slug>/providers` با هر فیلتر دیگه (`view`، شهر، قیمت، ...) هدر `X-Robots-Tag: noindex, follow` می‌گیره (`facet-headers.ts`).
+- تست‌ها: `src/lib/seo/filter-paths.test.ts`، `category-ssr.test.ts`، `sitemap.test.ts` و E2E `e2e/seo-filter-links.spec.ts`.

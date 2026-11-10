@@ -10,6 +10,7 @@ const SECTION: Record<PublicEntityKind, string> = {
   service: 'services',
   specialist: 'specialists',
   package: 'packages',
+  category: 'categories',
 };
 
 /** The public path of a catalog entity: `/providers/<slug>`, falling back to the id while it has no slug. */

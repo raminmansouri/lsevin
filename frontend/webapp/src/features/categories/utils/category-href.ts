@@ -6,25 +6,31 @@
  * that has none opens the businesses in it. Nothing in between, and no dead end —
  * every tap either descends a level or arrives at providers.
  *
- * The provider list is the map screen opened in list mode; its own toggle switches
- * to the map.
+ * Both are readable public URLs (src/lib/routes/filter-paths.ts); the provider
+ * list is the directory filtered to the category, with a map button of its own.
  */
 
-const CATEGORY_BROWSER_PATH = "/categories";
-const PROVIDER_LIST_PATH = "/map";
+import { categoryPath, categoryProvidersPath } from "@/lib/routes/filter-paths";
 
-/** The category browser, opened on a node's subcategories rather than at the root. */
-export function categoryBrowserHref(categoryId: string) {
-  return `${CATEGORY_BROWSER_PATH}?parent=${encodeURIComponent(categoryId)}`;
+type CategoryRef = { id: string; slug?: string | null };
+
+/** The URL segment of a category: its slug (migration 0095), else its id, which the page redirects. */
+function segment(category: CategoryRef) {
+  return category.slug || category.id;
 }
 
-/** The providers filed under a category, or under anything beneath it. */
-export function categoryProvidersHref(categoryId: string) {
-  return `${PROVIDER_LIST_PATH}?categoryId=${encodeURIComponent(categoryId)}&view=list`;
+/** The category browser opened on a node's subcategories: /categories/<slug>. */
+export function categoryBrowserHref(category: CategoryRef) {
+  return categoryPath(segment(category));
+}
+
+/** The providers filed under a category, or under anything beneath it: /categories/<slug>/providers. */
+export function categoryProvidersHref(category: CategoryRef) {
+  return categoryProvidersPath(segment(category));
 }
 
 export function categoryCardHref(
-  category: { id: string; childCount: number },
+  category: CategoryRef & { childCount: number },
   /** Pass the Tourism root (from tour settings) so Tourism and its subtree open Tours directly. */
   tourism?: { tourismCategoryId?: string | null; parentOf?: (id: string) => string | null | undefined },
 ) {
@@ -35,8 +41,8 @@ export function categoryCardHref(
     return TOURS_HOME_PATH;
   }
   return category.childCount > 0
-    ? categoryBrowserHref(category.id)
-    : categoryProvidersHref(category.id);
+    ? categoryBrowserHref(category)
+    : categoryProvidersHref(category);
 }
 
 /** The Tours sub-application (src/app/[locale]/tours). */

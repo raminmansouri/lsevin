@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 
 import { entityPath } from "@/lib/routes/public-paths";
+import { setListingParams, slugLookup, type ListingSlugs } from "@/lib/routes/filter-paths";
 import type { OfferCard, OfferTab, OffersFiltersInput } from "./offers.data";
 
 const MOBILE_BASE_PATH = "/n/app/mobile";
@@ -64,10 +65,11 @@ type FilterFormValues = {
   languages: string[];
 };
 
-export function buildOffersQuery(next: OffersFiltersInput) {
+/** The offers URL; the category is its slug (?category=<slug>), never an id. */
+export function buildOffersQuery(next: OffersFiltersInput, slugs: ListingSlugs = {}) {
   const params = new URLSearchParams();
   if (next.q) params.set("q", next.q);
-  if (next.categoryId && next.categoryId !== "all") params.set("categoryId", next.categoryId);
+  setListingParams(params, { categoryId: next.categoryId === "uncategorized" ? null : next.categoryId }, slugs);
   if (next.maxPrice > 0 && next.maxPrice !== 5000) params.set("maxPrice", String(next.maxPrice));
   if (next.minRating > 0) params.set("minRating", String(next.minRating));
   if (next.verifiedOnly) params.set("verifiedOnly", "1");
@@ -130,6 +132,8 @@ export default function OffersClient({
   availableLanguages: string[];
   filters: OffersFiltersInput;
 }) {
+  const slugs = useMemo<ListingSlugs>(() => ({ category: slugLookup(tabs) }), [tabs]);
+  const offersQuery = (next: OffersFiltersInput) => buildOffersQuery(next, slugs);
   const router = useRouter();
   const t = useTranslations("MobileOffers");
   const locale = useLocale();
@@ -194,7 +198,7 @@ export default function OffersClient({
     navigateSmooth(
       startTransition,
       router,
-      buildOffersQuery({
+      offersQuery({
         q: next.q,
         categoryId: tabId === "all" ? null : tabId,
         minPrice: 0,
@@ -213,7 +217,7 @@ export default function OffersClient({
     navigateSmooth(
       startTransition,
       router,
-      buildOffersQuery({
+      offersQuery({
         q: next.q,
         categoryId: next.categoryId === "all" ? null : next.categoryId,
         minPrice: 0,
@@ -241,7 +245,7 @@ export default function OffersClient({
     navigateSmooth(
       startTransition,
       router,
-      buildOffersQuery({
+      offersQuery({
         q: next.q,
         categoryId: next.categoryId === "all" ? null : next.categoryId,
         minPrice: 0,
@@ -269,7 +273,7 @@ export default function OffersClient({
     navigateSmooth(
       startTransition,
       router,
-      buildOffersQuery({
+      offersQuery({
         q: "",
         categoryId: next.categoryId === "all" ? null : next.categoryId,
         minPrice: 0,

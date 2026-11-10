@@ -2,9 +2,10 @@
 
 import { ArrowLeft, BadgeCheck, Check, Clock, Copy, MapPin, Search } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useMemo, useState, useTransition } from "react";
 
 import { Link, useRouter } from "@/i18n/navigation";
+import { slugLookup, type ListingSlugs } from "@/lib/routes/filter-paths";
 import {
   bookingHref,
   buildOffersQuery,
@@ -80,6 +81,8 @@ function CopyCode({ code, label }: { code: string; label: string }) {
 
 /** Desktop offers (>= 1280px): same data and URL filters as mobile, styled as a private sale. */
 export function DesktopOffersView({ tabs, offers, featuredOffer, filters }: Props) {
+  const slugs = useMemo<ListingSlugs>(() => ({ category: slugLookup(tabs) }), [tabs]);
+  const offersQuery = (next: OffersFiltersInput) => buildOffersQuery(next, slugs);
   const t = useTranslations("MobileOffers");
   const locale = useLocale();
   const router = useRouter();
@@ -88,7 +91,7 @@ export function DesktopOffersView({ tabs, offers, featuredOffer, filters }: Prop
   const [activeTab, setActiveTab] = useState(filters.categoryId ?? "all");
 
   const apply = (changes: Partial<OffersFiltersInput>) =>
-    navigateSmooth(startTransition, router, buildOffersQuery({ ...filters, minPrice: 0, ...changes }));
+    navigateSmooth(startTransition, router, offersQuery({ ...filters, minPrice: 0, ...changes }));
 
   const number = (value: number) => new Intl.NumberFormat(locale).format(value);
   const list = featuredOffer ? offers.filter((offer) => offer.id !== featuredOffer.id) : offers;

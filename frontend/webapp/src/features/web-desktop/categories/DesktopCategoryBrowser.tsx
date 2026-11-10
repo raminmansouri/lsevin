@@ -4,7 +4,6 @@ import { useEffect, useMemo, useState } from "react";
 import { ArrowLeft, ChevronLeft, Search, Sparkles } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import Image from "next/image";
-import { useSearchParams } from "next/navigation";
 
 import {
   categoryBrowserHref,
@@ -147,15 +146,17 @@ export function DesktopCategoryBrowser({
   totalCategories,
   totalProviders,
   tourismCategoryId = null,
+  parentId = null,
 }: {
   categoryGroups: CategoryBrowserGroup[];
   totalCategories: number;
   totalProviders: number;
   /** Tourism root from tour settings: Tourism opens the Tours app instead of a category screen. */
   tourismCategoryId?: string | null;
+  /** The category whose subcategories are shown (/categories/<slug>); null at the root. */
+  parentId?: string | null;
 }) {
   const t = useTranslations("CategoryBrowser");
-  const parentId = useSearchParams().get("parent")?.trim() || null;
   const [query, setQuery] = useState("");
 
   const all = useMemo(
@@ -278,7 +279,7 @@ export function DesktopCategoryBrowser({
                     <span className="text-[#eacb7f]">{node.name}</span>
                   ) : (
                     <Link
-                      href={categoryBrowserHref(node.id)}
+                      href={categoryBrowserHref(node)}
                       className="transition hover:text-[#eacb7f]"
                     >
                       {node.name}
@@ -304,7 +305,7 @@ export function DesktopCategoryBrowser({
               </span>
               {current ? (
                 <Link
-                  href={categoryProvidersHref(current.id)}
+                  href={categoryProvidersHref(current)}
                   className="lsd-btn lsd-btn-gold h-12 px-6 text-sm"
                 >
                   {t("providersCount", { count: current.count })}
@@ -342,7 +343,7 @@ export function DesktopCategoryBrowser({
           ) : (
             <div className="py-16 text-center">
               <Link
-                href={categoryProvidersHref(current.id)}
+                href={categoryProvidersHref(current)}
                 className="lsd-btn lsd-btn-green h-14 px-8"
               >
                 {t("providersCount", { count: current.count })}

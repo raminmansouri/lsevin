@@ -39,7 +39,7 @@ export const ProviderTypesSection = ({
       <div className="flex flex-wrap items-center justify-center gap-4">
         {providerTypes.map((providerType) => (
           <Hint key={providerType.id} label={providerType.name} side="top">
-            <Link href={`/type/${providerType.id}`} className="group">
+            <Link href={`/specialties/${providerType.id}`} className="group">
               <Card className="hover:border-primary h-24 w-24 transition-all duration-200 hover:shadow-md sm:h-32 sm:w-32">
                 <CardContent className="flex h-full w-full flex-col items-center justify-center gap-1 p-2 text-center sm:gap-2 sm:p-4">
                   <div className="bg-primary text-primary-foreground flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition-colors sm:h-12 sm:w-12">

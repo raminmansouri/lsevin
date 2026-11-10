@@ -11,11 +11,18 @@ import { seoOrigin } from "./origin";
 // helper. Only the catalog query (the one with UNION ALL) returns rows.
 const query = vi.hoisted(() => vi.fn());
 const catalogRows = vi.hoisted(() => vi.fn());
+const categoryRows = vi.hoisted(() => vi.fn());
 vi.mock("@/config/database/db", () => ({ default: query }));
 vi.mock("next/cache", () => ({ unstable_cache: (fn: unknown) => fn }));
+vi.mock("@/features/tours/server/platform/settings", () => ({
+  getTourSettings: async () => ({ tourismCategoryId: "tourism-root" }),
+}));
 
 const isCatalogQuery = (first: unknown) =>
-  Array.isArray(first) && "raw" in first && first.join("?").includes("union all");
+  Array.isArray(first) && "raw" in first && first.join("?").includes("select '/providers/' ||");
+// The category pages query (migration 0095); its CTE fragment is a separate call.
+const isCategoryQuery = (first: unknown) =>
+  Array.isArray(first) && "raw" in first && first.join("?").includes('as "childCount"');
 const catalogSql = () =>
   (query.mock.calls.find(([first]) => isCatalogQuery(first))![0] as string[]).join("?");
 
@@ -28,7 +35,11 @@ beforeEach(() => {
   vi.stubEnv("NEXT_PUBLIC_SEO_URL", "https://lsevincare.com");
   query.mockReset();
   catalogRows.mockReset();
-  query.mockImplementation((first: unknown) => (isCatalogQuery(first) ? catalogRows() : { fragment: true }));
+  categoryRows.mockReset();
+  categoryRows.mockResolvedValue([]);
+  query.mockImplementation((first: unknown) =>
+    isCatalogQuery(first) ? catalogRows() : isCategoryQuery(first) ? categoryRows() : { fragment: true }
+  );
 });
 afterEach(() => vi.unstubAllEnvs());
 
@@ -113,6 +124,41 @@ describe("public search domain and sitemap", () => {
     expect(sql).toContain("from marketing.special_packages p");
     expect(sql).toContain("p.title_translations ->> 'fa-IR'");
     expect(catalogRows).toHaveBeenCalledTimes(1);
+  });
+
+  // Reported 2026-11-10: category pages were /categories?parent=<uuid> and
+  // /map?categoryId=<uuid>&view=list, so none of them could be listed.
+  it("lists category pages by slug, in the category locales, without Tourism", async () => {
+    catalogRows.mockResolvedValue([]);
+    categoryRows.mockResolvedValue([
+      { id: "acc", parentId: null, slug: "accommodation", childCount: 2, providerCount: 9 },
+      { id: "hotel", parentId: "acc", slug: "hotel", childCount: 0, providerCount: 9 },
+      { id: "villa", parentId: "acc", slug: "villa", childCount: 0, providerCount: 0 },
+      { id: "tourism-root", parentId: null, slug: "tourism", childCount: 1, providerCount: 4 },
+      { id: "urban", parentId: "tourism-root", slug: "urban", childCount: 0, providerCount: 4 },
+    ]);
+    const urls = (await sitemap()).map((x) => x.url).filter((url) => url.includes("/categories/"));
+    expect(urls.sort()).toEqual([
+      "https://lsevincare.com/en/categories/accommodation",
+      "https://lsevincare.com/en/categories/accommodation/providers",
+      "https://lsevincare.com/en/categories/hotel/providers",
+      "https://lsevincare.com/fa/categories/accommodation",
+      "https://lsevincare.com/fa/categories/accommodation/providers",
+      "https://lsevincare.com/fa/categories/hotel/providers",
+    ]);
+  });
+
+  it("keeps the entity catalog when only the category query fails", async () => {
+    const log = vi.spyOn(console, "error").mockImplementation(() => {});
+    try {
+      catalogRows.mockResolvedValue([{ path: "/services/kept", keys: ["fa-IR"], persian_only: false }]);
+      categoryRows.mockRejectedValueOnce(new Error("private connection detail"));
+      const urls = (await sitemap()).map((x) => x.url);
+      expect(urls).toContain("https://lsevincare.com/fa/services/kept");
+      expect(log.mock.calls.flat().join(" ")).not.toContain("private connection detail");
+    } finally {
+      log.mockRestore();
+    }
   });
 
   it("recovers catalog discovery after a transient database failure", async () => {

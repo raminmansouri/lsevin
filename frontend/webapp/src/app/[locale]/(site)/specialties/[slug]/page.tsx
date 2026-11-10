@@ -9,6 +9,8 @@ import { JsonLd } from "@/lib/seo/json-ld";
 import { INDEXABLE_CATEGORY_LOCALES } from "@/lib/seo/locale-eligibility";
 import { buildPublicMetadata } from "@/lib/seo/metadata";
 import { resolvePublicEntity } from "@/lib/seo/public-slugs";
+import { directoryHref } from "@/lib/routes/filter-paths";
+import { otherFilters, resolveListingParams, resolvedSlugs } from "@/lib/seo/listing-params";
 
 // A provider type (hospital, clinic, gym, hotel...) as a landing page: the
 // explore directory filtered to that type. The filter controls lead on to
@@ -46,7 +48,16 @@ export async function generateMetadata({ params }: Pick<PageProps, "params">) {
 export default async function SpecialtyPage({ params, searchParams }: PageProps) {
   const { locale, slug } = await params;
   setRequestLocale(locale);
-  const { ref, filters, data, type } = await load(locale, slug, await searchParams);
+  const rawSearchParams = (await searchParams) ?? {};
+  const ref0 = await resolvePublicEntity("specialty", slug);
+  if (!ref0) notFound();
+  // ?category=<slug> narrows the type to a category. An old ?categoryId=<uuid>,
+  // or a ?type= naming another type, moves to its canonical address once.
+  const listing = await resolveListingParams({ ...rawSearchParams, type: ref0.slug ?? ref0.id });
+  if (listing.stale || rawSearchParams.type !== undefined || rawSearchParams.providerTypeId !== undefined) {
+    permanentRedirect(`/${locale}${directoryHref(listing, resolvedSlugs(listing), otherFilters(rawSearchParams))}`);
+  }
+  const { ref, filters, data, type } = await load(locale, slug, listing.params);
   if (ref.slug && slug !== ref.slug) permanentRedirect(`/${locale}/specialties/${ref.slug}`);
 
   const pageUrl = absoluteUrl(locale, `/specialties/${ref.slug ?? ref.id}`);

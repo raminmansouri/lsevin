@@ -241,6 +241,9 @@ const nextConfig: NextConfig = {
     const seoRewrites = [
       ['explore', 'explore'],
       ['categories', 'categories'],
+      // A category's subcategories and its providers (src/lib/routes/filter-paths.ts).
+      ['categories/:slug', 'categories/:slug'],
+      ['categories/:slug/providers', 'categories/:slug/providers'],
       ['offers', 'offers'],
       ['featured', 'featured'],
       ['packages', 'packages'],
@@ -275,7 +278,23 @@ const nextConfig: NextConfig = {
       source: `/:locale(${localePattern})/${newPath.replace(':id', `:id(${uuid})`)}`,
       destination: `/:locale/n/app/mobile/${oldPath}`,
     }));
+    // Old listing links with ids (/fa/map?categoryId=<uuid>, /fa/explore?providerTypeId=<uuid>,
+    // /fa/offers?categoryId=<uuid>) go to a route handler that answers one 308 to
+    // the slug address. Those pages stream, so a redirect inside them would be a
+    // 200 with a meta refresh.
+    const legacyListingRewrites = [
+      ['explore', 'categoryId'],
+      ['explore', 'providerTypeId'],
+      ['map', 'categoryId'],
+      ['map', 'providerTypeId'],
+      ['offers', 'categoryId'],
+    ].map(([page, key]) => ({
+      source: `/:locale(${localePattern})/${page}`,
+      has: [{ type: "query" as const, key }],
+      destination: `/:locale/legacy-listing/${page}`,
+    }));
     const beforeFiles = [
+      ...legacyListingRewrites,
       // Home: the locale root serves the mobile home page (see redirects()).
       {
         source: `/:locale(${localePattern})`,

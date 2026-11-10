@@ -12,6 +12,8 @@ import { getCpCategoryGroupsTag } from "@/features/service-providers/db/cache";
 
 export type CategoryBrowserCategory = {
   id: string;
+  /** Public URL segment: /categories/<slug> (migration 0095). */
+  slug: string | null;
   name: string;
   description: string;
   image: string | null;
@@ -40,6 +42,7 @@ export type CategoryBrowserData = {
 };
 
 type CategoryBrowserRow = {
+  slug: string | null;
   group_id: number | null;
   group_title: string | null;
   id: string;
@@ -71,6 +74,7 @@ const getCategoryBrowserRows = unstable_cache(
         c.group_id,
         nullif(btrim(cg.title), '') as group_title,
         c.id::text as id,
+        c.slug,
         nullif(common.get_translation_t(c.name_translations, ${locale}, 'en-US'), '') as name,
         nullif(common.get_translation_t(c.description_translations, ${locale}, 'en-US'), '') as description,
         nullif(btrim(c.image_url), '') as image,
@@ -129,6 +133,7 @@ export async function getCategoryBrowserGroups(explicitLocale?: string): Promise
 
     groups.get(groupId)!.categories.push({
       id: row.id,
+      slug: row.slug ?? null,
       name: row.name || "Untitled category",
       description: row.description || "",
       image: row.image,

@@ -1,9 +1,8 @@
 "use client";
 
-import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight, Search, Sparkles } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
-import { useSearchParams } from "next/navigation";
 
 import {
   hasLexicalContent,
@@ -12,6 +11,7 @@ import {
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { env } from "@/config/env/client";
 import {
+  categoryBrowserHref,
   categoryProvidersHref,
   isTourismCategory,
   TOURS_HOME_PATH,
@@ -54,16 +54,6 @@ const ALLOWED_GRADIENTS = [
 const FALLBACK_GRADIENTS = ALLOWED_GRADIENTS.slice(0, 8);
 const ROOT_PARENT_KEY = "__root__";
 
-// Only this small leaf reads request-time URL state. Keeping useSearchParams
-// out of the catalog component lets ISR emit the category links in HTML rather
-// than replacing the entire tree with a client-render-only Suspense fallback.
-function CategoryUrlState({ onChange }: { onChange: (query: string) => void }) {
-  const searchParams = useSearchParams();
-  const query = searchParams.toString();
-  useEffect(() => onChange(query), [query, onChange]);
-  return null;
-}
-
 function parentKey(parentId?: string | null) {
   return parentId || ROOT_PARENT_KEY;
 }
@@ -81,7 +71,7 @@ function getCategoryHref(category: CategoryBrowserCategory) {
   // Reached only for a category with nothing under it — anything with children is
   // a button that descends a level instead. Opens the list; the destination's own
   // toggle switches to the map.
-  return categoryProvidersHref(category.id);
+  return categoryProvidersHref(category);
 }
 
 function getGradientClass(category: CategoryBrowserCategory, index: number) {
@@ -222,7 +212,7 @@ function CategoryCard({
   category: CategoryBrowserCategory;
   hasChildren: boolean;
   index: number;
-  onOpenCategory: (category: CategoryBrowserCategory) => void;
+  onOpenCategory: () => void;
   opensTours?: boolean;
 }) {
   const t = useTranslations("CategoryBrowser");
@@ -248,10 +238,12 @@ function CategoryCard({
   }
 
   if (hasChildren) {
+    // A link to /categories/<slug>, so crawlers and new tabs reach the level too.
     return (
-      <button
-        type="button"
-        onClick={() => onOpenCategory(category)}
+      <Link
+        href={categoryBrowserHref(category)}
+        onClick={onOpenCategory}
+        scroll={false}
         className={className}
         aria-label={t("openSubcategories", { name: category.name })}
       >
@@ -260,7 +252,7 @@ function CategoryCard({
           hasChildren={hasChildren}
           index={index}
         />
-      </button>
+      </Link>
     );
   }
 
@@ -301,19 +293,19 @@ export function CategoryBrowserClient({
   totalCategories,
   totalProviders,
   tourismCategoryId = null,
+  parentId = null,
 }: {
   categoryGroups: CategoryBrowserGroup[];
   totalCategories: number;
   totalProviders: number;
   tourismCategoryId?: string | null;
+  /** The category whose subcategories are shown (/categories/<slug>); null at the root. */
+  parentId?: string | null;
 }) {
   const t = useTranslations("CategoryBrowser");
   const router = useRouter();
-  // `?parent=` deep-links straight onto a node's subcategories (home-shelf
-  // links). Read on the client so the page itself stays statically rendered.
-  const [queryString, setQueryString] = useState("");
-  const selectedParentId =
-    new URLSearchParams(queryString).get("parent")?.trim() || null;
+  // /categories/<slug> opens a node's subcategories; the page resolves the slug.
+  const selectedParentId = parentId;
   const [query, setQuery] = useState("");
 
   const allCategories = useMemo(
@@ -361,7 +353,7 @@ export function CategoryBrowserClient({
     [categoryById]
   );
 
-  // A ?parent= link lands mid-tree, so the breadcrumb has to be reconstructed from
+  // A /categories/<slug> link lands mid-tree, so the breadcrumb has to be reconstructed from
   // the node up rather than started empty — otherwise "All categories" is the only
   // way back out of a screen the visitor entered three levels down.
   const path = useMemo(() => {
@@ -370,14 +362,12 @@ export function CategoryBrowserClient({
       : undefined;
     return target ? buildPathToCategory(target) : [];
   }, [selectedParentId, categoryById, buildPathToCategory]);
+  function parentHref(id?: string) {
+    const category = id ? categoryById.get(id) : undefined;
+    return category ? categoryBrowserHref(category) : "/categories";
+  }
   function navigateToParent(id?: string) {
-    const nextParams = new URLSearchParams(queryString);
-    if (id) nextParams.set("parent", id);
-    else nextParams.delete("parent");
-    const query = nextParams.toString();
-    router.push(`/n/app/mobile/categories${query ? `?${query}` : ""}`, {
-      scroll: false,
-    });
+    router.push(parentHref(id), { scroll: false });
   }
   const currentParent = path.length > 0 ? path[path.length - 1] : null;
 
@@ -449,9 +439,9 @@ export function CategoryBrowserClient({
     t,
   ]);
 
-  function openCategory(category: CategoryBrowserCategory) {
+  // The card is a link to the category; leaving a search on the way.
+  function openCategory() {
     setQuery("");
-    navigateToParent(category.id);
   }
 
   function handleBack() {
@@ -470,9 +460,6 @@ export function CategoryBrowserClient({
 
   return (
     <div className="min-h-screen bg-white pb-24" data-latin-digits>
-      <Suspense fallback={null}>
-        <CategoryUrlState onChange={setQueryString} />
-      </Suspense>
       <div className="sticky top-0 z-40 border-b border-gray-100 bg-white/95 px-5 pt-3 pb-4 backdrop-blur-xl">
         <div className="flex items-center gap-3">
           <button
@@ -499,22 +486,23 @@ export function CategoryBrowserClient({
 
         {path.length > 0 ? (
           <div className="mt-3 flex flex-wrap items-center gap-2 text-xs font-semibold text-gray-500">
-            <button
-              type="button"
-              onClick={() => navigateToParent()}
+            <Link
+              href={parentHref()}
+              scroll={false}
               className="rounded-full bg-gray-100 px-3 py-1 text-[#083f30]"
             >
               {t("allCategories")}
-            </button>
-            {path.map((category, index) => (
-              <button
+            </Link>
+            {path.map((category) => (
+              <Link
                 key={category.id}
-                type="button"
-                onClick={() => navigateToParent(path[index].id)}
+                href={parentHref(category.id)}
+                scroll={false}
+                aria-current={category.id === currentParent?.id ? "page" : undefined}
                 className="rounded-full bg-gray-100 px-3 py-1 text-gray-700"
               >
                 {category.name}
-              </button>
+              </Link>
             ))}
           </div>
         ) : null}
@@ -547,7 +535,7 @@ export function CategoryBrowserClient({
                 tourismCategoryId
               )
                 ? TOURS_HOME_PATH
-                : categoryProvidersHref(currentParent.id)
+                : categoryProvidersHref(currentParent)
             }
             className="mb-6 flex items-center justify-between gap-3 rounded-2xl border border-gray-100 bg-gray-50 px-4 py-3 transition-colors hover:bg-gray-100"
           >

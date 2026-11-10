@@ -2,6 +2,13 @@ import type { MetadataRoute } from "next";
 import { unstable_cache } from "next/cache";
 
 import sql from "@/config/database/db";
+import { categoryProviderCountsCte } from "@/features/categories/db/category-tree";
+import {
+  categoryBrowserHref,
+  categoryProvidersHref,
+  isTourismCategory,
+} from "@/features/categories/utils/category-href";
+import { getTourSettings } from "@/features/tours/server/platform/settings";
 import { allGuides, guideLocales, guidePath } from "@/features/guides/registry";
 import { getPublishedSitePageIndex } from "@/features/site-content/server/repository";
 import { routing } from "@/i18n/routing";
@@ -98,6 +105,38 @@ const catalogEntries = unstable_cache(
   { revalidate: 300, tags: ["sitemap-catalog"] }
 );
 
+// Category pages (migration 0095): a category with subcategories has its browser
+// page, and any category with providers has its provider list. Tourism and its
+// subtree open the Tours app instead, so they are left out.
+const categoryEntries = unstable_cache(
+  async (): Promise<CatalogEntry[]> => {
+    const [rows, tourismCategoryId] = await Promise.all([
+      sql<{ id: string; parentId: string | null; slug: string; childCount: number; providerCount: number }[]>`
+        with recursive ${categoryProviderCountsCte()}
+        select c.id::text as id, c.parent_id::text as "parentId", c.slug,
+               coalesce(cc.child_count, 0) as "childCount",
+               coalesce(pc.provider_count, 0) as "providerCount"
+        from category.categories c
+        left join category_provider_counts pc on pc.category_id = c.id
+        left join category_child_counts cc on cc.category_id = c.id
+        where c.is_active = true and c.slug is not null
+        order by c.slug
+      `,
+      getTourSettings().then((settings) => settings.tourismCategoryId).catch(() => null),
+    ]);
+    const parentOf = new Map(rows.map((row) => [row.id, row.parentId]));
+    return rows
+      .filter((row) => row.providerCount > 0)
+      .filter((row) => !isTourismCategory(row.id, (id) => parentOf.get(id), tourismCategoryId))
+      .flatMap((row) => [
+        ...(row.childCount > 0 ? [{ path: categoryBrowserHref(row), locales: INDEXABLE_CATEGORY_LOCALES }] : []),
+        { path: categoryProvidersHref(row), locales: INDEXABLE_CATEGORY_LOCALES },
+      ]);
+  },
+  ["public-sitemap-categories-v1"],
+  { revalidate: 300, tags: ["sitemap-catalog"] }
+);
+
 const guideEntries = (): (CatalogEntry & { lastModified: string })[] =>
   allGuides().map((guide) => ({
     path: guidePath(guide.slug),
@@ -106,16 +145,17 @@ const guideEntries = (): (CatalogEntry & { lastModified: string })[] =>
   }));
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  let catalog: CatalogEntry[];
-  try {
-    catalog = await catalogEntries();
-  } catch {
-    // Outside the cache: an outage must never cache an empty catalog.
-    console.error(
-      "[seo] Sitemap catalog unavailable; serving public static paths."
-    );
-    catalog = [];
-  }
+  // Each part on its own: an outage in one must never cache an empty catalog,
+  // nor drop the other part from the sitemap.
+  const unavailable = (part: string) => (): CatalogEntry[] => {
+    console.error(`[seo] Sitemap ${part} unavailable; serving the rest.`);
+    return [];
+  };
+  const [entities, categories] = await Promise.all([
+    catalogEntries().catch(unavailable("catalog")),
+    categoryEntries().catch(unavailable("categories")),
+  ]);
+  const catalog = [...entities, ...categories];
 
   // Editorial pages (admin → Editorial) list only their translated locales; first
   // so a published /privacy-policy replaces the built-in all-locale entry.

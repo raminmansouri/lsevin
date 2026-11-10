@@ -1,20 +1,12 @@
-import { Suspense } from "react";
+import { permanentRedirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
-import { getCategoryBrowserGroups } from "@/features/service-providers/actions/categories/get-category-browser-groups";
-import { CategoryBrowserClient } from "@/features/service-providers/components/categories/category-browser-client";
-import { SponsoredPlacementSlot } from "@/features/sponsered-slider/components/sponsored-placement-slot";
-import { absoluteUrl } from "@/lib/seo/alternates";
-import { breadcrumbList, graph } from "@/lib/seo/entity-schema";
-import { JsonLd } from "@/lib/seo/json-ld";
+import { categoryBrowserHref } from "@/features/categories/utils/category-href";
 import { buildPublicMetadata } from "@/lib/seo/metadata";
-import { seoOrigin } from "@/lib/seo/origin";
-import { getTourSettings } from "@/features/tours/server/platform/settings";
-import { DesktopCategoryBrowser } from "@/features/web-desktop/categories/DesktopCategoryBrowser";
-import { DesktopSponsoredSection } from "@/features/web-desktop/home/DesktopSponsoredSection";
 import { INDEXABLE_CATEGORY_LOCALES } from "@/lib/seo/locale-eligibility";
-import { PageFaq } from "@/features/site-content/components/faq-section";
+import { resolvePublicEntity } from "@/lib/seo/public-slugs";
 
+import { CategoryBrowserScreen, loadCategoryBrowser } from "./category-browser-screen";
 
 export async function generateMetadata({
   params,
@@ -50,92 +42,16 @@ export default async function CategoryBrowserPage({
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const { locale } = await params;
-  // ?parent=<id> opens a category's subcategories: show that category's FAQ.
-  const rawParent = (await searchParams)?.parent;
-  const parentCandidate = Array.isArray(rawParent) ? rawParent[0] : rawParent;
-  const parentId =
-    parentCandidate && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu.test(parentCandidate)
-      ? parentCandidate
-      : null;
   setRequestLocale(locale);
-  // A database hiccup shows an empty tree for that one request only: the page
-  // is dynamic, so nothing empty is cached, and the data cache rejects failures.
-  // Tourism opens the Tours sub-application (C-001); its id is configuration, not code.
-  const [t, data, tourismCategoryId] = await Promise.all([
-    getTranslations({ locale, namespace: "CategoryBrowser" }),
-    getCategoryBrowserGroups(locale).catch(() => ({
-      groups: [],
-      totalCategories: 0,
-      totalProviders: 0,
-    })),
-    getTourSettings()
-      .then((s) => s.tourismCategoryId)
-      .catch(() => null),
-  ]);
 
-  const pageT = await getTranslations({ locale, namespace: "CategoryBrowser" });
-  const brand = (await getTranslations({ locale, namespace: "LocaleLayout" }))("title");
-  const pageUrl = absoluteUrl(locale, "/categories");
-  // Top-level names only: the facts this page shows, no counts or claims.
-  const topCategories = data.groups
-    .flatMap((group) => group.categories)
-    .filter((category) => !category.parentId && category.name)
-    .slice(0, 50);
+  // The old ?parent=<uuid> deep link: each category has its own address now.
+  const rawParent = (await searchParams)?.parent;
+  const parentValue = (Array.isArray(rawParent) ? rawParent[0] : rawParent)?.trim();
+  if (parentValue) {
+    const ref = await resolvePublicEntity("category", parentValue.toLowerCase());
+    permanentRedirect(ref ? `/${locale}${categoryBrowserHref(ref)}` : `/${locale}/categories`);
+  }
 
-  return (
-    <Suspense fallback={null}>
-      <JsonLd
-        data={graph(
-          {
-            "@type": "CollectionPage",
-            "@id": `${pageUrl}#webpage`,
-            url: pageUrl,
-            name: pageT("allCategories"),
-            inLanguage: locale,
-            isPartOf: { "@id": `${seoOrigin()}/#website` },
-            ...(topCategories.length
-              ? {
-                  mainEntity: {
-                    "@type": "ItemList",
-                    numberOfItems: topCategories.length,
-                    itemListElement: topCategories.map((category, index) => ({
-                      "@type": "ListItem",
-                      position: index + 1,
-                      name: category.name,
-                    })),
-                  },
-                }
-              : {}),
-          },
-          breadcrumbList([
-            { name: brand, url: absoluteUrl(locale) },
-            { name: pageT("allCategories"), url: pageUrl },
-          ])
-        )}
-      />
-      <div className="xl:hidden">
-        <CategoryBrowserClient
-          categoryGroups={data.groups}
-          totalCategories={data.totalCategories}
-          totalProviders={data.totalProviders}
-          tourismCategoryId={tourismCategoryId}
-        />
-        <SponsoredPlacementSlot locale={locale} placement="categories" />
-      </div>
-      <DesktopCategoryBrowser
-        categoryGroups={data.groups}
-        totalCategories={data.totalCategories}
-        totalProviders={data.totalProviders}
-        tourismCategoryId={tourismCategoryId}
-      />
-      <div className="lsd hidden pb-14 xl:block">
-        <DesktopSponsoredSection locale={locale} placement="categories" />
-      </div>
-      <PageFaq
-        target={parentId ? { scope: "category", entityId: parentId } : { scope: "categories" }}
-        locale={locale}
-        pageUrl={parentId ? undefined : pageUrl}
-      />
-    </Suspense>
-  );
+  const { data, tourismCategoryId } = await loadCategoryBrowser(locale);
+  return <CategoryBrowserScreen locale={locale} data={data} tourismCategoryId={tourismCategoryId} parent={null} />;
 }

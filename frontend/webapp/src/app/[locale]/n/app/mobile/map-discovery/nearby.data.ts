@@ -34,6 +34,8 @@ export type NearbyFiltersInput = {
 export type NearbyCategory = {
   image?: string;
   id: string;
+  /** Public URL segment (migration 0095); the "all" chip has none. */
+  slug?: string | null;
   label: string;
 };
 
@@ -509,6 +511,7 @@ export async function getNearbyPageData({
     with recursive ${categoryProviderCountsCte()}
     select distinct
       c.id::text as id,
+      c.slug,
       common.get_translation_t(c.name_translations, ${lang}, 'en') as label,
       coalesce(
         nullif(btrim(category_image_media.file_url), ''),

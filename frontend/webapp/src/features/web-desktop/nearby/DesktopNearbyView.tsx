@@ -6,6 +6,7 @@ import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 
 import { FavoriteButton } from "@/features/favorites/components/favorite-button";
 import { Link, useRouter } from "@/i18n/navigation";
+import { slugLookup, type ListingSlugs } from "@/lib/routes/filter-paths";
 import NearbyMap from "@/app/[locale]/n/app/mobile/map-discovery/NearbyMap";
 import {
   buildNearbyQuery,
@@ -37,10 +38,19 @@ type Props = {
   expandedBeyondFilters: boolean;
   /** "list" when the page was opened as a provider list (e.g. from a category). */
   initialView: "map" | "list";
+  /** The URL slug of the provider type this request filters by, if any. */
+  providerTypeSlug?: string | null;
 };
 
 /** Desktop map discovery: a full-height map beside the list, kept in sync both ways. */
-export function DesktopNearbyView({ locale, categories, providers, filters, mapCenter, expandedBeyondFilters, initialView }: Props) {
+export function DesktopNearbyView({ locale, categories, providers, filters, mapCenter, expandedBeyondFilters, initialView, providerTypeSlug = null }: Props) {
+  const slugs = useMemo<ListingSlugs>(
+    () => ({
+      category: slugLookup(categories.filter((category) => category.id !== "all")),
+      type: (id) => (id === filters.providerTypeId ? providerTypeSlug : null),
+    }),
+    [categories, filters.providerTypeId, providerTypeSlug],
+  );
   const t = useTranslations(NAMESPACE);
   const tExplore = useTranslations("Explore");
   const router = useRouter();
@@ -62,7 +72,7 @@ export function DesktopNearbyView({ locale, categories, providers, filters, mapC
   const km = (value: number) => new Intl.NumberFormat(locale, { style: "unit", unit: "kilometer", maximumFractionDigits: 1 }).format(value);
 
   const apply = (changes: Partial<NearbyFiltersInput>) =>
-    navigateSmooth(startTransition, router, buildNearbyQuery({ ...filters, ...changes }, view));
+    navigateSmooth(startTransition, router, buildNearbyQuery({ ...filters, ...changes }, view, slugs));
 
   // A pin picked on the map: bring its card into view.
   const selectFromMap = (id: string | null) => {

@@ -432,7 +432,8 @@ declare const messages: {
     "categoriesAppear": "دسته‌های فعال پس از ثبت نمایش داده می‌شوند.",
     "searchResults": "نتایج جستجو",
     "goBack": "بازگشت",
-    "viewAllProviders": "نمایش همه {count} ارائه‌دهنده در {name}"
+    "viewAllProviders": "نمایش همه {count} ارائه‌دهنده در {name}",
+    "providersIn": "ارائه‌دهندگان {name}"
   },
   "Explore": {
     "lsevin": "السوین",

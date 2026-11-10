@@ -52,18 +52,19 @@ test("categories: keyboard filtering, hierarchy and persisted URL", async ({
     await expect(input).toHaveValue("no-category-matches-qa-94731", {
       timeout: 1_000,
     });
-    await expect(page.locator('main main button[aria-label^="باز کردن "]')).toHaveCount(
+    await expect(page.locator('main main a[aria-label^="باز کردن "]')).toHaveCount(
       0,
       { timeout: 1_000 }
     );
   }).toPass({ timeout: 15_000 });
   await input.press("ControlOrMeta+A");
   await input.press("Backspace");
-  const parent = page.locator('main main button[aria-label^="باز کردن "]').first();
+  // A category with subcategories is a link to /fa/categories/<slug> (no ?parent=<uuid>).
+  const parent = page.locator('main main a[aria-label^="باز کردن زیردسته"]').first();
   await expect(parent).toBeVisible();
   await parent.focus();
   await page.keyboard.press("Enter");
-  await expect(page).toHaveURL(/parent=/);
+  await expect(page).toHaveURL(/\/fa\/categories\/[a-z0-9-]+$/);
   const selected = page.url();
   await page.reload();
   await expect(page).toHaveURL(selected);
