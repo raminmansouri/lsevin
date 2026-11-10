@@ -79,6 +79,16 @@ async function allowedCategories(sellerId: string) {
   `;
 }
 
+/** Every active category, to choose from (activation request, admin approval). */
+export async function listActiveCategories() {
+  return sql<{ id: string; name: string; parentId: string | null }[]>`
+    select c.id::text as id, coalesce(nullif(c.name_translations->>'fa', ''), nullif(c.name_translations->>'en', ''), c.slug) as name,
+           c.parent_id::text as "parentId"
+    from shop.categories c where c.deleted_at is null and c.is_active
+    order by c.display_order, c.slug
+  `;
+}
+
 function requireProvider(principal: PortalPrincipal) {
   if (principal.kind !== "provider" || !principal.providerId)
     throw new ShopApiError("forbidden", "A provider is required.");
@@ -137,6 +147,7 @@ export async function getProviderShop(principal: PortalPrincipal) {
   const state = stateOf(seller);
   return {
     state,
+    categories: await listActiveCategories(),
     role: principal.providerRole,
     provider: profile
       ? { name: profile.name, phone: profile.phone, logoUrl: profile.logo_url }
@@ -401,6 +412,7 @@ export async function listPortalRequests(principal: PortalPrincipal) {
       product_name: string;
       variant_name: string | null;
       image: string | null;
+      currency: string;
       price: string;
       compare_at_price: string | null;
       stock_quantity: number | null;
@@ -424,7 +436,7 @@ export async function listPortalRequests(principal: PortalPrincipal) {
            coalesce(nullif(p.name_translations->>'fa', ''), nullif(p.name_translations->>'en', ''), p.slug) as product_name,
            coalesce(nullif(v.title_translations->>'fa', ''), nullif(v.title_translations->>'en', ''), v.sku) as variant_name,
            (select m.url from shop.product_media m where m.product_id = p.id order by m.is_primary desc, m.display_order limit 1) as image,
-           o.price::text as price, o.compare_at_price::text as compare_at_price, o.stock_quantity, o.handling_days, o.seller_sku,
+           o.currency, o.price::text as price, o.compare_at_price::text as compare_at_price, o.stock_quantity, o.handling_days, o.seller_sku,
            nullif(o.warranty_translations->>'fa', '') as warranty,
            o.is_active, o.admin_status, o.admin_status_reason, o.admin_reviewed_at, o.create_date, o.last_modified_date,
            (select count(distinct other.seller_id)::int from shop.offers other join shop.sellers s on s.id = other.seller_id
@@ -446,6 +458,7 @@ export async function listPortalRequests(principal: PortalPrincipal) {
       productName: row.product_name,
       variantName: row.variant_name,
       image: row.image,
+      currency: row.currency,
       price: Number(row.price),
       compareAtPrice:
         row.compare_at_price == null ? null : Number(row.compare_at_price),
@@ -531,6 +544,7 @@ export async function listAdminQueue(
       product_name: string;
       variant_name: string | null;
       image: string | null;
+      currency: string;
       price: string;
       stock_quantity: number | null;
       handling_days: number | null;
@@ -550,7 +564,7 @@ export async function listAdminQueue(
            coalesce(nullif(p.name_translations->>'fa', ''), nullif(p.name_translations->>'en', ''), p.slug) as product_name,
            coalesce(nullif(v.title_translations->>'fa', ''), nullif(v.title_translations->>'en', ''), v.sku) as variant_name,
            (select m.url from shop.product_media m where m.product_id = p.id order by m.is_primary desc, m.display_order limit 1) as image,
-           o.price::text as price, o.stock_quantity, o.handling_days, o.admin_status, o.admin_status_reason as reason,
+           o.currency, o.price::text as price, o.stock_quantity, o.handling_days, o.admin_status, o.admin_status_reason as reason,
            o.create_date as created_at, o.admin_reviewed_at as reviewed_at,
            r.other_min, r.other_max, r.other_sellers,
            shop.seller_may_list_product(s.id, p.id) as allowed,
@@ -645,6 +659,7 @@ export async function listAdminQueue(
       listing: {
         productId: offer.product_id,
         image: offer.image,
+        currency: offer.currency,
         price: Number(offer.price),
         stockQuantity: offer.stock_quantity,
         handlingDays: offer.handling_days,
@@ -667,7 +682,7 @@ export async function listAdminQueue(
       new Date(b.createdAt ?? 0).getTime() -
       new Date(a.createdAt ?? 0).getTime()
   );
-  return { status, pendingCount: pending_count, items };
+  return { status, pendingCount: pending_count, categories: await listActiveCategories(), items };
 }
 
 const needReason = (reason: string | null | undefined) => {
