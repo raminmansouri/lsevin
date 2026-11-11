@@ -4,9 +4,9 @@ import { revalidatePath } from "next/cache";
 
 import {
   AccountValidationError,
-  createDetailAccount,
+  createChildAccount,
   deleteAccount,
-  renameAccount,
+  updateAccount,
   setAccountActive,
 } from "@/accounting/server/accounts-admin";
 import { SETTING_DEFINITIONS, updateSetting } from "@/accounting/server/settings-admin";
@@ -49,6 +49,7 @@ function accountMessageFor(error: unknown): string {
   const raw = error instanceof Error ? error.message : "";
 
   if (error instanceof AccountValidationError) {
+    if (/[\u0600-\u06FF]/.test(raw)) return raw;
     if (/system account/i.test(raw)) {
       return "این حساب سیستمی است؛ قواعد ثبت سند به آن وابسته‌اند و حذف نمی‌شود. آن را غیرفعال کنید.";
     }
@@ -128,9 +129,9 @@ export async function createAccountAction(
   try {
     const { userId } = await assertAccounting("accounts.manage");
 
-    await createDetailAccount({
+    await createChildAccount({
       parentId: String(formData.get("parentId") ?? "").trim(),
-      code: String(formData.get("code") ?? "").trim(),
+      segment: String(formData.get("segment") ?? "").trim(),
       nameFa: String(formData.get("nameFa") ?? "").trim(),
       nameEn: String(formData.get("nameEn") ?? "").trim(),
       currencyCode: String(formData.get("currencyCode") ?? "").trim() || null,
@@ -144,22 +145,23 @@ export async function createAccountAction(
   }
 }
 
-export async function renameAccountAction(
+export async function updateAccountAction(
   _prev: AccountFormState,
   formData: FormData
 ): Promise<AccountFormState> {
   try {
     const { userId } = await assertAccounting("accounts.manage");
 
-    await renameAccount({
+    const { code } = await updateAccount({
       accountId: String(formData.get("accountId") ?? "").trim(),
+      segment: String(formData.get("segment") ?? "").trim(),
       nameFa: String(formData.get("nameFa") ?? "").trim(),
       nameEn: String(formData.get("nameEn") ?? "").trim(),
       actorUserId: userId,
     });
 
     revalidateConfig();
-    return { ok: "نام حساب ذخیره شد." };
+    return { ok: `حساب ${code} ذخیره شد.` };
   } catch (error) {
     return { error: accountMessageFor(error) };
   }
@@ -200,13 +202,13 @@ export async function deleteAccountAction(
   try {
     const { userId } = await assertAccounting("accounts.manage");
 
-    const { code } = await deleteAccount({
+    const { code, removed } = await deleteAccount({
       accountId: String(formData.get("accountId") ?? "").trim(),
       actorUserId: userId,
     });
 
     revalidateConfig();
-    return { ok: `حساب ${code} حذف شد.` };
+    return { ok: removed > 1 ? `حساب ${code} و ${removed - 1} زیرحسابش حذف شدند.` : `حساب ${code} حذف شد.` };
   } catch (error) {
     return { error: accountMessageFor(error) };
   }

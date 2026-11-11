@@ -1,34 +1,15 @@
 import { getTranslations } from "next-intl/server";
 
-import { PANEL_LOCALE } from "@/accounting/lib/panel-locale";
-
 import { canAccounting } from "@/accounting/server/access";
-import { listAccounts, listPostableParents } from "@/accounting/server/accounts-admin";
-import { listActiveCurrencies } from "@/accounting/server/settings-admin";
+import { listAccounts } from "@/accounting/server/accounts-admin";
 import { PageHeader } from "@/components/page/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-import { AccountRowActions } from "./account-row-actions";
-import { NewAccountForm } from "./new-account-form";
-
-function pickName(name: Record<string, string> | null, locale: string): string {
-  if (!name) return "—";
-  return name[locale.startsWith("fa") ? "fa-IR" : "en-US"] ?? Object.values(name)[0] ?? "—";
-}
+import { AccountsTree } from "./accounts-tree";
 
 export default async function ChartOfAccountsPage() {
-  const locale = PANEL_LOCALE;
   const t = await getTranslations("Admin.accounting");
-  const [accounts, parents, currencies, canManage] = await Promise.all([
-    listAccounts(),
-    listPostableParents(),
-    listActiveCurrencies(),
-    canAccounting("accounts.manage"),
-  ]);
-
-  // Which accounts have children, worked out once here rather than per row: a parent
-  // cannot be deleted, and the delete button should not be offered where it cannot work.
-  const parentIds = new Set(accounts.map((a) => a.parentId).filter(Boolean) as string[]);
+  const [accounts, canManage] = await Promise.all([listAccounts(), canAccounting("accounts.manage")]);
 
   return (
     <div className="space-y-4">
@@ -38,81 +19,32 @@ export default async function ChartOfAccountsPage() {
             <PageHeader title={t("accountsTitle")} />
           </CardTitle>
         </CardHeader>
-        <CardContent className="pt-4">
-          <p className="text-muted-foreground text-sm">{t("accountsDescription")}</p>
-          <p className="text-muted-foreground mt-1 text-xs">{t("accountsEditHint")}</p>
+        <CardContent className="space-y-1 pt-4 text-sm text-muted-foreground">
+          <p>کد هر حساب از کد حساب بالایی‌اش و چند رقم خودش ساخته می‌شود: گروه ← کل ← معین ← تفصیلی ← …</p>
+          <p className="text-xs">
+            سند فقط روی حساب‌هایی ثبت می‌شود که زیرحساب ندارند. حساب‌های «سیستمی» را سایت خودکار استفاده می‌کند؛
+            اسم و کدشان قابل تغییر است ولی حذف نمی‌شوند. حسابی که سند خورده، به‌جای حذف، غیرفعال می‌شود.
+          </p>
         </CardContent>
       </Card>
 
-      {canManage && (
       <Card>
-        <CardHeader className="border-b">
-          <CardTitle className="text-base">{t("addAccount")}</CardTitle>
-        </CardHeader>
         <CardContent className="pt-4">
-          <NewAccountForm
-            parents={parents.map((p) => ({ id: p.id, label: `${p.code} — ${pickName(p.name, locale)}` }))}
-            currencies={currencies.map((c) => ({ code: c.code }))}
+          <AccountsTree
+            canManage={canManage}
+            accounts={accounts.map((account) => ({
+              id: account.id,
+              code: account.code,
+              parentId: account.parentId,
+              level: account.level,
+              nameFa: account.nameTranslations?.["fa-IR"] ?? account.code,
+              nameEn: account.nameTranslations?.["en-US"] ?? "",
+              isActive: account.isActive,
+              isSystem: account.isSystem,
+              isPostable: account.isPostable,
+              hasPostings: account.hasPostings,
+            }))}
           />
-        </CardContent>
-      </Card>
-      )}
-
-      <Card>
-        <CardHeader className="border-b">
-          <CardTitle className="text-base">{t("accountsTitle")}</CardTitle>
-        </CardHeader>
-        <CardContent className="pt-4">
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="text-muted-foreground border-b text-xs">
-                <tr>
-                  <th className="p-2 text-start">{t("accountCode")}</th>
-                  <th className="p-2 text-start">{t("accountType")}</th>
-                  <th className="p-2 text-start">{t("normalBalance")}</th>
-                  <th className="p-2 text-start">{t("postable")}</th>
-                  <th className="p-2 text-start">{t("accountName")}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {accounts.map((account) => (
-                  <tr
-                    key={account.id}
-                    className={
-                      account.isActive ? "border-b last:border-0" : "border-b opacity-50 last:border-0"
-                    }
-                  >
-                    <td
-                      className="p-2 font-mono"
-                      dir="ltr"
-                      style={{ paddingInlineStart: `${account.level * 0.75}rem` }}
-                    >
-                      {account.code}
-                    </td>
-                    <td className="p-2 text-xs">{t(`accountTypes.${account.accountType}` as never)}</td>
-                    <td className="p-2 text-xs">{t(`sides.${account.normalBalance}` as never)}</td>
-                    <td className="p-2 text-xs">{account.isPostable ? "✓" : "—"}</td>
-                    <td className="p-2">
-                      {canManage && (
-                        <AccountRowActions
-                          accountId={account.id}
-                          code={account.code}
-                          nameFa={account.nameTranslations?.["fa-IR"] ?? ""}
-                          nameEn={account.nameTranslations?.["en-US"] ?? ""}
-                          isActive={account.isActive}
-                          isSystem={account.isSystem}
-                          hasPostings={account.hasPostings}
-                          deletable={
-                            !account.isSystem && !account.hasPostings && !parentIds.has(account.id)
-                          }
-                        />
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
         </CardContent>
       </Card>
     </div>

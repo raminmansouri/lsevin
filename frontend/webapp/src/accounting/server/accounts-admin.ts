@@ -1,19 +1,6 @@
 import "server-only";
-
+import type { TransactionSql } from "postgres";
 import db from "@/config/database/db";
-
-/**
- * Admin read/write for the chart of accounts.
- *
- * Two rules the panel must not be able to break:
- *
- *   * A seeded system account cannot be renumbered, retyped or deleted. The posting
- *     rules reference them by `system_key`, and moving one out from under a rule would
- *     silently redirect real money to a different account.
- *   * A new account is always a leaf under an existing subsidiary account. Postings
- *     belong on leaves; allowing a postable account to grow children would make every
- *     parent balance double-count.
- */
 
 export class AccountValidationError extends Error {
   constructor(message: string) {
@@ -69,51 +56,88 @@ export async function listPostableParents(): Promise<{ id: string; code: string;
   `;
 }
 
-export async function createDetailAccount(input: {
+const SEGMENT = /^\d{1,4}$/;
+const MAX_LEVEL = 9;
+
+type SubtreeRow = { id: string; code: string; level: number; is_system: boolean };
+
+async function loadSubtree(tx: TransactionSql, accountId: string): Promise<SubtreeRow[]> {
+  return tx<SubtreeRow[]>`
+    with recursive sub as (
+      select id, code, level, is_system from accounting.accounts where id = ${accountId}
+      union all
+      select a.id, a.code, a.level, a.is_system from accounting.accounts a join sub on a.parent_id = sub.id
+    )
+    select id::text as id, code, level, is_system from sub
+  `;
+}
+
+async function countRefs(tx: TransactionSql, ids: string[]) {
+  const [row] = await tx<{ postings: number; wallets: number; templates: number; postedCode: string | null }[]>`
+    select
+      (select count(*)::int from accounting.journal_lines where account_id = any(${ids}::uuid[])) as postings,
+      (select count(*)::int from accounting.wallets where account_id = any(${ids}::uuid[])) as wallets,
+      (select count(*)::int from accounting.entry_template_lines where account_id = any(${ids}::uuid[])) as templates,
+      (select a.code from accounting.journal_lines l join accounting.accounts a on a.id = l.account_id
+        where l.account_id = any(${ids}::uuid[]) limit 1) as "postedCode"
+  `;
+  return row;
+}
+
+export async function createChildAccount(input: {
   parentId: string;
-  code: string;
+  segment: string;
   nameFa: string;
   nameEn: string;
   currencyCode?: string | null;
   actorUserId: string;
-}): Promise<{ id: string }> {
-  const code = input.code.trim();
-  if (!/^\d{3,20}$/.test(code)) {
-    throw new AccountValidationError("An account code must be 3 to 20 digits.");
-  }
-  if (!input.nameFa.trim()) {
-    throw new AccountValidationError("The Persian name is required.");
-  }
+}): Promise<{ id: string; code: string }> {
+  const segment = input.segment.trim();
+  if (!SEGMENT.test(segment)) throw new AccountValidationError("کد زیرحساب باید ۱ تا ۴ رقم باشد.");
+  if (!input.nameFa.trim()) throw new AccountValidationError("نام فارسی الزامی است.");
 
   return db.begin(async (tx) => {
-    const [parent] = await tx<{ id: string; code: string; level: number; account_type: string; normal_balance: string; is_postable: boolean }[]>`
-      select id::text as id, code, level, account_type, normal_balance, is_postable
-      from accounting.accounts where id = ${input.parentId} limit 1
+    const [parent] = await tx<
+      { id: string; code: string; level: number; account_type: string; normal_balance: string; is_postable: boolean; is_system: boolean }[]
+    >`
+      select id::text as id, code, level, account_type, normal_balance, is_postable, is_system
+      from accounting.accounts where id = ${input.parentId} limit 1 for update
     `;
-    if (!parent) throw new AccountValidationError("The parent account was not found.");
-    if (parent.level !== 3) {
-      throw new AccountValidationError("A new account must be created under a subsidiary (level 3) account.");
+    if (!parent) throw new AccountValidationError("حساب پدر پیدا نشد.");
+    if (parent.level >= MAX_LEVEL) {
+      throw new AccountValidationError(`حساب ${parent.code} در عمیق‌ترین سطح است و نمی‌تواند زیرحساب بگیرد.`);
     }
+
+    const code = parent.code + segment;
+    const [existing] = await tx<{ id: string }[]>`select id::text as id from accounting.accounts where code = ${code} limit 1`;
+    if (existing) throw new AccountValidationError(`کد ${code} قبلاً استفاده شده است.`);
+
     if (parent.is_postable) {
-      throw new AccountValidationError("The parent already accepts postings and cannot have children.");
-    }
-    if (!code.startsWith(parent.code)) {
-      throw new AccountValidationError(`The code must start with the parent's code (${parent.code}).`);
+      if (parent.is_system) {
+        throw new AccountValidationError(
+          `حساب ${parent.code} سیستمی است و سایت مستقیماً در آن ثبت می‌کند؛ نمی‌تواند زیرحساب بگیرد.`
+        );
+      }
+      const refs = await countRefs(tx, [parent.id]);
+      if (refs.postings > 0) {
+        throw new AccountValidationError(
+          `حساب ${parent.code} سند خورده است و نمی‌تواند زیرحساب بگیرد. اول سندهایش را به حساب دیگری منتقل کنید.`
+        );
+      }
+      if (refs.wallets > 0 || refs.templates > 0) {
+        throw new AccountValidationError(
+          `حساب ${parent.code} به کیف پول یا الگوی سند وصل است و نمی‌تواند زیرحساب بگیرد.`
+        );
+      }
+      await tx`update accounting.accounts set is_postable = false, updated_by = ${input.actorUserId} where id = ${parent.id}`;
     }
 
-    const [existing] = await tx<{ id: string }[]>`
-      select id::text as id from accounting.accounts where code = ${code} limit 1
-    `;
-    if (existing) throw new AccountValidationError(`Account code ${code} already exists.`);
-
-    // Type and normal side are inherited: a detail account under a liability parent that
-    // was somehow marked as income would corrupt every report that rolls up by type.
     const [created] = await tx<{ id: string }[]>`
       insert into accounting.accounts (
         code, parent_id, level, name_translations, account_type, normal_balance,
         currency_code, is_postable, is_active, is_system, created_by
       ) values (
-        ${code}, ${parent.id}, 4,
+        ${code}, ${parent.id}, ${parent.level + 1},
         ${tx.json({ "fa-IR": input.nameFa.trim(), "en-US": input.nameEn.trim() || input.nameFa.trim() } as never)},
         ${parent.account_type}, ${parent.normal_balance},
         ${input.currencyCode || null}, true, true, false, ${input.actorUserId}
@@ -127,7 +151,70 @@ export async function createDetailAccount(input: {
               ${tx.json({ code, parentCode: parent.code, nameFa: input.nameFa } as never)})
     `;
 
-    return created;
+    return { id: created.id, code };
+  });
+}
+
+export async function updateAccount(input: {
+  accountId: string;
+  segment: string;
+  nameFa: string;
+  nameEn: string;
+  actorUserId: string;
+}): Promise<{ code: string }> {
+  const segment = input.segment.trim();
+  if (!SEGMENT.test(segment)) throw new AccountValidationError("کد باید ۱ تا ۴ رقم باشد.");
+  if (!input.nameFa.trim()) throw new AccountValidationError("نام فارسی الزامی است.");
+
+  return db.begin(async (tx) => {
+    const [account] = await tx<{ id: string; code: string; name_translations: unknown; parent_code: string | null }[]>`
+      select a.id::text as id, a.code, a.name_translations, p.code as parent_code
+      from accounting.accounts a left join accounting.accounts p on p.id = a.parent_id
+      where a.id = ${input.accountId} limit 1 for update of a
+    `;
+    if (!account) throw new AccountValidationError("حساب پیدا نشد.");
+
+    const newCode = (account.parent_code ?? "") + segment;
+
+    if (newCode !== account.code) {
+      const subtree = await loadSubtree(tx, account.id);
+      const ids = subtree.map((row) => row.id);
+      const newCodes = subtree.map((row) => newCode + row.code.slice(account.code.length));
+
+      const [clash] = await tx<{ code: string }[]>`
+        select code from accounting.accounts
+        where code = any(${newCodes}::text[]) and not (id = any(${ids}::uuid[]))
+        limit 1
+      `;
+      if (clash) throw new AccountValidationError(`کد ${clash.code} قبلاً استفاده شده است.`);
+
+      await tx`update accounting.accounts set code = 'tmp:' || id::text where id = any(${ids}::uuid[])`;
+      await tx`
+        update accounting.accounts a
+           set code = m.code, updated_by = ${input.actorUserId}
+          from unnest(${ids}::uuid[], ${newCodes}::text[]) as m(id, code)
+         where a.id = m.id
+      `;
+    }
+
+    await tx`
+      update accounting.accounts
+         set name_translations = ${tx.json({
+           "fa-IR": input.nameFa.trim(),
+           "en-US": input.nameEn.trim() || input.nameFa.trim(),
+         } as never)},
+             updated_by = ${input.actorUserId}
+       where id = ${account.id}
+    `;
+
+    await tx`
+      insert into accounting.audit_log (actor_user_id, action, entity_type, entity_id, entity_key, before_state, after_state)
+      values (${input.actorUserId}, 'account.update', 'accounting_account', ${account.id}, ${newCode},
+              ${tx.json({ code: account.code, name: account.name_translations } as never)},
+              ${tx.json({ code: newCode, nameFa: input.nameFa, nameEn: input.nameEn } as never)})
+    `;
+
+    return { code: newCode };
   });
 }
 
@@ -202,93 +289,60 @@ export async function setAccountActive(input: {
   });
 }
 
-/**
- * Removes a detail account that was never used.
- *
- * Deactivating hides an account from the entry form but leaves it in the coding
- * tree forever, which is no help to someone who has just mistyped a code and wants
- * it gone. A delete is safe only while the account is genuinely inert, so all four
- * ways it can already be depended on are checked here — and each refusal says which
- * one it was, because "cannot delete" on its own leaves the accountant guessing:
- *
- *   * a seeded system account, which the posting rules reach by system_key;
- *   * an account with children, whose codes would be orphaned;
- *   * an account that has been posted to, which would break a document;
- *   * an account a wallet or a document template points at.
- *
- * Anything that fails one of these is corrected by deactivating it instead.
- */
+
+
+
 export async function deleteAccount(input: {
   accountId: string;
   actorUserId: string;
-}): Promise<{ code: string }> {
+}): Promise<{ code: string; removed: number }> {
   return db.begin(async (tx) => {
-    const [account] = await tx<
-      {
-        id: string;
-        code: string;
-        level: number;
-        is_system: boolean;
-        name_translations: unknown;
-      }[]
-    >`
-      select id::text as id, code, level, is_system, name_translations
+    const [account] = await tx<{ id: string; code: string; parent_id: string | null; name_translations: unknown }[]>`
+      select id::text as id, code, parent_id::text as parent_id, name_translations
       from accounting.accounts where id = ${input.accountId} limit 1 for update
     `;
-    if (!account) throw new AccountValidationError("The account was not found.");
+    if (!account) throw new AccountValidationError("حساب پیدا نشد.");
 
-    if (account.is_system) {
+    const subtree = await loadSubtree(tx, account.id);
+    const ids = subtree.map((row) => row.id);
+
+    const system = subtree.find((row) => row.is_system);
+    if (system) {
       throw new AccountValidationError(
-        `Account ${account.code} is a system account that the posting rules depend on and cannot be deleted. Deactivate it instead.`
+        `حساب ${system.code} سیستمی است و سایت مستقیماً در آن ثبت می‌کند؛ قابل حذف نیست.`
       );
     }
 
-    const [children] = await tx<{ count: number }[]>`
-      select count(*)::int as count from accounting.accounts where parent_id = ${account.id}
-    `;
-    if (children.count > 0) {
+    const refs = await countRefs(tx, ids);
+    if (refs.postings > 0) {
       throw new AccountValidationError(
-        `Account ${account.code} has ${children.count} child account(s). Delete those first.`
+        `حساب ${refs.postedCode} سند خورده است؛ حذف نمی‌شود. به‌جای حذف، غیرفعالش کنید.`
       );
     }
+    if (refs.wallets > 0) throw new AccountValidationError("این حساب (یا زیرحسابی از آن) به کیف پول وصل است.");
+    if (refs.templates > 0) throw new AccountValidationError("این حساب (یا زیرحسابی از آن) در الگوی سند استفاده شده است.");
 
-    const [postings] = await tx<{ count: number }[]>`
-      select count(*)::int as count from accounting.journal_lines where account_id = ${account.id}
-    `;
-    if (postings.count > 0) {
-      throw new AccountValidationError(
-        `Account ${account.code} has ${postings.count} posting(s) and cannot be deleted. Deactivate it instead.`
-      );
-    }
-
-    const [wallets] = await tx<{ count: number }[]>`
-      select count(*)::int as count from accounting.wallets where account_id = ${account.id}
-    `;
-    if (wallets.count > 0) {
-      throw new AccountValidationError(
-        `Account ${account.code} is the ledger account of ${wallets.count} wallet(s) and cannot be deleted.`
-      );
-    }
-
-    const [templates] = await tx<{ count: number }[]>`
-      select count(*)::int as count
-        from accounting.entry_template_lines where account_id = ${account.id}
-    `;
-    if (templates.count > 0) {
-      throw new AccountValidationError(
-        `Account ${account.code} is used by ${templates.count} document template line(s). Change those first.`
-      );
-    }
-
-    // Written before the row goes, so the log keeps what was deleted.
     await tx`
       insert into accounting.audit_log (actor_user_id, action, entity_type, entity_id, entity_key, before_state)
       values (${input.actorUserId}, 'account.delete', 'accounting_account', ${account.id}, ${account.code},
-              ${tx.json({ code: account.code, level: account.level, name: account.name_translations } as never)})
+              ${tx.json({ code: account.code, name: account.name_translations, removed: subtree.map((row) => row.code) } as never)})
     `;
 
-    await tx`delete from accounting.accounts where id = ${account.id}`;
+    const levels = [...new Set(subtree.map((row) => row.level))].sort((a, b) => b - a);
+    for (const level of levels) {
+      await tx`delete from accounting.accounts where id = any(${ids}::uuid[]) and level = ${level}`;
+    }
 
-    return { code: account.code };
+    if (account.parent_id) {
+      await tx`
+        update accounting.accounts p
+           set is_postable = true, updated_by = ${input.actorUserId}
+         where p.id = ${account.parent_id}
+           and p.level > 1
+           and not exists (select 1 from accounting.accounts c where c.parent_id = p.id)
+      `;
+    }
+
+    return { code: account.code, removed: subtree.length };
   });
 }
