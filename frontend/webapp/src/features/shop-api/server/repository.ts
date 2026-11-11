@@ -186,13 +186,13 @@ async function assertCategoriesExist(tx: Tx, ids: string[]) {
   }
 }
 
-function slugBase(input: { slug?: string; name?: Record<string, string> }) {
+export function slugBase(input: { slug?: string; name?: Record<string, string> }) {
   if (input.slug) return input.slug;
   const latin = (input.name?.en ?? "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
   return latin.length >= 2 ? latin.slice(0, 80) : "product";
 }
 
-async function freeSlug(tx: Tx, wanted: string, exceptProductId?: string) {
+export async function freeSlug(tx: Tx, wanted: string, exceptProductId?: string) {
   const rows = await tx<{ slug: string }[]>`
     select slug from shop.products
     where (slug = ${wanted} or slug like ${`${wanted}-%`})

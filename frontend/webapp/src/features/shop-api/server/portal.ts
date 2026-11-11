@@ -2,10 +2,22 @@ import "server-only";
 
 import sql from "@/config/database/db";
 
-import type { CreateOfferInput, UpdateOfferInput } from "../schemas";
+import type {
+  CreateOfferInput,
+  CreateProposalInput,
+  ProposalDecisionInput,
+  UpdateOfferInput,
+} from "../schemas";
 import type { PortalPrincipal, ShopApiPrincipal } from "./auth";
 import { notFound, ShopApiError } from "./errors";
-import { createOwnOffer, updateOwnOffer, writeAudit } from "./repository";
+import {
+  applyProductContent,
+  createOwnOffer,
+  freeSlug,
+  slugBase,
+  updateOwnOffer,
+  writeAudit,
+} from "./repository";
 
 /**
  * The provider portal's shop: a clinic requests a shop, an admin approves it with the categories
@@ -479,6 +491,196 @@ export async function listPortalRequests(principal: PortalPrincipal) {
 }
 
 // ------------------------------------------------------------------------------------------------
+// Provider: proposals of brand-new products
+// ------------------------------------------------------------------------------------------------
+
+type ProposalStatus = "pending" | "approved" | "rejected";
+
+type ProposalRow = {
+  id: string;
+  seller_id: string;
+  seller_name: string;
+  shop_status: string;
+  name_translations: Record<string, string>;
+  description_translations: Record<string, string>;
+  category_id: string;
+  category_name: string | null;
+  brand: string | null;
+  image_urls: string[] | null;
+  currency: string;
+  suggested_price: string;
+  stock_quantity: number;
+  status: ProposalStatus;
+  status_reason: string | null;
+  reviewed_at: Date | null;
+  created_product_id: string | null;
+  created_at: Date;
+  updated_at: Date;
+};
+
+const PROPOSAL_SELECT = sql`
+  select pp.id::text as id, pp.seller_id::text as seller_id,
+         coalesce(nullif(s.name_translations->>'fa', ''), s.slug) as seller_name, s.shop_status,
+         pp.name_translations, pp.description_translations, pp.category_id::text as category_id,
+         coalesce(nullif(c.name_translations->>'fa', ''), nullif(c.name_translations->>'en', ''), c.slug) as category_name,
+         pp.brand, pp.image_urls, pp.currency, pp.suggested_price::text as suggested_price, pp.stock_quantity,
+         pp.status, pp.status_reason, pp.reviewed_at, pp.created_product_id::text as created_product_id,
+         pp.created_at, pp.updated_at
+  from shop.product_proposals pp
+  join shop.sellers s on s.id = pp.seller_id
+  left join shop.categories c on c.id = pp.category_id
+`;
+
+function proposalTitle(name: Record<string, string>) {
+  return name?.fa || name?.en || "—";
+}
+
+function serializeProposal(row: ProposalRow) {
+  return {
+    id: row.id,
+    name: row.name_translations ?? {},
+    title: proposalTitle(row.name_translations),
+    description: row.description_translations ?? {},
+    categoryId: row.category_id,
+    categoryName: row.category_name,
+    brand: row.brand,
+    images: row.image_urls ?? [],
+    currency: row.currency,
+    price: Number(row.suggested_price),
+    stockQuantity: row.stock_quantity,
+    status: row.status,
+    reason: row.status_reason,
+    reviewedAt: row.reviewed_at,
+    createdProductId: row.created_product_id,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
+}
+
+/**
+ * The categories each seller may use: its allowed categories and their descendants (the same
+ * rule as shop.seller_may_list_product), active ones only.
+ */
+async function allowedCategoryTree(tx: typeof sql, sellerIds: string[]) {
+  const bySeller = new Map<string, { id: string; name: string }[]>();
+  if (!sellerIds.length) return bySeller;
+  const rows = await tx<{ seller_id: string; id: string; name: string }[]>`
+    with recursive allowed(seller_id, id) as (
+      select sc.seller_id, c.id from shop.seller_categories sc
+      join shop.categories c on c.id = sc.category_id and c.deleted_at is null
+      where sc.seller_id::text = any(${sellerIds})
+      union
+      select a.seller_id, c.id from shop.categories c join allowed a on c.parent_id = a.id
+      where c.deleted_at is null
+    )
+    select a.seller_id::text as seller_id, c.id::text as id,
+           coalesce(nullif(c.name_translations->>'fa', ''), nullif(c.name_translations->>'en', ''), c.slug) as name
+    from allowed a join shop.categories c on c.id = a.id
+    where c.is_active
+    order by c.display_order, c.slug
+  `;
+  for (const row of rows) {
+    const list = bySeller.get(row.seller_id) ?? [];
+    list.push({ id: row.id, name: row.name });
+    bySeller.set(row.seller_id, list);
+  }
+  return bySeller;
+}
+
+async function categoryAllowedFor(
+  tx: typeof sql,
+  sellerId: string,
+  categoryId: string
+) {
+  const tree = await allowedCategoryTree(tx, [sellerId]);
+  return (tree.get(sellerId) ?? []).some((c) => c.id === categoryId);
+}
+
+const categoryNotAllowed = () =>
+  new ShopApiError(
+    "forbidden",
+    "This category is not one your shop is approved for.",
+    { reason: "category_not_allowed" }
+  );
+
+/** The provider's proposals, newest first, with the categories it may propose in. */
+export async function listProviderProposals(principal: PortalPrincipal) {
+  const seller = await sellerOfProvider(requireProvider(principal));
+  if (!seller) return { categories: [], proposals: [] };
+  const [tree, rows] = await Promise.all([
+    allowedCategoryTree(sql, [seller.id]),
+    sql<ProposalRow[]>`
+      ${PROPOSAL_SELECT}
+      where pp.seller_id = ${seller.id}::uuid
+      order by pp.created_at desc, pp.id
+      limit 200
+    `,
+  ]);
+  return {
+    categories:
+      seller.shop_status === "active" ? (tree.get(seller.id) ?? []) : [],
+    proposals: rows.map(serializeProposal),
+  };
+}
+
+/**
+ * A brand-new product the clinic wants to sell. It waits for an admin; on approval the catalog
+ * product and the clinic's offer are created. The shop must be active and the category one of
+ * the shop's allowed categories (or a child of one).
+ */
+export async function createProductProposal(
+  principal: PortalPrincipal,
+  input: CreateProposalInput
+) {
+  const providerId = requireProvider(principal);
+  return sql.begin(async (tx) => {
+    const [seller] = await tx<{ id: string; shop_status: string }[]>`
+      select id::text as id, shop_status from shop.sellers
+      where service_provider_id = ${providerId}::uuid and deleted_at is null and is_active
+    `;
+    if (!seller)
+      throw new ShopApiError("forbidden", "Request a shop first.", {
+        reason: "no_shop",
+      });
+    if (seller.shop_status !== "active") {
+      throw new ShopApiError(
+        "forbidden",
+        "Your shop is not active, so you cannot propose products yet."
+      );
+    }
+    if (
+      !(await categoryAllowedFor(
+        tx as unknown as typeof sql,
+        seller.id,
+        input.categoryId
+      ))
+    )
+      throw categoryNotAllowed();
+    const [row] = await tx<{ id: string }[]>`
+      insert into shop.product_proposals (seller_id, created_by_user_id, name_translations, description_translations,
+        category_id, brand, image_urls, suggested_price, stock_quantity)
+      values (${seller.id}::uuid, ${principal.actorUserId}::uuid, ${tx.json(input.name)}, ${tx.json(input.description ?? {})},
+        ${input.categoryId}::uuid, ${input.brand?.trim() || null}, ${input.images ?? []}::text[], ${input.price}, ${input.stockQuantity})
+      returning id::text as id
+    `;
+    await writeAudit(tx, {
+      tokenId: null,
+      sellerId: seller.id,
+      actorUserId: principal.actorUserId,
+      source: "portal",
+      ip: principal.ip,
+      action: "proposal.create",
+      entityType: "product_proposal",
+      entityId: row.id,
+    });
+    const [created] = await tx<ProposalRow[]>`
+      ${PROPOSAL_SELECT} where pp.id = ${row.id}::uuid
+    `;
+    return serializeProposal(created);
+  });
+}
+
+// ------------------------------------------------------------------------------------------------
 // Admin: queue and decisions
 // ------------------------------------------------------------------------------------------------
 
@@ -522,7 +724,7 @@ export async function listAdminQueue(
   >`
     select s.id::text as id, coalesce(nullif(s.name_translations->>'fa', ''), s.slug) as name, s.phone,
            s.service_provider_id::text as provider_id,
-           coalesce(nullif(sp.name_translations->>'fa', ''), nullif(sp.name_translations->>'en', '')) as provider_name, sp.city,
+           coalesce(nullif(sp.name_translations->>'fa', ''), nullif(sp.name_translations->>'en', ''), (select nullif(v, '') from jsonb_each_text(sp.name_translations) as t(k, v) where nullif(v, '') is not null limit 1)) as provider_name, sp.city,
            s.shop_status, s.shop_status_reason as reason, s.shop_requested_at as requested_at, s.shop_reviewed_at as reviewed_at, s.shop_request,
            (select count(*)::int from shop.offers o where o.seller_id = s.id and o.deleted_at is null and o.admin_status = 'approved') as live,
            (select count(*)::int from shop.offers o where o.seller_id = s.id and o.deleted_at is null and o.admin_status = 'pending') as pending,
@@ -585,11 +787,14 @@ export async function listAdminQueue(
     order by o.last_modified_date desc
     limit 200
   `;
+  const proposals = await listProposalsForAdmin(status);
   const [{ pending_count }] = await sql<{ pending_count: number }[]>`
     select ((select count(*) from shop.sellers s where s.deleted_at is null and s.service_provider_id is not null
               and s.shop_status = 'requested' and coalesce(s.shop_request->>'state', 'requested') <> 'rejected')
           + (select count(*) from shop.offers o join shop.sellers s on s.id = o.seller_id
-              where o.deleted_at is null and o.admin_status = 'pending' and s.service_provider_id is not null and s.deleted_at is null))::int as pending_count
+              where o.deleted_at is null and o.admin_status = 'pending' and s.service_provider_id is not null and s.deleted_at is null)
+          + (select count(*) from shop.product_proposals pp join shop.sellers s on s.id = pp.seller_id
+              where pp.status = 'pending' and s.service_provider_id is not null and s.deleted_at is null))::int as pending_count
   `;
   const categoryIds = [
     ...new Set(shops.flatMap((shop) => shop.shop_request?.categoryIds ?? [])),
@@ -676,6 +881,19 @@ export async function listAdminQueue(
           blocked: 0,
         },
       },
+    })),
+    ...proposals.map((proposal) => ({
+      type: "product_proposal" as const,
+      id: proposal.id,
+      sellerId: proposal.sellerId,
+      title: proposal.title,
+      sellerName: proposal.sellerName,
+      status: status,
+      shopStatus: proposal.shopStatus,
+      reason: proposal.reason,
+      createdAt: proposal.createdAt,
+      reviewedAt: proposal.reviewedAt,
+      proposal,
     })),
   ].sort(
     (a, b) =>
@@ -795,7 +1013,11 @@ export async function decideShop(
       entityId: sellerId,
       note,
     });
-    return { sellerId, decision: input.decision };
+    // Who to tell: the portal notifies the clinic after a successful decision.
+    const [owner] = await tx<{ provider_id: string }[]>`
+      select service_provider_id::text as provider_id from shop.sellers where id = ${sellerId}::uuid
+    `;
+    return { sellerId, decision: input.decision, providerId: owner?.provider_id ?? null, title: seller.name, reason: note };
   });
 }
 
@@ -826,8 +1048,11 @@ export async function decideOffer(
       ? needReason(input.reason)
       : null;
   return sql.begin(async (tx) => {
-    const [offer] = await tx<{ seller_id: string; admin_status: string }[]>`
-      select o.seller_id::text as seller_id, o.admin_status from shop.offers o
+    const [offer] = await tx<{ seller_id: string; admin_status: string; provider_id: string; product_name: string }[]>`
+      select o.seller_id::text as seller_id, o.admin_status, s.service_provider_id::text as provider_id,
+             (select coalesce(nullif(p.name_translations->>'fa', ''), nullif(p.name_translations->>'en', ''), p.slug)
+                from shop.products p where p.id = o.product_id) as product_name
+      from shop.offers o
       join shop.sellers s on s.id = o.seller_id and s.service_provider_id is not null and not s.is_default
       where o.id = ${offerId}::uuid and o.deleted_at is null
       for update of o
@@ -858,6 +1083,192 @@ export async function decideOffer(
       entityId: offerId,
       note,
     });
-    return { offerId, decision: input.decision, adminStatus: transition.to };
+    return {
+      offerId,
+      decision: input.decision,
+      adminStatus: transition.to,
+      providerId: offer.provider_id,
+      title: offer.product_name,
+      reason: note,
+    };
+  });
+}
+
+// ------------------------------------------------------------------------------------------------
+// Admin: product proposals
+// ------------------------------------------------------------------------------------------------
+
+/** Proposals of provider sellers by status, each with the categories its shop may use. */
+async function listProposalsForAdmin(status: QueueStatus) {
+  if (status === "blocked") return [];
+  const rows = await sql<ProposalRow[]>`
+    ${PROPOSAL_SELECT}
+    where pp.status = ${status} and s.deleted_at is null and s.service_provider_id is not null and not s.is_default
+    order by pp.created_at desc, pp.id
+    limit 200
+  `;
+  const tree = await allowedCategoryTree(sql, [
+    ...new Set(rows.map((row) => row.seller_id)),
+  ]);
+  return rows.map((row) => {
+    const allowed = tree.get(row.seller_id) ?? [];
+    return {
+      ...serializeProposal(row),
+      sellerId: row.seller_id,
+      sellerName: row.seller_name,
+      shopStatus: row.shop_status,
+      categoryAllowed: allowed.some((c) => c.id === row.category_id),
+      allowedCategories: allowed,
+    };
+  });
+}
+
+export async function listAdminProposals(
+  principal: PortalPrincipal,
+  status: ProposalStatus
+) {
+  requireAdmin(principal);
+  return { status, items: await listProposalsForAdmin(status) };
+}
+
+/**
+ * Approve: in one transaction, create the catalog product (name, description, category, brand,
+ * images; live, owned by the platform catalog so other shops can sell it too) and this shop's
+ * approved offer with the proposal's price and stock, then link the product to the proposal.
+ * The admin may correct the name, category (still one the shop is allowed) and price first.
+ * Reject: needs a reason, shown to the clinic.
+ */
+export async function decideProposal(
+  principal: PortalPrincipal,
+  proposalId: string,
+  input: ProposalDecisionInput
+) {
+  requireAdmin(principal);
+  const note = input.decision === "reject" ? needReason(input.reason) : null;
+  return sql.begin(async (tx) => {
+    const [proposal] = await tx<
+      (ProposalRow & { shop_active: boolean; provider_id: string })[]
+    >`
+      select pp.id::text as id, pp.seller_id::text as seller_id, pp.status, pp.name_translations, pp.description_translations,
+             pp.category_id::text as category_id, pp.brand, pp.image_urls, pp.currency,
+             pp.suggested_price::text as suggested_price, pp.stock_quantity,
+             (s.shop_status = 'active' and s.is_active) as shop_active, s.service_provider_id::text as provider_id
+      from shop.product_proposals pp
+      join shop.sellers s on s.id = pp.seller_id and s.deleted_at is null and s.service_provider_id is not null and not s.is_default
+      where pp.id = ${proposalId}::uuid
+      for update of pp
+    `;
+    if (!proposal) throw notFound("Proposal");
+    if (proposal.status !== "pending") {
+      throw new ShopApiError(
+        "conflict",
+        `This proposal is ${proposal.status}; it cannot be changed with "${input.decision}".`
+      );
+    }
+    const audit = (action: string, entityType: string, entityId: string) =>
+      writeAudit(tx, {
+        tokenId: null,
+        sellerId: proposal.seller_id,
+        actorUserId: principal.actorUserId,
+        source: "portal",
+        ip: principal.ip,
+        action,
+        entityType,
+        entityId,
+        note,
+      });
+
+    if (input.decision === "reject") {
+      await tx`
+        update shop.product_proposals set status = 'rejected', status_reason = ${note},
+          reviewed_at = now(), reviewed_by_user_id = ${principal.actorUserId}::uuid, updated_at = now()
+        where id = ${proposalId}::uuid
+      `;
+      await audit("proposal.reject", "product_proposal", proposalId);
+      return {
+        proposalId, decision: input.decision, status: "rejected" as const, productId: null, offerId: null,
+        providerId: proposal.provider_id, title: proposalTitle(proposal.name_translations), reason: note,
+      };
+    }
+
+    if (!proposal.shop_active) {
+      throw new ShopApiError(
+        "conflict",
+        "This shop is not active; its proposals cannot be approved now."
+      );
+    }
+    const name = input.name ?? proposal.name_translations;
+    const categoryId = input.categoryId ?? proposal.category_id;
+    const price = input.price ?? Number(proposal.suggested_price);
+    if (
+      !(await categoryAllowedFor(
+        tx as unknown as typeof sql,
+        proposal.seller_id,
+        categoryId
+      ))
+    ) {
+      throw new ShopApiError(
+        "validation_error",
+        "The category is not one this shop is approved for.",
+        [{ field: "categoryId", message: "Choose one of the shop's allowed categories." }]
+      );
+    }
+    const brand = proposal.brand?.trim() || null;
+    const [brandRow] = brand
+      ? await tx<{ id: string }[]>`
+          select b.id::text as id from shop.brands b
+          where b.deleted_at is null and (lower(b.slug) = lower(${brand}) or exists (
+            select 1 from jsonb_each_text(case when jsonb_typeof(b.name_translations) = 'object' then b.name_translations else '{}'::jsonb end) t
+            where lower(trim(t.value)) = lower(${brand})))
+          order by b.is_active desc limit 1
+        `
+      : [];
+
+    const slug = await freeSlug(tx, slugBase({ name }));
+    const [product] = await tx<{ id: string }[]>`
+      insert into shop.products (
+        product_type, status, slug, base_currency, base_price,
+        name_translations, short_description_translations, description_translations,
+        primary_category_id, brand_id, tax_class, requires_shipping, published_at
+      ) values (
+        'simple', 'active', ${slug}, ${proposal.currency}, ${price},
+        ${tx.json(name)}, ${tx.json({})}, ${tx.json(proposal.description_translations ?? {})},
+        ${categoryId}::uuid, ${brandRow?.id ?? null}::uuid, 'standard', true, now()
+      )
+      returning id::text as id
+    `;
+    // Same category, image and search-vector rules as every other product write.
+    await applyProductContent(tx, product.id, {
+      categoryIds: [categoryId],
+      primaryCategoryId: categoryId,
+      images: proposal.image_urls ?? [],
+    });
+    // A new catalog product gets an automatic offer from the default seller (0086 trigger).
+    // This product is the clinic's: withdraw that offer so only the clinic sells it.
+    await tx`
+      update shop.offers set is_active = false, deleted_at = now(), last_modified_date = now()
+      where product_id = ${product.id}::uuid and seller_id = shop.default_seller_id() and deleted_at is null
+    `;
+    const [offer] = await tx<{ id: string }[]>`
+      insert into shop.offers (product_id, seller_id, currency, price, stock_quantity, is_active,
+        admin_status, admin_reviewed_at, admin_reviewed_by_user_id)
+      values (${product.id}::uuid, ${proposal.seller_id}::uuid, ${proposal.currency}, ${price}, ${proposal.stock_quantity}, true,
+        'approved', now(), ${principal.actorUserId}::uuid)
+      returning id::text as id
+    `;
+    await tx`
+      update shop.product_proposals set status = 'approved', status_reason = null,
+        name_translations = ${tx.json(name)}, category_id = ${categoryId}::uuid, suggested_price = ${price},
+        created_product_id = ${product.id}::uuid,
+        reviewed_at = now(), reviewed_by_user_id = ${principal.actorUserId}::uuid, updated_at = now()
+      where id = ${proposalId}::uuid
+    `;
+    await audit("product.create", "product", product.id);
+    await audit("offer.approve", "offer", offer.id);
+    await audit("proposal.approve", "product_proposal", proposalId);
+    return {
+      proposalId, decision: input.decision, status: "approved" as const, productId: product.id, offerId: offer.id,
+      providerId: proposal.provider_id, title: proposalTitle(name), reason: null,
+    };
   });
 }

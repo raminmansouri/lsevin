@@ -170,8 +170,53 @@ export const portalOfferDecisionSchema = z.discriminatedUnion("decision", [
 
 export const portalQueueStatusSchema = z.enum(["pending", "approved", "rejected", "blocked"]).catch("pending");
 
+/** A product that is not in the catalog yet: Persian name required, English optional. */
+const proposalName = z
+  .object({
+    fa: z.string().trim().min(2, "Write the product name.").max(200),
+    en: z.string().trim().max(200).optional(),
+  })
+  .strict()
+  .transform(({ fa, en }) => (en ? { fa, en } : { fa }));
+
+export const portalCreateProposalSchema = z
+  .object({
+    name: proposalName,
+    description: translated(5_000).optional(),
+    categoryId: apiId,
+    brand: z.string().trim().max(120).nullable().optional(),
+    images: galleryUrlsSchema.optional(),
+    price: money,
+    stockQuantity: z.number({ error: "Stock quantity is required." }).int().min(1, "Stock must be at least 1.").max(10_000_000),
+  })
+  .strict();
+
+/** Approve (optionally correcting name, category or price first) or reject with a reason. */
+export const portalProposalDecisionSchema = z.discriminatedUnion("decision", [
+  z
+    .object({
+      decision: z.literal("approve"),
+      name: proposalName.optional(),
+      categoryId: apiId.optional(),
+      price: money.optional(),
+    })
+    .strict(),
+  z.object({ decision: z.literal("reject"), reason }).strict(),
+]);
+
+export const portalProposalStatusSchema = z.enum(["pending", "approved", "rejected"]).catch("pending");
+
+export type CreateProposalInput = z.infer<typeof portalCreateProposalSchema>;
+export type ProposalDecisionInput = z.infer<typeof portalProposalDecisionSchema>;
+
 export type ProductContentInput = z.infer<typeof productContentSchema>;
 export type CreateProductInput = z.infer<typeof createProductSchema>;
 export type UpdateProductInput = z.infer<typeof updateProductSchema>;
 export type CreateOfferInput = z.infer<typeof createOfferSchema>;
 export type UpdateOfferInput = z.infer<typeof updateOfferSchema>;
+
+/** Clinic orders: the list tab, and the pickup step the clinic moves its part of an order to. */
+export const portalOrderListStatusSchema = z.enum(["new", "ready_for_pickup", "picked_up", "cancelled", "all"]).catch("new");
+export const portalOrderStatusUpdateSchema = z
+  .object({ status: z.enum(["ready_for_pickup", "picked_up"]) })
+  .strict();

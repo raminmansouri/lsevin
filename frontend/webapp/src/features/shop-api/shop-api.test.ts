@@ -2,7 +2,16 @@ import { describe, expect, it, vi } from "vitest";
 
 vi.mock("@/config/database/db", () => ({ default: {} }));
 
-import { createOfferSchema, createProductSchema, updateOfferSchema, updateProductSchema } from "./schemas";
+import {
+  createOfferSchema,
+  createProductSchema,
+  portalCreateProposalSchema,
+  portalOrderListStatusSchema,
+  portalOrderStatusUpdateSchema,
+  portalProposalDecisionSchema,
+  updateOfferSchema,
+  updateProductSchema,
+} from "./schemas";
 import { isShopApiScope, SHOP_API_SCOPES } from "./scopes";
 import { checkRateLimit, resetRateLimits, SHOP_API_RATE_LIMIT_PER_MINUTE } from "./server/auth";
 import { ShopApiError } from "./server/errors";
@@ -141,5 +150,67 @@ describe("portal assertion", async () => {
     expect(verifyPortalAssertion(sign({ userId, providerId, kind: "root", iat: now, exp: now + 60 }), secret, now)).toBeNull();
     expect(verifyPortalAssertion(sign({ userId, kind: "provider", iat: now, exp: now + 60 }), secret, now)).toBeNull();
     expect(verifyPortalAssertion(sign({ userId, providerId, kind: "provider", iat: "1", exp: now + 60 }), secret, now)).toBeNull();
+  });
+});
+
+describe("product proposal schemas", () => {
+  const categoryId = "6f1c2c1e-1111-4222-8333-444455556666";
+  const valid = { name: { fa: "سرم ویتامین C" }, categoryId, price: 450000, stockQuantity: 3 };
+
+  it("accepts a Persian name with optional English, brand, description and images", () => {
+    const parsed = portalCreateProposalSchema.parse({
+      ...valid,
+      name: { fa: " سرم ویتامین C ", en: "" },
+      description: { fa: "برای پوست خشک" },
+      brand: "Lsevin Lab",
+      images: ["/media/a.jpg", "/media/a.jpg", "https://cdn.example.com/b.png"],
+    });
+    expect(parsed.name).toEqual({ fa: "سرم ویتامین C" });
+    expect(parsed.images).toEqual(["/media/a.jpg", "https://cdn.example.com/b.png"]);
+  });
+
+  it("requires a Persian name, a category, a price and stock of at least 1", () => {
+    expect(portalCreateProposalSchema.safeParse({ ...valid, name: { en: "Serum" } }).success).toBe(false);
+    expect(portalCreateProposalSchema.safeParse({ ...valid, name: { fa: " " } }).success).toBe(false);
+    expect(portalCreateProposalSchema.safeParse({ ...valid, categoryId: undefined }).success).toBe(false);
+    expect(portalCreateProposalSchema.safeParse({ ...valid, price: -1 }).success).toBe(false);
+    for (const stockQuantity of [undefined, null, 0, -2, 1.5]) {
+      expect(portalCreateProposalSchema.safeParse({ ...valid, stockQuantity }).success, String(stockQuantity)).toBe(false);
+    }
+  });
+
+  it("refuses unsafe image references and unknown fields", () => {
+    for (const image of ["javascript:alert(1)", "//evil.example/x.png", "/a/../../etc/passwd"]) {
+      expect(portalCreateProposalSchema.safeParse({ ...valid, images: [image] }).success, image).toBe(false);
+    }
+    expect(portalCreateProposalSchema.safeParse({ ...valid, images: Array(11).fill(0).map((_, i) => `/m/${i}.jpg`) }).success).toBe(false);
+    expect(portalCreateProposalSchema.safeParse({ ...valid, sellerId: categoryId }).success).toBe(false);
+  });
+
+  it("decision: reject needs a reason; approve may correct name, category and price", () => {
+    expect(portalProposalDecisionSchema.safeParse({ decision: "reject" }).success).toBe(false);
+    expect(portalProposalDecisionSchema.safeParse({ decision: "reject", reason: " " }).success).toBe(false);
+    expect(portalProposalDecisionSchema.parse({ decision: "reject", reason: "تصویر نامشخص" })).toMatchObject({ reason: "تصویر نامشخص" });
+    expect(portalProposalDecisionSchema.parse({ decision: "approve" })).toEqual({ decision: "approve" });
+    expect(portalProposalDecisionSchema.parse({ decision: "approve", name: { fa: "نام", en: "Name" }, categoryId, price: 1 })).toMatchObject({ price: 1 });
+    expect(portalProposalDecisionSchema.safeParse({ decision: "approve", stockQuantity: 9 }).success).toBe(false);
+  });
+});
+
+describe("clinic order schemas", () => {
+  it("the clinic can only move an order to ready for pickup or picked up", () => {
+    expect(portalOrderStatusUpdateSchema.parse({ status: "ready_for_pickup" })).toEqual({ status: "ready_for_pickup" });
+    expect(portalOrderStatusUpdateSchema.parse({ status: "picked_up" })).toEqual({ status: "picked_up" });
+    for (const status of ["new", "cancelled", "delivered", "", null]) {
+      expect(portalOrderStatusUpdateSchema.safeParse({ status }).success, String(status)).toBe(false);
+    }
+    expect(portalOrderStatusUpdateSchema.safeParse({ status: "picked_up", orderId: "x" }).success).toBe(false);
+  });
+
+  it("an unknown list tab falls back to new orders", () => {
+    expect(portalOrderListStatusSchema.parse("all")).toBe("all");
+    expect(portalOrderListStatusSchema.parse("cancelled")).toBe("cancelled");
+    expect(portalOrderListStatusSchema.parse("x")).toBe("new");
+    expect(portalOrderListStatusSchema.parse(null)).toBe("new");
   });
 });

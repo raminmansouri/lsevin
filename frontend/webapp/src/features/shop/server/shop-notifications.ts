@@ -6,6 +6,8 @@ import {
   type NotificationChannel,
 } from "@/app/[locale]/n/app/mobile/notifications/notification-service";
 
+import { notifyClinicsOfPaidOrder } from "@/features/shop-api/server/portal-orders";
+
 import { formatShopMoney } from "../components/money";
 
 /**
@@ -193,6 +195,8 @@ export async function notifyShopOrderEvent(input: {
   locale?: string | null;
   extra?: Record<string, string>;
 }): Promise<void> {
+  // The clinics that sell in a paid order hear about it in the provider portal (never throws).
+  if (input.event === "order.paid") await notifyClinicsOfPaidOrder(input.orderId);
   try {
     if (!(await notifyTablesExist())) return;
     const order = await loadOrder(input.orderId);

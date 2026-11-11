@@ -63,6 +63,12 @@ type Routes = {
   queue: typeof import("@/app/api/shop/v1/portal/admin/queue/route");
   shopDecision: typeof import("@/app/api/shop/v1/portal/admin/shops/[sellerId]/decision/route");
   offerDecision: typeof import("@/app/api/shop/v1/portal/admin/offers/[offerId]/decision/route");
+  proposals: typeof import("@/app/api/shop/v1/portal/proposals/route");
+  orders: typeof import("@/app/api/shop/v1/portal/orders/route");
+  ordersSummary: typeof import("@/app/api/shop/v1/portal/orders/summary/route");
+  orderStatus: typeof import("@/app/api/shop/v1/portal/orders/[orderId]/status/route");
+  adminProposals: typeof import("@/app/api/shop/v1/portal/admin/proposals/route");
+  proposalDecision: typeof import("@/app/api/shop/v1/portal/admin/proposals/[proposalId]/decision/route");
   auth: typeof import("./server/auth");
   assertion: typeof import("./server/portal-assertion");
 };
@@ -236,6 +242,16 @@ d("shop api: provider portal (real database)", () => {
       offerDecision: await import(
         "@/app/api/shop/v1/portal/admin/offers/[offerId]/decision/route"
       ),
+      proposals: await import("@/app/api/shop/v1/portal/proposals/route"),
+      orders: await import("@/app/api/shop/v1/portal/orders/route"),
+      ordersSummary: await import("@/app/api/shop/v1/portal/orders/summary/route"),
+      orderStatus: await import("@/app/api/shop/v1/portal/orders/[orderId]/status/route"),
+      adminProposals: await import(
+        "@/app/api/shop/v1/portal/admin/proposals/route"
+      ),
+      proposalDecision: await import(
+        "@/app/api/shop/v1/portal/admin/proposals/[proposalId]/decision/route"
+      ),
       auth: await import("./server/auth"),
       assertion: await import("./server/portal-assertion"),
     };
@@ -251,6 +267,31 @@ d("shop api: provider portal (real database)", () => {
       select id::text as id from shop.sellers where service_provider_id in ${sql([ids.provider, ids.otherProvider])}
     `
     ).map((row) => row.id);
+    if (orderIds.length) {
+      await sql`delete from shop.seller_order_pickups where order_id in ${sql(orderIds)}`;
+      await sql`delete from shop.order_addresses where order_id in ${sql(orderIds)}`;
+      await sql`delete from shop.order_items where order_id in ${sql(orderIds)}`;
+      await sql`delete from shop.order_status_history where order_id in ${sql(orderIds)}`;
+      await sql`delete from shop.orders where id in ${sql(orderIds)}`;
+    }
+    // Catalog products created by approved proposals (with their media, categories and offers).
+    const created = sellers.length
+      ? (
+          await sql<{ id: string }[]>`
+            select created_product_id::text as id from shop.product_proposals
+            where seller_id in ${sql(sellers)} and created_product_id is not null
+          `
+        ).map((row) => row.id)
+      : [];
+    if (sellers.length)
+      await sql`delete from shop.product_proposals where seller_id in ${sql(sellers)}`;
+    if (created.length) {
+      await sql`delete from shop.offer_price_history where offer_id in (select id from shop.offers where product_id in ${sql(created)})`;
+      await sql`delete from shop.offers where product_id in ${sql(created)}`;
+      await sql`delete from shop.product_media where product_id in ${sql(created)}`;
+      await sql`delete from shop.product_categories where product_id in ${sql(created)}`;
+      await sql`delete from shop.products where id in ${sql(created)}`;
+    }
     if (sellers.length) {
       await sql`delete from shop.api_audit_log where seller_id in ${sql(sellers)}`;
       await sql`delete from shop.offers where seller_id in ${sql(sellers)}`;
@@ -786,6 +827,187 @@ d("shop api: provider portal (real database)", () => {
     ).toBe(403);
     expect((await decide({ decision: "unsuspend" })).status).toBe(200);
     expect((await summary(ids.prodChild)).seller_count).toBe(2);
+  });
+
+  let proposalId = "";
+
+  it("proposes a new product: allowed categories only (children count), stock required, viewer cannot write", async () => {
+    const post = (body: unknown, as = owner()) =>
+      call(r.proposals.POST, { as, method: "POST", body });
+    const body = {
+      name: { fa: `سرم تازه ${tag}`, en: `${tag} fresh serum` },
+      description: { fa: "برای پوست خشک" },
+      categoryId: ids.catChild,
+      brand: "Test Lab",
+      images: ["/media/serum-1.jpg", "/media/serum-2.jpg"],
+      price: 410000,
+      stockQuantity: 6,
+    };
+    expect((await post(body, viewer())).status).toBe(403);
+    const other = await post({ ...body, categoryId: ids.catOther });
+    expect(other.status).toBe(403);
+    expect(other.body.error.details).toMatchObject({ reason: "category_not_allowed" });
+    expect((await post({ ...body, stockQuantity: 0 })).status).toBe(422);
+    expect((await post({ ...body, name: { en: "x" } })).status).toBe(422);
+
+    const created = await post(body);
+    expect(created.status).toBe(201);
+    expect(created.body.data).toMatchObject({ status: "pending", categoryId: ids.catChild, price: 410000, stockQuantity: 6 });
+    proposalId = created.body.data.id;
+
+    const list = await call(r.proposals.GET, { as: viewer() });
+    expect(list.status).toBe(200);
+    expect(list.body.data.proposals[0]).toMatchObject({ id: proposalId, status: "pending", images: body.images });
+    const allowed = list.body.data.categories.map((c: { id: string }) => c.id);
+    expect(allowed).toEqual(expect.arrayContaining([ids.catParent, ids.catChild]));
+    expect(allowed).not.toContain(ids.catOther);
+    // Nothing reaches the catalog while pending.
+    const [{ n }] = await sql!`select count(*)::int as n from shop.products where name_translations->>'en' = ${body.name.en}`;
+    expect(n).toBe(0);
+  });
+
+  it("admin approves a proposal: one transaction creates the live catalog product and the shop's approved offer", async () => {
+    const queue = await call(r.queue.GET, { as: adminUser(), path: "/admin/queue?status=pending" });
+    const item = queue.body.data.items.find((i: { id: string }) => i.id === proposalId);
+    expect(item).toMatchObject({ type: "product_proposal", proposal: { categoryAllowed: true, stockQuantity: 6 } });
+    const listed = await call(r.adminProposals.GET, { as: adminUser(), path: "/admin/proposals?status=pending" });
+    expect(listed.body.data.items.some((i: { id: string }) => i.id === proposalId)).toBe(true);
+    expect((await call(r.adminProposals.GET, { as: owner() })).status).toBe(401);
+
+    const decide = (body: unknown) =>
+      call(r.proposalDecision.POST, { as: adminUser(), method: "POST", body, params: { proposalId } });
+    expect((await decide({ decision: "reject" })).status).toBe(422);
+    expect((await decide({ decision: "approve", categoryId: ids.catOther })).status).toBe(422);
+    const approved = await decide({ decision: "approve", price: 400000 });
+    expect(approved.status).toBe(200);
+    const { productId, offerId } = approved.body.data;
+    expect((await decide({ decision: "approve" })).status).toBe(409);
+
+    const [product] = await sql!`
+      select status::text as status, owner_seller_id, primary_category_id::text as category, base_currency, name_translations
+      from shop.products where id = ${productId}::uuid
+    `;
+    expect(product).toMatchObject({ status: "active", owner_seller_id: null, category: ids.catChild, base_currency: "IRR" });
+    expect(product.name_translations).toMatchObject({ en: `${tag} fresh serum` });
+    const media = await sql!`select url, is_primary from shop.product_media where product_id = ${productId}::uuid order by display_order`;
+    expect(media.map((m) => m.url)).toEqual(["/media/serum-1.jpg", "/media/serum-2.jpg"]);
+    expect(media[0].is_primary).toBe(true);
+    const [offer] = await sql!`
+      select seller_id::text as seller_id, admin_status, price::text as price, stock_quantity, is_active
+      from shop.offers where id = ${offerId}::uuid
+    `;
+    expect(offer).toMatchObject({ seller_id: sellerId, admin_status: "approved", price: "400000.00", stock_quantity: 6, is_active: true });
+    // Only the clinic sells it: no live default-seller offer.
+    const live = await sql!`select seller_id::text as seller_id from shop.offers where product_id = ${productId}::uuid and deleted_at is null`;
+    expect(live.map((o) => o.seller_id)).toEqual([sellerId]);
+    expect(await summary(productId)).toMatchObject({ min_price: "400000.00", seller_count: 1, best_offer_id: offerId });
+
+    const mine = await call(r.proposals.GET, { as: owner() });
+    expect(mine.body.data.proposals.find((p: { id: string }) => p.id === proposalId)).toMatchObject({
+      status: "approved", createdProductId: productId, price: 400000,
+    });
+    const requests = await call(r.requests.GET, { as: owner() });
+    expect(requests.body.data.offers.some((o: { id: string }) => o.id === offerId)).toBe(true);
+    const audit = await sql!`select action from shop.api_audit_log where seller_id = ${sellerId}::uuid and action like 'proposal.%' order by id`;
+    expect(audit.map((a) => a.action)).toEqual(["proposal.create", "proposal.approve"]);
+  });
+
+  it("admin rejects a proposal with a reason the clinic sees; nothing is created", async () => {
+    const created = await call(r.proposals.POST, {
+      as: owner(), method: "POST",
+      body: { name: { fa: `ابزار ${tag}` }, categoryId: ids.catParent, price: 1000, stockQuantity: 1 },
+    });
+    expect(created.status).toBe(201);
+    const id = created.body.data.id;
+    const rejected = await call(r.proposalDecision.POST, {
+      as: adminUser(), method: "POST", body: { decision: "reject", reason: "تصویر ندارد" }, params: { proposalId: id },
+    });
+    expect(rejected.status).toBe(200);
+    const mine = await call(r.proposals.GET, { as: owner() });
+    expect(mine.body.data.proposals.find((p: { id: string }) => p.id === id)).toMatchObject({
+      status: "rejected", reason: "تصویر ندارد", createdProductId: null,
+    });
+    expect((await call(r.proposalDecision.POST, {
+      as: adminUser(), method: "POST", body: { decision: "approve" }, params: { proposalId: id },
+    })).status).toBe(409);
+  });
+
+  const orderIds: string[] = [];
+  async function makeOrder(status: string, paid: boolean, lines: Array<{ sellerId: string | null; qty: number; price: number }>) {
+    const [order] = await sql!<{ id: string }[]>`
+      insert into shop.orders (order_number, email, currency, status, payment_status, grand_total, paid_at)
+      values (${`${tag}-${orderIds.length}`}, 'buyer@example.test', 'IRR', ${status}, ${paid ? "captured" : "pending"},
+        ${lines.reduce((sum, line) => sum + line.qty * line.price, 0)}, ${paid ? sql!`now()` : sql!`null`})
+      returning id::text as id
+    `;
+    orderIds.push(order.id);
+    await sql!`
+      insert into shop.order_addresses (order_id, address_type, full_name, phone_number_country_code, phone_number, country, city, address_line_1)
+      values (${order.id}::uuid, 'shipping', 'مریم احمدی', '+98', '9121234567', 'IR', 'Tehran', '-')
+    `;
+    for (const line of lines) {
+      await sql!`
+        insert into shop.order_items (order_id, product_id, quantity, currency, unit_price_snapshot, line_total_snapshot, product_name_snapshot, seller_id)
+        values (${order.id}::uuid, ${ids.prodChild}::uuid, ${line.qty}, 'IRR', ${line.price}, ${line.qty * line.price},
+          ${sql!.json({ fa: `سرم ${tag}` })}, ${line.sellerId}::uuid)
+      `;
+    }
+    return order.id;
+  }
+
+  it("clinic orders: only paid orders with the clinic's lines; new -> ready -> picked up; viewer reads only", async () => {
+    const [defaultSeller] = await sql!<{ id: string | null }[]>`select shop.default_seller_id()::text as id`;
+    const paid = await makeOrder("paid", true, [
+      { sellerId: sellerId, qty: 2, price: 250000 },
+      { sellerId: defaultSeller.id, qty: 1, price: 999 },
+    ]);
+    const unpaid = await makeOrder("awaiting_payment", false, [{ sellerId: sellerId, qty: 1, price: 250000 }]);
+    const cancelled = await makeOrder("cancelled", true, [{ sellerId: sellerId, qty: 1, price: 250000 }]);
+
+    const list = await call(r.orders.GET, { as: viewer(), path: "/orders?status=new" });
+    expect(list.status).toBe(200);
+    const listed = list.body.data.orders.map((o: { id: string }) => o.id);
+    expect(listed).toContain(paid);
+    expect(listed).not.toContain(unpaid);
+    expect(listed).not.toContain(cancelled);
+    const row = list.body.data.orders.find((o: { id: string }) => o.id === paid);
+    // Only this clinic's line and total, with the buyer's name and phone.
+    expect(row).toMatchObject({ pickupStatus: "new", quantity: 2, total: 500000, buyer: { name: "مریم احمدی", phone: "+989121234567" } });
+    expect(row.items).toHaveLength(1);
+    expect(list.body.data.counts).toMatchObject({ new: 1, cancelled: 1 });
+    expect((await call(r.ordersSummary.GET, { as: owner() })).body.data).toMatchObject({ new: 1 });
+
+    const move = (orderId: string, status: string, as = owner()) =>
+      call(r.orderStatus.POST, { as, method: "POST", body: { status }, params: { orderId } });
+    expect((await move(paid, "ready_for_pickup", viewer())).status).toBe(403);
+    expect((await move(paid, "new")).status).toBe(422);
+    expect((await move(unpaid, "ready_for_pickup")).status).toBe(409);
+    expect((await move(cancelled, "picked_up")).status).toBe(409);
+    expect((await move(randomUUID(), "picked_up")).status).toBe(404);
+    expect((await move(paid, "ready_for_pickup")).status).toBe(200);
+    expect((await move(paid, "ready_for_pickup")).status).toBe(409);
+    const [lines] = await sql!`select array_agg(fulfillment_status::text order by quantity) as fs from shop.order_items where order_id = ${paid}::uuid`;
+    expect(lines.fs).toEqual(["pending", "packed"]);
+    expect((await move(paid, "picked_up")).status).toBe(200);
+    const picked = await call(r.orders.GET, { as: owner(), path: "/orders?status=picked_up" });
+    expect(picked.body.data.orders.find((o: { id: string }) => o.id === paid)).toMatchObject({ pickupStatus: "picked_up" });
+    // The default seller's line is not delivered yet, so the whole order is not either.
+    const [order] = await sql!`select fulfillment_status::text as fs from shop.orders where id = ${paid}::uuid`;
+    expect(order.fs).not.toBe("delivered");
+    expect((await call(r.ordersSummary.GET, { as: owner() })).body.data).toMatchObject({ new: 0 });
+    const audit = await sql!`select action from shop.api_audit_log where entity_id = ${paid}::uuid order by id`;
+    expect(audit.map((a) => a.action)).toEqual(["order.ready_for_pickup", "order.picked_up"]);
+  });
+
+  it("decisions tell the portal which clinic to notify", async () => {
+    const created = await call(r.proposals.POST, {
+      as: owner(), method: "POST",
+      body: { name: { fa: `اعلان ${tag}` }, categoryId: ids.catParent, price: 10, stockQuantity: 1 },
+    });
+    const decided = await call(r.proposalDecision.POST, {
+      as: adminUser(), method: "POST", body: { decision: "reject", reason: "تکراری" }, params: { proposalId: created.body.data.id },
+    });
+    expect(decided.body.data).toMatchObject({ providerId: ids.provider, title: `اعلان ${tag}`, reason: "تکراری" });
   });
 
   it("rate-limits per portal user, not one bucket for the whole portal", () => {
