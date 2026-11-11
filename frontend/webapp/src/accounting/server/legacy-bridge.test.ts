@@ -73,8 +73,8 @@ describe("legacy bridge — booking wallet payment", () => {
         order by a.code
       `;
       const byCode = Object.fromEntries(lines.map((l) => [l.account_code, Number(l.credit_amount)]));
-      expect(byCode["2003001"]).toBe(380_000 * TOMAN); // provider payable
-      expect(byCode["4001001"]).toBe(20_000 * TOMAN); // platform fee income
+      expect(byCode["31003"]).toBe(380_000 * TOMAN);
+      expect(byCode["61001"]).toBe(20_000 * TOMAN);
     });
   });
 

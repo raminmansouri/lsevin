@@ -269,7 +269,7 @@ describe("withdrawal settlement", () => {
       const [income] = await tx<{ amount: string }[]>`
         select coalesce(sum(amount), 0)::text as amount
         from accounting.v_income_statement
-        where account_code = '4002001'
+        where account_code = '61002'
       `;
       expect(Number(income.amount)).toBe(50_000 * TOMAN);
 

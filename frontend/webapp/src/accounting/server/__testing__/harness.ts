@@ -61,6 +61,7 @@ const MIGRATIONS = [
   // 0011 (the opening-balance import) is deliberately NOT here: it reads live legacy
   // wallet data and posts entries, which is the cut-over itself. cutover.test.ts applies
   // it explicitly against its own fixture.
+  "0097_accounting_chart_iran.sql",
 ];
 
 /**
