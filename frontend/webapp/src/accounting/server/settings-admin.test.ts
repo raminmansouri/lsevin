@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import {
-  createDetailAccount,
+  createChildAccount,
   setAccountActive,
   AccountValidationError,
 } from "./accounts-admin";
@@ -110,28 +110,28 @@ describe("settings editing", () => {
 });
 
 describe("chart of accounts editing", () => {
-  it("refuses a code that does not sit under its parent", async () => {
+  it("refuses a sub-account code that is not 1 to 4 digits", async () => {
     const [parent] = await testSql<{ id: string }[]>`
-      select id::text as id from accounting.accounts where code = '1001' limit 1
+      select id::text as id from accounting.accounts where code = '11001' limit 1
     `;
     await expect(
-      createDetailAccount({
+      createChildAccount({
         parentId: parent.id,
-        code: "9999999",
+        segment: "99999",
         nameFa: "تست",
         nameEn: "test",
         actorUserId: ADMIN,
       })
-    ).rejects.toThrow(/must start with the parent/i);
+    ).rejects.toThrow(/۱ تا ۴ رقم/);
   });
 
-  it("creates a leaf that inherits its parent's type and normal side", async () => {
+  it("creates a child under its parent's code that inherits its type and normal side", async () => {
     const [parent] = await testSql<{ id: string }[]>`
-      select id::text as id from accounting.accounts where code = '1001' limit 1
+      select id::text as id from accounting.accounts where code = '11001' limit 1
     `;
-    const created = await createDetailAccount({
+    const created = await createChildAccount({
       parentId: parent.id,
-      code: "1001900",
+      segment: "90",
       nameFa: "حساب آزمایشی",
       nameEn: "Test account",
       actorUserId: ADMIN,
@@ -139,20 +139,17 @@ describe("chart of accounts editing", () => {
 
     try {
       const [account] = await testSql<
-        { account_type: string; normal_balance: string; level: number; is_postable: boolean }[]
+        { code: string; account_type: string; normal_balance: string; level: number; is_postable: boolean }[]
       >`
-        select account_type, normal_balance, level, is_postable
+        select code, account_type, normal_balance, level, is_postable
         from accounting.accounts where id = ${created.id}
       `;
-      // 1001 is an asset with a debit normal balance; the child must not diverge, or the
-      // roll-up by account type would be wrong.
+      expect(account.code).toBe("1100190");
       expect(account.account_type).toBe("asset");
       expect(account.normal_balance).toBe("debit");
       expect(account.level).toBe(4);
       expect(account.is_postable).toBe(true);
     } finally {
-      // The audit row stays: accounting.audit_log is append-only, and entity_id carries
-      // no foreign key precisely so the record of an action outlives what it acted on.
       await testSql`delete from accounting.accounts where id = ${created.id}`;
     }
   });
