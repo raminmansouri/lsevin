@@ -44,13 +44,9 @@ export function AssistantLauncher() {
   const x = useMotionValue(0);
   const y = useMotionValue(0);
 
-  // One chat for the whole visit: closing the panel keeps the conversation.
-  // Signed-in users get their last saved chat back.
   const { chat, startNewChat, conversations, refreshConversations, openConversation } = useAssistantChat(locale);
   const history = { conversations, onOpen: openConversation, onShow: refreshConversations };
 
-  // Other parts of the page (e.g. the desktop teaser strip) open the assistant with this
-  // event, optionally sending a first question.
   useEffect(() => {
     const onOpen = (event: Event) => {
       const prompt = (event as CustomEvent<{ prompt?: string }>).detail?.prompt?.trim();
@@ -63,6 +59,7 @@ export function AssistantLauncher() {
 
   const close = () => {
     setOpen(false);
+    window.dispatchEvent(new Event("lsevin:assistant-closed"));
     setExpanded(false);
     x.set(0);
     y.set(0);

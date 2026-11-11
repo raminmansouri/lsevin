@@ -60,7 +60,15 @@
     "nudge": {
       "title": "Online support",
       "body": "How can I help you?",
-      "close": "Close"
+      "close": "Close",
+      "tips": [
+        "Looking for a specific clinic or doctor? Just ask.",
+        "I can find the nearest center to your neighbourhood.",
+        "Ask about prices and treatment time, I answer fast.",
+        "Need help booking an appointment?",
+        "Shall we plan your medical trip together?",
+        "Questions about your visa or stay?"
+      ]
     }
   },
   "ShopMedia": {
