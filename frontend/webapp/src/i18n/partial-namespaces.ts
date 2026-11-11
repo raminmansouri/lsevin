@@ -160,10 +160,14 @@ export const MOBILE_BOOKING_KEYS = ["close", "mealPlan", "stay"] as const;
 export const MOBILE_CONSULTATION_KEYS = [
   "contactTime",
   "cta",
+  // provider-video-offer.tsx on public provider, service, specialist and shop
+  // product pages reads doctorsPage.package and videoOffer.*.
+  "doctorsPage",
   "errors",
   "form",
   "homeTeaser",
   "step",
   "success",
   "urgency",
+  "videoOffer",
 ] as const;

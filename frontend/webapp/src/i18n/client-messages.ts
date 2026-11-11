@@ -79,6 +79,8 @@ export const SEGMENT_NAMESPACES = {
     // n/app/mobile/categories/page.tsx renders category-browser-client.tsx,
     // a "use client" component calling useTranslations("CategoryBrowser").
     "CategoryBrowser",
+    // Public provider and specialist pages render claim-page-card.tsx (~240 B).
+    "ClaimPage",
     "Explore",
     "Home",
     "LazySelect",
@@ -224,7 +226,8 @@ export const ROUTE_NAMESPACES = {
   "n/app/mobile/booking": ["Booking", "Consultation", "FormBuilder"],
   "n/app/mobile/booking-v2": ["Booking"],
   "n/app/mobile/bookings": ["Booking", "Consultation"],
-  "n/app/mobile/consultation": ["Consultation"],
+  // sessions/[id] pays through booking-pro's PaymentMethodsPanel (Booking.*).
+  "n/app/mobile/consultation": ["Booking", "Consultation"],
   "n/app/mobile/profile": ["Consultation", "MobileProfile"],
 } as const satisfies Record<string, readonly string[]>;
 
