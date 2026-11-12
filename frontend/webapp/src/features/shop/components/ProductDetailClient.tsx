@@ -70,11 +70,14 @@ export function ProductDetailClient({
       ? selected.priceUnavailable
       : product.priceUnavailable;
   const inStock = bestOffer ? bestOffer.inStock : selected ? selected.hasStock : product.hasStock;
+  const offerStock = bestOffer && bestOffer.stockQuantity != null ? Number(bestOffer.stockQuantity) : null;
   const maxQty = Math.max(
     1,
-    selected
-      ? selected.inventoryAvailable || 99
-      : product.inventoryAvailable || 99
+    offerStock != null
+      ? offerStock
+      : selected
+        ? selected.inventoryAvailable || 99
+        : product.inventoryAvailable || 99
   );
 
   function add(then?: "cart" | "stay", offerId?: string) {

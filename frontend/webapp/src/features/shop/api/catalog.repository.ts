@@ -427,6 +427,7 @@ export async function getProductBySlug(
                 or (o.variant_id is null and i.product_id = o.product_id and i.variant_id is null)
            ), 0) > 0
          end) or o.allow_backorder or coalesce(v.allow_backorder, p.allow_backorder)) as "inStock"
+        , o.stock_quantity as "stockQuantity", o.allow_backorder as "offerBackorder"
       from shop.offers o
       join shop.sellers s on s.id = o.seller_id and s.is_active and s.deleted_at is null and s.shop_status = 'active'
       join shop.products p on p.id = o.product_id
@@ -465,6 +466,7 @@ export async function getProductBySlug(
         currency: pr.price.currency,
         priceUnavailable: pr.price.unavailable,
         inStock: Boolean(o.inStock),
+        stockQuantity: o.stockQuantity == null || o.offerBackorder ? null : Number(o.stockQuantity),
         handlingDays: o.handlingDays == null ? null : Number(o.handlingDays),
         warranty: o.warranty ?? "",
         // Sold by a partner (e.g. a clinic), sent by Lsevin.

@@ -15130,7 +15130,8 @@ declare const messages: {
       "warrantyFa": "Warranty (Persian)",
       "warrantyEn": "Warranty (English)",
       "addNote": "Empty stock means stock is read from the shop's current inventory. A seller can have one offer per item.",
-      "priceHistory": "Price history ({count})"
+      "priceHistory": "Price history ({count})",
+      "warrantyAr": "الضمان (عربي)"
     },
     "similar": {
       "title": "This product may already exist",
