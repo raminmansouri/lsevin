@@ -134,23 +134,6 @@ export async function DesktopProductPage({ product, locale }: { product: Product
         </Reveal>
       </section>
 
-      {product.relatedServices.length ? (
-        <section className="lsd-container mt-14">
-          <h2 className="mb-4 text-xl font-black text-[#0e1a16]">{t("relatedServices")}</h2>
-          <div className="flex flex-wrap gap-2">
-            {product.relatedServices.map((service) => (
-              <Link
-                key={service.serviceDefinitionId}
-                href={`/services/${service.serviceDefinitionId}`}
-                className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-[#083f30] ring-1 ring-[#dce4e0] transition hover:ring-[#c9a55a]"
-              >
-                {service.name || service.relationType}
-              </Link>
-            ))}
-          </div>
-        </section>
-      ) : null}
-
       {product.relatedProducts.length ? (
         <section className="lsd-container mt-16">
           <h2 className="mb-6 text-2xl font-black text-[#0e1a16]">{t("relatedProducts")}</h2>

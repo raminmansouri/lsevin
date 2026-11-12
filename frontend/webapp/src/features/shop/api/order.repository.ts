@@ -1,8 +1,9 @@
 import "server-only";
 
-import type { OrderDetail, OrderSummary } from "../types/domain";
+import type { OfficePickupStatus, OrderDetail, OrderSummary } from "../types/domain";
 import { getShopContext, normalizeLocale } from "../lib/context";
 import { sql } from "../lib/db";
+import { decryptPickupCode } from "../server/pickup-code";
 
 /**
  * Customer-facing order read model. Access is owner-scoped: a guest reads an
@@ -43,8 +44,18 @@ export async function getCustomerOrder(orderNumber: string, guestEmail?: string 
       o.email, o.subtotal::float as subtotal, o.discount_total::float as "discountTotal",
       o.shipping_total::float as "shippingTotal", o.tax_total::float as "taxTotal",
       o.payment_currency as "paymentCurrency", o.payment_total::float as "paymentTotal",
-      o.coupon_code as "couponCode", o.fx_snapshot as "fxSnapshot", o.customer_id::text as "customerId"
+      o.coupon_code as "couponCode", o.fx_snapshot as "fxSnapshot", o.customer_id::text as "customerId",
+      o.promised_days as "promisedDays", o.promised_ready_at::text as "promisedReadyAt",
+      o.fulfillment_mode as "fulfillmentMode",
+      -- The office details as they are now (an office move shows the new address).
+      nullif(common.get_translation_t(dm.pickup_address_translations, ${lang}, 'fa'), '') as "officeAddress",
+      nullif(dm.pickup_phone, '') as "officePhone",
+      nullif(common.get_translation_t(dm.pickup_hours_translations, ${lang}, 'fa'), '') as "officeHours",
+      op.status as "officeStatus", op.ready_at::text as "officeReadyAt", op.picked_up_at::text as "officePickedUpAt",
+      op.pickup_code_cipher as "officeCodeCipher"
     from shop.orders o
+    left join shop.delivery_methods dm on dm.id = o.delivery_method_id
+    left join shop.order_office_pickups op on op.order_id = o.id
     where o.order_number = ${orderNumber}
     limit 1
   `;
@@ -64,7 +75,9 @@ export async function getCustomerOrder(orderNumber: string, guestEmail?: string 
         nullif(common.get_translation_t(oi.variant_name_snapshot, ${lang}, 'en'), '') as "variantName",
         oi.image_url_snapshot as "imageUrl", oi.quantity,
         oi.unit_price_snapshot::float as "unitPrice", oi.line_total_snapshot::float as "lineTotal",
-        oi.attributes_snapshot as attributes, oi.fulfillment_status as "fulfillmentStatus"
+        oi.attributes_snapshot as attributes, oi.fulfillment_status as "fulfillmentStatus",
+        oi.seller_id::text as "sellerId",
+        nullif(common.get_translation_t(oi.seller_name_snapshot, ${lang}, 'en'), '') as "sellerName"
       from shop.order_items oi
       left join shop.products p on p.id = oi.product_id
       where oi.order_id = ${order.id}::uuid order by oi.create_date asc
@@ -103,6 +116,26 @@ export async function getCustomerOrder(orderNumber: string, guestEmail?: string 
     `,
   ]);
 
+  const fulfillmentMode: "delivery" | "office_pickup" = order.fulfillmentMode === "office_pickup" ? "office_pickup" : "delivery";
+  let officePickup: OrderDetail["officePickup"] = null;
+  if (fulfillmentMode === "office_pickup") {
+    const status: OfficePickupStatus = ["cancelled", "refunded"].includes(String(order.status))
+      ? "cancelled"
+      : order.officeStatus === "picked_up"
+        ? "picked_up"
+        : order.officeStatus === "ready"
+          ? "ready"
+          : "preparing";
+    officePickup = {
+      status,
+      readyAt: order.officeReadyAt ?? null,
+      pickedUpAt: order.officePickedUpAt ?? null,
+      // The code is shown only while the order waits at the office.
+      pickupCode: status === "ready" ? decryptPickupCode(order.officeCodeCipher) : null,
+      office: { address: order.officeAddress ?? null, phone: order.officePhone ?? null, hours: order.officeHours ?? null },
+    };
+  }
+
   const addr = (t: string) => {
     const a = addresses.find((x) => x.addressType === t);
     return a ?? {};
@@ -139,7 +172,13 @@ export async function getCustomerOrder(orderNumber: string, guestEmail?: string 
       lineTotal: Number(i.lineTotal),
       attributes: i.attributes ?? {},
       fulfillmentStatus: i.fulfillmentStatus,
+      sellerId: i.sellerId ?? null,
+      sellerName: i.sellerName ?? null,
     })),
+    promisedDays: order.promisedDays ?? null,
+    promisedReadyAt: order.promisedReadyAt ?? null,
+    fulfillmentMode,
+    officePickup,
     shippingAddress: addr("shipping"),
     billingAddress: addr("billing"),
     payments: payments.map((p) => ({ ...p, amount: Number(p.amount) })),

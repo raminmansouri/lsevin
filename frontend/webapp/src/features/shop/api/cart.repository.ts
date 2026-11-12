@@ -93,6 +93,9 @@ type RawCartLine = {
   name: string;
   variantTitle: string | null;
   sellerName: string | null;
+  sellerId: string | null;
+  partnerSeller: boolean;
+  handlingDays: number | null;
   imageUrl: string | null;
   quantity: number;
   sourceUnitPrice: number;
@@ -123,6 +126,10 @@ async function loadCartLines(
       ci.quantity,
       ci.offer_id::text as "offerId",
       common.get_translation_t(s.name_translations, ${lang}, 'en') as "sellerName",
+      s.id::text as "sellerId",
+      -- A seller other than Lsevin itself (e.g. a clinic): sold by them, sent by Lsevin.
+      (s.id is not null and not s.is_default) as "partnerSeller",
+      o.handling_days as "handlingDays",
       coalesce(o.price, v.price, p.base_price)::float as "sourceUnitPrice",
       coalesce(o.currency, v.currency, p.base_currency) as "sourceCurrency",
       (case when o.id is not null then o.compare_at_price else coalesce(v.compare_at_price, p.compare_at_price) end)::float as "sourceCompareAt",
@@ -216,6 +223,9 @@ export async function getCartView(opts?: {
       name: l.name,
       variantTitle: l.variantTitle || null,
       sellerName: l.sellerName || null,
+      sellerId: l.sellerId ?? null,
+      partnerSeller: Boolean(l.partnerSeller),
+      handlingDays: l.handlingDays == null ? null : Number(l.handlingDays),
       imageUrl: l.imageUrl,
       attributes: {},
       quantity: l.quantity,

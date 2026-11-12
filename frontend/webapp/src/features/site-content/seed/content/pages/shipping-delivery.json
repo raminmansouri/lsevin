@@ -5,7 +5,7 @@
     "Carriers the shop actually uses (the code stores a free-text carrier name per shipment; none is configured in code)",
     "Countries and regions the shop delivers to at launch (delivery methods carry per-method country/region allow and deny lists set in admin)",
     "Order processing time before dispatch (not defined in code)",
-    "The free-shipping threshold and its currency (calculateShipping in src/features/shop/lib/calculations.ts defaults to 75 in the cart currency; confirm the intended value before publishing any figure)",
+    "The free-shipping threshold: set to 3,000,000 toman (30,000,000 rial) of items shipped to the address (FREE_SHIPPING_THRESHOLD_RIAL in src/features/shop/lib/calculations.ts, converted to the display currency at checkout); confirm before publishing",
     "Whether international shipping of products is offered at all",
     "Who bears the loss for parcels lost or damaged in transit, and the deadline for reporting a damaged or missing parcel",
     "Whether cash on delivery is offered (no such payment method is in code)",
@@ -54,7 +54,7 @@
         },
         {
           "type": "p",
-          "text": "Delivery can be free in two cases. Orders above the shop's free-delivery threshold get free delivery automatically, and some coupons make delivery free when you apply them in the cart. When either applies, the delivery line in your total shows zero."
+          "text": "Delivery can be free in two cases. Orders whose items shipped to your address total 3,000,000 toman (30,000,000 rial) or more get free delivery automatically, and some coupons make delivery free when you apply them in the cart. When either applies, the delivery line in your total shows zero."
         },
         {
           "type": "p",
@@ -182,7 +182,7 @@
         },
         {
           "type": "p",
-          "text": "ارسال در دو حالت رایگان است. سفارش‌هایی که از سقف ارسال رایگان فروشگاه بیشتر باشند خودکار ارسال رایگان می‌گیرند، و برخی کدهای تخفیف با اعمال در سبد خرید ارسال را رایگان می‌کنند. در این حالت‌ها ردیف هزینه ارسال در جمع سفارش صفر نشان داده می‌شود."
+          "text": "ارسال در دو حالت رایگان است. سفارش‌هایی که جمع کالاهای ارسالی به نشانی شما ۳٬۰۰۰٬۰۰۰ تومان (۳۰٬۰۰۰٬۰۰۰ ریال) یا بیشتر باشد خودکار ارسال رایگان می‌گیرند، و برخی کدهای تخفیف با اعمال در سبد خرید ارسال را رایگان می‌کنند. در این حالت‌ها ردیف هزینه ارسال در جمع سفارش صفر نشان داده می‌شود."
         },
         {
           "type": "p",

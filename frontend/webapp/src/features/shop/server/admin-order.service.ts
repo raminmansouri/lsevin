@@ -4,6 +4,9 @@ import sql from "@/config/database/db";
 import { SHOP_PERMISSIONS, assertShopPermission } from "../lib/permissions";
 import { emitCommerceEvent } from "../lib/analytics";
 import { notifyShopOrderEvent } from "./shop-notifications";
+import { completeOrderIfFullyHandedOver } from "./order-fulfilment";
+import { releaseOrderReservations } from "./order-stock";
+import { sellerPartsNotReceived } from "./seller-handover.service";
 
 /**
  * Admin order operations. Order / payment / fulfilment are separate state
@@ -60,7 +63,7 @@ export async function reviewOrder(input: { orderId: string; decision: "accepted"
       where id = ${input.orderId}::uuid
     `;
     if (input.decision === "rejected") {
-      await releaseReservations(tx, input.orderId, "order rejected by admin");
+      await releaseOrderReservations(tx, input.orderId, "order rejected by admin");
       await tx`
         insert into shop.order_status_history (order_id, from_status, to_status, note, changed_by)
         values (${input.orderId}::uuid, ${order.status}::shop.order_status, 'cancelled', ${"Rejected: " + input.reason}, ${userId ?? null}::uuid)
@@ -91,7 +94,7 @@ export async function advanceOrderStatus(input: { orderId: string; to: string; r
       where id = ${input.orderId}::uuid
     `;
     if (input.to === "cancelled") {
-      await releaseReservations(tx, input.orderId, "order cancelled by admin");
+      await releaseOrderReservations(tx, input.orderId, "order cancelled by admin");
     }
     await tx`
       insert into shop.order_status_history (order_id, from_status, to_status, note, changed_by)
@@ -160,6 +163,15 @@ export async function recordShipment(input: {
   const partial = Array.isArray(input.items) && input.items.length > 0;
 
   const outcome = await sql.begin(async (tx) => {
+    // Lsevin sends the order only once it has everything: an office pickup order is handed over
+    // at the office instead, and every partner seller's items must have been received.
+    const [gate] = await tx<{ fulfillment_mode: string }[]>`
+      select fulfillment_mode from shop.orders where id = ${input.orderId}::uuid for update
+    `;
+    if (gate?.fulfillment_mode === "office_pickup")
+      throw new Error("This order is picked up at the Lsevin office; mark it ready for pickup instead of shipping it.");
+    if (input.markShipped && (await sellerPartsNotReceived(tx, input.orderId)) > 0)
+      throw new Error("Items from a seller have not been received yet; mark them received before shipping.");
     const orderLines = await tx<any[]>`
       select oi.id::text as id, oi.quantity, oi.product_id, oi.variant_id, oi.fulfillment_status::text as fs,
         oi.is_preorder,
@@ -272,46 +284,22 @@ export async function markShipmentDelivered(input: { orderId: string; shipmentId
   await sql.begin(async (tx) => {
     await tx`update shop.shipments set status = 'delivered', delivered_at = now(), last_modified_date = now() where id = ${input.shipmentId}::uuid and order_id = ${input.orderId}::uuid`;
     await tx`update shop.order_items set fulfillment_status = 'delivered' where order_id = ${input.orderId}::uuid`;
-    await tx`
-      update shop.orders set fulfillment_status = 'delivered',
-        status = case when status = 'shipped' then 'completed'::shop.order_status else status end,
-        last_modified_date = now()
-      where id = ${input.orderId}::uuid
-    `;
-    await tx`
-      insert into shop.order_status_history (order_id, from_status, to_status, note, changed_by)
-      values (${input.orderId}::uuid, ${order.status}::shop.order_status, 'completed', 'Delivered', ${userId ?? null}::uuid)
-    `;
+    // A shipped order is complete once every line is delivered.
+    const completed =
+      order.status === "shipped" ? await completeOrderIfFullyHandedOver(tx, input.orderId, userId ?? null, "Delivered") : false;
+    if (!completed) {
+      await tx`
+        update shop.orders
+        set fulfillment_status = case
+              when exists (select 1 from shop.order_items oi where oi.order_id = ${input.orderId}::uuid
+                             and oi.fulfillment_status::text <> 'delivered')
+              then fulfillment_status else 'delivered'::shop.shipment_status end,
+            last_modified_date = now()
+        where id = ${input.orderId}::uuid
+      `;
+    }
   });
   await notifyShopOrderEvent({ orderId: input.orderId, event: "order.delivered" });
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-async function releaseReservations(tx: any, orderId: string, note: string) {
-  // A line bought from an offer that keeps its own stock (a marketplace seller) took its
-  // units from that offer at checkout, never from the shop inventory: give them back there.
-  const items = await tx<any[]>`
-    select oi.product_id, oi.variant_id, oi.quantity, oi.offer_id::text as offer_id,
-      (oi.offer_id is not null and o.stock_quantity is not null) as seller_stock
-    from shop.order_items oi left join shop.offers o on o.id = oi.offer_id
-    where oi.order_id = ${orderId}::uuid
-  `;
-  for (const it of items) {
-    if (it.seller_stock) {
-      await tx`update shop.offers set stock_quantity = stock_quantity + ${it.quantity}, last_modified_date = now() where id = ${it.offer_id}::uuid`;
-      continue;
-    }
-    const [inv] = await tx<{ id: string }[]>`
-      select i.id::text as id from shop.inventory i
-      where (${it.variant_id}::uuid is not null and i.variant_id = ${it.variant_id}::uuid)
-         or (${it.variant_id}::uuid is null and i.product_id = ${it.product_id}::uuid and i.variant_id is null)
-      limit 1
-    `;
-    if (!inv) continue;
-    await tx`update shop.inventory set reserved = greatest(reserved - ${it.quantity}, 0), last_modified_date = now() where id = ${inv.id}::uuid`;
-    await tx`insert into shop.inventory_movements (inventory_id, movement_type, quantity, reference_type, reference_id, note)
-             values (${inv.id}::uuid, 'release', ${it.quantity}, 'shop.order', ${orderId}::uuid, ${note})`;
-  }
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

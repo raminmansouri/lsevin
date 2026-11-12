@@ -391,6 +391,7 @@ export async function updateDeliveryMethodAction(input: {
   estimatedDaysMin: number | null;
   estimatedDaysMax: number | null;
   rules: unknown;
+  office?: { addressFa: string; addressEn: string; phone: string; hoursFa: string; hoursEn: string } | null;
 }) {
   await updateDeliveryMethod({
     id: shopId.parse(input.id),
@@ -399,6 +400,7 @@ export async function updateDeliveryMethodAction(input: {
     estimatedDaysMin: input.estimatedDaysMin,
     estimatedDaysMax: input.estimatedDaysMax,
     rules: input.rules,
+    office: input.office ?? null,
   });
   revalidatePath("/[locale]/admin/shop/delivery", "page");
   revalidatePath("/n/app/mobile/shop/checkout");

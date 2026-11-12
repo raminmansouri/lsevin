@@ -18,8 +18,19 @@ export function calculateTax(subtotalAfterDiscount: number, taxClass = "standard
   return { rate, amount: Number((subtotalAfterDiscount * rate).toFixed(2)) };
 }
 
-export function calculateShipping(subtotalAfterDiscount: number, deliveryBaseFee: number, freeThreshold = 75) {
-  if (freeThreshold > 0 && subtotalAfterDiscount >= freeThreshold) {
+/**
+ * Free shipping from 3,000,000 toman (= 30,000,000 rial) of shipped items. Kept in rial, the
+ * shop's stored unit; the checkout converts it to the customer's display currency (rial, toman,
+ * USD, ...) before comparing, because the subtotal it compares against is in that currency.
+ */
+export const FREE_SHIPPING_THRESHOLD_RIAL = 30_000_000;
+
+/**
+ * @param subtotalAfterDiscount the shipped items' subtotal, in the display currency
+ * @param freeThreshold the free-shipping threshold in the SAME currency; null = no free shipping
+ */
+export function calculateShipping(subtotalAfterDiscount: number, deliveryBaseFee: number, freeThreshold: number | null) {
+  if (freeThreshold != null && freeThreshold > 0 && subtotalAfterDiscount >= freeThreshold) {
     return { amount: 0, label: "free" };
   }
   return { amount: Number(deliveryBaseFee.toFixed(2)), label: "standard" };

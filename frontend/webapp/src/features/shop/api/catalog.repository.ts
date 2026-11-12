@@ -366,7 +366,7 @@ export async function getProductBySlug(
     opts?.noFx
   );
 
-  const [gallery, categories, variantRows, attrRows, reviews, serviceLinks, questions, offerRows] = await Promise.all([
+  const [gallery, categories, variantRows, attrRows, reviews, serviceLinks, questions, offerRows, deliveryRows] = await Promise.all([
     sql<any[]>`select id::text as id, url, media_type as "mediaType", common.get_translation_t(alt_translations, ${lang}, 'en') as alt, is_primary as "isPrimary" from shop.product_media where product_id = ${row.id}::uuid order by is_primary desc, display_order asc`,
     sql<ShopCategory[]>`select c.id::text as id, c.parent_id::text as "parentId", common.get_translation_t(c.name_translations, ${lang}, 'en') as name, c.slug, c.image_url as "imageUrl", c.banner_url as "bannerUrl", c.icon, c.gradient, 0::int as "productCount" from shop.product_categories pc join shop.categories c on c.id = pc.category_id where pc.product_id = ${row.id}::uuid`,
     sql<any[]>`
@@ -435,7 +435,13 @@ export async function getProductBySlug(
         and (o.variant_id is null or (v.deleted_at is null and v.is_active))
       order by o.price asc
     `,
+    // Lsevin's fastest delivery to an address: every offer reaches the customer through Lsevin.
+    sql<{ days: number | null }[]>`
+      select min(coalesce(estimated_days_max, estimated_days_min))::int as days
+      from shop.delivery_methods where is_active and not supports_pickup
+    `,
   ]);
+  const lsevinDeliveryDays = deliveryRows[0]?.days == null ? null : Number(deliveryRows[0].days);
 
   const offers = await Promise.all(
     offerRows.map(async (o) => {
@@ -461,6 +467,8 @@ export async function getProductBySlug(
         inStock: Boolean(o.inStock),
         handlingDays: o.handlingDays == null ? null : Number(o.handlingDays),
         warranty: o.warranty ?? "",
+        // Sold by a partner (e.g. a clinic), sent by Lsevin.
+        partnerSeller: !o.isDefaultSeller,
       };
     })
   );
@@ -520,6 +528,7 @@ export async function getProductBySlug(
     reviews,
     relatedProducts: related.items.filter((x) => x.id !== row.id).slice(0, 8),
     offers,
+    lsevinDeliveryDays,
   };
 }
 

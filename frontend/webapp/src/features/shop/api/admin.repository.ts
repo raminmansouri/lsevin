@@ -103,7 +103,10 @@ export async function getAdminOrder(orderId: string) {
       o.grand_total::float as grand_total, o.currency,
       o.source_currency, o.display_currency, o.payment_currency, o.payment_total::float as payment_total,
       o.fx_applied_rate::float as fx_applied_rate, o.fx_snapshot,
-      o.coupon_code, o.note, o.placed_at::text as placed_at, o.paid_at::text as paid_at
+      o.coupon_code, o.note, o.placed_at::text as placed_at, o.paid_at::text as paid_at,
+      o.fulfillment_mode, o.promised_ready_at::text as promised_ready_at,
+      (select common.get_translation_t(dm.name_translations, 'fa', 'en') from shop.delivery_methods dm
+        where dm.id = o.delivery_method_id) as delivery_method_name
     from shop.orders o where o.id = ${orderId}::uuid limit 1
   `;
   if (!order) return null;
@@ -594,7 +597,12 @@ export async function listDeliveryMethodsAdmin() {
       common.get_translation_t(name_translations, 'en', 'en') as name,
       base_fee::float as base_fee, is_active,
       estimated_days_min, estimated_days_max,
-      supports_pickup, rules
+      supports_pickup, rules,
+      coalesce(pickup_address_translations->>'fa', '') as office_address_fa,
+      coalesce(pickup_address_translations->>'en', '') as office_address_en,
+      coalesce(pickup_phone, '') as office_phone,
+      coalesce(pickup_hours_translations->>'fa', '') as office_hours_fa,
+      coalesce(pickup_hours_translations->>'en', '') as office_hours_en
     from shop.delivery_methods
     order by base_fee asc
   `;

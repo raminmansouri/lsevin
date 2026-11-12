@@ -123,6 +123,12 @@ export const deliveryMethodFormSchema = z.object({
   estimatedDaysMin: str.default(""),
   estimatedDaysMax: str.default(""),
   isActive: z.coerce.boolean().default(true),
+  // The Lsevin office, for the office pickup method (shown to customers who pick up).
+  officeAddressFa: str.max(500).default(""),
+  officeAddressEn: str.max(500).default(""),
+  officePhone: str.max(40).default(""),
+  officeHoursFa: str.max(300).default(""),
+  officeHoursEn: str.max(300).default(""),
   rules: str.default("{}").refine((s) => {
     try {
       const v = JSON.parse(s || "{}");

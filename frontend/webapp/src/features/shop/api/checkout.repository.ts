@@ -10,11 +10,20 @@ import {
   buildCartTotals,
   calculateShipping,
   calculateTax,
+  FREE_SHIPPING_THRESHOLD_RIAL,
 } from "../lib/calculations";
 import { getShopContext, normalizeLocale } from "../lib/context";
 import { applyGeoRules } from "../lib/delivery-geo";
-import { lockPayableQuote, resolveDisplayCurrency } from "../lib/pricing";
+import {
+  checkoutRequirements,
+  hasUsablePhone,
+  lineHandlingDays,
+  orderHandlingDays,
+  promiseDays,
+} from "../lib/fulfilment";
+import { lockPayableQuote, resolveDisplayCurrency, resolvePrice } from "../lib/pricing";
 import { notifyShopOrderEvent } from "../server/shop-notifications";
+import { addressInputSchema } from "../schemas/checkout";
 import type { CartTotals } from "../types/domain";
 import { getCartView } from "./cart.repository";
 
@@ -23,6 +32,9 @@ import { getCartView } from "./cart.repository";
  * (idempotent, stock-reserving). Client-sent prices are never used
  * (SHP-V01-012, SHP-NFR-001).
  */
+
+/** The Lsevin office where a pickup order is collected (admin-editable on the delivery method). */
+export type PickupOffice = { address: string | null; phone: string | null; hours: string | null };
 
 export type DeliveryOption = {
   id: string;
@@ -33,10 +45,30 @@ export type DeliveryOption = {
   currency: string;
   etaMinDays: number | null;
   etaMaxDays: number | null;
+  /** Pickup at the Lsevin office (no address, no fee) instead of delivery to the address. */
+  isPickup: boolean;
+  office: PickupOffice | null;
+};
+
+/**
+ * How the order reaches the customer: one shipment, by the chosen method, and the single
+ * estimate for the whole order (slowest seller handling + the method's transit).
+ */
+export type CheckoutFulfilment = {
+  /** Days until every seller's items are at Lsevin. */
+  handlingDays: number;
+  /** Days until the whole order is with the customer; null when the method has no transit time. */
+  promiseDays: number | null;
+  isPickup: boolean;
+  office: PickupOffice | null;
+  /** An address is needed for delivery; a mobile for office pickup (code SMS). */
+  needsAddress: boolean;
+  needsPhone: boolean;
 };
 
 export type CheckoutQuote = {
   cartId: string;
+  fulfilment: CheckoutFulfilment;
   currency: string;
   totals: CartTotals;
   deliveryOptions: DeliveryOption[];
@@ -50,6 +82,20 @@ export type CheckoutQuote = {
   couponEvidence: Record<string, unknown> | null;
 };
 
+/**
+ * The free-shipping threshold (FREE_SHIPPING_THRESHOLD_RIAL) in the display currency, or null
+ * when there is no usable rate (then there is no free shipping rather than a wrong threshold).
+ */
+export async function freeShippingThreshold(displayCurrency: string): Promise<number | null> {
+  const { price } = await resolvePrice({
+    amount: FREE_SHIPPING_THRESHOLD_RIAL,
+    sourceCurrency: "IRR",
+    displayCurrency,
+  });
+  if (price.unavailable || price.fellBackToSource) return null;
+  return price.amount;
+}
+
 export async function getDeliveryOptions(
   displayCurrency: string,
   lang: string,
@@ -61,11 +107,31 @@ export async function getDeliveryOptions(
       common.get_translation_t(name_translations, ${lang}, 'en') as name,
       common.get_translation_t(description_translations, ${lang}, 'en') as description,
       base_fee::float as "baseFee", estimated_days_min as "etaMin", estimated_days_max as "etaMax",
-      rules
-    from shop.delivery_methods where is_active = true order by base_fee asc
+      rules, supports_pickup as "isPickup",
+      nullif(common.get_translation_t(pickup_address_translations, ${lang}, 'fa'), '') as "officeAddress",
+      nullif(pickup_phone, '') as "officePhone",
+      nullif(common.get_translation_t(pickup_hours_translations, ${lang}, 'fa'), '') as "officeHours"
+    from shop.delivery_methods where is_active = true order by supports_pickup asc, base_fee asc
   `;
   const out: DeliveryOption[] = [];
+  const freeThreshold = rows.length ? await freeShippingThreshold(displayCurrency) : null;
   for (const r of rows) {
+    if (r.isPickup) {
+      // Collected at the Lsevin office: no address to filter by, no fee, no transit.
+      out.push({
+        id: r.id,
+        code: r.code,
+        name: r.name,
+        description: r.description ?? "",
+        fee: 0,
+        currency: displayCurrency,
+        etaMinDays: 0,
+        etaMaxDays: 0,
+        isPickup: true,
+        office: { address: r.officeAddress ?? null, phone: r.officePhone ?? null, hours: r.officeHours ?? null },
+      });
+      continue;
+    }
     const geo = applyGeoRules(
       {
         baseFee: Number(r.baseFee),
@@ -76,7 +142,7 @@ export async function getDeliveryOptions(
       destination ?? {}
     );
     if (!geo) continue; // not served at this destination
-    const shipping = calculateShipping(subtotal, geo.baseFee);
+    const shipping = calculateShipping(subtotal, geo.baseFee, freeThreshold);
     out.push({
       id: r.id,
       code: r.code,
@@ -86,21 +152,25 @@ export async function getDeliveryOptions(
       currency: displayCurrency,
       etaMinDays: geo.etaMin,
       etaMaxDays: geo.etaMax,
+      isPickup: false,
+      office: null,
     });
   }
   return out;
 }
 
-/** Whether a specific delivery method serves a destination (SHP-V03-012). */
+/** Whether a specific delivery method serves a destination (SHP-V03-012). Office pickup serves everyone. */
 export async function isDeliveryMethodEligible(
   deliveryMethodId: string,
   destination: { country?: string | null; region?: string | null }
 ): Promise<boolean> {
   const [row] = await sql<any[]>`
-    select base_fee::float as "baseFee", estimated_days_min as "etaMin", estimated_days_max as "etaMax", rules
+    select base_fee::float as "baseFee", estimated_days_min as "etaMin", estimated_days_max as "etaMax", rules,
+      supports_pickup as "isPickup"
     from shop.delivery_methods where id = ${deliveryMethodId}::uuid and is_active = true limit 1
   `;
   if (!row) return false;
+  if (row.isPickup) return true;
   return (
     applyGeoRules(
       {
@@ -176,6 +246,8 @@ export async function quoteCheckout(input: {
   }
 
   const subtotal = active.reduce((s, x) => s + x.lineTotal, 0);
+  // Lsevin fulfils the whole order: one shipment, by the method the customer picks (delivery to
+  // the address, or pickup at the Lsevin office).
   const deliveryOptions = await getDeliveryOptions(currency, lang, subtotal, {
     country: input.destinationCountry,
     region: input.destinationRegion,
@@ -217,6 +289,14 @@ export async function quoteCheckout(input: {
   }
 
   const shippingTotal = freeShipping ? 0 : (selected?.fee ?? 0);
+  const handlingDays = orderHandlingDays(active.map((x) => ({ handlingDays: x.handlingDays })));
+  const fulfilment: CheckoutFulfilment = {
+    handlingDays,
+    promiseDays: promiseDays(handlingDays, selected),
+    isPickup: Boolean(selected?.isPickup),
+    office: selected?.office ?? null,
+    ...checkoutRequirements(selected),
+  };
   const tax = calculateTax(Math.max(0, subtotal - discountTotal), "standard");
 
   const totals = buildCartTotals({
@@ -240,6 +320,7 @@ export async function quoteCheckout(input: {
 
   return {
     cartId: input.cartId,
+    fulfilment,
     currency,
     totals,
     deliveryOptions,
@@ -267,7 +348,8 @@ export type PlaceOrderInput = {
   email: string;
   shippingAddress: Record<string, string | null | undefined>;
   billingAddress: Record<string, string | null | undefined>;
-  deliveryMethodId: string;
+  /** Required only when the order has a shipped part (clinic pickups need none). */
+  deliveryMethodId: string | null;
   paymentMethodId: string;
   paymentCurrency?: string | null;
   note?: string | null;
@@ -365,6 +447,20 @@ export async function placeOrder(
     );
   }
 
+  // A delivery method is always chosen (office pickup is one). Delivery needs the address;
+  // office pickup needs a mobile (the pickup code is sent to it). A name always.
+  const contact = input.shippingAddress ?? {};
+  if (String(contact.fullName ?? "").trim().length < 2)
+    throw new Error("Your name is required to place the order.");
+  if (!input.deliveryMethodId)
+    throw new Error("Choose how you want to receive your order.");
+  if (quote.selectedDeliveryMethodId !== input.deliveryMethodId)
+    throw new Error("The selected delivery method is not available. Please review your order.");
+  if (quote.fulfilment.needsAddress && !addressInputSchema.safeParse(contact).success)
+    throw new Error("A complete shipping address is required for delivery.");
+  if (quote.fulfilment.needsPhone && !hasUsablePhone(contact.phoneNumber))
+    throw new Error("A mobile number is required for pickup at the Lsevin office.");
+
   const requestHash = createHash("sha256")
     .update(
       JSON.stringify({
@@ -407,6 +503,7 @@ export async function placeOrder(
         common.get_translation_t(v.title_translations, ${lang}, 'en') as "variantEn",
         v.title_translations as "variantTr", v.sku,
         ci.offer_id::text as "offerId", o.seller_id::text as "sellerId", s.name_translations as "sellerNameTr",
+        o.handling_days as "handlingDays",
         o.stock_quantity as "offerStock",
         coalesce(o.price, v.price, p.base_price)::float as "sourceUnitPrice",
         coalesce(o.currency, v.currency, p.base_currency) as "sourceCurrency",
@@ -433,7 +530,6 @@ export async function placeOrder(
       if (!l.productActive)
         throw new Error(`"${l.nameEn}" is no longer available.`);
     }
-
     // 3. reserve stock atomically (skips backorder-allowed lines)
     for (const l of lines) {
       // Preorder line: never reserves physical stock (it isn't shippable yet,
@@ -517,14 +613,19 @@ export async function placeOrder(
         order_number, customer_id, cart_id, email, currency, status, payment_status, fulfillment_status,
         review_status, subtotal, discount_total, shipping_total, tax_total, grand_total, coupon_code, note,
         source_currency, display_currency, payment_currency, payment_total, fx_quote_id, fx_applied_rate,
-        fx_snapshot, idempotency_key, source_surface
+        fx_snapshot, idempotency_key, source_surface,
+        delivery_method_id, fulfillment_mode, promised_days, promised_ready_at
       ) values (
         ${orderNumber}, ${ctx.customerId ?? null}::uuid, ${input.cartId}::uuid, ${orderEmail}, ${quote.currency},
         'awaiting_payment', 'pending', 'pending', 'not_required',
         ${quote.totals.subtotal}, ${quote.totals.discountTotal}, ${quote.totals.shippingTotal}, ${quote.totals.taxTotal},
         ${quote.totals.grandTotal}, ${quote.totals.couponCode}, ${input.note ?? null},
         ${quote.currency}, ${quote.currency}, ${quote.paymentCurrency}, ${quote.paymentTotal},
-        ${quote.fxQuoteId}::uuid, ${quote.fxAppliedRate}, ${sql.json(fxSnapshot)}, ${input.idempotencyKey}, ${input.sourceSurface ?? "shop_checkout"}
+        ${quote.fxQuoteId}::uuid, ${quote.fxAppliedRate}, ${sql.json(fxSnapshot)}, ${input.idempotencyKey}, ${input.sourceSurface ?? "shop_checkout"},
+        ${quote.selectedDeliveryMethodId}::uuid,
+        ${quote.fulfilment.isPickup ? "office_pickup" : "delivery"},
+        ${quote.fulfilment.promiseDays},
+        ${quote.fulfilment.promiseDays == null ? null : sql`now() + make_interval(days => ${quote.fulfilment.promiseDays}::int)`}
       )
       returning id::text as id
     `;
@@ -555,13 +656,14 @@ export async function placeOrder(
           unit_price_snapshot, compare_at_price_snapshot, discount_total_snapshot, tax_total_snapshot, line_total_snapshot,
           product_name_snapshot, variant_name_snapshot, attributes_snapshot, image_url_snapshot,
           source_currency, source_unit_price, display_currency, fx_applied_rate, is_preorder,
-          offer_id, seller_id, seller_name_snapshot
+          offer_id, seller_id, seller_name_snapshot, handling_days_snapshot
         ) values (
           ${order.id}::uuid, ${l.productId}::uuid, ${l.variantId ?? null}::uuid, ${l.sku ?? null}, ${l.quantity}, ${quote.currency},
           ${unit}, ${p.compareAtPrice && !p.compareAtPrice.unavailable ? p.compareAtPrice.amount : null}, 0, 0, ${lineTotal},
           ${l.nameTr ?? sql.json({ en: l.nameEn })}, ${l.variantTr ?? sql.json({})}, ${sql.json({})}, ${l.imageUrl ?? null},
           ${l.sourceCurrency}, ${Number(l.sourceUnitPrice)}, ${quote.currency}, ${p.price.appliedRate}, ${Boolean(l.isPreorder)},
-          ${l.offerId ?? null}::uuid, ${l.sellerId ?? null}::uuid, ${l.sellerNameTr ?? sql.json({})}
+          ${l.offerId ?? null}::uuid, ${l.sellerId ?? null}::uuid, ${l.sellerNameTr ?? sql.json({})},
+          ${lineHandlingDays(l.handlingDays)}
         )
       `;
       // trace reservation to the order (SHP-INV / SHP-V03-002) — preorder lines

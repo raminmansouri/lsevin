@@ -265,6 +265,7 @@ export const ADMIN_NAV: AdminNavEntry[] = [
     items: [
       { titleKey: "shopOverview", href: "/admin/shop", icon: ShoppingBag },
       { titleKey: "shopOrders", href: "/admin/shop/orders", icon: Receipt },
+      { titleKey: "shopInbound", href: "/admin/shop/inbound", icon: PackageOpen },
       { titleKey: "shopProducts", href: "/admin/shop/products", icon: Package },
       { titleKey: "shopCategories", href: "/admin/shop/categories", icon: FolderTree },
       { titleKey: "shopBrands", href: "/admin/shop/brands", icon: Tags },

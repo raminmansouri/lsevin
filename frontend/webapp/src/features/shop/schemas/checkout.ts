@@ -16,6 +16,25 @@ export const addressInputSchema = z.object({
 });
 export type AddressInput = z.infer<typeof addressInputSchema>;
 
+/**
+ * The checkout's contact + address. Only the name is always required here: a full address is
+ * required when the order has a shipped part, and a phone when it has a clinic pickup — both
+ * decided by placeOrder from the order's shipments (addressInputSchema is the full rule).
+ */
+const optionalText = (max: number) => z.string().trim().max(max).optional().nullable();
+export const checkoutAddressSchema = z.object({
+  fullName: z.string().trim().min(2).max(120),
+  phoneNumberCountryCode: z.string().trim().max(4).optional().nullable(),
+  phoneNumber: z.string().trim().max(24).optional().nullable(),
+  country: optionalText(15),
+  city: optionalText(15),
+  stateRegion: optionalText(100),
+  addressLine1: optionalText(250),
+  addressLine2: optionalText(250),
+  postalCode: optionalText(50),
+  company: optionalText(120),
+});
+
 export const saveAddressSchema = addressInputSchema.extend({
   id: shopId.optional(),
   isDefault: z.boolean().optional().default(false),
@@ -43,10 +62,11 @@ export const placeOrderSchema = z.object({
     .optional()
     .or(z.literal(""))
     .transform((v) => v || undefined),
-  shippingAddress: addressInputSchema,
-  billingAddress: addressInputSchema.optional(),
+  shippingAddress: checkoutAddressSchema,
+  billingAddress: checkoutAddressSchema.optional(),
   sameBilling: z.boolean().optional().default(true),
-  deliveryMethodId: shopId,
+  // Only when something is shipped; an all-clinic-pickup order has no delivery method.
+  deliveryMethodId: shopId.optional().nullable(),
   paymentMethodId: shopId.optional().nullable(),
   paymentMethodCode: z.string().trim().max(40).optional().nullable(),
   paymentCurrency: z.string().trim().max(15).optional().nullable(),

@@ -7,7 +7,7 @@ import { readJsonBody, shopPortalRoute } from "@/features/shop-api/server/route"
 
 type Params = { orderId: string };
 
-/** ready_for_pickup or picked_up, for the clinic's part of a paid order. */
+/** ready_for_pickup (ready to hand to Lsevin) or picked_up (handed to Lsevin), for the clinic's part of a paid order. */
 export const POST = shopPortalRoute<Params>("provider", async ({ request, principal, params }) => {
   const parsed = apiId.safeParse(params.orderId);
   if (!parsed.success) throw notFound("Order");

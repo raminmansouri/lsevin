@@ -8,10 +8,13 @@ import { notFound, ShopApiError } from "./errors";
 import { writeAudit } from "./repository";
 
 /**
- * Clinic pickup of paid orders (provider shop). A clinic sees the paid orders that contain its
- * own lines (only those lines and their total), and moves its part of each order
- * new -> ready for pickup -> picked up. The order's own state machines stay with the shop admin;
- * an order the admin cancelled or refunded shows as "cancelled" and cannot be changed here.
+ * Clinic handover of paid orders (provider shop). Lsevin sends every order to the customer, so a
+ * clinic never deals with the customer: it hands its items to Lsevin within its handling days.
+ * A clinic sees the paid orders that contain its own lines (only those lines and their total,
+ * no customer details) and moves its part new -> ready_for_pickup (ready to hand to Lsevin) ->
+ * picked_up (handed to Lsevin). Lsevin confirms receipt itself in admin (received_at). The
+ * clinic's due date is the paid date + the longest handling days among its lines.
+ * An order the admin cancelled or refunded shows as "cancelled" and cannot be changed here.
  */
 
 export type PickupStatus = "new" | "ready_for_pickup" | "picked_up";
@@ -21,7 +24,7 @@ export type OrderListStatus = PickupStatus | "cancelled" | "all";
 const PAID_STATUSES = ["paid", "processing", "partially_shipped", "shipped", "completed", "partially_refunded", "refunded", "returned"];
 const CANCELLED_STATUSES = ["cancelled", "refunded"];
 
-/** Which earlier pickup states each target may come from. */
+/** Which earlier states each target may come from (a clinic may hand over without "ready" first). */
 const PICKUP_TRANSITIONS: Record<Exclude<PickupStatus, "new">, PickupStatus[]> = {
   ready_for_pickup: ["new"],
   picked_up: ["new", "ready_for_pickup"],
@@ -59,9 +62,8 @@ type OrderRow = {
   paid_at: Date | null;
   ready_at: Date | null;
   picked_up_at: Date | null;
-  buyer_name: string | null;
-  buyer_phone: string | null;
-  buyer_email: string | null;
+  received_at: Date | null;
+  due_at: Date | null;
   items: Array<{
     name: Record<string, string> | null;
     variant: Record<string, string> | null;
@@ -75,7 +77,7 @@ type OrderRow = {
 const nameOf = (value: Record<string, string> | null) =>
   value ? value.fa || value["fa-IR"] || value.en || value["en-US"] || Object.values(value).find(Boolean) || null : null;
 
-/** The clinic's paid orders (only its own lines), newest first, with a count per tab. */
+/** The clinic's paid orders (only its own lines, no customer details), newest first, with a count per tab. */
 export async function listPortalOrders(principal: PortalPrincipal, status: OrderListStatus) {
   const sellerId = await providerSellerId(requireProvider(principal));
   const counts = { new: 0, ready_for_pickup: 0, picked_up: 0, cancelled: 0 };
@@ -83,10 +85,9 @@ export async function listPortalOrders(principal: PortalPrincipal, status: Order
 
   const rows = await sql<OrderRow[]>`
     select o.id::text as id, o.order_number, o.status::text as order_status, o.payment_status::text as payment_status,
-           ${EFFECTIVE_STATUS} as pickup_status, o.currency, o.placed_at, o.paid_at, sp.ready_at, sp.picked_up_at,
-           nullif(trim(a.full_name), '') as buyer_name,
-           nullif(concat_ws('', a.phone_number_country_code, a.phone_number), '') as buyer_phone,
-           nullif(o.email, '') as buyer_email,
+           ${EFFECTIVE_STATUS} as pickup_status, o.currency, o.placed_at, o.paid_at, sp.ready_at, sp.picked_up_at, sp.received_at,
+           (select o.paid_at + make_interval(days => max(coalesce(oi.handling_days_snapshot, 1))::int)
+              from shop.order_items oi where oi.order_id = o.id and oi.seller_id = ${sellerId}::uuid) as due_at,
            (select coalesce(json_agg(json_build_object(
                      'name', oi.product_name_snapshot, 'variant', oi.variant_name_snapshot, 'quantity', oi.quantity,
                      'unit_price', oi.unit_price_snapshot, 'line_total', oi.line_total_snapshot, 'image', oi.image_url_snapshot)
@@ -94,10 +95,6 @@ export async function listPortalOrders(principal: PortalPrincipal, status: Order
               from shop.order_items oi where oi.order_id = o.id and oi.seller_id = ${sellerId}::uuid) as items
     from shop.orders o
     left join shop.seller_order_pickups sp on sp.order_id = o.id and sp.seller_id = ${sellerId}::uuid
-    left join lateral (
-      select ad.full_name, ad.phone_number_country_code, ad.phone_number from shop.order_addresses ad
-      where ad.order_id = o.id order by (ad.address_type = 'shipping') desc limit 1
-    ) a on true
     where exists (select 1 from shop.order_items oi where oi.order_id = o.id and oi.seller_id = ${sellerId}::uuid)
       and ${IS_PAID}
       and (${status} = 'all' or ${EFFECTIVE_STATUS} = ${status})
@@ -114,6 +111,7 @@ export async function listPortalOrders(principal: PortalPrincipal, status: Order
   `;
   for (const row of countRows) if (row.status in counts) counts[row.status] = row.n;
 
+  const now = Date.now();
   return {
     status,
     counts,
@@ -126,6 +124,7 @@ export async function listPortalOrders(principal: PortalPrincipal, status: Order
         lineTotal: Number(item.line_total),
         image: item.image,
       }));
+      const open = row.pickup_status === "new" || row.pickup_status === "ready_for_pickup";
       return {
         id: row.id,
         orderNumber: row.order_number,
@@ -137,7 +136,11 @@ export async function listPortalOrders(principal: PortalPrincipal, status: Order
         paidAt: row.paid_at,
         readyAt: row.ready_at,
         pickedUpAt: row.picked_up_at,
-        buyer: { name: row.buyer_name, phone: row.buyer_phone, email: row.buyer_email },
+        // Lsevin's own confirmation that the items arrived.
+        receivedAt: row.received_at,
+        // Hand the items to Lsevin by this date.
+        dueAt: row.due_at,
+        overdue: Boolean(open && row.due_at && new Date(row.due_at).getTime() < now),
         items,
         quantity: items.reduce((sum, item) => sum + item.quantity, 0),
         total: Math.round(items.reduce((sum, item) => sum + item.lineTotal, 0) * 100) / 100,
@@ -162,15 +165,11 @@ export async function portalOrdersSummary(principal: PortalPrincipal) {
 }
 
 /**
- * Moves the clinic's part of a paid order forward. The clinic's order lines follow (packed when
- * ready, delivered when picked up); when every line of the order is delivered the order's
- * fulfilment status becomes delivered, so the admin's order view agrees.
+ * Moves the clinic's part of a paid order forward: ready_for_pickup (ready to hand to Lsevin; the
+ * lines become packed) or picked_up (handed to Lsevin). Neither reaches the customer: Lsevin
+ * confirms receipt in admin and then sends the order.
  */
-export async function updatePortalOrderStatus(
-  principal: PortalPrincipal,
-  orderId: string,
-  status: Exclude<PickupStatus, "new">
-) {
+export async function updatePortalOrderStatus(principal: PortalPrincipal, orderId: string, status: Exclude<PickupStatus, "new">) {
   const providerId = requireProvider(principal);
   return sql.begin(async (tx) => {
     const [seller] = await tx<{ id: string }[]>`
@@ -208,18 +207,11 @@ export async function updatePortalOrderStatus(
         picked_up_at = coalesce(excluded.picked_up_at, shop.seller_order_pickups.picked_up_at),
         updated_by_user_id = excluded.updated_by_user_id, updated_at = now()
     `;
+    // Ready or handed over, the items are packed; Lsevin marks them "ready" once received.
     await tx`
-      update shop.order_items set fulfillment_status = ${status === "picked_up" ? "delivered" : "packed"}::shop.shipment_status
-      where order_id = ${orderId}::uuid and seller_id = ${seller.id}::uuid
+      update shop.order_items set fulfillment_status = 'packed'::shop.shipment_status
+      where order_id = ${orderId}::uuid and seller_id = ${seller.id}::uuid and fulfillment_status::text = 'pending'
     `;
-    if (status === "picked_up") {
-      await tx`
-        update shop.orders set fulfillment_status = 'delivered', last_modified_date = now()
-        where id = ${orderId}::uuid
-          and not exists (select 1 from shop.order_items oi where oi.order_id = ${orderId}::uuid
-                            and oi.fulfillment_status::text <> 'delivered')
-      `;
-    }
     await writeAudit(tx, {
       tokenId: null,
       sellerId: seller.id,
@@ -264,9 +256,10 @@ export async function notifyClinicsOfPaidOrder(orderId: string): Promise<void> {
       returning seller_id::text as seller_id
     `;
     if (!claimed.length) return;
-    const details = await sql<{ seller_id: string; provider_id: string; order_number: string; currency: string; quantity: number; total: string }[]>`
+    const details = await sql<{ seller_id: string; provider_id: string; order_number: string; currency: string; quantity: number; total: string; days: number }[]>`
       select s.id::text as seller_id, s.service_provider_id::text as provider_id, o.order_number, o.currency,
-             sum(oi.quantity)::int as quantity, sum(oi.line_total_snapshot)::text as total
+             sum(oi.quantity)::int as quantity, sum(oi.line_total_snapshot)::text as total,
+             max(coalesce(oi.handling_days_snapshot, 1))::int as days
       from shop.order_items oi
       join shop.orders o on o.id = oi.order_id
       join shop.sellers s on s.id = oi.seller_id
@@ -284,7 +277,7 @@ export async function notifyClinicsOfPaidOrder(orderId: string): Promise<void> {
             recipientEntityType: "provider",
             recipientEntityId: row.provider_id,
             title: "سفارش جدید فروشگاه",
-            body: `سفارش ${row.order_number}: ${row.quantity} کالا به مبلغ ${total} پرداخت شد. آن را برای تحویل در مرکز آماده کنید.`,
+            body: `سفارش ${row.order_number}: ${row.quantity} کالا به مبلغ ${total} پرداخت شد. لطفاً حداکثر تا ${row.days} روز آن را به لسوین تحویل دهید.`,
             channel: "in_app",
             sourceModule: "provider-shop",
             sourceEntityType: "shop_order",

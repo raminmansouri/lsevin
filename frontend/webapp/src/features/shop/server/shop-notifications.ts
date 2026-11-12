@@ -6,9 +6,11 @@ import {
   type NotificationChannel,
 } from "@/app/[locale]/n/app/mobile/notifications/notification-service";
 
+import { encodePatternVariables, maskPhone, readMeliPayamakCredentials, sendPatternSms } from "@/features/consultation/server/melipayamak";
 import { notifyClinicsOfPaidOrder } from "@/features/shop-api/server/portal-orders";
 
 import { formatShopMoney } from "../components/money";
+import { pickupSmsRecipient, pickupSmsVariables, SHOP_PICKUP_READY_PATTERN_ENV } from "../lib/pickup-sms";
 
 /**
  * Shop order notifications (SHP-V01-023). Mirrors
@@ -118,6 +120,19 @@ async function ensureTemplates(): Promise<void> {
       ),
     },
   ];
+
+  templates.push({
+    // In-app + email copy of the pickup SMS (the SMS itself goes through a MeliPayamak pattern).
+    key: "shop.order.ready_for_pickup.customer",
+    name: "Shop order ready for pickup at the Lsevin office (customer)",
+    channels: ["in_app", "email"] as NotificationChannel[],
+    title: tr("سفارش شما در دفتر لسوین آماده تحویل است", "Your order is ready at the Lsevin office", "طلبك جاهز في مكتب لسوين"),
+    body: tr(
+      "سفارش {{orderNumber}} در دفتر لسوین آماده تحویل است. کد تحویل: {{pickupCode}}. نشانی: {{officeAddress}}",
+      "Order {{orderNumber}} is ready for pickup at the Lsevin office. Pickup code: {{pickupCode}}. Address: {{officeAddress}}",
+      "الطلب {{orderNumber}} جاهز للاستلام في مكتب لسوين. رمز الاستلام: {{pickupCode}}. العنوان: {{officeAddress}}"
+    ),
+  });
 
   templates.push({
     key: "shop.cart.abandoned.customer",
@@ -284,5 +299,103 @@ export async function notifyCartAbandoned(input: {
   } catch (error) {
     console.error("notifyCartAbandoned failed", error);
     return false;
+  }
+}
+
+// ------------------------------------------------------------------------------------------------
+// Pickup at the Lsevin office: "your order is ready, here is the code"
+// ------------------------------------------------------------------------------------------------
+
+type OfficePickupNotifyRow = {
+  orderNumber: string;
+  email: string | null;
+  identityUserId: string | null;
+  identityPhone: string | null;
+  addressPhone: string | null;
+  addressCountry: string | null;
+  officeAddress: string | null;
+};
+
+/**
+ * Tells the customer that the order is ready at the Lsevin office, with the pickup code: an SMS
+ * through the approved MeliPayamak pattern, plus in-app/email when the customer has an account.
+ * Called after "ready" is committed. Never throws. Each newly issued code is sent again.
+ */
+export async function notifyShopOfficePickupReady(input: { orderId: string; code: string }): Promise<void> {
+  try {
+    const [row] = await sql<OfficePickupNotifyRow[]>`
+      select o.order_number as "orderNumber", nullif(o.email, '') as email,
+        u.id::text as "identityUserId",
+        nullif(concat_ws('', u.phone_number_country_code, u.phone_number), '') as "identityPhone",
+        nullif(concat_ws('', a.phone_number_country_code, a.phone_number), '') as "addressPhone",
+        nullif(a.country, '') as "addressCountry",
+        nullif(common.get_translation_t(dm.pickup_address_translations, 'fa', 'en'), '') as "officeAddress"
+      from shop.orders o
+      left join shop.delivery_methods dm on dm.id = o.delivery_method_id
+      left join customer.customers c on c.id = o.customer_id
+      left join identity.asp_net_users u
+        on (nullif(c.email,'') is not null and lower(u.email) = lower(c.email))
+        or (nullif(c.phone_number,'') is not null and u.phone_number = c.phone_number and u.phone_number_country_code = c.phone_number_country_code)
+      left join lateral (
+        select ad.phone_number_country_code, ad.phone_number, ad.country from shop.order_addresses ad
+        where ad.order_id = o.id and nullif(ad.phone_number, '') is not null
+        order by (ad.address_type = 'shipping') desc limit 1
+      ) a on true
+      where o.id = ${input.orderId}::uuid
+      limit 1
+    `;
+    if (!row) return;
+
+    // 1) SMS (pattern). The mobile entered at checkout comes first: it is the one asked for pickup.
+    const phone = pickupSmsRecipient([
+      { phone: row.addressPhone, country: row.addressCountry },
+      { phone: row.identityPhone, country: "IR" },
+    ]);
+    const bodyId = process.env[SHOP_PICKUP_READY_PATTERN_ENV]?.trim();
+    const credentials = readMeliPayamakCredentials();
+    let smsSent = false;
+    if (!phone) {
+      console.warn("[shop] pickup SMS skipped: no Iranian mobile on the order", { orderId: input.orderId });
+    } else if (!bodyId || !credentials) {
+      console.warn("[shop] pickup SMS skipped: SMS pattern or credentials not configured", {
+        orderId: input.orderId,
+        pattern: Boolean(bodyId),
+        credentials: Boolean(credentials),
+      });
+    } else {
+      const result = await sendPatternSms({
+        to: phone,
+        bodyId,
+        variables: encodePatternVariables(pickupSmsVariables(row.orderNumber, input.code)),
+        credentials,
+      });
+      smsSent = result.ok;
+      if (!result.ok) {
+        console.error("[shop] pickup SMS failed", { orderId: input.orderId, to: maskPhone(phone), error: result.error });
+      }
+    }
+    if (smsSent) {
+      await sql`update shop.order_office_pickups set customer_notified_at = now() where order_id = ${input.orderId}::uuid`;
+    }
+
+    // 2) In-app + email, for a customer with an account (same rule as the other order events).
+    if (row.identityUserId && (await notifyTablesExist())) {
+      await ensureTemplates();
+      await createNotificationFromTemplate({
+        templateKey: "shop.order.ready_for_pickup.customer",
+        locale: null,
+        customerId: row.identityUserId,
+        entityType: "shop_order",
+        entityId: input.orderId,
+        channels: row.email ? ["in_app", "email"] : ["in_app"],
+        emailTo: row.email,
+        phoneTo: null,
+        variables: { orderNumber: row.orderNumber, pickupCode: input.code, officeAddress: row.officeAddress || "-" },
+        fallbackTitle: "LSevin Shop",
+        fallbackBody: `Order ${row.orderNumber} is ready for pickup at the Lsevin office.`,
+      });
+    }
+  } catch (error) {
+    console.error("[shop] notifyShopOfficePickupReady failed", { orderId: input.orderId, error: (error as Error)?.message });
   }
 }

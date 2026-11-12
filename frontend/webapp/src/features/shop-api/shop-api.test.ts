@@ -198,13 +198,15 @@ describe("product proposal schemas", () => {
 });
 
 describe("clinic order schemas", () => {
-  it("the clinic can only move an order to ready for pickup or picked up", () => {
+  it("the clinic can only move its part to ready to hand over, or handed to Lsevin; no code is involved", () => {
     expect(portalOrderStatusUpdateSchema.parse({ status: "ready_for_pickup" })).toEqual({ status: "ready_for_pickup" });
     expect(portalOrderStatusUpdateSchema.parse({ status: "picked_up" })).toEqual({ status: "picked_up" });
     for (const status of ["new", "cancelled", "delivered", "", null]) {
       expect(portalOrderStatusUpdateSchema.safeParse({ status }).success, String(status)).toBe(false);
     }
     expect(portalOrderStatusUpdateSchema.safeParse({ status: "picked_up", orderId: "x" }).success).toBe(false);
+    // The customer's pickup code belongs to the Lsevin office, never to the clinic.
+    expect(portalOrderStatusUpdateSchema.safeParse({ status: "picked_up", pickupCode: "123456" }).success).toBe(false);
   });
 
   it("an unknown list tab falls back to new orders", () => {

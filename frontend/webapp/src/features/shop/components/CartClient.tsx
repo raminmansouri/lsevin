@@ -108,7 +108,12 @@ export function CartClient({
               {item.name}
             </p>
             {item.sellerName ? (
-              <p className="text-xs font-medium text-[#083f30]">🏪 {item.sellerName}</p>
+              <p className="text-xs font-medium text-[#083f30]">
+                🏪 {item.sellerName}
+                {item.partnerSeller ? (
+                  <span className="text-neutral-500"> · {t("sellerOffers.sentByLsevin")}</span>
+                ) : null}
+              </p>
             ) : null}
             {item.variantTitle ? (
               <p className="text-xs text-neutral-500">{item.variantTitle}</p>

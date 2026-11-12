@@ -6,6 +6,7 @@ import { getShopContext } from "../lib/context";
 import { SHOP_PERMISSIONS, assertShopPermission } from "../lib/permissions";
 import { emitCommerceEvent } from "../lib/analytics";
 import { notifyShopOrderEvent } from "./shop-notifications";
+import { releaseOrderReservations } from "./order-stock";
 
 /**
  * Cancellations & returns (SHP-V03-005/006/007/008, SHP-AfterSales).
@@ -19,23 +20,6 @@ import { notifyShopOrderEvent } from "./shop-notifications";
 
 const CANCELLABLE_ORDER_STATUSES = ["pending", "awaiting_payment", "paid", "processing"];
 const RETURNABLE_ORDER_STATUSES = ["shipped", "partially_shipped", "completed"];
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-async function releaseReservations(tx: any, orderId: string, note: string) {
-  const items = await tx<any[]>`select product_id, variant_id, quantity from shop.order_items where order_id = ${orderId}::uuid`;
-  for (const it of items) {
-    const [inv] = await tx<{ id: string }[]>`
-      select i.id::text as id from shop.inventory i
-      where (${it.variant_id}::uuid is not null and i.variant_id = ${it.variant_id}::uuid)
-         or (${it.variant_id}::uuid is null and i.product_id = ${it.product_id}::uuid and i.variant_id is null)
-      limit 1
-    `;
-    if (!inv) continue;
-    await tx`update shop.inventory set reserved = greatest(reserved - ${it.quantity}, 0), last_modified_date = now() where id = ${inv.id}::uuid`;
-    await tx`insert into shop.inventory_movements (inventory_id, movement_type, quantity, reference_type, reference_id, note)
-             values (${inv.id}::uuid, 'release', ${it.quantity}, 'shop.order', ${orderId}::uuid, ${note})`;
-  }
-}
 
 /** Customer-initiated cancellation before the cutoff (SHP-V03-005). */
 export async function requestOrderCancellation(input: { orderNumber: string; email?: string | null; reason?: string }) {
@@ -55,13 +39,27 @@ export async function requestOrderCancellation(input: { orderNumber: string; ema
 
   const paid = ["captured", "partially_refunded"].includes(order.payment_status);
   await sql.begin(async (tx) => {
+    // Re-check under the order's row lock: shipping and "ready for pickup at the office" (admin)
+    // lock the same row, so a cancellation can't slip in between them and here.
+    const [locked] = await tx<{ status: string; officeReady: boolean }[]>`
+      select o.status::text as status,
+        exists (select 1 from shop.order_office_pickups op where op.order_id = o.id) as "officeReady"
+      from shop.orders o where o.id = ${order.id}::uuid for update of o
+    `;
+    if (!locked || !CANCELLABLE_ORDER_STATUSES.includes(locked.status)) {
+      throw new Error(`This order can no longer be cancelled (status: ${locked?.status ?? order.status}).`);
+    }
+    // The order already waits at the Lsevin office (or was picked up).
+    if (locked.officeReady) {
+      throw new Error("This order is ready for pickup at the Lsevin office and can no longer be cancelled.");
+    }
     await tx`
       update shop.orders
       set status = 'cancelled'::shop.order_status, cancelled_at = now(), last_modified_date = now(),
           meta = coalesce(meta, '{}'::jsonb) || ${sql.json({ cancelledBy: "customer", refundPending: paid })}
       where id = ${order.id}::uuid
     `;
-    await releaseReservations(tx, order.id, "order cancelled by customer");
+    await releaseOrderReservations(tx, order.id, "order cancelled by customer");
     await tx`
       insert into shop.order_status_history (order_id, from_status, to_status, note)
       values (${order.id}::uuid, ${order.status}::shop.order_status, 'cancelled',

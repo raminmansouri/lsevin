@@ -5655,7 +5655,8 @@ declare const messages: {
       "toursPlatformSettings": "1. Tours settings",
       "toursPlatformTaxonomy": "2. Categories & tags",
       "editorial": "Editorial",
-      "assistant": "AI assistant"
+      "assistant": "AI assistant",
+      "shopInbound": "Items to receive"
     }
   },
   "HomePage": {
@@ -16318,7 +16319,10 @@ declare const messages: {
       "shipsToday": "Ships today",
       "outOfStock": "Out of stock",
       "add": "Add",
-      "others": "{count} other sellers"
+      "others": "{count} other sellers",
+      "soldBySentByLsevin": "Sold by {name} · Sent by Lsevin",
+      "sentByLsevin": "Sent by Lsevin",
+      "deliveredIn": "{days, plural, =0 {Delivered today} one {Delivered within # business day} other {Delivered within # business days}}"
     },
     "sellerPage": {
       "products": "{count} products",
@@ -16327,6 +16331,33 @@ declare const messages: {
       "eyebrow": "BOUTIQUE",
       "productsLabel": "PRODUCTS",
       "warrantyTitle": "Seller's guarantee"
+    },
+    "fulfilment": {
+      "title": "How you receive your order",
+      "overallDelivery": "{days, plural, =0 {Your whole order arrives today} one {Your whole order arrives within # day} other {Your whole order arrives within # days}}",
+      "overallPickup": "{days, plural, =0 {Your whole order is ready at the Lsevin office today} one {Your whole order is ready at the Lsevin office within # day} other {Your whole order is ready at the Lsevin office within # days}}",
+      "promisedDelivery": "Whole order delivered by {date}",
+      "promisedPickup": "Whole order ready at the Lsevin office by {date}",
+      "sentByLsevinHint": "Every item, from every seller, is sent by Lsevin in one shipment.",
+      "noShippingFee": "No shipping fee",
+      "deliveryTo": "Delivery to your address",
+      "officePickup": "Pickup at the Lsevin office",
+      "officeNotSet": "The office address is sent with your pickup code.",
+      "openingHours": "Opening hours",
+      "call": "Call the office",
+      "contactForPickup": "Your name and mobile",
+      "pickupPhoneHint": "Your pickup code is sent to this mobile number."
+    },
+    "pickup": {
+      "status": {
+        "preparing": "Being prepared",
+        "ready": "Ready for pickup at the Lsevin office",
+        "picked_up": "Picked up",
+        "cancelled": "Cancelled"
+      },
+      "code": "Pickup code",
+      "codeHint": "Tell this code at the Lsevin office when you collect your order.",
+      "pickedUpOn": "Picked up on {date}"
     }
   },
   "ShopAdmin": {
@@ -17030,6 +17061,59 @@ declare const messages: {
       "none": "This seller has no products yet.",
       "manage": "{count} products",
       "lowStockCount": "{count} low stock"
+    },
+    "officePickup": {
+      "title": "Pickup at the Lsevin office",
+      "promised": "Promised by {date}",
+      "waitingForSellers": "Waiting for items from sellers ({count}). Mark the order ready once everything has arrived.",
+      "notPaid": "The order is not paid yet.",
+      "markReady": "Ready for pickup (send the customer the code)",
+      "readySince": "Ready since {date}. The customer was sent a pickup code.",
+      "codeLabel": "Customer's pickup code",
+      "confirm": "Confirm pickup",
+      "resend": "Send a new code",
+      "resendConfirm": "Send the customer a new pickup code? The old code stops working.",
+      "attemptsLeft": "{count} tries left",
+      "locked": "Too many wrong codes. Send the customer a new code to continue.",
+      "pickedUp": "Picked up on {date}.",
+      "wrongCode": "Wrong code. {count} tries left.",
+      "codeFormat": "Enter the 6-digit code.",
+      "codeSent": "The customer was sent a pickup code.",
+      "cancelled": "This order was cancelled."
+    },
+    "inbound": {
+      "title": "Items to receive from sellers",
+      "hint": "Paid orders whose seller (e.g. a clinic) still has to hand items to Lsevin. Due = paid date + the seller's handling days. Mark each seller's part received when it arrives; the order can then be shipped or made ready for pickup.",
+      "empty": "Nothing to receive.",
+      "order": "Order",
+      "items": "Items",
+      "due": "Due",
+      "overdue": "Overdue",
+      "sellerStatus": "Seller",
+      "statusNew": "Not ready",
+      "statusReady": "Ready to hand over",
+      "statusHanded": "Handed over",
+      "received": "Received",
+      "markReceived": "Mark received",
+      "fulfilmentDelivery": "Delivery",
+      "fulfilmentPickup": "Office pickup"
+    },
+    "orderFulfilment": {
+      "title": "Fulfilment",
+      "delivery": "Delivery to the address",
+      "officePickup": "Pickup at the Lsevin office",
+      "sellers": "Items from sellers",
+      "allReceived": "Everything is at Lsevin.",
+      "receivedOn": "Received {date}",
+      "notReceived": "Not received yet · due {date}"
+    },
+    "deliveryOffice": {
+      "title": "Lsevin office (shown to customers who pick up)",
+      "addressFa": "Office address (Persian)",
+      "addressEn": "Office address (English)",
+      "phone": "Office phone",
+      "hoursFa": "Opening hours (Persian)",
+      "hoursEn": "Opening hours (English)"
     }
   },
   "Patients": {

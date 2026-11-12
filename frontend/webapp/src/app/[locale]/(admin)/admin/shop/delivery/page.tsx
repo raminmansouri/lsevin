@@ -37,6 +37,14 @@ export default async function AdminDeliveryPage() {
               estimated_days_min: m.estimated_days_min,
               estimated_days_max: m.estimated_days_max,
               rules: m.rules,
+              supports_pickup: Boolean(m.supports_pickup),
+              office: {
+                addressFa: m.office_address_fa ?? "",
+                addressEn: m.office_address_en ?? "",
+                phone: m.office_phone ?? "",
+                hoursFa: m.office_hours_fa ?? "",
+                hoursEn: m.office_hours_en ?? "",
+              },
             }}
           />
         ))}

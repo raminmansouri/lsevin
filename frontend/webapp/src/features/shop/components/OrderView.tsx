@@ -3,8 +3,16 @@ import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { formatShopMoney } from "./money";
 import { OrderActions } from "./OrderActions";
-import type { OrderDetail, OrderSummary } from "../types/domain";
+import type { OfficePickupStatus, OrderDetail, OrderSummary } from "../types/domain";
 import { shopImageSrc } from "../lib/image";
+import { OfficeDetailsView, OverallEstimate, ShipmentCard } from "./ShipmentBlocks";
+
+const PICKUP_TONE: Record<OfficePickupStatus, string> = {
+  preparing: "bg-amber-50 text-amber-700",
+  ready: "bg-emerald-50 text-emerald-700",
+  picked_up: "bg-neutral-100 text-neutral-600",
+  cancelled: "bg-red-50 text-red-700",
+};
 
 function statusTone(s: string): string {
   if (["paid", "captured", "completed", "delivered", "accepted"].includes(s)) return "bg-emerald-50 text-emerald-700";
@@ -82,6 +90,8 @@ export async function OrderDetailView({
 }) {
   const t = await getTranslations("Shop");
   const paid = ["paid", "processing", "shipped", "completed", "partially_shipped"].includes(order.status);
+  // Lsevin sends the whole order as one shipment: to the address, or for pickup at its office.
+  const officePickup = order.fulfillmentMode === "office_pickup" ? (order.officePickup ?? null) : null;
 
   return (
     <div className="space-y-3 p-4 pb-24">
@@ -149,33 +159,72 @@ export async function OrderDetailView({
         ) : null}
       </div>
 
-      <div className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-black/[0.04]">
-        <p className="mb-1 text-sm font-bold text-neutral-900">{t("shippingAddress")}</p>
-        <p className="text-sm text-neutral-600">
-          {order.shippingAddress.fullName}
-          <br />
-          {order.shippingAddress.addressLine1}
-          {order.shippingAddress.addressLine2 ? `, ${order.shippingAddress.addressLine2}` : ""}
-          <br />
-          {order.shippingAddress.city}, {order.shippingAddress.country}
-          {order.shippingAddress.postalCode ? ` ${order.shippingAddress.postalCode}` : ""}
-        </p>
-      </div>
-
-      {order.shipments.length ? (
-        <div className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-black/[0.04]">
-          <p className="mb-2 text-sm font-bold text-neutral-900">{t("fulfillmentStatus")}</p>
-          {order.shipments.map((s) => (
-            <div key={s.id} className="flex items-center justify-between py-1 text-sm">
-              <span className="text-neutral-600">
-                {s.carrier ?? "—"} · {s.trackingNumber ?? "—"}
-                {s.shippedAt ? ` · ${new Date(s.shippedAt).toLocaleDateString(locale)}` : ""}
-              </span>
-              <StatusPill status={s.status} />
-            </div>
-          ))}
+      {/* One shipment, sent by Lsevin: delivery to the address, or pickup at the Lsevin office. */}
+      <div data-testid="order-fulfilment" className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-black/[0.04]">
+        <p className="mb-2 text-sm font-bold text-neutral-900">{t("fulfilment.title")}</p>
+        <div className="space-y-2">
+          {order.status !== "cancelled" ? (
+            <OverallEstimate days={order.promisedDays ?? null} promisedAt={order.promisedReadyAt ?? null} isPickup={Boolean(officePickup)} />
+          ) : null}
+          {officePickup ? (
+            <ShipmentCard
+              kind="office_pickup"
+              testId="shipment-office-pickup"
+              title={t("fulfilment.officePickup")}
+              meta={
+                <span className="flex flex-wrap items-center gap-2">
+                  <span
+                    data-testid="pickup-status"
+                    data-status={officePickup.status}
+                    className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${PICKUP_TONE[officePickup.status]}`}
+                  >
+                    {t(`pickup.status.${officePickup.status}`)}
+                  </span>
+                  {officePickup.pickedUpAt ? (
+                    <span>{t("pickup.pickedUpOn", { date: new Date(officePickup.pickedUpAt).toLocaleDateString(locale) })}</span>
+                  ) : null}
+                </span>
+              }
+            >
+              {officePickup.pickupCode ? (
+                <div data-testid="pickup-code" className="mb-2 rounded-xl bg-emerald-50 p-3 text-center ring-1 ring-emerald-200">
+                  <p className="text-xs font-semibold text-emerald-800">{t("pickup.code")}</p>
+                  <p className="mt-1 font-mono text-2xl font-extrabold tracking-[0.3em] text-emerald-900" dir="ltr">
+                    {officePickup.pickupCode}
+                  </p>
+                  <p className="mt-1 text-[11px] text-emerald-800">{t("pickup.codeHint")}</p>
+                </div>
+              ) : null}
+              <OfficeDetailsView office={officePickup.office} />
+            </ShipmentCard>
+          ) : (
+            <ShipmentCard kind="delivery" testId="shipment-delivery" title={t("fulfilment.deliveryTo")}>
+              <p className="text-xs text-neutral-600">
+                {order.shippingAddress.fullName}
+                <br />
+                {order.shippingAddress.addressLine1}
+                {order.shippingAddress.addressLine2 ? `, ${order.shippingAddress.addressLine2}` : ""}
+                <br />
+                {[order.shippingAddress.city, order.shippingAddress.country].filter(Boolean).join(", ")}
+                {order.shippingAddress.postalCode ? ` ${order.shippingAddress.postalCode}` : ""}
+              </p>
+              {order.shipments.length ? (
+                <div className="mt-2 border-t border-neutral-100 pt-2">
+                  {order.shipments.map((s) => (
+                    <div key={s.id} className="flex items-center justify-between py-1 text-xs">
+                      <span className="text-neutral-600">
+                        {s.carrier ?? "—"} · {s.trackingNumber ?? "—"}
+                        {s.shippedAt ? ` · ${new Date(s.shippedAt).toLocaleDateString(locale)}` : ""}
+                      </span>
+                      <StatusPill status={s.status} />
+                    </div>
+                  ))}
+                </div>
+              ) : null}
+            </ShipmentCard>
+          )}
         </div>
-      ) : null}
+      </div>
 
       {order.returns.length ? (
         <div className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-black/[0.04]">

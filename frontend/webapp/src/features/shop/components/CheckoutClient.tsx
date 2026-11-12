@@ -25,6 +25,7 @@ import {
   type CheckoutIssue,
 } from "../lib/checkout-validation";
 import { currencyLabel, formatShopMoney } from "./money";
+import { OfficeDetailsView, OverallEstimate } from "./ShipmentBlocks";
 
 type SummaryItem = {
   id: string;
@@ -117,6 +118,34 @@ export function CheckoutClient({
   } | null>(null);
 
   const cur = quote.currency;
+  // Lsevin sends the whole order: to the address (needs the address) or for pickup at the Lsevin
+  // office (needs a mobile for the pickup code). Read from the option picked now, not the last quote.
+  const selectedOption =
+    quote.deliveryOptions.find((d) => d.id === deliveryId) ?? null;
+  const isPickup = Boolean(selectedOption?.isPickup);
+  const needsAddress = !isPickup;
+  const needsPhone = isPickup;
+  // The headline estimate belongs to the quote of the option shown.
+  const promiseDays =
+    quote.selectedDeliveryMethodId === deliveryId
+      ? quote.fulfilment.promiseDays
+      : null;
+  // Office pickup: just the name and mobile. Delivery: the full address form for a new address.
+  const visibleAddressKeys: ReadonlyArray<keyof typeof EMPTY_ADDR> = !needsAddress
+    ? (["fullName", "phoneNumber"] as const)
+    : usingNewAddr
+      ? ([
+          "fullName",
+          "phoneNumber",
+          "company",
+          "country",
+          "city",
+          "stateRegion",
+          "addressLine1",
+          "addressLine2",
+          "postalCode",
+        ] as const)
+      : [];
 
   const reQuote = (
     nextDeliveryId: string,
@@ -166,6 +195,8 @@ export function CheckoutClient({
         blockingIssues: quote.blockingIssues,
         hasUnavailablePrice: quote.totals.hasUnavailablePrice,
         quoteFailed: Boolean(quoteError),
+        needsAddress,
+        needsPhone,
       }),
     [
       email,
@@ -266,7 +297,7 @@ export function CheckoutClient({
           paymentResult(res.payment, placedOrder);
           return;
         }
-        if (usingNewAddr && saveNewAddr && isAuthenticated) {
+        if (needsAddress && usingNewAddr && saveNewAddr && isAuthenticated) {
           await saveCheckoutAddressAction({
             fullName: addr.fullName,
             phoneNumber: addr.phoneNumber || undefined,
@@ -296,6 +327,7 @@ export function CheckoutClient({
             company: addr.company || undefined,
           },
           sameBilling: true,
+          // An all-clinic-pickup order has no delivery method.
           deliveryMethodId: deliveryId,
           paymentMethodCode: paymentCode,
           paymentCurrency: quote.paymentCurrency,
@@ -422,8 +454,63 @@ export function CheckoutClient({
           />
         </Section>
 
-        <Section title={t("shippingAddress")}>
-          {isAuthenticated ? (
+        <Section id="checkout-deliveryMethod" title={t("fulfilment.title")}>
+          <div className="space-y-2">
+            <OverallEstimate days={promiseDays} isPickup={isPickup} />
+            {quote.deliveryOptions.map((d) => (
+              <div
+                key={d.id}
+                data-testid={d.isPickup ? "option-office-pickup" : "option-delivery"}
+                className={cn(
+                  "rounded-xl border px-3 py-2.5",
+                  deliveryId === d.id
+                    ? "border-[#083f30] bg-[#083f30]/5"
+                    : "border-neutral-200"
+                )}
+              >
+                <label className="flex items-center justify-between gap-2">
+                  <span className="flex items-center gap-2 text-sm">
+                    <input
+                      type="radio"
+                      name="delivery"
+                      checked={deliveryId === d.id}
+                      onChange={() => reQuote(d.id)}
+                    />
+                    <span>
+                      <span className="font-medium text-neutral-800">
+                        {d.name}
+                      </span>
+                      {!d.isPickup && d.etaMaxDays != null ? (
+                        <span className="ms-1 text-xs text-neutral-500">
+                          · {d.etaMinDays ?? 0}-{d.etaMaxDays}d
+                        </span>
+                      ) : null}
+                    </span>
+                  </span>
+                  <span className="shrink-0 text-sm font-semibold">
+                    {d.isPickup
+                      ? t("fulfilment.noShippingFee")
+                      : d.fee === 0
+                        ? t("freeShipping")
+                        : formatShopMoney(d.fee, cur, locale)}
+                  </span>
+                </label>
+                {d.isPickup && deliveryId === d.id ? (
+                  <div className="mt-2 border-t border-[#083f30]/10 pt-2">
+                    <OfficeDetailsView office={d.office} />
+                  </div>
+                ) : null}
+              </div>
+            ))}
+          </div>
+        </Section>
+
+        <Section
+          title={
+            needsAddress ? t("shippingAddress") : t("fulfilment.contactForPickup")
+          }
+        >
+          {needsAddress && isAuthenticated ? (
             <a
               href="/n/app/mobile/shop/addresses"
               className="mb-2 inline-block text-xs font-semibold text-[#083f30]"
@@ -431,7 +518,7 @@ export function CheckoutClient({
               {t("savedAddresses")} ›
             </a>
           ) : null}
-          {savedAddresses.length ? (
+          {needsAddress && savedAddresses.length ? (
             <div className="mb-3 space-y-1.5">
               <p className="text-xs font-semibold text-neutral-500">
                 {t("selectAddress")}
@@ -499,22 +586,10 @@ export function CheckoutClient({
           <div
             className={cn(
               "grid grid-cols-2 gap-2",
-              usingNewAddr ? "" : "hidden"
+              visibleAddressKeys.length ? "" : "hidden"
             )}
           >
-            {(
-              [
-                "fullName",
-                "phoneNumber",
-                "company",
-                "country",
-                "city",
-                "stateRegion",
-                "addressLine1",
-                "addressLine2",
-                "postalCode",
-              ] as const
-            ).map((key) => {
+            {visibleAddressKeys.map((key) => {
               const issue = issues.find((i) => i.target === key);
               return (
                 <CheckoutInput
@@ -522,12 +597,12 @@ export function CheckoutClient({
                   id={`checkout-${key}`}
                   label={fieldLabels[key]}
                   placeholder={fieldLabels[key]}
-                  required={[
-                    "fullName",
-                    "country",
-                    "city",
-                    "addressLine1",
-                  ].includes(key)}
+                  required={
+                    key === "fullName" ||
+                    (key === "phoneNumber" && needsPhone) ||
+                    (needsAddress &&
+                      ["country", "city", "addressLine1"].includes(key))
+                  }
                   className={
                     [
                       "fullName",
@@ -558,7 +633,12 @@ export function CheckoutClient({
               );
             })}
           </div>
-          {usingNewAddr && isAuthenticated ? (
+          {needsPhone ? (
+            <p className="mt-2 text-xs text-neutral-500">
+              {t("fulfilment.pickupPhoneHint")}
+            </p>
+          ) : null}
+          {needsAddress && usingNewAddr && isAuthenticated ? (
             <label className="mt-2 flex items-center gap-2 text-xs text-neutral-600">
               <input
                 type="checkbox"
@@ -568,46 +648,6 @@ export function CheckoutClient({
               {t("saveThisAddress")}
             </label>
           ) : null}
-        </Section>
-
-        <Section id="checkout-deliveryMethod" title={t("deliveryMethod")}>
-          <div className="space-y-2">
-            {quote.deliveryOptions.map((d) => (
-              <label
-                key={d.id}
-                className={cn(
-                  "flex items-center justify-between rounded-xl border px-3 py-2.5",
-                  deliveryId === d.id
-                    ? "border-[#083f30] bg-[#083f30]/5"
-                    : "border-neutral-200"
-                )}
-              >
-                <span className="flex items-center gap-2 text-sm">
-                  <input
-                    type="radio"
-                    name="delivery"
-                    checked={deliveryId === d.id}
-                    onChange={() => reQuote(d.id)}
-                  />
-                  <span>
-                    <span className="font-medium text-neutral-800">
-                      {d.name}
-                    </span>
-                    {d.etaMinDays ? (
-                      <span className="ms-1 text-xs text-neutral-500">
-                        · {d.etaMinDays}-{d.etaMaxDays}d
-                      </span>
-                    ) : null}
-                  </span>
-                </span>
-                <span className="text-sm font-semibold">
-                  {d.fee === 0
-                    ? t("freeShipping")
-                    : formatShopMoney(d.fee, cur, locale)}
-                </span>
-              </label>
-            ))}
-          </div>
         </Section>
 
         <Section id="checkout-paymentMethod" title={t("paymentMethod")}>

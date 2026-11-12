@@ -34,7 +34,18 @@ type MethodRow = {
   estimated_days_min: number | null;
   estimated_days_max: number | null;
   rules: unknown;
+  /** The office pickup method: also edits the Lsevin office shown to customers. */
+  supports_pickup?: boolean;
+  office?: { addressFa: string; addressEn: string; phone: string; hoursFa: string; hoursEn: string };
 };
+
+const OFFICE_FIELDS = [
+  ["officeAddressFa", "addressFa", "rtl"],
+  ["officeAddressEn", "addressEn", "ltr"],
+  ["officePhone", "phone", "ltr"],
+  ["officeHoursFa", "hoursFa", "rtl"],
+  ["officeHoursEn", "hoursEn", "ltr"],
+] as const;
 
 export function DeliveryMethodForm({ method }: { method: MethodRow }) {
   const t = useTranslations("ShopAdmin.delivery");
@@ -51,6 +62,11 @@ export function DeliveryMethodForm({ method }: { method: MethodRow }) {
       estimatedDaysMax: method.estimated_days_max == null ? "" : String(method.estimated_days_max),
       isActive: method.is_active,
       rules: JSON.stringify(method.rules ?? {}, null, 2),
+      officeAddressFa: method.office?.addressFa ?? "",
+      officeAddressEn: method.office?.addressEn ?? "",
+      officePhone: method.office?.phone ?? "",
+      officeHoursFa: method.office?.hoursFa ?? "",
+      officeHoursEn: method.office?.hoursEn ?? "",
     },
   });
 
@@ -64,6 +80,15 @@ export function DeliveryMethodForm({ method }: { method: MethodRow }) {
           estimatedDaysMin: values.estimatedDaysMin === "" ? null : Number(values.estimatedDaysMin),
           estimatedDaysMax: values.estimatedDaysMax === "" ? null : Number(values.estimatedDaysMax),
           rules: JSON.parse(values.rules || "{}"),
+          office: method.supports_pickup
+            ? {
+                addressFa: String(values.officeAddressFa ?? ""),
+                addressEn: String(values.officeAddressEn ?? ""),
+                phone: String(values.officePhone ?? ""),
+                hoursFa: String(values.officeHoursFa ?? ""),
+                hoursEn: String(values.officeHoursEn ?? ""),
+              }
+            : null,
         });
         toast.success(tc("common.saved"));
         router.refresh();
@@ -112,6 +137,23 @@ export function DeliveryMethodForm({ method }: { method: MethodRow }) {
                 </FormItem>
               )} />
             </div>
+
+            {method.supports_pickup ? (
+              <fieldset className="space-y-3 rounded-xl border p-3" data-testid="office-fields">
+                <legend className="px-1 text-sm font-semibold">{tc("deliveryOffice.title")}</legend>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {OFFICE_FIELDS.map(([name, label, dir]) => (
+                    <FormField key={name} control={form.control} name={name} render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{tc(`deliveryOffice.${label}`)}</FormLabel>
+                        <FormControl><Input {...field} value={(field.value as string) ?? ""} dir={dir} disabled={isPending} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                  ))}
+                </div>
+              </fieldset>
+            ) : null}
 
             <FormField control={form.control} name="rules" render={({ field }) => (
               <FormItem>

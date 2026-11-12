@@ -14479,7 +14479,10 @@
       "shipsToday": "الشحن اليوم",
       "outOfStock": "غير متوفر",
       "add": "إضافة",
-      "others": "{count} بائعين آخرين"
+      "others": "{count} بائعين آخرين",
+      "soldBySentByLsevin": "البائع: {name} · الشحن من لسوين",
+      "sentByLsevin": "الشحن من لسوين",
+      "deliveredIn": "{days, plural, =0 {التوصيل اليوم} other {التوصيل خلال # يوم عمل}}"
     },
     "sellerPage": {
       "products": "{count} منتج",
@@ -14488,6 +14491,33 @@
       "eyebrow": "بوتيك",
       "productsLabel": "المنتجات",
       "warrantyTitle": "ضمان البائع"
+    },
+    "fulfilment": {
+      "title": "طريقة استلام طلبك",
+      "overallDelivery": "{days, plural, =0 {يصلك طلبك كاملاً اليوم} other {يصلك طلبك كاملاً خلال # يوم}}",
+      "overallPickup": "{days, plural, =0 {طلبك كاملاً جاهز في مكتب لسوين اليوم} other {طلبك كاملاً جاهز في مكتب لسوين خلال # يوم}}",
+      "promisedDelivery": "وصول الطلب كاملاً بحلول {date}",
+      "promisedPickup": "الطلب كاملاً جاهز في مكتب لسوين بحلول {date}",
+      "sentByLsevinHint": "جميع المنتجات، من كل البائعين، تُرسل من لسوين في شحنة واحدة.",
+      "noShippingFee": "بدون رسوم شحن",
+      "deliveryTo": "التوصيل إلى عنوانك",
+      "officePickup": "الاستلام من مكتب لسوين",
+      "officeNotSet": "يُرسل عنوان المكتب مع رمز الاستلام.",
+      "openingHours": "ساعات العمل",
+      "call": "اتصل بالمكتب",
+      "contactForPickup": "اسمك ورقم جوالك",
+      "pickupPhoneHint": "يُرسل رمز الاستلام إلى هذا الرقم."
+    },
+    "pickup": {
+      "status": {
+        "preparing": "قيد التجهيز",
+        "ready": "جاهز للاستلام في مكتب لسوين",
+        "picked_up": "تم الاستلام",
+        "cancelled": "ملغى"
+      },
+      "code": "رمز الاستلام",
+      "codeHint": "أخبر مكتب لسوين بهذا الرمز عند استلام طلبك.",
+      "pickedUpOn": "تم الاستلام في {date}"
     }
   },
   "ShopAdmin": {

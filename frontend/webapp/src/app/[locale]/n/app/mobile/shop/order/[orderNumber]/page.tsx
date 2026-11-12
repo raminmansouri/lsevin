@@ -44,7 +44,11 @@ export default async function OrderConfirmationPage({
         locale={locale}
         confirmation
         email={email ?? null}
-        canCancel={CANCELLABLE.includes(order.status)}
+        // Once the order waits at the Lsevin office it can no longer be cancelled, as on the server.
+        canCancel={
+          CANCELLABLE.includes(order.status) &&
+          !(order.officePickup && ["ready", "picked_up"].includes(order.officePickup.status))
+        }
         returnable={returnable ? { eligible: returnable.eligible, items: returnable.items } : null}
         invoices={invoices}
         canRequestProforma={billing && !hasProforma}

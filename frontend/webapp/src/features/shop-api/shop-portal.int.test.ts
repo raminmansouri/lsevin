@@ -16,7 +16,7 @@ import {
  * the route handlers: the signed portal assertion and the DB membership/role checks, shop
  * activation and admin decisions, allowed categories, listing review, blocking, and that only
  * approved offers of active shops reach the storefront price summary.
- * Opt-in: needs ACCOUNTING_TEST_DATABASE_URL pointing at a LOCAL database with migration 0096.
+ * Opt-in: needs ACCOUNTING_TEST_DATABASE_URL pointing at a LOCAL database with migrations 0096-0099.
  * Fixtures use fresh ids and are removed afterwards.
  */
 
@@ -933,7 +933,11 @@ d("shop api: provider portal (real database)", () => {
   });
 
   const orderIds: string[] = [];
-  async function makeOrder(status: string, paid: boolean, lines: Array<{ sellerId: string | null; qty: number; price: number }>) {
+  async function makeOrder(
+    status: string,
+    paid: boolean,
+    lines: Array<{ sellerId: string | null; qty: number; price: number; handlingDays?: number }>,
+  ) {
     const [order] = await sql!<{ id: string }[]>`
       insert into shop.orders (order_number, email, currency, status, payment_status, grand_total, paid_at)
       values (${`${tag}-${orderIds.length}`}, 'buyer@example.test', 'IRR', ${status}, ${paid ? "captured" : "pending"},
@@ -947,18 +951,18 @@ d("shop api: provider portal (real database)", () => {
     `;
     for (const line of lines) {
       await sql!`
-        insert into shop.order_items (order_id, product_id, quantity, currency, unit_price_snapshot, line_total_snapshot, product_name_snapshot, seller_id)
+        insert into shop.order_items (order_id, product_id, quantity, currency, unit_price_snapshot, line_total_snapshot, product_name_snapshot, seller_id, handling_days_snapshot)
         values (${order.id}::uuid, ${ids.prodChild}::uuid, ${line.qty}, 'IRR', ${line.price}, ${line.qty * line.price},
-          ${sql!.json({ fa: `سرم ${tag}` })}, ${line.sellerId}::uuid)
+          ${sql!.json({ fa: `سرم ${tag}` })}, ${line.sellerId}::uuid, ${line.handlingDays ?? null})
       `;
     }
     return order.id;
   }
 
-  it("clinic orders: only paid orders with the clinic's lines; new -> ready -> picked up; viewer reads only", async () => {
+  it("clinic orders: only paid orders with the clinic's lines; new -> ready -> handed to Lsevin; no customer details", async () => {
     const [defaultSeller] = await sql!<{ id: string | null }[]>`select shop.default_seller_id()::text as id`;
     const paid = await makeOrder("paid", true, [
-      { sellerId: sellerId, qty: 2, price: 250000 },
+      { sellerId: sellerId, qty: 2, price: 250000, handlingDays: 3 },
       { sellerId: defaultSeller.id, qty: 1, price: 999 },
     ]);
     const unpaid = await makeOrder("awaiting_payment", false, [{ sellerId: sellerId, qty: 1, price: 250000 }]);
@@ -971,9 +975,15 @@ d("shop api: provider portal (real database)", () => {
     expect(listed).not.toContain(unpaid);
     expect(listed).not.toContain(cancelled);
     const row = list.body.data.orders.find((o: { id: string }) => o.id === paid);
-    // Only this clinic's line and total, with the buyer's name and phone.
-    expect(row).toMatchObject({ pickupStatus: "new", quantity: 2, total: 500000, buyer: { name: "مریم احمدی", phone: "+989121234567" } });
+    // Only this clinic's line and total, and its deadline (paid date + 3 handling days).
+    expect(row).toMatchObject({ pickupStatus: "new", quantity: 2, total: 500000, receivedAt: null, overdue: false });
     expect(row.items).toHaveLength(1);
+    const paidAt = new Date(row.paidAt).getTime();
+    expect(new Date(row.dueAt).getTime() - paidAt).toBe(3 * 24 * 60 * 60 * 1000);
+    // Lsevin sends the order: the clinic never gets the customer's name, phone or email.
+    expect(row.buyer).toBeUndefined();
+    expect(JSON.stringify(list.body)).not.toContain("9121234567");
+    expect(JSON.stringify(list.body)).not.toContain("buyer@example.test");
     expect(list.body.data.counts).toMatchObject({ new: 1, cancelled: 1 });
     expect((await call(r.ordersSummary.GET, { as: owner() })).body.data).toMatchObject({ new: 1 });
 
@@ -981,6 +991,7 @@ d("shop api: provider portal (real database)", () => {
       call(r.orderStatus.POST, { as, method: "POST", body: { status }, params: { orderId } });
     expect((await move(paid, "ready_for_pickup", viewer())).status).toBe(403);
     expect((await move(paid, "new")).status).toBe(422);
+    expect((await call(r.orderStatus.POST, { as: owner(), method: "POST", body: { status: "picked_up", pickupCode: "123456" }, params: { orderId: paid } })).status).toBe(422);
     expect((await move(unpaid, "ready_for_pickup")).status).toBe(409);
     expect((await move(cancelled, "picked_up")).status).toBe(409);
     expect((await move(randomUUID(), "picked_up")).status).toBe(404);
@@ -990,13 +1001,22 @@ d("shop api: provider portal (real database)", () => {
     expect(lines.fs).toEqual(["pending", "packed"]);
     expect((await move(paid, "picked_up")).status).toBe(200);
     const picked = await call(r.orders.GET, { as: owner(), path: "/orders?status=picked_up" });
-    expect(picked.body.data.orders.find((o: { id: string }) => o.id === paid)).toMatchObject({ pickupStatus: "picked_up" });
-    // The default seller's line is not delivered yet, so the whole order is not either.
-    const [order] = await sql!`select fulfillment_status::text as fs from shop.orders where id = ${paid}::uuid`;
-    expect(order.fs).not.toBe("delivered");
+    expect(picked.body.data.orders.find((o: { id: string }) => o.id === paid)).toMatchObject({ pickupStatus: "picked_up", receivedAt: null });
+    // Handing to Lsevin is not delivering to the customer: nothing is delivered or completed.
+    const [order] = await sql!`select fulfillment_status::text as fs, status::text as status from shop.orders where id = ${paid}::uuid`;
+    expect(order).toEqual({ fs: "pending", status: "paid" });
+    const [handed] = await sql!`select array_agg(fulfillment_status::text order by quantity) as fs from shop.order_items where order_id = ${paid}::uuid`;
+    expect(handed.fs).toEqual(["pending", "packed"]);
     expect((await call(r.ordersSummary.GET, { as: owner() })).body.data).toMatchObject({ new: 0 });
     const audit = await sql!`select action from shop.api_audit_log where entity_id = ${paid}::uuid order by id`;
     expect(audit.map((a) => a.action)).toEqual(["order.ready_for_pickup", "order.picked_up"]);
+  });
+
+  it("a clinic may report handed over straight from new", async () => {
+    const order = await makeOrder("paid", true, [{ sellerId: sellerId, qty: 1, price: 250000 }]);
+    const res = await call(r.orderStatus.POST, { as: owner(), method: "POST", body: { status: "picked_up" }, params: { orderId: order } });
+    expect(res.status).toBe(200);
+    expect(res.body.data).toEqual({ orderId: order, pickupStatus: "picked_up" });
   });
 
   it("decisions tell the portal which clinic to notify", async () => {

@@ -217,6 +217,7 @@ export type UpdateOfferInput = z.infer<typeof updateOfferSchema>;
 
 /** Clinic orders: the list tab, and the pickup step the clinic moves its part of an order to. */
 export const portalOrderListStatusSchema = z.enum(["new", "ready_for_pickup", "picked_up", "cancelled", "all"]).catch("new");
+/** The clinic's handover to Lsevin: ready to hand over, or handed over. */
 export const portalOrderStatusUpdateSchema = z
   .object({ status: z.enum(["ready_for_pickup", "picked_up"]) })
   .strict();

@@ -93,6 +93,8 @@ export interface ProductOfferView {
   inStock: boolean;
   handlingDays: number | null;
   warranty: string;
+  /** Sold by a partner seller (e.g. a clinic) who hands the item to Lsevin; Lsevin sends it. */
+  partnerSeller?: boolean;
 }
 
 export interface ProductDetail extends ProductCard {
@@ -116,12 +118,19 @@ export interface ProductDetail extends ProductCard {
   relatedProducts: ProductCard[];
   /** Live offers, every seller and variant; the page picks the winner per selected variant. */
   offers: ProductOfferView[];
+  /** Lsevin's fastest delivery to an address, in days (null = not configured). */
+  lsevinDeliveryDays?: number | null;
 }
 
 export interface CartItem {
   id: UUID; productId: UUID; variantId: UUID | null; slug: string; name: string; variantTitle: string | null; imageUrl: string | null;
   /** The seller this line buys from (null for lines added before the marketplace). */
   sellerName?: string | null;
+  /** Who sells it. A partner seller (e.g. a clinic) hands the item to Lsevin, which sends it. */
+  sellerId?: string | null;
+  partnerSeller?: boolean;
+  /** The offer's handling time (days until it is at Lsevin); null = not set. */
+  handlingDays?: number | null;
   attributes: Record<string, string>; quantity: number;
   /** resolved display unit price + line total in `currency` */
   unitPrice: number; lineTotal: number; compareAtPrice: number | null; currency: string;
@@ -149,12 +158,30 @@ export interface OrderSummary {
   reviewStatus: "not_required" | "pending" | "accepted" | "rejected";
   placedAt: string; grandTotal: number; currency: string; itemCount: number;
 }
+export type OfficePickupStatus = "preparing" | "ready" | "picked_up" | "cancelled";
+/** An order collected at the Lsevin office. */
+export interface OrderOfficePickup {
+  status: OfficePickupStatus;
+  readyAt: string | null;
+  pickedUpAt: string | null;
+  /** Only while ready: the code the customer tells the office. */
+  pickupCode: string | null;
+  office: { address: string | null; phone: string | null; hours: string | null } | null;
+}
 export interface OrderDetail extends OrderSummary {
   email: string;
   subtotal: number; discountTotal: number; shippingTotal: number; taxTotal: number;
   paymentCurrency: string | null; paymentTotal: number | null;
   couponCode: string | null;
-  items: Array<{ id: UUID; productId: UUID | null; slug: string | null; name: string; variantName: string | null; imageUrl: string | null; quantity: number; unitPrice: number; lineTotal: number; attributes: Record<string, string>; fulfillmentStatus: ShipmentStatus; }>;
+  items: Array<{ id: UUID; productId: UUID | null; slug: string | null; name: string; variantName: string | null; imageUrl: string | null; quantity: number; unitPrice: number; lineTotal: number; attributes: Record<string, string>; fulfillmentStatus: ShipmentStatus;
+    /** Who sold the line (Lsevin sends every line). */
+    sellerId?: UUID | null; sellerName?: string | null; }>;
+  /** The overall estimate shown at checkout and kept on the order (null for older orders). */
+  promisedDays?: number | null; promisedReadyAt?: string | null;
+  /** Delivery to the address (default, and every older order) or pickup at the Lsevin office. */
+  fulfillmentMode?: "delivery" | "office_pickup";
+  /** Set for office pickup orders. */
+  officePickup?: OrderOfficePickup | null;
   shippingAddress: Record<string, string | null>;
   billingAddress: Record<string, string | null>;
   payments: Array<{ id: UUID; provider: string | null; amount: number; currency: string; status: string; createdAt: string }>;

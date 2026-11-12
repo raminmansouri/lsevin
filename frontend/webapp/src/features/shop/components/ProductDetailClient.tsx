@@ -48,8 +48,19 @@ export function ProductDetailClient({
     [product.offers, variantId]
   );
   const bestOffer = itemOffers[0] ?? null;
-  const shipping = (days: number | null) =>
-    days == null ? null : days === 0 ? t("sellerOffers.shipsToday") : t("sellerOffers.shipsIn", { days });
+  // Every offer reaches the customer through Lsevin: the seller's handling days (time to reach
+  // Lsevin) + Lsevin's delivery. Without a configured delivery time, the handling days alone.
+  const deliveryDays = product.lsevinDeliveryDays ?? null;
+  const shipping = (days: number | null) => {
+    if (days == null) return null;
+    if (deliveryDays != null) return t("sellerOffers.deliveredIn", { days: days + deliveryDays });
+    return days === 0 ? t("sellerOffers.shipsToday") : t("sellerOffers.shipsIn", { days });
+  };
+  // A partner seller (e.g. a clinic) sells it; Lsevin sends it.
+  const soldBy = (o: { sellerName: string; partnerSeller?: boolean }) =>
+    o.partnerSeller
+      ? t("sellerOffers.soldBySentByLsevin", { name: o.sellerName })
+      : t("sellerOffers.soldBy", { name: o.sellerName });
   const price = bestOffer ? bestOffer.price : selected ? selected.price : product.price;
   const compareAt = bestOffer ? bestOffer.compareAtPrice : selected ? selected.compareAtPrice : product.compareAtPrice;
   const currency = bestOffer ? bestOffer.currency : selected ? selected.currency : product.currency;
@@ -123,7 +134,7 @@ export function ProductDetailClient({
             className="flex items-center gap-1.5 font-semibold text-neutral-900 hover:text-[#083f30] hover:underline"
           >
             <Store size={14} className="text-[#083f30]" />
-            {t("sellerOffers.soldBy", { name: bestOffer.sellerName })}
+            <span data-testid="buybox-sold-by">{soldBy(bestOffer)}</span>
           </Link>
           {itemOffers.length > 1 ? (
             <a href="#product-sellers" className="ms-auto font-semibold text-[#083f30]">
@@ -218,7 +229,13 @@ export function ProductDetailClient({
                     ) : null}
                   </span>
                   <span className="mt-0.5 block truncate text-xs text-neutral-500">
-                    {[o.warranty, shipping(o.handlingDays)].filter(Boolean).join(" · ")}
+                    {[
+                      o.warranty,
+                      o.partnerSeller ? t("sellerOffers.sentByLsevin") : null,
+                      shipping(o.handlingDays),
+                    ]
+                      .filter(Boolean)
+                      .join(" · ")}
                   </span>
                 </span>
                 <span className="shrink-0 text-end">

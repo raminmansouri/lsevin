@@ -749,6 +749,8 @@ export async function updateDeliveryMethod(input: {
   estimatedDaysMin?: number | null;
   estimatedDaysMax?: number | null;
   rules: unknown;
+  /** The Lsevin office (office pickup method only); omitted = unchanged. */
+  office?: { addressFa: string; addressEn: string; phone: string; hoursFa: string; hoursEn: string } | null;
 }): Promise<void> {
   await assertShopPermission(SHOP_PERMISSIONS.ordersManage);
   const fee = Number(input.baseFee);
@@ -770,6 +772,22 @@ export async function updateDeliveryMethod(input: {
       last_modified_date = now()
     where id = ${input.id}::uuid
   `;
+  if (input.office) {
+    const tr = (fa: string, en: string) => {
+      const out: Record<string, string> = {};
+      if (fa.trim()) Object.assign(out, { fa: fa.trim(), "fa-IR": fa.trim() });
+      if (en.trim()) Object.assign(out, { en: en.trim(), "en-US": en.trim() });
+      return out;
+    };
+    await sql`
+      update shop.delivery_methods set
+        pickup_address_translations = ${j(tr(input.office.addressFa, input.office.addressEn))},
+        pickup_phone = ${input.office.phone.trim() || null},
+        pickup_hours_translations = ${j(tr(input.office.hoursFa, input.office.hoursEn))},
+        last_modified_date = now()
+      where id = ${input.id}::uuid and supports_pickup
+    `;
+  }
 }
 
 export async function addHomeSectionItem(input: {
