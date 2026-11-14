@@ -72,6 +72,11 @@ declare const messages: {
         "برنامهٔ سفر درمانی‌تون رو با هم بچینیم؟",
         "سؤالی دربارهٔ ویزا یا اقامت دارید؟"
       ]
+    },
+    "booking": {
+      "title": "رزرو شما آماده است",
+      "note": "رزرو هنوز نهایی نشده است؛ با دکمهٔ زیر اطلاعات را تأیید و پرداخت کنید.",
+      "button": "تکمیل رزرو"
     }
   },
   "ShopMedia": {
@@ -4593,7 +4598,8 @@ declare const messages: {
       "netProfit": "سود خالص",
       "netLoss": "زیان خالص",
       "subtotal": "جمع",
-      "ledgerTitle": "دفتر کل / معین / تفصیلی",
+      "ledgerTitle": "مرور حساب",
+      "runningBalance": "مانده در خط",
       "ledgerDescription": "یک گزارش در سه عمق. با انتخاب حساب، سطح آن مشخص می‌شود: گروه، معین، یا تفصیلی.",
       "filterByAccount": "فیلتر بر اساس حساب",
       "allAccounts": "همهٔ حساب‌ها",
@@ -4623,7 +4629,8 @@ declare const messages: {
       "entriesTitle": "ثبت سند و دفتر روزنامه",
       "analyticsTitle": "گزارش‌های تحلیلی",
       "dimensionsTitle": "مراکز هزینه و ابعاد",
-      "templatesTitle": "الگوها و اسناد دوره‌ای"
+      "templatesTitle": "الگوها و اسناد دوره‌ای",
+      "runningBalance": "مانده در خط"
     },
     "consultationRequests": "درخواست‌های مشاوره رایگان",
     "home": {
@@ -17090,7 +17097,8 @@ declare const messages: {
       "warrantyFa": "گارانتی (فارسی)",
       "warrantyEn": "گارانتی (انگلیسی)",
       "addNote": "موجودی خالی یعنی موجودی از انبار فعلی فروشگاه خوانده می‌شود. هر فروشنده برای هر کالا فقط یک پیشنهاد دارد.",
-      "priceHistory": "تاریخچهٔ قیمت ({count})"
+      "priceHistory": "تاریخچهٔ قیمت ({count})",
+      "warrantyAr": "گارانتی (عربی)"
     },
     "similar": {
       "title": "این کالا شاید از قبل وجود دارد",

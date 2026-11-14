@@ -72,6 +72,11 @@ declare const messages: {
         "هل نخطط لرحلتك العلاجية معًا؟",
         "لديك سؤال عن التأشيرة أو الإقامة؟"
       ]
+    },
+    "booking": {
+      "title": "حجزك جاهز",
+      "note": "لم يتم تأكيد الحجز بعد؛ راجع التفاصيل وادفع عبر الزر أدناه.",
+      "button": "إكمال الحجز"
     }
   },
   "ShopMedia": {
@@ -4824,7 +4829,7 @@ declare const messages: {
       "netProfit": "Net profit",
       "netLoss": "Net loss",
       "subtotal": "Subtotal",
-      "ledgerTitle": "General / subsidiary / detail ledger",
+      "ledgerTitle": "مراجعة الحسابات",
       "ledgerDescription": "One report at three depths. Choosing an account selects the level: group, subsidiary or detail.",
       "filterByAccount": "Filter by account",
       "allAccounts": "All accounts",
@@ -4853,7 +4858,8 @@ declare const messages: {
       "entriesTitle": "القيود ودفتر اليومية",
       "analyticsTitle": "التقارير التحليلية",
       "dimensionsTitle": "مراكز التكلفة والأبعاد",
-      "templatesTitle": "القوالب والقيود الدورية"
+      "templatesTitle": "القوالب والقيود الدورية",
+      "runningBalance": "الرصيد الجاري"
     },
     "commercial": "المالية",
     "notifications": "الإشعارات",
@@ -15149,7 +15155,8 @@ declare const messages: {
       "warrantyFa": "Warranty (Persian)",
       "warrantyEn": "Warranty (English)",
       "addNote": "Empty stock means stock is read from the shop's current inventory. A seller can have one offer per item.",
-      "priceHistory": "Price history ({count})"
+      "priceHistory": "Price history ({count})",
+      "warrantyAr": "الضمان (عربي)"
     },
     "similar": {
       "title": "This product may already exist",

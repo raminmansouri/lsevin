@@ -69,6 +69,11 @@
         "Shall we plan your medical trip together?",
         "Questions about your visa or stay?"
       ]
+    },
+    "booking": {
+      "title": "Your booking is ready",
+      "note": "It isn't confirmed yet; review the details and pay with the button below.",
+      "button": "Complete booking"
     }
   },
   "BookingCart": {
@@ -145,7 +150,7 @@
       "journalDescription": "Каждая проводка неизменяема. Исправления вносятся сторнирующей проводкой.",
       "journalTitle": "Журнал проводок",
       "ledgerDescription": "Один отчёт с тремя уровнями детализации. Выбор счёта задаёт уровень: группа, аналитический или детальный.",
-      "ledgerTitle": "Главная книга / аналитический / детальный учёт",
+      "ledgerTitle": "Account review",
       "lineCount": "Строки",
       "markFailed": "Отметить как сбой и вернуть средства",
       "markPaid": "Отметить как выплаченное",
@@ -243,7 +248,8 @@
       "entriesTitle": "Журнальные записи",
       "analyticsTitle": "Аналитические отчёты",
       "dimensionsTitle": "Центры затрат",
-      "templatesTitle": "Шаблоны и повторяющиеся"
+      "templatesTitle": "Шаблоны и повторяющиеся",
+      "runningBalance": "Running balance"
     },
     "availability": "доступность",
     "bookingdrafts": "черновики бронирований",

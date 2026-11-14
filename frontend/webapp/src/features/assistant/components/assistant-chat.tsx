@@ -11,6 +11,8 @@ import type { AssistantServiceResult, JourneyPlan } from "../types";
 import { AssistantServiceCard } from "./assistant-service-card";
 
 import { AssistantJourneyCard } from "./assistant-journey-card";
+import { AssistantBookingCard, type BookingResult } from "./assistant-booking-card";
+import { AssistantRichText } from "./assistant-rich-text";
 
 /** Tools whose results are shown as cards. */
 const CARD_TOOLS = ["search_services", "search_hotels", "search_products", "get_transfer_options"];
@@ -191,7 +193,7 @@ export function AssistantChat({
                         : "max-w-[90%] whitespace-pre-wrap rounded-2xl rounded-bl-sm bg-white px-3.5 py-2 text-sm text-gray-800 shadow-sm"
                     }
                   >
-                    {part.text}
+                    {message.role === "user" ? part.text : <AssistantRichText text={part.text} />}
                   </div>
                 );
               }
@@ -203,6 +205,14 @@ export function AssistantChat({
                   : part.type.startsWith("tool-")
                     ? part.type.slice("tool-".length)
                     : "";
+              if (toolName.endsWith("start_booking")) {
+                const toolPart = part as { state?: string; output?: unknown };
+                if (toolPart.state !== "output-available") return null;
+                const data = parseToolJson(toolPart.output) as BookingResult | null;
+                if (!data?.ok || !data.bookingUrl) return null;
+                return <AssistantBookingCard key={index} booking={data} />;
+              }
+
               if (toolName.endsWith("build_journey_plan")) {
                 const toolPart = part as { state?: string; output?: unknown };
                 if (toolPart.state !== "output-available") return null;

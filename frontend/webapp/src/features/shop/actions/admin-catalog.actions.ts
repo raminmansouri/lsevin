@@ -589,6 +589,7 @@ const offerFormSchema = z.object({
   handlingDays: z.coerce.number().int().min(0).max(90).optional(),
   warrantyFa: z.string().max(300).optional(),
   warrantyEn: z.string().max(300).optional(),
+  warrantyAr: z.string().max(300).optional(),
   isActive: z.boolean(),
 });
 const revalidateProduct = () => {
@@ -611,12 +612,13 @@ export async function upsertOfferForm(formData: FormData) {
     handlingDays: optional(formData, "handlingDays"),
     warrantyFa: optional(formData, "warrantyFa"),
     warrantyEn: optional(formData, "warrantyEn"),
+    warrantyAr: optional(formData, "warrantyAr"),
     isActive: formData.get("isActive") === "on",
   });
-  const hasWarranty = formData.has("warrantyFa") || formData.has("warrantyEn");
+  const hasWarranty = formData.has("warrantyFa") || formData.has("warrantyEn") || formData.has("warrantyAr");
   await upsertOffer({
     ...p,
-    warrantyTranslations: hasWarranty ? { fa: p.warrantyFa ?? "", en: p.warrantyEn ?? "" } : undefined,
+    warrantyTranslations: hasWarranty ? { fa: p.warrantyFa ?? "", en: p.warrantyEn ?? "", ar: p.warrantyAr ?? "" } : undefined,
   });
   revalidateProduct();
 }

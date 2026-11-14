@@ -422,7 +422,7 @@ declare const messages: {
       "journalDescription": "هەموو تۆمارێک نەگۆڕە. ڕاستکردنەوە بە تۆمارێکی پێچەوانە ئەنجام دەدرێت.",
       "journalTitle": "تۆمارەکانی دەفتەری ڕۆژانە",
       "ledgerDescription": "یەک ڕاپۆرت لە سێ ئاستدا. هەڵبژاردنی هەژمارێک ئاستەکە دیاری دەکات: پۆل، لاوەکی یان وردەکاری.",
-      "ledgerTitle": "دەفتەری گشتی / لاوەکی / وردەکاری",
+      "ledgerTitle": "Account review",
       "lineCount": "ڕیزەکان",
       "markFailed": "نیشانەکردن وەک شکستخواردوو و گەڕاندنەوەی پارە",
       "markPaid": "نیشانەکردن وەک دراو",
@@ -520,7 +520,8 @@ declare const messages: {
       "entriesTitle": "تۆمارەکانی ڕۆژنامە",
       "analyticsTitle": "ڕاپۆرتە شیکارییەکان",
       "dimensionsTitle": "ناوەندەکانی تێچوو",
-      "templatesTitle": "ڕووکارەکان و دووبارەبووەکان"
+      "templatesTitle": "ڕووکارەکان و دووبارەبووەکان",
+      "runningBalance": "Running balance"
     },
     "availability": "بەردەستبوون",
     "bookingdrafts": "ڕەشنووسی حجزەکان",

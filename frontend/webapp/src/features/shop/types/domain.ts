@@ -91,6 +91,7 @@ export interface ProductOfferView {
   currency: string;
   priceUnavailable: boolean;
   inStock: boolean;
+  stockQuantity?: number | null;
   handlingDays: number | null;
   warranty: string;
   /** Sold by a partner seller (e.g. a clinic) who hands the item to Lsevin; Lsevin sends it. */

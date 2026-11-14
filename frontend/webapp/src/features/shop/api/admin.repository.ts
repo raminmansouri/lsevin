@@ -53,7 +53,15 @@ export async function listAdminProducts(q?: string) {
       p.slug, p.status, p.base_price::float as base_price, p.base_currency as currency,
       p.is_featured, p.is_best_seller, p.is_new_arrival,
       p.published_at::text as published_at,
-      coalesce((select sum(greatest(i.on_hand - i.reserved, 0))::int from shop.inventory i where i.product_id = p.id), 0) as available
+      (
+        coalesce((select sum(greatest(i.on_hand - i.reserved, 0))::int from shop.inventory i where i.product_id = p.id), 0)
+        + coalesce((
+            select sum(o.stock_quantity)::int
+            from shop.offers o join shop.sellers s on s.id = o.seller_id
+            where o.product_id = p.id and o.deleted_at is null and o.is_active and o.stock_quantity is not null
+              and s.is_active and s.deleted_at is null
+          ), 0)
+      ) as available
     from shop.products p
     where p.deleted_at is null
       and (${like}::text is null or common.get_translation_t(p.name_translations, 'en', 'en') ilike ${like} or p.slug ilike ${like})
@@ -225,7 +233,15 @@ export async function getAdminProductForEdit(productId: string, locale?: string)
       select v.id::text as id, v.sku, v.option_key, v.price::float as price, v.compare_at_price::float as compare_at_price,
         v.currency, v.is_active, v.allow_backorder, v.title_translations,
         common.get_translation_t(v.title_translations, 'en', 'en') as title,
-        coalesce((select sum(greatest(i.on_hand - i.reserved, 0))::int from shop.inventory i where i.variant_id = v.id), 0) as available
+        (
+          coalesce((select sum(greatest(i.on_hand - i.reserved, 0))::int from shop.inventory i where i.variant_id = v.id), 0)
+          + coalesce((
+              select sum(o.stock_quantity)::int
+              from shop.offers o join shop.sellers s on s.id = o.seller_id
+              where o.variant_id = v.id and o.deleted_at is null and o.is_active and o.stock_quantity is not null
+                and s.is_active and s.deleted_at is null
+            ), 0)
+        ) as available
       from shop.product_variants v
       where v.product_id = ${productId}::uuid and v.deleted_at is null
       order by v.price asc

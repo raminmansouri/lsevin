@@ -422,7 +422,7 @@ declare const messages: {
       "journalDescription": "Todo asiento es inalterable. Las correcciones se hacen con un asiento de reversión.",
       "journalTitle": "Asientos contables",
       "ledgerDescription": "Un informe con tres niveles de detalle. La cuenta elegida determina el nivel: grupo, auxiliar o detalle.",
-      "ledgerTitle": "Libro mayor / auxiliar / de detalle",
+      "ledgerTitle": "Account review",
       "lineCount": "Líneas",
       "markFailed": "Marcar como fallido y devolver los fondos",
       "markPaid": "Marcar como pagado",
@@ -520,7 +520,8 @@ declare const messages: {
       "entriesTitle": "Asientos contables",
       "analyticsTitle": "Informes analíticos",
       "dimensionsTitle": "Centros de coste",
-      "templatesTitle": "Plantillas y recurrentes"
+      "templatesTitle": "Plantillas y recurrentes",
+      "runningBalance": "Running balance"
     },
     "availability": "disponibilidad",
     "bookingdrafts": "borradores de reservas",
