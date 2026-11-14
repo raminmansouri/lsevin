@@ -10419,7 +10419,7 @@
       "journalDescription": "Ҳар сабт тағйирнопазир аст. Ислоҳ танҳо бо сабти баръакс анҷом дода мешавад.",
       "journalTitle": "Сабтҳои журналӣ",
       "ledgerDescription": "Як ҳисобот дар се сатҳ. Интихоби ҳисоб сатҳро муайян мекунад: гурӯҳ, муовин ё тафсилӣ.",
-      "ledgerTitle": "Дафтари кулл / муовин / тафсилӣ",
+      "ledgerTitle": "Account review",
       "lineCount": "Сатрҳо",
       "markFailed": "Ҳамчун нокомшуда қайд кардан ва маблағро баргардонидан",
       "markPaid": "Ҳамчун пардохтшуда қайд кардан",
@@ -10517,7 +10517,8 @@
       "entriesTitle": "Сабтҳои журнал",
       "analyticsTitle": "Ҳисоботҳои таҳлилӣ",
       "dimensionsTitle": "Марказҳои хароҷот",
-      "templatesTitle": "Қолабҳо ва такроршаванда"
+      "templatesTitle": "Қолабҳо ва такроршаванда",
+      "runningBalance": "Running balance"
     },
     "availability": "дастрасӣ",
     "bookingdrafts": "лоиҳаҳои брон",

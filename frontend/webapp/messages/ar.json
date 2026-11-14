@@ -69,6 +69,11 @@
         "هل نخطط لرحلتك العلاجية معًا؟",
         "لديك سؤال عن التأشيرة أو الإقامة؟"
       ]
+    },
+    "booking": {
+      "title": "حجزك جاهز",
+      "note": "لم يتم تأكيد الحجز بعد؛ راجع التفاصيل وادفع عبر الزر أدناه.",
+      "button": "إكمال الحجز"
     }
   },
   "ShopMedia": {
@@ -4821,7 +4826,7 @@
       "netProfit": "Net profit",
       "netLoss": "Net loss",
       "subtotal": "Subtotal",
-      "ledgerTitle": "General / subsidiary / detail ledger",
+      "ledgerTitle": "مراجعة الحسابات",
       "ledgerDescription": "One report at three depths. Choosing an account selects the level: group, subsidiary or detail.",
       "filterByAccount": "Filter by account",
       "allAccounts": "All accounts",
@@ -4850,7 +4855,8 @@
       "entriesTitle": "القيود ودفتر اليومية",
       "analyticsTitle": "التقارير التحليلية",
       "dimensionsTitle": "مراكز التكلفة والأبعاد",
-      "templatesTitle": "القوالب والقيود الدورية"
+      "templatesTitle": "القوالب والقيود الدورية",
+      "runningBalance": "الرصيد الجاري"
     },
     "commercial": "المالية",
     "notifications": "الإشعارات",

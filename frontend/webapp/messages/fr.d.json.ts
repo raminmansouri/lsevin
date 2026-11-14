@@ -422,7 +422,7 @@ declare const messages: {
       "journalDescription": "Chaque écriture est inaltérable. Les corrections se font par une écriture d'extourne.",
       "journalTitle": "Écritures de journal",
       "ledgerDescription": "Un seul état à trois niveaux de détail. Le choix du compte détermine le niveau : groupe, auxiliaire ou détail.",
-      "ledgerTitle": "Grand livre général / auxiliaire / de détail",
+      "ledgerTitle": "Account review",
       "lineCount": "Lignes",
       "markFailed": "Marquer comme échoué et restituer les fonds",
       "markPaid": "Marquer comme payé",
@@ -520,7 +520,8 @@ declare const messages: {
       "entriesTitle": "Écritures comptables",
       "analyticsTitle": "Rapports analytiques",
       "dimensionsTitle": "Centres de coûts",
-      "templatesTitle": "Modèles et récurrents"
+      "templatesTitle": "Modèles et récurrents",
+      "runningBalance": "Running balance"
     },
     "availability": "disponibilités",
     "bookingdrafts": "brouillons de réservation",

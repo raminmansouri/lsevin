@@ -364,33 +364,45 @@ export type LedgerLineRow = {
   creditAmount: string;
   partyType: string | null;
   memo: string | null;
+  baseCurrencyCode: string;
+  baseDebitAmount: string;
+  baseCreditAmount: string;
+  runningBalance: string;
 };
 
-/**
- * General / subsidiary / detail ledger. Filtering by an account code prefix is what
- * turns one query into all three: '2' is the group, '2001' the subsidiary, '2001001'
- * the detail account.
- */
+
+
 export async function getLedgerLines(input: {
   accountCodePrefix?: string;
   limit?: number;
 }): Promise<LedgerLineRow[]> {
   const prefix = (input.accountCodePrefix ?? "").trim();
+  const window = prefix
+    ? db`over (order by v.entry_date, v.entry_number, v.line_no rows between unbounded preceding and current row)`
+    : db`over (partition by v.account_code order by v.entry_date, v.entry_number, v.line_no rows between unbounded preceding and current row)`;
   return db<LedgerLineRow[]>`
-    select
-      v.entry_number::text as "entryNumber",
-      v.entry_date::text as "entryDate",
-      v.account_code as "accountCode",
-      v.account_name as "accountName",
-      v.entry_description as "description",
-      v.currency_code as "currencyCode",
-      v.debit_amount::text as "debitAmount",
-      v.credit_amount::text as "creditAmount",
-      v.party_type as "partyType",
-      v.memo
-    from accounting.v_ledger_entries v
-    where (${prefix} = '' or v.account_code like ${prefix + "%"})
-    order by v.entry_number desc, v.line_no
+    select * from (
+      select
+        v.entry_number::text as "entryNumber",
+        v.entry_date::text as "entryDate",
+        v.account_code as "accountCode",
+        v.account_name as "accountName",
+        v.entry_description as "description",
+        v.currency_code as "currencyCode",
+        v.debit_amount::text as "debitAmount",
+        v.credit_amount::text as "creditAmount",
+        v.base_currency_code as "baseCurrencyCode",
+        v.base_debit_amount::text as "baseDebitAmount",
+        v.base_credit_amount::text as "baseCreditAmount",
+        v.party_type as "partyType",
+        v.memo,
+        (sum(v.base_debit_amount - v.base_credit_amount) ${window})::text as "runningBalance",
+        v.entry_number as sort_entry,
+        v.line_no as sort_line
+      from accounting.v_ledger_entries v
+      where (${prefix} = '' or v.account_code like ${prefix + "%"})
+    ) lines
+    order by sort_entry desc, sort_line
     limit ${input.limit ?? 500}
   `;
 }

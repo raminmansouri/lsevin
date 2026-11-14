@@ -73,7 +73,7 @@
       "journalDescription": "所有凭证均不可修改。更正须通过冲销凭证完成。",
       "journalTitle": "记账凭证",
       "ledgerDescription": "同一份报表，三种粒度。所选科目决定层级：科目组、二级或明细。",
-      "ledgerTitle": "总账 / 二级账 / 明细账",
+      "ledgerTitle": "Account review",
       "lineCount": "分录行数",
       "markFailed": "标记失败并退回资金",
       "markPaid": "标记为已付款",
@@ -171,7 +171,8 @@
       "entriesTitle": "记账凭证",
       "analyticsTitle": "分析报表",
       "dimensionsTitle": "成本中心",
-      "templatesTitle": "模板与定期凭证"
+      "templatesTitle": "模板与定期凭证",
+      "runningBalance": "Running balance"
     },
     "availability": "可用时段",
     "bookingdrafts": "预约草稿",

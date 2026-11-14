@@ -72,6 +72,11 @@ declare const messages: {
         "Shall we plan your medical trip together?",
         "Questions about your visa or stay?"
       ]
+    },
+    "booking": {
+      "title": "Your booking is ready",
+      "note": "It isn't confirmed yet; review the details and pay with the button below.",
+      "button": "Complete booking"
     }
   },
   "ShopMedia": {
@@ -5484,7 +5489,7 @@ declare const messages: {
       "netProfit": "Net profit",
       "netLoss": "Net loss",
       "subtotal": "Subtotal",
-      "ledgerTitle": "General / subsidiary / detail ledger",
+      "ledgerTitle": "Account review",
       "ledgerDescription": "One report at three depths. Choosing an account selects the level: group, subsidiary or detail.",
       "filterByAccount": "Filter by account",
       "allAccounts": "All accounts",
@@ -5514,7 +5519,8 @@ declare const messages: {
       "entriesTitle": "Journal entries",
       "analyticsTitle": "Analytics",
       "dimensionsTitle": "Cost centres & dimensions",
-      "templatesTitle": "Templates & recurring"
+      "templatesTitle": "Templates & recurring",
+      "runningBalance": "Running balance"
     },
     "commercial": "Financials",
     "notifications": "Notifications",
