@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import sql from "@/config/database/db";
-import { priceItemsForViewer } from "@/features/finance/lib/server/viewer-pricing";
+import { priceItemsForBooking } from "@/features/finance/lib/server/booking-pricing-items";
 
 // The plans a room offers and their nightly prices, converted for this visitor with the same
 // conversion and markup as the room price. Room only is always first. Prices are per visitor,
@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
     if (!offered.length) return NextResponse.json({ plans: [] }, { headers });
 
     const items = [{ code: "room_only", price: room.value }, ...offered.map((r) => ({ code: r.code, price: r.price }))];
-    const priced = await priceItemsForViewer(
+    const priced = await priceItemsForBooking(
       items.map((item) => ({ amount: Number(item.price), sourceCurrencyCode: room.currency as string, providerId: room.providerId })),
     );
     const plans = items.flatMap((item, index) => {

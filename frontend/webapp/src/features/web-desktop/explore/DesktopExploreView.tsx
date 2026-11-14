@@ -8,6 +8,7 @@ import { useMemo, useState, useTransition } from "react";
 import { FavoriteButton } from "@/features/favorites/components/favorite-button";
 import { Link, useRouter } from "@/i18n/navigation";
 import { entityPath } from "@/lib/routes/public-paths";
+import { ViewerPrice } from "@/features/finance/components/viewer-price";
 import { slugLookup, type ListingSlugs } from "@/lib/routes/filter-paths";
 import {
   buildExploreQuery,
@@ -15,7 +16,6 @@ import {
   buildMobilePath,
   buildSearchQuery,
   ExplorePendingOverlay,
-  formatPrice,
   mediaUrl,
   navigateSmooth,
 } from "@/app/[locale]/n/app/mobile/explore/ExploreClient";
@@ -388,9 +388,19 @@ export function DesktopExploreView({
                       <div className="mt-auto flex items-end justify-between gap-3 pt-3">
                         <div>
                           {service.originalPrice && service.originalPrice > service.price ? (
-                            <span className="block text-xs text-[#8fa79d] line-through">{formatPrice(service.originalPrice, service.currency)}</span>
+                            <ViewerPrice
+                              amount={service.originalPrice}
+                              sourceCurrencyCode={service.currency}
+                              providerId={service.providerId}
+                              className="block text-xs font-normal text-[#8fa79d] line-through"
+                            />
                           ) : null}
-                          <span className="text-lg font-black text-[#083f30]">{formatPrice(service.price, service.currency)}</span>
+                          <ViewerPrice
+                            amount={service.price}
+                            sourceCurrencyCode={service.currency}
+                            providerId={service.providerId}
+                            className="text-lg font-black text-[#083f30]"
+                          />
                         </div>
                         <span className="flex items-center gap-1 text-sm">
                           <Star size={14} className="fill-[#c9a55a] text-[#c9a55a]" />

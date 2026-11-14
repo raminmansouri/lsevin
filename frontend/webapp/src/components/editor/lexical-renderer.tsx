@@ -115,6 +115,8 @@ function renderTextNode(node: TextNode, key: number): React.ReactNode {
   return text;
 }
 
+const BLOCK_NODE_TYPES = new Set(["paragraph", "heading", "list", "listitem", "quote", "code", "table"]);
+
 function renderNode(node: SerializedLexicalNode, key: number): React.ReactNode {
   if (!node) return null;
 
@@ -136,14 +138,19 @@ function renderNode(node: SerializedLexicalNode, key: number): React.ReactNode {
     if (paragraphNode.format === "right") className.push("text-right");
     if (paragraphNode.format === "justify") className.push("text-justify");
 
+    // Some saved content nests a paragraph (or a list, heading...) inside a
+    // paragraph. <p> cannot contain block elements: the browser closes it early
+    // and React's hydration fails for the whole page (the Turkish home page's
+    // package description, 2026-11-14). Such a paragraph renders as a <div>.
+    const Tag = paragraphNode.children?.some((child) => BLOCK_NODE_TYPES.has(child?.type)) ? "div" : "p";
     return (
-      <p
+      <Tag
         key={key}
         className={className.join(" ")}
         dir={paragraphNode.direction || undefined}
       >
         {children}
-      </p>
+      </Tag>
     );
   }
 

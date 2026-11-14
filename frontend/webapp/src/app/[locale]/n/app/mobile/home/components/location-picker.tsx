@@ -9,7 +9,8 @@ import { ImageWithFallback } from '@/components/ui/image-with-fallback';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 
-import { RHFCountryCitySelect } from '@/features/locations/components/rhf-country-city-select';
+import { PlaceSearch } from '@/features/locations/components/place-search';
+import type { PlaceSearchResult } from '@/features/locations/actions/location-search.actions';
 import { getPickedLocations, type HomePickedLocation } from '../actions/get-picked-locations';
 import {
   getInitialHomeLocationAction,
@@ -21,8 +22,6 @@ import {
 } from '../actions/resolve-home-location';
 import { saveCurrentLocationToProfileAction } from '../actions/save-profile-location';
 import { resolveHomeMediaUrl } from '@/features/home/components/home-media';
-import { hasExplicitLocaleChoice, localeForCountry } from '@/i18n/locale-by-country';
-import { isCrawler } from '@/lib/seo/crawler';
 
 /**
  * This form holds three ids chosen from cascading selects — there is no free
@@ -391,9 +390,6 @@ export default function LocationPicker({ locale = 'fa-IR' }: Props) {
     },
   });
 
-  const watchedCountryId = form.watch('countryId');
-  const watchedProvinceId = form.watch('provinceId');
-  const watchedCityId = form.watch('cityId');
 
   const initializedRef = useRef(false);
   // Guards every state write that can arrive from an async callback (geolocation
@@ -412,6 +408,8 @@ export default function LocationPicker({ locale = 'fa-IR' }: Props) {
   const [hasLoadedLocations, setHasLoadedLocations] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState<HomeResolvedLocation>(INITIAL_LOCATION);
   const [locationMessage, setLocationMessage] = useState<string | null>(null);
+  // The browser refused location (now or earlier): explain how to turn it on.
+  const [permissionDenied, setPermissionDenied] = useState(false);
 
   const locationTitleFallback = t('selectLocation');
 
@@ -419,7 +417,6 @@ export default function LocationPicker({ locale = 'fa-IR' }: Props) {
     (location: HomeResolvedLocation, options: ApplyLocationOptions = {}) => {
       const navigation = options.navigation ?? 'push';
       const persist = options.persist ?? true;
-      const adoptLocale = options.adoptLocale ?? false;
 
       if (!isMountedRef.current) return;
 
@@ -463,41 +460,9 @@ export default function LocationPicker({ locale = 'fa-IR' }: Props) {
 
       const query = nextSearchParams.toString();
 
-      // Adopt the visitor's language from their detected country (using a full
-      // translation where we have one, otherwise English) — but never override an
-      // explicit language choice. Switches the /[locale] segment + NEXT_LOCALE
-      // cookie and carries the location params across in a single navigation.
-      const localeCountryCode = options.localeCountryCode ?? location.countryCode;
-      // Never for a crawler: Googlebot renders from US IPs, and a JS move from /fa
-      // to /en makes it treat every Persian page as a redirect.
-      if (adoptLocale && localeCountryCode && !hasExplicitLocaleChoice() && !isCrawler()) {
-        const segments = pathname.split('/');
-        const currentUrlLocale = segments[1] || '';
-        const targetLocale = localeForCountry(localeCountryCode);
-
-        if (targetLocale && targetLocale !== currentUrlLocale) {
-          const restPath = segments.slice(2).join('/');
-          const localizedPath = restPath ? `/${targetLocale}/${restPath}` : `/${targetLocale}`;
-          const localizedUrl = query ? `${localizedPath}?${query}` : localizedPath;
-
-          try {
-            document.cookie = `NEXT_LOCALE=${targetLocale};path=/;max-age=31536000;samesite=lax`;
-          } catch {
-            // Cookie blocked — the locale still switches for this navigation.
-          }
-
-          // Hard navigation: a language change must reload the message bundle and
-          // flip text direction, and this runs inside an async geolocation/transition
-          // callback where the soft router can no-op. window.location is reliable.
-          if (typeof window !== 'undefined') {
-            window.location.assign(localizedUrl);
-            return;
-          }
-          router.replace(localizedUrl);
-          return;
-        }
-      }
-
+      // The language is decided by the server on the first request (middleware:
+      // choice, IP country, browser language, phone country), so picking or
+      // detecting a location never reloads the page into another language.
       const nextUrl = query ? `${pathname}?${query}` : pathname;
       const currentUrl = searchParams.toString() ? `${pathname}?${searchParams.toString()}` : pathname;
 
@@ -510,7 +475,7 @@ export default function LocationPicker({ locale = 'fa-IR' }: Props) {
   );
 
   const detectFromAccountPhoneOrIp = useCallback(
-    (navigation: NavigationMode = 'replace', pendingMessage?: string) => {
+    (navigation: NavigationMode = 'replace', pendingMessage?: string, openPickerOnFailure = true) => {
       setIsDetecting(true);
       setLocationMessage(pendingMessage ?? t('messages.detectingAutomatic'));
 
@@ -574,6 +539,7 @@ export default function LocationPicker({ locale = 'fa-IR' }: Props) {
 
           if (!isMountedRef.current) return;
           setLocationMessage(t('messages.autoDetectFailed'));
+          if (!openPickerOnFailure) return;
           setPickerStep("choose");
           setShowLocationPicker(true);
         } catch {
@@ -582,6 +548,7 @@ export default function LocationPicker({ locale = 'fa-IR' }: Props) {
           // view over a failed location lookup. Degrade to the manual picker instead.
           if (!isMountedRef.current) return;
           setLocationMessage(t('messages.autoDetectFailed'));
+          if (!openPickerOnFailure) return;
           setPickerStep("choose");
           setShowLocationPicker(true);
         } finally {
@@ -730,6 +697,11 @@ export default function LocationPicker({ locale = 'fa-IR' }: Props) {
               : t('messages.locationUnavailable');
 
         detectFromAccountPhoneOrIp('replace', reason);
+        if (error.code === error.PERMISSION_DENIED) {
+          setPermissionDenied(true);
+          setPickerStep('choose');
+          setShowLocationPicker(true);
+        }
       },
       {
         // Ask for the GPS chip, never accept a stale cached fix, and give the
@@ -834,10 +806,30 @@ export default function LocationPicker({ locale = 'fa-IR' }: Props) {
     // once per browser; after that we never nag again on return visits.
     if (hasAskedForLocation()) return;
     markLocationAsked();
-    detectFromAccountPhoneOrIp('replace');
+    // A sensible default straight away (account, phone or network region), then
+    // ask for the exact location politely — without waiting for a click. A failed
+    // default never replaces that question with the manual picker.
+    detectFromAccountPhoneOrIp('replace', undefined, false);
+    void (async () => {
+      let state: PermissionState | 'unknown' = 'unknown';
+      try {
+        state = (await navigator.permissions?.query({ name: 'geolocation' as PermissionName }))?.state ?? 'unknown';
+      } catch {
+        // Safari before 16 has no Permissions API for geolocation: just ask.
+      }
+      if (!isMountedRef.current) return;
+      if (state === 'granted') {
+        requestBrowserLocation();
+      } else if (state === 'denied') {
+        setPermissionDenied(true);
+      } else {
+        setPickerStep('permission');
+        setShowLocationPicker(true);
+      }
+    })();
     // Runs once per mount (guarded by initializedRef); `t` is included because the
     // unresolvable-deep-link branch above renders a message.
-  }, [applyLocation, detectFromAccountPhoneOrIp, localeForQueries, searchParams, startTransition, t]);
+  }, [applyLocation, detectFromAccountPhoneOrIp, localeForQueries, requestBrowserLocation, searchParams, startTransition, t]);
 
   useEffect(() => {
     if (!showLocationPicker) return;
@@ -897,36 +889,26 @@ export default function LocationPicker({ locale = 'fa-IR' }: Props) {
     setShowLocationPicker(false);
   };
 
-  const handleApplyManualSelection = () => {
-    const values = form.getValues();
-    if (!values.countryId && !values.cityId) {
-      setLocationMessage(t('messages.selectCountryOrCity'));
-      return;
-    }
-
+  const handleSelectPlace = (place: PlaceSearchResult) => {
     setIsDetecting(true);
     setLocationMessage(t('messages.applyingSelected'));
-
     startTransition(async () => {
       try {
         const resolved = await resolveHomeLocationFromIdsAction({
-          countryId: values.countryId,
-          cityId: values.cityId,
+          countryId: place.countryId,
+          cityId: place.cityId,
           locale: localeForQueries,
         });
-
         if (resolved?.countryCode || resolved?.cityCode) {
           applyLocation(resolved, { navigation: 'push' });
           if (!isMountedRef.current) return;
           setShowLocationPicker(false);
+          setLocationMessage(null);
           return;
         }
-
-        if (!isMountedRef.current) return;
-        setLocationMessage(t('messages.resolveFailed'));
+        if (isMountedRef.current) setLocationMessage(t('messages.resolveFailed'));
       } catch {
-        if (!isMountedRef.current) return;
-        setLocationMessage(t('messages.resolveFailed'));
+        if (isMountedRef.current) setLocationMessage(t('messages.resolveFailed'));
       } finally {
         if (isMountedRef.current) setIsDetecting(false);
       }
@@ -934,7 +916,6 @@ export default function LocationPicker({ locale = 'fa-IR' }: Props) {
   };
 
   const availableLocations = useMemo(() => locations.filter((item) => item.city && item.country), [locations]);
-  const canApplyManualSelection = Boolean(watchedCountryId || watchedProvinceId || watchedCityId);
   const isBusy = isPending || isDetecting;
 
   // The permission step mirrors the native prompt-before-the-prompt pattern: explain
@@ -947,8 +928,8 @@ export default function LocationPicker({ locale = 'fa-IR' }: Props) {
         <LocationPermissionArt />
       </div>
 
-      <p className="whitespace-pre-line text-center text-sm leading-6 text-gray-500">
-        {t('currentLocation.description')}
+      <p className="whitespace-pre-line text-center text-sm leading-6 text-gray-600">
+        {t('permission.why')}
       </p>
 
       <div className="mt-6 flex gap-3">
@@ -996,34 +977,20 @@ export default function LocationPicker({ locale = 'fa-IR' }: Props) {
         </div>
       ) : null}
 
-                  <div className="rounded-2xl border border-gray-100 bg-gray-50 p-4">
-                    <div className="mb-3">
-                      <h4 className="text-sm font-semibold text-slate-900">{t('manual.title')}</h4>
-                      <p className="mt-1 text-xs text-slate-500">{t('manual.description')}</p>
-                    </div>
+      {permissionDenied ? (
+        <div className="rounded-2xl border border-sky-100 bg-sky-50 px-4 py-3 text-sm leading-6 text-sky-950" data-testid="location-denied-help">
+          <div className="font-bold">{t('permission.deniedTitle')}</div>
+          <p className="mt-1">{t('permission.deniedHelp')}</p>
+        </div>
+      ) : null}
 
-                    <RHFCountryCitySelect
-                      control={form.control}
-                      countryName="countryId"
-                      provinceName="provinceId"
-                      cityName="cityId"
-                      showProvince
-                      locale={localeForQueries}
-                      fallbackLocale="en-US"
-                      countryLabel={t('manual.country')}
-                      provinceLabel={t('manual.province')}
-                      cityLabel={t('manual.city')}
-                    />
+      <div className="rounded-2xl border border-gray-100 bg-gray-50 p-4">
+        <PlaceSearch locale={localeForQueries} onSelect={handleSelectPlace} disabled={isBusy} />
+      </div>
 
-                    <button
-                      type="button"
-                      onClick={handleApplyManualSelection}
-                      disabled={!canApplyManualSelection || isBusy}
-                      className="mt-4 h-12 w-full rounded-xl bg-[#083f30] text-sm font-bold text-white transition hover:bg-[#0a513f] disabled:cursor-not-allowed disabled:opacity-50"
-                    >
-                      {isBusy ? t('manual.applying') : t('manual.apply')}
-                    </button>
-                  </div>
+      {availableLocations.length > 0 ? (
+        <h4 className="text-sm font-semibold text-slate-900">{t('search.popular')}</h4>
+      ) : null}
 
                   {isLoadingLocations && !hasLoadedLocations ? (
                     <div className="grid grid-cols-2 gap-3">

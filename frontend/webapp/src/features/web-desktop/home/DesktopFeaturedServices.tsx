@@ -2,7 +2,6 @@ import Image from "next/image";
 import { getTranslations } from "next-intl/server";
 
 import { FavoriteButton } from "@/features/favorites/components/favorite-button";
-import { formatMoney } from "@/features/finance/lib/money";
 import type { HomeFeaturedService } from "@/features/home/api/server/get-home-page";
 import { resolveHomeMediaUrl } from "@/features/home/components/home-media";
 import { SafePriceText } from "@/features/home/components/safe-price-text";
@@ -31,7 +30,15 @@ export async function DesktopFeaturedServices({
   const href = (service: HomeFeaturedService) => entityPath("service", service);
   const originalPrice = (service: HomeFeaturedService) =>
     service.originalAmount && service.originalAmount > service.priceAmount
-      ? formatMoney({ amount: service.originalAmount, currencyCode: service.currencyCode }, { locale, compact: false })
+      ? (
+          <SafePriceText
+            amount={service.originalAmount}
+            sourceCurrencyCode={service.currencyCode}
+            providerId={service.providerId}
+            locale={locale}
+            className="font-normal"
+          />
+        )
       : null;
 
   const items: SignatureItem[] = services.slice(0, SPOTLIGHT).map((service) => ({
@@ -52,6 +59,7 @@ export async function DesktopFeaturedServices({
       <SafePriceText
         amount={service.priceAmount}
         sourceCurrencyCode={service.currencyCode}
+        providerId={service.providerId}
         selectedCountryCode={selectedCountryCode}
         locale={locale}
         className="block text-3xl font-black text-[#eacb7f]"
@@ -115,6 +123,7 @@ export async function DesktopFeaturedServices({
                           <SafePriceText
                             amount={service.priceAmount}
                             sourceCurrencyCode={service.currencyCode}
+                            providerId={service.providerId}
                             selectedCountryCode={selectedCountryCode}
                             locale={locale}
                             className="block truncate text-lg font-black text-[#083f30]"

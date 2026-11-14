@@ -2,7 +2,6 @@ import Image from "next/image";
 import { ArrowLeft, Gift, Sparkles } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 
-import { formatMoney } from "@/features/finance/lib/money";
 import type { HomeManagedSection } from "@/features/home/api/server/get-home-sections";
 import { HomeLexicalDescription } from "@/features/home/components/home-lexical-description";
 import { resolveHomeMediaUrl } from "@/features/home/components/home-media";
@@ -158,7 +157,7 @@ export async function DesktopPackagesSection({
                         <div>
                           {saved ? (
                             <span className="text-xs text-[#8fa79d] line-through">
-                              {formatMoney({ amount: item.originalPriceAmount!, currencyCode: item.currencyCode! }, { locale, compact: false })}
+                              <SafePriceText amount={item.originalPriceAmount!} sourceCurrencyCode={item.currencyCode!} locale={locale} className="font-normal" />
                             </span>
                           ) : null}
                           {hasPrice ? (

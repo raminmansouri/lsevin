@@ -514,6 +514,10 @@ function splitRecommendations(providers: ServiceProviderOffering[], currentProvi
       country: item.country,
       price: item.displayPrice.amount,
       currency: item.displayPrice.symbol || item.displayPrice.code,
+      // The provider's own price, priced per visitor in the browser (ViewerPrice).
+      sourceAmount: item.displayPrice.sourceAmount ?? null,
+      sourceCurrencyCode: item.displayPrice.sourceCurrencyCode ?? null,
+      providerId: item.displayPrice.providerId ?? null,
       verified: item.verified,
       link: entityPath('service', { id: item.providerServiceId, slug: item.slug }),
     })),
@@ -528,6 +532,10 @@ function splitRecommendations(providers: ServiceProviderOffering[], currentProvi
       country: item.country,
       price: item.displayPrice.amount,
       currency: item.displayPrice.symbol || item.displayPrice.code,
+      // The provider's own price, priced per visitor in the browser (ViewerPrice).
+      sourceAmount: item.displayPrice.sourceAmount ?? null,
+      sourceCurrencyCode: item.displayPrice.sourceCurrencyCode ?? null,
+      providerId: item.displayPrice.providerId ?? null,
       verified: item.verified,
       link: entityPath('service', { id: item.providerServiceId, slug: item.slug }),
     })),

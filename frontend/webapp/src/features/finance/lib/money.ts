@@ -41,6 +41,9 @@ export function roundMoney(amount: number, currencyCode: string, currencies?: Cu
   return Math.round((amount + Number.EPSILON) * factor) / factor;
 }
 
+/** Codes in finance.currencies that are not ISO 4217 (Intl cannot format them). */
+const NON_ISO_CODES = new Set(['IRT', 'USDT', 'BTC']);
+
 export function formatMoney(
   money: Money,
   options?: {
@@ -53,6 +56,25 @@ export function formatMoney(
   const currencyCode = normalizeCurrencyCode(money.currencyCode);
   const digits = getCurrencyDecimalDigits(currencyCode, options?.currencies);
   const locale = options?.locale || 'fa-IR';
+
+  // ISO currencies: the language's own currency format (symbol, position,
+  // digits), e.g. "₺1.250,00" in Turkish, "١٬٢٥٠٫٠٠ د.إ.‏" in Arabic,
+  // "‎$۱٬۲۵۰٫۰۰" in Persian. Rial/toman keep their own labels below.
+  if (!getRialTomanLabel(currencyCode, locale) && /^[A-Z]{3}$/.test(currencyCode) && !NON_ISO_CODES.has(currencyCode)) {
+    try {
+      const text = new Intl.NumberFormat(locale, {
+        style: 'currency',
+        currency: currencyCode,
+        currencyDisplay: 'narrowSymbol',
+        minimumFractionDigits: digits,
+        maximumFractionDigits: digits,
+        notation: options?.compact ? 'compact' : 'standard',
+      }).format(money.amount);
+      return options?.showCode && !text.includes(currencyCode) ? `${text} ${currencyCode}` : text;
+    } catch {
+      // An ICU build without this currency: the manual format below.
+    }
+  }
 
   try {
     const formatted = new Intl.NumberFormat(locale, {

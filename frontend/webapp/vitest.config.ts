@@ -56,6 +56,8 @@ export default defineConfig({
       "src/payment/**/*.test.ts",
       "src/lib/seo/**/*.test.ts",
       "src/lib/http/**/*.test.ts",
+      "src/lib/market/**/*.test.ts",
+      "src/features/locations/**/*.test.ts",
       "src/lib/build-mode.test.ts",
       "src/components/editor/*.test.ts",
       "src/app/app-health/route.test.ts",

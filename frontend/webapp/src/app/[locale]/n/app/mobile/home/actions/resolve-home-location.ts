@@ -27,8 +27,8 @@ const codesSchema = z.object({
 });
 
 const idsSchema = z.object({
-  countryId: z.string().uuid().nullable().optional(),
-  cityId: z.string().uuid().nullable().optional(),
+  countryId: z.guid().nullable().optional(),
+  cityId: z.guid().nullable().optional(),
   locale: localeSchema,
 });
 
