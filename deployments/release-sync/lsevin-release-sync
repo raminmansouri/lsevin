@@ -101,6 +101,16 @@ echo 1 > "$STATE/behind"; log "behind B: api=$need_api web=$need_web  (B: webapp
 ps -eo args | grep -qE "[d]ocker build|[k]3s-deploy.sh (import|deploy)|[b]uild-site-variant" && { log "a build/deploy is running; will retry"; exit 0; }
 free_gb=$(df -BG --output=avail / | tail -1 | tr -dc 0-9)
 [ "${free_gb:-0}" -ge 6 ] || fail "only ${free_gb} GB free on /; need 6 GB to load the release"
+# Kubelet deletes every image no container uses once the disk passes 85% (image-gc-high-threshold) - including the release this script
+# has just staged and not yet deployed. On 2026-11-14 that made two attempts in a row fail ("required staged image is missing from K3s")
+# while the disk sat at 86-87%, so A stayed a week behind B. Tidy first; if the disk is still too full, do not start a doomed attempt.
+disk_pct=$(df --output=pcent / | tail -1 | tr -dc 0-9)
+if [ "${disk_pct:-100}" -ge 82 ]; then
+  log "disk ${disk_pct}% before loading the release: tidying first"
+  tidy_images
+  disk_pct=$(df --output=pcent / | tail -1 | tr -dc 0-9)
+  [ "${disk_pct:-100}" -lt 84 ] || fail "disk ${disk_pct}% full: Kubernetes would delete the staged release image (limit 85%). Free space on A (backups under /var/backups, /opt/lsevin/backups) and the sync resumes by itself" 3
+fi
 retry_file="$STATE/failed-at"; sig="$web|$mig|$api"
 if [ -s "$retry_file" ] && [ "$MODE" != "--force" ] && [ "$(cut -d' ' -f2- "$retry_file")" = "$sig" ] && [ $(( $(date +%s) - $(cut -d' ' -f1 "$retry_file") )) -lt 1800 ]; then
   log "the same release failed less than 30 minutes ago; waiting before another attempt"; exit 0
@@ -137,11 +147,21 @@ if [ $need_web = 1 ]; then
 fi
 
 # ---------------------------------------------------------------- 4. deploy (readiness wait + automatic rollback live in k3s-deploy.sh)
+# the images were imported a while ago (the download is slow); make sure Kubernetes still has them, and import again from the saved
+# archive when it does not (kubelet image GC, see the disk guard above), instead of failing the whole attempt
+ensure_staged() {   # ensure_staged <archive-prefix> <image ref>
+  k3s ctr -n k8s.io images ls -q 2>/dev/null | grep -qxF "docker.io/library/$2" && return 0
+  log "staged image $2 is gone from Kubernetes; importing it again"
+  sh "$DEPLOY" import "$1-$(tag_of "$2").tar" "$2" >>"$LOG" 2>&1 || mark_failed "could not import $2 again"
+}
 if [ $need_api = 1 ]; then
+  ensure_staged api "$api"
   log "deploying API $api"
   sh "$DEPLOY" deploy-api "$NS" "$(tag_of "$api")" >>"$LOG" 2>&1 || mark_failed "API deployment failed (rolled back)"
 fi
 if [ $need_web = 1 ]; then
+  ensure_staged web "$web"
+  [ $need_mig = 1 ] && ensure_staged migrations "$mig"
   log "deploying webapp $web$([ $need_mig = 1 ] && echo " with migrations $mig")"
   if [ $need_mig = 1 ]; then
     sh "$DEPLOY" deploy-web "$NS" "$(tag_of "$web")" "$(tag_of "$mig")" >>"$LOG" 2>&1 || mark_failed "webapp deployment failed (rolled back)"
