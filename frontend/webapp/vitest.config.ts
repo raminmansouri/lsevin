@@ -54,6 +54,7 @@ export default defineConfig({
       "src/features/provider-portal/**/*.test.ts",
       "src/features/support/**/*.test.ts",
       "src/features/tours/**/*.test.ts",
+      "src/features/stays/**/*.test.ts",
       "src/payment/**/*.test.ts",
       "src/lib/seo/**/*.test.ts",
       "src/lib/http/**/*.test.ts",

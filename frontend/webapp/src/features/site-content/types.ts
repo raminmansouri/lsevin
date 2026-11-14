@@ -51,7 +51,7 @@ export const FAQ_ENTITY_RESOURCE: Partial<Record<FaqScope, string>> = {
 };
 
 /** Sub-apps without a catalog id, addressed by key (scope "app"). */
-export const FAQ_APP_KEYS = ["shop", "tours", "gym", "transfers"] as const;
+export const FAQ_APP_KEYS = ["shop", "tours", "stays", "gym", "transfers"] as const;
 export type FaqAppKey = (typeof FAQ_APP_KEYS)[number];
 
 export const scopeUsesKey = (scope: FaqScope) => scope === "app" || scope === "site_page";

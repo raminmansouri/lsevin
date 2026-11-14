@@ -165,6 +165,9 @@ export const SEGMENT_NAMESPACES = {
     // The new tours platform admin screens (src/app/[locale]/(admin)/admin/tours-*).
     "TourAdmin",
     "TourShared",
+    // Stays admin (src/app/[locale]/(admin)/admin/stays/**).
+    "StayAdmin",
+    "StayApp",
   ],
   // Every screen in the (auth) group — sign-in, sign-up, OTP, forgot-password,
   // reset-password — is a client component calling `useTranslations("Auth.*")`,
@@ -200,6 +203,8 @@ export const SEGMENT_NAMESPACES = {
   ],
   /** The Tours sub-application (src/app/[locale]/tours/**). */
   tours: ["TourApp", "TourShared", "BottomTabBar"],
+  /** The Stays sub-application (src/app/[locale]/stays/**): hotels and اقامتگاه. */
+  stays: ["StayApp", "TourShared"],
   providerPanel: ["AdminGenerated"],
   providerPortal: ["ProviderPortal"],
 } as const satisfies Record<string, readonly string[]>;
