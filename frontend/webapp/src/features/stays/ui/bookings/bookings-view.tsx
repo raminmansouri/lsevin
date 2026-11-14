@@ -14,7 +14,7 @@ import { cn } from "@/lib/utils";
 
 import { cancelStayAction, quoteStayCancellationAction, submitStayReviewAction } from "../../server/actions/customer";
 import type { MyStayBooking } from "../../types";
-import { Money, StayImage, useStayDate } from "../common";
+import { Money, StayImage, useClock, useStayDate } from "../common";
 
 import { StayPaymentPanel } from "./payment-panel";
 
@@ -103,6 +103,7 @@ export function BookingDetail({ booking, justCreated }: { booking: MyStayBooking
   const router = useRouter();
   const { calendar } = useToursPrefs();
   const fmtDate = useStayDate();
+  const clock = useClock();
   const instant = (iso: string | null) => (iso ? formatInstant(iso, { locale: intlLocale(locale), calendar, timeZone: booking.timezone }) : "");
   const b = booking;
   const live = ["pending_payment", "requested", "confirmed"].includes(b.status);
@@ -159,11 +160,11 @@ export function BookingDetail({ booking, justCreated }: { booking: MyStayBooking
               </div>
               <div>
                 <dt className="text-xs text-slate-500">{tDetail("checkIn")}</dt>
-                <dd>{tDetail("checkInFrom", { time: b.checkInTime })}</dd>
+                <dd>{tDetail("checkInFrom", { time: clock(b.checkInTime) })}</dd>
               </div>
               <div>
                 <dt className="text-xs text-slate-500">{tDetail("checkOut")}</dt>
-                <dd>{tDetail("checkOutUntil", { time: b.checkOutTime })}</dd>
+                <dd>{tDetail("checkOutUntil", { time: clock(b.checkOutTime) })}</dd>
               </div>
               <div>
                 <dt className="text-xs text-slate-500">{t("guests")}</dt>
@@ -270,6 +271,12 @@ export function BookingDetail({ booking, justCreated }: { booking: MyStayBooking
           <section className="rounded-2xl bg-white p-4 text-sm ring-1 ring-slate-200">
             <h2 className="font-bold">{t("payment")}</h2>
             <div className="mt-2 space-y-1">
+              {b.priceSnapshot?.nightly?.length ? (
+                <div className="flex justify-between gap-2 text-slate-700">
+                  <span>{tBook("lines.rooms", { count: b.rooms, nights: b.nights })}</span>
+                  <Money amount={b.priceSnapshot.nightly.reduce((sum, n) => sum + n.amount, 0)} currency={b.currency} />
+                </div>
+              ) : null}
               {b.priceSnapshot?.lines
                 ?.filter((l) => l.kind !== "room_night")
                 .map((l, i) => (

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
+import { useEffect, useMemo, useState, useTransition } from "react";
 import { List, Map as MapIcon, SlidersHorizontal, X } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 
@@ -8,9 +8,10 @@ import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetT
 import { directionOf } from "@/features/tours/domain/content";
 import { TourMap } from "@/features/tours/ui/shared/tour-map";
 import { usePathname, useRouter } from "@/i18n/navigation";
+import { useSearchParams } from "next/navigation";
 import { cn } from "@/lib/utils";
 
-import { activeFilterCount, PROPERTY_KINDS, SORTS, stayQueryOnly, toSearchParams, type StaySearch } from "../../domain/search";
+import { activeFilterCount, parseStaySearch, PROPERTY_KINDS, SORTS, stayQueryOnly, toSearchParams, type StaySearch } from "../../domain/search";
 import type { Amenity, SearchResult } from "../../types";
 import { PropertyCardView } from "../property-card";
 import { StaySearchForm, type CityOption } from "../search/search-form";
@@ -36,6 +37,7 @@ export function ExploreView({
   lockedCity?: string | null;
 }) {
   const t = useTranslations("StayApp.explore");
+  const tDetail = useTranslations("StayApp.detail");
   const router = useRouter();
   const pathname = usePathname();
   const locale = useLocale();
@@ -46,6 +48,16 @@ export function ExploreView({
   const filters = activeFilterCount(search);
   const pages = result ? Math.max(1, Math.ceil(result.total / result.pageSize)) : 1;
   const cardQuery = stayQueryOnly(search).toString();
+  const urlParams = useSearchParams();
+
+  // The URL is the state. If the browser shows a different search than the one rendered
+  // (back/forward after a reload restores the URL without new server data), refetch.
+  useEffect(() => {
+    const omitCity = Boolean(lockedCity);
+    const inUrl = toSearchParams(parseStaySearch(new URLSearchParams(urlParams.toString())), { omitCity }).toString();
+    const rendered = toSearchParams(search, { omitCity }).toString();
+    if (inUrl !== rendered) router.refresh();
+  }, [urlParams, search, lockedCity, router]);
 
   function go(patch: Partial<StaySearch>) {
     const next = { ...search, ...patch, page: patch.page ?? 1 };
@@ -90,7 +102,7 @@ export function ExploreView({
           </p>
           {!search.checkIn ? <p className="mt-1 text-xs text-amber-800" data-testid="stays-no-dates-hint">{t("noDatesHint")}</p> : null}
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
             onClick={() => setFiltersOpen(true)}
@@ -140,7 +152,7 @@ export function ExploreView({
 
       {view === "map" ? (
         <section aria-label={t("mapTitle")}>
-          <TourMap points={points} labels={{ region: t("mapTitle"), unavailable: t("errorText"), approximate: t("mapApproximate") }} height={420} />
+          <TourMap points={points} labels={{ region: t("mapTitle"), unavailable: tDetail("mapUnavailable"), approximate: t("mapApproximate") }} height={420} />
           <p className="mt-2 text-xs text-slate-500">{t("mapApproximate")}</p>
         </section>
       ) : null}

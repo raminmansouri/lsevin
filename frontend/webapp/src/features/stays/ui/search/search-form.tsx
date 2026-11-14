@@ -110,7 +110,6 @@ export function StaySearchForm({
           onClick={() => setDatesOpen(true)}
           className={cn(box, "focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:outline-none")}
           aria-describedby={errors.dates ? "stay-dates-error" : undefined}
-          aria-invalid={Boolean(errors.dates)}
           data-testid="stay-dates-button"
         >
           <CalendarDays className="size-5 shrink-0 text-emerald-700" aria-hidden="true" />
@@ -135,7 +134,6 @@ export function StaySearchForm({
           onClick={() => setGuestsOpen(true)}
           className={cn(box, "focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:outline-none")}
           aria-describedby={errors.guests ? "stay-guests-error" : undefined}
-          aria-invalid={Boolean(errors.guests)}
           data-testid="stay-guests-button"
         >
           <Users className="size-5 shrink-0 text-emerald-700" aria-hidden="true" />
@@ -313,7 +311,12 @@ export function DatesDialog({
           value={draft}
           minIso={today}
           maxIso={addDaysIso(today, WINDOW_DAYS)}
-          getDay={(iso) => (draft.from && !draft.to && iso > draft.from && nightsBetween(draft.from, iso) > MAX_NIGHTS ? { disabled: true, state: "too_long" } : {})}
+          getDay={(iso) => {
+            // minIso/maxIso only limit navigation; days outside the bookable window must also be unselectable.
+            if (iso < today || iso > addDaysIso(today, WINDOW_DAYS)) return { disabled: true, state: "unavailable" };
+            if (draft.from && !draft.to && iso > draft.from && nightsBetween(draft.from, iso) > MAX_NIGHTS) return { disabled: true, state: "too_long" };
+            return {};
+          }}
           onChange={(r) => setDraft(r.from && r.to && r.from === r.to ? { from: r.from, to: null } : r)}
           labels={{ previousMonth: t("previousMonth"), nextMonth: t("nextMonth"), grid: t("calendarGrid"), rangeStart: t("rangeStart"), rangeEnd: t("rangeEnd") }}
           testId="stay-range-calendar"

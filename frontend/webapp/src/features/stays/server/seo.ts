@@ -1,7 +1,6 @@
 import "server-only";
 
 import { resolveMediaUrl } from "@/features/service-providers/lib/media-url";
-import type { SeoLocale } from "@/lib/seo/alternates";
 import { absoluteUrl } from "@/lib/seo/alternates";
 import { breadcrumbList, organizationId } from "@/lib/seo/entity-schema";
 import { seoOrigin } from "@/lib/seo/origin";
@@ -16,15 +15,7 @@ import type { CityDetail, PropertyCard, PropertyDetail } from "../types";
  * served noindex,follow so they never compete with the real versions.
  * Structured data states only what the page itself shows.
  */
-export const STAY_INDEXABLE_LOCALES: readonly SeoLocale[] = ["fa", "en"];
-
-/** A property page is indexable in a language only when its own name exists in it. */
-export function propertyLocales(nameKeys: string[]): SeoLocale[] {
-  const out: SeoLocale[] = [];
-  if (nameKeys.some((k) => k.startsWith("fa"))) out.push("fa");
-  if (nameKeys.some((k) => k.startsWith("en"))) out.push("en");
-  return out.length ? out : ["fa"];
-}
+export { propertyLocales, STAY_INDEXABLE_LOCALES } from "../domain/seo-locales";
 
 const TYPE: Record<PropertyKind, string> = {
   hotel: "Hotel",

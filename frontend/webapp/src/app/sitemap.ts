@@ -9,7 +9,7 @@ import {
   isTourismCategory,
 } from "@/features/categories/utils/category-href";
 import { getTourSettings } from "@/features/tours/server/platform/settings";
-import { propertyLocales, STAY_INDEXABLE_LOCALES } from "@/features/stays/server/seo";
+import { propertyLocales, STAY_INDEXABLE_LOCALES } from "@/features/stays/domain/seo-locales";
 import { allGuides, guideLocales, guidePath } from "@/features/guides/registry";
 import { getPublishedSitePageIndex } from "@/features/site-content/server/repository";
 import { routing } from "@/i18n/routing";

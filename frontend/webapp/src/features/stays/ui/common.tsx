@@ -7,7 +7,7 @@ import { resolveMediaUrl } from "@/features/service-providers/lib/media-url";
 import { formatIsoDate } from "@/features/tours/domain/calendar";
 import { useToursPrefs } from "@/features/tours/ui/customer/prefs-context";
 import { Bdi } from "@/features/tours/ui/shared/bidi";
-import { formatNumber, intlLocale } from "@/features/tours/ui/shared/format";
+import { formatClock, formatNumber, intlLocale } from "@/features/tours/ui/shared/format";
 import { Price } from "@/features/tours/ui/shared/price";
 import { cn } from "@/lib/utils";
 
@@ -31,6 +31,12 @@ export function useShortDate() {
   const { calendar } = useToursPrefs();
   return (iso: string) =>
     new Intl.DateTimeFormat(intlLocale(locale), { calendar, weekday: "short", day: "numeric", month: "short", timeZone: "UTC" }).format(new Date(`${iso}T12:00:00Z`));
+}
+
+/** "14:00" in the UI language's digits and clock style. */
+export function useClock() {
+  const locale = useLocale();
+  return (hhmm: string) => formatClock(hhmm.slice(0, 5), locale);
 }
 
 export function useNumber() {

@@ -12,7 +12,6 @@ import type {
   Amenity,
   CityDetail,
   CitySummary,
-  MediaItem,
   PropertyCard,
   PropertyDetail,
   RatePlanOffer,

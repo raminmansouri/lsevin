@@ -116,6 +116,46 @@ export async function seedStay(sql: Sql, o: SeedStayOptions): Promise<SeededStay
   return { id: p.id, slug, roomTypeId: rt.id, ratePlanId: rp.id, nonRefundablePlanId, policyId: pol.id, name };
 }
 
+/**
+ * A booking written the way checkout writes it (booking.bookings + stay.bookings,
+ * nights sold through stay.lock_nights), for tests that start after a booking exists.
+ */
+export async function seedStayBooking(
+  sql: Sql,
+  stay: SeededStay,
+  userId: string,
+  opts: { checkIn: string; checkOut: string; status?: "confirmed" | "pending_payment" | "requested" | "completed"; total?: number; paid?: boolean },
+) {
+  const bookingId = uid();
+  const status = opts.status ?? "confirmed";
+  const total = opts.total ?? 9_000_000;
+  const [p] = await sql<{ provider_id: string; anchor: string }[]>`
+    select service_provider_id::text as provider_id, provider_service_id::text as anchor from stay.properties where id = ${stay.id}::uuid`;
+  await sql`
+    insert into booking.bookings (id, provider_id, service_id, selected_date, payment_method, add_ons, upload_files, additional_services, payment_status, booking_status,
+      user_id, currency_code, total_amount, paid_amount, booking_ui_mode, adults, children, infants, metadata)
+    values (${bookingId}::uuid, ${p.provider_id}::uuid, ${p.anchor}::uuid, ${opts.checkIn}::date, 'wallet', '[]', '[]', '[]',
+      ${opts.paid || status === "confirmed" || status === "completed" ? "Paid" : "Pending"}, ${status === "confirmed" || status === "completed" ? "Confirmed" : "Pending"},
+      ${userId}::uuid, 'IRR', ${total}, ${opts.paid || status === "confirmed" || status === "completed" ? total : 0}, 'custom_form', 2, 0, 0,
+      ${sql.json({ kind: "stay", propertyId: stay.id, checkIn: opts.checkIn, checkOut: opts.checkOut, rooms: 1 })})`;
+  await sql`select 1 from stay.lock_nights(${stay.roomTypeId}::uuid, ${opts.checkIn}::date, ${opts.checkOut}::date)`;
+  await sql`update stay.inventory set sold = sold + 1 where room_type_id = ${stay.roomTypeId}::uuid and stay_date >= ${opts.checkIn}::date and stay_date < ${opts.checkOut}::date`;
+  const nights = Math.round((Date.parse(opts.checkOut) - Date.parse(opts.checkIn)) / 86_400_000);
+  const quote = { currency: "IRR", checkIn: opts.checkIn, checkOut: opts.checkOut, nights, rooms: 1, adults: 2, childAges: [], lines: [], nightly: [], roomsSubtotal: total, discount: 0, tax: 0, fees: 0, total, perNight: Math.round(total / nights) };
+  await sql`
+    insert into stay.bookings (booking_id, property_id, room_type_id, rate_plan_id, user_id, service_provider_id, status, confirmation_mode, check_in, check_out, nights,
+      rooms, adults, children, child_ages, currency_code, total_amount, price_snapshot, policy_id, policy_snapshot, policy_accepted_at, content_snapshot, ui_locale,
+      display_calendar, buyer, guests, voucher_code, idempotency_key, confirmed_at, request_expires_at, payment_deadline_at)
+    values (${bookingId}::uuid, ${stay.id}::uuid, ${stay.roomTypeId}::uuid, ${stay.ratePlanId}::uuid, ${userId}::uuid, ${p.provider_id}::uuid, ${status},
+      ${status === "requested" ? "request" : "instant"}, ${opts.checkIn}::date, ${opts.checkOut}::date, ${nights}, 1, 2, 0, '{}'::smallint[], 'IRR', ${total}, ${sql.json(quote)},
+      ${stay.policyId}::uuid, ${sql.json({ version: 1, rules: [{ hoursBefore: 72, refundPercent: 100 }, { hoursBefore: 24, refundPercent: 50 }], refundable: true, noShowRefundPercent: 0, texts: {} })},
+      now(), ${sql.json({ propertyName: stay.name, roomName: { "fa-IR": "اتاق دو تخته", "en-US": "Double room" }, cityName: { "fa-IR": "شیراز" }, address: { "fa-IR": "شیراز، خیابان ارم، پلاک ۱۲" }, contactPhone: "+987132220000", latitude: 29.6363, longitude: 52.5258, checkInTime: "14:00", checkOutTime: "12:00", timezone: "Asia/Tehran", mealPlan: "breakfast", refundable: true })},
+      'fa-IR', 'persian', ${sql.json({ firstName: "Reza", lastName: "Karimi", phone: "+989121112233", email: null })}, ${sql.json([{ firstName: "Reza", lastName: "Karimi" }])},
+      ${`ST-E2E${suffix().toUpperCase()}`}, ${`seed_${uid().replace(/-/g, "")}`}, ${status === "confirmed" || status === "completed" ? sql`now()` : null},
+      ${status === "requested" ? sql`now() + interval '24 hours'` : null}, ${status === "pending_payment" ? sql`now() + interval '30 minutes'` : null})`;
+  return { bookingId };
+}
+
 /** ISO date `days` from today in Asia/Tehran. */
 export function isoInDays(days: number): string {
   const today = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Tehran", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());

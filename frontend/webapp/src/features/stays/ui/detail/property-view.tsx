@@ -33,7 +33,7 @@ import { checkInInstant, freeCancellationUntil } from "../../domain/cancellation
 import type { StaySearch } from "../../domain/search";
 import { recordStayViewAction } from "../../server/actions/customer";
 import type { MediaItem, PropertyDetail, ReviewItem, RoomOffer } from "../../types";
-import { Money, RatingBadge, StarRating, StayImage, useNumber, useStayDate } from "../common";
+import { Money, RatingBadge, StarRating, StayImage, useClock, useNumber, useStayDate } from "../common";
 import { WishlistButton } from "../property-card";
 import { StaySearchForm, type CityOption } from "../search/search-form";
 
@@ -59,6 +59,7 @@ export function PropertyView({
   const t = useTranslations("StayApp.detail");
   const tKinds = useTranslations("StayApp.kinds");
   const tSearch = useTranslations("StayApp.search");
+  const clock = useClock();
   const tNav = useTranslations("StayApp.nav");
   const tCardT = useTranslations("StayApp.card");
   const name = property.name?.value ?? property.slug;
@@ -116,8 +117,8 @@ export function PropertyView({
             </p>
             {property.summary ? <LocalizedText text={{ ...property.summary, dir: directionOf(property.summary.locale) }} className="mt-3 text-base leading-7 text-slate-700" /> : null}
             <ul className="mt-4 grid grid-cols-2 gap-2 text-sm sm:grid-cols-4">
-              <Fact icon={Clock} label={t("checkIn")} value={t("checkInFrom", { time: property.checkInTime })} />
-              <Fact icon={Clock} label={t("checkOut")} value={t("checkOutUntil", { time: property.checkOutTime })} />
+              <Fact icon={Clock} label={t("checkIn")} value={t("checkInFrom", { time: clock(property.checkInTime) })} />
+              <Fact icon={Clock} label={t("checkOut")} value={t("checkOutUntil", { time: clock(property.checkOutTime) })} />
               <Fact icon={property.confirmationMode === "instant" ? Zap : BadgeCheck} label={t("confirmation")} value={property.confirmationMode === "instant" ? tCard("instant") : tCard("request")} />
               {property.medicalFriendly ? <Fact icon={HeartPulse} label={t("accessibility")} value={t("medicalFriendly")} /> : null}
             </ul>
@@ -188,7 +189,7 @@ export function PropertyView({
               <div className="mt-3">
                 <TourMap
                   points={[{ id: property.id, lat: property.location.latitude, lng: property.location.longitude, label: name, kind: "destination", exact: !property.location.approximate, radiusM: property.location.radiusM || undefined }]}
-                  labels={{ region: t("map"), unavailable: t("map"), approximate: t("approximateLocation") }}
+                  labels={{ region: t("map"), unavailable: t("mapUnavailable"), approximate: t("approximateLocation") }}
                   height={260}
                 />
                 {property.location.approximate ? <p className="mt-2 text-xs text-slate-600">{t("approximateLocation")}</p> : null}
@@ -487,6 +488,7 @@ function RoomCard({ room, property, search, hasDates, preview }: { room: RoomOff
 
 function Policies({ property }: { property: PropertyDetail }) {
   const t = useTranslations("StayApp.detail");
+  const clock = useClock();
   const rules = property.rules;
   return (
     <section aria-labelledby="stay-policies" data-testid="stay-policies">
@@ -516,8 +518,8 @@ function Policies({ property }: { property: PropertyDetail }) {
         <div className="rounded-2xl bg-white p-4 ring-1 ring-slate-200">
           <h3 className="font-semibold">{t("rules.title")}</h3>
           <ul className="mt-2 space-y-1.5 text-sm text-slate-700">
-            <li>{t("checkIn")}: {t("checkInFrom", { time: property.checkInTime })}</li>
-            <li>{t("checkOut")}: {t("checkOutUntil", { time: property.checkOutTime })}</li>
+            <li>{t("checkIn")}: {t("checkInFrom", { time: clock(property.checkInTime) })}</li>
+            <li>{t("checkOut")}: {t("checkOutUntil", { time: clock(property.checkOutTime) })}</li>
             <li>{rules.pets ? t("rules.pets") : t("rules.noPets")}</li>
             <li>{rules.smoking ? t("rules.smoking") : t("rules.noSmoking")}</li>
             <li>{rules.parties ? t("rules.parties") : t("rules.noParties")}</li>
