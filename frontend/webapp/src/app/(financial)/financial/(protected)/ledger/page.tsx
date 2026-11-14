@@ -5,6 +5,7 @@ import { PANEL_LOCALE } from "@/accounting/lib/panel-locale";
 import { formatAmount, formatDateTime } from "@/accounting/lib/format";
 import { getLedgerLines } from "@/accounting/server/admin-queries";
 import { listAccounts } from "@/accounting/server/accounts-admin";
+import { AccountTreePicker } from "@/accounting/components/account-tree-picker";
 import { PageHeader } from "@/components/page/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -55,17 +56,24 @@ export default async function LedgerPage({
         <p className="text-muted-foreground mb-3 text-sm">{t("ledgerDescription")}</p>
 
         <form method="get" className="mb-4 flex flex-wrap items-end gap-2 print:hidden">
-          <label className="text-xs">
+          <div className="text-xs">
             <span className="text-muted-foreground">{t("filterByAccount")}</span>
-            <select name="account" defaultValue={account ?? ""} className="mt-1 h-9 w-80 rounded border px-2">
-              <option value="">{t("allAccounts")}</option>
-              {accounts.map((a) => (
-                <option key={a.id} value={a.code}>
-                  {"—".repeat(Math.max(0, a.level - 1))} {a.code} · {pickName(a.nameTranslations, locale)}
-                </option>
-              ))}
-            </select>
-          </label>
+            <AccountTreePicker
+              name="account"
+              defaultValue={account ?? ""}
+              allLabel={t("allAccounts")}
+              autoSubmit
+              className="mt-1 w-96 max-w-full"
+              accounts={accounts.map((a) => ({
+                id: a.id,
+                parentId: a.parentId,
+                code: a.code,
+                name: pickName(a.nameTranslations, locale),
+                isActive: a.isActive,
+                isPostable: a.isPostable,
+              }))}
+            />
+          </div>
           <button className="bg-primary text-primary-foreground h-9 rounded px-4 text-xs font-semibold">
             {t("applyFilter")}
           </button>
