@@ -48,19 +48,17 @@ export function ProductDetailClient({
     [product.offers, variantId]
   );
   const bestOffer = itemOffers[0] ?? null;
-  // Every offer reaches the customer through Lsevin: the seller's handling days (time to reach
-  // Lsevin) + Lsevin's delivery. Without a configured delivery time, the handling days alone.
-  const deliveryDays = product.lsevinDeliveryDays ?? null;
-  const shipping = (days: number | null) => {
+  // Every seller sends its own items: its handling days + its delivery days (a partner seller's
+  // own; Lsevin's from its delivery methods). Without a delivery time, the handling days alone.
+  const shipping = (o: { handlingDays: number | null; partnerSeller?: boolean; sellerDeliveryDays?: number | null }) => {
+    const days = o.handlingDays;
     if (days == null) return null;
+    const deliveryDays = o.partnerSeller ? (o.sellerDeliveryDays ?? null) : (product.lsevinDeliveryDays ?? null);
     if (deliveryDays != null) return t("sellerOffers.deliveredIn", { days: days + deliveryDays });
     return days === 0 ? t("sellerOffers.shipsToday") : t("sellerOffers.shipsIn", { days });
   };
-  // A partner seller (e.g. a clinic) sells it; Lsevin sends it.
-  const soldBy = (o: { sellerName: string; partnerSeller?: boolean }) =>
-    o.partnerSeller
-      ? t("sellerOffers.soldBySentByLsevin", { name: o.sellerName })
-      : t("sellerOffers.soldBy", { name: o.sellerName });
+  // «فروشنده: X · ارسال توسط فروشنده»
+  const soldBy = (o: { sellerName: string }) => t("sellerOffers.soldByShippedBySeller", { name: o.sellerName });
   const price = bestOffer ? bestOffer.price : selected ? selected.price : product.price;
   const compareAt = bestOffer ? bestOffer.compareAtPrice : selected ? selected.compareAtPrice : product.compareAtPrice;
   const currency = bestOffer ? bestOffer.currency : selected ? selected.currency : product.currency;
@@ -147,10 +145,16 @@ export function ProductDetailClient({
               {bestOffer.warranty}
             </span>
           ) : null}
-          {shipping(bestOffer.handlingDays) ? (
-            <span className="flex items-center gap-1">
+          {shipping(bestOffer) ? (
+            <span className="flex items-center gap-1" data-testid="buybox-delivery">
               <Truck size={13} className="text-[#083f30]" />
-              {shipping(bestOffer.handlingDays)}
+              {shipping(bestOffer)}
+            </span>
+          ) : null}
+          {bestOffer.partnerSeller ? (
+            <span className="flex items-center gap-1" data-testid="buybox-pickup-possible">
+              <Store size={13} className="text-[#083f30]" />
+              {t("sellerOffers.pickupPossible")}
             </span>
           ) : null}
         </div>
@@ -231,8 +235,9 @@ export function ProductDetailClient({
                   <span className="mt-0.5 block truncate text-xs text-neutral-500">
                     {[
                       o.warranty,
-                      o.partnerSeller ? t("sellerOffers.sentByLsevin") : null,
-                      shipping(o.handlingDays),
+                      t("sellerOffers.shippedBySeller"),
+                      shipping(o),
+                      o.partnerSeller ? t("sellerOffers.pickupPossible") : null,
                     ]
                       .filter(Boolean)
                       .join(" · ")}

@@ -5614,6 +5614,8 @@ declare const messages: {
       "supportTags": "Tags",
       "supportSettings": "Support settings",
       "consultings": "Consultation requests",
+      "consultation": "Consultation",
+      "consultationDoctors": "Consultation doctors",
       "bugReports": "Bug reports",
       "notificationTemplates": "Notification templates",
       "notificationChannels": "Notification channels",
@@ -5656,7 +5658,7 @@ declare const messages: {
       "toursPlatformTaxonomy": "2. Categories & tags",
       "editorial": "Editorial",
       "assistant": "AI assistant",
-      "shopInbound": "Items to receive"
+      "shopApprovals": "Delivery approvals"
     }
   },
   "HomePage": {
@@ -16320,9 +16322,10 @@ declare const messages: {
       "outOfStock": "Out of stock",
       "add": "Add",
       "others": "{count} other sellers",
-      "soldBySentByLsevin": "Sold by {name} · Sent by Lsevin",
-      "sentByLsevin": "Sent by Lsevin",
-      "deliveredIn": "{days, plural, =0 {Delivered today} one {Delivered within # business day} other {Delivered within # business days}}"
+      "deliveredIn": "{days, plural, =0 {Delivered today} one {Delivered within # business day} other {Delivered within # business days}}",
+      "soldByShippedBySeller": "Seller: {name} · Shipped by the seller",
+      "shippedBySeller": "Shipped by the seller",
+      "pickupPossible": "In-person pickup is also possible"
     },
     "sellerPage": {
       "products": "{count} products",
@@ -16334,30 +16337,48 @@ declare const messages: {
     },
     "fulfilment": {
       "title": "How you receive your order",
-      "overallDelivery": "{days, plural, =0 {Your whole order arrives today} one {Your whole order arrives within # day} other {Your whole order arrives within # days}}",
-      "overallPickup": "{days, plural, =0 {Your whole order is ready at the Lsevin office today} one {Your whole order is ready at the Lsevin office within # day} other {Your whole order is ready at the Lsevin office within # days}}",
-      "promisedDelivery": "Whole order delivered by {date}",
-      "promisedPickup": "Whole order ready at the Lsevin office by {date}",
-      "sentByLsevinHint": "Every item, from every seller, is sent by Lsevin in one shipment.",
+      "overallDelivery": "{days, plural, =0 {Every shipment arrives today} one {Every shipment arrives within # day} other {Every shipment arrives within # days}}",
+      "overallPickup": "{days, plural, =0 {Your order is ready for pickup today} one {Your order is ready for pickup within # day} other {Your order is ready for pickup within # days}}",
+      "promisedDelivery": "Every shipment arrives by {date}",
+      "promisedPickup": "Ready for pickup by {date}",
       "noShippingFee": "No shipping fee",
       "deliveryTo": "Delivery to your address",
-      "officePickup": "Pickup at the Lsevin office",
-      "officeNotSet": "The office address is sent with your pickup code.",
+      "officeNotSet": "The pickup address is sent with your pickup code.",
       "openingHours": "Opening hours",
-      "call": "Call the office",
+      "call": "Call",
       "contactForPickup": "Your name and mobile",
-      "pickupPhoneHint": "Your pickup code is sent to this mobile number."
+      "pickupPhoneHint": "Your pickup code is sent to this mobile number.",
+      "sellersShipHint": "Each seller sends its own items separately; this is when the last shipment arrives.",
+      "pickupHint": "When your order is ready, your pickup code is sent by SMS.",
+      "pickupAt": "In-person pickup at {seller}",
+      "shipmentBySeller": "Shipment from {seller}",
+      "shipmentDays": "{days, plural, =0 {today} one {within # day} other {within # days}}",
+      "shippingFee": "Shipping",
+      "trackingCode": "Tracking code"
     },
     "pickup": {
-      "status": {
+      "code": "Pickup code",
+      "codeHint": "Tell this code to the seller when you collect your order."
+    },
+    "sellerPart": {
+      "shipping": {
+        "new": "Waiting for the seller",
         "preparing": "Being prepared",
-        "ready": "Ready for pickup at the Lsevin office",
-        "picked_up": "Picked up",
+        "shipped": "Shipped",
+        "ready_for_pickup": "Ready",
+        "delivery_requested": "Delivered (being confirmed)",
+        "completed": "Delivered",
         "cancelled": "Cancelled"
       },
-      "code": "Pickup code",
-      "codeHint": "Tell this code at the Lsevin office when you collect your order.",
-      "pickedUpOn": "Picked up on {date}"
+      "pickup": {
+        "new": "Waiting for the seller",
+        "preparing": "Being prepared",
+        "shipped": "Shipped",
+        "ready_for_pickup": "Ready for pickup",
+        "delivery_requested": "Picked up (being confirmed)",
+        "completed": "Picked up",
+        "cancelled": "Cancelled"
+      }
     }
   },
   "ShopAdmin": {
@@ -16861,12 +16882,16 @@ declare const messages: {
       "title": "Delivery methods",
       "hint": "rules.geo is enforced at checkout: includeCountries (allow-list), excludeCountries (deny-list), includeRegions (state / region allow-list), surcharges[].amount (added to the base fee for matching countries / regions) and etaOverrides[]. Country / region codes are compared case-insensitively. Empty rules = ships everywhere.",
       "active": "active",
-      "baseFee": "Base fee",
+      "baseFee": "Base fee (rial)",
       "etaMin": "ETA min (days)",
       "etaMax": "ETA max (days)",
       "rulesJson": "Rules (JSON)",
       "save": "Save",
-      "noMethods": "No delivery methods configured."
+      "noMethods": "No delivery methods configured.",
+      "feeCapTitle": "Cap on sellers' shipping fees",
+      "feeCapHint": "Each clinic sets its own shipping fee; the customer is charged at most this cap (rial). Empty = no cap.",
+      "feeCapPlaceholder": "e.g. 800000",
+      "feeCapSave": "Save"
     },
     "attributes": {
       "title": "Attributes",
@@ -17062,51 +17087,6 @@ declare const messages: {
       "manage": "{count} products",
       "lowStockCount": "{count} low stock"
     },
-    "officePickup": {
-      "title": "Pickup at the Lsevin office",
-      "promised": "Promised by {date}",
-      "waitingForSellers": "Waiting for items from sellers ({count}). Mark the order ready once everything has arrived.",
-      "notPaid": "The order is not paid yet.",
-      "markReady": "Ready for pickup (send the customer the code)",
-      "readySince": "Ready since {date}. The customer was sent a pickup code.",
-      "codeLabel": "Customer's pickup code",
-      "confirm": "Confirm pickup",
-      "resend": "Send a new code",
-      "resendConfirm": "Send the customer a new pickup code? The old code stops working.",
-      "attemptsLeft": "{count} tries left",
-      "locked": "Too many wrong codes. Send the customer a new code to continue.",
-      "pickedUp": "Picked up on {date}.",
-      "wrongCode": "Wrong code. {count} tries left.",
-      "codeFormat": "Enter the 6-digit code.",
-      "codeSent": "The customer was sent a pickup code.",
-      "cancelled": "This order was cancelled."
-    },
-    "inbound": {
-      "title": "Items to receive from sellers",
-      "hint": "Paid orders whose seller (e.g. a clinic) still has to hand items to Lsevin. Due = paid date + the seller's handling days. Mark each seller's part received when it arrives; the order can then be shipped or made ready for pickup.",
-      "empty": "Nothing to receive.",
-      "order": "Order",
-      "items": "Items",
-      "due": "Due",
-      "overdue": "Overdue",
-      "sellerStatus": "Seller",
-      "statusNew": "Not ready",
-      "statusReady": "Ready to hand over",
-      "statusHanded": "Handed over",
-      "received": "Received",
-      "markReceived": "Mark received",
-      "fulfilmentDelivery": "Delivery",
-      "fulfilmentPickup": "Office pickup"
-    },
-    "orderFulfilment": {
-      "title": "Fulfilment",
-      "delivery": "Delivery to the address",
-      "officePickup": "Pickup at the Lsevin office",
-      "sellers": "Items from sellers",
-      "allReceived": "Everything is at Lsevin.",
-      "receivedOn": "Received {date}",
-      "notReceived": "Not received yet · due {date}"
-    },
     "deliveryOffice": {
       "title": "Lsevin office (shown to customers who pick up)",
       "addressFa": "Office address (Persian)",
@@ -17114,6 +17094,49 @@ declare const messages: {
       "phone": "Office phone",
       "hoursFa": "Opening hours (Persian)",
       "hoursEn": "Opening hours (English)"
+    },
+    "sellerParts": {
+      "title": "Seller shipments",
+      "modeShipping": "Each seller ships its own part",
+      "modePickup": "In-person pickup at the seller",
+      "promised": "Whole order promised by {date}",
+      "typeShipping": "Shipping",
+      "typePickup": "Pickup",
+      "status": {
+        "new": "New",
+        "preparing": "Preparing",
+        "shipped": "Shipped",
+        "ready_for_pickup": "Ready for pickup",
+        "delivery_requested": "Delivery to approve",
+        "completed": "Delivery approved"
+      },
+      "fee": "Shipping fee",
+      "due": "Due {date}",
+      "tracking": "Tracking code",
+      "rejected": "Delivery rejected: {reason}",
+      "sellerMoves": "The seller moves this part in its portal.",
+      "approve": "Approve delivery",
+      "reject": "Reject delivery",
+      "rejectReason": "Reason",
+      "markPreparing": "Preparing",
+      "trackingPlaceholder": "Tracking code",
+      "carrierPlaceholder": "Carrier (optional)",
+      "markShipped": "Shipped",
+      "requestDelivery": "Delivered (send for approval)",
+      "markReady": "Ready for pickup (send the customer the code)",
+      "codePlaceholder": "Customer's 6-digit code",
+      "confirmCode": "Confirm pickup code",
+      "resend": "Send a new code",
+      "resendConfirm": "Send the customer a new pickup code? The old code stops working.",
+      "attemptsLeft": "{count} tries left",
+      "wrongCode": "Wrong code. {count} tries left.",
+      "locked": "Too many wrong codes. Send the customer a new code.",
+      "failed": "That did not work. Try again."
+    },
+    "approvals": {
+      "title": "Seller delivery approvals",
+      "hint": "The seller reports the items reached the customer. Approve to finish that part (the order completes with its last part); reject to send it back with a reason.",
+      "empty": "Nothing to approve."
     }
   },
   "Patients": {

@@ -6,7 +6,6 @@ import { emitCommerceEvent } from "../lib/analytics";
 import { notifyShopOrderEvent } from "./shop-notifications";
 import { completeOrderIfFullyHandedOver } from "./order-fulfilment";
 import { releaseOrderReservations } from "./order-stock";
-import { sellerPartsNotReceived } from "./seller-handover.service";
 
 /**
  * Admin order operations. Order / payment / fulfilment are separate state
@@ -163,15 +162,14 @@ export async function recordShipment(input: {
   const partial = Array.isArray(input.items) && input.items.length > 0;
 
   const outcome = await sql.begin(async (tx) => {
-    // Lsevin sends the order only once it has everything: an office pickup order is handed over
-    // at the office instead, and every partner seller's items must have been received.
-    const [gate] = await tx<{ fulfillment_mode: string }[]>`
-      select fulfillment_mode from shop.orders where id = ${input.orderId}::uuid for update
+    // Every seller ships its own part (shop.seller_order_pickups); an order placed that way is
+    // moved through its seller parts, never through this whole-order shipment.
+    const [gate] = await tx<{ parts: number }[]>`
+      select (select count(*)::int from shop.seller_order_pickups sp where sp.order_id = o.id) as parts
+      from shop.orders o where o.id = ${input.orderId}::uuid for update of o
     `;
-    if (gate?.fulfillment_mode === "office_pickup")
-      throw new Error("This order is picked up at the Lsevin office; mark it ready for pickup instead of shipping it.");
-    if (input.markShipped && (await sellerPartsNotReceived(tx, input.orderId)) > 0)
-      throw new Error("Items from a seller have not been received yet; mark them received before shipping.");
+    if ((gate?.parts ?? 0) > 0)
+      throw new Error("Each seller ships its own part of this order; use the seller parts on the order page.");
     const orderLines = await tx<any[]>`
       select oi.id::text as id, oi.quantity, oi.product_id, oi.variant_id, oi.fulfillment_status::text as fs,
         oi.is_preorder,

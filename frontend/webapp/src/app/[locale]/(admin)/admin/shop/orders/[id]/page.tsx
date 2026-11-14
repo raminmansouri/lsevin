@@ -3,19 +3,17 @@ import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 
 import { getAdminOrder } from "@/features/shop/api/admin.repository";
-import { markSellerReceivedForm } from "@/features/shop/actions/fulfilment-admin.actions";
-import { OfficePickupPanel } from "@/features/shop/components/admin/OfficePickupPanel";
-import { getOfficePickup } from "@/features/shop/server/office-pickup.service";
-import { listOrderSellerParts } from "@/features/shop/server/seller-handover.service";
+import { formatShopMoney } from "@/features/shop/components/money";
+import { SellerPartsPanel } from "@/features/shop/components/admin/SellerPartsPanel";
+import { assertShopPermission, SHOP_PERMISSIONS } from "@/features/shop/lib/permissions";
+import { readOrderSellerParts } from "@/features/shop/server/seller-fulfilment.service";
 import { getOrderRefundView } from "@/features/shop/server/shop-refund.service";
 import { getOrderInvoices } from "@/features/shop/server/invoicing.service";
 import {
   advanceOrderForm,
   issueInvoiceForm,
-  markDeliveredForm,
   markOrderPaidForm,
   recordRefundForm,
-  recordShipmentForm,
   reviewOrderForm,
 } from "@/features/shop/actions/admin.actions";
 
@@ -31,16 +29,17 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
   const { id } = await params;
   const order = await getAdminOrder(id);
   if (!order) notFound();
-  const [refundView, invoices, sellerParts, officePickup] = await Promise.all([
+  await assertShopPermission(SHOP_PERMISSIONS.ordersManage);
+  const [refundView, invoices, sellerParts] = await Promise.all([
     getOrderRefundView(id).catch(() => null),
     getOrderInvoices(id).catch(() => []),
-    listOrderSellerParts(id),
-    order.fulfillment_mode === "office_pickup" ? getOfficePickup(id) : Promise.resolve(null),
+    readOrderSellerParts(id),
   ]);
-  const tf = (k: string, v?: Record<string, string | number>) => t(`orderFulfilment.${k}` as never, v as never);
-  const isOfficePickup = order.fulfillment_mode === "office_pickup";
-  const sellersPending = sellerParts.filter((p) => !p.received_at).length;
+  const s = (k: string) => t(`sellerParts.${k}` as never);
+  const isPickup = order.fulfillment_mode === "pickup";
   const cancelled = ["cancelled", "refunded"].includes(order.status);
+  // Seller parts move only on a paid, open order.
+  const partsOpen = Boolean(order.paid_at) && ["paid", "processing", "partially_shipped", "shipped"].includes(order.status);
 
   const d = (k: string) => t(`orderDetail.${k}` as never);
   const orderStatus = (v: string) => (t.has(`enum.orderStatus.${v}` as never) ? t(`enum.orderStatus.${v}` as never) : v);
@@ -152,60 +151,38 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
         </div>
 
         <div className="space-y-4">
-          {/* Lsevin sends every order: first every partner seller's items are received, then the
-              order is shipped, or handed over at the office with the customer's code. */}
-          <Card title={tf("title")}>
-            <p className="text-sm font-semibold text-gray-900" data-testid="admin-fulfilment-mode">
-              {isOfficePickup ? tf("officePickup") : tf("delivery")}
-              {order.delivery_method_name ? <span className="font-normal text-gray-500"> · {order.delivery_method_name}</span> : null}
+          {/* Every seller fulfils its own part; the admin moves Lsevin's own part and approves
+              each seller's "delivered" request. The order completes when every part is approved. */}
+          <Card title={s("title")}>
+            <p className="mb-2 text-sm font-semibold text-gray-900" data-testid="admin-fulfilment-mode">
+              {isPickup ? s("modePickup") : s("modeShipping")}
             </p>
             {order.promised_ready_at ? (
-              <p className="mt-1 text-xs text-gray-500">
-                {t("officePickup.promised" as never, { date: new Date(order.promised_ready_at).toLocaleDateString() } as never)}
+              <p className="mb-2 text-xs text-gray-500">
+                {t("sellerParts.promised" as never, { date: new Date(order.promised_ready_at).toLocaleDateString() } as never)}
               </p>
             ) : null}
-            {sellerParts.length ? (
-              <div className="mt-3 border-t pt-2">
-                <p className="mb-1 text-xs font-bold text-gray-700">{tf("sellers")}</p>
-                <ul className="space-y-1 text-sm">
-                  {sellerParts.map((part) => (
-                    <li key={part.seller_id} className="flex items-center justify-between gap-2">
-                      <span>
-                        🏪 {part.seller_name ?? "—"}
-                        <span className="block text-xs text-gray-500">
-                          {part.received_at
-                            ? tf("receivedOn", { date: new Date(part.received_at).toLocaleDateString() })
-                            : tf("notReceived", { date: part.due_at ? new Date(part.due_at).toLocaleDateString() : "—" })}
-                        </span>
-                      </span>
-                      {!part.received_at && !cancelled ? (
-                        <form action={markSellerReceivedForm}>
-                          <input type="hidden" name="orderId" value={order.id} />
-                          <input type="hidden" name="sellerId" value={part.seller_id} />
-                          <button className="rounded bg-[#083f30] px-2 py-1 text-xs font-semibold text-white" data-action="seller-received">
-                            {t("inbound.markReceived" as never)}
-                          </button>
-                        </form>
-                      ) : null}
-                    </li>
-                  ))}
-                </ul>
-                {!sellersPending ? <p className="mt-1 text-xs text-green-700">{tf("allReceived")}</p> : null}
-              </div>
-            ) : null}
+            <SellerPartsPanel
+              orderId={order.id}
+              open={partsOpen && !cancelled}
+              parts={sellerParts.map((part) => ({
+                sellerId: part.sellerId,
+                sellerName: part.sellerName,
+                isDefault: part.isDefault,
+                type: part.type,
+                status: part.status as never,
+                shippingFee: part.shippingFee,
+                feeLabel: part.shippingFee === 0 ? "0" : formatShopMoney(part.shippingFee, order.currency, "fa"),
+                deliveryMethodName: part.deliveryMethodName,
+                dueAt: part.dueAt,
+                trackingCode: part.trackingCode,
+                carrier: part.carrier,
+                rejectionReason: part.rejectionReason,
+                codeLocked: part.codeLocked,
+                attemptsLeft: part.attemptsLeft,
+              }))}
+            />
           </Card>
-
-          {isOfficePickup ? (
-            <Card title={t("officePickup.title" as never)}>
-              <OfficePickupPanel
-                orderId={order.id}
-                state={officePickup}
-                sellersPending={sellersPending}
-                paid={Boolean(order.paid_at) && ["paid", "processing"].includes(order.status)}
-                cancelled={cancelled}
-              />
-            </Card>
-          ) : null}
 
           {order.review_status === "pending" ? (
             <Card title={d("orderReview")}>
@@ -248,37 +225,14 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
             </form>
           </Card>
 
-          {!isOfficePickup ? (
-          <Card title={d("shipment")}>
-            <form action={recordShipmentForm} className="space-y-2">
-              <input type="hidden" name="orderId" value={order.id} />
-              <input name="carrier" placeholder={d("carrierPlaceholder")} className={input} />
-              <input name="trackingNumber" placeholder={d("trackingPlaceholder")} className={input} />
-              <p className="text-xs text-gray-500">{d("partialHint")}</p>
-              {order.items.map((it: any) => (
-                <div key={it.id} className="flex items-center justify-between gap-2 text-sm">
-                  <span className="line-clamp-1 flex-1">{it.name} <span className="text-gray-400">(×{it.quantity})</span></span>
-                  <input name={`qty:${it.id}`} type="number" min={0} max={it.quantity} defaultValue={0} className="h-8 w-16 rounded border border-gray-300 px-1 text-sm" />
+          {order.shipments.length ? (
+            <Card title={d("shipment")}>
+              {order.shipments.map((sh: any) => (
+                <div key={sh.id} className="mt-2 flex items-center justify-between rounded border border-gray-100 p-2 text-sm">
+                  <span>{sh.shipment_number} · {sh.carrier ?? "—"} · {shipmentStatus(sh.status)}</span>
                 </div>
               ))}
-              <label className="flex items-center gap-2 text-sm">
-                <input type="checkbox" name="markShipped" defaultChecked /> {d("markShippedNow")}
-              </label>
-              <button className="w-full rounded bg-[#083f30] px-3 py-2 text-sm font-semibold text-white">{d("recordShipment")}</button>
-            </form>
-            {order.shipments.map((s: any) => (
-              <div key={s.id} className="mt-2 flex items-center justify-between rounded border border-gray-100 p-2 text-sm">
-                <span>{s.shipment_number} · {s.carrier ?? "—"} · {shipmentStatus(s.status)}</span>
-                {s.status !== "delivered" ? (
-                  <form action={markDeliveredForm}>
-                    <input type="hidden" name="orderId" value={order.id} />
-                    <input type="hidden" name="shipmentId" value={s.id} />
-                    <button className="rounded bg-green-700 px-2 py-1 text-xs font-semibold text-white">{d("delivered")}</button>
-                  </form>
-                ) : null}
-              </div>
-            ))}
-          </Card>
+            </Card>
           ) : null}
 
           {refundView && refundView.refundable > 0 ? (

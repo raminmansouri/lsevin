@@ -215,9 +215,39 @@ export type UpdateProductInput = z.infer<typeof updateProductSchema>;
 export type CreateOfferInput = z.infer<typeof createOfferSchema>;
 export type UpdateOfferInput = z.infer<typeof updateOfferSchema>;
 
-/** Clinic orders: the list tab, and the pickup step the clinic moves its part of an order to. */
-export const portalOrderListStatusSchema = z.enum(["new", "ready_for_pickup", "picked_up", "cancelled", "all"]).catch("new");
-/** The clinic's handover to Lsevin: ready to hand over, or handed over. */
+/** Clinic orders: the list tab, and the step the clinic moves its part of an order to. */
+export const portalOrderListStatusSchema = z
+  .enum(["new", "preparing", "shipped", "ready_for_pickup", "delivery_requested", "completed", "cancelled", "all"])
+  .catch("new");
+/**
+ * The clinic's step: preparing; shipped (with the tracking code); ready_for_pickup (issues the
+ * customer's code; again = a new code); delivery_requested (shipping: after shipping; pickup: with
+ * the customer's code).
+ */
 export const portalOrderStatusUpdateSchema = z
-  .object({ status: z.enum(["ready_for_pickup", "picked_up"]) })
-  .strict();
+  .object({
+    status: z.enum(["preparing", "shipped", "ready_for_pickup", "delivery_requested"]),
+    trackingCode: z.string().trim().min(3).max(64).optional(),
+    carrier: z.string().trim().max(80).optional(),
+    code: z.string().trim().max(32).optional(),
+  })
+  .strict()
+  .refine((value) => value.status !== "shipped" || Boolean(value.trackingCode), {
+    message: "A tracking code is required to mark the order shipped.",
+    path: ["trackingCode"],
+  });
+export type PortalOrderStatusUpdate = z.infer<typeof portalOrderStatusUpdateSchema>;
+
+/** The clinic's own shipping fee (rial) and delivery days. */
+export const portalShippingSchema = z
+  .object({
+    shippingFee: z.number().int().min(0).max(1_000_000_000_000),
+    deliveryDaysMin: z.number().int().min(0).max(60),
+    deliveryDaysMax: z.number().int().min(0).max(60),
+  })
+  .strict()
+  .refine((value) => value.deliveryDaysMin <= value.deliveryDaysMax, {
+    message: "The minimum days cannot be more than the maximum.",
+    path: ["deliveryDaysMin"],
+  });
+export type PortalShippingInput = z.infer<typeof portalShippingSchema>;

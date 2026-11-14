@@ -250,8 +250,8 @@ export function VideoConsultationDoctorsManager() {
 
         {Array.isArray(doctors) && (
           <div className="grid gap-6 xl:grid-cols-2">
-            {/* New doctors come from the provider portal ("create doctor profile"); here an admin only edits existing ones. */}
-            {draft.id ? <form
+            {/* With no doctor selected the form registers a new one; choosing one from the list edits it. Clinics can still add doctors from the provider portal. */}
+            <form
               className="space-y-4 rounded-lg border p-4"
               onSubmit={(event) => {
                 event.preventDefault();
@@ -533,11 +533,7 @@ export function VideoConsultationDoctorsManager() {
                   </Button>
                 )}
               </div>
-            </form> : (
-              <p className="h-fit rounded-lg border border-dashed p-4 text-sm leading-7 text-muted-foreground">
-                {t("admin.videoDoctors.addFromPortal")}
-              </p>
-            )}
+            </form>
 
             <div className="space-y-2">
               <p className="text-sm font-medium">

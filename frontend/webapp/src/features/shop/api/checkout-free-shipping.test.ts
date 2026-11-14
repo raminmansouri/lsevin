@@ -61,28 +61,38 @@ describe("free shipping threshold", () => {
 
   it("without a usable rate there is no free shipping (never the rial number compared to dollars)", async () => {
     expect(await freeShippingThreshold("USD")).toBeNull();
-    const [option] = await getDeliveryOptions("USD", "en", 50_000_000, {});
-    expect(option.fee).toBe(1_500_000);
+    // Nor a rial fee shown as dollars: without a rate the paid method is not offered.
+    expect(await getDeliveryOptions("USD", "en", 50_000_000, {})).toEqual([]);
+  });
+
+  it("the delivery fee is stored in rial and converted to the display currency (regression: 9 rial)", async () => {
+    expect((await getDeliveryOptions("IRT", "fa", 1_000, {}))[0]).toMatchObject({ fee: 150_000, currency: "IRT" });
+    state.rates.USD = 0.00002;
+    expect((await getDeliveryOptions("USD", "en", 10, {}))[0].fee).toBeCloseTo(30);
   });
 
   it("delivery options: a 2,500,000-toman rial cart pays shipping, a 3,000,000-toman one does not", async () => {
     expect((await getDeliveryOptions("IRR", "fa", 25_000_000, {}))[0].fee).toBe(1_500_000);
     expect((await getDeliveryOptions("IRR", "fa", 30_000_000, {}))[0].fee).toBe(0);
-    expect((await getDeliveryOptions("IRT", "fa", 2_999_999, {}))[0].fee).toBe(1_500_000);
+    expect((await getDeliveryOptions("IRT", "fa", 2_999_999, {}))[0].fee).toBe(150_000);
     expect((await getDeliveryOptions("IRT", "fa", 3_000_000, {}))[0].fee).toBe(0);
   });
 
-  it("the Lsevin office pickup option is always offered, with no fee and no transit, whatever the address", async () => {
+  it("the office pickup method is never a shipping option for Lsevin's shipment (pickup is offered by the checkout itself)", async () => {
     state.methods = [
       { id: "post", code: "post", name: "Post", description: "", baseFee: 1_500_000, etaMin: 2, etaMax: 4, isPickup: false,
         rules: { geo: { includeCountries: ["IR"] } } },
       { id: "office", code: "lsevin_office_pickup", name: "Office", description: "", baseFee: 999, etaMin: 9, etaMax: 9, isPickup: true,
         rules: { geo: { includeCountries: ["XX"] } }, officeAddress: "Tehran", officePhone: "021", officeHours: "9-17" },
     ];
-    const abroad = await getDeliveryOptions("IRR", "fa", 1_000, { country: "DE" });
-    expect(abroad.map((o) => o.id)).toEqual(["office"]);
-    expect(abroad[0]).toMatchObject({ fee: 0, etaMinDays: 0, etaMaxDays: 0, isPickup: true, office: { address: "Tehran", phone: "021", hours: "9-17" } });
+    expect((await getDeliveryOptions("IRR", "fa", 1_000, { country: "DE" })).map((o) => o.id)).toEqual([]);
     const home = await getDeliveryOptions("IRR", "fa", 1_000, { country: "IR" });
-    expect(home.map((o) => [o.id, o.isPickup, o.fee])).toEqual([["post", false, 1_500_000], ["office", true, 0]]);
+    expect(home.map((o) => [o.id, o.isPickup, o.fee])).toEqual([["post", false, 1_500_000]]);
+  });
+
+  it("the free-shipping threshold applies per seller shipment, on that seller's subtotal", async () => {
+    // Lsevin's part alone is 25,000,000 rial: it pays shipping even if the whole cart is above the threshold.
+    expect((await getDeliveryOptions("IRR", "fa", 25_000_000, {}))[0].fee).toBe(1_500_000);
+    expect((await getDeliveryOptions("IRR", "fa", 30_000_000, {}))[0].fee).toBe(0);
   });
 });

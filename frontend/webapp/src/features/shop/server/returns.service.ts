@@ -39,19 +39,20 @@ export async function requestOrderCancellation(input: { orderNumber: string; ema
 
   const paid = ["captured", "partially_refunded"].includes(order.payment_status);
   await sql.begin(async (tx) => {
-    // Re-check under the order's row lock: shipping and "ready for pickup at the office" (admin)
-    // lock the same row, so a cancellation can't slip in between them and here.
-    const [locked] = await tx<{ status: string; officeReady: boolean }[]>`
+    // Re-check under the order's row lock: every seller step locks the same row first, so a
+    // cancellation can't slip in between a seller shipping (or making it ready) and here.
+    const [locked] = await tx<{ status: string; handedOver: boolean }[]>`
       select o.status::text as status,
-        exists (select 1 from shop.order_office_pickups op where op.order_id = o.id) as "officeReady"
+        exists (select 1 from shop.seller_order_pickups sp where sp.order_id = o.id
+                  and sp.status not in ('new', 'preparing')) as "handedOver"
       from shop.orders o where o.id = ${order.id}::uuid for update of o
     `;
     if (!locked || !CANCELLABLE_ORDER_STATUSES.includes(locked.status)) {
       throw new Error(`This order can no longer be cancelled (status: ${locked?.status ?? order.status}).`);
     }
-    // The order already waits at the Lsevin office (or was picked up).
-    if (locked.officeReady) {
-      throw new Error("This order is ready for pickup at the Lsevin office and can no longer be cancelled.");
+    // A seller already shipped its part, or made it ready for pickup.
+    if (locked.handedOver) {
+      throw new Error("A seller has already shipped or prepared your items for pickup; this order can no longer be cancelled.");
     }
     await tx`
       update shop.orders

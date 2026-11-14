@@ -1,9 +1,10 @@
 import "server-only";
 
-import type { OfficePickupStatus, OrderDetail, OrderSummary } from "../types/domain";
+import type { OrderDetail, OrderSellerShipment, OrderSummary } from "../types/domain";
+import { customerCanCancel } from "../lib/fulfilment";
 import { getShopContext, normalizeLocale } from "../lib/context";
 import { sql } from "../lib/db";
-import { decryptPickupCode } from "../server/pickup-code";
+import { pickupPlaces, readOrderSellerParts, visiblePickupCode } from "../server/seller-fulfilment.service";
 
 /**
  * Customer-facing order read model. Access is owner-scoped: a guest reads an
@@ -46,16 +47,8 @@ export async function getCustomerOrder(orderNumber: string, guestEmail?: string 
       o.payment_currency as "paymentCurrency", o.payment_total::float as "paymentTotal",
       o.coupon_code as "couponCode", o.fx_snapshot as "fxSnapshot", o.customer_id::text as "customerId",
       o.promised_days as "promisedDays", o.promised_ready_at::text as "promisedReadyAt",
-      o.fulfillment_mode as "fulfillmentMode",
-      -- The office details as they are now (an office move shows the new address).
-      nullif(common.get_translation_t(dm.pickup_address_translations, ${lang}, 'fa'), '') as "officeAddress",
-      nullif(dm.pickup_phone, '') as "officePhone",
-      nullif(common.get_translation_t(dm.pickup_hours_translations, ${lang}, 'fa'), '') as "officeHours",
-      op.status as "officeStatus", op.ready_at::text as "officeReadyAt", op.picked_up_at::text as "officePickedUpAt",
-      op.pickup_code_cipher as "officeCodeCipher"
+      o.fulfillment_mode as "fulfillmentMode"
     from shop.orders o
-    left join shop.delivery_methods dm on dm.id = o.delivery_method_id
-    left join shop.order_office_pickups op on op.order_id = o.id
     where o.order_number = ${orderNumber}
     limit 1
   `;
@@ -116,25 +109,26 @@ export async function getCustomerOrder(orderNumber: string, guestEmail?: string 
     `,
   ]);
 
-  const fulfillmentMode: "delivery" | "office_pickup" = order.fulfillmentMode === "office_pickup" ? "office_pickup" : "delivery";
-  let officePickup: OrderDetail["officePickup"] = null;
-  if (fulfillmentMode === "office_pickup") {
-    const status: OfficePickupStatus = ["cancelled", "refunded"].includes(String(order.status))
-      ? "cancelled"
-      : order.officeStatus === "picked_up"
-        ? "picked_up"
-        : order.officeStatus === "ready"
-          ? "ready"
-          : "preparing";
-    officePickup = {
-      status,
-      readyAt: order.officeReadyAt ?? null,
-      pickedUpAt: order.officePickedUpAt ?? null,
-      // The code is shown only while the order waits at the office.
-      pickupCode: status === "ready" ? decryptPickupCode(order.officeCodeCipher) : null,
-      office: { address: order.officeAddress ?? null, phone: order.officePhone ?? null, hours: order.officeHours ?? null },
-    };
-  }
+  const fulfillmentMode: "delivery" | "pickup" = order.fulfillmentMode === "pickup" ? "pickup" : "delivery";
+  // One block per seller: its shipment (tracking code) or the pickup (place + code).
+  const cancelled = ["cancelled", "refunded"].includes(String(order.status));
+  const parts = await readOrderSellerParts(order.id, lang);
+  // The place as it is now (a moved clinic shows its new address).
+  const places = fulfillmentMode === "pickup" ? await pickupPlaces(parts.map((p) => p.sellerId), lang) : new Map();
+  const sellerShipments: OrderSellerShipment[] = parts.map((part) => ({
+    sellerId: part.sellerId,
+    sellerName: part.sellerName,
+    type: part.type,
+    status: cancelled ? "cancelled" : part.status,
+    shippingFee: part.shippingFee,
+    trackingCode: part.trackingCode,
+    carrier: part.carrier,
+    shippedAt: part.shippedAt,
+    readyAt: part.readyAt,
+    pickupCode: cancelled ? null : visiblePickupCode(part),
+    place: part.type === "pickup" ? (places.get(part.sellerId) ?? null) : null,
+    itemIds: part.itemIds,
+  }));
 
   const addr = (t: string) => {
     const a = addresses.find((x) => x.addressType === t);
@@ -178,7 +172,8 @@ export async function getCustomerOrder(orderNumber: string, guestEmail?: string 
     promisedDays: order.promisedDays ?? null,
     promisedReadyAt: order.promisedReadyAt ?? null,
     fulfillmentMode,
-    officePickup,
+    sellerShipments,
+    cancellable: !cancelled && customerCanCancel(parts),
     shippingAddress: addr("shipping"),
     billingAddress: addr("billing"),
     payments: payments.map((p) => ({ ...p, amount: Number(p.amount) })),

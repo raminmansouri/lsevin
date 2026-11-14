@@ -95,6 +95,8 @@ export interface ProductOfferView {
   warranty: string;
   /** Sold by a partner seller (e.g. a clinic) who hands the item to Lsevin; Lsevin sends it. */
   partnerSeller?: boolean;
+  /** A partner seller's own longest delivery days (null for Lsevin: see lsevinDeliveryDays). */
+  sellerDeliveryDays?: number | null;
 }
 
 export interface ProductDetail extends ProductCard {
@@ -126,10 +128,10 @@ export interface CartItem {
   id: UUID; productId: UUID; variantId: UUID | null; slug: string; name: string; variantTitle: string | null; imageUrl: string | null;
   /** The seller this line buys from (null for lines added before the marketplace). */
   sellerName?: string | null;
-  /** Who sells it. A partner seller (e.g. a clinic) hands the item to Lsevin, which sends it. */
+  /** Who sells and sends it (a partner seller, e.g. a clinic, ships its own items). */
   sellerId?: string | null;
   partnerSeller?: boolean;
-  /** The offer's handling time (days until it is at Lsevin); null = not set. */
+  /** The offer's handling time (days until the seller sends it); null = not set. */
   handlingDays?: number | null;
   attributes: Record<string, string>; quantity: number;
   /** resolved display unit price + line total in `currency` */
@@ -158,15 +160,24 @@ export interface OrderSummary {
   reviewStatus: "not_required" | "pending" | "accepted" | "rejected";
   placedAt: string; grandTotal: number; currency: string; itemCount: number;
 }
-export type OfficePickupStatus = "preparing" | "ready" | "picked_up" | "cancelled";
-/** An order collected at the Lsevin office. */
-export interface OrderOfficePickup {
-  status: OfficePickupStatus;
+/** One seller's part of an order, as the customer sees it. */
+export type SellerPartStatus = "new" | "preparing" | "shipped" | "ready_for_pickup" | "delivery_requested" | "completed" | "cancelled";
+export interface OrderSellerShipment {
+  sellerId: UUID;
+  sellerName: string;
+  /** Shipped by the seller, or picked up at the seller's place. */
+  type: "shipping" | "pickup";
+  status: SellerPartStatus;
+  shippingFee: number;
+  trackingCode: string | null;
+  carrier: string | null;
+  shippedAt: string | null;
   readyAt: string | null;
-  pickedUpAt: string | null;
-  /** Only while ready: the code the customer tells the office. */
+  /** Only while ready for pickup: the code the customer tells the seller. */
   pickupCode: string | null;
-  office: { address: string | null; phone: string | null; hours: string | null } | null;
+  /** Where to pick up (pickup only). */
+  place: { name: string; address: string | null; phone: string | null; hours: string | null } | null;
+  itemIds: UUID[];
 }
 export interface OrderDetail extends OrderSummary {
   email: string;
@@ -174,14 +185,16 @@ export interface OrderDetail extends OrderSummary {
   paymentCurrency: string | null; paymentTotal: number | null;
   couponCode: string | null;
   items: Array<{ id: UUID; productId: UUID | null; slug: string | null; name: string; variantName: string | null; imageUrl: string | null; quantity: number; unitPrice: number; lineTotal: number; attributes: Record<string, string>; fulfillmentStatus: ShipmentStatus;
-    /** Who sold the line (Lsevin sends every line). */
+    /** Who sold (and sends) the line. */
     sellerId?: UUID | null; sellerName?: string | null; }>;
   /** The overall estimate shown at checkout and kept on the order (null for older orders). */
   promisedDays?: number | null; promisedReadyAt?: string | null;
-  /** Delivery to the address (default, and every older order) or pickup at the Lsevin office. */
-  fulfillmentMode?: "delivery" | "office_pickup";
-  /** Set for office pickup orders. */
-  officePickup?: OrderOfficePickup | null;
+  /** Shipped by each seller (default) or picked up at the one seller's place. */
+  fulfillmentMode?: "delivery" | "pickup";
+  /** One block per seller. */
+  sellerShipments?: OrderSellerShipment[];
+  /** Whether the customer may still cancel (no seller has shipped or made its part ready). */
+  cancellable?: boolean;
   shippingAddress: Record<string, string | null>;
   billingAddress: Record<string, string | null>;
   payments: Array<{ id: UUID; provider: string | null; amount: number; currency: string; status: string; createdAt: string }>;

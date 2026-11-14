@@ -14483,9 +14483,10 @@ declare const messages: {
       "outOfStock": "غير متوفر",
       "add": "إضافة",
       "others": "{count} بائعين آخرين",
-      "soldBySentByLsevin": "البائع: {name} · الشحن من لسوين",
-      "sentByLsevin": "الشحن من لسوين",
-      "deliveredIn": "{days, plural, =0 {التوصيل اليوم} other {التوصيل خلال # يوم عمل}}"
+      "deliveredIn": "{days, plural, =0 {التوصيل اليوم} other {التوصيل خلال # يوم عمل}}",
+      "soldByShippedBySeller": "البائع: {name} · الشحن من البائع",
+      "shippedBySeller": "الشحن من البائع",
+      "pickupPossible": "الاستلام الشخصي ممكن أيضًا"
     },
     "sellerPage": {
       "products": "{count} منتج",
@@ -14497,30 +14498,48 @@ declare const messages: {
     },
     "fulfilment": {
       "title": "طريقة استلام طلبك",
-      "overallDelivery": "{days, plural, =0 {يصلك طلبك كاملاً اليوم} other {يصلك طلبك كاملاً خلال # يوم}}",
-      "overallPickup": "{days, plural, =0 {طلبك كاملاً جاهز في مكتب لسوين اليوم} other {طلبك كاملاً جاهز في مكتب لسوين خلال # يوم}}",
-      "promisedDelivery": "وصول الطلب كاملاً بحلول {date}",
-      "promisedPickup": "الطلب كاملاً جاهز في مكتب لسوين بحلول {date}",
-      "sentByLsevinHint": "جميع المنتجات، من كل البائعين، تُرسل من لسوين في شحنة واحدة.",
+      "overallDelivery": "{days, plural, =0 {Every shipment arrives today} one {Every shipment arrives within # day} other {Every shipment arrives within # days}}",
+      "overallPickup": "{days, plural, =0 {Your order is ready for pickup today} one {Your order is ready for pickup within # day} other {Your order is ready for pickup within # days}}",
+      "promisedDelivery": "Every shipment arrives by {date}",
+      "promisedPickup": "Ready for pickup by {date}",
       "noShippingFee": "بدون رسوم شحن",
       "deliveryTo": "التوصيل إلى عنوانك",
-      "officePickup": "الاستلام من مكتب لسوين",
-      "officeNotSet": "يُرسل عنوان المكتب مع رمز الاستلام.",
+      "officeNotSet": "The pickup address is sent with your pickup code.",
       "openingHours": "ساعات العمل",
-      "call": "اتصل بالمكتب",
+      "call": "Call",
       "contactForPickup": "اسمك ورقم جوالك",
-      "pickupPhoneHint": "يُرسل رمز الاستلام إلى هذا الرقم."
+      "pickupPhoneHint": "يُرسل رمز الاستلام إلى هذا الرقم.",
+      "sellersShipHint": "Each seller sends its own items separately; this is when the last shipment arrives.",
+      "pickupHint": "When your order is ready, your pickup code is sent by SMS.",
+      "pickupAt": "الاستلام شخصيًا من {seller}",
+      "shipmentBySeller": "شحنة {seller}",
+      "shipmentDays": "{days, plural, =0 {today} one {within # day} other {within # days}}",
+      "shippingFee": "الشحن",
+      "trackingCode": "رمز التتبع"
     },
     "pickup": {
-      "status": {
-        "preparing": "قيد التجهيز",
-        "ready": "جاهز للاستلام في مكتب لسوين",
-        "picked_up": "تم الاستلام",
-        "cancelled": "ملغى"
-      },
       "code": "رمز الاستلام",
-      "codeHint": "أخبر مكتب لسوين بهذا الرمز عند استلام طلبك.",
-      "pickedUpOn": "تم الاستلام في {date}"
+      "codeHint": "أخبر البائع بهذا الرمز عند استلام طلبك."
+    },
+    "sellerPart": {
+      "shipping": {
+        "new": "Waiting for the seller",
+        "preparing": "Being prepared",
+        "shipped": "Shipped",
+        "ready_for_pickup": "Ready",
+        "delivery_requested": "Delivered (being confirmed)",
+        "completed": "Delivered",
+        "cancelled": "Cancelled"
+      },
+      "pickup": {
+        "new": "Waiting for the seller",
+        "preparing": "Being prepared",
+        "shipped": "Shipped",
+        "ready_for_pickup": "Ready for pickup",
+        "delivery_requested": "Picked up (being confirmed)",
+        "completed": "Picked up",
+        "cancelled": "Cancelled"
+      }
     }
   },
   "ShopAdmin": {

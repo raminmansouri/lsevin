@@ -40,9 +40,12 @@ export const saveAddressSchema = addressInputSchema.extend({
   isDefault: z.boolean().optional().default(false),
 });
 
+/** A delivery method id (Lsevin's shipment), "seller_shipping" (sellers only) or "pickup". */
+export const checkoutOptionId = z.union([shopId, z.enum(["seller_shipping", "pickup"])]);
+
 export const checkoutQuoteSchema = z.object({
   cartId: shopId,
-  deliveryMethodId: shopId.optional().nullable(),
+  deliveryMethodId: checkoutOptionId.optional().nullable(),
   paymentCurrency: z.string().trim().max(15).optional().nullable(),
   // Shipping destination, so delivery options can be filtered/priced by
   // geography before an address row is saved (SHP-V03-012).
@@ -65,8 +68,8 @@ export const placeOrderSchema = z.object({
   shippingAddress: checkoutAddressSchema,
   billingAddress: checkoutAddressSchema.optional(),
   sameBilling: z.boolean().optional().default(true),
-  // Only when something is shipped; an all-clinic-pickup order has no delivery method.
-  deliveryMethodId: shopId.optional().nullable(),
+  // The chosen option (see checkoutOptionId); required by placeOrder.
+  deliveryMethodId: checkoutOptionId.optional().nullable(),
   paymentMethodId: shopId.optional().nullable(),
   paymentMethodCode: z.string().trim().max(40).optional().nullable(),
   paymentCurrency: z.string().trim().max(15).optional().nullable(),

@@ -3,12 +3,13 @@ import { useLocale, useTranslations } from "next-intl";
 import type { ReactNode } from "react";
 
 /**
- * Fulfilment display shared by the checkout and the order page. Lsevin fulfils every order as one
- * shipment: delivery to the address, or pickup at the Lsevin office. The one overall estimate is
- * the headline. No hooks beyond next-intl, so it renders in server and client components alike.
+ * Fulfilment display shared by the checkout and the order page. Each seller sends its own part
+ * (one shipment per seller), or a single-seller order is picked up at that seller's place. The one
+ * overall estimate (the latest shipment) is the headline. No hooks beyond next-intl, so it renders
+ * in server and client components alike.
  */
 
-export type OfficeDetails = { address: string | null; phone: string | null; hours: string | null };
+export type OfficeDetails = { name?: string | null; address: string | null; phone: string | null; hours: string | null };
 
 export function OverallEstimate({
   days,
@@ -37,7 +38,7 @@ export function OverallEstimate({
               })
             : t(isPickup ? "fulfilment.overallPickup" : "fulfilment.overallDelivery", { days: days ?? 0 })}
         </p>
-        <p className="mt-0.5 text-xs text-[#083f30]/80">{t("fulfilment.sentByLsevinHint")}</p>
+        <p className="mt-0.5 text-xs text-[#083f30]/80">{t(isPickup ? "fulfilment.pickupHint" : "fulfilment.sellersShipHint")}</p>
       </div>
     </div>
   );
@@ -50,13 +51,13 @@ export function ShipmentCard({
   children,
   testId,
 }: {
-  kind: "delivery" | "office_pickup";
+  kind: "delivery" | "pickup";
   title: string;
   meta?: ReactNode;
   children?: ReactNode;
   testId?: string;
 }) {
-  const Icon = kind === "office_pickup" ? Store : Truck;
+  const Icon = kind === "pickup" ? Store : Truck;
   return (
     <div data-testid={testId} data-shipment={kind} className="rounded-xl border border-neutral-200 p-3">
       <p className="flex items-center gap-1.5 text-sm font-bold text-neutral-900">
@@ -69,7 +70,7 @@ export function ShipmentCard({
   );
 }
 
-/** The Lsevin office's address, phone (tap to call) and opening hours, as set in admin. */
+/** The pickup place's address, phone (tap to call) and opening hours (a clinic's, or the Lsevin office's). */
 export function OfficeDetailsView({ office }: { office: OfficeDetails | null }) {
   const t = useTranslations("Shop");
   if (!office || (!office.address && !office.phone && !office.hours)) {

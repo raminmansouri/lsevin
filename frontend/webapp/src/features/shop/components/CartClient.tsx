@@ -111,7 +111,7 @@ export function CartClient({
               <p className="text-xs font-medium text-[#083f30]">
                 🏪 {item.sellerName}
                 {item.partnerSeller ? (
-                  <span className="text-neutral-500"> · {t("sellerOffers.sentByLsevin")}</span>
+                  <span className="text-neutral-500"> · {t("sellerOffers.shippedBySeller")}</span>
                 ) : null}
               </p>
             ) : null}

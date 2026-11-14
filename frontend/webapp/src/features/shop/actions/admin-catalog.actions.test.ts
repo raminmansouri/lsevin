@@ -10,6 +10,7 @@ const mocks = vi.hoisted(() => ({
 
 vi.mock("next/cache", () => ({ revalidatePath: mocks.path }));
 vi.mock("next/navigation", () => ({ redirect: vi.fn() }));
+vi.mock("../api/admin.repository", () => ({ findSimilarProductsAdmin: vi.fn() }));
 vi.mock("../lib/cache", () => ({ revalidateShopCatalog: mocks.invalidate }));
 vi.mock("../server/admin-catalog.service", () => ({
   setProductGallery: mocks.gallery,

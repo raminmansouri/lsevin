@@ -97,11 +97,11 @@ values
   ('22222222-2222-4222-8222-222222222301', 'standard',
     '{"en":"Standard delivery","fa":"ارسال عادی","ar":"توصيل قياسي"}'::jsonb,
     '{"en":"Delivered in 3-6 business days","fa":"تحویل در ۳ تا ۶ روز کاری","ar":"التوصيل خلال 3-6 أيام عمل"}'::jsonb,
-    true, 4.99, 3, 6),
+    true, 1500000, 3, 6), -- rial
   ('22222222-2222-4222-8222-222222222302', 'express',
     '{"en":"Express delivery","fa":"ارسال سریع","ar":"توصيل سريع"}'::jsonb,
     '{"en":"Delivered in 1-2 business days","fa":"تحویل در ۱ تا ۲ روز کاری","ar":"التوصيل خلال 1-2 يوم عمل"}'::jsonb,
-    true, 12.99, 1, 2)
+    true, 3000000, 1, 2) -- rial
 on conflict (code) do nothing;
 
 insert into shop.payment_methods (id, code, name_translations, description_translations, provider, is_active, supports_authorize, supports_capture, supports_refund, sort_order)

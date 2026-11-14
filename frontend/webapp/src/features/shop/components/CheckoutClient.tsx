@@ -118,8 +118,9 @@ export function CheckoutClient({
   } | null>(null);
 
   const cur = quote.currency;
-  // Lsevin sends the whole order: to the address (needs the address) or for pickup at the Lsevin
-  // office (needs a mobile for the pickup code). Read from the option picked now, not the last quote.
+  // Each seller ships its part to the address (needs the address), or, single-seller carts only,
+  // in-person pickup at that seller (needs a mobile for the pickup code). Read from the option
+  // picked now, not the last quote.
   const selectedOption =
     quote.deliveryOptions.find((d) => d.id === deliveryId) ?? null;
   const isPickup = Boolean(selectedOption?.isPickup);
@@ -460,7 +461,7 @@ export function CheckoutClient({
             {quote.deliveryOptions.map((d) => (
               <div
                 key={d.id}
-                data-testid={d.isPickup ? "option-office-pickup" : "option-delivery"}
+                data-testid={d.isPickup ? "option-pickup" : "option-delivery"}
                 className={cn(
                   "rounded-xl border px-3 py-2.5",
                   deliveryId === d.id
@@ -499,6 +500,24 @@ export function CheckoutClient({
                   <div className="mt-2 border-t border-[#083f30]/10 pt-2">
                     <OfficeDetailsView office={d.office} />
                   </div>
+                ) : null}
+                {/* Shipping: each seller sends its own part, with its own fee and time. */}
+                {!d.isPickup && deliveryId === d.id && (d.shipments?.length ?? 0) > 0 ? (
+                  <ul data-testid="seller-shipments" className="mt-2 space-y-1 border-t border-[#083f30]/10 pt-2">
+                    {d.shipments!.map((s) => (
+                      <li key={s.sellerId} data-testid="seller-shipment" className="flex items-center justify-between gap-2 text-xs text-neutral-700">
+                        <span className="min-w-0 [overflow-wrap:anywhere]">
+                          {t("fulfilment.shipmentBySeller", { seller: s.sellerName })}
+                          {s.promiseDays != null ? (
+                            <span className="text-neutral-500"> · {t("fulfilment.shipmentDays", { days: s.promiseDays })}</span>
+                          ) : null}
+                        </span>
+                        <span className="shrink-0 font-semibold">
+                          {s.fee === 0 ? t("freeShipping") : formatShopMoney(s.fee, cur, locale)}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
                 ) : null}
               </div>
             ))}

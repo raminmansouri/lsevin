@@ -4719,6 +4719,8 @@ declare const messages: {
       "supportTags": "برچسب‌ها",
       "supportSettings": "تنظیمات پشتیبانی",
       "consultings": "درخواست‌های مشاوره رایگان",
+      "consultation": "مشاوره",
+      "consultationDoctors": "پزشکان مشاوره",
       "bugReports": "گزارش خطاها",
       "notificationTemplates": "قالب‌های اطلاع‌رسانی",
       "notificationChannels": "کانال‌های اطلاع‌رسانی",
@@ -4761,7 +4763,7 @@ declare const messages: {
       "toursPlatformTaxonomy": "۲. دسته‌ها و برچسب‌ها",
       "editorial": "محتوای سایت",
       "assistant": "دستیار هوشمند",
-      "shopInbound": "دریافت از فروشنده‌ها"
+      "shopApprovals": "تأیید تحویل فروشنده‌ها"
     }
   },
   "HomePage": {
@@ -16342,9 +16344,10 @@ declare const messages: {
       "outOfStock": "ناموجود",
       "add": "افزودن",
       "others": "{count} فروشندهٔ دیگر",
-      "soldBySentByLsevin": "فروشنده: {name} · ارسال توسط لسوین",
-      "sentByLsevin": "ارسال توسط لسوین",
-      "deliveredIn": "{days, plural, =0 {تحویل امروز} other {تحویل تا # روز کاری}}"
+      "deliveredIn": "{days, plural, =0 {تحویل امروز} other {تحویل تا # روز کاری}}",
+      "soldByShippedBySeller": "فروشنده: {name} · ارسال توسط فروشنده",
+      "shippedBySeller": "ارسال توسط فروشنده",
+      "pickupPossible": "تحویل حضوری هم ممکن است"
     },
     "sellerPage": {
       "products": "{count} کالا",
@@ -16356,30 +16359,48 @@ declare const messages: {
     },
     "fulfilment": {
       "title": "نحوه‌ی دریافت سفارش",
-      "overallDelivery": "{days, plural, =0 {کل سفارش شما امروز به دستتان می‌رسد} other {کل سفارش شما حداکثر تا # روز دیگر به دستتان می‌رسد}}",
-      "overallPickup": "{days, plural, =0 {کل سفارش شما امروز در دفتر لسوین آماده‌ی تحویل است} other {کل سفارش شما حداکثر تا # روز دیگر در دفتر لسوین آماده‌ی تحویل است}}",
-      "promisedDelivery": "رسیدن کل سفارش تا {date}",
-      "promisedPickup": "آماده شدن کل سفارش در دفتر لسوین تا {date}",
-      "sentByLsevinHint": "همه‌ی کالاها، از هر فروشنده‌ای، با یک مرسوله توسط لسوین ارسال می‌شوند.",
+      "overallDelivery": "{days, plural, =0 {همه‌ی مرسوله‌ها امروز به دستتان می‌رسند} other {همه‌ی مرسوله‌ها حداکثر تا # روز دیگر به دستتان می‌رسند}}",
+      "overallPickup": "{days, plural, =0 {سفارش شما امروز برای تحویل حضوری آماده است} other {سفارش شما حداکثر تا # روز دیگر برای تحویل حضوری آماده است}}",
+      "promisedDelivery": "رسیدن همه‌ی مرسوله‌ها تا {date}",
+      "promisedPickup": "آماده شدن برای تحویل حضوری تا {date}",
       "noShippingFee": "بدون هزینه‌ی ارسال",
       "deliveryTo": "ارسال به نشانی شما",
-      "officePickup": "تحویل حضوری از دفتر لسوین",
-      "officeNotSet": "نشانی دفتر همراه با کد تحویل برایتان ارسال می‌شود.",
+      "officeNotSet": "نشانی محل تحویل همراه با کد تحویل برایتان ارسال می‌شود.",
       "openingHours": "ساعات کاری",
-      "call": "تماس با دفتر",
+      "call": "تماس",
       "contactForPickup": "نام و شماره موبایل شما",
-      "pickupPhoneHint": "کد تحویل به این شماره موبایل پیامک می‌شود."
+      "pickupPhoneHint": "کد تحویل به این شماره موبایل پیامک می‌شود.",
+      "sellersShipHint": "هر فروشنده کالاهای خودش را جداگانه ارسال می‌کند؛ این تاریخِ رسیدن آخرین مرسوله است.",
+      "pickupHint": "وقتی سفارش آماده شد، کد تحویل برایتان پیامک می‌شود.",
+      "pickupAt": "تحویل حضوری از {seller}",
+      "shipmentBySeller": "مرسوله‌ی {seller}",
+      "shipmentDays": "{days, plural, =0 {امروز} other {تا # روز}}",
+      "shippingFee": "هزینه‌ی ارسال",
+      "trackingCode": "کد رهگیری"
     },
     "pickup": {
-      "status": {
+      "code": "کد تحویل",
+      "codeHint": "هنگام تحویل گرفتن سفارش، این کد را به فروشنده بگویید."
+    },
+    "sellerPart": {
+      "shipping": {
+        "new": "در انتظار فروشنده",
         "preparing": "در حال آماده‌سازی",
-        "ready": "آماده‌ی تحویل در دفتر لسوین",
-        "picked_up": "تحویل گرفته شد",
+        "shipped": "ارسال شد",
+        "ready_for_pickup": "آماده",
+        "delivery_requested": "تحویل داده شد (در انتظار تأیید)",
+        "completed": "تحویل داده شد",
         "cancelled": "لغو شده"
       },
-      "code": "کد تحویل",
-      "codeHint": "هنگام دریافت سفارش در دفتر لسوین، این کد را بگویید.",
-      "pickedUpOn": "تحویل گرفته شده در {date}"
+      "pickup": {
+        "new": "در انتظار فروشنده",
+        "preparing": "در حال آماده‌سازی",
+        "shipped": "ارسال شد",
+        "ready_for_pickup": "آماده‌ی تحویل حضوری",
+        "delivery_requested": "تحویل گرفته شد (در انتظار تأیید)",
+        "completed": "تحویل گرفته شد",
+        "cancelled": "لغو شده"
+      }
     }
   },
   "ShopAdmin": {
@@ -16883,12 +16904,16 @@ declare const messages: {
       "title": "روش‌های ارسال",
       "hint": "rules.geo هنگام تسویه اعمال می‌شود: includeCountries (فهرست مجاز)، excludeCountries (فهرست ممنوع)، includeRegions (فهرست مجاز استان / منطقه)، surcharges[].amount (به هزینهٔ پایه برای کشورها / مناطق منطبق افزوده می‌شود) و etaOverrides[]. کد کشور / منطقه بدون حساسیت به بزرگی و کوچکی حروف مقایسه می‌شود. قوانین خالی = ارسال به همه‌جا.",
       "active": "فعال",
-      "baseFee": "هزینهٔ پایه",
+      "baseFee": "هزینهٔ پایه (ریال)",
       "etaMin": "حداقل زمان (روز)",
       "etaMax": "حداکثر زمان (روز)",
       "rulesJson": "قوانین (JSON)",
       "save": "ذخیره",
-      "noMethods": "روش ارسالی پیکربندی نشده است."
+      "noMethods": "روش ارسالی پیکربندی نشده است.",
+      "feeCapTitle": "سقف هزینه‌ی ارسال فروشنده‌ها",
+      "feeCapHint": "هر کلینیک هزینه‌ی ارسال خودش را تعیین می‌کند؛ مبلغ دریافتی از مشتری حداکثر این سقف است (ریال). خالی = بدون سقف.",
+      "feeCapPlaceholder": "مثلاً 800000",
+      "feeCapSave": "ذخیره"
     },
     "attributes": {
       "title": "ویژگی‌ها",
@@ -17084,51 +17109,6 @@ declare const messages: {
       "manage": "{count} کالا",
       "lowStockCount": "{count} موجودی کم"
     },
-    "officePickup": {
-      "title": "تحویل حضوری از دفتر لسوین",
-      "promised": "قول داده‌شده تا {date}",
-      "waitingForSellers": "در انتظار کالا از فروشنده‌ها ({count}). وقتی همه‌چیز رسید، سفارش را آماده‌ی تحویل کنید.",
-      "notPaid": "این سفارش هنوز پرداخت نشده است.",
-      "markReady": "آماده‌ی تحویل است (ارسال کد برای مشتری)",
-      "readySince": "آماده از {date}. کد تحویل برای مشتری ارسال شد.",
-      "codeLabel": "کد تحویل مشتری",
-      "confirm": "تأیید تحویل",
-      "resend": "ارسال کد جدید",
-      "resendConfirm": "کد تحویل جدید برای مشتری ارسال شود؟ کد قبلی دیگر کار نمی‌کند.",
-      "attemptsLeft": "{count} بار دیگر می‌توانید امتحان کنید",
-      "locked": "کد اشتباه بیش از حد وارد شد. برای ادامه، کد جدید برای مشتری بفرستید.",
-      "pickedUp": "تحویل داده شد در {date}.",
-      "wrongCode": "کد اشتباه است. {count} بار دیگر می‌توانید امتحان کنید.",
-      "codeFormat": "کد ۶ رقمی را وارد کنید.",
-      "codeSent": "کد تحویل برای مشتری ارسال شد.",
-      "cancelled": "این سفارش لغو شده است."
-    },
-    "inbound": {
-      "title": "کالاهای دریافتی از فروشنده‌ها",
-      "hint": "سفارش‌های پرداخت‌شده‌ای که فروشنده (مثلاً کلینیک) هنوز باید کالایش را به لسوین بدهد. مهلت = تاریخ پرداخت + روزهای آماده‌سازی فروشنده. وقتی کالای هر فروشنده رسید «دریافت شد» را بزنید؛ بعد سفارش قابل ارسال یا آماده‌ی تحویل حضوری است.",
-      "empty": "کالایی برای دریافت نیست.",
-      "order": "سفارش",
-      "items": "کالاها",
-      "due": "مهلت",
-      "overdue": "دیر شده",
-      "sellerStatus": "وضعیت فروشنده",
-      "statusNew": "آماده نیست",
-      "statusReady": "آماده‌ی تحویل به لسوین",
-      "statusHanded": "تحویل داده (طبق اعلام فروشنده)",
-      "received": "دریافت شد",
-      "markReceived": "دریافت شد",
-      "fulfilmentDelivery": "ارسال",
-      "fulfilmentPickup": "تحویل حضوری"
-    },
-    "orderFulfilment": {
-      "title": "نحوه‌ی تحویل",
-      "delivery": "ارسال به نشانی",
-      "officePickup": "تحویل حضوری از دفتر لسوین",
-      "sellers": "کالاهای فروشنده‌ها",
-      "allReceived": "همه‌ی کالاها در لسوین است.",
-      "receivedOn": "دریافت شد {date}",
-      "notReceived": "هنوز نرسیده · مهلت {date}"
-    },
     "deliveryOffice": {
       "title": "دفتر لسوین (برای مشتریانی که حضوری تحویل می‌گیرند)",
       "addressFa": "نشانی دفتر (فارسی)",
@@ -17136,6 +17116,49 @@ declare const messages: {
       "phone": "تلفن دفتر",
       "hoursFa": "ساعات کاری (فارسی)",
       "hoursEn": "ساعات کاری (انگلیسی)"
+    },
+    "sellerParts": {
+      "title": "ارسال و تحویل فروشنده‌ها",
+      "modeShipping": "ارسال توسط هر فروشنده",
+      "modePickup": "تحویل حضوری از فروشنده",
+      "promised": "وعده‌ی تحویل کل سفارش: {date}",
+      "typeShipping": "ارسال",
+      "typePickup": "تحویل حضوری",
+      "status": {
+        "new": "جدید",
+        "preparing": "در حال آماده‌سازی",
+        "shipped": "ارسال شد",
+        "ready_for_pickup": "آماده‌ی تحویل حضوری",
+        "delivery_requested": "درخواست تأیید تحویل",
+        "completed": "تحویل تأیید شد"
+      },
+      "fee": "هزینه‌ی ارسال",
+      "due": "مهلت: {date}",
+      "tracking": "کد رهگیری",
+      "rejected": "تحویل رد شد: {reason}",
+      "sellerMoves": "این بخش را خود فروشنده در پنل پیش می‌برد.",
+      "approve": "تأیید تحویل",
+      "reject": "رد تحویل",
+      "rejectReason": "دلیل رد",
+      "markPreparing": "در حال آماده‌سازی",
+      "trackingPlaceholder": "کد رهگیری مرسوله",
+      "carrierPlaceholder": "شرکت حمل (اختیاری)",
+      "markShipped": "ارسال شد",
+      "requestDelivery": "تحویل داده شد (ارسال برای تأیید)",
+      "markReady": "آماده‌ی تحویل حضوری (ارسال کد به مشتری)",
+      "codePlaceholder": "کد ۶ رقمی مشتری",
+      "confirmCode": "ثبت کد تحویل",
+      "resend": "ارسال کد جدید",
+      "resendConfirm": "کد جدید برای مشتری ارسال شود؟ کد قبلی باطل می‌شود.",
+      "attemptsLeft": "{count} بار دیگر می‌توانید امتحان کنید",
+      "wrongCode": "کد اشتباه است. {count} بار دیگر.",
+      "locked": "کد بیش از حد اشتباه وارد شد. یک کد جدید برای مشتری بفرستید.",
+      "failed": "انجام نشد. دوباره تلاش کنید."
+    },
+    "approvals": {
+      "title": "تأیید تحویل فروشنده‌ها",
+      "hint": "فروشنده اعلام کرده کالاها به مشتری رسیده‌اند. با تأیید، آن بخش از سفارش تمام می‌شود (و سفارش با آخرین بخش کامل می‌شود). با رد، بخش با دلیل به وضعیت قبلی برمی‌گردد.",
+      "empty": "موردی برای تأیید نیست."
     }
   },
   "Patients": {

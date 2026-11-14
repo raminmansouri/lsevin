@@ -1,5 +1,7 @@
 import "server-only";
 
+import { sellerDeliveryDays } from "../lib/fulfilment";
+
 import { productSearchSchema } from "../schemas/catalog";
 import type { ProductCard, ProductDetail, ShopCategory } from "../types/domain";
 import { getShopContext, normalizeLocale } from "../lib/context";
@@ -417,6 +419,7 @@ export async function getProductBySlug(
         s.logo_url as "sellerLogoUrl", s.is_default as "isDefaultSeller",
         o.price::float as price, o.compare_at_price::float as "compareAtPrice", o.currency as "sourceCurrency",
         o.handling_days as "handlingDays",
+        s.delivery_days_min as "sellerDaysMin", s.delivery_days_max as "sellerDaysMax",
         coalesce(nullif(common.get_translation_t(o.warranty_translations, ${lang}, 'en'), ''),
                  common.get_translation_t(s.warranty_translations, ${lang}, 'en')) as warranty,
         ((case
@@ -435,7 +438,7 @@ export async function getProductBySlug(
         and (o.variant_id is null or (v.deleted_at is null and v.is_active))
       order by o.price asc
     `,
-    // Lsevin's fastest delivery to an address: every offer reaches the customer through Lsevin.
+    // Lsevin's (the default seller's) fastest delivery to an address; partner sellers use their own days.
     sql<{ days: number | null }[]>`
       select min(coalesce(estimated_days_max, estimated_days_min))::int as days
       from shop.delivery_methods where is_active and not supports_pickup
@@ -467,8 +470,10 @@ export async function getProductBySlug(
         inStock: Boolean(o.inStock),
         handlingDays: o.handlingDays == null ? null : Number(o.handlingDays),
         warranty: o.warranty ?? "",
-        // Sold by a partner (e.g. a clinic), sent by Lsevin.
+        // Sold and sent by a partner (e.g. a clinic); in-person pickup there is possible too.
         partnerSeller: !o.isDefaultSeller,
+        // The seller's own longest delivery time (partner sellers; Lsevin uses lsevinDeliveryDays).
+        sellerDeliveryDays: o.isDefaultSeller ? null : sellerDeliveryDays(o.sellerDaysMin, o.sellerDaysMax).max,
       };
     })
   );
