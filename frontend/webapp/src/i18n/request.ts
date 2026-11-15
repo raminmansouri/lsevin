@@ -50,6 +50,8 @@ function mergeMessages(base: Messages, override: Messages): Messages {
  * merged per key exactly like the main bundle, English filling any gap.
  */
 const TOUR_MESSAGE_AREAS = ["app", "admin", "shared"] as const;
+/** Stays (hotels / اقامتگاه) keep the same layout: messages/stays/<area>/<locale>.json — StayApp, StayAdmin. */
+const STAY_MESSAGE_AREAS = ["app", "admin"] as const;
 async function loadTourMessages(locale: string): Promise<Messages> {
   let merged: Messages = {};
   for (const area of TOUR_MESSAGE_AREAS) {
@@ -58,6 +60,14 @@ async function loadTourMessages(locale: string): Promise<Messages> {
       merged = mergeMessages(merged, mod);
     } catch {
       // A locale without its own tours file falls back to English via the merge above.
+    }
+  }
+  for (const area of STAY_MESSAGE_AREAS) {
+    try {
+      const mod = (await import(`../../messages/stays/${area}/${locale}.json`)).default as Messages;
+      merged = mergeMessages(merged, mod);
+    } catch {
+      // Same fallback: a locale without its own stays file shows English.
     }
   }
   return merged;

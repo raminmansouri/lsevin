@@ -31,6 +31,7 @@ export class DepositRuleError extends Error {
 const GATEWAY_CLEARING_ACCOUNT: Record<string, SystemAccountKey> = {
   zarinpal: "clearing_zarinpal",
   btcpay: "clearing_btcpay",
+  zibal: "clearing_zibal",
 };
 
 async function assertWithinDepositLimits(tx: Tx, currency: string, amount: MoneyString) {

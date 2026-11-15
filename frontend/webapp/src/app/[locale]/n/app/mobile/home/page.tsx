@@ -40,6 +40,7 @@ import { LANDING_CATEGORY_LIMIT } from "@/features/categories/constants";
 
 import { DesktopHome } from "@/features/web-desktop/home/DesktopHome";
 import { EnamadSeal } from "@/components/trust/enamad-seal";
+import { listDomainTrustSeals } from "@/features/trust-seal/server/repository";
 import { absoluteUrl } from "@/lib/seo/alternates";
 import { FaqSection } from "@/features/site-content/components/faq-section";
 import { SiteLinks } from "@/features/site-content/components/site-links";
@@ -235,6 +236,8 @@ async function Home({ params }: PageProps) {
   setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: 'Home' });
   const pageT = await getTranslations({ locale, namespace: 'HomePage' });
+  // Every domain's Enamad seal: this page is cached once for all domains, the browser picks its own.
+  const trustSeals = await listDomainTrustSeals();
   const labels: HomePageLabels = {
     common: {
       noDescription: t('common.noDescription'),
@@ -545,7 +548,7 @@ async function Home({ params }: PageProps) {
   alignItems:'center',
   marginBottom:'37px'}}>
     
-      <EnamadSeal alt={labels.common.trustSeal} />
+      <EnamadSeal seals={trustSeals} alt={labels.common.trustSeal} />
    </div>
     </div>
     <DesktopHome

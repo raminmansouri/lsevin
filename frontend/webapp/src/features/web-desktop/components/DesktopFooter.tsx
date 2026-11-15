@@ -4,6 +4,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { GUIDE_LOCALES } from "@/features/guides/types";
 import type { FooterPageLink, SitePageSlug } from "@/features/site-content/types";
 import { EnamadSeal } from "@/components/trust/enamad-seal";
+import type { DomainTrustSeal } from "@/features/trust-seal/enamad";
 import { Link } from "@/i18n/navigation";
 import { LanguageLinks } from "@/components/locale/language-links";
 
@@ -17,7 +18,14 @@ const COMPANY_PAGES: readonly SitePageSlug[] = ["about-us", "services", "contact
  * Desktop-only footer (>= 1280px). `pages` are the published editorial pages
  * (admin → Editorial); without them the footer keeps its built-in links.
  */
-export function DesktopFooter({ pages = [] }: { pages?: FooterPageLink[] }) {
+export function DesktopFooter({
+  pages = [],
+  trustSeals = [],
+}: {
+  pages?: FooterPageLink[];
+  /** Every domain's Enamad seal; the one for the current domain is shown. */
+  trustSeals?: DomainTrustSeal[];
+}) {
   const t = useTranslations("Footer");
   const locale = useLocale();
   // The guides hub exists only in the languages the guides are written in;
@@ -76,6 +84,7 @@ export function DesktopFooter({ pages = [] }: { pages?: FooterPageLink[] }) {
           {/* Inside the brand column, not as a fifth grid item: the grid has four columns, and an
               extra item wrapped onto its own row (why the seal was taken out on 10-29). */}
           <EnamadSeal
+            seals={trustSeals}
             alt={t("enamadAlt")}
             className="block w-fit rounded-2xl bg-white p-2 transition hover:-translate-y-0.5"
             imgClassName="h-[96px] w-auto"

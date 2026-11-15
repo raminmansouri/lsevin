@@ -12,6 +12,7 @@ export type MoneyString = string;
 export type SystemAccountKey =
   | "clearing_zarinpal"
   | "clearing_btcpay"
+  | "clearing_zibal"
   | "bank_platform"
   | "crypto_cold"
   | "receivable_gateway"

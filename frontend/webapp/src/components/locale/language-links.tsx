@@ -30,6 +30,7 @@ export function LanguageLinks({ className, linkClassName }: { className?: string
           key={option}
           href={pathname}
           locale={option}
+          prefetch={false}
           hrefLang={hreflangFor(option)}
           lang={contentLanguageFor(option)}
           aria-current={option === locale ? "page" : undefined}

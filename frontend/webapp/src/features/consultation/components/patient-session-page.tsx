@@ -404,7 +404,7 @@ function Row({ label, children }: { label: string; children: React.ReactNode }) 
 /** Paying from outside Iran: transfer the money as the admin describes, then send the receipt. */
 /** Methods a video call cannot use: paying in place, and the wallet until consultations reach the ledger. */
 const VIDEO_EXCLUDED_METHODS = ["pay_on_delivery", "cash_on_delivery", "wallet"] as const;
-const ONLINE_METHODS = ["card", "gateway_card", "online_card", "crypto", "btcpay", "zarinpal"];
+const ONLINE_METHODS = ["card", "gateway_card", "online_card", "crypto", "btcpay", "zarinpal", "zibal"];
 
 /**
  * A patient outside Iran pays with the same methods a service booking offers them (the payment

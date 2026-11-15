@@ -7,6 +7,7 @@ import { AssistantLauncher } from "@/features/assistant/components/assistant-lau
 import { AssistantNudge } from "@/features/assistant/components/assistant-nudge";
 import NotificationsBar from "@/features/shared/components/Notifications/notifications-bar";
 import { getFooterPages } from "@/features/site-content/server/repository";
+import { listDomainTrustSeals } from "@/features/trust-seal/server/repository";
 import { DesktopFooter } from "@/features/web-desktop/components/DesktopFooter";
 import { DesktopHeader } from "@/features/web-desktop/components/DesktopHeader";
 import { getClientMessages } from "@/i18n/client-messages";
@@ -28,6 +29,8 @@ export async function AppShell({ locale, children }: { locale: string; children:
   const messages = await getClientMessages("mobileApp", locale);
   // Editorial pages flagged for the footer (admin → Editorial).
   const footerPages = await getFooterPages(locale);
+  // Enamad seals per domain (admin → Content → Enamad); the footer shows the one for its domain.
+  const trustSeals = await listDomainTrustSeals();
 
   // Shell's default page padding would float the app bar away from the top edge,
   // which is the giveaway that you are looking at a website. The app tree owns its
@@ -49,7 +52,7 @@ export async function AppShell({ locale, children }: { locale: string; children:
                 }
               />
             }
-            desktopFooter={<DesktopFooter pages={footerPages} />}
+            desktopFooter={<DesktopFooter pages={footerPages} trustSeals={trustSeals} />}
           >
             {children}
           </AppChrome>

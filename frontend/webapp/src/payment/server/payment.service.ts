@@ -3,6 +3,7 @@ import { BTCPAY_PASS_THROUGH_CURRENCIES } from "@/payment/gateway-currencies";
 
 import { seoOrigin } from "@/lib/seo/origin";
 import { notifyBookingPaymentResult } from "@/features/notification/server/booking-notifications";
+import { IRANIAN_GATEWAY_MAX_AMOUNT, isIranianCardGateway, isPaymentGatewayCode } from "../gateways";
 import { getPaymentProvider } from "../providers";
 import type {
   InitiateBookingPaymentInput,
@@ -21,13 +22,13 @@ import {
   prepareBookingPaymentAttempt,
 } from "./payment.repository";
 
-// Largest single Zarinpal charge (100,000,000 Toman). Bigger bookings are paid in
-// several consecutive installments, see verifyGatewayPayment.
-const ZARINPAL_MAX_AMOUNT = { IRR: 1_000_000_000, IRT: 100_000_000 } as const;
+// Largest single Iranian card charge (100,000,000 Toman; Zarinpal and Zibal alike). Bigger
+// bookings are paid in several consecutive installments, see verifyGatewayPayment.
+const IRANIAN_MAX_AMOUNT = IRANIAN_GATEWAY_MAX_AMOUNT;
 
 function normalizeGateway(value?: string | null): PaymentGatewayCode {
   const gateway = String(value || "zarinpal").trim().toLowerCase();
-  if (gateway !== "zarinpal" && gateway !== "btcpay") {
+  if (!isPaymentGatewayCode(gateway)) {
     throw new Error(`Unsupported payment gateway: ${gateway}`);
   }
   return gateway as PaymentGatewayCode;
@@ -100,8 +101,8 @@ export async function initiateBookingPayment(input: InitiateBookingPaymentInput 
     gateway,
     locale: input.locale,
     targetCurrency,
-    maximumAmount: gateway === "zarinpal" ? ZARINPAL_MAX_AMOUNT[targetCurrency === "IRT" ? "IRT" : "IRR"] : null,
-    minimumAmount: gateway === "zarinpal" ? Number(gatewayConfig.settings.minimumAmount) || (targetCurrency === "IRT" ? 1_000 : 10_000) : null,
+    maximumAmount: isIranianCardGateway(gateway) ? IRANIAN_MAX_AMOUNT[targetCurrency === "IRT" ? "IRT" : "IRR"] : null,
+    minimumAmount: isIranianCardGateway(gateway) ? Number(gatewayConfig.settings.minimumAmount) || (targetCurrency === "IRT" ? 1_000 : 10_000) : null,
   });
 
   payment.description = renderDescription(gatewayConfig.settings.descriptionTemplate, {

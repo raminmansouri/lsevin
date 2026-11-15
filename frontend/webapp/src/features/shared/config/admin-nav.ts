@@ -1,5 +1,6 @@
 import type { LucideIcon } from "lucide-react";
 import {
+  BedDouble,
   ArrowLeftRight,
   Award,
   Bell,
@@ -57,6 +58,7 @@ import {
   Settings2,
   Shapes,
   Share2,
+  ShieldCheck,
   ShoppingBag,
   Stethoscope,
   Video,
@@ -130,6 +132,20 @@ export const ADMIN_NAV: AdminNavEntry[] = [
       { titleKey: "availability", href: "/admin/availability", icon: Clock },
       { titleKey: "gymMemberships", href: "/admin/gym-memberships", icon: Dumbbell },
       { titleKey: "transferRoutes", href: "/admin/transfer-routes", icon: Car },
+    ],
+  },
+
+  // Stays: hotels and اقامتگاه (docs/designs/hotel-booking). Data-entry order, then operations.
+  {
+    titleKey: "staysPlatform",
+    icon: BedDouble,
+    items: [
+      { titleKey: "staysDashboard", href: "/admin/stays", icon: LayoutDashboard },
+      { titleKey: "staysSettings", href: "/admin/stays/settings", icon: Settings2 },
+      { titleKey: "staysCities", href: "/admin/stays/cities", icon: MapPin },
+      { titleKey: "staysProperties", href: "/admin/stays/properties", icon: BedDouble },
+      { titleKey: "staysBookings", href: "/admin/stays/bookings", icon: Ticket },
+      { titleKey: "staysReviews", href: "/admin/stays/reviews", icon: MessagesSquare },
     ],
   },
 
@@ -236,6 +252,7 @@ export const ADMIN_NAV: AdminNavEntry[] = [
     items: [
       { titleKey: "editorial", href: "/admin/editorial", icon: FileText },
       { titleKey: "homeSections", href: "/admin/home-sections", icon: LayoutTemplate },
+      { titleKey: "enamad", href: "/admin/enamad", icon: ShieldCheck },
       { titleKey: "sponsoredSlider", href: "/admin/sponsored-slider", icon: GalleryHorizontal },
       { titleKey: "specialPackages", href: "/admin/special-packages", icon: PackageOpen },
       { titleKey: "authContent", href: "/admin/auth-content", icon: KeyRound },

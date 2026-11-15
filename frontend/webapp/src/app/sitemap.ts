@@ -10,6 +10,7 @@ import {
 } from "@/features/categories/utils/category-href";
 import { getTourSettings } from "@/features/tours/server/platform/settings";
 import { listTourSitemapEntries } from "@/features/tours/server/platform/seo";
+import { propertyLocales, STAY_INDEXABLE_LOCALES } from "@/features/stays/domain/seo-locales";
 import { allGuides, guideLocales, guidePath } from "@/features/guides/registry";
 import { getPublishedSitePageIndex } from "@/features/site-content/server/repository";
 import { routing } from "@/i18n/routing";
@@ -187,6 +188,40 @@ const guideEntries = (): (CatalogEntry & { lastModified: string })[] =>
     lastModified: guide.reviewedAt,
   }));
 
+// Stays (hotels / اقامتگاه): the intro (where /stays sends crawlers), destination
+// pages that have published stays, and each published stay in the languages its
+// own name is written in. Search URLs (/stays/explore?...) are never listed.
+const stayEntries = unstable_cache(
+  async (): Promise<(CatalogEntry & { lastModified?: string })[]> => {
+    const exists = await sql<{ ok: boolean }[]>`select to_regclass('stay.properties') is not null as ok`;
+    if (!exists[0]?.ok) return [];
+    const [cities, properties] = await Promise.all([
+      sql<{ slug: string; updated_at: Date }[]>`
+        select c.slug, greatest(c.updated_at, max(p.updated_at)) as updated_at
+          from stay.cities c join stay.properties p on p.city_id = c.id and p.status = 'published'
+         where c.is_published group by c.id order by c.slug`,
+      sql<{ slug: string; keys: string[]; updated_at: Date; images: string[] | null }[]>`
+        select p.slug, array(select jsonb_object_keys(p.name)) as keys, p.updated_at,
+               array(select m.url from stay.media m where m.property_id = p.id and m.room_type_id is null and nullif(btrim(m.url), '') is not null
+                      order by m.is_cover desc, m.sort_order, m.id limit 5) as images
+          from stay.properties p join stay.cities c on c.id = p.city_id and c.is_published
+         where p.status = 'published' order by p.slug`,
+    ]);
+    return [
+      { path: "/stays/intro", locales: STAY_INDEXABLE_LOCALES },
+      ...cities.map((c) => ({ path: `/stays/city/${c.slug}`, locales: STAY_INDEXABLE_LOCALES, lastModified: new Date(c.updated_at).toISOString() })),
+      ...properties.map((p) => ({
+        path: `/stays/p/${p.slug}`,
+        locales: propertyLocales(p.keys ?? []),
+        lastModified: new Date(p.updated_at).toISOString(),
+        images: sitemapImages(`/stays/p/${p.slug}`, p.images),
+      })),
+    ];
+  },
+  ["sitemap-stays-v2"],
+  { revalidate: 3600 },
+);
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Each part on its own: an outage in one must never cache an empty catalog,
   // nor drop the other part from the sitemap.
@@ -194,12 +229,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     console.error(`[seo] Sitemap ${part} unavailable; serving the rest.`);
     return [];
   };
-  const [entities, categories, tours] = await Promise.all([
+  const [entities, categories, tours, stays] = await Promise.all([
     catalogEntries().catch(unavailable("catalog")),
     categoryEntries().catch(unavailable("categories")),
     tourEntries().catch(unavailable("tours")),
+    stayEntries().catch(unavailable("stays")),
   ]);
-  const catalog = [...entities, ...categories, ...tours];
+  const catalog = [...entities, ...categories, ...tours, ...stays];
 
   // Editorial pages (admin → Editorial) list only their translated locales; first
   // so a published /privacy-policy replaces the built-in all-locale entry.

@@ -13,5 +13,10 @@ export async function register() {
     // TOURS_SWEEPER=off disables it.
     const { startToursSweeper } = await import("./features/tours/server/ops/sweeper");
     startToursSweeper();
+
+    // Stays (hotels / اقامتگاه): hold, payment and request deadlines; finished stays → completed.
+    // STAYS_SWEEPER=off disables it.
+    const { startStaysSweeper } = await import("./features/stays/server/sweeper");
+    startStaysSweeper();
   }
 }

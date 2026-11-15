@@ -162,7 +162,7 @@ export async function mirrorWalletCredit(
     idempotencyKey: string;
     sourceType: "deposit" | "refund";
     sourceId?: string;
-    counterpartAccountKey: "clearing_zarinpal" | "clearing_btcpay" | "bank_platform" | "crypto_cold" | "provider_payable";
+    counterpartAccountKey: "clearing_zarinpal" | "clearing_btcpay" | "clearing_zibal" | "bank_platform" | "crypto_cold" | "provider_payable";
     description?: string;
     actorUserId?: string;
   },

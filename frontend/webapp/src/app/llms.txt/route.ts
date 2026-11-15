@@ -47,6 +47,7 @@ export async function GET() {
     `- [Treatment categories](${absoluteUrl("en", "/categories")})`,
     `- [Free consultation request](${absoluteUrl("en", "/consulting")})`,
     `- [Health tours](${absoluteUrl("en", "/tours")})`,
+    `- [Hotels and places to stay in Iran](${absoluteUrl("en", "/stays/intro")}): city pages list each stay with total prices for chosen dates, cancellation rules and verified-guest reviews`,
     "",
     ...(company.length ? ["## About LSevin and policies", ...company, ""] : []),
     "## Medical travel guides",

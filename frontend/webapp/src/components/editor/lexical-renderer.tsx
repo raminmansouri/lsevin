@@ -267,7 +267,12 @@ export function LexicalRenderer({
     if (content.trim().length === 0) {
       return null;
     }
-    console.error("Failed to parse Lexical content:", error);
+    // Plain text is valid content (seeded FAQ answers, older fields): show it
+    // as is. Only text that claims to be an editor state and is not is a bug.
+    // (2026-11-15: every stays FAQ answer logged an error on each render.)
+    if (/^\s*[{[]/.test(content)) {
+      console.error("Failed to parse Lexical content:", error);
+    }
     return <div className={className}>{content}</div>;
   }
 }

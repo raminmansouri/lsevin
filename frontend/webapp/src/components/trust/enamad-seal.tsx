@@ -1,28 +1,51 @@
+"use client";
+
+import { useEffect, useState } from "react";
+
+import { enamadUrls, sealForHost, type DomainTrustSeal } from "@/features/trust-seal/enamad";
+
 /**
- * Enamad (Iran's e-commerce trust seal) for lsevincare.com, seal id 7764782.
+ * Enamad (Iran's e-commerce trust seal). Every domain has its own seal (Admin > Content >
+ * Enamad); this shows the one for the domain the visitor is on, and nothing on a domain that
+ * has none (another domain's seal would display as invalid).
  *
+ * - Chosen in the browser: lsevincare.com and appmain.lsevin.com are served by the same pods
+ *   and share cached pages, so the server cannot know which domain a cached page is shown on.
+ *   Nothing renders on the server or the first client render, so hydration always matches.
  * - A plain <img>, not next/image: Enamad checks the seal against the page that shows it (the
  *   Referer), and next/image would fetch it through our own image optimizer instead.
  * - referrerPolicy "origin" on both the link and the image, and no rel="noreferrer", for the same
  *   reason.
- * Used by the mobile home page and the desktop footer; keep one copy of the id/code here.
  */
-export const ENAMAD_SEAL_ID = "7764782";
-const ENAMAD_CODE = "XcQgNRMRzN92gDmZbf8t5GMh1mtctW9d";
-export const ENAMAD_HREF = `https://trustseal.enamad.ir/?id=${ENAMAD_SEAL_ID}&Code=${ENAMAD_CODE}`;
-export const ENAMAD_IMG = `https://trustseal.enamad.ir/logo.aspx?id=${ENAMAD_SEAL_ID}&Code=${ENAMAD_CODE}`;
+export function EnamadSeal({
+  seals,
+  alt,
+  className,
+  imgClassName,
+}: {
+  seals: readonly DomainTrustSeal[];
+  alt: string;
+  className?: string;
+  imgClassName?: string;
+}) {
+  const [seal, setSeal] = useState<DomainTrustSeal | null>(null);
 
-export function EnamadSeal({ alt, className, imgClassName }: { alt: string; className?: string; imgClassName?: string }) {
+  useEffect(() => {
+    setSeal(sealForHost(seals, window.location.hostname));
+  }, [seals]);
+
+  if (!seal) return null;
+  const { href, img } = enamadUrls(seal);
   return (
-    <a referrerPolicy="origin" target="_blank" rel="noopener" href={ENAMAD_HREF} className={className} data-testid="enamad-seal">
+    <a referrerPolicy="origin" target="_blank" rel="noopener" href={href} className={className} data-testid="enamad-seal" data-enamad-host={seal.host}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         referrerPolicy="origin"
-        src={ENAMAD_IMG}
+        src={img}
         alt={alt}
         className={imgClassName}
         style={{ cursor: "pointer" }}
-        {...{ code: ENAMAD_CODE }}
+        {...{ code: seal.enamadCode }}
       />
     </a>
   );
