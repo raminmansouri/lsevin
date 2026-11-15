@@ -20,7 +20,7 @@ Implementation guide for the stays platform (`/[locale]/stays`, admin `/[locale]
 Same pattern as tours (`docs/designs/tours`):
 
 - Each property owns an **inactive** `category.provider_services` row (the booking anchor), so `booking.bookings`, `booking.payments`, `/api/booking-pro/payments/*`, gateway callbacks, refunds and accounting are reused unchanged. Anchors are inactive, so the generic catalog and the booking-pro wizard never sell them.
-- Everything stay-specific is in schema `stay` (migration `0107_stays_platform.sql`); FAQ seed in `0108_stays_faq_seed.sql`.
+- Everything stay-specific is in schema `stay` (migration `0108_stays_platform.sql`); FAQ seed in `0109_stays_faq_seed.sql`.
 - Inventory: `stay.inventory` holds one row per room type and night (created lazily). A stay occupies nights `[check_in, check_out)`. `stay.place_hold` locks every night in date order (no deadlocks), checks stop-sell, closed-to-arrival, minimum nights and free units, then increments `held` for all nights or fails for all. `convert_hold`, `release_hold`, `expire_holds`, `close_booking` and `set_inventory` keep `sold`/`held` exact. Rate plans of a room type share its units.
 - Legacy hotels sold through booking-pro (`provider_portal.hotel_date_availability`) block an imported entire-place property for those nights.
 - Quotes: `src/features/stays/domain/pricing.ts`, in minor units: nightly price (or dated override) × rooms, extra adults/children beyond the included guests (infants free; children under the property's free age free), long-stay discount, tax, service fee. Search cards and the checkout use the same function.
@@ -80,7 +80,7 @@ The test databases must be migrated with `scripts/migrate.mjs` from a production
 
 ## Deployment
 
-- Migrations `0107_stays_platform.sql` and `0108_stays_faq_seed.sql` run with the normal deploy. Run them on **both sites**: `stay.*` is not registered in SymmetricDS, so each site holds its own stays data. Replicated `category.*` rows (the booking anchors) are created per site. The sequence alignment (0088) covers `stay.audit_log`.
+- Migrations `0108_stays_platform.sql` and `0109_stays_faq_seed.sql` run with the normal deploy. Run them on **both sites**: `stay.*` is not registered in SymmetricDS, so each site holds its own stays data. Replicated `category.*` rows (the booking anchors) are created per site. The sequence alignment (0088) covers `stay.audit_log`.
 - No new environment variables. Set `STAYS_SWEEPER=off` only on instances that must not run background work.
 - Entry point: nothing in the main app links to `/stays` yet. Once real stays are published, link it from the home/categories (or route the accommodation category to `/stays`, as tourism routes to `/tours`). Doing that earlier would hide today's bookable hotels behind an empty catalog.
 
