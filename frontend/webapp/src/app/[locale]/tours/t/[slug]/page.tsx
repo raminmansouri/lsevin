@@ -7,6 +7,7 @@ import { getTourWeather } from "@/features/tours/server/ops/weather";
 import type { WeatherView } from "@/features/tours/server/ops/contract";
 import { currentActor } from "@/features/tours/server/platform/access";
 import { getTourDetail, listDepartures, searchTours, wishlistIds } from "@/features/tours/server/platform/catalog";
+import { tourAlternates, tourLanguages } from "@/features/tours/server/platform/seo";
 import { logUnexpected } from "@/features/tours/server/platform/errors";
 import { TourDetailView } from "@/features/tours/ui/customer/detail/tour-detail-view";
 import type { TourDetail } from "@/features/tours/server/platform/catalog";
@@ -79,6 +80,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title,
     description,
+    ...tourAlternates(locale, `/tours/t/${detail.slug}`, await tourLanguages(detail.id)),
     ...(image ? { openGraph: { title, description, images: [{ url: image }] }, twitter: { card: "summary_large_image", images: [image] } } : {}),
   };
 }
@@ -124,7 +126,7 @@ export default async function TourDetailPage({ params }: Props) {
         tourJsonLd(detail, url),
         breadcrumbList([
           { name: brand, url: absoluteUrl(locale) },
-          { name: toursLabel, url: absoluteUrl(locale, "/tours") },
+          { name: toursLabel, url: absoluteUrl(locale, "/tours/intro") },
           ...(detail.destination?.slug && detail.destination.name?.value
             ? [{ name: detail.destination.name.value, url: absoluteUrl(locale, `/tours/destinations/${detail.destination.slug}`) }]
             : []),

@@ -97,7 +97,12 @@ test.describe("first visit: language from choice, IP, browser, phone", () => {
     { name: "Germany, browser German", headers: { "cf-ipcountry": "DE", "accept-language": "de-DE" }, to: "/en" },
     { name: "unknown country", headers: { "cf-ipcountry": "XX" }, to: "/fa" },
     { name: "own choice beats IP", headers: { "cf-ipcountry": "TR" }, cookie: "NEXT_LOCALE=en", to: "/en" },
-    { name: "crawler stays on the default", headers: { "cf-ipcountry": "US" }, ua: "Mozilla/5.0 (compatible; Googlebot/2.1)", to: "/fa" },
+    // Google: treat Googlebot like any visitor from the country it crawls from
+    // (locale-adaptive pages); it sends no Accept-Language.
+    { name: "US visitor", headers: { "cf-ipcountry": "US" }, to: "/en" },
+    { name: "Googlebot from the US, like a US visitor", headers: { "cf-ipcountry": "US" }, ua: "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)", to: "/en" },
+    { name: "Googlebot from Iran, like an Iranian visitor", headers: { "cf-ipcountry": "IR" }, ua: "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)", to: "/fa" },
+    { name: "Googlebot from Turkey, like a Turkish visitor", headers: { "cf-ipcountry": "TR" }, ua: "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)", to: "/tr" },
   ];
   for (const item of cases) {
     test(`${item.name} -> ${item.to}`, async ({ request }) => {
@@ -269,4 +274,29 @@ test.describe("map", () => {
     // The map center is in the page data: Istanbul (41.0, 28.9), not Tehran (35.7, 51.4).
     expect(html).toMatch(/\\?"mapCenter\\?":\{\\?"lat\\?":41\.0/);
   });
+});
+
+// Google (locale-adaptive pages): robots rules must be the same whatever locale
+// or country a request comes from, and a URL that names a language is never
+// redirected, so every version is crawlable from anywhere.
+test("a language URL serves the same page and robots rules to every country and browser language", async ({ request }) => {
+  for (const path of ["/fa/providers", "/en/explore", "/tr", "/ar/categories"]) {
+    const seen: string[] = [];
+    for (const headers of [{ "cf-ipcountry": "US" }, { "cf-ipcountry": "IR", "accept-language": "fa-IR" }, { "cf-ipcountry": "TR", "accept-language": "tr" }, { "cf-ipcountry": "AE", "accept-language": "ar" }]) {
+      const response = await request.get(path, { maxRedirects: 0, headers: { ...headers, "user-agent": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)" } });
+      expect(response.status(), `${path} ${JSON.stringify(headers)}`).toBe(200);
+      const html = await response.text();
+      const head = html.split("</head>")[0] ?? "";
+      const signature = [
+        html.match(/<html[^>]* lang="([^"]*)"/)?.[1],
+        head.match(/<meta name="robots" content="([^"]*)"/)?.[1] ?? "index",
+        head.match(/<link rel="canonical" href="([^"]+)"/)?.[1],
+        [...head.matchAll(/hrefLang="([^"]+)" href="([^"]+)"/gi)].map((m) => m[1] + "=" + m[2]).join(","),
+      ].join(" | ");
+      seen.push(signature);
+    }
+    expect(new Set(seen).size, `${path}: ${seen[0]}`).toBe(1);
+  }
+  const robots = await Promise.all(["US", "IR", "TR"].map(async (country) => (await request.get("/robots.txt", { headers: { "cf-ipcountry": country } })).text()));
+  expect(new Set(robots).size).toBe(1);
 });

@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { ArrowLeft, ArrowRight, Compass, Heart, Home, Luggage, User } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 
+import { LanguageLinks } from "@/components/locale/language-links";
 import { Link, usePathname } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 
@@ -98,6 +99,10 @@ export function ToursShell({ children }: { children: ReactNode }) {
       <main id="tours-main" tabIndex={-1} className={cn("mx-auto w-full max-w-6xl outline-none", !bare && "pb-[calc(5rem+env(safe-area-inset-bottom))] md:pb-10")}>
         {children}
       </main>
+
+      <footer className={cn("mx-auto w-full max-w-6xl px-4 pt-2 text-xs text-slate-500", bare ? "pb-6" : "pb-[calc(6rem+env(safe-area-inset-bottom))] md:pb-8")}>
+        <LanguageLinks linkClassName="hover:text-emerald-800 hover:underline" />
+      </footer>
 
       {bare ? null : (
         <nav

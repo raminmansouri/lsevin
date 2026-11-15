@@ -2,12 +2,18 @@ import { setRequestLocale } from "next-intl/server";
 
 import { PageFaq } from "@/features/site-content/components/faq-section";
 import { IntroScreen } from "@/features/tours/ui/customer/intro/intro-screen";
+import { tourAlternates, tourCatalogLanguages } from "@/features/tours/server/platform/seo";
 
 /**
  * First-visit introduction (C-002..C-005, 1-intro_page_before_landing_page.png). Also reopenable from Profile.
  * Uses a fixed, licensed background (public/images/tours/CREDITS.json) so the first screen never
  * depends on catalog content and never falls back to a bare gradient.
  */
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  return tourAlternates(locale, "/tours/intro", await tourCatalogLanguages().catch(() => []));
+}
+
 export default async function ToursIntroPage({
   params,
   searchParams,

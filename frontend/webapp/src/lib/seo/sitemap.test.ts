@@ -14,6 +14,9 @@ const catalogRows = vi.hoisted(() => vi.fn());
 const categoryRows = vi.hoisted(() => vi.fn());
 vi.mock("@/config/database/db", () => ({ default: query }));
 vi.mock("next/cache", () => ({ unstable_cache: (fn: unknown) => fn }));
+vi.mock("@/config/env/client", () => ({
+  env: { NEXT_PUBLIC_FILES_URL: "https://appmain.lsevin.com/files", NEXT_PUBLIC_URL: "https://appmain.lsevin.com" },
+}));
 vi.mock("@/features/tours/server/platform/settings", () => ({
   getTourSettings: async () => ({ tourismCategoryId: "tourism-root" }),
 }));
@@ -37,6 +40,7 @@ beforeEach(() => {
   catalogRows.mockReset();
   categoryRows.mockReset();
   categoryRows.mockResolvedValue([]);
+  (query as unknown as { unsafe: unknown }).unsafe = vi.fn(() => ({ fragment: true }));
   query.mockImplementation((first: unknown) =>
     isCatalogQuery(first) ? catalogRows() : isCategoryQuery(first) ? categoryRows() : { fragment: true }
   );
@@ -63,6 +67,24 @@ describe("public search domain and sitemap", () => {
   it("rejects an unsafe SEO domain rather than emitting poisoned canonicals", () => {
     vi.stubEnv("NEXT_PUBLIC_SEO_URL", "https://example.com/path");
     expect(seoOrigin).toThrow();
+  });
+
+  // Google Images: an image sitemap. Stored keys become public /files URLs and
+  // product photos go through the crawlable shop image proxy.
+  it("lists each page's photos as sitemap images on the public domain", async () => {
+    catalogRows.mockResolvedValue([
+      { path: "/providers/p", keys: ["fa-IR"], persian_only: false, images: ["Categories/a.webp", "Categories/a.webp", "https://cdn.example.com/b.jpg"] },
+      { path: "/products/x", keys: null, persian_only: true, images: ["https://supplier.example.com/p.jpg"] },
+      { path: "/services/s", keys: ["fa-IR"], persian_only: false, images: null },
+    ]);
+    const result = await sitemap();
+    const provider = result.find((x) => x.url === "https://lsevincare.com/fa/providers/p");
+    expect(provider?.images).toEqual(["https://lsevincare.com/files/Categories/a.webp", "https://cdn.example.com/b.jpg"]);
+    const product = result.find((x) => x.url === "https://lsevincare.com/fa/products/x");
+    expect(product?.images).toEqual([
+      "https://lsevincare.com/api/shop/img?u=" + encodeURIComponent("https://supplier.example.com/p.jpg"),
+    ]);
+    expect(result.find((x) => x.url === "https://lsevincare.com/fa/services/s")?.images).toBeUndefined();
   });
 
   it("lists each entity only in the locales whose text exists", async () => {

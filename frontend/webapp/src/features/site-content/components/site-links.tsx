@@ -1,6 +1,7 @@
 import { getTranslations } from "next-intl/server";
 
 import { Link } from "@/i18n/navigation";
+import { LanguageLinks } from "@/components/locale/language-links";
 import { cn } from "@/lib/utils";
 
 import { getFooterPages } from "../server/repository";
@@ -25,6 +26,7 @@ export async function SiteLinks({ locale, className }: { locale: string; classNa
           </li>
         ))}
       </ul>
+      <LanguageLinks className="mt-4 border-t border-neutral-200 pt-3 text-sm text-neutral-600" linkClassName="hover:text-[#083f30] hover:underline" />
     </nav>
   );
 }

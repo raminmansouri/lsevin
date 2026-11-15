@@ -112,10 +112,10 @@ describe("product structured data", () => {
     expect(reviewed.review[0]).toMatchObject({ author: { "@type": "Person", name: "Sara" }, datePublished: "2026-11-01" });
   });
 
-  it("images are absolute crawlable URLs on the files host, credited to the seller", () => {
+  it("images are crawlable URLs on the public domain, credited to the seller", () => {
     const data = productJsonLd(product(), url, ["Shop/products/a.webp", "Shop/products/a.webp"]) as Record<string, any>;
     expect(data.image).toEqual([
-      expect.objectContaining({ contentUrl: "https://appmain.lsevin.com/files/Shop/products/a.webp", creditText: "Shop A" }),
+      expect.objectContaining({ contentUrl: "https://lsevincare.com/files/Shop/products/a.webp", creditText: "Shop A" }),
     ]);
   });
 });

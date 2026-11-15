@@ -11,6 +11,7 @@ import {
   graph,
   providerUrl,
   serviceSchema,
+  videoObjects,
 } from "@/lib/seo/entity-schema";
 import { cityLabel } from "@/lib/seo/place-names";
 import { JsonLd } from "@/lib/seo/json-ld";
@@ -134,7 +135,24 @@ export default async function TreatmentDetailPage({
                 ? [{ name: service.clinic, url: providerUrl(locale, { id: service.clinicId, slug: service.clinicSlug }) }]
                 : []),
               { name: service.name, url: canonicalUrl },
-            ])
+            ]),
+            ...videoObjects(
+              (service.galleryItems ?? [])
+                .filter((item) => item.mediaType?.toLowerCase().includes("video"))
+                .map((item) => ({
+                  url: item.url,
+                  name: item.title,
+                  description: item.description,
+                  uploadDate: item.createdAt,
+                  durationSeconds: item.durationSeconds,
+                })),
+              {
+                name: service.name,
+                thumbnail: service.images?.[0],
+                owner: service.clinic,
+                description: service.subtitle || service.definitionDescription,
+              }
+            )
           )}
         />
       ) : null}

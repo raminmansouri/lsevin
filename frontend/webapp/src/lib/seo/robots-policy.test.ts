@@ -37,6 +37,17 @@ describe("server robots boundaries", () => {
     expect(disallow).not.toContain("/*/n/app/mobile/search");
     expect(disallow).not.toContain("/*/n/app/mobile/home");
   });
+  // Product photos, og:image and Product.image go through /api/shop/img.
+  it("lets crawlers fetch shop images while the rest of /api stays blocked", () => {
+    const rules = robots().rules;
+    const rule = Array.isArray(rules) ? rules[0] : rules;
+    expect(rule.allow).toContain("/api/shop/img");
+    expect(rule.disallow).toContain("/api/");
+    // Google and Bing apply the longest matching rule.
+    const allow = [rule.allow].flat().filter((p) => "/api/shop/img?u=x".startsWith(p as string));
+    const block = [rule.disallow].flat().filter((p) => "/api/shop/img?u=x".startsWith(p as string));
+    expect(Math.max(...allow.map((p) => String(p).length))).toBeGreaterThan(Math.max(...block.map((p) => String(p).length)));
+  });
   it("limits facet headers to known queries on supported locale landings", () => {
     const headers = facetHeaders(routing.locales);
     // shop 8 + specialties 15 + category providers 14 (filters and view).

@@ -5,6 +5,7 @@ import { GUIDE_LOCALES } from "@/features/guides/types";
 import type { FooterPageLink, SitePageSlug } from "@/features/site-content/types";
 import { EnamadSeal } from "@/components/trust/enamad-seal";
 import { Link } from "@/i18n/navigation";
+import { LanguageLinks } from "@/components/locale/language-links";
 
 import { BackToTop, Reveal } from "./motion";
 
@@ -100,6 +101,7 @@ export function DesktopFooter({ pages = [] }: { pages?: FooterPageLink[] }) {
       <div className="relative border-t border-[#eacb7f]/15">
         <div className="lsd-container flex items-center justify-between py-5 text-sm text-white/65">
           <span>{t("copyright", { year })}</span>
+          <LanguageLinks className="justify-center gap-x-4" linkClassName="hover:text-white" />
           <BackToTop label="↑" />
         </div>
       </div>

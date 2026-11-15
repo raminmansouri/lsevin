@@ -283,6 +283,8 @@ type GalleryRow = {
   display_order: number | string | null;
   is_primary: boolean | null;
   source: ServiceGalleryItem['source'];
+  create_date?: Date | string | null;
+  duration_seconds?: number | string | null;
 };
 
 type ProviderOfferingRow = {
@@ -726,6 +728,8 @@ function mapGalleryRow(row: GalleryRow): ServiceGalleryItem {
     displayOrder: asNumber(row.display_order, 0),
     isPrimary: Boolean(row.is_primary),
     source: row.source,
+    createdAt: row.create_date ? new Date(row.create_date).toISOString() : null,
+    durationSeconds: row.duration_seconds == null ? null : asNumber(row.duration_seconds, 0) || null,
   };
 }
 
@@ -765,7 +769,9 @@ async function getGalleryItems(serviceDefinitionId: string, providerServiceId: s
       coalesce(m.media_type, psgi.media_type, 'image') as media_type,
       psgi.display_order,
       psgi.is_primary,
-      'provider_service_gallery'::text as source
+      'provider_service_gallery'::text as source,
+      coalesce(m.create_date, psgi.create_date) as create_date,
+      m.duration_seconds
     from category.provider_service_gallery_items psgi
     join active_provider_services aps on aps.id = psgi.provider_service_id
     left join media.media_library m on m.id::text = nullif(psgi.url, '')
@@ -828,7 +834,9 @@ async function getProviderGalleryItems(providerId: string, locale: string): Prom
       coalesce(m.media_type, pgi.media_type, 'image') as media_type,
       pgi.display_order,
       false as is_primary,
-      'provider_gallery'::text as source
+      'provider_gallery'::text as source,
+      coalesce(m.create_date, pgi.create_date) as create_date,
+      m.duration_seconds
     from category.provider_gallery_items pgi
     left join media.media_library m on m.id::text = nullif(pgi.url, '')
     where pgi.service_provider_id = ${providerId}::uuid

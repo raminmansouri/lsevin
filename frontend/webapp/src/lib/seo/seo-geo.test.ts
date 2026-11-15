@@ -7,7 +7,7 @@ import { routing } from "@/i18n/routing";
 
 import { languageAlternates } from "./alternates";
 import { breadcrumbList, businessTypeFor, personSchema, providerSchema, serviceSchema } from "./entity-schema";
-import { contentLanguageFor, directionFor, routeLocaleFor } from "./language-tags";
+import { contentLanguageFor, directionFor, hreflangFor, routeLocaleFor } from "./language-tags";
 import { indexableLocalesFromKeys } from "./locale-eligibility";
 import { buildPublicMetadata } from "./metadata";
 import { toSeoPlainText } from "./plain-text";
@@ -70,12 +70,16 @@ describe("language tags", () => {
     expect(routing.locales.filter((l) => directionFor(l) === "rtl").sort()).toEqual(["ar", "fa", "ku"]);
   });
 
-  it("publishes Sorani as ckb while URLs keep /ku", () => {
+  it("declares Sorani as ckb in the document, ku-Arab in hreflang, while URLs keep /ku", () => {
     expect(contentLanguageFor("ku")).toBe("ckb");
     expect(contentLanguageFor("fa")).toBe("fa");
+    // Google's hreflang takes ISO 639-1 (+ script/region) codes only; ckb is ignored.
+    expect(hreflangFor("ku")).toBe("ku-Arab");
     const languages = languageAlternates("/consulting");
-    expect(languages.ckb).toBe("https://lsevincare.com/ku/consulting");
+    expect(languages["ku-Arab"]).toBe("https://lsevincare.com/ku/consulting");
+    expect(languages.ckb).toBeUndefined();
     expect(languages.ku).toBeUndefined();
+    for (const code of Object.keys(languages)) expect(code).toMatch(/^(x-default|[a-z]{2}(-[A-Z][a-z]{3})?(-[A-Z]{2})?)$/);
     expect(Object.keys(languages)).toHaveLength(routing.locales.length + 1);
   });
 });

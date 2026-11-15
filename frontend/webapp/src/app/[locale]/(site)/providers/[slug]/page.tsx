@@ -5,7 +5,7 @@ import { getProviderPageDataFromDbCached } from "@/features/service-providers/se
 import { listActiveProviderPageIds } from "@/features/service-providers/server/provider-page.repository";
 
 import { absoluteUrl } from "@/lib/seo/alternates";
-import { breadcrumbList, graph, providerSchema } from "@/lib/seo/entity-schema";
+import { breadcrumbList, graph, providerSchema, videoObjects } from "@/lib/seo/entity-schema";
 import { JsonLd } from "@/lib/seo/json-ld";
 import { getIndexableLocales } from "@/lib/seo/locale-eligibility";
 import { buildPublicMetadata } from "@/lib/seo/metadata";
@@ -123,7 +123,17 @@ export default async function ProviderDetailPage({ params }: PageProps) {
             { name: brand, url: absoluteUrl(locale) },
             { name: providersLabel, url: absoluteUrl(locale, "/providers") },
             { name: provider.name, url: canonicalUrl },
-          ])
+          ]),
+          ...videoObjects(
+            (provider.videos ?? []).map((video) => ({
+              url: video.url,
+              name: video.title,
+              description: video.description,
+              uploadDate: video.uploadDate,
+              durationSeconds: video.durationSeconds,
+            })),
+            { name: provider.name, thumbnail: provider.image ?? provider.images?.[0], owner: provider.name, description: provider.about || provider.tagline }
+          )
         )}
       />
         <SponsoredPlacementSlot locale={locale} placement="provider_detail" />

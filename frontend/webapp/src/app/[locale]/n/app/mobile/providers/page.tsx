@@ -7,6 +7,9 @@ import type { PageProps } from '@/types/next';
 import { Link } from '@/i18n/navigation';
 import { getTrustedHomeProvidersCached } from '@/features/home/api/server/get-home-page.cached';
 import { buildPublicMetadata } from '@/lib/seo/metadata';
+import { absoluteUrl } from '@/lib/seo/alternates';
+import { breadcrumbList, collectionPage, graph, providerUrl } from '@/lib/seo/entity-schema';
+import { JsonLd } from '@/lib/seo/json-ld';
 
 // Static / ISR — location-agnostic listing.
 export const dynamic = 'force-dynamic';
@@ -38,8 +41,26 @@ export default async function TrustedProvidersPage({ params }: PageProps) {
 
   const providers = await getTrustedHomeProvidersCached({ locale }, TRUSTED_PROVIDERS_LISTING_LIMIT).catch(() => []);
 
+  const pageUrl = absoluteUrl(locale, '/providers');
+  const brand = (await getTranslations({ locale, namespace: 'LocaleLayout' }))('title');
+
   return (
     <div className="min-h-screen bg-white pb-24">
+      <JsonLd
+        data={graph(
+          collectionPage({
+            url: pageUrl,
+            name: t('trustedPage.title'),
+            description: t('trustedPage.subtitle'),
+            locale,
+            items: providers.map((p) => ({ url: providerUrl(locale, p), name: p.name, image: p.imageUrl })),
+          }),
+          breadcrumbList([
+            { name: brand, url: absoluteUrl(locale) },
+            { name: t('trustedPage.title'), url: pageUrl },
+          ])
+        )}
+      />
       <div className="sticky top-0 z-40 border-b border-gray-100 bg-white px-5 pb-4 pt-3">
         <div className="flex items-center gap-3">
           <Link

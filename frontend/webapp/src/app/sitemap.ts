@@ -9,10 +9,13 @@ import {
   isTourismCategory,
 } from "@/features/categories/utils/category-href";
 import { getTourSettings } from "@/features/tours/server/platform/settings";
+import { listTourSitemapEntries } from "@/features/tours/server/platform/seo";
 import { allGuides, guideLocales, guidePath } from "@/features/guides/registry";
 import { getPublishedSitePageIndex } from "@/features/site-content/server/repository";
 import { routing } from "@/i18n/routing";
 import { absoluteUrl, languageAlternates, type SeoLocale } from "@/lib/seo/alternates";
+import { publicMediaUrl } from "@/lib/seo/media-url";
+import { shopImageSrc } from "@/features/shop/lib/image";
 import {
   INDEXABLE_CATEGORY_LOCALES,
   INDEXABLE_SHOP_LOCALES,
@@ -28,8 +31,23 @@ const ALL_LOCALES: readonly SeoLocale[] = routing.locales;
 const PERSIAN_ONLY: readonly SeoLocale[] = [routing.defaultLocale];
 
 // Fully translated UI pages: every locale is a genuine version.
-type CatalogEntry = { path: string; locales: readonly SeoLocale[] };
-type CatalogRow = { path: string; keys: string[] | null; persian_only: boolean };
+type CatalogEntry = { path: string; locales: readonly SeoLocale[]; images?: string[] };
+type CatalogRow = { path: string; keys: string[] | null; persian_only: boolean; images: string[] | null };
+
+// A stored media reference is a storage key, a media-library id or a URL; ids
+// resolve to their file. Google Images: an image sitemap lists the images of
+// each page (up to 1,000; we list the page's main photos).
+const MEDIA_ID = "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$";
+const resolvedMedia = (column: string) =>
+  sql.unsafe(`coalesce((select ml.file_url from media.media_library ml where ${column} ~* '${MEDIA_ID}' and ml.id = ${column}::uuid), nullif(btrim(${column}), ''))`);
+const SITEMAP_IMAGES_PER_PAGE = 5;
+
+function sitemapImages(path: string, images: string[] | null): string[] {
+  const urls = (images ?? [])
+    .map((src) => publicMediaUrl(path.startsWith("/products/") ? shopImageSrc(src) : src))
+    .filter((url): url is string => Boolean(url));
+  return [...new Set(urls)].slice(0, SITEMAP_IMAGES_PER_PAGE);
+}
 
 const STATIC_PATHS: CatalogEntry[] = [
   { path: "", locales: ALL_LOCALES },
@@ -50,20 +68,27 @@ const catalogEntries = unstable_cache(
     // (see lib/seo/locale-eligibility); the shop is a Persian storefront.
     const rows = await sql<CatalogRow[]>`
       select '/providers/' || sp.slug as path,
-             ${translatedKeys("sp.description_translations")} as keys, false as persian_only
+             ${translatedKeys("sp.description_translations")} as keys, false as persian_only,
+             array_remove(array[${resolvedMedia("sp.image_url")}] || array(
+               select ${resolvedMedia("g.url")} from category.provider_gallery_items g
+                where g.service_provider_id = sp.id and coalesce(nullif(btrim(g.media_type), ''), 'image') <> 'video'
+                order by g.display_order, g.create_date limit 4
+             ), null) as images
       from category.service_providers sp
       where sp.is_active = true and sp.slug is not null
         and category.provider_type_is_public(sp.provider_type_id)
       union all
       select '/services/' || ps.slug,
-             ${translatedKeys("ps.description_translations")}, false
+             ${translatedKeys("ps.description_translations")}, false,
+             array_remove(array[${resolvedMedia("ps.image_url")}], null)
       from category.provider_services ps
       join category.service_providers sp on sp.id = ps.service_provider_id
       where ps.is_active = true and ps.slug is not null and sp.is_active = true
         and category.provider_type_is_public(sp.provider_type_id)
       union all
       select '/specialists/' || s.slug,
-             ${translatedKeys("s.biography_translations")}, false
+             ${translatedKeys("s.biography_translations")}, false,
+             array_remove(array[${resolvedMedia("s.profile_image_url")}], null)
       from category.staff s
       where s.is_active = true and s.slug is not null and exists (
         select 1 from category.provider_staffs psf
@@ -72,20 +97,23 @@ const catalogEntries = unstable_cache(
       )
       union all
       select '/specialties/' || pt.slug,
-             ${translatedKeys("pt.name_translations")}, false
+             ${translatedKeys("pt.name_translations")}, false, null::text[]
       from category.provider_types pt
       where pt.is_active = true and pt.slug is not null
         and category.provider_type_is_public(pt.id)
       union all
-      select '/products/' || p.slug, null, true
+      select '/products/' || p.slug, null, true,
+             array(select m.url from shop.product_media m
+                    where m.product_id = p.id and coalesce(m.media_type, 'image') = 'image' and nullif(btrim(m.url), '') is not null
+                    order by m.is_primary desc, m.display_order, m.create_date limit 5)
       from shop.products p
       where p.deleted_at is null and p.status = 'active' and p.slug is not null and p.slug <> ''
       union all
-      select '/shop/' || c.slug, null, true
+      select '/shop/' || c.slug, null, true, null::text[]
       from shop.categories c
       where c.deleted_at is null and c.is_active = true and c.slug is not null and c.slug <> ''
       union all
-      select '/packages/' || p.slug, null, true
+      select '/packages/' || p.slug, null, true, null::text[]
       from marketing.special_packages p
       where p.is_active = true and p.slug is not null
         and nullif(btrim(p.title_translations ->> 'fa-IR'), '') is not null
@@ -93,6 +121,7 @@ const catalogEntries = unstable_cache(
     `;
     return rows.map((row) => ({
       path: row.path,
+      images: sitemapImages(row.path, row.images),
       locales: row.persian_only
         ? PERSIAN_ONLY
         : row.path.startsWith("/specialties/")
@@ -101,7 +130,7 @@ const catalogEntries = unstable_cache(
           : indexableLocalesFromKeys(row.keys),
     }));
   },
-  ["public-sitemap-catalog-v6"],
+  ["public-sitemap-catalog-v7"],
   { revalidate: 300, tags: ["sitemap-catalog"] }
 );
 
@@ -137,6 +166,20 @@ const categoryEntries = unstable_cache(
   { revalidate: 300, tags: ["sitemap-catalog"] }
 );
 
+// Tours (2026-11-15: they were missing from the sitemap). Each tour lists only
+// the languages it is written in; listings the languages any tour is written in.
+const tourEntries = unstable_cache(
+  async (): Promise<(CatalogEntry & { lastModified?: string })[]> =>
+    (await listTourSitemapEntries()).map((entry) => ({
+      path: entry.path,
+      locales: entry.locales,
+      ...(entry.images?.length ? { images: entry.images } : {}),
+      ...(entry.lastModified ? { lastModified: new Date(entry.lastModified).toISOString() } : {}),
+    })),
+  ["sitemap-tours-v2"],
+  { revalidate: 3600 }
+);
+
 const guideEntries = (): (CatalogEntry & { lastModified: string })[] =>
   allGuides().map((guide) => ({
     path: guidePath(guide.slug),
@@ -151,11 +194,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     console.error(`[seo] Sitemap ${part} unavailable; serving the rest.`);
     return [];
   };
-  const [entities, categories] = await Promise.all([
+  const [entities, categories, tours] = await Promise.all([
     catalogEntries().catch(unavailable("catalog")),
     categoryEntries().catch(unavailable("categories")),
+    tourEntries().catch(unavailable("tours")),
   ]);
-  const catalog = [...entities, ...categories];
+  const catalog = [...entities, ...categories, ...tours];
 
   // Editorial pages (admin → Editorial) list only their translated locales; first
   // so a published /privacy-policy replaces the built-in all-locale entry.
@@ -189,6 +233,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       ...(entry.lastModified ? { lastModified: entry.lastModified } : {}),
       changeFrequency: "weekly" as const,
       ...(languages ? { alternates: { languages } } : {}),
+      ...(entry.images?.length ? { images: entry.images } : {}),
     }));
   });
 }

@@ -37,6 +37,16 @@ export type ProviderPageQueryInput = {
   marginProfile?: string | null;
 };
 
+export type ProviderVideo = {
+  id: string;
+  url: string;
+  title: string | null;
+  description?: string | null;
+  /** ISO timestamp the video was added (VideoObject.uploadDate). */
+  uploadDate?: string | null;
+  durationSeconds?: number | null;
+};
+
 export type ReviewTargetType = "provider" | "service" | "specialist";
 export type ReviewSort = "newest" | "buyers" | "helpful";
 export type ReviewEligibilityReason = "not_signed_in" | "not_booked" | "already_reviewed" | "invalid_target" | null;
@@ -87,7 +97,7 @@ type ProviderRow = {
   accredited: boolean | null;
   responseTime: string | null;
   images: string[] | null;
-  videos: { id: string; url: string; title: string | null }[] | null;
+  videos: ProviderVideo[] | null;
     certifications:
     | {
         name: string;
@@ -439,7 +449,10 @@ export async function getProviderPageDataFromDb(
           jsonb_build_object(
             'id', pgi.id::text,
             'url', coalesce(ml.file_url, nullif(pgi.url, '')),
-            'title', nullif(common.get_translation_t(pgi.title_translations, ${locale}, 'en-US'), '')
+            'title', nullif(common.get_translation_t(pgi.title_translations, ${locale}, 'en-US'), ''),
+            'description', nullif(common.get_translation_t(pgi.description_translations, ${locale}, 'en-US'), ''),
+            'uploadDate', coalesce(ml.create_date, pgi.create_date),
+            'durationSeconds', ml.duration_seconds
           ) order by pgi.display_order, pgi.create_date
         ) filter (where coalesce(ml.file_url, nullif(pgi.url, '')) is not null) as videos
         from category.provider_gallery_items pgi
@@ -549,7 +562,7 @@ export async function getProviderPageDataFromDb(
         responseTime: row.responseTime || "Usually responds fast",
         image: row.avatar || "",
         images: providerImages,
-        videos: toObjectArray<{ id: string; url: string; title: string | null }>(
+        videos: toObjectArray<ProviderVideo>(
           row.videos,
         ),
         certifications: toObjectArray<{

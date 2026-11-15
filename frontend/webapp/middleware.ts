@@ -16,12 +16,14 @@ import { UserRole } from "./src/types/common";
 import { publicAppOrigin, publicAppUrl } from "./src/lib/http/public-origin";
 import { legacyEntityRoute } from "./src/lib/routes/legacy-entity-route";
 import { countryFromHeaders, languageForCountry, languageFromAcceptLanguage, normalizeCountry, resolveFirstLanguage } from "./src/lib/market/market";
-import { isCrawlerUserAgent } from "./src/lib/seo/crawler";
 
 async function redirectRootToVisitorLanguage(request: NextRequest) {
-  // Crawlers index the default language at the root (it is the x-default);
-  // Googlebot crawls from US addresses and must not be sent to /en.
-  const crawler = isCrawlerUserAgent(request.headers.get("user-agent"));
+  // Crawlers get exactly what a visitor from their country gets (Google,
+  // "How Google crawls locale-adaptive pages": treat Googlebot like any user
+  // from the country it appears to come from; until 2026-11-15 crawlers were
+  // always sent to /fa). Only this x-default root adapts: every language has
+  // its own URL with hreflang, and a URL that names a language is never
+  // redirected, so all versions stay crawlable from any country.
   const chosen = request.cookies.get("LSEVIN_LOCALE")?.value || request.cookies.get("NEXT_LOCALE")?.value || null;
   const ipCountry = countryFromHeaders(request.headers);
   const acceptLanguage = request.headers.get("accept-language");
@@ -29,15 +31,13 @@ async function redirectRootToVisitorLanguage(request: NextRequest) {
   // The phone country only matters when nothing before it decided, so the
   // session is read only then.
   let phoneCountry: string | null = null;
-  if (!crawler && !chosen && !languageForCountry(ipCountry) && !languageFromAcceptLanguage(acceptLanguage)) {
+  if (!chosen && !languageForCountry(ipCountry) && !languageFromAcceptLanguage(acceptLanguage)) {
     const session = await getSession({ redirectToLogin: false }).catch(() => null);
     const raw = (session?.user as { phoneNumberCountryCode?: string | null } | undefined)?.phoneNumberCountryCode?.trim() ?? "";
     phoneCountry = normalizeCountry(raw) ?? (raw.replace(/\D/g, "") === "98" ? "IR" : null);
   }
 
-  const { language, source } = crawler
-    ? { language: routing.defaultLocale as string, source: "crawler" }
-    : resolveFirstLanguage({ chosen, ipCountry, acceptLanguage, phoneCountry });
+  const { language, source } = resolveFirstLanguage({ chosen, ipCountry, acceptLanguage, phoneCountry });
   // publicAppUrl keeps the visitor on the public host they came to
   // (lsevincare.com, lsevin.ir, appmain...), as every other redirect here.
   const url = publicAppUrl(request, `/${language}`);

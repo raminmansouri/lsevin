@@ -40,6 +40,10 @@ export async function generateMetadata(
       template: `${t("title")} | %s`,
     },
     description: t("description"),
+    // Google Images / Discover: allow large image previews and full video
+    // previews (the default is a small thumbnail). A page that sets its own
+    // robots (noindex fallbacks, private areas) replaces this whole object.
+    robots: { "max-image-preview": "large", "max-video-preview": -1, "max-snippet": -1 },
   };
 }
 
