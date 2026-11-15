@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { seoOrigin } from "@/lib/seo/origin";
 import { verifyGatewayCallback } from "@/features/shop/server/shop-payment.service";
+import { readGatewayReturn } from "@/payment/gateways";
+import { gatewayReturnOrigin } from "@/payment/server/return-origin";
 
 /**
  * Gateway return / webhook endpoint for Shop orders. Verification is
@@ -13,12 +15,9 @@ import { verifyGatewayCallback } from "@/features/shop/server/shop-payment.servi
  */
 async function handle(req: NextRequest, gateway: string, locale: string) {
   const url = new URL(req.url);
-  let authority =
-    url.searchParams.get("Authority") ||
-    url.searchParams.get("authority") ||
-    url.searchParams.get("token") ||
-    "";
-  let status = url.searchParams.get("Status") || url.searchParams.get("status") || "";
+  const parsed = readGatewayReturn(gateway, url.searchParams);
+  let authority = parsed.authority || (gateway === "zibal" ? "" : url.searchParams.get("token") || "");
+  let status = parsed.status;
 
   if (!authority && req.method === "POST") {
     try {
@@ -34,7 +33,7 @@ async function handle(req: NextRequest, gateway: string, locale: string) {
 
   const base = `/${locale || "fa"}/n/app/mobile/shop`;
   // Public origin, not url.origin (the internal 0.0.0.0:3000 behind the proxy).
-  const origin = seoOrigin();
+  const origin = gateway === "zibal" ? await gatewayReturnOrigin(gateway) : seoOrigin();
   if (!result.orderNumber) {
     return NextResponse.redirect(new URL(`${base}/cart?payment=failed`, origin));
   }

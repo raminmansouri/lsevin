@@ -1126,6 +1126,7 @@ export function BookingWizard() {
     function checkoutErrorText(message: string | undefined, fallback: string) {
         const translated: Record<string, string> = {
             ZARINPAL_AMOUNT_LIMIT_EXCEEDED: tBooking('failedToStartPayment'),
+            GATEWAY_AMOUNT_LIMIT_EXCEEDED: tBooking('failedToStartPayment'),
             'Choose how to pay the part due now.': tBooking('payInPlace.errors.chooseDepositMethod'),
             'Choose how to pay the part due now: wallet or online payment.': tBooking('payInPlace.errors.chooseDepositMethod'),
             'Pay the part due now with the wallet or online payment.': tBooking('payInPlace.errors.depositMethodNotAllowed'),

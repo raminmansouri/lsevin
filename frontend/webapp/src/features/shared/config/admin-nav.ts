@@ -57,6 +57,7 @@ import {
   Settings2,
   Shapes,
   Share2,
+  ShieldCheck,
   ShoppingBag,
   Stethoscope,
   Video,
@@ -236,6 +237,7 @@ export const ADMIN_NAV: AdminNavEntry[] = [
     items: [
       { titleKey: "editorial", href: "/admin/editorial", icon: FileText },
       { titleKey: "homeSections", href: "/admin/home-sections", icon: LayoutTemplate },
+      { titleKey: "enamad", href: "/admin/enamad", icon: ShieldCheck },
       { titleKey: "sponsoredSlider", href: "/admin/sponsored-slider", icon: GalleryHorizontal },
       { titleKey: "specialPackages", href: "/admin/special-packages", icon: PackageOpen },
       { titleKey: "authContent", href: "/admin/auth-content", icon: KeyRound },

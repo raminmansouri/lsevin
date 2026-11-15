@@ -3,8 +3,8 @@
 import { useTransition } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod/v4";
-import { ArrowLeft, Save } from "lucide-react";
-import { useForm } from "react-hook-form";
+import { ArrowLeft, Plus, Save, Trash2 } from "lucide-react";
+import { useFieldArray, useForm } from "react-hook-form";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -31,6 +31,8 @@ export function PaymentGatewayForm({ gateway }: { gateway: PaymentGatewayConfig 
   // with a server/store/API key rather than a merchant id, and prices invoices
   // in a stable fiat unit because no BTC<->IRR rate exists.
   const isBtcPay = gateway.code === "btcpay";
+  // Zibal has one merchant token per domain instead of a single merchant id.
+  const isZibal = gateway.code === "zibal";
   const defaultCurrency = (gateway.settings.currency || (isBtcPay ? "USD" : "IRR")) as
     | "IRR"
     | "IRT"
@@ -52,6 +54,8 @@ export function PaymentGatewayForm({ gateway }: { gateway: PaymentGatewayConfig 
       sortOrder: gateway.sortOrder,
       settings: {
         merchantId: "",
+        // Tokens arrive masked; a blank token keeps the stored one for that domain.
+        domainMerchants: (gateway.settings.domainMerchants ?? []).map((item) => ({ host: item.host, merchant: "" })),
         sandbox: gateway.settings.sandbox ?? true,
         currency: defaultCurrency,
         minimumAmount:
@@ -72,6 +76,9 @@ export function PaymentGatewayForm({ gateway }: { gateway: PaymentGatewayConfig 
     },
   });
 
+  const domainRows = useFieldArray({ control: form.control, name: "settings.domainMerchants" as never });
+  const storedTokens = new Map((gateway.settings.domainMerchants ?? []).map((item) => [item.host, item.merchant]));
+
   const { execute } = useAction(savePaymentGatewayAction, {
     startTransition,
     onSuccess: () => {
@@ -84,7 +91,8 @@ export function PaymentGatewayForm({ gateway }: { gateway: PaymentGatewayConfig 
   });
 
   const onSubmit = (values: InputType) => {
-    execute(values);
+    // Only Zibal manages per-domain tokens; other gateways leave the stored list untouched.
+    execute(isZibal ? values : { ...values, settings: { ...values.settings, domainMerchants: undefined } });
   };
 
   return (
@@ -135,7 +143,7 @@ export function PaymentGatewayForm({ gateway }: { gateway: PaymentGatewayConfig 
                   <FormItem className="flex items-center justify-between rounded-2xl border p-4">
                     <div>
                       <FormLabel>{t("sandboxMode")}</FormLabel>
-                      <FormDescription>{t("useZarinpalSandboxForDevelopmentAndTests")}</FormDescription>
+                      <FormDescription>{isZibal ? t("zibalSandboxDescription") : t("useZarinpalSandboxForDevelopmentAndTests")}</FormDescription>
                     </div>
                     <FormControl>
                       <Switch checked={field.value} onCheckedChange={field.onChange} disabled={isPending} />
@@ -259,17 +267,94 @@ export function PaymentGatewayForm({ gateway }: { gateway: PaymentGatewayConfig 
             </CardContent>
           </Card>
 
+          {isZibal && (
+            <Card data-testid="zibal-domain-tokens">
+              <CardHeader>
+                <CardTitle>{t("zibalDomainTokensTitle")}</CardTitle>
+                <CardDescription>{t("zibalDomainTokensDescription")}</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {domainRows.fields.length === 0 && (
+                  <p className="rounded-2xl border border-dashed p-4 text-sm text-muted-foreground">{t("zibalNoDomainsYet")}</p>
+                )}
+                {domainRows.fields.map((row, index) => {
+                  const host = form.watch(`settings.domainMerchants.${index}.host` as never) as unknown as string;
+                  const stored = storedTokens.get(String(host || "").trim().toLowerCase().replace(/^www./, ""));
+                  return (
+                    <div key={row.id} className="grid gap-4 rounded-2xl border p-4 md:grid-cols-[1fr_1fr_auto] md:items-end" data-testid="zibal-domain-row">
+                      <FormField
+                        control={form.control}
+                        name={`settings.domainMerchants.${index}.host` as never}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>{t("zibalDomain")}</FormLabel>
+                            <FormControl>
+                              <Input {...field} value={String(field.value ?? "")} dir="ltr" placeholder="lsevincare.com" disabled={isPending} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name={`settings.domainMerchants.${index}.merchant` as never}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>{t("zibalMerchantToken")}</FormLabel>
+                            <FormControl>
+                              <Input
+                                {...field}
+                                value={String(field.value ?? "")}
+                                dir="ltr"
+                                type="password"
+                                autoComplete="new-password"
+                                placeholder={stored ? `${t("zibalCurrentToken")}: ${stored}` : t("zibalPasteToken")}
+                                disabled={isPending}
+                              />
+                            </FormControl>
+                            <FormDescription>{stored ? t("zibalLeaveBlankToKeep") : t("zibalTokenRequired")}</FormDescription>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => domainRows.remove(index)}
+                        disabled={isPending}
+                        aria-label={t("zibalRemoveDomain")}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  );
+                })}
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={() => domainRows.append({ host: "", merchant: "" } as never)}
+                  disabled={isPending}
+                >
+                  <Plus className="mr-2 h-4 w-4" />
+                  {t("zibalAddDomain")}
+                </Button>
+              </CardContent>
+            </Card>
+          )}
+
           <Card>
             <CardHeader>
-              <CardTitle>{isBtcPay ? "BTCPay Server connection" : "Zarinpal credentials"}</CardTitle>
+              <CardTitle>{isBtcPay ? "BTCPay Server connection" : isZibal ? t("zibalSettingsTitle") : "Zarinpal credentials"}</CardTitle>
               <CardDescription>
                 {isBtcPay
                   ? "Secrets are stored server-side and masked on read. Leave a secret blank to keep the existing value. Environment variables (BTCPAY_API_KEY, BTCPAY_WEBHOOK_SECRET) take precedence over anything set here."
-                  : "Merchant ID is stored server-side. Leave it blank to keep the existing value."}
+                  : isZibal
+                    ? t("zibalSettingsDescription")
+                    : "Merchant ID is stored server-side. Leave it blank to keep the existing value."}
               </CardDescription>
             </CardHeader>
             <CardContent className="grid gap-6 md:grid-cols-2">
-              {!isBtcPay && (
+              {!isBtcPay && !isZibal && (
                 <FormField
                   control={form.control}
                   name="settings.merchantId"

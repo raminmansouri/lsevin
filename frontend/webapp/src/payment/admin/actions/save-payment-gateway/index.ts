@@ -2,7 +2,7 @@
 
 import { createAuthenticatedSafeAction } from "@/lib/safe-action";
 import type { LocaleHeaderTypes } from "@/types/common";
-import { savePaymentGatewayConfig } from "@/payment/server/payment-gateway.repository";
+import { PaymentGatewayValidationError, savePaymentGatewayConfig } from "@/payment/server/payment-gateway.repository";
 
 import { SavePaymentGatewaySchema } from "./schema";
 import type { InputType, ReturnType } from "./types";
@@ -27,12 +27,21 @@ const handler = async (
 
     return { data, error: undefined, payload: input };
   } catch (error) {
+    if (error instanceof PaymentGatewayValidationError) {
+      return {
+        data: undefined,
+        error: { title: "Check the gateway settings", status: 422, detail: error.message },
+        payload: input,
+      };
+    }
+    // Never echo the settings (they hold merchant tokens); the code and the error are enough.
+    console.error("[payment-gateways] save failed", { code: input.code, error: error instanceof Error ? error.message : String(error) });
     return {
       data: undefined,
       error: {
         title: "Unable to save payment gateway",
         status: 500,
-        detail: error instanceof Error ? error.message : "Please try again.",
+        detail: "The settings could not be saved. Please try again.",
       },
       payload: input,
     };

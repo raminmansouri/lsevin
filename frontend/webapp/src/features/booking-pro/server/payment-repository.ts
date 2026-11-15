@@ -194,7 +194,7 @@ export async function createBookingPaymentIntent(params: {
 
     const selectedEnabledGateway = enabledGateways.find((item) => item.code.toLowerCase() === normalizedMethodCode);
     const shouldUseOnlineGateway =
-        ['card', 'gateway_card', 'online_card', 'zarinpal', 'btcpay', 'crypto'].includes(normalizedMethodCode) ||
+        ['card', 'gateway_card', 'online_card', 'zarinpal', 'zibal', 'btcpay', 'crypto'].includes(normalizedMethodCode) ||
         Boolean(selectedEnabledGateway);
 
     if (shouldUseOnlineGateway) {

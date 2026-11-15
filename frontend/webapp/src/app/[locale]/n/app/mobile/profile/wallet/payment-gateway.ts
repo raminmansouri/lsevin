@@ -2,6 +2,7 @@ import sharedSql from "@/config/database/db";
 
 import { getPaymentProvider } from "@/payment/providers";
 import { getEnabledPaymentGatewayConfig } from "@/payment/server/payment-gateway.repository";
+import { isIranianCardGateway } from "@/payment/gateways";
 import type { PaymentGatewayCode } from "@/payment/types";
 import type {
   CreateTopUpIntentInput,
@@ -28,7 +29,9 @@ export interface WalletPaymentGateway {
 
 function normalizeGateway(value?: string | null): PaymentGatewayCode {
   const gateway = String(value || "").trim().toLowerCase();
-  if (gateway !== "zarinpal") {
+  // Any Iranian card gateway. Zibal moves the callback to the customer's own domain itself
+  // (a token per domain), so the base URL below only matters for Zarinpal, unchanged.
+  if (!isIranianCardGateway(gateway)) {
     throw new Error("Unsupported online payment gateway.");
   }
 

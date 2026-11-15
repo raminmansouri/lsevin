@@ -3,7 +3,12 @@ import { expect, test } from "@playwright/test";
 const SEAL_ID = "7764782";
 const SEAL_CODE = "XcQgNRMRzN92gDmZbf8t5GMh1mtctW9d";
 
+// This is lsevincare.com's seal; every domain now has its own (admin → Content → Enamad) and the
+// page shows the one for its domain. The local, multi-domain check is enamad-seal.spec.ts.
+const ON_LSEVINCARE = /(^|\.)lsevincare\.com$/.test(new URL(process.env.E2E_BASE_URL || "http://localhost").hostname);
+
 test("home page shows the current Enamad trust seal", async ({ page }) => {
+  test.skip(!ON_LSEVINCARE, "lsevincare.com's seal is only shown on lsevincare.com");
   await page.goto("/fa/n/app/mobile/home");
 
   const sealLink = page.locator('a[href^="https://trustseal.enamad.ir/"]');

@@ -49,7 +49,7 @@ export function PaymentPanel({
       if (!res.ok) throw new Error(String(res.status));
       const json = (await res.json()) as { items?: Method[] };
       // Only methods that actually move money now; pay-on-delivery / receipts are not offered for tours.
-      const items = (json.items ?? []).filter((m) => m.code === "wallet" || m.isWallet || ["gateway_card", "card", "online_card", "zarinpal", "btcpay"].includes(m.code));
+      const items = (json.items ?? []).filter((m) => m.code === "wallet" || m.isWallet || ["gateway_card", "card", "online_card", "zarinpal", "zibal", "btcpay"].includes(m.code));
       setMethods(items);
       setSelected((s) => s ?? items[0]?.code ?? null);
     } catch {

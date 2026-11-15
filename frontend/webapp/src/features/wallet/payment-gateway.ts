@@ -3,6 +3,7 @@ import sharedSql from "@/config/database/db";
 import { seoOrigin } from "@/lib/seo/origin";
 import { getPaymentProvider } from "@/payment/providers";
 import { getEnabledPaymentGatewayConfig } from "@/payment/server/payment-gateway.repository";
+import { isIranianCardGateway } from "@/payment/gateways";
 import type { PaymentGatewayCode } from "@/payment/types";
 import type {
   CreateTopUpIntentInput,
@@ -29,7 +30,8 @@ export interface WalletPaymentGateway {
 
 function normalizeGateway(value?: string | null): PaymentGatewayCode {
   const gateway = String(value || "").trim().toLowerCase();
-  if (gateway !== "zarinpal") {
+  // Wallet top-ups are Rial/Toman only: any Iranian card gateway (Zarinpal, Zibal).
+  if (!isIranianCardGateway(gateway)) {
     throw new Error("Unsupported online payment gateway.");
   }
 
