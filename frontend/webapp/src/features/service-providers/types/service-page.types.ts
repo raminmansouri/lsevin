@@ -36,6 +36,10 @@ export interface AlRecommendation {
   country: string;
   price: number;
   currency: string;
+  /** The provider's own price, for per-visitor pricing (ViewerPrice). */
+  sourceAmount?: number | null;
+  sourceCurrencyCode?: string | null;
+  providerId?: string | null;
   verified: boolean;
   link: string;
 }

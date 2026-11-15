@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
 import { entityPath, toPublicPath } from "@/lib/routes/public-paths";
+import { ViewerPrice } from "@/features/finance/components/viewer-price";
 import { directoryHref, mapHref, setListingParams, slugLookup, type ListingSlugs } from "@/lib/routes/filter-paths";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -811,9 +812,12 @@ export default function ExploreClient({
                   {t("actions.learnMore")}
                 </button>
                 {sponsoredProviders[0].price != null && (
-                  <span className="text-2xl font-bold text-white">
-                    {formatPrice(sponsoredProviders[0].price, sponsoredProviders[0].currency, locale)}
-                  </span>
+                  <ViewerPrice
+                    amount={sponsoredProviders[0].price}
+                    sourceCurrencyCode={sponsoredProviders[0].currency}
+                    providerId={sponsoredProviders[0].id}
+                    className="text-2xl font-bold text-white"
+                  />
                 )}
               </div>
             </div>
@@ -895,10 +899,20 @@ export default function ExploreClient({
                   </div>
 
                   <div className="text-right">
-                    {service.originalPrice && (
-                      <div className="text-xs text-gray-400 line-through">{formatPrice(service.originalPrice, service.currency, locale)}</div>
-                    )}
-                    <div className="font-bold text-[#083f30]">{formatPrice(service.price, service.currency, locale)}</div>
+                    {service.originalPrice && service.originalPrice > service.price ? (
+                      <ViewerPrice
+                        amount={service.originalPrice}
+                        sourceCurrencyCode={service.currency}
+                        providerId={service.providerId}
+                        className="block text-xs font-normal text-gray-400 line-through"
+                      />
+                    ) : null}
+                    <ViewerPrice
+                      amount={service.price}
+                      sourceCurrencyCode={service.currency}
+                      providerId={service.providerId}
+                      className="block font-bold text-[#083f30]"
+                    />
                   </div>
                 </div>
               </div>

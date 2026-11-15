@@ -184,18 +184,10 @@ const nextConfig: NextConfig = {
     ] as const;
     return [
       // The home page's address is the locale root (/fa); its file still lives at
-      // n/app/mobile/home and a beforeFiles rewrite serves it there. "/" picks the
-      // default locale; the old /n/app/mobile/home moves permanently, query kept.
-      //
-      // The financial panel host is excluded: config redirects run before the
-      // middleware, so without `missing` its "/" was sent to the customer home
-      // instead of being rewritten to /financial.
-      {
-        source: "/",
-        missing: [{ type: "host", value: "financial\\..*" }],
-        destination: `/${routing.defaultLocale}`,
-        permanent: false,
-      },
+      // n/app/mobile/home and a beforeFiles rewrite serves it there. "/" is
+      // answered by the middleware, which picks the visitor's language
+      // (src/lib/market/market.ts resolveFirstLanguage); the old
+      // /n/app/mobile/home moves permanently, query kept.
       {
         source: `/:locale(${localePattern})/n/app/mobile/home`,
         destination: "/:locale",

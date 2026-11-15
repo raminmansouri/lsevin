@@ -3414,7 +3414,19 @@ declare const messages: {
       "permission": {
         "title": "Turn on location",
         "dismiss": "Not now",
-        "enable": "Turn on"
+        "enable": "Turn on",
+        "why": "To show clinics, hotels and services near you, LSevin would like to use your location. It is only used on this device to find what is closest, and you can change it any time.",
+        "deniedTitle": "Location is turned off for this site",
+        "deniedHelp": "No problem — we used your region instead. To use your exact location later, tap the lock icon next to the address bar, allow “Location”, and reload the page. Or just search for your city below."
+      },
+      "search": {
+        "label": "Search a city or country",
+        "placeholder": "e.g. Istanbul, Dubai, Tehran",
+        "searching": "Searching…",
+        "noResults": "No city or country matches “{query}”.",
+        "hint": "Type at least two letters.",
+        "country": "Country",
+        "popular": "Popular destinations"
       }
     },
     "sponsoredCarousel": {
@@ -9391,7 +9403,13 @@ declare const messages: {
     "expandedNote": "No services in your selected area — showing the nearest available, sorted by distance.",
     "noResults": "No services found. Try widening your filters.",
     "showMap": "Map",
-    "showList": "List"
+    "showList": "List",
+    "locationPrompt": {
+      "title": "Show what's near you?",
+      "body": "With your location we can open the map right where you are and sort providers by distance. It stays on this device.",
+      "allow": "Use my location",
+      "notNow": "Not now"
+    }
   },
   "NearbyMap": {
     "mapboxNotConfiguredTitle": "Mapbox is not configured",
@@ -16069,6 +16087,15 @@ declare const messages: {
           }
         }
       }
+    },
+    "rateHealth": {
+      "title": "Rate per US dollar",
+      "description": "Each currency has one rate against USD; every other pair is derived from it. Enter new rates as USD → currency. A currency without one is shown to visitors in USD; direct pairs between two other currencies are no longer used.",
+      "currency": "Currency",
+      "perUsd": "Units per 1 USD",
+      "ok": "In use",
+      "stale": "Older than {days} days",
+      "missing": "No USD rate — shown in USD"
     }
   },
   "MobileNotifications": {

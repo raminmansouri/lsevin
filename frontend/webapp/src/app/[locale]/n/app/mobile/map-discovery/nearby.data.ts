@@ -1,3 +1,6 @@
+import { headers } from "next/headers";
+
+import { countryFromHeaders } from "@/lib/market/market";
 import sql from "@/config/database/db";
 import { unstable_noStore as noStore } from "next/cache";
 
@@ -30,6 +33,20 @@ export type NearbyFiltersInput = {
   lat: number | null;
   lng: number | null;
 };
+
+/** The largest city (migration 0104) of the visitor's IP country, or null. */
+async function visitorCountryCenter(): Promise<{ lat: number; lng: number; zoom: number } | null> {
+  const country = countryFromHeaders(await headers());
+  if (!country) return null;
+  const [row] = await sql<{ lat: number; lng: number }[]>`
+    select latitude as lat, longitude as lng
+      from category.location_search
+     where country_code = ${country} and location_type_id = 2 and latitude is not null
+     order by rank desc
+     limit 1
+  `;
+  return row ? { lat: Number(row.lat), lng: Number(row.lng), zoom: 10 } : null;
+}
 
 export type NearbyCategory = {
   image?: string;
@@ -825,9 +842,15 @@ export async function getNearbyPageData({
   const firstWithCoordinates = providers.find(
     (provider) => provider.coordinates,
   );
+  // Without the visitor's own position, the map opens on their country (the
+  // largest city of their IP country, src/lib/market), not on Tehran.
+  const countryCenter =
+    filters.lat == null || filters.lng == null ? await visitorCountryCenter().catch(() => null) : null;
   const mapCenter =
     filters.lat != null && filters.lng != null
       ? { lat: filters.lat, lng: filters.lng, zoom: 10 }
+      : countryCenter
+        ? countryCenter
       : firstWithCoordinates?.coordinates
         ? {
             lat: firstWithCoordinates.coordinates.lat,

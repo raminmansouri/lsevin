@@ -288,8 +288,13 @@ export async function getFeaturedHomeServices(input: HomeQueryInput, limit = 8):
       common.get_translation_t(sp.name_translations, ${locale}::text, 'en-US') as "providerName",
       sp.city,
       sp.country,
-      coalesce(ps.rating, sp.rating, 0) as rating,
-      coalesce(ps.review_count, sp.review_count, 0) as "reviewCount",
+      -- A rating only with its own reviews (service, else provider, else none).
+      case when coalesce(ps.review_count, 0) > 0 then ps.rating
+           when coalesce(sp.review_count, 0) > 0 then sp.rating
+           else 0 end as rating,
+      case when coalesce(ps.review_count, 0) > 0 then ps.review_count
+           when coalesce(sp.review_count, 0) > 0 then sp.review_count
+           else 0 end as "reviewCount",
       upper(coalesce(nullif(ps.currency, ''), nullif(sd.currency, ''), 'USD')) as "currencyCode",
       ps.value,
       case

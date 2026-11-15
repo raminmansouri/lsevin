@@ -6,8 +6,6 @@ import { INDEXABLE_SHOP_LOCALES } from "@/lib/seo/locale-eligibility";
 import { absoluteUrl } from "@/lib/seo/alternates";
 import { breadcrumbList, graph } from "@/lib/seo/entity-schema";
 import { JsonLd } from "@/lib/seo/json-ld";
-import { seoOrigin } from "@/lib/seo/origin";
-import { firstSeoPlainText } from "@/lib/seo/plain-text";
 import { Link } from "@/i18n/navigation";
 import { getProductBySlugCached } from "@/features/shop/api/catalog.repository.cached";
 import { ShopHeader } from "@/features/shop/components/ShopHeader";
@@ -18,12 +16,14 @@ import { WishlistHeart } from "@/features/shop/components/WishlistHeart";
 import { CompareButton } from "@/features/shop/components/CompareButton";
 import { ProductPersonalSections } from "@/features/shop/components/ProductPersonalSections";
 import { shopImageSrc } from "@/features/shop/lib/image";
+import { productJsonLd } from "@/features/shop/lib/product-json-ld";
 import { ConsultationCtaButton } from "@/features/consultation/components/consultation-cta-button";
 
 
 import { ProductSpecs } from "@/features/shop/components/ProductSpecs";
 
 import { DesktopProductPage } from "@/features/web-desktop/shop/DesktopProductPage";
+
 
 // Customer currency is resolved per request; product data remains cached.
 export const dynamic = "force-dynamic";
@@ -45,7 +45,7 @@ export async function generateMetadata({
     path: `/products/${encodeURIComponent(slug)}`,
     title: product.name,
     descriptions: [product.shortDescription, product.description],
-    image: product.imageUrl,
+    image: product.imageUrl ? shopImageSrc(product.imageUrl) : undefined,
     type: "website",
     eligibleLocales: INDEXABLE_SHOP_LOCALES,
   });
@@ -76,41 +76,16 @@ export default async function ProductDetailPage({
       {/* Offer mirrors the price block below (same amount and currency). */}
       <JsonLd
         data={graph(
-          {
-            "@type": "Product",
-            "@id": `${productUrl}#product`,
-            name: product.name,
-            url: productUrl,
-            sku: product.id,
-            description: firstSeoPlainText([product.shortDescription, product.description], 500) || undefined,
-            image: [
-              ...new Set(
-                productImages.flatMap((url) => {
-                  // A malformed stored URL must not take the product page down.
-                  try {
-                    return [new URL(shopImageSrc(url), seoOrigin()).toString()];
-                  } catch {
-                    return [];
-                  }
-                })
-              ),
-            ].slice(0, 5),
-            ...(product.priceUnavailable || !(Number(product.price) > 0)
-              ? {}
-              : {
-                  offers: {
-                    "@type": "Offer",
-                    url: productUrl,
-                    price: Number(product.price),
-                    priceCurrency: product.currency,
-                  },
-                }),
-          },
+          productJsonLd(product, productUrl, productImages),
           breadcrumbList([
             {
               name: (await getTranslations({ locale, namespace: "LocaleLayout" }))("title"),
               url: absoluteUrl(locale),
             },
+            { name: t("title"), url: absoluteUrl(locale, "/shop") },
+            ...(product.categories?.[0]?.slug
+              ? [{ name: product.categories[0].name, url: absoluteUrl(locale, `/shop/${encodeURIComponent(product.categories[0].slug)}`) }]
+              : []),
             { name: product.name, url: productUrl },
           ])
         )}

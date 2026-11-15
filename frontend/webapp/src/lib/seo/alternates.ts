@@ -32,7 +32,11 @@ export function absoluteUrl(locale: string, path = ""): string {
 export function languageAlternates(path = "", eligibleLocales: readonly SeoLocale[] = routing.locales): Record<string, string> {
   const languages: Record<string, string> = {};
   for (const locale of eligibleLocales) languages[contentLanguageFor(locale)] = absoluteUrl(locale, path);
-  if (eligibleLocales.includes(routing.defaultLocale)) languages["x-default"] = absoluteUrl(routing.defaultLocale, path);
+  // The home page's x-default is the site root, which picks the visitor's
+  // language (middleware: choice, IP country, browser language) - the case
+  // x-default is for. Other pages fall back to their Persian version.
+  if (!path && eligibleLocales.length > 1) languages["x-default"] = `${seoOrigin()}/`;
+  else if (eligibleLocales.includes(routing.defaultLocale)) languages["x-default"] = absoluteUrl(routing.defaultLocale, path);
   return languages;
 }
 

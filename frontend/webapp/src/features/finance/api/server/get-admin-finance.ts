@@ -96,3 +96,36 @@ export async function getAdminExchangeRateById(id: string): Promise<AdminExchang
 
     return { ...row, rate: Number(row.rate) };
 }
+
+export type RateHealth = {
+    code: string;
+    /** Units of the currency per 1 USD (migration 0105), null when it has none. */
+    unitsPerUsd: number | null;
+    asOf: string | null;
+    status: 'ok' | 'stale' | 'missing';
+};
+
+/** A rate older than this is shown as stale: prices in that currency may be off. */
+export const RATE_STALE_DAYS = 30;
+
+/**
+ * Every display currency's single USD rate (finance.units_per_usd), so admins see
+ * which currencies visitors cannot be shown (they get USD instead) and which
+ * rates are old.
+ */
+export async function getRateHealth(): Promise<RateHealth[]> {
+    const rows = await sql<{ code: string; units: string | null; asOf: string | null }[]>`
+      select c.code, u.units::text as units, u.as_of::text as "asOf"
+        from finance.currencies c
+        left join lateral finance.units_per_usd(c.code) u on true
+       where c.deleted_at is null and c.is_active and c.is_display_enabled and c.code <> 'USD'
+       order by c.sort_order, c.code
+    `;
+    const staleBefore = Date.now() - RATE_STALE_DAYS * 24 * 60 * 60 * 1000;
+    return rows.map((row) => ({
+        code: row.code,
+        unitsPerUsd: row.units == null ? null : Number(row.units),
+        asOf: row.asOf,
+        status: row.units == null ? 'missing' : row.asOf && new Date(row.asOf).getTime() < staleBefore ? 'stale' : 'ok',
+    }));
+}

@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 
 import { entityPath } from "@/lib/routes/public-paths";
+import { ViewerPrice } from "@/features/finance/components/viewer-price";
 import { setListingParams, slugLookup, type ListingSlugs } from "@/lib/routes/filter-paths";
 import type { OfferCard, OfferTab, OffersFiltersInput } from "./offers.data";
 
@@ -471,15 +472,28 @@ export default function OffersClient({
                 <p className="text-sm text-gray-600 mb-3">{offer.subtitle}</p>
 
                 <div className="flex items-center gap-2 mb-3">
-                  <span className="text-2xl font-bold text-[#083f30]">
-                    {formatPrice(offer.discountedPrice, offer.currency, locale)}
-                  </span>
-                  <span className="text-sm text-gray-500 line-through">
-                    {formatPrice(offer.originalPrice, offer.currency, locale)}
-                  </span>
+                  <ViewerPrice
+                    amount={offer.discountedPrice}
+                    sourceCurrencyCode={offer.currency}
+                    providerId={offer.providerId}
+                    className="text-2xl font-bold text-[#083f30]"
+                  />
+                  <ViewerPrice
+                    amount={offer.originalPrice}
+                    sourceCurrencyCode={offer.currency}
+                    providerId={offer.providerId}
+                    className="text-sm font-normal text-gray-500 line-through"
+                  />
                   <span className="text-sm font-semibold text-green-600">
-                    {t("pricing.save", {
-                      amount: formatPrice(offer.originalPrice - offer.discountedPrice, offer.currency, locale),
+                    {t.rich("pricing.save", {
+                      amount: () => (
+                        <ViewerPrice
+                          amount={offer.originalPrice - offer.discountedPrice}
+                          sourceCurrencyCode={offer.currency}
+                          providerId={offer.providerId}
+                          className="font-semibold"
+                        />
+                      ),
                     })}
                   </span>
                 </div>

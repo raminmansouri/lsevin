@@ -35,4 +35,15 @@ describe("LexicalRenderer", () => {
 
     expect(html).toContain("<h3>Services</h3>");
   });
+
+  // The Turkish home page's package description nested a paragraph in a
+  // paragraph; <p><p> broke hydration for the whole page (2026-11-14).
+  it("never nests a <p> inside a <p>", () => {
+    const html = render(
+      editorState({ type: "paragraph", children: [{ type: "paragraph", children: [text("Paket açıklaması")] }] })
+    );
+
+    expect(html).toContain("Paket açıklaması");
+    expect(html).not.toMatch(/<p[^>]*>(?:(?!<\/p>).)*<p/);
+  });
 });

@@ -15,6 +15,39 @@ import { getSession } from "./src/lib/auth/session";
 import { UserRole } from "./src/types/common";
 import { publicAppOrigin, publicAppUrl } from "./src/lib/http/public-origin";
 import { legacyEntityRoute } from "./src/lib/routes/legacy-entity-route";
+import { countryFromHeaders, languageForCountry, languageFromAcceptLanguage, normalizeCountry, resolveFirstLanguage } from "./src/lib/market/market";
+import { isCrawlerUserAgent } from "./src/lib/seo/crawler";
+
+async function redirectRootToVisitorLanguage(request: NextRequest) {
+  // Crawlers index the default language at the root (it is the x-default);
+  // Googlebot crawls from US addresses and must not be sent to /en.
+  const crawler = isCrawlerUserAgent(request.headers.get("user-agent"));
+  const chosen = request.cookies.get("LSEVIN_LOCALE")?.value || request.cookies.get("NEXT_LOCALE")?.value || null;
+  const ipCountry = countryFromHeaders(request.headers);
+  const acceptLanguage = request.headers.get("accept-language");
+
+  // The phone country only matters when nothing before it decided, so the
+  // session is read only then.
+  let phoneCountry: string | null = null;
+  if (!crawler && !chosen && !languageForCountry(ipCountry) && !languageFromAcceptLanguage(acceptLanguage)) {
+    const session = await getSession({ redirectToLogin: false }).catch(() => null);
+    const raw = (session?.user as { phoneNumberCountryCode?: string | null } | undefined)?.phoneNumberCountryCode?.trim() ?? "";
+    phoneCountry = normalizeCountry(raw) ?? (raw.replace(/\D/g, "") === "98" ? "IR" : null);
+  }
+
+  const { language, source } = crawler
+    ? { language: routing.defaultLocale as string, source: "crawler" }
+    : resolveFirstLanguage({ chosen, ipCountry, acceptLanguage, phoneCountry });
+  // publicAppUrl keeps the visitor on the public host they came to
+  // (lsevincare.com, lsevin.ir, appmain...), as every other redirect here.
+  const url = publicAppUrl(request, `/${language}`);
+  url.search = request.nextUrl.search;
+  const response = NextResponse.redirect(url, 307);
+  // Differs per visitor: never stored by Cloudflare or the browser.
+  response.headers.set("Cache-Control", "private, no-store");
+  response.headers.set("X-Language-Source", source);
+  return response;
+}
 
 type Locale = (typeof routing.locales)[number];
 
@@ -52,6 +85,13 @@ export default async function middleware(request: NextRequest) {
     const url = request.nextUrl.clone();
     url.pathname = `/${routing.defaultLocale}${legacyEntity}`;
     return NextResponse.rewrite(url);
+  }
+
+  // The bare site root opens in the visitor's language (src/lib/market/market.ts):
+  // their own choice, else their IP country, browser language, phone country,
+  // Persian. A URL that names a language is never redirected.
+  if (request.nextUrl.pathname === "/") {
+    return redirectRootToVisitorLanguage(request);
   }
 
   const intlResponse = intlMiddleware(request);

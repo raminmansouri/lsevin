@@ -8,7 +8,7 @@ import { GetLocationByIdInput, LazyOption, LazyOptionsResult, SearchLocationsInp
 const searchLocationsSchema = z.object({
   // 1 = Country, 2 = City, 3 = Province (category."LocationType").
   locationTypeId: z.union([z.literal(1), z.literal(2), z.literal(3)]),
-  parentId: z.string().uuid().nullable().optional(),
+  parentId: z.guid().nullable().optional(),
   search: z.string().trim().max(100).optional().default(""),
   page: z.coerce.number().int().min(1).optional().default(1),
   pageSize: z.coerce.number().int().min(1).max(50).optional().default(20),
@@ -17,7 +17,7 @@ const searchLocationsSchema = z.object({
 });
 
 const getLocationByIdSchema = z.object({
-  id: z.string().uuid(),
+  id: z.guid(),
   locale: z.string().trim().min(1).optional().default("en"),
   fallbackLocale: z.string().trim().min(1).optional().default("en"),
 });

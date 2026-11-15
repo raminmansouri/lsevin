@@ -21,7 +21,7 @@ export type SignatureItem = {
   discountLabel: string | null;
   /** Rendered on the server with the same price components as the mobile card. */
   price: ReactNode;
-  originalPrice: string | null;
+  originalPrice: ReactNode | null;
   favorite: ReactNode;
 };
 

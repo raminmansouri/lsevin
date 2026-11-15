@@ -65,37 +65,7 @@ import type {
 } from "@/features/service-providers/types/service-page.types";
 
 
-import { getViewerPricingAction } from "@/features/finance/actions/viewer-currency.actions";
-
-const DOMESTIC_CURRENCIES = new Set(["IRR", "IRT"]);
-
-/**
- * The server applies the provider multiplier to foreign currencies for everyone
- * (the page is static). Adjust per viewer:
- * - Iranian viewer: no multiplier anywhere (undo it on foreign currencies).
- * - International viewer: multiplier everywhere (add it to Rial/Toman too).
- */
-export function applyInternationalMultiplier<
-  T extends { sourceAmount: number; targetAmount: number; targetCurrencyCode: string },
->(options: T[], multiplier: number | undefined, isIranianViewer: boolean | null): T[] {
-  const m = multiplier ?? 1;
-  // Viewer not known yet, or no multiplier: show the server's prices as they are.
-  if (isIranianViewer === null || !m || m === 1) return options;
-
-  return options.map((option) => {
-    const domestic = DOMESTIC_CURRENCIES.has(option.targetCurrencyCode.toUpperCase());
-    if (isIranianViewer) {
-      return domestic
-        ? option
-        : { ...option, targetAmount: Math.round((option.targetAmount / m) * 100) / 100 };
-    }
-    return {
-      ...option,
-      sourceAmount: Math.round(option.sourceAmount * m * 100) / 100,
-      targetAmount: domestic ? Math.round(option.targetAmount * m) : option.targetAmount,
-    };
-  });
-}
+import { useViewerPriceOptions } from "@/features/finance/components/use-viewer-price-options";
 
 type ServicePageProps = {
   data: GetServicePageByIdResponse;
@@ -361,7 +331,7 @@ export function ServiceAttributesSection({ attributes, currency, locale }: { att
   );
 }
 
-export function AddonsSection({ addOns, locale }: { addOns: ServiceAddon[]; locale: string }) {
+export function AddonsSection({ addOns, locale, providerId }: { addOns: ServiceAddon[]; locale: string; providerId?: string | null }) {
   const t = useTranslations("ServicePage");
   if (!addOns.length) return null;
   return (
@@ -380,7 +350,7 @@ export function AddonsSection({ addOns, locale }: { addOns: ServiceAddon[]; loca
                 </div>
                 {addon.description && <LexicalDescription content={addon.description} className="text-sm leading-relaxed text-gray-600" />}
               </div>
-              <PriceTextClient amount={addon.displayPrice.amount} currencyCode={addon.displayPrice.code} locale={locale} className="min-w-0 break-words text-[13px] font-bold leading-5 text-[#083f30] sm:text-sm" />
+              <ViewerPrice amount={addon.displayPrice.sourceAmount ?? addon.price} sourceCurrencyCode={addon.displayPrice.sourceCurrencyCode ?? addon.currency} providerId={providerId ?? null} locale={locale} className="min-w-0 break-words text-[13px] font-bold leading-5 text-[#083f30] sm:text-sm" />
             </div>
             {addon.details.length > 0 && (
               <ul className="mt-3 space-y-1 text-sm text-gray-700">
@@ -574,32 +544,23 @@ export default function ServicePage({ data, serviceId, locale }: ServicePageProp
   const service = data.service;
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showAllFAQs, setShowAllFAQs] = useState(false);
-  const [selectedCurrency, setSelectedCurrency] = useState(service.displayCurrencyCode || service.currency);
-  const [primaryCurrency, setPrimaryCurrency] = useState(service.displayCurrencyCode || service.currency);
-  const [isIranianViewer, setIsIranianViewer] = useState<boolean | null>(null);
-  useEffect(() => {
-    let alive = true;
-    getViewerPricingAction().then(({ currencyCode, isIranian }) => {
-      if (!alive) return;
-      setIsIranianViewer(isIranian);
-      if (!currencyCode) return;
-      if (!service.priceOptions.some((p) => p.targetCurrencyCode === currencyCode)) return;
-      setPrimaryCurrency(currencyCode);
-      setSelectedCurrency(currencyCode);
-    });
-    return () => {
-      alive = false;
-    };
-  }, [service.priceOptions]);
-
-  const viewerPriceOptions = useMemo(
-    () => applyInternationalMultiplier(service.priceOptions, service.internationalPriceMultiplier, isIranianViewer),
-    [service.priceOptions, service.internationalPriceMultiplier, isIranianViewer]
-  );
-  const viewerOriginalPriceOptions = useMemo(
-    () => applyInternationalMultiplier(service.originalPriceOptions, service.internationalPriceMultiplier, isIranianViewer),
-    [service.originalPriceOptions, service.internationalPriceMultiplier, isIranianViewer]
-  );
+  // Priced for this visitor on the server (src/lib/market): the page language's
+  // currency first, domestic or international price. Nothing is shown until it
+  // arrives; the cached page alone can't know the visitor.
+  const viewerPricing = useViewerPriceOptions({
+    amount: service.displayPrice.sourceAmount ?? service.priceOptions[0]?.sourceAmount ?? service.displayPrice.amount,
+    originalAmount: service.displayOriginalPrice?.sourceAmount ?? null,
+    sourceCurrencyCode: service.displayPrice.sourceCurrencyCode ?? service.priceOptions[0]?.sourceCurrencyCode ?? service.currency,
+    providerId: service.displayPrice.providerId ?? service.clinicId ?? null,
+    valueToman: service.displayPrice.valueToman ?? null,
+    currencies: service.priceOptions.map((price) => price.targetCurrencyCode),
+    locale,
+  });
+  const [pickedCurrency, setSelectedCurrency] = useState<string | null>(null);
+  const primaryCurrency = viewerPricing?.displayCurrencyCode ?? service.displayCurrencyCode ?? service.currency;
+  const selectedCurrency = pickedCurrency ?? primaryCurrency;
+  const viewerPriceOptions = viewerPricing?.options ?? [];
+  const viewerOriginalPriceOptions = viewerPricing?.originalOptions ?? [];
   const [showReviewForm, setShowReviewForm] = useState(false);
 
   const [realIsFavorite, setRealIsFavorite] = useState(service.isFavorite);
@@ -853,7 +814,7 @@ export default function ServicePage({ data, serviceId, locale }: ServicePageProp
         ) : null}
         <OffersSection offers={data.offers} locale={locale} />
         <ServiceAttributesSection attributes={data.serviceAttributes} currency={service.currency} locale={locale} />
-        <AddonsSection addOns={data.addOns} locale={locale} />
+        <AddonsSection addOns={data.addOns} locale={locale} providerId={service.clinicId} />
         <RequirementsSection uploadRequirements={data.uploadRequirements} domainRequirements={data.domainRequirements} />
 
         {data.included.length > 0 && (

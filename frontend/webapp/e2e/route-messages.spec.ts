@@ -92,6 +92,10 @@ test.describe("public pages", () => {
   test("clicking home's video-consultation link keeps every label", async ({ page }, testInfo) => {
     await page.setViewportSize(WIDTHS[0]);
     await page.goto("/fa", { waitUntil: "domcontentloaded" });
+    // A first visit asks for the location in a sheet over the page; dismiss it.
+    const sheet = page.getByRole("dialog");
+    await sheet.waitFor({ state: "visible", timeout: 15_000 }).then(() => page.keyboard.press("Escape"), () => {});
+    await expect(sheet).toHaveCount(0);
     const link = page.locator('a[href="/fa/n/app/mobile/consultation/doctors"]:visible').first();
     await expect(link).toBeVisible();
     // Hydrated: the soft navigation below needs the router, not a full load.
