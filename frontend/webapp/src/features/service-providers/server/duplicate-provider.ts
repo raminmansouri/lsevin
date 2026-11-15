@@ -41,7 +41,8 @@ const COPY_ORDER: CopySpec[] = [
     where: "s.service_provider_id = :src",
     mapIds: true,
     remap: ["service_provider_id"],
-    set: { rating: "0", review_count: "0", create_date: "now()", last_modified_date: "now()" },
+    // slug: null so the trigger derives a fresh one from the copy's slug (provider_services_slug_uq).
+    set: { slug: "null", rating: "0", review_count: "0", create_date: "now()", last_modified_date: "now()" },
   },
   {
     table: "category.provider_staffs",
@@ -212,6 +213,9 @@ export async function duplicateServiceProvider(sourceId: string): Promise<{ id: 
         where: "s.id = :src",
         set: {
           id: ":new",
+          // slug is unique (service_providers_slug_uq); null lets the fill_public_slug
+          // trigger pick a free "<name>-N" that also avoids reserved (historical) slugs.
+          slug: "null",
           is_active: "false",
           rating: "0",
           review_count: "0",

@@ -416,7 +416,7 @@
       "severity": "warning",
       "for": 1800,
       "expr": "lsevin_release_behind == 1",
-      "summary": "server A has not applied B's latest release for 30 minutes (lsevin-release-sync on A; log /var/log/lsevin-release-sync.log)"
+      "summary": "server A has not applied B's latest release for 30 minutes (lsevin-release-sync on A; log /var/log/lsevin-release-sync.log). Most likely causes: disk above 85% (kubelet deletes the staged image; free space first), VPN down, or a failing migration"
     },
     {
       "name": "release_check_failing",

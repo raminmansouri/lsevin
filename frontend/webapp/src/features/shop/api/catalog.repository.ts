@@ -1,5 +1,7 @@
 import "server-only";
 
+import { sellerDeliveryDays } from "../lib/fulfilment";
+
 import { productSearchSchema } from "../schemas/catalog";
 import type { ProductCard, ProductDetail, ShopCategory } from "../types/domain";
 import { getShopContext, normalizeLocale } from "../lib/context";
@@ -366,7 +368,7 @@ export async function getProductBySlug(
     opts?.noFx
   );
 
-  const [gallery, categories, variantRows, attrRows, reviews, serviceLinks, questions, offerRows] = await Promise.all([
+  const [gallery, categories, variantRows, attrRows, reviews, serviceLinks, questions, offerRows, deliveryRows] = await Promise.all([
     sql<any[]>`select id::text as id, url, media_type as "mediaType", common.get_translation_t(alt_translations, ${lang}, 'en') as alt, is_primary as "isPrimary" from shop.product_media where product_id = ${row.id}::uuid order by is_primary desc, display_order asc`,
     sql<ShopCategory[]>`select c.id::text as id, c.parent_id::text as "parentId", common.get_translation_t(c.name_translations, ${lang}, 'en') as name, c.slug, c.image_url as "imageUrl", c.banner_url as "bannerUrl", c.icon, c.gradient, 0::int as "productCount" from shop.product_categories pc join shop.categories c on c.id = pc.category_id where pc.product_id = ${row.id}::uuid`,
     sql<any[]>`
@@ -417,6 +419,7 @@ export async function getProductBySlug(
         s.logo_url as "sellerLogoUrl", s.is_default as "isDefaultSeller",
         o.price::float as price, o.compare_at_price::float as "compareAtPrice", o.currency as "sourceCurrency",
         o.handling_days as "handlingDays",
+        s.delivery_days_min as "sellerDaysMin", s.delivery_days_max as "sellerDaysMax",
         coalesce(nullif(common.get_translation_t(o.warranty_translations, ${lang}, 'en'), ''),
                  common.get_translation_t(s.warranty_translations, ${lang}, 'en')) as warranty,
         ((case
@@ -427,6 +430,7 @@ export async function getProductBySlug(
                 or (o.variant_id is null and i.product_id = o.product_id and i.variant_id is null)
            ), 0) > 0
          end) or o.allow_backorder or coalesce(v.allow_backorder, p.allow_backorder)) as "inStock"
+        , o.stock_quantity as "stockQuantity", o.allow_backorder as "offerBackorder"
       from shop.offers o
       join shop.sellers s on s.id = o.seller_id and s.is_active and s.deleted_at is null and s.shop_status = 'active'
       join shop.products p on p.id = o.product_id
@@ -435,7 +439,13 @@ export async function getProductBySlug(
         and (o.variant_id is null or (v.deleted_at is null and v.is_active))
       order by o.price asc
     `,
+    // Lsevin's (the default seller's) fastest delivery to an address; partner sellers use their own days.
+    sql<{ days: number | null }[]>`
+      select min(coalesce(estimated_days_max, estimated_days_min))::int as days
+      from shop.delivery_methods where is_active and not supports_pickup
+    `,
   ]);
+  const lsevinDeliveryDays = deliveryRows[0]?.days == null ? null : Number(deliveryRows[0].days);
 
   const offers = await Promise.all(
     offerRows.map(async (o) => {
@@ -459,8 +469,13 @@ export async function getProductBySlug(
         currency: pr.price.currency,
         priceUnavailable: pr.price.unavailable,
         inStock: Boolean(o.inStock),
+        stockQuantity: o.stockQuantity == null || o.offerBackorder ? null : Number(o.stockQuantity),
         handlingDays: o.handlingDays == null ? null : Number(o.handlingDays),
         warranty: o.warranty ?? "",
+        // Sold and sent by a partner (e.g. a clinic); in-person pickup there is possible too.
+        partnerSeller: !o.isDefaultSeller,
+        // The seller's own longest delivery time (partner sellers; Lsevin uses lsevinDeliveryDays).
+        sellerDeliveryDays: o.isDefaultSeller ? null : sellerDeliveryDays(o.sellerDaysMin, o.sellerDaysMax).max,
       };
     })
   );
@@ -520,6 +535,7 @@ export async function getProductBySlug(
     reviews,
     relatedProducts: related.items.filter((x) => x.id !== row.id).slice(0, 8),
     offers,
+    lsevinDeliveryDays,
   };
 }
 

@@ -8,6 +8,7 @@ import type { PaymentGatewayCode } from "@/payment/types";
 import sql from "@/config/database/db";
 import { getShopContext } from "../lib/context";
 import { emitCommerceEvent } from "../lib/analytics";
+import { isTestPaymentEnabled, TEST_PAYMENT_CODE, TEST_PAYMENT_PROVIDER } from "../lib/test-payment";
 import { notifyShopOrderEvent } from "./shop-notifications";
 import {
   attachProviderReference,
@@ -72,8 +73,43 @@ export async function startOrderPayment(input: {
     return { mode: "already_paid" };
   }
 
-  const method = await resolvePaymentMethod(input.methodCode);
   const locale = (input.locale || (await getShopContext()).locale || "fa").split("-")[0];
+
+  // --- development test payment (refused unless explicitly enabled outside production) ----------
+  if (input.methodCode === TEST_PAYMENT_CODE) {
+    if (!isTestPaymentEnabled()) throw new Error("The selected payment method is not available.");
+    const txnId = await createPaymentTransaction({
+      orderId: order.orderId,
+      paymentMethodId: null,
+      provider: TEST_PAYMENT_PROVIDER,
+      amount: order.paymentTotal,
+      currency: order.paymentCurrency,
+      type: "charge",
+      requestPayload: { method: TEST_PAYMENT_CODE },
+    });
+    await attachProviderReference({
+      transactionId: txnId,
+      providerTransactionId: `TEST-${txnId}`,
+      responsePayload: { stage: "initiated", test: true },
+    });
+    await applyVerifiedPayment({
+      transactionId: txnId,
+      orderId: order.orderId,
+      amount: order.paymentTotal,
+      currency: order.paymentCurrency,
+      referenceId: `TEST-${txnId}`,
+      verificationPayload: { test: true },
+    });
+    const email = order.email ? `&email=${encodeURIComponent(order.email)}` : "";
+    return {
+      mode: "redirect",
+      redirectUrl: `/${locale}/n/app/mobile/shop/order/${order.orderNumber}?payment=paid${email}`,
+      transactionId: txnId,
+      provider: TEST_PAYMENT_PROVIDER,
+    };
+  }
+
+  const method = await resolvePaymentMethod(input.methodCode);
 
   await emitCommerceEvent("shop_checkout_started", { orderId: order.orderId, value: order.paymentTotal, currency: order.paymentCurrency });
 
@@ -216,19 +252,14 @@ export async function verifyGatewayCallback(input: {
     return { orderNumber: txn.orderNumber, orderId: txn.orderId, status: "failed", message: verification.message || "Verification failed." };
   }
 
-  const settled = await settlePaymentOnce({
+  const settled = await applyVerifiedPayment({
     transactionId: txn.transactionId,
     orderId: txn.orderId,
+    amount: Number(txn.amount),
+    currency: txn.currency,
     referenceId: verification.referenceId != null ? String(verification.referenceId) : null,
     verificationPayload: verification.raw ?? { code: verification.code },
-    manualReview: false,
   });
-
-  if (settled.applied) {
-    await emitCommerceEvent("shop_payment_succeeded", { orderId: txn.orderId, value: Number(txn.amount), currency: txn.currency });
-    await emitCommerceEvent("shop_purchase_completed", { orderId: txn.orderId, value: Number(txn.amount), currency: txn.currency });
-    await notifyShopOrderEvent({ orderId: txn.orderId, event: "order.paid" });
-  }
 
   return {
     orderNumber: txn.orderNumber,
@@ -236,4 +267,32 @@ export async function verifyGatewayCallback(input: {
     status: "succeeded",
     message: verification.alreadyVerified || !settled.applied ? "Payment already verified." : "Payment verified.",
   };
+}
+
+/**
+ * The one success path for a verified payment (gateway callback and the dev test payment):
+ * idempotent settlement (transaction captured, order paid), analytics, and the order.paid
+ * notifications (customer + clinics).
+ */
+async function applyVerifiedPayment(input: {
+  transactionId: string;
+  orderId: string;
+  amount: number;
+  currency: string;
+  referenceId: string | null;
+  verificationPayload: unknown;
+}): Promise<{ applied: boolean }> {
+  const settled = await settlePaymentOnce({
+    transactionId: input.transactionId,
+    orderId: input.orderId,
+    referenceId: input.referenceId,
+    verificationPayload: input.verificationPayload,
+    manualReview: false,
+  });
+  if (settled.applied) {
+    await emitCommerceEvent("shop_payment_succeeded", { orderId: input.orderId, value: input.amount, currency: input.currency });
+    await emitCommerceEvent("shop_purchase_completed", { orderId: input.orderId, value: input.amount, currency: input.currency });
+    await notifyShopOrderEvent({ orderId: input.orderId, event: "order.paid" });
+  }
+  return settled;
 }

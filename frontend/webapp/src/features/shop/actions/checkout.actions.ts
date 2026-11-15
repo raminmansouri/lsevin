@@ -108,7 +108,7 @@ export async function placeOrderAction(input: unknown) {
       parsed.sameBilling || !parsed.billingAddress
         ? parsed.shippingAddress
         : parsed.billingAddress,
-    deliveryMethodId: parsed.deliveryMethodId,
+    deliveryMethodId: parsed.deliveryMethodId ?? null,
     paymentMethodId: method.id,
     paymentCurrency: method.currency,
     note: parsed.note,

@@ -34,7 +34,7 @@ export type NearbyFiltersInput = {
   lng: number | null;
 };
 
-/** The largest city (migration 0099) of the visitor's IP country, or null. */
+/** The largest city (migration 0104) of the visitor's IP country, or null. */
 async function visitorCountryCenter(): Promise<{ lat: number; lng: number; zoom: number } | null> {
   const country = countryFromHeaders(await headers());
   if (!country) return null;

@@ -89,3 +89,37 @@ describe("checkout readiness matches server validation and always explains block
       }).map((i) => i.target)
     ).toEqual(["phoneNumber", "orderNote", "quote"]));
 });
+
+describe("checkout readiness follows the chosen fulfilment", () => {
+  const officePickup = {
+    ...valid,
+    address: { fullName: "Test Buyer", phoneNumber: "09121234567" },
+    deliveryId: "office",
+    deliveryOptions: [{ id: "post" }, { id: "office" }],
+    needsAddress: false,
+    needsPhone: true,
+  };
+
+  it("pickup at the Lsevin office needs only the name and a mobile, no address", () =>
+    expect(getCheckoutIssues(officePickup)).toEqual([]));
+
+  it("pickup at the Lsevin office without a mobile is blocked on the phone field", () =>
+    expect(
+      getCheckoutIssues({ ...officePickup, address: { fullName: "Test Buyer", phoneNumber: "" } })
+    ).toEqual([{ target: "phoneNumber", kind: "required" }]));
+
+  it("pickup at the Lsevin office still needs the name", () =>
+    expect(
+      getCheckoutIssues({ ...officePickup, address: { fullName: "", phoneNumber: "09121234567" } }).map((i) => i.target)
+    ).toEqual(["fullName"]));
+
+  it("a method must always be chosen, office pickup included", () =>
+    expect(getCheckoutIssues({ ...officePickup, deliveryId: "" }).map((i) => i.kind)).toEqual(["delivery"]));
+
+  it("delivery to the address needs the address, mobile optional (as before)", () => {
+    expect(getCheckoutIssues({ ...valid, needsAddress: true, needsPhone: false })).toEqual([]);
+    expect(
+      getCheckoutIssues({ ...valid, address: { fullName: "Test Buyer" }, needsAddress: true, needsPhone: false }).map((i) => i.target)
+    ).toEqual(["country", "city", "addressLine1"]);
+  });
+});

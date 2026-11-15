@@ -142,6 +142,9 @@ export default async function AdminProductEditPage({ params }: { params: Promise
                     <label className="text-[11px] text-gray-500 sm:col-span-2">{t("offers.warrantyEn")}
                       <input name="warrantyEn" defaultValue={o.warranty_translations?.en ?? ""} dir="ltr" className={input} />
                     </label>
+                    <label className="text-[11px] text-gray-500 sm:col-span-2">{t("offers.warrantyAr")}
+                      <input name="warrantyAr" defaultValue={o.warranty_translations?.ar ?? ""} dir="rtl" className={input} />
+                    </label>
                     <div className="flex items-center justify-between gap-2">
                       <label className="flex items-center gap-1 text-xs"><input type="checkbox" name="isActive" defaultChecked={o.is_active} /> {t("common.activeShort")}</label>
                       <PendingSubmitButton className="rounded bg-[#083f30] px-3 py-1.5 text-xs font-semibold text-white">{t("common.save")}</PendingSubmitButton>
@@ -198,6 +201,7 @@ export default async function AdminProductEditPage({ params }: { params: Promise
                 <div className="grid grid-cols-2 gap-2">
                   <input name="warrantyFa" dir="rtl" placeholder={t("offers.warrantyFa")} className={input} />
                   <input name="warrantyEn" dir="ltr" placeholder={t("offers.warrantyEn")} className={input} />
+                  <input name="warrantyAr" dir="rtl" placeholder={t("offers.warrantyAr")} className={input} />
                 </div>
                 <label className="flex items-center gap-1 text-sm"><input type="checkbox" name="isActive" defaultChecked /> {t("common.activeShort")}</label>
                 <PendingSubmitButton className="w-full rounded bg-[#083f30] px-3 py-2 text-sm font-semibold text-white">{t("offers.add")}</PendingSubmitButton>

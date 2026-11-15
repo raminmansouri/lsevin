@@ -13,7 +13,6 @@ import { ConsultationRecipientsManager } from "./consultation-recipients-manager
 import { ConsultationRequestsTable } from "./consultation-requests-table";
 import { ConsultationSmsSettingsForm } from "./consultation-sms-settings-form";
 import { ConsultationStatsStrip } from "./consultation-stats-strip";
-import { VideoConsultationDoctorsManager } from "./video-consultation-doctors-manager";
 import { VideoConsultationSettingsForm } from "./video-consultation-settings-form";
 
 /**
@@ -30,8 +29,6 @@ export function ConsultationAdminBoard({ data }: { data: ConsultationAdminPageDa
       <ConsultationStatsStrip stats={data.stats} />
 
       <VideoConsultationSettingsForm settings={data.videoSettings} />
-
-      <VideoConsultationDoctorsManager />
 
       <ConsultationPaymentsManager />
 

@@ -10,11 +10,27 @@ import {
   buildCartTotals,
   calculateShipping,
   calculateTax,
+  FREE_SHIPPING_THRESHOLD_RIAL,
 } from "../lib/calculations";
 import { getShopContext, normalizeLocale } from "../lib/context";
 import { applyGeoRules } from "../lib/delivery-geo";
-import { lockPayableQuote, resolveDisplayCurrency } from "../lib/pricing";
+import {
+  checkoutRequirements,
+  groupBySeller,
+  hasUsablePhone,
+  lineHandlingDays,
+  orderHandlingDays,
+  overallPromiseDays,
+  pickupAllowed,
+  sellerDeliveryDays,
+  sellerShippingFee,
+  shipmentPromiseDays,
+  type FulfilmentChoice,
+} from "../lib/fulfilment";
+import { isTestPaymentEnabled, testPaymentMethod } from "../lib/test-payment";
+import { lockPayableQuote, resolveDisplayCurrency, resolvePrice } from "../lib/pricing";
 import { notifyShopOrderEvent } from "../server/shop-notifications";
+import { addressInputSchema } from "../schemas/checkout";
 import type { CartTotals } from "../types/domain";
 import { getCartView } from "./cart.repository";
 
@@ -23,6 +39,30 @@ import { getCartView } from "./cart.repository";
  * (idempotent, stock-reserving). Client-sent prices are never used
  * (SHP-V01-012, SHP-NFR-001).
  */
+
+/** Where a pickup order is collected: the seller's place (a clinic, or the Lsevin office). */
+export type PickupOffice = { name?: string | null; address: string | null; phone: string | null; hours: string | null };
+
+/** One seller's shipment (or the pickup) inside a checkout option. */
+export type CheckoutShipment = {
+  sellerId: string;
+  sellerName: string;
+  isDefault: boolean;
+  subtotal: number;
+  /** In the display currency; 0 when free (threshold reached on this seller's subtotal) or pickup. */
+  fee: number;
+  handlingDays: number;
+  etaMinDays: number | null;
+  etaMaxDays: number | null;
+  /** handling + longest delivery days (pickup: handling). */
+  promiseDays: number | null;
+  /** The admin delivery method used for the default seller's shipment. */
+  deliveryMethodId: string | null;
+};
+
+/** Option ids that are not delivery method ids. */
+export const SELLER_SHIPPING_OPTION_ID = "seller_shipping";
+export const PICKUP_OPTION_ID = "pickup";
 
 export type DeliveryOption = {
   id: string;
@@ -33,10 +73,38 @@ export type DeliveryOption = {
   currency: string;
   etaMinDays: number | null;
   etaMaxDays: number | null;
+  /** In-person pickup at the one seller's place (no address, no fee) instead of shipping. */
+  isPickup: boolean;
+  office: PickupOffice | null;
+  /** Shipping: one shipment per seller; pickup: the one seller. */
+  shipments?: CheckoutShipment[];
+};
+
+/**
+ * How the order reaches the customer: each seller ships its own part (one shipment per seller),
+ * or, for a single-seller cart, in-person pickup at that seller. One overall estimate: the latest
+ * shipment.
+ */
+export type CheckoutFulfilment = {
+  choice: FulfilmentChoice;
+  /** The slowest seller's handling days. */
+  handlingDays: number;
+  /** Days until the whole order is with the customer; null when a shipment has no transit time. */
+  promiseDays: number | null;
+  isPickup: boolean;
+  office: PickupOffice | null;
+  /** In-person pickup is offered only when every item is from one seller. */
+  pickupAllowed: boolean;
+  pickupSellerId: string | null;
+  shipments: CheckoutShipment[];
+  /** An address is needed for shipping; a mobile for pickup (code SMS). */
+  needsAddress: boolean;
+  needsPhone: boolean;
 };
 
 export type CheckoutQuote = {
   cartId: string;
+  fulfilment: CheckoutFulfilment;
   currency: string;
   totals: CartTotals;
   deliveryOptions: DeliveryOption[];
@@ -50,6 +118,32 @@ export type CheckoutQuote = {
   couponEvidence: Record<string, unknown> | null;
 };
 
+/**
+ * The free-shipping threshold (FREE_SHIPPING_THRESHOLD_RIAL) in the display currency, or null
+ * when there is no usable rate (then there is no free shipping rather than a wrong threshold).
+ */
+export async function freeShippingThreshold(displayCurrency: string): Promise<number | null> {
+  const { price } = await resolvePrice({
+    amount: FREE_SHIPPING_THRESHOLD_RIAL,
+    sourceCurrency: "IRR",
+    displayCurrency,
+  });
+  if (price.unavailable || price.fellBackToSource) return null;
+  return price.amount;
+}
+
+/** A rial amount in the display currency, or null when there is no usable rate. */
+async function rialToDisplay(amountRial: number, displayCurrency: string): Promise<number | null> {
+  if (!amountRial) return 0;
+  const { price } = await resolvePrice({ amount: amountRial, sourceCurrency: "IRR", displayCurrency });
+  if (price.unavailable || price.fellBackToSource) return null;
+  return price.amount;
+}
+
+/**
+ * The admin delivery methods for the DEFAULT seller's (Lsevin's) shipment, priced on that seller's
+ * subtotal (the free-shipping threshold applies per seller shipment).
+ */
 export async function getDeliveryOptions(
   displayCurrency: string,
   lang: string,
@@ -61,11 +155,18 @@ export async function getDeliveryOptions(
       common.get_translation_t(name_translations, ${lang}, 'en') as name,
       common.get_translation_t(description_translations, ${lang}, 'en') as description,
       base_fee::float as "baseFee", estimated_days_min as "etaMin", estimated_days_max as "etaMax",
-      rules
-    from shop.delivery_methods where is_active = true order by base_fee asc
+      rules, supports_pickup as "isPickup",
+      nullif(common.get_translation_t(pickup_address_translations, ${lang}, 'fa'), '') as "officeAddress",
+      nullif(pickup_phone, '') as "officePhone",
+      nullif(common.get_translation_t(pickup_hours_translations, ${lang}, 'fa'), '') as "officeHours"
+    from shop.delivery_methods where is_active = true order by supports_pickup asc, base_fee asc
   `;
   const out: DeliveryOption[] = [];
+  const freeThreshold = rows.length ? await freeShippingThreshold(displayCurrency) : null;
   for (const r of rows) {
+    // The office pickup method is not a shipping method: pickup from the default seller is offered
+    // by the checkout itself (single-seller carts only), at the office details on that method.
+    if (r.isPickup) continue;
     const geo = applyGeoRules(
       {
         baseFee: Number(r.baseFee),
@@ -76,7 +177,12 @@ export async function getDeliveryOptions(
       destination ?? {}
     );
     if (!geo) continue; // not served at this destination
-    const shipping = calculateShipping(subtotal, geo.baseFee);
+    // base_fee (and geo surcharges) are stored in rial, like FREE_SHIPPING_THRESHOLD_RIAL; the
+    // subtotal and the displayed fee are in the display currency, so convert before using it.
+    // Using the stored number as-is showed a 9-rial fee for a 8.99 seed value.
+    const fee = await rialToDisplay(geo.baseFee, displayCurrency);
+    if (fee == null) continue; // no usable rate: don't offer a fee we can't state correctly
+    const shipping = calculateShipping(subtotal, fee, freeThreshold);
     out.push({
       id: r.id,
       code: r.code,
@@ -86,21 +192,25 @@ export async function getDeliveryOptions(
       currency: displayCurrency,
       etaMinDays: geo.etaMin,
       etaMaxDays: geo.etaMax,
+      isPickup: false,
+      office: null,
     });
   }
   return out;
 }
 
-/** Whether a specific delivery method serves a destination (SHP-V03-012). */
+/** Whether a specific delivery method serves a destination (SHP-V03-012). Office pickup serves everyone. */
 export async function isDeliveryMethodEligible(
   deliveryMethodId: string,
   destination: { country?: string | null; region?: string | null }
 ): Promise<boolean> {
   const [row] = await sql<any[]>`
-    select base_fee::float as "baseFee", estimated_days_min as "etaMin", estimated_days_max as "etaMax", rules
+    select base_fee::float as "baseFee", estimated_days_min as "etaMin", estimated_days_max as "etaMax", rules,
+      supports_pickup as "isPickup"
     from shop.delivery_methods where id = ${deliveryMethodId}::uuid and is_active = true limit 1
   `;
   if (!row) return false;
+  if (row.isPickup) return true;
   return (
     applyGeoRules(
       {
@@ -144,7 +254,166 @@ export async function getPaymentMethods(lang: string, currency?: string) {
     .sort(
       (a, b) =>
         Number(a.provider === "manual") - Number(b.provider === "manual")
-    );
+    )
+    .concat(isTestPaymentEnabled() ? [testPaymentMethod(lang, currency || "IRR")] : []);
+}
+
+type SellerShippingRow = {
+  id: string;
+  isDefault: boolean;
+  name: string | null;
+  shippingFee: number | null;
+  daysMin: number | null;
+  daysMax: number | null;
+};
+
+/** The sellers' own shipping settings, the admin cap and the default seller. */
+async function loadSellerShipping(sellerIds: string[], lang: string) {
+  const ids = [...new Set(sellerIds.filter(Boolean))];
+  const rows = await sql<SellerShippingRow[]>`
+    select id::text as id, is_default as "isDefault",
+      nullif(common.get_translation_t(name_translations, ${lang}, 'en'), '') as name,
+      shipping_fee::float as "shippingFee", delivery_days_min as "daysMin", delivery_days_max as "daysMax"
+    from shop.sellers where is_default or id::text = any(${ids})
+  `;
+  const [settings] = await sql<{ cap: number | null }[]>`
+    select seller_fee_cap::float as cap from shop.shipping_settings where id
+  `;
+  const sellers = new Map(rows.map((row) => [row.id, row]));
+  return { sellers, defaultSellerId: rows.find((row) => row.isDefault)?.id ?? null, cap: settings?.cap ?? null };
+}
+
+const OPTION_NAMES: Record<string, { sellerShipping: string; pickup: string }> = {
+  fa: { sellerShipping: "ارسال توسط فروشنده", pickup: "تحویل حضوری از {name}" },
+  en: { sellerShipping: "Shipped by the seller", pickup: "In-person pickup at {name}" },
+  ar: { sellerShipping: "الشحن من البائع", pickup: "الاستلام شخصيًا من {name}" },
+};
+
+/**
+ * The checkout options: shipping (one shipment per seller; with Lsevin items, one option per admin
+ * delivery method for Lsevin's shipment) and, for a single-seller cart, in-person pickup.
+ */
+async function buildFulfilmentOptions(input: {
+  lines: Array<{ sellerId: string | null; lineTotal: number; handlingDays: number | null }>;
+  currency: string;
+  lang: string;
+  destination: { country?: string | null; region?: string | null };
+}): Promise<{ options: DeliveryOption[]; pickupAllowed: boolean; pickupSellerId: string | null; issues: string[] }> {
+  const { lines, currency, lang } = input;
+  const names = OPTION_NAMES[lang] ?? OPTION_NAMES.en;
+  const issues: string[] = [];
+  const ctx = await loadSellerShipping(lines.map((line) => line.sellerId ?? ""), lang);
+  const groups = groupBySeller(lines, ctx.defaultSellerId);
+  const freeThreshold = lines.length ? await freeShippingThreshold(currency) : null;
+  const subtotalOf = (group: typeof lines) => Math.round(group.reduce((sum, line) => sum + line.lineTotal, 0) * 100) / 100;
+
+  // Every partner seller ships its own part with its own fee (capped) and delivery days.
+  const sellerShipments: CheckoutShipment[] = [];
+  for (const [sellerId, group] of groups) {
+    if (sellerId === ctx.defaultSellerId) continue;
+    const seller = ctx.sellers.get(sellerId);
+    const feeDisplay = await rialToDisplay(sellerShippingFee(seller?.shippingFee, ctx.cap), currency);
+    if (feeDisplay == null) issues.push("shipping_rate_unavailable");
+    const subtotal = subtotalOf(group);
+    const days = sellerDeliveryDays(seller?.daysMin, seller?.daysMax);
+    const handlingDays = orderHandlingDays(group);
+    sellerShipments.push({
+      sellerId,
+      sellerName: seller?.name ?? "—",
+      isDefault: false,
+      subtotal,
+      fee: calculateShipping(subtotal, feeDisplay ?? 0, freeThreshold).amount,
+      handlingDays,
+      etaMinDays: days.min,
+      etaMaxDays: days.max,
+      promiseDays: shipmentPromiseDays(handlingDays, { isPickup: false, etaMinDays: days.min, etaMaxDays: days.max }),
+      deliveryMethodId: null,
+    });
+  }
+  const sum = (shipments: CheckoutShipment[]) => Math.round(shipments.reduce((total, s) => total + s.fee, 0) * 100) / 100;
+
+  const options: DeliveryOption[] = [];
+  const defaultGroup = ctx.defaultSellerId ? groups.get(ctx.defaultSellerId) : undefined;
+  if (defaultGroup) {
+    const subtotal = subtotalOf(defaultGroup);
+    const handlingDays = orderHandlingDays(defaultGroup);
+    const methods = await getDeliveryOptions(currency, lang, subtotal, input.destination);
+    for (const method of methods) {
+      const own: CheckoutShipment = {
+        sellerId: ctx.defaultSellerId!,
+        sellerName: ctx.sellers.get(ctx.defaultSellerId!)?.name ?? "Lsevin",
+        isDefault: true,
+        subtotal,
+        fee: method.fee,
+        handlingDays,
+        etaMinDays: method.etaMinDays,
+        etaMaxDays: method.etaMaxDays,
+        promiseDays: shipmentPromiseDays(handlingDays, method),
+        deliveryMethodId: method.id,
+      };
+      const shipments = [own, ...sellerShipments];
+      options.push({ ...method, fee: sum(shipments), shipments });
+    }
+  } else if (sellerShipments.length) {
+    options.push({
+      id: SELLER_SHIPPING_OPTION_ID,
+      code: SELLER_SHIPPING_OPTION_ID,
+      name: names.sellerShipping,
+      description: "",
+      fee: sum(sellerShipments),
+      currency,
+      etaMinDays: Math.max(...sellerShipments.map((s) => s.etaMinDays ?? 0)),
+      etaMaxDays: Math.max(...sellerShipments.map((s) => s.etaMaxDays ?? 0)),
+      isPickup: false,
+      office: null,
+      shipments: sellerShipments,
+    });
+  }
+
+  // In-person pickup: only when every item is from one seller (enforced again at placement).
+  const allowed = pickupAllowed(lines, ctx.defaultSellerId);
+  const pickupSellerId = allowed ? [...groups.keys()][0] : null;
+  if (pickupSellerId) {
+    const isDefault = pickupSellerId === ctx.defaultSellerId;
+    // Lsevin's own pickup needs the office pickup method switched on in admin.
+    const [office] = isDefault
+      ? await sql<{ id: string }[]>`select id::text as id from shop.delivery_methods where supports_pickup and is_active limit 1`
+      : [{ id: "" }];
+    if (office) {
+      const { pickupPlaces } = await import("../server/seller-fulfilment.service");
+      const place = (await pickupPlaces([pickupSellerId], lang)).get(pickupSellerId) ?? null;
+      const group = groups.get(pickupSellerId) ?? [];
+      const handlingDays = orderHandlingDays(group);
+      const sellerName = place?.name || ctx.sellers.get(pickupSellerId)?.name || "—";
+      options.push({
+        id: PICKUP_OPTION_ID,
+        code: PICKUP_OPTION_ID,
+        name: names.pickup.replace("{name}", sellerName),
+        description: "",
+        fee: 0,
+        currency,
+        etaMinDays: 0,
+        etaMaxDays: 0,
+        isPickup: true,
+        office: place ? { name: sellerName, address: place.address, phone: place.phone, hours: place.hours } : null,
+        shipments: [
+          {
+            sellerId: pickupSellerId,
+            sellerName,
+            isDefault,
+            subtotal: subtotalOf(group),
+            fee: 0,
+            handlingDays,
+            etaMinDays: 0,
+            etaMaxDays: 0,
+            promiseDays: handlingDays,
+            deliveryMethodId: isDefault ? office.id : null,
+          },
+        ],
+      });
+    }
+  }
+  return { options, pickupAllowed: allowed, pickupSellerId, issues };
 }
 
 /**
@@ -176,11 +445,16 @@ export async function quoteCheckout(input: {
   }
 
   const subtotal = active.reduce((s, x) => s + x.lineTotal, 0);
-  const deliveryOptions = await getDeliveryOptions(currency, lang, subtotal, {
-    country: input.destinationCountry,
-    region: input.destinationRegion,
+  // Each seller ships its own part (or, single-seller carts only, in-person pickup).
+  const built = await buildFulfilmentOptions({
+    lines: active.map((x) => ({ sellerId: x.sellerId ?? null, lineTotal: x.lineTotal, handlingDays: x.handlingDays })),
+    currency,
+    lang,
+    destination: { country: input.destinationCountry, region: input.destinationRegion },
   });
-  if (input.destinationCountry && !deliveryOptions.length)
+  const deliveryOptions = built.options;
+  blockingIssues.push(...built.issues);
+  if (input.destinationCountry && active.length && !deliveryOptions.some((d) => !d.isPickup))
     blockingIssues.push("no_delivery_to_destination");
   const selected =
     deliveryOptions.find((d) => d.id === input.deliveryMethodId) ??
@@ -216,7 +490,20 @@ export async function quoteCheckout(input: {
     }
   }
 
+  const shipments = (selected?.shipments ?? []).map((s) => (freeShipping ? { ...s, fee: 0 } : s));
   const shippingTotal = freeShipping ? 0 : (selected?.fee ?? 0);
+  const handlingDays = orderHandlingDays(active.map((x) => ({ handlingDays: x.handlingDays })));
+  const fulfilment: CheckoutFulfilment = {
+    choice: selected?.isPickup ? "pickup" : "shipping",
+    handlingDays,
+    promiseDays: overallPromiseDays(shipments),
+    isPickup: Boolean(selected?.isPickup),
+    office: selected?.office ?? null,
+    pickupAllowed: built.pickupAllowed,
+    pickupSellerId: built.pickupSellerId,
+    shipments,
+    ...checkoutRequirements(selected),
+  };
   const tax = calculateTax(Math.max(0, subtotal - discountTotal), "standard");
 
   const totals = buildCartTotals({
@@ -240,6 +527,7 @@ export async function quoteCheckout(input: {
 
   return {
     cartId: input.cartId,
+    fulfilment,
     currency,
     totals,
     deliveryOptions,
@@ -267,7 +555,8 @@ export type PlaceOrderInput = {
   email: string;
   shippingAddress: Record<string, string | null | undefined>;
   billingAddress: Record<string, string | null | undefined>;
-  deliveryMethodId: string;
+  /** The chosen option: an admin delivery method id, SELLER_SHIPPING_OPTION_ID or PICKUP_OPTION_ID. */
+  deliveryMethodId: string | null;
   paymentMethodId: string;
   paymentCurrency?: string | null;
   note?: string | null;
@@ -341,8 +630,9 @@ export async function placeOrder(
     (input.shippingAddress?.country as string | undefined) ?? null;
   const destRegion =
     (input.shippingAddress?.stateRegion as string | undefined) ?? null;
-  if (input.deliveryMethodId && destCountry) {
-    const eligible = await isDeliveryMethodEligible(input.deliveryMethodId, {
+  const isMethodId = (id: string | null) => Boolean(id && /^[0-9a-f-]{36}$/i.test(id));
+  if (isMethodId(input.deliveryMethodId) && destCountry) {
+    const eligible = await isDeliveryMethodEligible(input.deliveryMethodId!, {
       country: destCountry,
       region: destRegion,
     });
@@ -364,6 +654,22 @@ export async function placeOrder(
       `Checkout cannot proceed: ${quote.blockingIssues.join(", ")}`
     );
   }
+
+  // An option is always chosen. Shipping needs the address; pickup needs a mobile (the pickup
+  // code is sent to it). A name always.
+  const contact = input.shippingAddress ?? {};
+  if (String(contact.fullName ?? "").trim().length < 2)
+    throw new Error("Your name is required to place the order.");
+  if (!input.deliveryMethodId)
+    throw new Error("Choose how you want to receive your order.");
+  if (quote.selectedDeliveryMethodId !== input.deliveryMethodId)
+    throw new Error("The selected delivery method is not available. Please review your order.");
+  if (quote.fulfilment.needsAddress && !addressInputSchema.safeParse(contact).success)
+    throw new Error("A complete shipping address is required for delivery.");
+  if (quote.fulfilment.needsPhone && !hasUsablePhone(contact.phoneNumber))
+    throw new Error("A mobile number is required for in-person pickup.");
+  if (quote.fulfilment.isPickup && !quote.fulfilment.pickupAllowed)
+    throw new Error("In-person pickup is only possible when every item is from one seller.");
 
   const requestHash = createHash("sha256")
     .update(
@@ -407,6 +713,7 @@ export async function placeOrder(
         common.get_translation_t(v.title_translations, ${lang}, 'en') as "variantEn",
         v.title_translations as "variantTr", v.sku,
         ci.offer_id::text as "offerId", o.seller_id::text as "sellerId", s.name_translations as "sellerNameTr",
+        o.handling_days as "handlingDays",
         o.stock_quantity as "offerStock",
         coalesce(o.price, v.price, p.base_price)::float as "sourceUnitPrice",
         coalesce(o.currency, v.currency, p.base_currency) as "sourceCurrency",
@@ -429,11 +736,17 @@ export async function placeOrder(
       order by ci.create_date asc
     `;
     if (!lines.length) throw new Error("Cart is empty.");
+    const [defaultSeller] = await tx<{ id: string }[]>`select id::text as id from shop.sellers where is_default limit 1`;
+    const defaultSellerId = defaultSeller?.id ?? null;
+    for (const l of lines) l.sellerId = l.sellerId ?? defaultSellerId;
+    const sellerIds = [...new Set(lines.map((l) => l.sellerId).filter(Boolean))] as string[];
+    // Server-side rule: in-person pickup only from ONE seller (the cart may have changed since the quote).
+    if (quote.fulfilment.isPickup && (sellerIds.length !== 1 || sellerIds[0] !== quote.fulfilment.pickupSellerId))
+      throw new Error("In-person pickup is only possible when every item is from one seller.");
     for (const l of lines) {
       if (!l.productActive)
         throw new Error(`"${l.nameEn}" is no longer available.`);
     }
-
     // 3. reserve stock atomically (skips backorder-allowed lines)
     for (const l of lines) {
       // Preorder line: never reserves physical stock (it isn't shippable yet,
@@ -517,14 +830,20 @@ export async function placeOrder(
         order_number, customer_id, cart_id, email, currency, status, payment_status, fulfillment_status,
         review_status, subtotal, discount_total, shipping_total, tax_total, grand_total, coupon_code, note,
         source_currency, display_currency, payment_currency, payment_total, fx_quote_id, fx_applied_rate,
-        fx_snapshot, idempotency_key, source_surface
+        fx_snapshot, idempotency_key, source_surface,
+        delivery_method_id, fulfillment_mode, promised_days, promised_ready_at, pickup_seller_id
       ) values (
         ${orderNumber}, ${ctx.customerId ?? null}::uuid, ${input.cartId}::uuid, ${orderEmail}, ${quote.currency},
         'awaiting_payment', 'pending', 'pending', 'not_required',
         ${quote.totals.subtotal}, ${quote.totals.discountTotal}, ${quote.totals.shippingTotal}, ${quote.totals.taxTotal},
         ${quote.totals.grandTotal}, ${quote.totals.couponCode}, ${input.note ?? null},
         ${quote.currency}, ${quote.currency}, ${quote.paymentCurrency}, ${quote.paymentTotal},
-        ${quote.fxQuoteId}::uuid, ${quote.fxAppliedRate}, ${sql.json(fxSnapshot)}, ${input.idempotencyKey}, ${input.sourceSurface ?? "shop_checkout"}
+        ${quote.fxQuoteId}::uuid, ${quote.fxAppliedRate}, ${sql.json(fxSnapshot)}, ${input.idempotencyKey}, ${input.sourceSurface ?? "shop_checkout"},
+        ${quote.fulfilment.shipments.find((s) => s.isDefault)?.deliveryMethodId ?? null}::uuid,
+        ${quote.fulfilment.isPickup ? "pickup" : "delivery"},
+        ${quote.fulfilment.promiseDays},
+        ${quote.fulfilment.promiseDays == null ? null : sql`now() + make_interval(days => ${quote.fulfilment.promiseDays}::int)`},
+        ${quote.fulfilment.isPickup ? quote.fulfilment.pickupSellerId : null}::uuid
       )
       returning id::text as id
     `;
@@ -555,13 +874,14 @@ export async function placeOrder(
           unit_price_snapshot, compare_at_price_snapshot, discount_total_snapshot, tax_total_snapshot, line_total_snapshot,
           product_name_snapshot, variant_name_snapshot, attributes_snapshot, image_url_snapshot,
           source_currency, source_unit_price, display_currency, fx_applied_rate, is_preorder,
-          offer_id, seller_id, seller_name_snapshot
+          offer_id, seller_id, seller_name_snapshot, handling_days_snapshot
         ) values (
           ${order.id}::uuid, ${l.productId}::uuid, ${l.variantId ?? null}::uuid, ${l.sku ?? null}, ${l.quantity}, ${quote.currency},
           ${unit}, ${p.compareAtPrice && !p.compareAtPrice.unavailable ? p.compareAtPrice.amount : null}, 0, 0, ${lineTotal},
           ${l.nameTr ?? sql.json({ en: l.nameEn })}, ${l.variantTr ?? sql.json({})}, ${sql.json({})}, ${l.imageUrl ?? null},
           ${l.sourceCurrency}, ${Number(l.sourceUnitPrice)}, ${quote.currency}, ${p.price.appliedRate}, ${Boolean(l.isPreorder)},
-          ${l.offerId ?? null}::uuid, ${l.sellerId ?? null}::uuid, ${l.sellerNameTr ?? sql.json({})}
+          ${l.offerId ?? null}::uuid, ${l.sellerId ?? null}::uuid, ${l.sellerNameTr ?? sql.json({})},
+          ${lineHandlingDays(l.handlingDays)}
         )
       `;
       // trace reservation to the order (SHP-INV / SHP-V03-002) — preorder lines
@@ -576,6 +896,25 @@ export async function placeOrder(
           limit 1
         `;
       }
+    }
+
+    // One part per seller: its own shipment (fee + days at checkout) or the pickup.
+    const days = await tx<{ id: string; min: number | null; max: number | null }[]>`
+      select id::text as id, delivery_days_min as min, delivery_days_max as max from shop.sellers where id::text = any(${sellerIds})
+    `;
+    for (const sellerId of sellerIds) {
+      const shipment = quote.fulfilment.shipments.find((s) => s.sellerId === sellerId);
+      const sellerDays = days.find((d) => d.id === sellerId);
+      await tx`
+        insert into shop.seller_order_pickups (order_id, seller_id, fulfilment_type, delivery_method_id, shipping_fee,
+          handling_days, delivery_days_min, delivery_days_max)
+        values (${order.id}::uuid, ${sellerId}::uuid, ${quote.fulfilment.isPickup ? "pickup" : "shipping"},
+          ${shipment?.deliveryMethodId ?? null}::uuid, ${shipment?.fee ?? 0},
+          ${shipment?.handlingDays ?? orderHandlingDays(lines.filter((l) => l.sellerId === sellerId))},
+          ${quote.fulfilment.isPickup ? 0 : (shipment?.etaMinDays ?? sellerDays?.min ?? null)},
+          ${quote.fulfilment.isPickup ? 0 : (shipment?.etaMaxDays ?? sellerDays?.max ?? null)})
+        on conflict (order_id, seller_id) do nothing
+      `;
     }
 
     // coupon redemption audit row (SHP-CHK-002)

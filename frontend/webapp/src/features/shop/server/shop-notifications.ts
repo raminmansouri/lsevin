@@ -6,9 +6,17 @@ import {
   type NotificationChannel,
 } from "@/app/[locale]/n/app/mobile/notifications/notification-service";
 
+import { encodePatternVariables, maskPhone, readMeliPayamakCredentials, sendPatternSms } from "@/features/consultation/server/melipayamak";
 import { notifyClinicsOfPaidOrder } from "@/features/shop-api/server/portal-orders";
 
 import { formatShopMoney } from "../components/money";
+import {
+  pickupSmsRecipient,
+  pickupSmsVariables,
+  SHOP_PICKUP_READY_PATTERN_ENV,
+  SHOP_SHIPPED_PATTERN_ENV,
+  shippedSmsVariables,
+} from "../lib/pickup-sms";
 
 /**
  * Shop order notifications (SHP-V01-023). Mirrors
@@ -120,6 +128,19 @@ async function ensureTemplates(): Promise<void> {
   ];
 
   templates.push({
+    // In-app + email copy of the pickup SMS (the SMS itself goes through a MeliPayamak pattern).
+    key: "shop.order.ready_for_pickup.customer",
+    name: "Shop order ready for pickup at the seller (customer)",
+    channels: ["in_app", "email"] as NotificationChannel[],
+    title: tr("سفارش شما آماده تحویل حضوری است", "Your order is ready for pickup", "طلبك جاهز للاستلام"),
+    body: tr(
+      "سفارش {{orderNumber}} در {{placeName}} آماده تحویل است. کد تحویل: {{pickupCode}}. نشانی: {{placeAddress}}",
+      "Order {{orderNumber}} is ready for pickup at {{placeName}}. Pickup code: {{pickupCode}}. Address: {{placeAddress}}",
+      "الطلب {{orderNumber}} جاهز للاستلام في {{placeName}}. رمز الاستلام: {{pickupCode}}. العنوان: {{placeAddress}}"
+    ),
+  });
+
+  templates.push({
     key: "shop.cart.abandoned.customer",
     name: "Shop cart abandoned (customer)",
     channels: ["in_app", "email"] as NotificationChannel[],
@@ -197,6 +218,8 @@ export async function notifyShopOrderEvent(input: {
 }): Promise<void> {
   // The clinics that sell in a paid order hear about it in the provider portal (never throws).
   if (input.event === "order.paid") await notifyClinicsOfPaidOrder(input.orderId);
+  // A shipped delivery order gets the approved MeliPayamak pattern SMS (guests too; never throws).
+  if (input.event === "order.shipped") await notifyShopOrderShippedSms(input.orderId, input.extra?.trackingNumber);
   try {
     if (!(await notifyTablesExist())) return;
     const order = await loadOrder(input.orderId);
@@ -222,7 +245,8 @@ export async function notifyShopOrderEvent(input: {
       customerId: order.identityUserId,
       entityType: "shop_order",
       entityId: input.orderId,
-      channels: eligibleChannels(order.email, order.phone),
+      // The shipped SMS goes through its pattern above; the free-text SMS would be a duplicate.
+      channels: eligibleChannels(order.email, order.phone).filter((c) => !(input.event === "order.shipped" && c === "sms")),
       emailTo: order.email,
       phoneTo: order.phone,
       variables,
@@ -285,4 +309,174 @@ export async function notifyCartAbandoned(input: {
     console.error("notifyCartAbandoned failed", error);
     return false;
   }
+}
+
+// ------------------------------------------------------------------------------------------------
+// Pickup at the seller's place: "your order is ready, here is the code"
+// ------------------------------------------------------------------------------------------------
+
+type PickupNotifyRow = {
+  orderNumber: string;
+  email: string | null;
+  identityUserId: string | null;
+  identityPhone: string | null;
+  addressPhone: string | null;
+  addressCountry: string | null;
+};
+
+/**
+ * Tells the customer that the order is ready at the seller's place (a clinic, or the Lsevin office
+ * for the default seller), with the pickup code: an SMS through the approved MeliPayamak pattern,
+ * plus in-app/email when the customer has an account. Called after "ready" is committed. Never
+ * throws. Each newly issued code is sent again.
+ */
+export async function notifySellerPickupReady(input: { orderId: string; sellerId: string; code: string }): Promise<void> {
+  try {
+    const [row] = await sql<PickupNotifyRow[]>`
+      select o.order_number as "orderNumber", nullif(o.email, '') as email,
+        u.id::text as "identityUserId",
+        nullif(concat_ws('', u.phone_number_country_code, u.phone_number), '') as "identityPhone",
+        nullif(concat_ws('', a.phone_number_country_code, a.phone_number), '') as "addressPhone",
+        nullif(a.country, '') as "addressCountry"
+      from shop.orders o
+      left join customer.customers c on c.id = o.customer_id
+      left join identity.asp_net_users u
+        on (nullif(c.email,'') is not null and lower(u.email) = lower(c.email))
+        or (nullif(c.phone_number,'') is not null and u.phone_number = c.phone_number and u.phone_number_country_code = c.phone_number_country_code)
+      left join lateral (
+        select ad.phone_number_country_code, ad.phone_number, ad.country from shop.order_addresses ad
+        where ad.order_id = o.id and nullif(ad.phone_number, '') is not null
+        order by (ad.address_type = 'shipping') desc limit 1
+      ) a on true
+      where o.id = ${input.orderId}::uuid
+      limit 1
+    `;
+    if (!row) return;
+    const { pickupPlaces } = await import("./seller-fulfilment.service");
+    const place = (await pickupPlaces([input.sellerId], "fa")).get(input.sellerId) ?? null;
+    const placeName = place?.name || "فروشنده";
+
+    // 1) SMS (pattern). The mobile entered at checkout comes first: it is the one asked for pickup.
+    const phone = pickupSmsRecipient([
+      { phone: row.addressPhone, country: row.addressCountry },
+      { phone: row.identityPhone, country: "IR" },
+    ]);
+    const bodyId = process.env[SHOP_PICKUP_READY_PATTERN_ENV]?.trim();
+    const credentials = readMeliPayamakCredentials();
+    let smsSent = false;
+    if (!phone) {
+      console.warn("[shop] pickup SMS skipped: no Iranian mobile on the order", { orderId: input.orderId });
+    } else if (!bodyId || !credentials) {
+      console.warn("[shop] pickup SMS skipped: SMS pattern or credentials not configured", {
+        orderId: input.orderId,
+        pattern: Boolean(bodyId),
+        credentials: Boolean(credentials),
+      });
+    } else {
+      const result = await sendPatternSms({
+        to: phone,
+        bodyId,
+        variables: encodePatternVariables(pickupSmsVariables(row.orderNumber, input.code, placeName)),
+        credentials,
+      });
+      smsSent = result.ok;
+      if (!result.ok) {
+        console.error("[shop] pickup SMS failed", { orderId: input.orderId, to: maskPhone(phone), error: result.error });
+      }
+    }
+    if (smsSent) {
+      await sql`
+        update shop.seller_order_pickups set customer_notified_at = now()
+        where order_id = ${input.orderId}::uuid and seller_id = ${input.sellerId}::uuid
+      `;
+    }
+
+    // 2) In-app + email, for a customer with an account (same rule as the other order events).
+    if (row.identityUserId && (await notifyTablesExist())) {
+      await ensureTemplates();
+      await createNotificationFromTemplate({
+        templateKey: "shop.order.ready_for_pickup.customer",
+        locale: null,
+        customerId: row.identityUserId,
+        entityType: "shop_order",
+        entityId: input.orderId,
+        channels: row.email ? ["in_app", "email"] : ["in_app"],
+        emailTo: row.email,
+        phoneTo: null,
+        variables: { orderNumber: row.orderNumber, pickupCode: input.code, placeName, placeAddress: place?.address || "-" },
+        fallbackTitle: "LSevin Shop",
+        fallbackBody: `Order ${row.orderNumber} is ready for pickup at ${placeName}.`,
+      });
+    }
+  } catch (error) {
+    console.error("[shop] notifySellerPickupReady failed", { orderId: input.orderId, error: (error as Error)?.message });
+  }
+}
+
+// ------------------------------------------------------------------------------------------------
+// Delivery to an address: "your order has been shipped" pattern SMS
+// ------------------------------------------------------------------------------------------------
+
+/**
+ * Sends the shipped pattern SMS ({0} order number, {1} tracking code) to the checkout mobile, else
+ * the account mobile (Iranian mobiles only), same recipient rule as the pickup SMS. Pickup orders
+ * are never shipped. Sent once per seller shipment, with that seller's tracking code. Never throws; an empty pattern env var skips with a log line.
+ */
+async function notifyShopOrderShippedSms(orderId: string, trackingNumber: string | null | undefined): Promise<void> {
+  try {
+    const [row] = await sql<
+      { orderNumber: string; mode: string | null; identityPhone: string | null; addressPhone: string | null; addressCountry: string | null }[]
+    >`
+      select o.order_number as "orderNumber", o.fulfillment_mode as mode,
+        nullif(concat_ws('', u.phone_number_country_code, u.phone_number), '') as "identityPhone",
+        nullif(concat_ws('', a.phone_number_country_code, a.phone_number), '') as "addressPhone",
+        nullif(a.country, '') as "addressCountry"
+      from shop.orders o
+      left join customer.customers c on c.id = o.customer_id
+      left join identity.asp_net_users u
+        on (nullif(c.email,'') is not null and lower(u.email) = lower(c.email))
+        or (nullif(c.phone_number,'') is not null and u.phone_number = c.phone_number and u.phone_number_country_code = c.phone_number_country_code)
+      left join lateral (
+        select ad.phone_number_country_code, ad.phone_number, ad.country from shop.order_addresses ad
+        where ad.order_id = o.id and nullif(ad.phone_number, '') is not null
+        order by (ad.address_type = 'shipping') desc limit 1
+      ) a on true
+      where o.id = ${orderId}::uuid
+      limit 1
+    `;
+    if (!row || row.mode === "pickup") return;
+
+    const phone = pickupSmsRecipient([
+      { phone: row.addressPhone, country: row.addressCountry },
+      { phone: row.identityPhone, country: "IR" },
+    ]);
+    const bodyId = process.env[SHOP_SHIPPED_PATTERN_ENV]?.trim();
+    const credentials = readMeliPayamakCredentials();
+    if (!phone) {
+      console.warn("[shop] shipped SMS skipped: no Iranian mobile on the order", { orderId });
+      return;
+    }
+    if (!bodyId || !credentials) {
+      console.warn("[shop] shipped SMS skipped: SMS pattern or credentials not configured", {
+        orderId,
+        pattern: Boolean(bodyId),
+        credentials: Boolean(credentials),
+      });
+      return;
+    }
+    const result = await sendPatternSms({
+      to: phone,
+      bodyId,
+      variables: encodePatternVariables(shippedSmsVariables(row.orderNumber, trackingNumber)),
+      credentials,
+    });
+    if (!result.ok) console.error("[shop] shipped SMS failed", { orderId, to: maskPhone(phone), error: result.error });
+  } catch (error) {
+    console.error("[shop] notifyShopOrderShippedSms failed", { orderId, error: (error as Error)?.message });
+  }
+}
+
+/** A seller shipped its part (tracking code entered): shipped SMS + in-app/email. Never throws. */
+export async function notifySellerPartShipped(input: { orderId: string; trackingCode: string | null }): Promise<void> {
+  await notifyShopOrderEvent({ orderId: input.orderId, event: "order.shipped", extra: { trackingNumber: input.trackingCode ?? "-", carrier: "-" } });
 }

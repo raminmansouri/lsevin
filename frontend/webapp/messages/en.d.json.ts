@@ -72,6 +72,11 @@ declare const messages: {
         "Shall we plan your medical trip together?",
         "Questions about your visa or stay?"
       ]
+    },
+    "booking": {
+      "title": "Your booking is ready",
+      "note": "It isn't confirmed yet; review the details and pay with the button below.",
+      "button": "Complete booking"
     }
   },
   "ShopMedia": {
@@ -5496,7 +5501,7 @@ declare const messages: {
       "netProfit": "Net profit",
       "netLoss": "Net loss",
       "subtotal": "Subtotal",
-      "ledgerTitle": "General / subsidiary / detail ledger",
+      "ledgerTitle": "Account review",
       "ledgerDescription": "One report at three depths. Choosing an account selects the level: group, subsidiary or detail.",
       "filterByAccount": "Filter by account",
       "allAccounts": "All accounts",
@@ -5526,7 +5531,8 @@ declare const messages: {
       "entriesTitle": "Journal entries",
       "analyticsTitle": "Analytics",
       "dimensionsTitle": "Cost centres & dimensions",
-      "templatesTitle": "Templates & recurring"
+      "templatesTitle": "Templates & recurring",
+      "runningBalance": "Running balance"
     },
     "commercial": "Financials",
     "notifications": "Notifications",
@@ -5626,6 +5632,8 @@ declare const messages: {
       "supportTags": "Tags",
       "supportSettings": "Support settings",
       "consultings": "Consultation requests",
+      "consultation": "Consultation",
+      "consultationDoctors": "Consultation doctors",
       "bugReports": "Bug reports",
       "notificationTemplates": "Notification templates",
       "notificationChannels": "Notification channels",
@@ -5667,7 +5675,8 @@ declare const messages: {
       "toursPlatformSettings": "1. Tours settings",
       "toursPlatformTaxonomy": "2. Categories & tags",
       "editorial": "Editorial",
-      "assistant": "AI assistant"
+      "assistant": "AI assistant",
+      "shopApprovals": "Delivery approvals"
     }
   },
   "HomePage": {
@@ -16336,7 +16345,11 @@ declare const messages: {
       "shipsToday": "Ships today",
       "outOfStock": "Out of stock",
       "add": "Add",
-      "others": "{count} other sellers"
+      "others": "{count} other sellers",
+      "deliveredIn": "{days, plural, =0 {Delivered today} one {Delivered within # business day} other {Delivered within # business days}}",
+      "soldByShippedBySeller": "Seller: {name} · Shipped by the seller",
+      "shippedBySeller": "Shipped by the seller",
+      "pickupPossible": "In-person pickup is also possible"
     },
     "sellerPage": {
       "products": "{count} products",
@@ -16345,6 +16358,51 @@ declare const messages: {
       "eyebrow": "BOUTIQUE",
       "productsLabel": "PRODUCTS",
       "warrantyTitle": "Seller's guarantee"
+    },
+    "fulfilment": {
+      "title": "How you receive your order",
+      "overallDelivery": "{days, plural, =0 {Every shipment arrives today} one {Every shipment arrives within # day} other {Every shipment arrives within # days}}",
+      "overallPickup": "{days, plural, =0 {Your order is ready for pickup today} one {Your order is ready for pickup within # day} other {Your order is ready for pickup within # days}}",
+      "promisedDelivery": "Every shipment arrives by {date}",
+      "promisedPickup": "Ready for pickup by {date}",
+      "noShippingFee": "No shipping fee",
+      "deliveryTo": "Delivery to your address",
+      "officeNotSet": "The pickup address is sent with your pickup code.",
+      "openingHours": "Opening hours",
+      "call": "Call",
+      "contactForPickup": "Your name and mobile",
+      "pickupPhoneHint": "Your pickup code is sent to this mobile number.",
+      "sellersShipHint": "Each seller sends its own items separately; this is when the last shipment arrives.",
+      "pickupHint": "When your order is ready, your pickup code is sent by SMS.",
+      "pickupAt": "In-person pickup at {seller}",
+      "shipmentBySeller": "Shipment from {seller}",
+      "shipmentDays": "{days, plural, =0 {today} one {within # day} other {within # days}}",
+      "shippingFee": "Shipping",
+      "trackingCode": "Tracking code"
+    },
+    "pickup": {
+      "code": "Pickup code",
+      "codeHint": "Tell this code to the seller when you collect your order."
+    },
+    "sellerPart": {
+      "shipping": {
+        "new": "Waiting for the seller",
+        "preparing": "Being prepared",
+        "shipped": "Shipped",
+        "ready_for_pickup": "Ready",
+        "delivery_requested": "Delivered (being confirmed)",
+        "completed": "Delivered",
+        "cancelled": "Cancelled"
+      },
+      "pickup": {
+        "new": "Waiting for the seller",
+        "preparing": "Being prepared",
+        "shipped": "Shipped",
+        "ready_for_pickup": "Ready for pickup",
+        "delivery_requested": "Picked up (being confirmed)",
+        "completed": "Picked up",
+        "cancelled": "Cancelled"
+      }
     }
   },
   "ShopAdmin": {
@@ -16848,12 +16906,16 @@ declare const messages: {
       "title": "Delivery methods",
       "hint": "rules.geo is enforced at checkout: includeCountries (allow-list), excludeCountries (deny-list), includeRegions (state / region allow-list), surcharges[].amount (added to the base fee for matching countries / regions) and etaOverrides[]. Country / region codes are compared case-insensitively. Empty rules = ships everywhere.",
       "active": "active",
-      "baseFee": "Base fee",
+      "baseFee": "Base fee (rial)",
       "etaMin": "ETA min (days)",
       "etaMax": "ETA max (days)",
       "rulesJson": "Rules (JSON)",
       "save": "Save",
-      "noMethods": "No delivery methods configured."
+      "noMethods": "No delivery methods configured.",
+      "feeCapTitle": "Cap on sellers' shipping fees",
+      "feeCapHint": "Each clinic sets its own shipping fee; the customer is charged at most this cap (rial). Empty = no cap.",
+      "feeCapPlaceholder": "e.g. 800000",
+      "feeCapSave": "Save"
     },
     "attributes": {
       "title": "Attributes",
@@ -17030,7 +17092,8 @@ declare const messages: {
       "warrantyFa": "Warranty (Persian)",
       "warrantyEn": "Warranty (English)",
       "addNote": "Empty stock means stock is read from the shop's current inventory. A seller can have one offer per item.",
-      "priceHistory": "Price history ({count})"
+      "priceHistory": "Price history ({count})",
+      "warrantyAr": "Warranty (Arabic)"
     },
     "similar": {
       "title": "This product may already exist",
@@ -17048,6 +17111,57 @@ declare const messages: {
       "none": "This seller has no products yet.",
       "manage": "{count} products",
       "lowStockCount": "{count} low stock"
+    },
+    "deliveryOffice": {
+      "title": "Lsevin office (shown to customers who pick up)",
+      "addressFa": "Office address (Persian)",
+      "addressEn": "Office address (English)",
+      "phone": "Office phone",
+      "hoursFa": "Opening hours (Persian)",
+      "hoursEn": "Opening hours (English)"
+    },
+    "sellerParts": {
+      "title": "Seller shipments",
+      "modeShipping": "Each seller ships its own part",
+      "modePickup": "In-person pickup at the seller",
+      "promised": "Whole order promised by {date}",
+      "typeShipping": "Shipping",
+      "typePickup": "Pickup",
+      "status": {
+        "new": "New",
+        "preparing": "Preparing",
+        "shipped": "Shipped",
+        "ready_for_pickup": "Ready for pickup",
+        "delivery_requested": "Delivery to approve",
+        "completed": "Delivery approved"
+      },
+      "fee": "Shipping fee",
+      "due": "Due {date}",
+      "tracking": "Tracking code",
+      "rejected": "Delivery rejected: {reason}",
+      "sellerMoves": "The seller moves this part in its portal.",
+      "approve": "Approve delivery",
+      "reject": "Reject delivery",
+      "rejectReason": "Reason",
+      "markPreparing": "Preparing",
+      "trackingPlaceholder": "Tracking code",
+      "carrierPlaceholder": "Carrier (optional)",
+      "markShipped": "Shipped",
+      "requestDelivery": "Delivered (send for approval)",
+      "markReady": "Ready for pickup (send the customer the code)",
+      "codePlaceholder": "Customer's 6-digit code",
+      "confirmCode": "Confirm pickup code",
+      "resend": "Send a new code",
+      "resendConfirm": "Send the customer a new pickup code? The old code stops working.",
+      "attemptsLeft": "{count} tries left",
+      "wrongCode": "Wrong code. {count} tries left.",
+      "locked": "Too many wrong codes. Send the customer a new code.",
+      "failed": "That did not work. Try again."
+    },
+    "approvals": {
+      "title": "Seller delivery approvals",
+      "hint": "The seller reports the items reached the customer. Approve to finish that part (the order completes with its last part); reject to send it back with a reason.",
+      "empty": "Nothing to approve."
     }
   },
   "Patients": {

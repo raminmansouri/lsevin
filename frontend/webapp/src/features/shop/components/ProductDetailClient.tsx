@@ -48,8 +48,17 @@ export function ProductDetailClient({
     [product.offers, variantId]
   );
   const bestOffer = itemOffers[0] ?? null;
-  const shipping = (days: number | null) =>
-    days == null ? null : days === 0 ? t("sellerOffers.shipsToday") : t("sellerOffers.shipsIn", { days });
+  // Every seller sends its own items: its handling days + its delivery days (a partner seller's
+  // own; Lsevin's from its delivery methods). Without a delivery time, the handling days alone.
+  const shipping = (o: { handlingDays: number | null; partnerSeller?: boolean; sellerDeliveryDays?: number | null }) => {
+    const days = o.handlingDays;
+    if (days == null) return null;
+    const deliveryDays = o.partnerSeller ? (o.sellerDeliveryDays ?? null) : (product.lsevinDeliveryDays ?? null);
+    if (deliveryDays != null) return t("sellerOffers.deliveredIn", { days: days + deliveryDays });
+    return days === 0 ? t("sellerOffers.shipsToday") : t("sellerOffers.shipsIn", { days });
+  };
+  // «فروشنده: X · ارسال توسط فروشنده»
+  const soldBy = (o: { sellerName: string }) => t("sellerOffers.soldByShippedBySeller", { name: o.sellerName });
   const price = bestOffer ? bestOffer.price : selected ? selected.price : product.price;
   const compareAt = bestOffer ? bestOffer.compareAtPrice : selected ? selected.compareAtPrice : product.compareAtPrice;
   const currency = bestOffer ? bestOffer.currency : selected ? selected.currency : product.currency;
@@ -59,11 +68,14 @@ export function ProductDetailClient({
       ? selected.priceUnavailable
       : product.priceUnavailable;
   const inStock = bestOffer ? bestOffer.inStock : selected ? selected.hasStock : product.hasStock;
+  const offerStock = bestOffer && bestOffer.stockQuantity != null ? Number(bestOffer.stockQuantity) : null;
   const maxQty = Math.max(
     1,
-    selected
-      ? selected.inventoryAvailable || 99
-      : product.inventoryAvailable || 99
+    offerStock != null
+      ? offerStock
+      : selected
+        ? selected.inventoryAvailable || 99
+        : product.inventoryAvailable || 99
   );
 
   function add(then?: "cart" | "stay", offerId?: string) {
@@ -123,7 +135,7 @@ export function ProductDetailClient({
             className="flex items-center gap-1.5 font-semibold text-neutral-900 hover:text-[#083f30] hover:underline"
           >
             <Store size={14} className="text-[#083f30]" />
-            {t("sellerOffers.soldBy", { name: bestOffer.sellerName })}
+            <span data-testid="buybox-sold-by">{soldBy(bestOffer)}</span>
           </Link>
           {itemOffers.length > 1 ? (
             <a href="#product-sellers" className="ms-auto font-semibold text-[#083f30]">
@@ -136,10 +148,16 @@ export function ProductDetailClient({
               {bestOffer.warranty}
             </span>
           ) : null}
-          {shipping(bestOffer.handlingDays) ? (
-            <span className="flex items-center gap-1">
+          {shipping(bestOffer) ? (
+            <span className="flex items-center gap-1" data-testid="buybox-delivery">
               <Truck size={13} className="text-[#083f30]" />
-              {shipping(bestOffer.handlingDays)}
+              {shipping(bestOffer)}
+            </span>
+          ) : null}
+          {bestOffer.partnerSeller ? (
+            <span className="flex items-center gap-1" data-testid="buybox-pickup-possible">
+              <Store size={13} className="text-[#083f30]" />
+              {t("sellerOffers.pickupPossible")}
             </span>
           ) : null}
         </div>
@@ -218,7 +236,14 @@ export function ProductDetailClient({
                     ) : null}
                   </span>
                   <span className="mt-0.5 block truncate text-xs text-neutral-500">
-                    {[o.warranty, shipping(o.handlingDays)].filter(Boolean).join(" · ")}
+                    {[
+                      o.warranty,
+                      t("sellerOffers.shippedBySeller"),
+                      shipping(o),
+                      o.partnerSeller ? t("sellerOffers.pickupPossible") : null,
+                    ]
+                      .filter(Boolean)
+                      .join(" · ")}
                   </span>
                 </span>
                 <span className="shrink-0 text-end">

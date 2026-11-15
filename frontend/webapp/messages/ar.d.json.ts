@@ -72,6 +72,11 @@ declare const messages: {
         "هل نخطط لرحلتك العلاجية معًا؟",
         "لديك سؤال عن التأشيرة أو الإقامة؟"
       ]
+    },
+    "booking": {
+      "title": "حجزك جاهز",
+      "note": "لم يتم تأكيد الحجز بعد؛ راجع التفاصيل وادفع عبر الزر أدناه.",
+      "button": "إكمال الحجز"
     }
   },
   "ShopMedia": {
@@ -4882,7 +4887,7 @@ declare const messages: {
       "netProfit": "Net profit",
       "netLoss": "Net loss",
       "subtotal": "Subtotal",
-      "ledgerTitle": "General / subsidiary / detail ledger",
+      "ledgerTitle": "مراجعة الحسابات",
       "ledgerDescription": "One report at three depths. Choosing an account selects the level: group, subsidiary or detail.",
       "filterByAccount": "Filter by account",
       "allAccounts": "All accounts",
@@ -4911,7 +4916,8 @@ declare const messages: {
       "entriesTitle": "القيود ودفتر اليومية",
       "analyticsTitle": "التقارير التحليلية",
       "dimensionsTitle": "مراكز التكلفة والأبعاد",
-      "templatesTitle": "القوالب والقيود الدورية"
+      "templatesTitle": "القوالب والقيود الدورية",
+      "runningBalance": "الرصيد الجاري"
     },
     "commercial": "المالية",
     "notifications": "الإشعارات",
@@ -14684,7 +14690,11 @@ declare const messages: {
       "shipsToday": "الشحن اليوم",
       "outOfStock": "غير متوفر",
       "add": "إضافة",
-      "others": "{count} بائعين آخرين"
+      "others": "{count} بائعين آخرين",
+      "deliveredIn": "{days, plural, =0 {التوصيل اليوم} other {التوصيل خلال # يوم عمل}}",
+      "soldByShippedBySeller": "البائع: {name} · الشحن من البائع",
+      "shippedBySeller": "الشحن من البائع",
+      "pickupPossible": "الاستلام الشخصي ممكن أيضًا"
     },
     "sellerPage": {
       "products": "{count} منتج",
@@ -14698,7 +14708,52 @@ declare const messages: {
     "ge00Ls0000000000000000": "GE00 LS00 0000 0000 0000 00",
     "ref": "المرجع:",
     "metaDescription": "تسوّق المنتجات الطبية ومنتجات العافية والمعدات والمستلزمات مع توصيل سريع.",
-    "categoryMetaDescription": "تصفّح {count} منتجًا في {name}."
+    "categoryMetaDescription": "تصفّح {count} منتجًا في {name}.",
+    "fulfilment": {
+      "title": "طريقة استلام طلبك",
+      "overallDelivery": "{days, plural, =0 {Every shipment arrives today} one {Every shipment arrives within # day} other {Every shipment arrives within # days}}",
+      "overallPickup": "{days, plural, =0 {Your order is ready for pickup today} one {Your order is ready for pickup within # day} other {Your order is ready for pickup within # days}}",
+      "promisedDelivery": "Every shipment arrives by {date}",
+      "promisedPickup": "Ready for pickup by {date}",
+      "noShippingFee": "بدون رسوم شحن",
+      "deliveryTo": "التوصيل إلى عنوانك",
+      "officeNotSet": "The pickup address is sent with your pickup code.",
+      "openingHours": "ساعات العمل",
+      "call": "Call",
+      "contactForPickup": "اسمك ورقم جوالك",
+      "pickupPhoneHint": "يُرسل رمز الاستلام إلى هذا الرقم.",
+      "sellersShipHint": "Each seller sends its own items separately; this is when the last shipment arrives.",
+      "pickupHint": "When your order is ready, your pickup code is sent by SMS.",
+      "pickupAt": "الاستلام شخصيًا من {seller}",
+      "shipmentBySeller": "شحنة {seller}",
+      "shipmentDays": "{days, plural, =0 {today} one {within # day} other {within # days}}",
+      "shippingFee": "الشحن",
+      "trackingCode": "رمز التتبع"
+    },
+    "pickup": {
+      "code": "رمز الاستلام",
+      "codeHint": "أخبر البائع بهذا الرمز عند استلام طلبك."
+    },
+    "sellerPart": {
+      "shipping": {
+        "new": "Waiting for the seller",
+        "preparing": "Being prepared",
+        "shipped": "Shipped",
+        "ready_for_pickup": "Ready",
+        "delivery_requested": "Delivered (being confirmed)",
+        "completed": "Delivered",
+        "cancelled": "Cancelled"
+      },
+      "pickup": {
+        "new": "Waiting for the seller",
+        "preparing": "Being prepared",
+        "shipped": "Shipped",
+        "ready_for_pickup": "Ready for pickup",
+        "delivery_requested": "Picked up (being confirmed)",
+        "completed": "Picked up",
+        "cancelled": "Cancelled"
+      }
+    }
   },
   "ShopAdmin": {
     "nav": {
@@ -15307,7 +15362,8 @@ declare const messages: {
       "warrantyFa": "Warranty (Persian)",
       "warrantyEn": "Warranty (English)",
       "addNote": "Empty stock means stock is read from the shop's current inventory. A seller can have one offer per item.",
-      "priceHistory": "Price history ({count})"
+      "priceHistory": "Price history ({count})",
+      "warrantyAr": "الضمان (عربي)"
     },
     "similar": {
       "title": "This product may already exist",

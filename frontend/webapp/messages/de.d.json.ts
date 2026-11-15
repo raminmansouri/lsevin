@@ -422,7 +422,7 @@ declare const messages: {
       "journalDescription": "Jede Buchung ist unveränderlich. Korrekturen erfolgen über eine Stornobuchung.",
       "journalTitle": "Buchungssätze",
       "ledgerDescription": "Ein Bericht in drei Detailstufen. Die Kontoauswahl bestimmt die Ebene: Gruppe, Unterkonto oder Detailkonto.",
-      "ledgerTitle": "Hauptbuch / Nebenbuch / Detailkonto",
+      "ledgerTitle": "Account review",
       "lineCount": "Zeilen",
       "markFailed": "Als fehlgeschlagen markieren und Betrag zurückbuchen",
       "markPaid": "Als ausgezahlt markieren",
@@ -520,7 +520,8 @@ declare const messages: {
       "entriesTitle": "Buchungsbelege",
       "analyticsTitle": "Analyseberichte",
       "dimensionsTitle": "Kostenstellen",
-      "templatesTitle": "Vorlagen & Wiederkehrend"
+      "templatesTitle": "Vorlagen & Wiederkehrend",
+      "runningBalance": "Running balance"
     },
     "availability": "Verfügbarkeit",
     "bookingdrafts": "Buchungsentwürfe",

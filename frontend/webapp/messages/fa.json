@@ -69,6 +69,11 @@
         "برنامهٔ سفر درمانی‌تون رو با هم بچینیم؟",
         "سؤالی دربارهٔ ویزا یا اقامت دارید؟"
       ]
+    },
+    "booking": {
+      "title": "رزرو شما آماده است",
+      "note": "رزرو هنوز نهایی نشده است؛ با دکمهٔ زیر اطلاعات را تأیید و پرداخت کنید.",
+      "button": "تکمیل رزرو"
     }
   },
   "ShopMedia": {
@@ -4602,7 +4607,7 @@
       "netProfit": "سود خالص",
       "netLoss": "زیان خالص",
       "subtotal": "جمع",
-      "ledgerTitle": "دفتر کل / معین / تفصیلی",
+      "ledgerTitle": "مرور حساب",
       "ledgerDescription": "یک گزارش در سه عمق. با انتخاب حساب، سطح آن مشخص می‌شود: گروه، معین، یا تفصیلی.",
       "filterByAccount": "فیلتر بر اساس حساب",
       "allAccounts": "همهٔ حساب‌ها",
@@ -4632,7 +4637,8 @@
       "entriesTitle": "ثبت سند و دفتر روزنامه",
       "analyticsTitle": "گزارش‌های تحلیلی",
       "dimensionsTitle": "مراکز هزینه و ابعاد",
-      "templatesTitle": "الگوها و اسناد دوره‌ای"
+      "templatesTitle": "الگوها و اسناد دوره‌ای",
+      "runningBalance": "مانده در خط"
     },
     "consultationRequests": "درخواست‌های مشاوره رایگان",
     "home": {
@@ -4728,6 +4734,8 @@
       "supportTags": "برچسب‌ها",
       "supportSettings": "تنظیمات پشتیبانی",
       "consultings": "درخواست‌های مشاوره رایگان",
+      "consultation": "مشاوره",
+      "consultationDoctors": "پزشکان مشاوره",
       "bugReports": "گزارش خطاها",
       "notificationTemplates": "قالب‌های اطلاع‌رسانی",
       "notificationChannels": "کانال‌های اطلاع‌رسانی",
@@ -4769,7 +4777,8 @@
       "toursPlatformSettings": "۱. تنظیمات تورها",
       "toursPlatformTaxonomy": "۲. دسته‌ها و برچسب‌ها",
       "editorial": "محتوای سایت",
-      "assistant": "دستیار هوشمند"
+      "assistant": "دستیار هوشمند",
+      "shopApprovals": "تأیید تحویل فروشنده‌ها"
     }
   },
   "HomePage": {
@@ -16355,7 +16364,11 @@
       "shipsToday": "ارسال امروز",
       "outOfStock": "ناموجود",
       "add": "افزودن",
-      "others": "{count} فروشندهٔ دیگر"
+      "others": "{count} فروشندهٔ دیگر",
+      "deliveredIn": "{days, plural, =0 {تحویل امروز} other {تحویل تا # روز کاری}}",
+      "soldByShippedBySeller": "فروشنده: {name} · ارسال توسط فروشنده",
+      "shippedBySeller": "ارسال توسط فروشنده",
+      "pickupPossible": "تحویل حضوری هم ممکن است"
     },
     "sellerPage": {
       "products": "{count} کالا",
@@ -16364,6 +16377,51 @@
       "eyebrow": "بوتیک",
       "productsLabel": "کالاها",
       "warrantyTitle": "ضمانت فروشنده"
+    },
+    "fulfilment": {
+      "title": "نحوه‌ی دریافت سفارش",
+      "overallDelivery": "{days, plural, =0 {همه‌ی مرسوله‌ها امروز به دستتان می‌رسند} other {همه‌ی مرسوله‌ها حداکثر تا # روز دیگر به دستتان می‌رسند}}",
+      "overallPickup": "{days, plural, =0 {سفارش شما امروز برای تحویل حضوری آماده است} other {سفارش شما حداکثر تا # روز دیگر برای تحویل حضوری آماده است}}",
+      "promisedDelivery": "رسیدن همه‌ی مرسوله‌ها تا {date}",
+      "promisedPickup": "آماده شدن برای تحویل حضوری تا {date}",
+      "noShippingFee": "بدون هزینه‌ی ارسال",
+      "deliveryTo": "ارسال به نشانی شما",
+      "officeNotSet": "نشانی محل تحویل همراه با کد تحویل برایتان ارسال می‌شود.",
+      "openingHours": "ساعات کاری",
+      "call": "تماس",
+      "contactForPickup": "نام و شماره موبایل شما",
+      "pickupPhoneHint": "کد تحویل به این شماره موبایل پیامک می‌شود.",
+      "sellersShipHint": "هر فروشنده کالاهای خودش را جداگانه ارسال می‌کند؛ این تاریخِ رسیدن آخرین مرسوله است.",
+      "pickupHint": "وقتی سفارش آماده شد، کد تحویل برایتان پیامک می‌شود.",
+      "pickupAt": "تحویل حضوری از {seller}",
+      "shipmentBySeller": "مرسوله‌ی {seller}",
+      "shipmentDays": "{days, plural, =0 {امروز} other {تا # روز}}",
+      "shippingFee": "هزینه‌ی ارسال",
+      "trackingCode": "کد رهگیری"
+    },
+    "pickup": {
+      "code": "کد تحویل",
+      "codeHint": "هنگام تحویل گرفتن سفارش، این کد را به فروشنده بگویید."
+    },
+    "sellerPart": {
+      "shipping": {
+        "new": "در انتظار فروشنده",
+        "preparing": "در حال آماده‌سازی",
+        "shipped": "ارسال شد",
+        "ready_for_pickup": "آماده",
+        "delivery_requested": "تحویل داده شد (در انتظار تأیید)",
+        "completed": "تحویل داده شد",
+        "cancelled": "لغو شده"
+      },
+      "pickup": {
+        "new": "در انتظار فروشنده",
+        "preparing": "در حال آماده‌سازی",
+        "shipped": "ارسال شد",
+        "ready_for_pickup": "آماده‌ی تحویل حضوری",
+        "delivery_requested": "تحویل گرفته شد (در انتظار تأیید)",
+        "completed": "تحویل گرفته شد",
+        "cancelled": "لغو شده"
+      }
     }
   },
   "ShopAdmin": {
@@ -16867,12 +16925,16 @@
       "title": "روش‌های ارسال",
       "hint": "rules.geo هنگام تسویه اعمال می‌شود: includeCountries (فهرست مجاز)، excludeCountries (فهرست ممنوع)، includeRegions (فهرست مجاز استان / منطقه)، surcharges[].amount (به هزینهٔ پایه برای کشورها / مناطق منطبق افزوده می‌شود) و etaOverrides[]. کد کشور / منطقه بدون حساسیت به بزرگی و کوچکی حروف مقایسه می‌شود. قوانین خالی = ارسال به همه‌جا.",
       "active": "فعال",
-      "baseFee": "هزینهٔ پایه",
+      "baseFee": "هزینهٔ پایه (ریال)",
       "etaMin": "حداقل زمان (روز)",
       "etaMax": "حداکثر زمان (روز)",
       "rulesJson": "قوانین (JSON)",
       "save": "ذخیره",
-      "noMethods": "روش ارسالی پیکربندی نشده است."
+      "noMethods": "روش ارسالی پیکربندی نشده است.",
+      "feeCapTitle": "سقف هزینه‌ی ارسال فروشنده‌ها",
+      "feeCapHint": "هر کلینیک هزینه‌ی ارسال خودش را تعیین می‌کند؛ مبلغ دریافتی از مشتری حداکثر این سقف است (ریال). خالی = بدون سقف.",
+      "feeCapPlaceholder": "مثلاً 800000",
+      "feeCapSave": "ذخیره"
     },
     "attributes": {
       "title": "ویژگی‌ها",
@@ -17049,7 +17111,8 @@
       "warrantyFa": "گارانتی (فارسی)",
       "warrantyEn": "گارانتی (انگلیسی)",
       "addNote": "موجودی خالی یعنی موجودی از انبار فعلی فروشگاه خوانده می‌شود. هر فروشنده برای هر کالا فقط یک پیشنهاد دارد.",
-      "priceHistory": "تاریخچهٔ قیمت ({count})"
+      "priceHistory": "تاریخچهٔ قیمت ({count})",
+      "warrantyAr": "گارانتی (عربی)"
     },
     "similar": {
       "title": "این کالا شاید از قبل وجود دارد",
@@ -17067,6 +17130,57 @@
       "none": "این فروشنده هنوز کالایی ندارد.",
       "manage": "{count} کالا",
       "lowStockCount": "{count} موجودی کم"
+    },
+    "deliveryOffice": {
+      "title": "دفتر لسوین (برای مشتریانی که حضوری تحویل می‌گیرند)",
+      "addressFa": "نشانی دفتر (فارسی)",
+      "addressEn": "نشانی دفتر (انگلیسی)",
+      "phone": "تلفن دفتر",
+      "hoursFa": "ساعات کاری (فارسی)",
+      "hoursEn": "ساعات کاری (انگلیسی)"
+    },
+    "sellerParts": {
+      "title": "ارسال و تحویل فروشنده‌ها",
+      "modeShipping": "ارسال توسط هر فروشنده",
+      "modePickup": "تحویل حضوری از فروشنده",
+      "promised": "وعده‌ی تحویل کل سفارش: {date}",
+      "typeShipping": "ارسال",
+      "typePickup": "تحویل حضوری",
+      "status": {
+        "new": "جدید",
+        "preparing": "در حال آماده‌سازی",
+        "shipped": "ارسال شد",
+        "ready_for_pickup": "آماده‌ی تحویل حضوری",
+        "delivery_requested": "درخواست تأیید تحویل",
+        "completed": "تحویل تأیید شد"
+      },
+      "fee": "هزینه‌ی ارسال",
+      "due": "مهلت: {date}",
+      "tracking": "کد رهگیری",
+      "rejected": "تحویل رد شد: {reason}",
+      "sellerMoves": "این بخش را خود فروشنده در پنل پیش می‌برد.",
+      "approve": "تأیید تحویل",
+      "reject": "رد تحویل",
+      "rejectReason": "دلیل رد",
+      "markPreparing": "در حال آماده‌سازی",
+      "trackingPlaceholder": "کد رهگیری مرسوله",
+      "carrierPlaceholder": "شرکت حمل (اختیاری)",
+      "markShipped": "ارسال شد",
+      "requestDelivery": "تحویل داده شد (ارسال برای تأیید)",
+      "markReady": "آماده‌ی تحویل حضوری (ارسال کد به مشتری)",
+      "codePlaceholder": "کد ۶ رقمی مشتری",
+      "confirmCode": "ثبت کد تحویل",
+      "resend": "ارسال کد جدید",
+      "resendConfirm": "کد جدید برای مشتری ارسال شود؟ کد قبلی باطل می‌شود.",
+      "attemptsLeft": "{count} بار دیگر می‌توانید امتحان کنید",
+      "wrongCode": "کد اشتباه است. {count} بار دیگر.",
+      "locked": "کد بیش از حد اشتباه وارد شد. یک کد جدید برای مشتری بفرستید.",
+      "failed": "انجام نشد. دوباره تلاش کنید."
+    },
+    "approvals": {
+      "title": "تأیید تحویل فروشنده‌ها",
+      "hint": "فروشنده اعلام کرده کالاها به مشتری رسیده‌اند. با تأیید، آن بخش از سفارش تمام می‌شود (و سفارش با آخرین بخش کامل می‌شود). با رد، بخش با دلیل به وضعیت قبلی برمی‌گردد.",
+      "empty": "موردی برای تأیید نیست."
     }
   },
   "Patients": {

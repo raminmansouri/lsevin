@@ -31,7 +31,7 @@ import {
 } from "./video-doctors-repository";
 
 const FALLBACK_LOCALE = "en-US";
-const ADMIN_PATH = "/admin/consultation-requests";
+const ADMIN_PATH = "/admin/consultation/doctors";
 
 /** The database error text, in development only, so a failure says why. */
 function devDetail(error: unknown): string {

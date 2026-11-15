@@ -93,6 +93,9 @@ type RawCartLine = {
   name: string;
   variantTitle: string | null;
   sellerName: string | null;
+  sellerId: string | null;
+  partnerSeller: boolean;
+  handlingDays: number | null;
   imageUrl: string | null;
   quantity: number;
   sourceUnitPrice: number;
@@ -123,6 +126,10 @@ async function loadCartLines(
       ci.quantity,
       ci.offer_id::text as "offerId",
       common.get_translation_t(s.name_translations, ${lang}, 'en') as "sellerName",
+      s.id::text as "sellerId",
+      -- A seller other than Lsevin itself (e.g. a clinic): sold by them, sent by Lsevin.
+      (s.id is not null and not s.is_default) as "partnerSeller",
+      o.handling_days as "handlingDays",
       coalesce(o.price, v.price, p.base_price)::float as "sourceUnitPrice",
       coalesce(o.currency, v.currency, p.base_currency) as "sourceCurrency",
       (case when o.id is not null then o.compare_at_price else coalesce(v.compare_at_price, p.compare_at_price) end)::float as "sourceCompareAt",
@@ -216,6 +223,9 @@ export async function getCartView(opts?: {
       name: l.name,
       variantTitle: l.variantTitle || null,
       sellerName: l.sellerName || null,
+      sellerId: l.sellerId ?? null,
+      partnerSeller: Boolean(l.partnerSeller),
+      handlingDays: l.handlingDays == null ? null : Number(l.handlingDays),
       imageUrl: l.imageUrl,
       attributes: {},
       quantity: l.quantity,
@@ -301,7 +311,13 @@ export async function addCartItem(input: {
       coalesce(v.price, p.base_price)::float as price,
       coalesce(v.compare_at_price, p.compare_at_price)::float as compare_price,
       coalesce(v.currency, p.base_currency) as currency,
-      (v.id is not null) as "hasVariantRow"
+      (v.id is not null) as "hasVariantRow",
+      coalesce(v.allow_backorder, p.allow_backorder, false) as "allowBackorder",
+      coalesce((
+        select sum(greatest(i.on_hand - i.reserved, 0))::int from shop.inventory i
+        where (v.id is not null and i.variant_id = v.id)
+           or (v.id is null and i.product_id = p.id and i.variant_id is null)
+      ), 0) as inventory
     from shop.products p
     left join shop.product_variants v on v.id = ${input.variantId ?? null}::uuid and v.product_id = p.id and v.is_active and v.deleted_at is null
     where p.id = ${input.productId}::uuid and p.status = 'active' and p.deleted_at is null
@@ -317,8 +333,11 @@ export async function addCartItem(input: {
 
   // The offer this line buys from: the seller the shopper picked, else the best live offer
   // for the item (in stock first, cheapest, fastest to ship), as on the product card.
-  const [offer] = await sql<{ id: string; price: number; compare_price: number | null; currency: string }[]>`
-    select o.id::text as id, o.price::float as price, o.compare_at_price::float as compare_price, o.currency
+  const [offer] = await sql<
+    { id: string; price: number; compare_price: number | null; currency: string; stock: number | null; backorder: boolean }[]
+  >`
+    select o.id::text as id, o.price::float as price, o.compare_at_price::float as compare_price, o.currency,
+      o.stock_quantity as stock, o.allow_backorder as backorder
     from shop.offers o
     join shop.sellers s on s.id = o.seller_id and s.is_active and s.deleted_at is null and s.shop_status = 'active'
     where o.product_id = ${input.productId}::uuid
@@ -343,6 +362,17 @@ export async function addCartItem(input: {
       and offer_id is not distinct from ${offer?.id ?? null}::uuid
     limit 1
   `;
+  const canBackorder = offer ? offer.backorder || product.allowBackorder : product.allowBackorder;
+  const available = offer && offer.stock != null ? Number(offer.stock) : Number(product.inventory);
+  const alreadyInCart = existing[0]?.quantity ?? 0;
+  if (!canBackorder && alreadyInCart + qty > available) {
+    throw new Error(
+      available <= alreadyInCart
+        ? `Only ${available} of this item are in stock, and they are already in your cart.`
+        : `Only ${available} of this item are in stock.`
+    );
+  }
+
   if (existing[0]) {
     const next = Math.min(MAX_LINE_QTY, existing[0].quantity + qty);
     await sql`update shop.cart_items set quantity = ${next}, last_modified_date = now() where id = ${existing[0].id}::uuid`;
@@ -404,6 +434,24 @@ export async function updateCartItemQuantity(
 ): Promise<CartView> {
   const cartId = await assertLineInCart(cartItemId);
   const qty = Math.max(1, Math.min(MAX_LINE_QTY, Math.trunc(quantity)));
+  const [line] = await sql<{ current: number; available: number; backorder: boolean }[]>`
+    select
+      ci.quantity as current,
+      coalesce(o.stock_quantity, (
+        select sum(greatest(i.on_hand - i.reserved, 0))::int from shop.inventory i
+        where (ci.variant_id is not null and i.variant_id = ci.variant_id)
+           or (ci.variant_id is null and i.product_id = ci.product_id and i.variant_id is null)
+      ), 0) as available,
+      (coalesce(o.allow_backorder, false) or coalesce(v.allow_backorder, p.allow_backorder, false)) as backorder
+    from shop.cart_items ci
+    join shop.products p on p.id = ci.product_id
+    left join shop.product_variants v on v.id = ci.variant_id
+    left join shop.offers o on o.id = ci.offer_id
+    where ci.id = ${cartItemId}::uuid
+  `;
+  if (line && !line.backorder && qty > Number(line.available) && qty > Number(line.current)) {
+    throw new Error(`Only ${line.available} of this item are in stock.`);
+  }
   await sql`update shop.cart_items set quantity = ${qty}, last_modified_date = now() where id = ${cartItemId}::uuid`;
   await touchCart(cartId);
   return getCartView();

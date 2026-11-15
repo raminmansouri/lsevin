@@ -53,7 +53,15 @@ export async function listAdminProducts(q?: string) {
       p.slug, p.status, p.base_price::float as base_price, p.base_currency as currency,
       p.is_featured, p.is_best_seller, p.is_new_arrival,
       p.published_at::text as published_at,
-      coalesce((select sum(greatest(i.on_hand - i.reserved, 0))::int from shop.inventory i where i.product_id = p.id), 0) as available
+      (
+        coalesce((select sum(greatest(i.on_hand - i.reserved, 0))::int from shop.inventory i where i.product_id = p.id), 0)
+        + coalesce((
+            select sum(o.stock_quantity)::int
+            from shop.offers o join shop.sellers s on s.id = o.seller_id
+            where o.product_id = p.id and o.deleted_at is null and o.is_active and o.stock_quantity is not null
+              and s.is_active and s.deleted_at is null
+          ), 0)
+      ) as available
     from shop.products p
     where p.deleted_at is null
       and (${like}::text is null or common.get_translation_t(p.name_translations, 'en', 'en') ilike ${like} or p.slug ilike ${like})
@@ -103,7 +111,10 @@ export async function getAdminOrder(orderId: string) {
       o.grand_total::float as grand_total, o.currency,
       o.source_currency, o.display_currency, o.payment_currency, o.payment_total::float as payment_total,
       o.fx_applied_rate::float as fx_applied_rate, o.fx_snapshot,
-      o.coupon_code, o.note, o.placed_at::text as placed_at, o.paid_at::text as paid_at
+      o.coupon_code, o.note, o.placed_at::text as placed_at, o.paid_at::text as paid_at,
+      o.fulfillment_mode, o.promised_ready_at::text as promised_ready_at,
+      (select common.get_translation_t(dm.name_translations, 'fa', 'en') from shop.delivery_methods dm
+        where dm.id = o.delivery_method_id) as delivery_method_name
     from shop.orders o where o.id = ${orderId}::uuid limit 1
   `;
   if (!order) return null;
@@ -222,7 +233,15 @@ export async function getAdminProductForEdit(productId: string, locale?: string)
       select v.id::text as id, v.sku, v.option_key, v.price::float as price, v.compare_at_price::float as compare_at_price,
         v.currency, v.is_active, v.allow_backorder, v.title_translations,
         common.get_translation_t(v.title_translations, 'en', 'en') as title,
-        coalesce((select sum(greatest(i.on_hand - i.reserved, 0))::int from shop.inventory i where i.variant_id = v.id), 0) as available
+        (
+          coalesce((select sum(greatest(i.on_hand - i.reserved, 0))::int from shop.inventory i where i.variant_id = v.id), 0)
+          + coalesce((
+              select sum(o.stock_quantity)::int
+              from shop.offers o join shop.sellers s on s.id = o.seller_id
+              where o.variant_id = v.id and o.deleted_at is null and o.is_active and o.stock_quantity is not null
+                and s.is_active and s.deleted_at is null
+            ), 0)
+        ) as available
       from shop.product_variants v
       where v.product_id = ${productId}::uuid and v.deleted_at is null
       order by v.price asc
@@ -594,7 +613,12 @@ export async function listDeliveryMethodsAdmin() {
       common.get_translation_t(name_translations, 'en', 'en') as name,
       base_fee::float as base_fee, is_active,
       estimated_days_min, estimated_days_max,
-      supports_pickup, rules
+      supports_pickup, rules,
+      coalesce(pickup_address_translations->>'fa', '') as office_address_fa,
+      coalesce(pickup_address_translations->>'en', '') as office_address_en,
+      coalesce(pickup_phone, '') as office_phone,
+      coalesce(pickup_hours_translations->>'fa', '') as office_hours_fa,
+      coalesce(pickup_hours_translations->>'en', '') as office_hours_en
     from shop.delivery_methods
     order by base_fee asc
   `;

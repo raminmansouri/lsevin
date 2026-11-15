@@ -1,8 +1,10 @@
 import {
   addressInputSchema,
+  checkoutAddressSchema,
   checkoutEmailSchema,
   placeOrderSchema,
 } from "../schemas/checkout";
+import { hasUsablePhone } from "./fulfilment";
 
 export type CheckoutIssue = {
   target: string;
@@ -37,14 +39,22 @@ export function getCheckoutIssues(input: {
   blockingIssues: string[];
   hasUnavailablePrice: boolean;
   quoteFailed: boolean;
+  /** From the chosen method. Default: an address is needed (delivery to the address). */
+  needsAddress?: boolean;
+  /** From the chosen method: pickup at the Lsevin office needs a mobile (pickup code SMS). */
+  needsPhone?: boolean;
 }): CheckoutIssue[] {
+  const needsAddress = input.needsAddress ?? true;
   const issues: CheckoutIssue[] = [];
   if (!checkoutEmailSchema.safeParse(input.email).success)
     issues.push({
       target: "email",
       kind: input.email.trim() ? "email" : "required",
     });
-  const address = addressInputSchema.safeParse(input.address);
+  // Delivery needs a full address; office pickup needs the name (and a mobile).
+  const address = (needsAddress ? addressInputSchema : checkoutAddressSchema.pick({ fullName: true })).safeParse(
+    needsAddress ? input.address : { fullName: input.address.fullName }
+  );
   if (!address.success)
     for (const issue of address.error.issues) {
       const target = String(issue.path[0]);
@@ -57,8 +67,11 @@ export function getCheckoutIssues(input: {
         issues.push({ target, kind: "maxLength", max: Number(issue.maximum) });
       else issues.push({ target, kind: "required" });
     }
+  if (input.needsPhone && !hasUsablePhone(input.address.phoneNumber as string | null | undefined))
+    issues.push({ target: "phoneNumber", kind: "required" });
   if (!placeOrderSchema.shape.note.safeParse(input.note).success)
     issues.push({ target: "orderNote", kind: "maxLength", max: 1000 });
+  // A method is always chosen: delivery to the address, or pickup at the Lsevin office.
   if (!input.deliveryOptions.length)
     issues.push({ target: "deliveryMethod", kind: "noDelivery" });
   else if (!input.deliveryOptions.some((d) => d.id === input.deliveryId))

@@ -1,8 +1,10 @@
 import "server-only";
 
-import type { OrderDetail, OrderSummary } from "../types/domain";
+import type { OrderDetail, OrderSellerShipment, OrderSummary } from "../types/domain";
+import { customerCanCancel } from "../lib/fulfilment";
 import { getShopContext, normalizeLocale } from "../lib/context";
 import { sql } from "../lib/db";
+import { pickupPlaces, readOrderSellerParts, visiblePickupCode } from "../server/seller-fulfilment.service";
 
 /**
  * Customer-facing order read model. Access is owner-scoped: a guest reads an
@@ -43,7 +45,9 @@ export async function getCustomerOrder(orderNumber: string, guestEmail?: string 
       o.email, o.subtotal::float as subtotal, o.discount_total::float as "discountTotal",
       o.shipping_total::float as "shippingTotal", o.tax_total::float as "taxTotal",
       o.payment_currency as "paymentCurrency", o.payment_total::float as "paymentTotal",
-      o.coupon_code as "couponCode", o.fx_snapshot as "fxSnapshot", o.customer_id::text as "customerId"
+      o.coupon_code as "couponCode", o.fx_snapshot as "fxSnapshot", o.customer_id::text as "customerId",
+      o.promised_days as "promisedDays", o.promised_ready_at::text as "promisedReadyAt",
+      o.fulfillment_mode as "fulfillmentMode"
     from shop.orders o
     where o.order_number = ${orderNumber}
     limit 1
@@ -64,7 +68,9 @@ export async function getCustomerOrder(orderNumber: string, guestEmail?: string 
         nullif(common.get_translation_t(oi.variant_name_snapshot, ${lang}, 'en'), '') as "variantName",
         oi.image_url_snapshot as "imageUrl", oi.quantity,
         oi.unit_price_snapshot::float as "unitPrice", oi.line_total_snapshot::float as "lineTotal",
-        oi.attributes_snapshot as attributes, oi.fulfillment_status as "fulfillmentStatus"
+        oi.attributes_snapshot as attributes, oi.fulfillment_status as "fulfillmentStatus",
+        oi.seller_id::text as "sellerId",
+        nullif(common.get_translation_t(oi.seller_name_snapshot, ${lang}, 'en'), '') as "sellerName"
       from shop.order_items oi
       left join shop.products p on p.id = oi.product_id
       where oi.order_id = ${order.id}::uuid order by oi.create_date asc
@@ -103,6 +109,27 @@ export async function getCustomerOrder(orderNumber: string, guestEmail?: string 
     `,
   ]);
 
+  const fulfillmentMode: "delivery" | "pickup" = order.fulfillmentMode === "pickup" ? "pickup" : "delivery";
+  // One block per seller: its shipment (tracking code) or the pickup (place + code).
+  const cancelled = ["cancelled", "refunded"].includes(String(order.status));
+  const parts = await readOrderSellerParts(order.id, lang);
+  // The place as it is now (a moved clinic shows its new address).
+  const places = fulfillmentMode === "pickup" ? await pickupPlaces(parts.map((p) => p.sellerId), lang) : new Map();
+  const sellerShipments: OrderSellerShipment[] = parts.map((part) => ({
+    sellerId: part.sellerId,
+    sellerName: part.sellerName,
+    type: part.type,
+    status: cancelled ? "cancelled" : part.status,
+    shippingFee: part.shippingFee,
+    trackingCode: part.trackingCode,
+    carrier: part.carrier,
+    shippedAt: part.shippedAt,
+    readyAt: part.readyAt,
+    pickupCode: cancelled ? null : visiblePickupCode(part),
+    place: part.type === "pickup" ? (places.get(part.sellerId) ?? null) : null,
+    itemIds: part.itemIds,
+  }));
+
   const addr = (t: string) => {
     const a = addresses.find((x) => x.addressType === t);
     return a ?? {};
@@ -139,7 +166,14 @@ export async function getCustomerOrder(orderNumber: string, guestEmail?: string 
       lineTotal: Number(i.lineTotal),
       attributes: i.attributes ?? {},
       fulfillmentStatus: i.fulfillmentStatus,
+      sellerId: i.sellerId ?? null,
+      sellerName: i.sellerName ?? null,
     })),
+    promisedDays: order.promisedDays ?? null,
+    promisedReadyAt: order.promisedReadyAt ?? null,
+    fulfillmentMode,
+    sellerShipments,
+    cancellable: !cancelled && customerCanCancel(parts),
     shippingAddress: addr("shipping"),
     billingAddress: addr("billing"),
     payments: payments.map((p) => ({ ...p, amount: Number(p.amount) })),

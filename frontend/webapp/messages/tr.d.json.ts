@@ -72,6 +72,11 @@ declare const messages: {
         "Shall we plan your medical trip together?",
         "Questions about your visa or stay?"
       ]
+    },
+    "booking": {
+      "title": "Your booking is ready",
+      "note": "It isn't confirmed yet; review the details and pay with the button below.",
+      "button": "Complete booking"
     }
   },
   "BookingCart": {
@@ -494,7 +499,7 @@ declare const messages: {
       "journalDescription": "Her kayıt değiştirilemez. Düzeltmeler ters kayıtla yapılır.",
       "journalTitle": "Yevmiye kayıtları",
       "ledgerDescription": "Üç farklı derinlikte tek rapor. Hesap seçimi seviyeyi belirler: grup, yardımcı veya detay.",
-      "ledgerTitle": "Büyük defter / yardımcı defter / detay defteri",
+      "ledgerTitle": "Account review",
       "lineCount": "Satırlar",
       "markFailed": "Başarısız işaretle ve tutarı iade et",
       "markPaid": "Ödendi olarak işaretle",
@@ -592,7 +597,8 @@ declare const messages: {
       "entriesTitle": "Yevmiye kayıtları",
       "analyticsTitle": "Analitik raporlar",
       "dimensionsTitle": "Masraf merkezleri",
-      "templatesTitle": "Şablonlar ve tekrarlayanlar"
+      "templatesTitle": "Şablonlar ve tekrarlayanlar",
+      "runningBalance": "Running balance"
     },
     "availability": "uygunluk",
     "bookingdrafts": "rezervasyon taslakları",

@@ -7,7 +7,7 @@ import sql from "@/config/database/db";
 import { countryFromHeaders } from "@/lib/market/market";
 
 /**
- * One search box for a city or a country (migration 0099,
+ * One search box for a city or a country (migration 0104,
  * category.location_search): every word of the query must match one of the
  * place's names in any language or its country's names, so "Turkey", "türkiye",
  * "ترکیه", "istanbul", "İstanbul", "اسطنبول" and "istanbul turkey" all work.

@@ -59,6 +59,7 @@ import {
   Share2,
   ShoppingBag,
   Stethoscope,
+  Video,
   TableProperties,
   Tags,
   Ticket,
@@ -251,11 +252,19 @@ export const ADMIN_NAV: AdminNavEntry[] = [
       { titleKey: "cannedReplies", href: "/admin/support/canned-replies", icon: MessageSquareText },
       { titleKey: "supportTags", href: "/admin/support/tags", icon: Tags },
       { titleKey: "supportSettings", href: "/admin/support/settings", icon: Settings2 },
-      { titleKey: "consultings", href: "/admin/consultation-requests", icon: MessageSquareQuote },
       { titleKey: "bugReports", href: "/admin/bug-reports", icon: Bug },
       { titleKey: "assistant", href: "/admin/assistant", icon: Bot },
       { titleKey: "notificationTemplates", href: "/admin/notification-templates", icon: BellRing },
       { titleKey: "notificationChannels", href: "/admin/notification-channels", icon: Bell },
+    ],
+  },
+
+  {
+    titleKey: "consultation",
+    icon: Video,
+    items: [
+      { titleKey: "consultationDoctors", href: "/admin/consultation/doctors", icon: Stethoscope },
+      { titleKey: "consultings", href: "/admin/consultation-requests", icon: MessageSquareQuote },
     ],
   },
 
@@ -265,6 +274,7 @@ export const ADMIN_NAV: AdminNavEntry[] = [
     items: [
       { titleKey: "shopOverview", href: "/admin/shop", icon: ShoppingBag },
       { titleKey: "shopOrders", href: "/admin/shop/orders", icon: Receipt },
+      { titleKey: "shopApprovals", href: "/admin/shop/approvals", icon: PackageOpen },
       { titleKey: "shopProducts", href: "/admin/shop/products", icon: Package },
       { titleKey: "shopCategories", href: "/admin/shop/categories", icon: FolderTree },
       { titleKey: "shopBrands", href: "/admin/shop/brands", icon: Tags },

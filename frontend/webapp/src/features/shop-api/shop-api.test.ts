@@ -8,6 +8,7 @@ import {
   portalCreateProposalSchema,
   portalOrderListStatusSchema,
   portalOrderStatusUpdateSchema,
+  portalShippingSchema,
   portalProposalDecisionSchema,
   updateOfferSchema,
   updateProductSchema,
@@ -198,18 +199,37 @@ describe("product proposal schemas", () => {
 });
 
 describe("clinic order schemas", () => {
-  it("the clinic can only move an order to ready for pickup or picked up", () => {
+  it("the clinic moves its own part: preparing, shipped with a tracking code, ready for pickup, delivered request", () => {
+    expect(portalOrderStatusUpdateSchema.parse({ status: "preparing" })).toEqual({ status: "preparing" });
     expect(portalOrderStatusUpdateSchema.parse({ status: "ready_for_pickup" })).toEqual({ status: "ready_for_pickup" });
-    expect(portalOrderStatusUpdateSchema.parse({ status: "picked_up" })).toEqual({ status: "picked_up" });
-    for (const status of ["new", "cancelled", "delivered", "", null]) {
+    expect(portalOrderStatusUpdateSchema.parse({ status: "shipped", trackingCode: "PST-123456" })).toEqual({
+      status: "shipped",
+      trackingCode: "PST-123456",
+    });
+    expect(portalOrderStatusUpdateSchema.parse({ status: "delivery_requested", code: "123456" })).toMatchObject({ code: "123456" });
+    // Shipped always carries a tracking code.
+    expect(portalOrderStatusUpdateSchema.safeParse({ status: "shipped" }).success).toBe(false);
+    expect(portalOrderStatusUpdateSchema.safeParse({ status: "shipped", trackingCode: "ab" }).success).toBe(false);
+    // Removed handover statuses and admin-only states cannot be set by the clinic.
+    for (const status of ["new", "picked_up", "completed", "cancelled", "delivered", "", null]) {
       expect(portalOrderStatusUpdateSchema.safeParse({ status }).success, String(status)).toBe(false);
     }
-    expect(portalOrderStatusUpdateSchema.safeParse({ status: "picked_up", orderId: "x" }).success).toBe(false);
+    expect(portalOrderStatusUpdateSchema.safeParse({ status: "preparing", orderId: "x" }).success).toBe(false);
+  });
+
+  it("the clinic's shipping settings: whole rial fee, min days not above max", () => {
+    expect(portalShippingSchema.parse({ shippingFee: 500000, deliveryDaysMin: 1, deliveryDaysMax: 3 })).toMatchObject({ shippingFee: 500000 });
+    expect(portalShippingSchema.safeParse({ shippingFee: -1, deliveryDaysMin: 1, deliveryDaysMax: 3 }).success).toBe(false);
+    expect(portalShippingSchema.safeParse({ shippingFee: 1.5, deliveryDaysMin: 1, deliveryDaysMax: 3 }).success).toBe(false);
+    expect(portalShippingSchema.safeParse({ shippingFee: 0, deliveryDaysMin: 4, deliveryDaysMax: 3 }).success).toBe(false);
+    expect(portalShippingSchema.safeParse({ shippingFee: 0, deliveryDaysMin: 1, deliveryDaysMax: 61 }).success).toBe(false);
   });
 
   it("an unknown list tab falls back to new orders", () => {
     expect(portalOrderListStatusSchema.parse("all")).toBe("all");
     expect(portalOrderListStatusSchema.parse("cancelled")).toBe("cancelled");
+    expect(portalOrderListStatusSchema.parse("delivery_requested")).toBe("delivery_requested");
+    expect(portalOrderListStatusSchema.parse("picked_up")).toBe("new");
     expect(portalOrderListStatusSchema.parse("x")).toBe("new");
     expect(portalOrderListStatusSchema.parse(null)).toBe("new");
   });
