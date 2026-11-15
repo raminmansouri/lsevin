@@ -5,7 +5,7 @@ import { fail, logUnexpected, mapDbError, ToursError, type ActionResult } from "
 /**
  * Stays reuse the tours error categories (validation / authentication /
  * authorization / not_found / conflict / infrastructure / unexpected). Only the
- * codes raised on purpose by the stay.* SQL functions (0102) are mapped to
+ * codes raised on purpose by the stay.* SQL functions (0107) are mapped to
  * conflict / not-found / validation; everything else goes through the shared
  * classifier, so a database outage surfaces as `infrastructure`, never as
  * "invalid input".

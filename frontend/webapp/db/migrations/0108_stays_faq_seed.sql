@@ -1,9 +1,9 @@
 -- ---------------------------------------------------------------------------
--- 0103 — Stays FAQ (scope 'app', entity_key 'stays').
+-- 0108 — Stays FAQ (scope 'app', entity_key 'stays').
 --
 -- Shown on /stays, /stays/intro and every /stays/city/* page (and as FAQPage
 -- structured data). Answers describe only what the platform actually does
--- (0102 + src/features/stays). Admins can edit or deactivate each item in
+-- (0107 + src/features/stays). Admins can edit or deactivate each item in
 -- Admin → Site content; seed_key keeps a re-run from duplicating them.
 -- ---------------------------------------------------------------------------
 

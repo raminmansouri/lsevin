@@ -35,7 +35,7 @@ export function startStaysSweeper(intervalMs = 60_000) {
     if (running) return;
     running = true;
     try {
-      // The stay schema arrives with migration 0102; before it exists there is nothing to sweep.
+      // The stay schema arrives with migration 0107; before it exists there is nothing to sweep.
       const [t] = await db<{ ok: boolean }[]>`select to_regclass('stay.bookings') is not null as ok`;
       if (t?.ok) await runStaysSweep();
     } catch (e) {

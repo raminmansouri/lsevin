@@ -1,6 +1,6 @@
 /**
  * Stays against a REAL Postgres migrated with scripts/migrate.mjs (prior
- * production-like state + 0102). The truths that live in the database are
+ * production-like state + 0107). The truths that live in the database are
  * tested here: multi-night inventory, concurrency, idempotency, deadlines,
  * payment reconciliation, isolation between accounts and admin guards.
  *

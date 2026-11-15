@@ -1,5 +1,5 @@
 -- ---------------------------------------------------------------------------
--- 0102 — Stays platform: hotels and اقامتگاه (docs/designs/hotel-booking/Stays.md).
+-- 0107 — Stays platform: hotels and اقامتگاه (docs/designs/hotel-booking/Stays.md).
 --
 -- Same architecture as the tours platform (0078..0083):
 --   * a property owns a hidden category.provider_services row — the "booking
