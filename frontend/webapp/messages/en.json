@@ -3233,7 +3233,21 @@
     "renderedOn": "Rendered on",
     "staffOrder": "Order",
     "staffOrderHint": "1 = first on the provider's page; 0 = no position",
-    "staffOrderSaved": "Order saved"
+    "staffOrderSaved": "Order saved",
+    "zibalDomainTokensTitle": "Zibal token per domain",
+    "zibalDomainTokensDescription": "Each domain (for example lsevincare.com, appmain.lsevin.com and lsevin.ir) has its own Zibal merchant. A payment uses the token of the domain the customer is on, and the customer returns to that domain. Zibal is not offered on a domain without a token.",
+    "zibalNoDomainsYet": "No domains yet.",
+    "zibalDomain": "Domain",
+    "zibalMerchantToken": "Zibal merchant token",
+    "zibalCurrentToken": "Current",
+    "zibalPasteToken": "Paste the merchant code from the Zibal panel",
+    "zibalLeaveBlankToKeep": "Leave blank to keep the current token.",
+    "zibalTokenRequired": "A new domain needs a token.",
+    "zibalRemoveDomain": "Remove this domain",
+    "zibalAddDomain": "Add domain",
+    "zibalSettingsTitle": "Zibal settings",
+    "zibalSettingsDescription": "Amounts are sent to Zibal in Rial; a Toman gateway currency is converted before sending.",
+    "zibalSandboxDescription": "Sandbox uses Zibal's test merchant and moves no money. It does not work on the production server (payments stop there), so keep it off in production."
   },
   "HomeHero": {
     "title": "Health and beauty without borders, all in one place",
@@ -5680,7 +5694,8 @@
       "toursPlatformTaxonomy": "2. Categories & tags",
       "editorial": "Editorial",
       "assistant": "AI assistant",
-      "shopApprovals": "Delivery approvals"
+      "shopApprovals": "Delivery approvals",
+      "enamad": "Enamad trust seal"
     }
   },
   "HomePage": {
@@ -18329,5 +18344,33 @@
       "user": "User",
       "assistant": "Assistant"
     }
+  },
+  "AdminEnamad": {
+    "heading": "Enamad trust seal",
+    "intro": "Each domain has its own Enamad seal. A domain shows only its own seal; a domain without one shows none.",
+    "addTitle": "Add or replace a domain's seal",
+    "addDescription": "Copy the whole install code from the Enamad panel and paste it here. If the domain already has a seal, the new code replaces it.",
+    "domain": "Domain",
+    "code": "Enamad seal code",
+    "codeHint": "Paste the whole <a ...><img ...></a> code or the seal URL.",
+    "parsed": "Found seal id {id}.",
+    "save": "Save seal",
+    "saving": "Saving…",
+    "saved": "Seal for {host} saved.",
+    "invalidHost": "Enter a domain like lsevincare.com.",
+    "invalidSeal": "No Enamad id and code found. Copy the whole code from the Enamad panel.",
+    "saveFailed": "The seal could not be saved. Please try again.",
+    "forbidden": "You are not allowed to do this.",
+    "listTitle": "Saved seals",
+    "listDescription": "On each domain the site shows that domain's seal in the footer and on the home page.",
+    "empty": "No seals yet.",
+    "openOnEnamad": "View on Enamad",
+    "remove": "Remove the seal of {host}",
+    "removeConfirm": "Click again to remove the seal of {host}",
+    "removeShort": "Remove",
+    "removeConfirmShort": "Sure?",
+    "removed": "Seal for {host} removed.",
+    "removeFailed": "The seal could not be removed. Please try again.",
+    "replaceHint": "Changes appear on the site within a few minutes."
   }
 }

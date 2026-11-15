@@ -3,6 +3,7 @@ import "server-only";
 import { createHash } from "node:crypto";
 
 import sql from "@/config/database/db";
+import { isIranianCardGateway } from "@/payment/gateways";
 import { listEnabledPaymentGatewayOptions } from "@/payment/server/payment-gateway.repository";
 
 import { emitCommerceEvent } from "../lib/analytics";
@@ -232,18 +233,23 @@ export async function getPaymentMethods(lang: string, currency?: string) {
       supports_refund as "supportsRefund"
     from shop.payment_methods where is_active = true order by sort_order asc
   `;
+  // Usable on this domain only (Zibal has a token per domain), in the admin's sort order.
   const gateways = await listEnabledPaymentGatewayOptions();
+  // The Iranian card gateway is whichever ranks first: Zibal or Zarinpal.
+  const iranianGateway = gateways.find((item) => isIranianCardGateway(item.code))?.code ?? "zarinpal";
   const preferredGateway = ["IRR", "IRT"].includes(
     (currency || "IRR").toUpperCase()
   )
-    ? "zarinpal"
+    ? iranianGateway
     : "btcpay";
   return rows
     .flatMap((method) => {
       if (method.provider === "manual" || method.code === "bank_transfer")
         return [{ ...method, currency: currency || "IRR" }];
       const code =
-        method.provider === "zarinpal" || method.provider === "btcpay"
+        isIranianCardGateway(method.provider)
+          ? iranianGateway
+          : method.provider === "btcpay"
           ? method.provider
           : ["gateway_card", "card", "online_card"].includes(method.code)
             ? preferredGateway

@@ -1,6 +1,15 @@
-export type PaymentGatewayCode = "zarinpal" | "btcpay";
+export type PaymentGatewayCode = "zarinpal" | "zibal" | "btcpay";
+
+/** A merchant token that only applies to payments started on one domain (Zibal). */
+export type DomainMerchant = {
+  /** Normalized host: lowercase, no scheme/port/path, no leading "www.". */
+  host: string;
+  merchant: string;
+};
 
 export type PaymentGatewaySettings = {
+  /** Zibal: one merchant per public domain; the request's domain picks the token. */
+  domainMerchants?: DomainMerchant[];
   merchantId?: string | null;
   sandbox?: boolean;
   // Zarinpal uses IRR/IRT; crypto gateways (BTCPay) price invoices in a stable

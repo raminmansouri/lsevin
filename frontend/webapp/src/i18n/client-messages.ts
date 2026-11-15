@@ -110,6 +110,8 @@ export const SEGMENT_NAMESPACES = {
     "Admin",
     // admin → Editorial: page/FAQ forms and the delete button are client components.
     "AdminEditorial",
+    // admin → Content → Enamad (per-domain trust seals).
+    "AdminEnamad",
     "ShopAdmin",
     "AdminColumn",
     "AdminGenerated",

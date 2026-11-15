@@ -8,7 +8,9 @@ export default async function PaymentGatewaySettingsPage({
   params: Promise<{ gateway: string }>;
 }) {
   const { gateway: gatewayCode } = await params;
-  const gateway = await getPaymentGatewayConfig({ code: gatewayCode, includeSecrets: true });
+  // Masked: the form only shows secrets as placeholders, and a blank field keeps the stored value.
+  // The full merchant id / tokens never need to reach the browser.
+  const gateway = await getPaymentGatewayConfig({ code: gatewayCode, includeSecrets: false });
 
   if (!gateway) notFound();
 

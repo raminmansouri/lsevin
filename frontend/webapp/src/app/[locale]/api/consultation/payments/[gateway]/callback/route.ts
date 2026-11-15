@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { verifyVideoSessionPayment } from "@/features/consultation/server/video-payment";
 import { seoOrigin } from "@/lib/seo/origin";
+import { readGatewayReturn } from "@/payment/gateways";
+import { gatewayReturnOrigin } from "@/payment/server/return-origin";
 
 /**
  * Gateway return for video consultations. Zarinpal sends the patient back with
@@ -10,8 +12,7 @@ import { seoOrigin } from "@/lib/seo/origin";
  */
 async function handle(req: NextRequest, gateway: string, locale: string) {
   const url = new URL(req.url);
-  const authority = url.searchParams.get("Authority") || url.searchParams.get("authority") || "";
-  const status = url.searchParams.get("Status") || url.searchParams.get("status") || "";
+  const { authority, status } = readGatewayReturn(gateway, url.searchParams);
   const safeLocale = locale || "fa";
 
   let result: Awaited<ReturnType<typeof verifyVideoSessionPayment>>;
@@ -26,7 +27,8 @@ async function handle(req: NextRequest, gateway: string, locale: string) {
   const target = result.sessionId
     ? `/${safeLocale}/n/app/mobile/consultation/sessions/${result.sessionId}?payment=${result.outcome}`
     : `/${safeLocale}/n/app/mobile/bookings?payment=failed`;
-  return NextResponse.redirect(new URL(target, seoOrigin()));
+  const origin = gateway === "zibal" ? await gatewayReturnOrigin(gateway) : seoOrigin();
+  return NextResponse.redirect(new URL(target, origin));
 }
 
 export async function GET(req: NextRequest, ctx: { params: Promise<{ locale: string; gateway: string }> }) {

@@ -4,6 +4,8 @@ import { parsePhoneNumberWithError } from "libphonenumber-js";
 
 import sql from "@/config/database/db";
 
+import { isIranianCardGateway, isPaymentGatewayCode } from "../gateways";
+
 import type { PaymentGatewayCode } from "../types";
 
 /**
@@ -106,13 +108,13 @@ export async function resolveUserPaymentRegion(userId: string): Promise<PaymentR
   return "iran";
 }
 
-/** The only gateway code permitted for a region. One rail per region, no overlap. */
-export function gatewayForRegion(region: PaymentRegion): PaymentGatewayCode {
-  return region === "iran" ? "zarinpal" : "btcpay";
-}
-
-export function isGatewayAllowedForRegion(gateway: PaymentGatewayCode, region: PaymentRegion): boolean {
-  return gateway === gatewayForRegion(region);
+/**
+ * The rail a region pays on. Iran: an Iranian card gateway (Zibal or Zarinpal, whichever the
+ * admin ranks first among those enabled and usable on this domain). Everyone else: BTCPay.
+ */
+export function isGatewayAllowedForRegion(gateway: PaymentGatewayCode | string, region: PaymentRegion): boolean {
+  const code = String(gateway).trim().toLowerCase();
+  return region === "iran" ? isIranianCardGateway(code) : code === "btcpay";
 }
 
 /**
@@ -124,9 +126,10 @@ export function filterGatewaysForRegion<T extends { code: PaymentGatewayCode | s
   gateways: T[],
   region: PaymentRegion
 ): T[] {
-  const allowed = gatewayForRegion(region);
-  const regional = gateways.filter((gateway) => String(gateway.code).trim().toLowerCase() === allowed);
-  if (regional.length > 0) return regional;
+  // One gateway per region: the first allowed one in the list's order (sort_order), so an
+  // Iranian customer is offered exactly one card gateway even when Zibal and Zarinpal are both on.
+  const regional = gateways.find((gateway) => isGatewayAllowedForRegion(gateway.code, region));
+  if (regional) return [regional];
   return gateways.length === 1 ? gateways : [];
 }
 
@@ -136,8 +139,8 @@ export function selectEnabledGatewayForRegion(
 ): PaymentGatewayCode {
   const eligible = filterGatewaysForRegion(enabledGateways, region);
   const selected = String(eligible[0]?.code ?? "").trim().toLowerCase();
-  if (selected !== "zarinpal" && selected !== "btcpay") {
+  if (!isPaymentGatewayCode(selected)) {
     throw new Error("No enabled payment gateway is available for this account.");
   }
-  return selected;
+  return selected as PaymentGatewayCode;
 }
