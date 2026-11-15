@@ -836,9 +836,15 @@ export default function LocationPicker({ locale = 'fa-IR' }: Props) {
 
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
+    // A modal sheet closes with Escape, like the close button.
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setShowLocationPicker(false);
+    };
+    document.addEventListener('keydown', onKeyDown);
 
     return () => {
       document.body.style.overflow = previousOverflow;
+      document.removeEventListener('keydown', onKeyDown);
     };
   }, [showLocationPicker]);
 

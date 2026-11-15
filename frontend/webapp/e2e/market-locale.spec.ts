@@ -219,6 +219,9 @@ test.describe("home location picker", () => {
     await expect(page.getByTestId("place-search-option").first()).toContainText("استانبول");
     await search.fill("اسطنبول");
     await expect(page.getByTestId("place-search-option").first()).toContainText("استانبول");
+    // A modal sheet closes with Escape.
+    await page.keyboard.press("Escape");
+    await expect(page.getByRole("dialog")).toHaveCount(0);
     await context.close();
   });
 });
