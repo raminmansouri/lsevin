@@ -125,7 +125,10 @@ describe("entity schema", () => {
     // A related entity with a slug is linked by its slug, not its id.
     expect(JSON.stringify(node.makesOffer)).toContain("https://lsevincare.com/fa/services/laser-s1");
     expect(node.description).toBe("درمان پوست و مو");
-    expect(node.image).toEqual(["https://lsevincare.com/files/a.jpg", "https://cdn.example.com/b.jpg"]);
+    // Photos carry Google's image licence metadata, credited to the business.
+    const images = node.image as Record<string, unknown>[];
+    expect(images.map((image) => image.contentUrl)).toEqual(["https://lsevincare.com/files/a.jpg", "https://cdn.example.com/b.jpg"]);
+    expect(images[0]).toMatchObject({ "@type": "ImageObject", creditText: node.name, creator: { "@type": "Organization", name: node.name } });
     expect(node.geo).toBeUndefined(); // 0,0 is a missing location, not the Gulf of Guinea
     expect(node.employee).toBeUndefined();
     expect(json).not.toMatch(/aggregateRating|ratingValue|price/);

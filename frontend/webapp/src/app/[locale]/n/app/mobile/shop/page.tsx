@@ -87,6 +87,21 @@ export default async function ShopHomePage({ params }: { params: Promise<{ local
           name: t("title"),
           inLanguage: locale,
           isPartOf: { "@id": `${seoOrigin()}/#website` },
+          // The popular products the page lists.
+          ...(feed.items.length
+            ? {
+                mainEntity: {
+                  "@type": "ItemList",
+                  numberOfItems: Math.min(feed.items.length, 20),
+                  itemListElement: feed.items.slice(0, 20).map((item, index) => ({
+                    "@type": "ListItem",
+                    position: index + 1,
+                    url: absoluteUrl(locale, `/products/${encodeURIComponent(item.slug)}`),
+                    name: item.name,
+                  })),
+                },
+              }
+            : {}),
         },
         breadcrumbList([
           { name: brand, url: absoluteUrl(locale) },

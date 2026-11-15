@@ -4,6 +4,7 @@ import { entityPath } from "@/lib/routes/public-paths";
 
 import { absoluteUrl } from "./alternates";
 import { seoOrigin } from "./origin";
+import { publicMediaUrl } from "./media-url";
 import { firstSeoPlainText } from "./plain-text";
 
 /**
@@ -18,14 +19,8 @@ export const organizationId = () => `${seoOrigin()}/#organization`;
 
 const text = (value: unknown, max = 300) => firstSeoPlainText([value], max) || undefined;
 
-const absoluteMedia = (src: string | null | undefined) => {
-  if (!src) return undefined;
-  try {
-    return new URL(src, seoOrigin()).toString();
-  } catch {
-    return undefined;
-  }
-};
+// Stored keys live under /files (src/lib/seo/media-url.ts).
+const absoluteMedia = (src: string | null | undefined) => publicMediaUrl(src);
 
 /** Drops undefined/empty values so the JSON stays minimal and valid. */
 function compact<T extends Node>(node: T): T {
@@ -69,6 +64,31 @@ export const providerUrl = (locale: string, ref: EntityRef) => absoluteUrl(local
 export const serviceUrl = (locale: string, ref: EntityRef) => absoluteUrl(locale, entityPath("service", ref));
 export const specialistUrl = (locale: string, ref: EntityRef) => absoluteUrl(locale, entityPath("specialist", ref));
 
+/**
+ * Images with Google's image licence metadata (contentUrl plus credit): photos
+ * on a provider's pages are supplied by that business, so it is the creator and
+ * the credit line. Without a known owner the plain URL is used.
+ */
+export function imageObjects(sources: (string | null | undefined)[], owner?: string | null, max = 5): (Node | string)[] {
+  const urls = [...new Set(sources.map(absoluteMedia).filter(Boolean) as string[])].slice(0, max);
+  if (!owner) return urls;
+  return urls.map((url) => ({
+    "@type": "ImageObject",
+    contentUrl: url,
+    url,
+    creditText: owner,
+    creator: { "@type": "Organization", name: owner },
+    copyrightNotice: owner,
+  }));
+}
+
+/** A phone number as schema.org wants it: digits with the country code, e.g. +982188888888. */
+export function telephone(value: string | null | undefined): string | undefined {
+  const digits = (value || "").replace(/[^\d+]/g, "");
+  if (digits.replace(/\D/g, "").length < 7) return undefined;
+  return digits.startsWith("+") ? digits : digits.startsWith("00") ? `+${digits.slice(2)}` : digits;
+}
+
 export function breadcrumbList(items: { name: string; url: string }[]): Node {
   return {
     "@type": "BreadcrumbList",
@@ -93,8 +113,10 @@ export interface ProviderSchemaInput {
   image?: string | null;
   images?: string[] | null;
   street?: string | null;
+  /** The city's name in the page language (src/lib/seo/place-names.ts), not its code. */
   city?: string | null;
   country?: string | null;
+  phone?: string | null;
   latitude?: number | null;
   longitude?: number | null;
   languages?: string[] | null;
@@ -110,14 +132,14 @@ export function providerSchema(input: ProviderSchemaInput): Node {
     Number.isFinite(input.latitude) &&
     Number.isFinite(input.longitude) &&
     !(input.latitude === 0 && input.longitude === 0);
-  const images = [input.image, ...(input.images ?? [])].map(absoluteMedia).filter(Boolean) as string[];
   return compact({
     "@type": businessTypeFor(input.providerType, input.name),
     "@id": `${url}#business`,
     name: input.name,
     url,
     description: text(input.description),
-    image: [...new Set(images)].slice(0, 5),
+    image: imageObjects([input.image, ...(input.images ?? [])], input.name),
+    telephone: telephone(input.phone),
     address:
       input.city || input.country || input.street
         ? compact({
@@ -171,7 +193,7 @@ export function serviceSchema(input: ServiceSchemaInput): Node {
     url,
     description: text(input.description),
     category: input.category || undefined,
-    image: absoluteMedia(input.image),
+    image: imageObjects([input.image], input.providerName, 1)[0],
     provider:
       input.providerId && input.providerName
         ? {
@@ -206,7 +228,8 @@ export function personSchema(input: PersonSchemaInput): Node {
     url,
     jobTitle: input.jobTitle || undefined,
     description: text(input.description),
-    image: absoluteMedia(input.image),
+    // A specialist's photo is supplied by the business they work for.
+    image: imageObjects([input.image], input.providers?.[0]?.name, 1)[0],
     knowsAbout: input.specialties?.filter(Boolean),
     worksFor: (input.providers ?? []).map((provider) => ({
       "@type": "LocalBusiness",

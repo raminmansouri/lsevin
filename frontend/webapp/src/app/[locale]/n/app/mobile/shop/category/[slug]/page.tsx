@@ -4,6 +4,10 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { buildPublicMetadata } from "@/lib/seo/metadata";
 import { INDEXABLE_SHOP_LOCALES } from "@/lib/seo/locale-eligibility";
+import { absoluteUrl } from "@/lib/seo/alternates";
+import { breadcrumbList, graph } from "@/lib/seo/entity-schema";
+import { JsonLd } from "@/lib/seo/json-ld";
+import { publicMediaUrl } from "@/lib/seo/media-url";
 import {
   getShopBrandsCached,
   getShopCategoriesCached,
@@ -59,8 +63,43 @@ export default async function ShopCategoryPage({
     ).catch(() => ({ items: [], total: 0, page: 1, pageSize: 24 })),
   ]);
 
+  const t = await getTranslations("Shop");
+  const brand = (await getTranslations({ locale, namespace: "LocaleLayout" }))("title");
+  const categoryUrl = absoluteUrl(locale, `/shop/${encodeURIComponent(slug)}`);
+
   return (
     <div className="min-h-screen bg-neutral-50">
+      <JsonLd
+        data={graph(
+          {
+            "@type": "CollectionPage",
+            "@id": `${categoryUrl}#webpage`,
+            url: categoryUrl,
+            name: category.name,
+            inLanguage: locale,
+            image: publicMediaUrl(category.bannerUrl ? shopImageSrc(category.bannerUrl) : null),
+            ...(feed.items.length
+              ? {
+                  mainEntity: {
+                    "@type": "ItemList",
+                    numberOfItems: feed.items.length,
+                    itemListElement: feed.items.map((item, index) => ({
+                      "@type": "ListItem",
+                      position: index + 1,
+                      url: absoluteUrl(locale, `/products/${encodeURIComponent(item.slug)}`),
+                      name: item.name,
+                    })),
+                  },
+                }
+              : {}),
+          },
+          breadcrumbList([
+            { name: brand, url: absoluteUrl(locale) },
+            { name: t("title"), url: absoluteUrl(locale, "/shop") },
+            { name: category.name, url: categoryUrl },
+          ])
+        )}
+      />
       <ShopHeader back="/shop" />
       <ShopViewTracker categoryId={category.id} surface="category" />
       {category.bannerUrl ? (

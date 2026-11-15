@@ -389,8 +389,13 @@ async function getSpecialistServiceRows(specialistId: string, locale: string): P
       ps.currency,
       ps.value_toman as "valueToman",
       coalesce(nullif(ps.duration_minutes, 0), sd.duration_minutes) as "durationMinutes",
-      coalesce(ps.rating, sp.rating, 0) as rating,
-      coalesce(ps.review_count, sp.review_count, 0) as "reviewCount",
+      -- A rating only with its own reviews (service, else provider, else none).
+      case when coalesce(ps.review_count, 0) > 0 then ps.rating
+           when coalesce(sp.review_count, 0) > 0 then sp.rating
+           else 0 end as rating,
+      case when coalesce(ps.review_count, 0) > 0 then ps.review_count
+           when coalesce(sp.review_count, 0) > 0 then sp.review_count
+           else 0 end as "reviewCount",
       ps.is_popular as "isPopular",
       ps.recovery,
       ps.anesthesia,

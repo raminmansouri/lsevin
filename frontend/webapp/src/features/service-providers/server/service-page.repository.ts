@@ -619,8 +619,15 @@ async function getPrimaryServiceRow(serviceId: string, locale: string) {
       ps.value_toman,
       sp.international_price_multiplier as international_price_multiplier,
       coalesce(nullif(ps.duration_minutes, 0), sd.duration_minutes) as duration_minutes,
-      coalesce(ps.rating, sp.rating, 0) as rating,
-      coalesce(ps.review_count, sp.review_count, 0) as review_count,
+      -- A rating only counts with its own reviews: the service's when it has any,
+      -- else the provider's, else none. Picking each column separately showed a
+      -- seeded "4.6" next to "(0)" reviews.
+      case when coalesce(ps.review_count, 0) > 0 then ps.rating
+           when coalesce(sp.review_count, 0) > 0 then sp.rating
+           else 0 end as rating,
+      case when coalesce(ps.review_count, 0) > 0 then ps.review_count
+           when coalesce(sp.review_count, 0) > 0 then sp.review_count
+           else 0 end as review_count,
       ps.recovery,
       -- The featured image the admin picked for THIS service wins. It used to sit
       -- last, so a service with a hand-picked picture still showed the service

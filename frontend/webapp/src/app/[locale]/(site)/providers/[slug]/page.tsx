@@ -10,6 +10,7 @@ import { JsonLd } from "@/lib/seo/json-ld";
 import { getIndexableLocales } from "@/lib/seo/locale-eligibility";
 import { buildPublicMetadata } from "@/lib/seo/metadata";
 import { publicSegmentsForIds, resolvePublicEntity } from "@/lib/seo/public-slugs";
+import { cityLabel } from "@/lib/seo/place-names";
 import { isFastBuild } from "@/lib/build-mode";
 import { SponsoredPlacementSlot } from "@/features/sponsered-slider/components/sponsored-placement-slot";
 
@@ -51,12 +52,14 @@ export async function generateMetadata({ params }: PageProps) {
     notFound();
   }
 
+  // The city's name in this language, not its stored code ("BANDARABBA").
+  const city = await cityLabel(provider.country, provider.city, locale);
   return buildPublicMetadata({
     locale,
     path: `/providers/${ref.slug ?? id}`,
-    title: provider.city ? `${provider.name} | ${provider.city}` : provider.name,
+    title: city ? `${provider.name} | ${city}` : provider.name,
     descriptions: [provider.about, provider.tagline, provider.description],
-    image: undefined,
+    image: provider.image || provider.images?.[0],
     type: "website",
     eligibleLocales: await getIndexableLocales("provider", id),
   });
@@ -85,6 +88,8 @@ export default async function ProviderDetailPage({ params }: PageProps) {
 
   const { provider, services, specialists } = result.data;
   const brand = (await getTranslations({ locale, namespace: "LocaleLayout" }))("title");
+  const providersLabel = (await getTranslations({ locale, namespace: "Home" }))("trustedPage.title");
+  const city = await cityLabel(provider.country, provider.city, locale);
 
   return (
     <>
@@ -105,8 +110,9 @@ export default async function ProviderDetailPage({ params }: PageProps) {
             image: provider.image,
             images: provider.images,
             street: provider.street,
-            city: provider.city,
+            city,
             country: provider.country,
+            phone: provider.phone,
             latitude: provider.latitude,
             longitude: provider.longitude,
             languages: provider.languages,
@@ -115,6 +121,7 @@ export default async function ProviderDetailPage({ params }: PageProps) {
           }),
           breadcrumbList([
             { name: brand, url: absoluteUrl(locale) },
+            { name: providersLabel, url: absoluteUrl(locale, "/providers") },
             { name: provider.name, url: canonicalUrl },
           ])
         )}
