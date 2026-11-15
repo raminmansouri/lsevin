@@ -5,12 +5,12 @@ import { Plus } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { getAdminExchangeRates } from '@/features/finance/api/server/get-admin-finance';
+import { getAdminExchangeRates, getRateHealth, RATE_STALE_DAYS } from '@/features/finance/api/server/get-admin-finance';
 import { ExchangeRateRowActions } from '@/features/finance/components/admin/exchange-rate-row-actions';
 
 export default async function AdminExchangeRatesPage() {
     const t = await getTranslations("AdminPages");
-    const rates = await getAdminExchangeRates();
+    const [rates, health] = await Promise.all([getAdminExchangeRates(), getRateHealth()]);
 
     return (
         <div className="space-y-6">
@@ -21,6 +21,39 @@ export default async function AdminExchangeRatesPage() {
                 </div>
                 <Button asChild><Link href="/admin/finance/exchange-rates/new"><Plus className="mr-2 h-4 w-4" />{t("newRate")}</Link></Button>
             </div>
+
+            <Card>
+                <CardHeader>
+                    <CardTitle>{t("rateHealth.title")}</CardTitle>
+                    <p className="text-sm text-muted-foreground">{t("rateHealth.description")}</p>
+                </CardHeader>
+                <CardContent className="overflow-x-auto">
+                    <table className="w-full min-w-[600px] text-sm" data-testid="rate-health">
+                        <thead>
+                        <tr className="border-b text-left text-muted-foreground">
+                            <th className="py-3">{t("rateHealth.currency")}</th>
+                            <th>{t("rateHealth.perUsd")}</th>
+                            <th>{t("asOf")}</th>
+                            <th>{t("status")}</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {health.map((row) => (
+                            <tr key={row.code} className="border-b last:border-0">
+                                <td className="py-3 font-semibold">{row.code}</td>
+                                <td className="tabular-nums">{row.unitsPerUsd == null ? '—' : row.unitsPerUsd.toLocaleString(undefined, { maximumFractionDigits: 6 })}</td>
+                                <td>{row.asOf ? new Date(row.asOf).toLocaleDateString() : '—'}</td>
+                                <td>
+                                    {row.status === 'ok' ? <Badge>{t("rateHealth.ok")}</Badge> : null}
+                                    {row.status === 'stale' ? <Badge variant="outline">{t("rateHealth.stale", { days: RATE_STALE_DAYS })}</Badge> : null}
+                                    {row.status === 'missing' ? <Badge variant="destructive">{t("rateHealth.missing")}</Badge> : null}
+                                </td>
+                            </tr>
+                        ))}
+                        </tbody>
+                    </table>
+                </CardContent>
+            </Card>
 
             <Card>
                 <CardHeader><CardTitle>{t("latestAndHistoricalRates")}</CardTitle></CardHeader>

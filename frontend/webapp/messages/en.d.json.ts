@@ -16087,6 +16087,15 @@ declare const messages: {
           }
         }
       }
+    },
+    "rateHealth": {
+      "title": "Rate per US dollar",
+      "description": "Each currency has one rate against USD; every other pair is derived from it. Enter new rates as USD → currency. A currency without one is shown to visitors in USD; direct pairs between two other currencies are no longer used.",
+      "currency": "Currency",
+      "perUsd": "Units per 1 USD",
+      "ok": "In use",
+      "stale": "Older than {days} days",
+      "missing": "No USD rate — shown in USD"
     }
   },
   "MobileNotifications": {
