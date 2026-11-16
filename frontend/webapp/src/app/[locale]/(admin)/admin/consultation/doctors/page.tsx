@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: Props) {
 export default async function AdminConsultationDoctorsPage() {
   // The (admin) layout and middleware gate this URL too; repeated so a routing
   // change alone cannot expose it.
-  await assertAdmin();
+  await assertAdmin("consultation.doctors", "view");
   const t = await getTranslations("Admin");
 
   return (

@@ -1,7 +1,7 @@
 "use server";
 
 import sql from "@/config/database/db";
-import { getAdminContext } from "@/lib/auth/admin-guard";
+import { adminMay, getAdminContext } from "@/lib/auth/admin-guard";
 
 import { revalidateCategoryLanding } from "../../server/revalidate-landing";
 
@@ -20,8 +20,8 @@ export async function setCategoryHomepageDisplayAction(
   // getAdminContext treats SuperAdmin as a superset of Admin, the way the
   // middleware and every other admin action do. Testing for the bare "admin"
   // role rejected super admins, who could open the page but not use the toggle.
-  const { isAdmin } = await getAdminContext();
-  if (!isAdmin) {
+  const adminCtx = await getAdminContext();
+  if (!adminMay(adminCtx, "categories")) {
     return { ok: false, message: "Forbidden." };
   }
 

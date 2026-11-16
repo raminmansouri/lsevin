@@ -317,6 +317,8 @@ export const ADMIN_NAV: AdminNavEntry[] = [
       { titleKey: "formBuilder", href: "/admin/form-builder", icon: ClipboardList },
       { titleKey: "formSubmissions", href: "/admin/form-builder/submissions", icon: FileStack },
       { titleKey: "tableBrowser", href: "/admin", icon: TableProperties },
+      // Roles, permissions and who holds them. Unlimited admins only (see src/lib/admin/access).
+      { titleKey: "accessControl", href: "/admin/access-control", icon: ShieldCheck },
     ],
   },
 ];

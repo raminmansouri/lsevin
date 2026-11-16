@@ -10,6 +10,7 @@ import {
   isProtectedPath,
 } from "@/lib/auth/routes";
 
+import { enforceAdminAccess } from "./src/lib/admin/access/gate";
 import { routing } from "./src/i18n/routing";
 import { getSession } from "./src/lib/auth/session";
 import { UserRole } from "./src/types/common";
@@ -259,6 +260,17 @@ export default async function middleware(request: NextRequest) {
     if (!canAccessAdmin) {
       return NextResponse.redirect(publicAppUrl(request, `${localePrefix}/`));
     }
+
+    // Access management (src/lib/admin/access): limits a managed admin to the areas their roles
+    // grant. Shared with src/middleware.ts — see gate.ts.
+    const blocked = await enforceAdminAccess({
+      request,
+      userId: session!.user.id as string,
+      roles,
+      pathnameWithoutLocale,
+      localePrefix,
+    });
+    if (blocked) return blocked;
   }
 
   return intlResponse || NextResponse.next();

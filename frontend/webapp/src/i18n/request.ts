@@ -73,6 +73,19 @@ async function loadTourMessages(locale: string): Promise<Messages> {
   return merged;
 }
 
+/**
+ * Admin access control (roles, permissions, members) keeps its strings in
+ * messages/admin-access/<locale>.json — namespace AdminAccess — so the screen can evolve
+ * without churning the shared catalogs. A locale without a file falls back to English.
+ */
+async function loadAdminAccessMessages(locale: string): Promise<Messages> {
+  try {
+    return (await import(`../../messages/admin-access/${locale}.json`)).default as Messages;
+  } catch {
+    return {};
+  }
+}
+
 export default getRequestConfig(async ({ requestLocale }) => {
   // Typically corresponds to the `[locale]` segment. Can be undefined for
   // requests outside the [locale] tree (root layout, not-found, some server
@@ -85,7 +98,7 @@ export default getRequestConfig(async ({ requestLocale }) => {
 
   const en = mergeMessages(
     (await import(`../../messages/en.json`)).default as Messages,
-    await loadTourMessages("en"),
+    mergeMessages(await loadTourMessages("en"), await loadAdminAccessMessages("en")),
   );
 
   if (locale === "en") {
@@ -94,7 +107,7 @@ export default getRequestConfig(async ({ requestLocale }) => {
 
   const current = mergeMessages(
     (await import(`../../messages/${locale}.json`)).default as Messages,
-    await loadTourMessages(locale),
+    mergeMessages(await loadTourMessages(locale), await loadAdminAccessMessages(locale)),
   );
 
   return {

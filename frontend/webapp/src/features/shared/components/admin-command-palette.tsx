@@ -18,6 +18,7 @@ import { useRouter } from "@/i18n/navigation";
 import type { AdminTableGroup } from "@/lib/admin/table-groups";
 
 import { ADMIN_NAV, isNavGroup } from "../config/admin-nav";
+import { restrictNav } from "../config/admin-nav-filter";
 
 /**
  * With ~50 destinations, browsing a tree is the wrong interaction — this turns
@@ -26,12 +27,15 @@ import { ADMIN_NAV, isNavGroup } from "../config/admin-nav";
  */
 export function AdminCommandPalette({
   tableGroups = [],
+  allowedHrefs = null,
 }: {
   tableGroups?: AdminTableGroup[];
+  allowedHrefs?: string[] | null;
 }) {
   const [open, setOpen] = React.useState(false);
   const router = useRouter();
   const t = useTranslations("Admin");
+  const navigation = React.useMemo(() => restrictNav(ADMIN_NAV, allowedHrefs), [allowedHrefs]);
 
   React.useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -94,7 +98,7 @@ export function AdminCommandPalette({
           <CommandEmpty>
             {t.has("nav.noResults") ? t("nav.noResults") : "No matches"}
           </CommandEmpty>
-          {ADMIN_NAV.map((entry) =>
+          {navigation.map((entry) =>
             isNavGroup(entry) ? (
               <CommandGroup key={entry.titleKey} heading={label(entry.titleKey)}>
                 {entry.items.map((item) => {

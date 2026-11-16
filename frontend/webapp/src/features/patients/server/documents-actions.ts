@@ -61,7 +61,7 @@ function fieldErrorsFrom(error: ZodError): Record<string, string[]> {
 export async function addClinicalDocumentAction(
   input: AddClinicalDocumentInput
 ): Promise<PatientActionResult<ClinicalDocumentRow & { duplicateOf?: string }>> {
-  const ctx = await assertAdmin();
+  const ctx = await assertAdmin("patients", "manage");
   const t = await getTranslations(PATIENTS_TRANSLATION_KEY);
   let values;
   try {
@@ -93,7 +93,7 @@ export async function addClinicalDocumentAction(
 export async function replaceClinicalDocumentAction(
   input: ReplaceClinicalDocumentInput
 ): Promise<PatientActionResult<ClinicalDocumentRow>> {
-  const ctx = await assertAdmin();
+  const ctx = await assertAdmin("patients", "manage");
   const t = await getTranslations(PATIENTS_TRANSLATION_KEY);
   let values;
   try {
@@ -121,7 +121,7 @@ export async function replaceClinicalDocumentAction(
 export async function archiveClinicalDocumentAction(
   input: ArchiveDocumentsRecordInput
 ): Promise<PatientActionResult<ClinicalDocumentRow>> {
-  const ctx = await assertAdmin();
+  const ctx = await assertAdmin("patients", "manage");
   const t = await getTranslations(PATIENTS_TRANSLATION_KEY);
   const values = ArchiveDocumentsRecordSchema.parse(input);
   const document = await archiveClinicalDocument(values.id);
@@ -139,7 +139,7 @@ export async function archiveClinicalDocumentAction(
 }
 
 export async function addLabOrderAction(input: AddLabOrderInput): Promise<PatientActionResult<LabOrderRow>> {
-  const ctx = await assertAdmin();
+  const ctx = await assertAdmin("patients", "manage");
   const t = await getTranslations(PATIENTS_TRANSLATION_KEY);
   let values;
   try {
@@ -168,7 +168,7 @@ export async function addLabOrderAction(input: AddLabOrderInput): Promise<Patien
 }
 
 export async function archiveLabOrderAction(input: ArchiveDocumentsRecordInput): Promise<PatientActionResult<LabOrderRow>> {
-  const ctx = await assertAdmin();
+  const ctx = await assertAdmin("patients", "manage");
   const t = await getTranslations(PATIENTS_TRANSLATION_KEY);
   const values = ArchiveDocumentsRecordSchema.parse(input);
   const order = await archiveLabOrder(values.id);
@@ -188,7 +188,7 @@ export async function archiveLabOrderAction(input: ArchiveDocumentsRecordInput):
 export async function addDiagnosticReportAction(
   input: AddDiagnosticReportInput
 ): Promise<PatientActionResult<DiagnosticReportRow>> {
-  const ctx = await assertAdmin();
+  const ctx = await assertAdmin("patients", "manage");
   const t = await getTranslations(PATIENTS_TRANSLATION_KEY);
   let values;
   try {
@@ -216,7 +216,7 @@ export async function addDiagnosticReportAction(
 export async function archiveDiagnosticReportAction(
   input: ArchiveDocumentsRecordInput
 ): Promise<PatientActionResult<DiagnosticReportRow>> {
-  const ctx = await assertAdmin();
+  const ctx = await assertAdmin("patients", "manage");
   const t = await getTranslations(PATIENTS_TRANSLATION_KEY);
   const values = ArchiveDocumentsRecordSchema.parse(input);
   const report = await archiveDiagnosticReport(values.id);
@@ -236,7 +236,7 @@ export async function archiveDiagnosticReportAction(
 export async function addClinicalObservationAction(
   input: AddClinicalObservationInput
 ): Promise<PatientActionResult<ClinicalObservationRow>> {
-  const ctx = await assertAdmin();
+  const ctx = await assertAdmin("patients", "manage");
   const t = await getTranslations(PATIENTS_TRANSLATION_KEY);
   let values;
   try {
@@ -264,7 +264,7 @@ export async function addClinicalObservationAction(
 export async function archiveClinicalObservationAction(
   input: ArchiveDocumentsRecordInput
 ): Promise<PatientActionResult<ClinicalObservationRow>> {
-  const ctx = await assertAdmin();
+  const ctx = await assertAdmin("patients", "manage");
   const t = await getTranslations(PATIENTS_TRANSLATION_KEY);
   const values = ArchiveDocumentsRecordSchema.parse(input);
   const observation = await archiveClinicalObservation(values.id);
@@ -282,7 +282,7 @@ export async function archiveClinicalObservationAction(
 }
 
 export async function addImagingStudyAction(input: AddImagingStudyInput): Promise<PatientActionResult<ImagingStudyRow>> {
-  const ctx = await assertAdmin();
+  const ctx = await assertAdmin("patients", "manage");
   const t = await getTranslations(PATIENTS_TRANSLATION_KEY);
   let values;
   try {
@@ -310,7 +310,7 @@ export async function addImagingStudyAction(input: AddImagingStudyInput): Promis
 export async function archiveImagingStudyAction(
   input: ArchiveDocumentsRecordInput
 ): Promise<PatientActionResult<ImagingStudyRow>> {
-  const ctx = await assertAdmin();
+  const ctx = await assertAdmin("patients", "manage");
   const t = await getTranslations(PATIENTS_TRANSLATION_KEY);
   const values = ArchiveDocumentsRecordSchema.parse(input);
   const study = await archiveImagingStudy(values.id);

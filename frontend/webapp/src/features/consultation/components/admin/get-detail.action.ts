@@ -22,7 +22,7 @@ import {
 export async function getConsultationRequestDetailAction(input: {
   id: string;
 }): Promise<ConsultationActionResult<ConsultationRequestDetail>> {
-  await assertAdmin();
+  await assertAdmin("consultation-requests", "view");
   const t = await getTranslations(CONSULTATION_TRANSLATION_KEY);
 
   const id = typeof input?.id === "string" ? input.id.trim() : "";

@@ -36,7 +36,7 @@ export default function AdminPatientLinkRequestsPage({ params }: Props) {
 }
 
 async function SuspenseBoundary() {
-  await assertAdmin();
+  await assertAdmin("patients.link-requests", "view");
 
   const t = await getTranslations(PATIENTS_TRANSLATION_KEY);
   const schemaExists = await patientSchemaExists();

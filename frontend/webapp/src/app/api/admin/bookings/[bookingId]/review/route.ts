@@ -7,7 +7,7 @@ type Context = { params: Promise<{ bookingId: string }> };
 
 export async function POST(request: NextRequest, context: Context) {
   try {
-    const auth = await requireApiAdmin();
+    const auth = await requireApiAdmin("bookings", "manage");
     if (auth instanceof NextResponse) return auth;
 
     const { bookingId } = await context.params;

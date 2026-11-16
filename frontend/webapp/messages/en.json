@@ -5670,6 +5670,7 @@
       "formBuilder": "Form builder",
       "formSubmissions": "Form submissions",
       "tableBrowser": "Table browser",
+      "accessControl": "Access control",
       "searchPlaceholder": "Search",
       "noResults": "No matches",
       "databaseTables": "Database tables",

@@ -62,6 +62,11 @@ frontend/webapp/pwa-*.log
 frontend/webapp/test-results/
 frontend/webapp/.pwa-auth*.json
 !/CLAUDE.md
+# Admin access control: the rules every agent must follow when adding an admin page/menu/action,
+# and the model documentation next to the code.
+!frontend/webapp/AGENTS.md
+!frontend/webapp/CLAUDE.md
+!frontend/webapp/src/lib/admin/access/README.md
 !deployments/docker/DEV.md
 !deployments/DUAL-SITE-ARCHITECTURE.md
 !deployments/symmetricds/README.md

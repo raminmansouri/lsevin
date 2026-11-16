@@ -30,7 +30,7 @@ const ADMIN_PATIENTS_PATH = "/admin/patients";
 export async function reviewAccountLinkRequestAction(
   input: ReviewAccountLinkRequestInput
 ): Promise<PatientActionResult<AccountLinkRequestRow>> {
-  const ctx = await assertAdmin();
+  const ctx = await assertAdmin("patients.link-requests", "manage");
   const t = await getTranslations(PATIENTS_TRANSLATION_KEY);
   if (!ctx.userId) return { ok: false, error: t("errors.notFound") };
   const values = ReviewAccountLinkRequestSchema.parse(input);

@@ -3,25 +3,23 @@
 import { revalidatePath } from "next/cache";
 import { mirrorWalletCredit } from "@/accounting/server/legacy-bridge";
 import db from "@/config/database/db";
-import { getSession } from "@/lib/auth/session";
-import { UserRole } from "@/types/common";
+import { assertAdmin } from "@/lib/auth/admin-guard";
 
 /**
- * Enforce that the caller is an admin and return their user id. Server actions are
- * public POST endpoints and the middleware only gates the admin area by URL, so a
+ * Enforce that the caller may manage wallet payment intents and return their user id. Server
+ * actions are public POST endpoints and the middleware only gates the admin area by URL, so a
  * non-admin could otherwise invoke these money-crediting actions directly (e.g.
  * self-approve their own pending crypto top-up). This is the authorization boundary
  * for wallet approval — do NOT weaken it.
+ *
+ * Unlimited admins pass; a limited admin needs `manage` on `wallet-payment-intents`.
  */
 async function assertAdminUserId(): Promise<string> {
-  const session = await getSession().catch(() => null);
-  const userId = session?.user?.id;
-  const roles = session?.user?.roles;
-  const isAdmin = roles?.includes(UserRole.Admin) || roles?.includes(UserRole.SuperAdmin);
-  if (!userId || !isAdmin) {
+  const ctx = await assertAdmin("wallet-payment-intents", "manage");
+  if (!ctx.userId) {
     throw new Error("Not authorized: admin role required.");
   }
-  return userId;
+  return ctx.userId;
 }
 
 function jsonb(value: unknown) {

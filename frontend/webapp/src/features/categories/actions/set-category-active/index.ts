@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod/v4";
 
-import { getAdminContext } from "@/lib/auth/admin-guard";
+import { adminMay, getAdminContext } from "@/lib/auth/admin-guard";
 
 import { setCategorySubtreeActive } from "../../db/active-status";
 import { revalidateCategoryLanding } from "../../server/revalidate-landing";
@@ -30,8 +30,8 @@ export async function setCategoryActiveAction(input: {
   const parsed = InputSchema.safeParse(input);
   if (!parsed.success) return { ok: false, code: "INVALID", message: "Invalid input." };
 
-  const { isAdmin } = await getAdminContext();
-  if (!isAdmin) return { ok: false, code: "FORBIDDEN", message: "Forbidden." };
+  const adminCtx = await getAdminContext();
+  if (!adminMay(adminCtx, "categories")) return { ok: false, code: "FORBIDDEN", message: "Forbidden." };
 
   try {
     const outcome = await setCategorySubtreeActive(parsed.data.categoryId, parsed.data.isActive);

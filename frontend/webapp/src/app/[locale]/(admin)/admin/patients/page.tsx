@@ -40,7 +40,7 @@ export default function AdminPatientsPage({ params, searchParams }: Props) {
 async function SuspenseBoundary({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
   // The (admin) layout and the middleware both gate this URL, but the guard is
   // repeated here so the page cannot become readable by a routing change alone.
-  await assertAdmin();
+  await assertAdmin("patients", "view");
 
   const t = await getTranslations(PATIENTS_TRANSLATION_KEY);
   const schemaExists = await patientSchemaExists();

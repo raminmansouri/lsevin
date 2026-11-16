@@ -4,7 +4,7 @@ import { revalidateTag } from "next/cache";
 import { z } from "zod/v4";
 
 import { normalizeHost } from "@/lib/http/host";
-import { getAdminContext } from "@/lib/auth/admin-guard";
+import { adminMay, getAdminContext } from "@/lib/auth/admin-guard";
 
 import { parseEnamadInput } from "./enamad";
 import { removeDomainTrustSeal, TRUST_SEALS_TAG, upsertDomainTrustSeal } from "./server/repository";
@@ -20,8 +20,9 @@ const auditUser = (userId?: string) => (userId && z.guid().safeParse(userId).suc
 
 /** Saves (or replaces) the Enamad seal of one domain. Admin only. */
 export async function saveDomainTrustSealAction(input: { host: string; seal: string }): Promise<TrustSealActionResult> {
-  const { isAdmin, userId } = await getAdminContext();
-  if (!isAdmin) return forbidden;
+  const adminCtx = await getAdminContext();
+  const { userId } = adminCtx;
+  if (!adminMay(adminCtx, "enamad")) return forbidden;
 
   const host = normalizeHost(input?.host);
   if (!host) return { ok: false, code: "INVALID", field: "host", message: "Enter a domain like lsevincare.com." };
@@ -50,8 +51,9 @@ export async function saveDomainTrustSealAction(input: { host: string; seal: str
 
 /** Removes the Enamad seal of one domain. Admin only. */
 export async function removeDomainTrustSealAction(input: { host: string }): Promise<TrustSealActionResult> {
-  const { isAdmin, userId } = await getAdminContext();
-  if (!isAdmin) return forbidden;
+  const adminCtx = await getAdminContext();
+  const { userId } = adminCtx;
+  if (!adminMay(adminCtx, "enamad")) return forbidden;
 
   const host = normalizeHost(input?.host);
   if (!host) return { ok: false, code: "INVALID", field: "host", message: "Enter a domain like lsevincare.com." };

@@ -6,7 +6,7 @@ import { requireApiAdmin } from "@/lib/auth/api-guard";
 
 export async function GET(request: NextRequest) {
   try {
-    const auth = await requireApiAdmin();
+    const auth = await requireApiAdmin("shared-lookups", "view");
     if (auth instanceof NextResponse) return auth;
 
     const params = Object.fromEntries(request.nextUrl.searchParams.entries());

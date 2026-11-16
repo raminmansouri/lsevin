@@ -73,7 +73,7 @@ function fieldErrorsFrom(error: ZodError): Record<string, string[]> {
 }
 
 export async function createMedicalCaseAction(input: CreateMedicalCaseInput): Promise<PatientActionResult<MedicalCaseRow>> {
-  const ctx = await assertAdmin();
+  const ctx = await assertAdmin("patients", "manage");
   const t = await getTranslations(PATIENTS_TRANSLATION_KEY);
   let values;
   try {
@@ -101,7 +101,7 @@ export async function createMedicalCaseAction(input: CreateMedicalCaseInput): Pr
 export async function transitionCaseStatusAction(
   input: TransitionCaseStatusInput
 ): Promise<PatientActionResult<MedicalCaseRow>> {
-  const ctx = await assertAdmin();
+  const ctx = await assertAdmin("patients", "manage");
   const t = await getTranslations(PATIENTS_TRANSLATION_KEY);
   let values;
   try {
@@ -149,7 +149,7 @@ export async function transitionCaseStatusAction(
 export async function addClinicalEncounterAction(
   input: AddClinicalEncounterInput
 ): Promise<PatientActionResult<ClinicalEncounterRow>> {
-  const ctx = await assertAdmin();
+  const ctx = await assertAdmin("patients", "manage");
   const t = await getTranslations(PATIENTS_TRANSLATION_KEY);
   let values;
   try {
@@ -177,7 +177,7 @@ export async function addClinicalEncounterAction(
 export async function addCaseRequirementAction(
   input: AddCaseRequirementInput
 ): Promise<PatientActionResult<MedicalCaseRequirementRow>> {
-  const ctx = await assertAdmin();
+  const ctx = await assertAdmin("patients", "manage");
   const t = await getTranslations(PATIENTS_TRANSLATION_KEY);
   let values;
   try {
@@ -205,7 +205,7 @@ export async function addCaseRequirementAction(
 export async function updateCaseRequirementStatusAction(
   input: UpdateCaseRequirementStatusInput
 ): Promise<PatientActionResult<MedicalCaseRequirementRow>> {
-  const ctx = await assertAdmin();
+  const ctx = await assertAdmin("patients", "manage");
   const t = await getTranslations(PATIENTS_TRANSLATION_KEY);
   let values;
   try {
@@ -234,7 +234,7 @@ export async function updateCaseRequirementStatusAction(
 export async function generateCasePackageAction(
   input: GenerateCasePackageInput
 ): Promise<PatientActionResult<MedicalCasePackageRow>> {
-  const ctx = await assertAdmin();
+  const ctx = await assertAdmin("patients", "manage");
   const t = await getTranslations(PATIENTS_TRANSLATION_KEY);
   let values;
   try {
@@ -262,7 +262,7 @@ export async function generateCasePackageAction(
 export async function addProviderSubmissionAction(
   input: AddProviderSubmissionInput
 ): Promise<PatientActionResult<MedicalCaseProviderSubmissionRow>> {
-  const ctx = await assertAdmin();
+  const ctx = await assertAdmin("patients", "manage");
   const t = await getTranslations(PATIENTS_TRANSLATION_KEY);
   let values;
   try {
@@ -290,7 +290,7 @@ export async function addProviderSubmissionAction(
 export async function updateSubmissionResponseAction(
   input: UpdateSubmissionResponseInput
 ): Promise<PatientActionResult<MedicalCaseProviderSubmissionRow>> {
-  const ctx = await assertAdmin();
+  const ctx = await assertAdmin("patients", "manage");
   const t = await getTranslations(PATIENTS_TRANSLATION_KEY);
   let values;
   try {
@@ -318,7 +318,7 @@ export async function updateSubmissionResponseAction(
 export async function addTreatmentProposalAction(
   input: AddTreatmentProposalInput
 ): Promise<PatientActionResult<MedicalCaseTreatmentProposalRow>> {
-  const ctx = await assertAdmin();
+  const ctx = await assertAdmin("patients", "manage");
   const t = await getTranslations(PATIENTS_TRANSLATION_KEY);
   let values;
   try {
@@ -346,7 +346,7 @@ export async function addTreatmentProposalAction(
 export async function addSecondOpinionAction(
   input: AddSecondOpinionInput
 ): Promise<PatientActionResult<MedicalCaseSecondOpinionRow>> {
-  const ctx = await assertAdmin();
+  const ctx = await assertAdmin("patients", "manage");
   const t = await getTranslations(PATIENTS_TRANSLATION_KEY);
   let values;
   try {
@@ -372,7 +372,7 @@ export async function addSecondOpinionAction(
 }
 
 export async function addFollowUpAction(input: AddFollowUpInput): Promise<PatientActionResult<MedicalCaseFollowUpRow>> {
-  const ctx = await assertAdmin();
+  const ctx = await assertAdmin("patients", "manage");
   const t = await getTranslations(PATIENTS_TRANSLATION_KEY);
   let values;
   try {
@@ -398,7 +398,7 @@ export async function addFollowUpAction(input: AddFollowUpInput): Promise<Patien
 }
 
 export async function updateFollowUpStatusAction(input: UpdateFollowUpStatusInput): Promise<PatientActionResult<MedicalCaseFollowUpRow>> {
-  const ctx = await assertAdmin();
+  const ctx = await assertAdmin("patients", "manage");
   const t = await getTranslations(PATIENTS_TRANSLATION_KEY);
   const values = UpdateFollowUpStatusSchema.parse(input);
 

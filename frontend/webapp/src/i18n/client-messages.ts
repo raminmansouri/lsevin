@@ -112,6 +112,8 @@ export const SEGMENT_NAMESPACES = {
     "AdminEditorial",
     // admin → Content → Enamad (per-domain trust seals).
     "AdminEnamad",
+    // admin → Platform → Access control (roles, permission matrix, members).
+    "AdminAccess",
     "ShopAdmin",
     "AdminColumn",
     "AdminGenerated",

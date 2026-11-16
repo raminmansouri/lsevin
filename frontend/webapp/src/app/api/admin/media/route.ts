@@ -69,7 +69,7 @@ export async function DELETE(request: NextRequest) {
     // Destructive: drops media.media_library rows. The stored objects are NOT removed —
     // see deleteMedia in components/media/server/repository.ts for why, and for where the
     // fix belongs.
-    const auth = await requireApiAdmin();
+    const auth = await requireApiAdmin("media", "manage");
     if (auth instanceof NextResponse) return auth;
 
     const body = (await request.json()) as { ids?: string[] };

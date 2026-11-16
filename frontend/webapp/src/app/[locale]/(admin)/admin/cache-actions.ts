@@ -2,22 +2,16 @@
 
 import { revalidatePath, revalidateTag } from "next/cache";
 
-import { getSession } from "@/lib/auth/session";
-import { UserRole } from "@/types/common";
+import { assertAdmin } from "@/lib/auth/admin-guard";
 
 /**
  * Server actions are public POST endpoints — the middleware only gates the admin
- * area by URL, so this is the authorization boundary for the cache purge. Mirrors
- * the wallet-approval guard: SuperAdmin or Admin only. Do NOT weaken it.
+ * area by URL, so this is the authorization boundary for the cache purge. Unlimited
+ * admins only (a purge empties every public cache, so it is not an area anyone is
+ * granted on its own). Do NOT weaken it.
  */
 async function assertPrivilegedAdmin() {
-  const session = await getSession().catch(() => null);
-  const roles = session?.user?.roles;
-  const isPrivileged =
-    roles?.includes(UserRole.SuperAdmin) || roles?.includes(UserRole.Admin);
-  if (!session?.user?.id || !isPrivileged) {
-    throw new Error("Not authorized: admin role required.");
-  }
+  await assertAdmin();
 }
 
 // Tag string formats — must stay identical to @/lib/data-cache (getGlobalTag / getIdTag).

@@ -36,7 +36,7 @@ function fieldErrorsFrom(error: ZodError): Record<string, string[]> {
 }
 
 export async function grantConsentAction(input: GrantConsentInput): Promise<PatientActionResult<PatientConsentRow>> {
-  const ctx = await assertAdmin();
+  const ctx = await assertAdmin("patients", "manage");
   const t = await getTranslations(PATIENTS_TRANSLATION_KEY);
   let values;
   try {
@@ -63,7 +63,7 @@ export async function grantConsentAction(input: GrantConsentInput): Promise<Pati
 }
 
 export async function withdrawConsentAction(input: WithdrawConsentInput): Promise<PatientActionResult<PatientConsentRow>> {
-  const ctx = await assertAdmin();
+  const ctx = await assertAdmin("patients", "manage");
   const t = await getTranslations(PATIENTS_TRANSLATION_KEY);
   const values = WithdrawConsentSchema.parse(input);
   const consent = await withdrawConsent(values.id);
@@ -84,7 +84,7 @@ export async function withdrawConsentAction(input: WithdrawConsentInput): Promis
 export async function createShareGrantAction(
   input: CreateShareGrantInput
 ): Promise<PatientActionResult<ShareGrantWithToken>> {
-  const ctx = await assertAdmin();
+  const ctx = await assertAdmin("patients", "manage");
   const t = await getTranslations(PATIENTS_TRANSLATION_KEY);
   let values;
   try {
@@ -110,7 +110,7 @@ export async function createShareGrantAction(
 }
 
 export async function revokeShareGrantAction(input: RevokeShareGrantInput): Promise<PatientActionResult<ShareGrantRow>> {
-  const ctx = await assertAdmin();
+  const ctx = await assertAdmin("patients", "manage");
   const t = await getTranslations(PATIENTS_TRANSLATION_KEY);
   const values = RevokeShareGrantSchema.parse(input);
   const grant = await revokeShareGrant(values.id);
@@ -132,7 +132,7 @@ export async function revokeShareGrantAction(input: RevokeShareGrantInput): Prom
  * this (0048) via valid_until -- this action is the missing "revoke"
  * surface on top of it (add/link already existed since V0/V1). */
 export async function revokeAccountLinkAction(input: RevokeAccountLinkInput): Promise<PatientActionResult<{ revoked: boolean }>> {
-  const ctx = await assertAdmin();
+  const ctx = await assertAdmin("patients", "manage");
   const t = await getTranslations(PATIENTS_TRANSLATION_KEY);
   const values = RevokeAccountLinkSchema.parse(input);
   const revoked = await unlinkAccountFromPatient(values.accountId, values.patientId);

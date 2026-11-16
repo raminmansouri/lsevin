@@ -568,3 +568,15 @@ For frontend or full-stack user-facing changes:
 - Run applicable Playwright tests before declaring the task ready.
 - Run smoke tests after deployment where deployment access exists.
 - If browser/runtime verification cannot be performed, report it under NOT VERIFIED.
+
+---
+
+## Admin access control (roles & permissions)
+
+Every admin page, menu row, server action and `/api/admin/**` route must be permission-aware.
+The rules live in `frontend/webapp/AGENTS.md` (also `frontend/webapp/CLAUDE.md`) and
+`frontend/webapp/src/lib/admin/access/README.md`. In short: add a sidebar row in
+`admin-nav.ts`, run `pnpm admin-access:manifest`, and guard each action/handler with
+`assertAdmin("<resource>", "<level>")` / `requireApiAdmin("<resource>", "<level>")`. Never decide
+admin access with `roles.includes("admin")`. A change that adds an admin surface without this is
+not complete.

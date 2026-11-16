@@ -89,7 +89,7 @@ async function SuspenseBoundary({
 }) {
   // The (admin) layout and the middleware both gate this URL, but the guard is
   // repeated here so the page cannot become readable by a routing change alone.
-  await assertAdmin();
+  await assertAdmin("gym-memberships", "view");
 
   const { locale } = await params;
   const resolved = await searchParams;

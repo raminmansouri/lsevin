@@ -6,6 +6,8 @@
  *   pnpm test:local-env                       # every suite; reuse the test database if it exists
  *   pnpm test:local-env --reset               # rebuild the test database from the local dev database
  *   pnpm test:local-env --suite categories    # one suite (itinerary | categories | shop-api | domain-settings | site-chrome); repeatable
+ *   pnpm test:local-env --suite admin-access  # roles & permissions for the admin panel (src/lib/admin/access)
+ *   pnpm test:local-env --webpack             # run the dev server with webpack instead of Turbopack
  *   pnpm test:local-env --unit                # unit tests only (no database, no server)
  *   pnpm test:local-env --e2e-only            # skip unit + integration (e.g. after they passed)
  *   pnpm test:itinerary                       # = --suite itinerary
@@ -71,6 +73,15 @@ const SUITES = {
     // Admin and wallet pages need a real signed-in user; the specs create one and retry first compiles.
     warmup: [{ path: '/fa', signedIn: false }, { path: '/en', signedIn: false }],
   },
+  // Admin access control: roles, the permission matrix, limited admins (migration 0110).
+  'admin-access': {
+    unit: ['src/lib/admin/access', 'src/features/shared/config'],
+    integration: ['src/features/access-control/server/repository.int.test.ts'],
+    e2e: 'playwright.admin-access.config.ts',
+    // A public page: it proves the server is up. Admin pages need a real user and compile on first use,
+    // which the spec's navigation retries cover.
+    warmup: [{ path: '/en/sign-in', signedIn: false }],
+  },
   'site-chrome': {
     unit: [],
     integration: [],
@@ -82,13 +93,13 @@ const requested = argv.flatMap((arg, index) => (arg === '--suite' ? [argv[index 
 const suites = requested.length ? requested : Object.keys(SUITES);
 const unknown = suites.filter((name) => !SUITES[name]);
 if (unknown.length) {
-  console.error(`[local-env] unknown suite(s): ${unknown.join(', ')} — expected ${Object.keys(SUITES).join(', ')}`);
+  console.error(`[local-env] unknown suite(s): ${unknown.join(', ')} â€” expected ${Object.keys(SUITES).join(', ')}`);
   process.exit(2);
 }
 const results = [];
 
 function log(message) { console.log(`[local-env] ${message}`); }
-function record(name, ok, detail = '') { results.push({ name, ok, detail }); log(`${ok ? 'PASS' : 'FAIL'} ${name}${detail ? ` — ${detail}` : ''}`); }
+function record(name, ok, detail = '') { results.push({ name, ok, detail }); log(`${ok ? 'PASS' : 'FAIL'} ${name}${detail ? ` â€” ${detail}` : ''}`); }
 
 function readEnvLocal(key) {
   const file = path.join(APP, '.env.local');
@@ -238,7 +249,8 @@ async function main() {
   if (args.has('--unit')) return;
 
   prepareDatabase();
-  seedTestDomains();
+  // Only the suites that run on site-a/site-b.localhost need the seals (and migration 0107).
+  if (suites.some((name) => name === 'domain-settings' || name === 'site-chrome')) seedTestDomains();
   const databaseUrl = testDatabaseUrl();
   const secret = process.env.AUTH_SECRET || readEnvLocal('AUTH_SECRET');
   if (!secret) throw new Error('AUTH_SECRET not found (environment or .env.local)');
@@ -261,7 +273,7 @@ async function main() {
   const devLog = fs.openSync(devLogPath, 'w');
   log(`dev server output: ${devLogPath}`);
   log(`starting Next dev server on ${base} (API stub ${stubUrl}; first compile can take several minutes)`);
-  const server = spawn(process.execPath, [path.join(APP, 'node_modules/next/dist/bin/next'), 'dev', '--turbopack', '-p', String(appPort)], {
+  const server = spawn(process.execPath, [path.join(APP, 'node_modules/next/dist/bin/next'), 'dev', ...(args.has('--webpack') ? ['--webpack'] : ['--turbopack']), '-p', String(appPort)], {
     cwd: APP,
     env: {
       ...process.env,

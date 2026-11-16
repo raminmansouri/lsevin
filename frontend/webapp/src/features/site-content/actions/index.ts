@@ -4,7 +4,7 @@ import { revalidateTag } from "next/cache";
 import { z } from "zod/v4";
 
 import sql from "@/config/database/db";
-import { getAdminContext } from "@/lib/auth/admin-guard";
+import { adminMay, getAdminContext } from "@/lib/auth/admin-guard";
 
 import { SITE_CONTENT_TAG } from "../server/repository";
 import type { FaqScope } from "../types";
@@ -49,8 +49,9 @@ const revalidateSiteContent = () => revalidateTag(SITE_CONTENT_TAG);
 
 /** Creates or updates one essential page (keyed by slug). Admin only. */
 export async function saveSitePageAction(input: SitePageFormInput): Promise<EditorialActionResult<{ id: string }>> {
-  const { isAdmin, userId } = await getAdminContext();
-  if (!isAdmin) return forbidden;
+  const adminCtx = await getAdminContext();
+  const { userId } = adminCtx;
+  if (!adminMay(adminCtx, "editorial")) return forbidden;
 
   const parsed = SitePageFormSchema.safeParse(input);
   if (!parsed.success) return invalid(parsed.error);
@@ -110,8 +111,9 @@ async function entityExists(scope: FaqScope, entityId: string) {
 
 /** Creates (no id) or updates one FAQ item. Admin only. */
 export async function saveFaqAction(input: FaqFormInput): Promise<EditorialActionResult<{ id: string }>> {
-  const { isAdmin, userId } = await getAdminContext();
-  if (!isAdmin) return forbidden;
+  const adminCtx = await getAdminContext();
+  const { userId } = adminCtx;
+  if (!adminMay(adminCtx, "editorial")) return forbidden;
 
   const parsed = FaqFormSchema.safeParse(input);
   if (!parsed.success) return invalid(parsed.error);
@@ -162,8 +164,8 @@ export async function saveFaqAction(input: FaqFormInput): Promise<EditorialActio
 const IdSchema = z.object({ id: z.guid() });
 
 export async function deleteFaqAction(input: { id: string }): Promise<EditorialActionResult> {
-  const { isAdmin } = await getAdminContext();
-  if (!isAdmin) return forbidden;
+  const adminCtx = await getAdminContext();
+  if (!adminMay(adminCtx, "editorial")) return forbidden;
 
   const parsed = IdSchema.safeParse(input);
   if (!parsed.success) return invalid(parsed.error);

@@ -6,7 +6,7 @@ import { requireApiAdmin } from '@/lib/auth/api-guard';
 type Context = { params: Promise<{ bookingId: string }> };
 
 export async function GET(request: NextRequest, context: Context) {
-  const auth = await requireApiAdmin();
+  const auth = await requireApiAdmin("bookings", "view");
   if (auth instanceof NextResponse) return auth;
 
   const { bookingId } = await context.params;

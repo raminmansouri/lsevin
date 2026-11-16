@@ -124,7 +124,7 @@ export async function getMyMembershipsAction(): Promise<GymMembershipActionResul
 export async function upsertMembershipPlanAction(
   input: UpsertMembershipPlanInput
 ): Promise<GymMembershipActionResult<{ id: string }>> {
-  await assertAdmin();
+  await assertAdmin("gym-memberships", "manage");
   const t = await getTranslations(GYM_MEMBERSHIPS_TRANSLATION_KEY);
 
   let values;
@@ -157,7 +157,7 @@ export async function upsertMembershipPlanAction(
 export async function reviewMembershipMonthAction(
   input: ReviewMembershipMonthInput
 ): Promise<GymMembershipActionResult> {
-  const ctx = await assertAdmin();
+  const ctx = await assertAdmin("gym-memberships", "manage");
   const t = await getTranslations(GYM_MEMBERSHIPS_TRANSLATION_KEY);
 
   let values;

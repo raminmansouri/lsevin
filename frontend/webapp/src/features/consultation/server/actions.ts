@@ -48,7 +48,7 @@ const ADMIN_PATH = "/admin/consultation-requests";
 /**
  * Every export of a `"use server"` module is a public POST endpoint reachable by
  * action id from any page, so each one re-establishes who the caller is. The
- * admin ones use assertAdmin() — `createAuthenticatedSafeAction`'s `adminRequired`
+ * admin ones use assertAdmin("consultation-requests", "manage") — `createAuthenticatedSafeAction`'s `adminRequired`
  * flag does not actually check roles (getSession ignores the parameter), so it is
  * not a substitute here.
  */
@@ -155,7 +155,7 @@ export async function submitConsultationRequest(
 
 /** Customer-facing, ownership-checked lookup for the مشاوره conversation page
  * -- deliberately not the admin getConsultationRequestDetailAction (which
- * only checks assertAdmin(), not "is this the requester's own record"). */
+ * only checks assertAdmin("consultation-requests", "manage"), not "is this the requester's own record"). */
 export async function getMyConsultationRequestAction(
   id: string
 ): Promise<ConsultationActionResult<ConsultationRequest>> {
@@ -183,7 +183,7 @@ export async function getMyConsultationRequestAction(
 export async function updateConsultationRequestAction(
   input: UpdateConsultationRequestInput
 ): Promise<ConsultationActionResult> {
-  const ctx = await assertAdmin();
+  const ctx = await assertAdmin("consultation-requests", "manage");
   const t = await getTranslations(CONSULTATION_TRANSLATION_KEY);
 
   let values;
@@ -216,7 +216,7 @@ export async function updateConsultationRequestAction(
 export async function upsertConsultationRecipientAction(
   input: UpsertConsultationRecipientInput
 ): Promise<ConsultationActionResult<ConsultationRecipient>> {
-  await assertAdmin();
+  await assertAdmin("consultation-requests", "manage");
   const t = await getTranslations(CONSULTATION_TRANSLATION_KEY);
 
   let values;
@@ -259,7 +259,7 @@ export async function upsertConsultationRecipientAction(
 export async function deleteConsultationRecipientAction(
   input: { id: string }
 ): Promise<ConsultationActionResult> {
-  await assertAdmin();
+  await assertAdmin("consultation-requests", "manage");
   const t = await getTranslations(CONSULTATION_TRANSLATION_KEY);
 
   let values;
@@ -282,7 +282,7 @@ export async function deleteConsultationRecipientAction(
 export async function saveConsultationSmsSettingsAction(
   input: SaveConsultationSmsSettingsInput
 ): Promise<ConsultationActionResult> {
-  const ctx = await assertAdmin();
+  const ctx = await assertAdmin("consultation-requests", "manage");
   const t = await getTranslations(CONSULTATION_TRANSLATION_KEY);
 
   let values;
@@ -314,7 +314,7 @@ export async function saveConsultationSmsSettingsAction(
 export async function saveVideoConsultationSettingsAction(
   input: SaveVideoConsultationSettingsInput
 ): Promise<ConsultationActionResult> {
-  const ctx = await assertAdmin();
+  const ctx = await assertAdmin("consultation-requests", "manage");
   const t = await getTranslations(CONSULTATION_TRANSLATION_KEY);
 
   const parsed = SaveVideoConsultationSettingsSchema.safeParse(input);

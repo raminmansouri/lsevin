@@ -34,7 +34,7 @@ const ADMIN_PATIENTS_PATH = "/admin/patients";
 const NOT_CONFIGURED_KEY = "admin.ai.errors.notConfigured";
 
 export async function classifyDocumentAction(input: ClassifyDocumentInput): Promise<PatientActionResult<DocumentClassificationRow>> {
-  await assertAdmin();
+  await assertAdmin("patients", "manage");
   const t = await getTranslations(PATIENTS_TRANSLATION_KEY);
   const values = ClassifyDocumentSchema.parse(input);
 
@@ -46,7 +46,7 @@ export async function classifyDocumentAction(input: ClassifyDocumentInput): Prom
 }
 
 export async function runExtractionAction(input: RunExtractionInput): Promise<PatientActionResult<AiExtractionCandidateRow[]>> {
-  const ctx = await assertAdmin();
+  const ctx = await assertAdmin("patients", "manage");
   const t = await getTranslations(PATIENTS_TRANSLATION_KEY);
   const values = RunExtractionSchema.parse(input);
 
@@ -68,7 +68,7 @@ export async function runExtractionAction(input: RunExtractionInput): Promise<Pa
 export async function reviewExtractionCandidateAction(
   input: ReviewExtractionCandidateInput
 ): Promise<PatientActionResult<AiExtractionCandidateRow>> {
-  const ctx = await assertAdmin();
+  const ctx = await assertAdmin("patients", "manage");
   const t = await getTranslations(PATIENTS_TRANSLATION_KEY);
   let values;
   try {
@@ -94,7 +94,7 @@ export async function reviewExtractionCandidateAction(
 }
 
 export async function generateSummaryAction(input: GenerateSummaryInput): Promise<PatientActionResult<AiSummaryRow>> {
-  const ctx = await assertAdmin();
+  const ctx = await assertAdmin("patients", "manage");
   const t = await getTranslations(PATIENTS_TRANSLATION_KEY);
   const values = GenerateSummarySchema.parse(input);
 
@@ -114,7 +114,7 @@ export async function generateSummaryAction(input: GenerateSummaryInput): Promis
 }
 
 export async function requestAiTranslationAction(input: RequestAiTranslationInput): Promise<PatientActionResult<{ translationId: string }>> {
-  const ctx = await assertAdmin();
+  const ctx = await assertAdmin("patients", "manage");
   const t = await getTranslations(PATIENTS_TRANSLATION_KEY);
   const values = RequestAiTranslationSchema.parse(input);
 

@@ -15,6 +15,7 @@ import { blocksToLexical, textToLexical } from "../lib/lexical";
 const admin = vi.hoisted(() => ({ isAdmin: true, userId: "9b2a3c1d-1111-b222-2333-444455556666" as string | undefined }));
 vi.mock("@/lib/auth/admin-guard", () => ({
   getAdminContext: vi.fn(async () => ({ isAdmin: admin.isAdmin, userId: admin.userId })),
+  adminMay: (ctx: { isAdmin: boolean }) => ctx.isAdmin,
 }));
 vi.mock("next/cache", () => ({ revalidateTag: vi.fn(), revalidatePath: vi.fn(), unstable_cache: (fn: unknown) => fn }));
 

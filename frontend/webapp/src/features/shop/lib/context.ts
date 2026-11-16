@@ -5,6 +5,7 @@ import { cookies, headers } from "next/headers";
 
 import sql from "@/config/database/db";
 import { getSession } from "@/lib/auth/session";
+import { canArea } from "@/lib/admin/access/policy";
 import { getAdminContext } from "@/lib/auth/admin-guard";
 
 /**
@@ -262,7 +263,9 @@ export async function setSelectedCurrencyCookie(code: string, locale: string): P
 /** Authorization boundary for Shop admin server actions (SHP-ADM-017). */
 export async function assertShopAdmin(): Promise<{ userId?: string; roles: string[] }> {
   const ctx = await getAdminContext();
-  if (!ctx.isAdmin) {
+  // A limited admin passes the *gate* if they hold some Shop area; each action then checks the
+  // specific permission it needs (assertShopPermission), which maps to shop.* resources.
+  if (!ctx.isAdmin && !canArea(ctx.access, "shop", "view")) {
     throw new Error("Forbidden: Shop administration requires an admin role.");
   }
   return { userId: ctx.userId, roles: ctx.roles };

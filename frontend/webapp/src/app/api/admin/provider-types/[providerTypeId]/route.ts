@@ -9,7 +9,7 @@ export async function GET(
   { params }: { params: Promise<{ providerTypeId: string }> }
 ) {
   try {
-    const auth = await requireApiAdmin();
+    const auth = await requireApiAdmin("provider-types", "view");
     if (auth instanceof NextResponse) return auth;
 
     const { providerTypeId } = await params;

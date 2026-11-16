@@ -235,7 +235,7 @@ export async function getVideoDoctorsPageAction(filter?: {
 export async function listAdminVideoDoctorsAction(): Promise<
   ConsultationActionResult<AdminVideoDoctor[] | null>
 > {
-  await assertAdmin();
+  await assertAdmin("consultation-requests", "manage");
   const t = await getTranslations(CONSULTATION_TRANSLATION_KEY);
   try {
     if (!(await videoDoctorsTableExists())) return { ok: true, data: null };
@@ -249,7 +249,7 @@ export async function listAdminVideoDoctorsAction(): Promise<
 export async function saveVideoDoctorAction(
   input: SaveVideoDoctorInput
 ): Promise<ConsultationActionResult<{ id: string; accountCreated: boolean }>> {
-  const ctx = await assertAdmin();
+  const ctx = await assertAdmin("consultation-requests", "manage");
   const t = await getTranslations(CONSULTATION_TRANSLATION_KEY);
   const parsed = VideoDoctorSchema.safeParse(input);
   if (!parsed.success) {
@@ -372,7 +372,7 @@ type Mutation =
 export async function mutateVideoDoctorAction(
   input: Mutation
 ): Promise<ConsultationActionResult<void>> {
-  await assertAdmin();
+  await assertAdmin("consultation-requests", "manage");
   const t = await getTranslations(CONSULTATION_TRANSLATION_KEY);
   const id = z.uuid().safeParse(input?.id);
   if (!id.success) return { ok: false, error: t("errors.invalidForm") };

@@ -68,7 +68,7 @@ async function requirePatient(patientId: string, t: Awaited<ReturnType<typeof ge
 export async function addPatientConditionAction(
   input: AddPatientConditionInput
 ): Promise<PatientActionResult<PatientConditionRow>> {
-  const ctx = await assertAdmin();
+  const ctx = await assertAdmin("patients", "manage");
   const t = await getTranslations(PATIENTS_TRANSLATION_KEY);
   let values;
   try {
@@ -94,7 +94,7 @@ export async function addPatientConditionAction(
 }
 
 export async function archivePatientConditionAction(input: ArchiveClinicalRecordInput): Promise<PatientActionResult<PatientConditionRow>> {
-  const ctx = await assertAdmin();
+  const ctx = await assertAdmin("patients", "manage");
   const t = await getTranslations(PATIENTS_TRANSLATION_KEY);
   const values = ArchiveClinicalRecordSchema.parse(input);
   const condition = await archivePatientCondition(values.id);
@@ -114,7 +114,7 @@ export async function archivePatientConditionAction(input: ArchiveClinicalRecord
 export async function addPatientProcedureAction(
   input: AddPatientProcedureInput
 ): Promise<PatientActionResult<PatientProcedureRow>> {
-  const ctx = await assertAdmin();
+  const ctx = await assertAdmin("patients", "manage");
   const t = await getTranslations(PATIENTS_TRANSLATION_KEY);
   let values;
   try {
@@ -140,7 +140,7 @@ export async function addPatientProcedureAction(
 }
 
 export async function archivePatientProcedureAction(input: ArchiveClinicalRecordInput): Promise<PatientActionResult<PatientProcedureRow>> {
-  const ctx = await assertAdmin();
+  const ctx = await assertAdmin("patients", "manage");
   const t = await getTranslations(PATIENTS_TRANSLATION_KEY);
   const values = ArchiveClinicalRecordSchema.parse(input);
   const procedure = await archivePatientProcedure(values.id);
@@ -158,7 +158,7 @@ export async function archivePatientProcedureAction(input: ArchiveClinicalRecord
 }
 
 export async function addPatientAllergyAction(input: AddPatientAllergyInput): Promise<PatientActionResult<PatientAllergyRow>> {
-  const ctx = await assertAdmin();
+  const ctx = await assertAdmin("patients", "manage");
   const t = await getTranslations(PATIENTS_TRANSLATION_KEY);
   let values;
   try {
@@ -184,7 +184,7 @@ export async function addPatientAllergyAction(input: AddPatientAllergyInput): Pr
 }
 
 export async function archivePatientAllergyAction(input: ArchiveClinicalRecordInput): Promise<PatientActionResult<PatientAllergyRow>> {
-  const ctx = await assertAdmin();
+  const ctx = await assertAdmin("patients", "manage");
   const t = await getTranslations(PATIENTS_TRANSLATION_KEY);
   const values = ArchiveClinicalRecordSchema.parse(input);
   const allergy = await archivePatientAllergy(values.id);
@@ -204,7 +204,7 @@ export async function archivePatientAllergyAction(input: ArchiveClinicalRecordIn
 export async function addPatientMedicationAction(
   input: AddPatientMedicationInput
 ): Promise<PatientActionResult<PatientMedicationRow>> {
-  const ctx = await assertAdmin();
+  const ctx = await assertAdmin("patients", "manage");
   const t = await getTranslations(PATIENTS_TRANSLATION_KEY);
   let values;
   try {
@@ -232,7 +232,7 @@ export async function addPatientMedicationAction(
 export async function archivePatientMedicationAction(
   input: ArchiveClinicalRecordInput
 ): Promise<PatientActionResult<PatientMedicationRow>> {
-  const ctx = await assertAdmin();
+  const ctx = await assertAdmin("patients", "manage");
   const t = await getTranslations(PATIENTS_TRANSLATION_KEY);
   const values = ArchiveClinicalRecordSchema.parse(input);
   const medication = await archivePatientMedication(values.id);
@@ -252,7 +252,7 @@ export async function archivePatientMedicationAction(
 export async function addPatientProductUsageAction(
   input: AddPatientProductUsageInput
 ): Promise<PatientActionResult<PatientProductUsageRow>> {
-  const ctx = await assertAdmin();
+  const ctx = await assertAdmin("patients", "manage");
   const t = await getTranslations(PATIENTS_TRANSLATION_KEY);
   let values;
   try {
@@ -280,7 +280,7 @@ export async function addPatientProductUsageAction(
 export async function archivePatientProductUsageAction(
   input: ArchiveClinicalRecordInput
 ): Promise<PatientActionResult<PatientProductUsageRow>> {
-  const ctx = await assertAdmin();
+  const ctx = await assertAdmin("patients", "manage");
   const t = await getTranslations(PATIENTS_TRANSLATION_KEY);
   const values = ArchiveClinicalRecordSchema.parse(input);
   const usage = await archivePatientProductUsage(values.id);
@@ -298,7 +298,7 @@ export async function archivePatientProductUsageAction(
 }
 
 export async function addPatientSymptomAction(input: AddPatientSymptomInput): Promise<PatientActionResult<PatientSymptomRow>> {
-  const ctx = await assertAdmin();
+  const ctx = await assertAdmin("patients", "manage");
   const t = await getTranslations(PATIENTS_TRANSLATION_KEY);
   let values;
   try {
@@ -324,7 +324,7 @@ export async function addPatientSymptomAction(input: AddPatientSymptomInput): Pr
 }
 
 export async function archivePatientSymptomAction(input: ArchiveClinicalRecordInput): Promise<PatientActionResult<PatientSymptomRow>> {
-  const ctx = await assertAdmin();
+  const ctx = await assertAdmin("patients", "manage");
   const t = await getTranslations(PATIENTS_TRANSLATION_KEY);
   const values = ArchiveClinicalRecordSchema.parse(input);
   const symptom = await archivePatientSymptom(values.id);

@@ -49,7 +49,7 @@ function getAdminDependentRelationConfigFromKey(key: string) {
 }
 
 export async function GET(req: NextRequest) {
-  const auth = await requireApiAdmin();
+  const auth = await requireApiAdmin() /* unlimited admins only: serves arbitrary tables or personal data */;
   if (auth instanceof NextResponse) return auth;
 
   const key = req.nextUrl.searchParams.get("key");

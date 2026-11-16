@@ -22,6 +22,7 @@ import {
   type AdminNavEntry,
   isNavGroup,
 } from "../config/admin-nav";
+import { restrictNav } from "../config/admin-nav-filter";
 import type { AdminTableGroup } from "@/lib/admin/table-groups";
 
 import {
@@ -32,11 +33,17 @@ import {
 
 export function AdminSidebar({
   tableGroups = [],
+  allowedHrefs = null,
   ...props
-}: React.ComponentProps<typeof Sidebar> & { tableGroups?: AdminTableGroup[] }) {
+}: React.ComponentProps<typeof Sidebar> & {
+  tableGroups?: AdminTableGroup[];
+  /** Hrefs the signed-in admin may open; `null` = the whole tree. */
+  allowedHrefs?: string[] | null;
+}) {
   const pathname = usePathname();
   const t = useTranslations("Admin");
   const [query, setQuery] = React.useState("");
+  const navigation = React.useMemo(() => restrictNav(ADMIN_NAV, allowedHrefs), [allowedHrefs]);
 
   // Resolved once for the whole tree so exactly one row can win. Computing it
   // per-item is what previously highlighted two or three rows at a time.
@@ -59,18 +66,18 @@ export function AdminSidebar({
   // if any child matches, and a surviving group keeps only its matching children.
   const entries = React.useMemo<AdminNavEntry[]>(() => {
     const needle = query.trim().toLocaleLowerCase();
-    if (!needle) return ADMIN_NAV;
+    if (!needle) return navigation;
 
     const matches = (key: string) =>
       label(key).toLocaleLowerCase().includes(needle);
 
-    return ADMIN_NAV.flatMap<AdminNavEntry>((entry) => {
+    return navigation.flatMap<AdminNavEntry>((entry) => {
       if (!isNavGroup(entry)) return matches(entry.titleKey) ? [entry] : [];
       if (matches(entry.titleKey)) return [entry];
       const items = entry.items.filter((item) => matches(item.titleKey));
       return items.length ? [{ ...entry, items }] : [];
     });
-  }, [query, label]);
+  }, [query, label, navigation]);
 
   // Tables match on their Persian label AND on the raw `schema.table`, so an
   // admin who knows the database can type "provider_services" and land on it.
