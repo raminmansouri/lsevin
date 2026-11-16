@@ -46,7 +46,8 @@ declare const messages: {
       "suggestions": {
         "hair": "Saç ekimi",
         "dental": "Diş tedavisi",
-        "nose": "Burun estetiği"
+        "nose": "Burun estetiği",
+        "bmi": "Calculate my BMI"
       }
     },
     "card": {
@@ -3014,7 +3015,7 @@ declare const messages: {
     }
   },
   "Footer": {
-    "tagline": "İran'ı ziyaret edenler için tıbbi, güzellik, konaklama ve fitness hizmetleri.",
+    "tagline": "Uluslararası gezginler için tıbbi, güzellik, konaklama ve fitness hizmetleri.",
     "cta": "Yakınınızdaki yerleri bulun",
     "enamadAlt": "Enamad elektronik güven mührü",
     "copyright": "© {year} Lsevin. Tüm hakları saklıdır.",
@@ -6159,7 +6160,19 @@ declare const messages: {
     "onSale": "İndirimde",
     "rating4plus": "4★ ve üzeri",
     "allBrands": "Tüm markalar",
-    "filters": "Filtreler",
+    "filters": {
+      "search": "Search products…",
+      "sortPopularity": "Popularity",
+      "sortNewest": "Newest",
+      "sortPriceAsc": "Price: low to high",
+      "sortPriceDesc": "Price: high to low",
+      "sortRating": "Rating",
+      "anyRating": "Any rating",
+      "minPrice": "Min price",
+      "maxPrice": "Max price",
+      "inStockOnly": "In stock only",
+      "apply": "Apply filters"
+    },
     "priceRange": "Fiyat aralığı",
     "minPrice": "Min",
     "maxPrice": "Maks",
@@ -15195,6 +15208,10 @@ declare const messages: {
       "VALIDATION_ERROR": "Bazı bilgiler geçerli değil.",
       "generic": "Kaydedilemedi. Lütfen tekrar deneyin."
     }
+  },
+  "LocationAccess": {
+    "denied": "Location access is blocked. Tap the lock icon next to the site address, set Location to Allow, and try again.",
+    "unavailable": "We couldn't find your location. Check your connection or GPS and try again."
   }
 };
 export default messages;
