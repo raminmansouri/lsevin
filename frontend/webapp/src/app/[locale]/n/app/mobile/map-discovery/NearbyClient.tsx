@@ -34,6 +34,9 @@ import {
   LocateFixed,
 } from "lucide-react";
 
+import { toast } from "sonner";
+import { rememberUserLocation } from "@/features/shared/types/coordinates";
+
 import NearbyMap from "./NearbyMap";
 import { SpecialtyMultiSelect } from "./SpecialtyMultiSelect";
 import { resolveMapProvider } from "@/components/map/map-provider";
@@ -283,6 +286,7 @@ export default function NearbyClient({
   const nearbyQuery = (next: NearbyFiltersInput, view: "map" | "list" = "map") =>
     buildNearbyQuery(next, view, slugs);
   const t = useTranslations("MapDiscovery");
+  const tLocation = useTranslations("LocationAccess");
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [viewMode, setViewMode] = useState<"map" | "list">(initialView);
@@ -637,6 +641,7 @@ export default function NearbyClient({
   const requestCurrentLocation = () => {
     if (typeof navigator === "undefined" || !navigator.geolocation) {
       logGeo("nearby.gps.unsupported", {});
+      toast.error(tLocation("unavailable"));
       return;
     }
     setIsLocating(true);
@@ -651,6 +656,7 @@ export default function NearbyClient({
           lng,
           accuracyM: Math.round(position.coords.accuracy),
         });
+        rememberUserLocation({ latitude: lat, longitude: lng });
         // A real GPS fix supersedes any coarse IP center and drives distance sort.
         setUserLocation({ lat, lng });
         setCenter({ lat, lng, zoom: 14 });
@@ -682,6 +688,7 @@ export default function NearbyClient({
         // Permission denied / unavailable / timeout: keep the current view rather
         // than snapping the user to a wrong fallback point.
         logGeo("nearby.gps.error", { code: error.code, message: error.message });
+        toast.error(error.code === error.PERMISSION_DENIED ? tLocation("denied") : tLocation("unavailable"));
       },
       GEO_OPTIONS,
     );

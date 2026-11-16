@@ -1,5 +1,7 @@
 import { createMcpHandler } from "mcp-handler";
 
+import { CALCULATE_BMI_DESCRIPTION, calculateBmi, calculateBmiInputSchema } from "@/features/assistant/tools/calculate-bmi";
+
 import { localeToHeader } from "@/config/locales";
 import {
   SEARCH_SERVICES_DESCRIPTION,
@@ -311,6 +313,30 @@ async function handler(req: Request): Promise<Response> {
           }
         }
       );
+
+      server.registerTool(
+        "calculate_bmi",
+        {
+          title: "Calculate BMI",
+          description: CALCULATE_BMI_DESCRIPTION,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          inputSchema: calculateBmiInputSchema as any,
+        },
+        async (args: unknown) => {
+          try {
+            const input = calculateBmiInputSchema.parse(args);
+            return { content: [{ type: "text" as const, text: JSON.stringify(calculateBmi(input)) }] };
+          } catch (error) {
+            console.error("[mcp] calculate_bmi failed", error);
+            return {
+              isError: true,
+              content: [{ type: "text" as const, text: "The BMI could not be calculated from these values." }],
+            };
+          }
+        }
+      );
+
+      
     },
     { serverInfo: { name: "lsevin-assistant", version: "0.3.0" } }
   );

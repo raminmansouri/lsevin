@@ -4,6 +4,9 @@ import { BadgeCheck, LocateFixed, MapPin, Search, Star } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 
+import { toast } from "sonner";
+import { rememberUserLocation } from "@/features/shared/types/coordinates";
+
 import { FavoriteButton } from "@/features/favorites/components/favorite-button";
 import { Link, useRouter } from "@/i18n/navigation";
 import { slugLookup, type ListingSlugs } from "@/lib/routes/filter-paths";
@@ -52,6 +55,7 @@ export function DesktopNearbyView({ locale, categories, providers, filters, mapC
     [categories, filters.providerTypeId, providerTypeSlug],
   );
   const t = useTranslations(NAMESPACE);
+    const tLocation = useTranslations("LocationAccess");
   const tExplore = useTranslations("Explore");
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -81,18 +85,25 @@ export function DesktopNearbyView({ locale, categories, providers, filters, mapC
   };
 
   const locateMe = () => {
-    if (!navigator.geolocation) return;
+    if (!navigator.geolocation) {
+      toast.error(tLocation("unavailable"));
+      return;
+    }
     setIsLocating(true);
     navigator.geolocation.getCurrentPosition(
       (position) => {
         setIsLocating(false);
         const lat = position.coords.latitude;
         const lng = position.coords.longitude;
+        rememberUserLocation({ latitude: lat, longitude: lng });
         setUserLocation({ lat, lng });
         setCenter({ lat, lng, zoom: 14 });
         apply({ lat, lng });
       },
-      () => setIsLocating(false),
+      (error) => {
+        setIsLocating(false);
+        toast.error(error.code === error.PERMISSION_DENIED ? tLocation("denied") : tLocation("unavailable"));
+      },
       GEO_OPTIONS
     );
   };
