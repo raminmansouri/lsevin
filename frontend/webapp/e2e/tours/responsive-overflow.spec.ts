@@ -26,8 +26,8 @@ const PAGES = [
   "/tours/explore?view=map",
   "/tours/destinations",
   "/tours/destinations/shiraz",
-  `/tours/t/${SHOWCASE}`,
-  `/tours/t/${SHOWCASE}/book`,
+  `/tours/${SHOWCASE}`,
+  `/tours/${SHOWCASE}/book`,
   "/tours/bookings",
   "/tours/wishlist",
   "/tours/profile",
@@ -156,18 +156,18 @@ test("showcase tours from migration 0083 are listed with photos and open in both
   for (const [slug, name] of [["shiraz", "Shiraz"], ["isfahan", "Isfahan"], ["yazd", "Yazd"], ["kish", "Kish Island"]]) {
     await page.goto(`/en/tours/destinations/${slug}`);
     await expect(page.getByRole("heading", { level: 1 })).toHaveText(name);
-    await expect(page.locator("a[href*='/tours/t/']").first()).toBeVisible();
+    await expect(page.getByTestId("tour-card-link").first()).toBeVisible();
   }
   await evidence(page, testInfo, "showcase-en", "01-destination-kish");
 
-  await page.goto(`/en/tours/t/${SHOWCASE}`);
+  await page.goto(`/en/tours/${SHOWCASE}`);
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Persepolis & Naqsh-e Rustam day trip");
   const hero = page.locator("img[src*='/images/tours/shiraz-persepolis']").first();
   await expect(hero).toBeVisible();
   await expect.poll(() => hero.evaluate((img: HTMLImageElement) => img.naturalWidth)).toBeGreaterThan(0);
   await evidence(page, testInfo, "showcase-en", "02-tour-detail");
 
-  await page.goto(`/fa/tours/t/${SHOWCASE}`);
+  await page.goto(`/fa/tours/${SHOWCASE}`);
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("تخت جمشید و نقش رستم در یک روز");
   await page.reload();
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("تخت جمشید و نقش رستم در یک روز");

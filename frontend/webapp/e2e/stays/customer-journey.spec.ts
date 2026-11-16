@@ -78,7 +78,7 @@ test.describe("stays guest journey @critical", () => {
 
     // Card → stay page keeps the stay query.
     await page.getByTestId("stay-card-link").first().click();
-    await expect(page).toHaveURL(new RegExp(`/fa/stays/p/${stay.slug}\\?in=${ci}&out=${co}&ages=7`));
+    await expect(page).toHaveURL(new RegExp(`/fa/stays/${stay.slug}\\?in=${ci}&out=${co}&ages=7`));
     await settled(page);
     await expect(page.getByTestId("stay-title")).toHaveText(stay.name["fa-IR"]);
     await expect(page.getByTestId("stay-breadcrumbs")).toContainText(world.city.name);
@@ -88,7 +88,7 @@ test.describe("stays guest journey @critical", () => {
 
     // Reserve while signed out → sign-in gate that keeps the selection.
     await plan.getByTestId("stay-reserve").click();
-    await expect(page).toHaveURL(/\/fa\/stays\/p\/.+\/book\?room=/);
+    await expect(page).toHaveURL(/\/fa\/stays\/.+\/book\?room=/);
     await expect(page.getByTestId("stay-booking-signin")).toBeVisible();
     const bookUrl = page.url();
 

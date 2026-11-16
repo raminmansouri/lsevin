@@ -212,6 +212,23 @@ const nextConfig: NextConfig = {
           permanent: true,
         },
       ]),
+      // A tour is /tours/<slug> and a stay /stays/<slug> (2026-11-16); the
+      // pages still live under t/ and p/ (rewrites below). Old links move once.
+      ...[
+        ["tours/t", "tours"],
+        ["stays/p", "stays"],
+      ].flatMap(([oldBase, newBase]) => [
+        {
+          source: `/:locale(${localePattern})/${oldBase}/:slug/:rest*`,
+          destination: `/:locale/${newBase}/:slug/:rest*`,
+          permanent: true,
+        },
+        {
+          source: `/:locale(${localePattern})/${oldBase}/:slug`,
+          destination: `/:locale/${newBase}/:slug`,
+          permanent: true,
+        },
+      ]),
       {
         source: "/admin/sponsered-slider/:path*",
         destination: "/admin/sponsored-slider/:path*",
@@ -296,9 +313,20 @@ const nextConfig: NextConfig = {
       ...entityRewrites,
     ];
 
-    if (!bookingOrigin) return { beforeFiles, afterFiles: seoRewrites, fallback: [] };
+    // /tours/<slug> and /stays/<slug>: as `fallback` rewrites, which run only
+    // when no route matched. Every page here sits under the dynamic [locale]
+    // segment, and `afterFiles` rewrites run before dynamic routes: as an
+    // afterFiles rule, /fa/tours/explore was sent to the tour page (2026-11-16).
+    const detailRewrites = [
+      ["tours", "tours/t"],
+      ["stays", "stays/p"],
+    ].flatMap(([publicBase, pageBase]) => [
+      { source: `/:locale(${localePattern})/${publicBase}/:slug/book`, destination: `/:locale/${pageBase}/:slug/book` },
+      { source: `/:locale(${localePattern})/${publicBase}/:slug`, destination: `/:locale/${pageBase}/:slug` },
+    ]);
+    if (!bookingOrigin) return { beforeFiles, afterFiles: seoRewrites, fallback: detailRewrites };
 
-    return { beforeFiles, fallback: [], afterFiles: [
+    return { beforeFiles, fallback: detailRewrites, afterFiles: [
       ...seoRewrites,
       // locale assets
       {

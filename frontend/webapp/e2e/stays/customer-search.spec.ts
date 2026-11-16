@@ -108,11 +108,11 @@ test.describe("stays search @regression", () => {
     await seedStayBooking(db() as never, stay, other.id, { checkIn: ci, checkOut: co });
     await page.goto(`/fa/stays/city/${world.city.slug}?${stayQuery(ci, co)}`);
     await expect(page.getByTestId("stay-card-price")).toContainText("ظرفیت ندارد");
-    await page.goto(`/fa/stays/p/${stay.slug}?${stayQuery(ci, co)}`);
+    await page.goto(`/fa/stays/${stay.slug}?${stayQuery(ci, co)}`);
     await expect(page.getByTestId("stay-plan-unavailable").first()).toBeVisible();
     await expect(page.getByTestId("stay-reserve")).toHaveCount(0);
 
-    await page.goto(`/fa/stays/p/${stay.slug}?${stayQuery(isoInDays(-3), isoInDays(-1))}`);
+    await page.goto(`/fa/stays/${stay.slug}?${stayQuery(isoInDays(-3), isoInDays(-1))}`);
     await expect(page.getByTestId("stay-detail-date-error")).toContainText("گذشته");
   });
 
@@ -128,7 +128,7 @@ test.describe("stays search @regression", () => {
     await skipIntro(context);
     const res = await page.goto("/fa/stays/city/no-such-city-xyz");
     expect(res?.status()).toBe(404);
-    const res2 = await page.goto("/fa/stays/p/no-such-stay-xyz");
+    const res2 = await page.goto("/fa/stays/no-such-stay-xyz");
     expect(res2?.status()).toBe(404);
     await expect(page.getByTestId("stays-not-found")).toBeVisible();
   });

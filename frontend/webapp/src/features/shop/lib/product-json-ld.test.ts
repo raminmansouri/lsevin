@@ -97,6 +97,15 @@ describe("product structured data", () => {
     expect(data.hasVariant[1]).toMatchObject({ sku: "PILLOW-L", size: "L", offers: { price: 4800000, availability: "https://schema.org/BackOrder" } });
   });
 
+  it("a SKU with spaces (a product name in the SKU column) falls back to the variant slug", () => {
+    const data = productJsonLd(
+      product({ variants: [variant({ sku: "Smart Super Wave", slug: "smart-wave" }), variant({ id: "v2", sku: "PILLOW-L", slug: "pillow-l" })] }),
+      url,
+      []
+    ) as Record<string, any>;
+    expect(data.hasVariant.map((v: any) => v.sku)).toEqual(["smart-wave", "PILLOW-L"]);
+  });
+
   it("ratings appear only with real listed reviews", () => {
     expect((productJsonLd(product({ rating: 4.6, reviewCount: 0 }), url, []) as any).aggregateRating).toBeUndefined();
     const reviewed = productJsonLd(

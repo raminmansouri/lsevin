@@ -8,6 +8,7 @@ import { listAmenities, listCities, searchProperties, wishlistIds } from "@/feat
 import { logUnexpected } from "@/features/stays/server/errors";
 import { ExploreView } from "@/features/stays/ui/explore/explore-view";
 import { alternatesFor } from "@/lib/seo/alternates";
+import { PageBreadcrumbs } from "@/lib/seo/page-breadcrumbs";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
@@ -46,7 +47,16 @@ export default async function StaysExplorePage({
     return null;
   });
   const city = cities.find((c) => c.slug === search.city);
+  const stays = (await getTranslations({ locale, namespace: "StayApp.nav" }))("stays");
   return (
+    <>
+    <PageBreadcrumbs
+      locale={locale}
+      trail={[
+        { name: stays, path: "/stays/intro" },
+        { name: t("title"), path: "/stays/explore" },
+      ]}
+    />
     <ExploreView
       search={search}
       result={result}
@@ -55,5 +65,6 @@ export default async function StaysExplorePage({
       savedIds={saved}
       heading={city ? t("titleIn", { city: city.name }) : t("title")}
     />
+    </>
   );
 }

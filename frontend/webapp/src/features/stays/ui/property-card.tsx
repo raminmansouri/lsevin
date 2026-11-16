@@ -79,7 +79,7 @@ export function PropertyCardView({
   const t = useTranslations("StayApp.card");
   const tKinds = useTranslations("StayApp.kinds");
   const H = headingLevel === 2 ? "h2" : "h3";
-  const href = `/stays/p/${card.slug}${query ? `?${query}` : ""}`;
+  const href = `/stays/${card.slug}${query ? `?${query}` : ""}`;
   const unavailable = card.available === false;
   return (
     <article className={cn("group relative flex flex-col overflow-hidden rounded-2xl bg-white ring-1 ring-slate-200 transition hover:shadow-md", unavailable && "opacity-80")} data-testid="stay-card" data-slug={card.slug}>

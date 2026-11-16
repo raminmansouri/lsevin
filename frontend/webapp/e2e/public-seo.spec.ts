@@ -563,7 +563,7 @@ test("hreflang is reciprocal: each listed version lists the same set back", asyn
 // Googlebot crawls from the US without Accept-Language and the language menu
 // only exists after JavaScript: every page needs plain links to its versions.
 test("server HTML links each page's other language versions", async ({ request }) => {
-  for (const path of ["/fa", "/en/providers", "/fa/explore", "/ar/categories", `/fa/tours/t/${process.env.SEO_E2E_TOUR_SLUG || "kish-island-beaches-and-sunset"}`]) {
+  for (const path of ["/fa", "/en/providers", "/fa/explore", "/ar/categories", `/fa/tours/${process.env.SEO_E2E_TOUR_SLUG || "kish-island-beaches-and-sunset"}`]) {
     const html = await (await request.get(path)).text();
     const rest = path.replace(/^\/[a-z]{2}/, "");
     for (const [locale, code] of [["en", "en"], ["fa", "fa"], ["tr", "tr"], ["ku", "ku-Arab"]]) {
@@ -575,12 +575,12 @@ test("server HTML links each page's other language versions", async ({ request }
 
 test("tours: canonical, hreflang only for written languages, other languages noindex, in the sitemap", async ({ request }) => {
   const slug = process.env.SEO_E2E_TOUR_SLUG || "kish-island-beaches-and-sunset";
-  const fa = await (await request.get(`/fa/tours/t/${slug}`)).text();
-  expect(canonicalOf(fa)).toBe(`${origin}/fa/tours/t/${slug}`);
+  const fa = await (await request.get(`/fa/tours/${slug}`)).text();
+  expect(canonicalOf(fa)).toBe(`${origin}/fa/tours/${slug}`);
   const codes = hreflangs(fa).map(([code]) => code).sort();
   expect(codes).toEqual(["en", "fa", "x-default"]);
   expect(fa).not.toMatch(/<meta name="robots" content="noindex/);
-  const tr = await (await request.get(`/tr/tours/t/${slug}`)).text();
+  const tr = await (await request.get(`/tr/tours/${slug}`)).text();
   expect(tr).toMatch(/<meta name="robots" content="noindex/);
   for (const path of ["/fa/tours/explore", "/fa/tours/intro"]) {
     const html = await (await request.get(path)).text();
@@ -588,9 +588,9 @@ test("tours: canonical, hreflang only for written languages, other languages noi
     expect(hreflangs(html).length, path).toBeGreaterThan(1);
   }
   const xml = await (await request.get("/sitemap.xml")).text();
-  expect(xml).toContain(`${origin}/fa/tours/t/${slug}`);
+  expect(xml).toContain(`${origin}/fa/tours/${slug}`);
   expect(xml).toContain(`${origin}/en/tours/explore`);
-  expect(xml).not.toContain(`${origin}/tr/tours/t/${slug}`);
+  expect(xml).not.toContain(`${origin}/tr/tours/${slug}`);
 });
 
 test("listing pages describe what they list (CollectionPage + ItemList)", async ({ request }) => {
@@ -660,4 +660,110 @@ test("the sitemap lists each page's photos as image entries on public URLs", asy
     const image = await request.get(url.pathname + url.search);
     expect(image.status(), loc).toBe(200);
   }
+});
+
+// Every public page type carries a structured-data feature Google Search
+// supports: at least a valid breadcrumb, plus the entity's own feature
+// (audit 2026-11-16). Listing pages have no Google feature of their own.
+test("each public page type carries Google-supported structured data", async ({ request }) => {
+  const nodesOf = (html: string) => {
+    const out: Record<string, any>[] = [];
+    const walk = (n: any) => {
+      if (!n || typeof n !== "object") return;
+      if (Array.isArray(n)) return n.forEach(walk);
+      if (n["@type"]) out.push(n);
+      Object.values(n).forEach(walk);
+    };
+    for (const m of html.matchAll(/<script type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/g)) {
+      const data = JSON.parse(m[1]);
+      walk(data["@graph"] ?? data);
+    }
+    return out;
+  };
+  const cases: [string, string[]][] = [
+    ["/fa", ["Organization"]],
+    ["/fa/explore", ["BreadcrumbList"]],
+    ["/fa/map", ["BreadcrumbList"]],
+    ["/fa/providers", ["BreadcrumbList"]],
+    ["/fa/categories", ["BreadcrumbList"]],
+    ["/fa/shop", ["BreadcrumbList"]],
+    ["/fa/tours/intro", ["BreadcrumbList"]],
+    ["/fa/tours/explore", ["BreadcrumbList"]],
+    ["/fa/stays/intro", ["BreadcrumbList"]],
+    ["/fa/stays/explore", ["BreadcrumbList"]],
+  ];
+  for (const [path, expected] of cases) {
+    const nodes = nodesOf(await (await request.get(path)).text());
+    for (const type of expected) {
+      const node = nodes.find((n) => [n["@type"]].flat().includes(type));
+      expect(node, `${path} ${type}`).toBeTruthy();
+      if (type === "BreadcrumbList") {
+        const items = node!.itemListElement;
+        expect(items.length, path).toBeGreaterThanOrEqual(2);
+        items.forEach((item: any, index: number) => {
+          expect(item.position, path).toBe(index + 1);
+          expect(item.name, path).toBeTruthy();
+          expect(item.item, path).toMatch(new RegExp(`^${origin}/`));
+        });
+        expect(items[0].item, path).toBe(`${origin}/fa`);
+      }
+      if (type === "Organization") expect(node!.logo, path).toBeTruthy();
+    }
+  }
+});
+
+// --- Readable URLs (2026-11-16) ---
+
+test("tours and stays live at /tours/<slug> and /stays/<slug>; the old t/ and p/ paths move once", async ({ request }) => {
+  const slug = process.env.SEO_E2E_TOUR_SLUG || "kish-island-beaches-and-sunset";
+  const moved = await request.get(`/fa/tours/t/${slug}`, { maxRedirects: 0 });
+  expect([301, 308]).toContain(moved.status());
+  expect(new URL(moved.headers()["location"], "http://x").pathname).toBe(`/fa/tours/${slug}`);
+  const page = await request.get(`/fa/tours/${slug}`, { maxRedirects: 0 });
+  expect(page.status()).toBe(200);
+  expect(canonicalOf(await page.text())).toBe(`${origin}/fa/tours/${slug}`);
+  const book = await request.get(`/fa/tours/t/${slug}/book`, { maxRedirects: 0 });
+  expect(new URL(book.headers()["location"], "http://x").pathname).toBe(`/fa/tours/${slug}/book`);
+  // The app's own sections still win over a slug.
+  expect((await request.get("/fa/tours/explore", { maxRedirects: 0 })).status()).toBe(200);
+  const stay = await request.get("/fa/stays/p/some-stay", { maxRedirects: 0 });
+  expect([301, 308]).toContain(stay.status());
+  expect(new URL(stay.headers()["location"], "http://x").pathname).toBe("/fa/stays/some-stay");
+  expect((await request.get("/fa/stays/explore", { maxRedirects: 0 })).status()).toBe(200);
+});
+
+test("product URLs describe the product; a retired code slug moves once to it", async ({ request }) => {
+  const xml = await (await request.get("/sitemap.xml")).text();
+  const slugs = [...xml.matchAll(/<loc>[^<]*\/fa\/products\/([^<]+)<\/loc>/g)].map((m) => decodeURIComponent(m[1]));
+  expect(slugs.length).toBeGreaterThan(0);
+  const words = (s: string) => s.split("-").filter((w) => /^[a-z]{3,}$/.test(w)).length;
+  const weak = slugs.filter((s) => words(s) < 2);
+  // Only products without an English name may keep a short slug.
+  expect(weak.length, weak.slice(0, 10).join(", ")).toBeLessThanOrEqual(Math.ceil(slugs.length * 0.05));
+  const previous = process.env.SEO_E2E_PREVIOUS_PRODUCT_SLUG || "v209";
+  const moved = await request.get(`/fa/products/${previous}`, { maxRedirects: 0 });
+  // The product page streams (loading boundary), so an old slug is answered by
+  // an instant meta refresh, which Google treats as a permanent redirect; a
+  // 308 is accepted too.
+  const location =
+    moved.status() === 200
+      ? (await moved.text()).match(/<meta[^>]*http-equiv="refresh"[^>]*content="0;\s*url=([^"]+)"/i)?.[1]
+      : moved.headers()["location"];
+  expect([200, 301, 308]).toContain(moved.status());
+  expect(location, "redirect target").toBeTruthy();
+  const target = new URL(location!.replace(/&amp;/g, "&"), "http://x").pathname;
+  expect(target).toMatch(/^\/fa\/products\/[a-z0-9-]+$/);
+  expect(words(target.split("/").pop()!)).toBeGreaterThanOrEqual(2);
+  expect((await request.get(target, { maxRedirects: 0 })).status()).toBe(200);
+});
+
+test("a renamed tour's old slug moves once to its current URL", async ({ request }) => {
+  const previous = process.env.SEO_E2E_PREVIOUS_TOUR_SLUG;
+  test.skip(!previous, "SEO_E2E_PREVIOUS_TOUR_SLUG names a slug kept in tour.tour_slug_history");
+  const moved = await request.get(`/fa/tours/${previous}`, { maxRedirects: 0 });
+  expect([301, 308]).toContain(moved.status());
+  const target = new URL(moved.headers()["location"], "http://x").pathname;
+  expect(target).toMatch(/^\/fa\/tours\/[a-z0-9-]+$/);
+  expect(target).not.toBe(`/fa/tours/${previous}`);
+  expect((await request.get(target, { maxRedirects: 0 })).status()).toBe(200);
 });

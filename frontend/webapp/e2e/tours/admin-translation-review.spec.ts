@@ -48,7 +48,7 @@ test("AT-37 source cancellation change flags the English translation for review;
   const customer = await browser.newContext();
   await skipIntro(customer);
   const cpage = await customer.newPage();
-  await cpage.goto(`/en/tours/t/${t.slug}`);
+  await cpage.goto(`/en/tours/${t.slug}`);
   await expect(cpage.locator("body")).toContainText(OLD_EN);
   await expect(cpage.locator("body")).not.toContainText("پس از آن بازپرداختی نیست");
 

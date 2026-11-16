@@ -24,7 +24,7 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
   const name = p.name?.value ?? slug;
   const meta = await buildPublicMetadata({
     locale,
-    path: `/stays/p/${slug}`,
+    path: `/stays/${slug}`,
     title: `${name} · ${p.city.name}`,
     descriptions: [p.summary?.value, p.description?.value, t("propertyDescription", { name, city: p.city.name })],
     image: p.media[0]?.url ?? null,

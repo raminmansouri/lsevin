@@ -10,7 +10,7 @@ import { seedStayBooking } from "../../src/features/stays/testing/fixtures";
 import { bookingRow, db, evidence, isoInDays, seedWorld, settled, signedInAdmin, signedInCustomer, skipIntro, soldOn, stayQuery } from "./helpers";
 
 async function openBooking(page: Page, slug: string, ci: string, co: string) {
-  await page.goto(`/fa/stays/p/${slug}?${stayQuery(ci, co)}`);
+  await page.goto(`/fa/stays/${slug}?${stayQuery(ci, co)}`);
   await settled(page);
   await page.getByTestId("stay-reserve").first().click();
   await expect(page).toHaveURL(/\/book\?/);
@@ -132,7 +132,7 @@ test.describe("stays edge cases @regression", () => {
     } finally {
       await adminCtx.close();
     }
-    await page.goto(`/fa/stays/p/${stay.slug}`);
+    await page.goto(`/fa/stays/${stay.slug}`);
     await expect(page.getByTestId("stay-review").filter({ hasText: "حیاط زیبا" })).toBeVisible();
     await expect(page.getByTestId("rating-badge").first()).toContainText("۵");
     await evidence(page, testInfo, "stays__review__01-published");

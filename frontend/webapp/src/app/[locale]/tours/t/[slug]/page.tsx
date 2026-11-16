@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { contentLocaleFor } from "@/features/tours/domain/content";
@@ -7,7 +7,7 @@ import { getTourWeather } from "@/features/tours/server/ops/weather";
 import type { WeatherView } from "@/features/tours/server/ops/contract";
 import { currentActor } from "@/features/tours/server/platform/access";
 import { getTourDetail, listDepartures, searchTours, wishlistIds } from "@/features/tours/server/platform/catalog";
-import { tourAlternates, tourLanguages } from "@/features/tours/server/platform/seo";
+import { currentTourSlug, tourAlternates, tourLanguages } from "@/features/tours/server/platform/seo";
 import { logUnexpected } from "@/features/tours/server/platform/errors";
 import { TourDetailView } from "@/features/tours/ui/customer/detail/tour-detail-view";
 import type { TourDetail } from "@/features/tours/server/platform/catalog";
@@ -80,7 +80,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title,
     description,
-    ...tourAlternates(locale, `/tours/t/${detail.slug}`, await tourLanguages(detail.id)),
+    ...tourAlternates(locale, `/tours/${detail.slug}`, await tourLanguages(detail.id)),
     ...(image ? { openGraph: { title, description, images: [{ url: image }] }, twitter: { card: "summary_large_image", images: [image] } } : {}),
   };
 }
@@ -91,7 +91,12 @@ export default async function TourDetailPage({ params }: Props) {
   setRequestLocale(locale);
   const content = contentLocaleFor(locale);
   const detail = await getTourDetail(slug, content);
-  if (!detail) notFound();
+  if (!detail) {
+    // A renamed tour (migration 0111): one permanent redirect to its current URL.
+    const current = await currentTourSlug(decodeURIComponent(slug));
+    if (current) permanentRedirect(`/${locale}/tours/${current}`);
+    notFound();
+  }
 
   const actor = await currentActor();
   const [departures, related, saved] = await Promise.all([
@@ -113,7 +118,7 @@ export default async function TourDetailPage({ params }: Props) {
     });
   }
 
-  const url = absoluteUrl(locale, `/tours/t/${detail.slug}`);
+  const url = absoluteUrl(locale, `/tours/${detail.slug}`);
   const [brand, toursLabel] = await Promise.all([
     getTranslations({ locale, namespace: "LocaleLayout" }).then((t) => t("title")),
     getTranslations({ locale, namespace: "TourApp.nav" }).then((t) => t("brand")).catch(() => "Tours"),

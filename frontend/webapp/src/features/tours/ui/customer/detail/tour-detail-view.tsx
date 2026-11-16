@@ -482,7 +482,7 @@ export function TourDetailView({
               {bookable.slice(0, 5).map((d) => (
                 <li key={d.id}>
                   <Link
-                    href={`/tours/t/${detail.slug}/book?departure=${d.id}`}
+                    href={`/tours/${detail.slug}/book?departure=${d.id}`}
                     className="flex min-h-14 items-center justify-between gap-3 rounded-2xl bg-white px-4 py-2 ring-1 ring-slate-200 hover:ring-emerald-300 focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:outline-none"
                   >
                     <span className="flex items-center gap-2 text-sm">
@@ -528,7 +528,7 @@ export function TourDetailView({
           <FromPrice amount={detail.fromPrice} currency={f.currency} basis={detail.fromPriceBasis} />
           {bookable.length > 0 ? (
             <Link
-              href={`/tours/t/${detail.slug}/book`}
+              href={`/tours/${detail.slug}/book`}
               className="inline-flex min-h-12 shrink-0 items-center justify-center rounded-2xl bg-emerald-700 px-6 text-sm font-bold text-white shadow hover:bg-emerald-800 focus-visible:ring-4 focus-visible:ring-emerald-200 focus-visible:outline-none"
               data-testid="book-now"
             >

@@ -129,7 +129,7 @@ export function PropertyView({
               {t("rooms")}
             </h2>
             <div className="mt-3 rounded-2xl bg-white p-3 ring-1 ring-slate-200" data-testid="stay-detail-search">
-              <StaySearchForm cities={cities} initial={search} variant="compact" target={{ path: `/stays/p/${property.slug}` }} />
+              <StaySearchForm cities={cities} initial={search} variant="compact" target={{ path: `/stays/${property.slug}` }} />
             </div>
             {dateError ? (
               <p role="alert" className="mt-2 text-sm font-medium text-red-700" data-testid="stay-detail-date-error">
@@ -424,7 +424,7 @@ function RoomCard({ room, property, search, hasDates, preview }: { room: RoomOff
                 hasDates && property.policy && search.checkIn
                   ? freeCancellationUntil(property.policy.rules, plan.refundable, checkInInstant(search.checkIn, property.checkInTime, property.timezone))
                   : null;
-              const bookHref = `/stays/p/${property.slug}/book?${new URLSearchParams({
+              const bookHref = `/stays/${property.slug}/book?${new URLSearchParams({
                 room: room.roomTypeId,
                 plan: plan.ratePlanId,
                 in: search.checkIn ?? "",

@@ -1,10 +1,12 @@
 import { permanentRedirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 
 import { getNearbyPageData, parseNearbyFilters } from "./nearby.data";
 import { MapScreen, requestedView } from "./map-screen";
 
 import { mapHref } from "@/lib/routes/filter-paths";
 import { otherFilters, resolveListingParams, resolvedSlugs } from "@/lib/seo/listing-params";
+import { PageBreadcrumbs } from "@/lib/seo/page-breadcrumbs";
 
 export const dynamic = "force-dynamic";
 
@@ -33,8 +35,11 @@ export default async function MapDiscoveryPage({
   }
   const filters = parseNearbyFilters(listing.params);
   const data = await getNearbyPageData({ locale, filters });
+  const mapLabel = (await getTranslations({ locale, namespace: "Footer" }))("columns.explore.links.map");
 
   return (
+    <>
+    <PageBreadcrumbs locale={locale} trail={[{ name: mapLabel, path: "/map" }]} />
     <MapScreen
       locale={locale}
       filters={filters}
@@ -42,5 +47,6 @@ export default async function MapDiscoveryPage({
       initialView={initialView}
       providerTypeSlug={listing.typeSlug}
     />
+    </>
   );
 }

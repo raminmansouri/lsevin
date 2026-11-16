@@ -24,7 +24,7 @@ test.describe("stays SEO @regression", () => {
     await page.goto(`/fa/stays/city/${world.city.slug}`);
     // Indexable: the robots meta only carries the site-wide preview limits
     // (max-image-preview:large), never noindex.
-    await expect(page.locator('meta[name="robots"]')).not.toHaveAttribute("content", /noindex/);
+    await expect(page.locator('meta[name="robots"][content*="noindex"]')).toHaveCount(0);
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", new RegExp(`/fa/stays/city/${world.city.slug}$`));
     await expect(page.locator('link[rel="alternate"][hreflang="en"]')).toHaveAttribute("href", new RegExp(`/en/stays/city/${world.city.slug}$`));
     await expect(page.locator('link[rel="alternate"][hreflang="x-default"]')).toHaveCount(1);
@@ -37,22 +37,25 @@ test.describe("stays SEO @regression", () => {
     await evidence(page, testInfo, "stays__seo__01-city");
 
     await page.goto(`/fa/stays/city/${world.city.slug}?sort=price_asc`);
-    await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex/);
+    await expect(page.locator('meta[name="robots"][content*="noindex"]').first()).toBeAttached();
   });
 
-  test("stay page: Hotel/LodgingBusiness JSON-LD; private homes never expose exact coordinates", async ({ page, context }) => {
+  // Lodging is a LocalBusiness naming its kind (lodgingAsLocalBusiness): the
+  // lodging types are validated by Google as Hotel Center price markup.
+  test("stay page: LocalBusiness JSON-LD naming its lodging kind; private homes never expose exact coordinates", async ({ page, context }) => {
     const world = await seedWorld([{ kind: "hotel" }, { inventoryModel: "entire_place", approximate: true }]);
     await skipIntro(context);
-    await page.goto(`/fa/stays/p/${world.stays[0].slug}`);
+    await page.goto(`/fa/stays/${world.stays[0].slug}`);
     let graph = nodes(await jsonLd(page));
-    const hotel = graph.find((n) => n["@type"] === "Hotel") as Record<string, unknown>;
-    expect(hotel).toMatchObject({ name: world.stays[0].name["fa-IR"], checkinTime: "14:00", checkoutTime: "12:00" });
+    const hotel = graph.find((n) => n.additionalType === "https://schema.org/Hotel") as Record<string, unknown>;
+    expect(hotel).toMatchObject({ "@type": "LocalBusiness", name: world.stays[0].name["fa-IR"] });
+    expect(graph.some((n) => ["Hotel", "LodgingBusiness", "BedAndBreakfast", "Motel", "Hostel"].includes(String(n["@type"])))).toBe(false);
     expect(hotel.geo).toBeTruthy();
-    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", new RegExp(`/fa/stays/p/${world.stays[0].slug}$`));
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", new RegExp(`/fa/stays/${world.stays[0].slug}$`));
 
-    await page.goto(`/fa/stays/p/${world.stays[1].slug}`);
+    await page.goto(`/fa/stays/${world.stays[1].slug}`);
     graph = nodes(await jsonLd(page));
-    const villa = graph.find((n) => n["@type"] === "LodgingBusiness") as Record<string, unknown>;
+    const villa = graph.find((n) => n.additionalType === "https://schema.org/LodgingBusiness") as Record<string, unknown>;
     expect(villa.geo).toBeUndefined();
     expect(JSON.stringify(villa)).not.toContain("29.6363");
     expect(await page.content()).not.toContain("29.6363");
@@ -60,11 +63,11 @@ test.describe("stays SEO @regression", () => {
 
   test("search results are noindex; the intro is indexable and links to destinations @smoke", async ({ page }) => {
     await page.goto("/fa/stays/explore");
-    await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex/);
+    await expect(page.locator('meta[name="robots"][content*="noindex"]').first()).toBeAttached();
     await page.goto("/fa/stays/intro");
     // Indexable: the robots meta only carries the site-wide preview limits
     // (max-image-preview:large), never noindex.
-    await expect(page.locator('meta[name="robots"]')).not.toHaveAttribute("content", /noindex/);
+    await expect(page.locator('meta[name="robots"][content*="noindex"]')).toHaveCount(0);
     await expect(page.locator("h1")).toHaveCount(1);
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", /\/fa\/stays\/intro$/);
   });
@@ -86,13 +89,13 @@ test.describe("stays localisation @regression", () => {
   test("Persian pages print times and percentages in Persian digits (regression 2026-11-14)", async ({ page, context }) => {
     const world = await seedWorld([{}]);
     await skipIntro(context);
-    await page.goto(`/fa/stays/p/${world.stays[0].slug}`);
+    await page.goto(`/fa/stays/${world.stays[0].slug}`);
     const policies = page.getByTestId("stay-cancellation-rules");
     await expect(policies).toContainText("۱۰۰");
     await expect(policies).not.toContainText("100");
     await expect(page.getByTestId("stay-policies")).toContainText("۱۴:۰۰");
     await expect(page.getByTestId("stay-policies")).not.toContainText("14:00");
-    await page.goto(`/en/stays/p/${world.stays[0].slug}`);
+    await page.goto(`/en/stays/${world.stays[0].slug}`);
     await expect(page.getByTestId("stay-cancellation-rules")).toContainText("100%");
   });
 });
@@ -103,7 +106,7 @@ test.describe("stays layout @regression", () => {
       const world = await seedWorld([{}]);
       await skipIntro(context);
       await page.setViewportSize({ width, height: 800 });
-      for (const path of ["/stays", `/stays/city/${world.city.slug}`, `/stays/p/${world.stays[0].slug}`, "/stays/intro"]) {
+      for (const path of ["/stays", `/stays/city/${world.city.slug}`, `/stays/${world.stays[0].slug}`, "/stays/intro"]) {
         for (const locale of ["fa", "en"]) {
           await page.goto(`/${locale}${path}`);
           await page.waitForLoadState("load");

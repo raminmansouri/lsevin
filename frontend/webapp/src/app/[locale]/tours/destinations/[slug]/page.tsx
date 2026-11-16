@@ -73,7 +73,7 @@ export default async function DestinationPage({
                     itemListElement: results.items.slice(0, 30).map((tour, index) => ({
                       "@type": "ListItem",
                       position: index + 1,
-                      url: absoluteUrl(locale, `/tours/t/${tour.slug}`),
+                      url: absoluteUrl(locale, `/tours/${tour.slug}`),
                       name: tour.title?.value ?? tour.slug,
                     })),
                   },

@@ -6,7 +6,7 @@ import { GUIDE_LOCALES } from "@/features/guides/types";
 import { routing } from "@/i18n/routing";
 
 import { languageAlternates } from "./alternates";
-import { breadcrumbList, businessTypeFor, personSchema, providerSchema, serviceSchema } from "./entity-schema";
+import { breadcrumbList, businessTypeFor, lodgingAsLocalBusiness, personSchema, providerSchema, serviceSchema } from "./entity-schema";
 import { contentLanguageFor, directionFor, hreflangFor, routeLocaleFor } from "./language-tags";
 import { indexableLocalesFromKeys } from "./locale-eligibility";
 import { buildPublicMetadata } from "./metadata";
@@ -95,6 +95,10 @@ describe("plain text", () => {
 describe("entity schema", () => {
   it("maps provider types to schema.org business types in several languages", () => {
     expect(businessTypeFor("هتل")).toBe("Hotel");
+    // Published as a LocalBusiness naming its kind: a Hotel type is validated
+    // by Google as Hotel Center price markup (13 critical issues, 2026-11-16).
+    expect(lodgingAsLocalBusiness("Hotel")).toEqual({ "@type": "LocalBusiness", additionalType: "https://schema.org/Hotel" });
+    expect(lodgingAsLocalBusiness("Dentist")).toEqual({ "@type": "Dentist" });
     expect(businessTypeFor("Hospital")).toBe("Hospital");
     expect(businessTypeFor("کلینیک زیبایی")).toBe("MedicalClinic");
     expect(businessTypeFor("عيادة")).toBe("MedicalClinic");

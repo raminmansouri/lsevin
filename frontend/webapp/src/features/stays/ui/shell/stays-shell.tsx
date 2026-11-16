@@ -16,9 +16,17 @@ import { cn } from "@/lib/utils";
 
 export const PARENT_APP_PATH = "/";
 
+// A stay's own page is /stays/<slug> (served from p/<slug>): any first segment
+// that is not one of the app's other sections.
+const OTHER_SECTIONS = new Set(["explore", "city", "wishlist", "bookings", "intro"]);
+const isStayPage = (p: string) => {
+  const segment = p.split("/")[2];
+  return Boolean(segment) && (segment === "p" || !OTHER_SECTIONS.has(segment));
+};
+
 const TABS = [
   { key: "home", href: "/stays", icon: Home, match: (p: string) => p === "/stays" },
-  { key: "explore", href: "/stays/explore", icon: Search, match: (p: string) => p.startsWith("/stays/explore") || p.startsWith("/stays/city") || p.startsWith("/stays/p/") },
+  { key: "explore", href: "/stays/explore", icon: Search, match: (p: string) => p.startsWith("/stays/explore") || p.startsWith("/stays/city") || isStayPage(p) },
   { key: "wishlist", href: "/stays/wishlist", icon: Heart, match: (p: string) => p.startsWith("/stays/wishlist") },
   { key: "bookings", href: "/stays/bookings", icon: Luggage, match: (p: string) => p.startsWith("/stays/bookings") },
 ] as const;

@@ -280,6 +280,26 @@ export async function searchProducts(
   return { items: filtered, total, page: filters.page, pageSize: filters.pageSize };
 }
 
+/**
+ * The current slug of a product whose URL used to be `slug` (migration 0110:
+ * shop.product_slug_history), for a permanent redirect. Null when the slug was
+ * never retired, the product is gone, or the table does not exist yet.
+ */
+export async function currentProductSlug(slug: string): Promise<string | null> {
+  try {
+    const [row] = await sql<{ slug: string }[]>`
+      select p.slug
+        from shop.product_slug_history h
+        join shop.products p on p.id = h.product_id
+       where h.slug = ${slug} and p.deleted_at is null and p.status = 'active' and p.slug is not null and p.slug <> ${slug}
+       limit 1
+    `;
+    return row?.slug ?? null;
+  } catch {
+    return null;
+  }
+}
+
 export async function getProductBySlug(
   slug: string,
   locale?: string,
