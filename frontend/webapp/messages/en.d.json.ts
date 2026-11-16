@@ -447,7 +447,8 @@ declare const messages: {
     "searchResults": "Search results",
     "goBack": "Go back",
     "viewAllProviders": "View all {count} providers in {name}",
-    "providersIn": "{name} providers"
+    "providersIn": "{name} providers",
+    "featured": "Featured"
   },
   "Booking": {
     "dayParts": {

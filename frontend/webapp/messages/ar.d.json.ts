@@ -170,7 +170,8 @@ declare const messages: {
     "searchResults": "نتائج البحث",
     "goBack": "رجوع",
     "viewAllProviders": "عرض جميع مقدّمي الخدمة في {name} ({count})",
-    "providersIn": "مقدّمو خدمة {name}"
+    "providersIn": "مقدّمو خدمة {name}",
+    "featured": "مميز"
   },
   "Booking": {
     "dayParts": {

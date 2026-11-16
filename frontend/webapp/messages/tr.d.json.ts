@@ -6024,7 +6024,8 @@ declare const messages: {
     "searchResults": "Arama sonuçları",
     "goBack": "Geri dön",
     "viewAllProviders": "{name} kategorisindeki {count} sağlayıcının tümünü görüntüle",
-    "providersIn": "{name} sağlayıcıları"
+    "providersIn": "{name} sağlayıcıları",
+    "featured": "Öne çıkan"
   },
   "Shop": {
     "checkoutHints": {

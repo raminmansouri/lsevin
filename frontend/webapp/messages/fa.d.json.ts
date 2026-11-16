@@ -447,7 +447,8 @@ declare const messages: {
     "searchResults": "نتایج جستجو",
     "goBack": "بازگشت",
     "viewAllProviders": "نمایش همه {count} ارائه‌دهنده در {name}",
-    "providersIn": "ارائه‌دهندگان {name}"
+    "providersIn": "ارائه‌دهندگان {name}",
+    "featured": "ویژه"
   },
   "Explore": {
     "lsevin": "السوین",
