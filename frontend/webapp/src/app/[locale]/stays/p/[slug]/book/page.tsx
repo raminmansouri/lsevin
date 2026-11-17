@@ -33,7 +33,7 @@ export default async function StayBookPage({ params, searchParams }: Props) {
   const offers = search.checkIn && search.checkOut ? await getRoomOffers(property.id, { checkIn: search.checkIn, checkOut: search.checkOut, occupancy }, content) : null;
   const room = offers?.rooms.find((r) => r.roomTypeId === roomId);
   const plan = room?.plans.find((p) => p.ratePlanId === planId);
-  const backHref = `/stays/p/${slug}${search.checkIn ? `?in=${search.checkIn}&out=${search.checkOut}&adults=${search.adults}&rooms=${search.rooms}${search.childAges.length ? `&ages=${search.childAges.join(",")}` : ""}` : ""}`;
+  const backHref = `/stays/${slug}${search.checkIn ? `?in=${search.checkIn}&out=${search.checkOut}&adults=${search.adults}&rooms=${search.rooms}${search.childAges.length ? `&ages=${search.childAges.join(",")}` : ""}` : ""}`;
 
   if (!room || !plan || !plan.quote || plan.unavailableReason || offers?.dateError || !property.policy) {
     const reason = offers?.dateError ?? plan?.unavailableReason ?? (room && plan ? "sold_out" : null);

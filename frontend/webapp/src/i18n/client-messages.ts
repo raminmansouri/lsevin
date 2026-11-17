@@ -85,6 +85,7 @@ export const SEGMENT_NAMESPACES = {
     "Home",
     "LazySelect",
     "MapDiscovery",
+    "LocationAccess",
     // Fully translated in every bundle but never handed to the browser, so these
     // three screens rendered their labels as raw key paths.
     "MobileDoctorProfile",

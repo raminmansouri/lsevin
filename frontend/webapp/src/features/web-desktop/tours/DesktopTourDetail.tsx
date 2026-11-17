@@ -509,7 +509,7 @@ export function DesktopTourDetail({
                     {bookable.slice(0, 5).map((departure) => (
                       <li key={departure.id}>
                         <Link
-                          href={`/tours/t/${detail.slug}/book?departure=${departure.id}`}
+                          href={`/tours/${detail.slug}/book?departure=${departure.id}`}
                           className="group grid grid-cols-[1fr_auto] overflow-hidden rounded-[18px] bg-[#fbf8f1] ring-1 ring-[#efe7d5] transition hover:ring-[#c9a55a]"
                         >
                           <span className="flex items-center gap-3 px-4 py-3">
@@ -535,7 +535,7 @@ export function DesktopTourDetail({
 
                 {bookable.length ? (
                   <Link
-                    href={`/tours/t/${detail.slug}/book`}
+                    href={`/tours/${detail.slug}/book`}
                     className="lsd-champagne-bg mt-2 flex h-14 w-full items-center justify-center rounded-full border border-[#eacb7f] text-base font-black text-[#062a20] shadow-[0_18px_36px_-18px_rgba(234,203,127,0.75)] transition hover:-translate-y-0.5"
                   >
                     {td("sticky.checkAvailability")}

@@ -54,7 +54,7 @@ test("category flow opens Tours; intro once; back link; deep links", async ({ pa
   await expect(page).toHaveURL(/\/fa\/n\/app\/mobile\/home/);
 
   // 6. Deep link to a tour lands in the Tours shell with its navigation (no intro detour).
-  await page.goto(`/fa/tours/t/${tour.slug}`);
+  await page.goto(`/fa/tours/${tour.slug}`);
   await expect(page.getByTestId("tour-detail")).toBeVisible();
   await expect(page.getByTestId("tours-bottom-nav")).toBeVisible();
 

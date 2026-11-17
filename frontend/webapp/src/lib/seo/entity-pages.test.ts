@@ -20,6 +20,7 @@ import SpecialistPage, {
 
 const mocks = vi.hoisted(() => ({
   product: vi.fn(),
+  productRedirect: vi.fn(async (): Promise<string | null> => null),
   provider: vi.fn(),
   service: vi.fn(),
   specialist: vi.fn(),
@@ -57,6 +58,7 @@ vi.mock("@/features/shop/api/catalog.repository.cached", () => ({
 }));
 vi.mock("@/features/shop/api/catalog.repository", () => ({
   listActiveProductSlugs: async () => [],
+  currentProductSlug: mocks.productRedirect,
 }));
 vi.mock("@/features/shop/api/service-relations.repository", () => ({
   getProductsForService: async () => null,
@@ -175,6 +177,13 @@ describe("entity page status contract", () => {
     mocks.product.mockResolvedValue(null);
     await expect(ProductPage(productParams)).rejects.toThrow(";404");
     await expect(productMetadata(productParams)).rejects.toThrow(";404");
+  });
+  // Migration 0110 renamed code slugs (/products/v209); the old URL moves once.
+  it("a retired product slug redirects permanently to the current one", async () => {
+    mocks.product.mockResolvedValue(null);
+    mocks.productRedirect.mockResolvedValueOnce("varna-belt").mockResolvedValueOnce("varna-belt");
+    await expect(ProductPage(productParams)).rejects.toThrow(";308");
+    await expect(productMetadata(productParams)).rejects.toThrow(";308");
   });
   it("product outage propagates rather than becoming a cacheable 404", async () => {
     const outage = new Error("database unavailable");

@@ -1,0 +1,10 @@
+[Unit]
+Description=Check the webapp ISR cache size every 20 minutes
+
+[Timer]
+OnBootSec=15min
+OnUnitActiveSec=20min
+RandomizedDelaySec=120
+
+[Install]
+WantedBy=timers.target

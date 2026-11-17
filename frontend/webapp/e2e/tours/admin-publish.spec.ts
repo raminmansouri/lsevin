@@ -98,7 +98,7 @@ test("AT-16 missing policy/media/price blocks publication; repaired in admin it 
 
   // The customer page now serves it.
   await skipIntro(context);
-  await page.goto(`/fa/tours/t/${t.slug}`);
+  await page.goto(`/fa/tours/${t.slug}`);
   await expect(page.getByRole("heading", { name: "تور یک‌روزه تخت جمشید" }).first()).toBeVisible();
 });
 
@@ -122,7 +122,7 @@ test("AT-16 a rejected submission stays unpublished and the provider gets the no
   expect(audit.detail.note).toContain("Photos");
   await skipIntro(context);
   // The customer app renders its not-available state (streamed, so the HTTP status is not asserted here).
-  await page.goto(`/en/tours/t/${t.slug}`);
+  await page.goto(`/en/tours/${t.slug}`);
   await expect(page.getByRole("heading", { name: "This tour is not available." })).toBeVisible();
   await expect(page.locator("body")).not.toContainText("Persepolis day tour");
 });

@@ -88,7 +88,7 @@ export function PropertyEditor({
           <div className="mt-1 flex items-center gap-2 text-xs">
             <StatusBadge status={p.status} label={t(`status.${p.status}` as never)} />
             <span className="text-muted-foreground" dir="ltr" data-latin-digits="">
-              /stays/p/{p.slug}
+              /stays/{p.slug}
             </span>
           </div>
         </div>

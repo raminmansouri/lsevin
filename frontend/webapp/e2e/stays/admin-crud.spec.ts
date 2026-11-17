@@ -112,7 +112,7 @@ test.describe("stays admin @critical", () => {
     await skipIntro(customerCtx);
     const ci = isoInDays(25);
     const co = isoInDays(27);
-    await customer.goto(`/fa/stays/p/kavir-house-${s}?${stayQuery(ci, co)}`);
+    await customer.goto(`/fa/stays/kavir-house-${s}?${stayQuery(ci, co)}`);
     await settled(customer);
     await expect(customer.getByTestId("stay-title")).toHaveText(`اقامتگاه کویر ${s}`);
     await expectIrr(customer.getByTestId("stay-plan-total"), 6_976_000); // 2 × 3,200,000 + 9%
@@ -126,7 +126,7 @@ test.describe("stays admin @critical", () => {
     await expectIrr(page.getByTestId("stays-admin-cal-day").first().getByTestId("stays-admin-cal-price"), 5_000_000);
     await page.reload();
     await expectIrr(page.getByTestId("stays-admin-cal-day").first().getByTestId("stays-admin-cal-price"), 5_000_000);
-    await customer.goto(`/fa/stays/p/kavir-house-${s}?${stayQuery(isoInDays(0), isoInDays(2))}`);
+    await customer.goto(`/fa/stays/kavir-house-${s}?${stayQuery(isoInDays(0), isoInDays(2))}`);
     await expectIrr(customer.getByTestId("stay-plan-total"), 8_938_000); // (5,000,000 + 3,200,000) + 9%
 
     // Units for tonight set to 0 → the customer sees it sold out for tonight.
@@ -142,7 +142,7 @@ test.describe("stays admin @critical", () => {
     const pause = page.getByRole("group", { name: "توقف (پنهان از مشتری)" });
     await pause.getByRole("textbox").fill("بازسازی اتاق‌ها");
     await act(page, () => pause.getByRole("button", { name: "تأیید" }).click());
-    const res = await customer.goto(`/fa/stays/p/kavir-house-${s}`);
+    const res = await customer.goto(`/fa/stays/kavir-house-${s}`);
     expect(res?.status()).toBe(404);
     await customerCtx.close();
     errors.assertClean();

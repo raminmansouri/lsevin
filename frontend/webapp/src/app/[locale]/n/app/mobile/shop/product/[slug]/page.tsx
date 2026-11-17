@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { buildPublicMetadata } from "@/lib/seo/metadata";
@@ -8,6 +8,7 @@ import { breadcrumbList, graph } from "@/lib/seo/entity-schema";
 import { JsonLd } from "@/lib/seo/json-ld";
 import { Link } from "@/i18n/navigation";
 import { getProductBySlugCached } from "@/features/shop/api/catalog.repository.cached";
+import { currentProductSlug } from "@/features/shop/api/catalog.repository";
 import { ShopHeader } from "@/features/shop/components/ShopHeader";
 import { ProductDetailClient } from "@/features/shop/components/ProductDetailClient";
 import { ProductGrid } from "@/features/shop/components/home-sections";
@@ -37,6 +38,11 @@ export async function generateMetadata({
   const product = await getProductBySlugCached(slug, locale);
 
   if (!product) {
+    // An old product URL (migration 0110): one permanent redirect to the
+    // current one. Metadata resolves before the page streams, so this is a
+    // real 308 rather than the meta refresh a redirect inside the page gives.
+    const current = await currentProductSlug(decodeURIComponent(slug));
+    if (current) permanentRedirect(`/${locale}/products/${encodeURIComponent(current)}`);
     notFound();
   }
 
@@ -62,7 +68,11 @@ export default async function ProductDetailPage({
   const tConsultation = await getTranslations("Consultation");
 
   const product = await getProductBySlugCached(slug, locale);
-  if (!product) notFound();
+  if (!product) {
+    const current = await currentProductSlug(decodeURIComponent(slug));
+    if (current) permanentRedirect(`/${locale}/products/${encodeURIComponent(current)}`);
+    notFound();
+  }
 
   const productUrl = absoluteUrl(locale, `/products/${slug}`);
   const productImages = [

@@ -89,7 +89,7 @@ export async function listTourSitemapEntries(): Promise<TourSitemapEntry[]> {
       lastModified: destination.updated_at,
     })),
     ...tours.map((tour) => ({
-      path: `/tours/t/${tour.slug}`,
+      path: `/tours/${tour.slug}`,
       locales: uiLocalesFor(tour.locales),
       lastModified: tour.updated_at,
       images: (tour.images ?? []).map((src) => publicMediaUrl(src)).filter((url): url is string => Boolean(url)),
@@ -109,4 +109,24 @@ export function tourAlternates(locale: string, path: string, languages: readonly
     alternates: alternatesFor(locale, path, languages.length ? languages : undefined),
     ...(indexable ? {} : { robots: { index: false, follow: true } }),
   };
+}
+
+/**
+ * The current slug of a tour whose URL used to be `slug` (migration 0111:
+ * tour.tour_slug_history), for a permanent redirect. Null when the slug was
+ * never retired, the tour is not published, or the table does not exist yet.
+ */
+export async function currentTourSlug(slug: string): Promise<string | null> {
+  try {
+    const [row] = await db<{ slug: string }[]>`
+      select t.slug
+        from tour.tour_slug_history h
+        join tour.tours t on t.id = h.tour_id
+       where h.slug = ${slug} and t.status = 'published' and t.slug <> ${slug}
+       limit 1
+    `;
+    return row?.slug ?? null;
+  } catch {
+    return null;
+  }
 }

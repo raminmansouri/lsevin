@@ -64,7 +64,7 @@ export default async function ExplorePage({
           name: t("title"),
           locale,
           items: results.items.map((tour) => ({
-            url: absoluteUrl(locale, `/tours/t/${tour.slug}`),
+            url: absoluteUrl(locale, `/tours/${tour.slug}`),
             name: tour.title?.value ?? tour.slug,
             image: tour.coverUrl,
           })),

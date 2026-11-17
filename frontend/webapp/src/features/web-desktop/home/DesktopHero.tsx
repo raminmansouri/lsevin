@@ -18,9 +18,9 @@ const CHIPS = [
 
 
 const ARCHES = [
-  { className: "start-[34%] top-0 h-[480px] w-[300px]", depth: 1.4, delay: "0s" },
-  { className: "start-0 top-[150px] h-[340px] w-[210px]", depth: 0.7, delay: "-2s" },
-  { className: "end-0 top-[90px] h-[360px] w-[220px]", depth: 0.9, delay: "-4s" },
+  { className: "start-[27%] top-0 w-[46%] max-w-[340px] aspect-[9/16] z-10", depth: 1.4, delay: "0s" },
+  { className: "start-0 top-[18%] w-[34%] max-w-[250px] aspect-[5/9]", depth: 0.7, delay: "-2s" },
+  { className: "end-0 top-[11%] w-[34%] max-w-[260px] aspect-[5/9]", depth: 0.9, delay: "-4s" },
 ];
 
 export async function DesktopHero({
@@ -127,7 +127,7 @@ export async function DesktopHero({
                               fill
                               src={resolveMediaUrl(picture.imageUrl)}
                               alt={picture.label}
-                              sizes="300px"
+                              sizes="(min-width: 1280px) 300px, 25vw"
                               className="object-cover"
                               fallbackClassName="h-full w-full"
                             />
@@ -158,7 +158,7 @@ export async function DesktopHero({
             </div>
 
             {specialPackagesCount > 0 ? (
-              <div className="lsd-depth absolute end-4 top-[470px]" style={{ ["--d" as string]: 2.2 }}>
+              <div className="lsd-depth absolute end-4 top-[70%]" style={{ ["--d" as string]: 2.2 }}>
                 <Reveal delay={1150} className="lsd-glass rounded-3xl px-6 py-4">
                   <p className="text-3xl font-black text-white">
                     <CountUp value={specialPackagesCount} locale={locale} />

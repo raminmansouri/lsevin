@@ -334,7 +334,7 @@ export function StayBookingFlow({ ctx, signedIn, initialQuote }: { ctx: BookingC
 
   return (
     <div className="px-4 py-4 sm:px-6">
-      <Link href={`/stays/p/${ctx.propertySlug}?in=${ctx.checkIn}&out=${ctx.checkOut}&adults=${ctx.occupancy.adults}&rooms=${ctx.occupancy.rooms}${children ? `&ages=${ctx.occupancy.childAges.join(",")}` : ""}`} className="inline-flex min-h-11 items-center gap-1.5 text-sm font-medium text-slate-600 hover:text-slate-900">
+      <Link href={`/stays/${ctx.propertySlug}?in=${ctx.checkIn}&out=${ctx.checkOut}&adults=${ctx.occupancy.adults}&rooms=${ctx.occupancy.rooms}${children ? `&ages=${ctx.occupancy.childAges.join(",")}` : ""}`} className="inline-flex min-h-11 items-center gap-1.5 text-sm font-medium text-slate-600 hover:text-slate-900">
         <Back className="size-4" aria-hidden="true" />
         {t("back")}
       </Link>
@@ -352,7 +352,7 @@ export function StayBookingFlow({ ctx, signedIn, initialQuote }: { ctx: BookingC
           {holdError ? (
             <div role="alert" className="rounded-2xl bg-red-50 p-4 text-sm text-red-800 ring-1 ring-red-200" data-testid="stay-hold-error">
               <p className="font-semibold">{tErr(holdError as never)}</p>
-              <Link href={`/stays/p/${ctx.propertySlug}`} className="mt-2 inline-flex min-h-11 items-center font-semibold underline">
+              <Link href={`/stays/${ctx.propertySlug}`} className="mt-2 inline-flex min-h-11 items-center font-semibold underline">
                 {t("restart")}
               </Link>
             </div>

@@ -34,7 +34,7 @@ test("AT-03/AT-04: published content, gallery, itinerary order, rules, price, lo
              values (${tour.id}, 'tour', ${tour.id}, 'faq', 'en-US', 'SECRET DRAFT FAQ', null, 'draft', false)`;
   await db()`update tour.content set draft_value = 'UNPUBLISHED TITLE' where entity_id = ${tour.id}::uuid and field_key = 'title' and locale = 'en-US'`;
 
-  await page.goto(`/en/tours/t/${tour.slug}`);
+  await page.goto(`/en/tours/${tour.slug}`);
   const detail = page.getByTestId("tour-detail");
   await expect(detail).toBeVisible();
   await expect(page.getByTestId("tour-title")).toHaveText("Persepolis day tour");
@@ -92,14 +92,14 @@ test("AT-03/AT-04: published content, gallery, itinerary order, rules, price, lo
 
 test("approximate meeting point until booking (C-043)", async ({ page }) => {
   const c = await seedCatalog([{ locationPrivacy: "approximate" }]);
-  await page.goto(`/en/tours/t/${c.tours[0].slug}`);
+  await page.goto(`/en/tours/${c.tours[0].slug}`);
   await expect(page.getByTestId("approximate-location")).toBeVisible();
   await expect(page.getByText("Eram Square, in front of the main gate")).toHaveCount(0);
 });
 
 test("AT-33/AT-39: German UI shows labelled fallback content, no blanks or raw keys", async ({ page }) => {
   const c = await seedCatalog([{}]);
-  await page.goto(`/de/tours/t/${c.tours[0].slug}`);
+  await page.goto(`/de/tours/${c.tours[0].slug}`);
   await expect(page.getByTestId("tour-detail")).toBeVisible();
   await expect(page.getByTestId("fallback-badge").first()).toBeVisible();
   // Mandatory disclosures still present (source-language content) and no raw message keys.
@@ -115,7 +115,7 @@ test("AT-05: weather forecast, beyond-horizon, stale and unavailable states", as
   // Forecast inside the horizon (first departure in 3 days).
   const near = await seedCatalog([{ firstDepartureInDays: 3 }]);
   const loc = await uniqueLocation(near.tours[0].id);
-  await page.goto(`/en/tours/t/${near.tours[0].slug}`);
+  await page.goto(`/en/tours/${near.tours[0].slug}`);
   const card = page.getByTestId("weather-card").filter({ visible: true });
   await expect(card).toHaveAttribute("data-weather-status", "ok");
   await expect(card).toHaveAttribute("data-weather-mode", "forecast");
@@ -133,7 +133,7 @@ test("AT-05: weather forecast, beyond-horizon, stale and unavailable states", as
   // Beyond the forecast horizon: no current conditions presented as a forecast.
   const far = await seedCatalog([{ firstDepartureInDays: 40 }]);
   await uniqueLocation(far.tours[0].id);
-  await page.goto(`/en/tours/t/${far.tours[0].slug}`);
+  await page.goto(`/en/tours/${far.tours[0].slug}`);
   await expect(page.getByTestId("weather-card").filter({ visible: true })).toHaveAttribute("data-weather-mode", "climate");
   await expect(page.getByTestId("weather-card").filter({ visible: true }).getByTestId("weather-climate")).toBeVisible();
   await expect(page.getByTestId("weather-card").filter({ visible: true }).getByText(/°C|° \//)).toHaveCount(0);
@@ -150,7 +150,7 @@ test("AT-05: weather forecast, beyond-horizon, stale and unavailable states", as
                      'fixture', now() - interval '10 hours', now() - interval '1 hour')`;
   await db()`insert into tour.weather_cache (cache_key, kind, latitude, longitude, payload, source, fetched_at, expires_at)
              values (${`fixture:fail:${sloc.lat.toFixed(3)},${sloc.lng.toFixed(3)}`}, 'daily', ${sloc.lat}, ${sloc.lng}, '{}'::jsonb, 'fixture', now(), now() + interval '1 day')`;
-  await page.goto(`/en/tours/t/${stale.tours[0].slug}`);
+  await page.goto(`/en/tours/${stale.tours[0].slug}`);
   const staleCard = page.getByTestId("weather-card").filter({ visible: true });
   await expect(staleCard).toHaveAttribute("data-weather-freshness", "stale");
   await expect(staleCard.getByTestId("weather-stale")).toBeVisible();
@@ -161,7 +161,7 @@ test("AT-05: weather forecast, beyond-horizon, stale and unavailable states", as
   const nloc = await uniqueLocation(none.tours[0].id);
   await db()`insert into tour.weather_cache (cache_key, kind, latitude, longitude, payload, source, fetched_at, expires_at)
              values (${`fixture:fail:${nloc.lat.toFixed(3)},${nloc.lng.toFixed(3)}`}, 'daily', ${nloc.lat}, ${nloc.lng}, '{}'::jsonb, 'fixture', now(), now() + interval '1 day')`;
-  await page.goto(`/en/tours/t/${none.tours[0].slug}`);
+  await page.goto(`/en/tours/${none.tours[0].slug}`);
   await expect(page.getByTestId("weather-card").filter({ visible: true })).toHaveAttribute("data-weather-status", "unavailable");
   // The booking CTA is unaffected by the weather outage (AT-28).
   await expect(page.getByTestId("book-now")).toBeVisible();
@@ -172,7 +172,7 @@ test("unpublished / paused / unknown tours answer a real HTTP 404 (regression)",
   const [live, draft] = c.tours;
   await db()`update tour.tours set status = 'paused' where id = ${live.id}::uuid`;
   for (const slug of [live.slug, draft.slug, `missing-${live.slug}`]) {
-    const res = await page.goto(`/en/tours/t/${slug}`);
+    const res = await page.goto(`/en/tours/${slug}`);
     expect(res?.status(), slug).toBe(404);
     await expect(page.getByTestId("tour-not-found")).toBeVisible();
   }
@@ -182,7 +182,7 @@ test("unpublished / paused / unknown tours answer a real HTTP 404 (regression)",
 
 test("digits inside provider-authored text are never rewritten on Persian pages (regression)", async ({ page }) => {
   const c = await seedCatalog([{ titles: { "fa-IR": "تور 5e95 سال 2026", "en-US": "Tour 5e95 2026" }, adultPrice: 12_000_000 }]);
-  await page.goto(`/fa/tours/t/${c.tours[0].slug}`);
+  await page.goto(`/fa/tours/${c.tours[0].slug}`);
   await expect(page.getByTestId("tour-title")).toHaveText("تور 5e95 سال 2026");
   // Give the platform-wide digit converter (MutationObserver) a chance to run.
   await page.waitForTimeout(1500);

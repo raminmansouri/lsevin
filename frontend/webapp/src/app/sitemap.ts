@@ -211,10 +211,10 @@ const stayEntries = unstable_cache(
       { path: "/stays/intro", locales: STAY_INDEXABLE_LOCALES },
       ...cities.map((c) => ({ path: `/stays/city/${c.slug}`, locales: STAY_INDEXABLE_LOCALES, lastModified: new Date(c.updated_at).toISOString() })),
       ...properties.map((p) => ({
-        path: `/stays/p/${p.slug}`,
+        path: `/stays/${p.slug}`,
         locales: propertyLocales(p.keys ?? []),
         lastModified: new Date(p.updated_at).toISOString(),
-        images: sitemapImages(`/stays/p/${p.slug}`, p.images),
+        images: sitemapImages(`/stays/${p.slug}`, p.images),
       })),
     ];
   },

@@ -46,7 +46,8 @@ declare const messages: {
       "suggestions": {
         "hair": "Hair transplant",
         "dental": "Dentistry",
-        "nose": "Nose surgery"
+        "nose": "Nose surgery",
+        "bmi": "Calculate my BMI"
       }
     },
     "card": {
@@ -446,7 +447,8 @@ declare const messages: {
     "searchResults": "Search results",
     "goBack": "Go back",
     "viewAllProviders": "View all {count} providers in {name}",
-    "providersIn": "{name} providers"
+    "providersIn": "{name} providers",
+    "featured": "Featured"
   },
   "Booking": {
     "dayParts": {
@@ -3264,7 +3266,7 @@ declare const messages: {
     }
   },
   "Footer": {
-    "tagline": "Medical, beauty, stay and fitness services for visitors to Iran.",
+    "tagline": "Medical, beauty, stay and fitness services for international travellers.",
     "cta": "Find places near you",
     "enamadAlt": "Enamad electronic trust seal",
     "copyright": "© {year} Lsevin. All rights reserved.",
@@ -5677,6 +5679,13 @@ declare const messages: {
       "noResults": "No matches",
       "databaseTables": "Database tables",
       "toursPlatform": "Tours platform",
+      "staysPlatform": "Hotels and stays",
+      "staysDashboard": "Stays overview",
+      "staysSettings": "1. Stays settings",
+      "staysCities": "2. Destinations",
+      "staysProperties": "3. Hotels and stays",
+      "staysBookings": "Stay bookings",
+      "staysReviews": "Stay reviews",
       "toursPlatformDashboard": "Tours overview",
       "toursPlatformTours": "4. Tours & review queue",
       "toursPlatformDestinations": "3. Destinations",
@@ -5695,9 +5704,9 @@ declare const messages: {
     }
   },
   "HomePage": {
-    "title": "LSevin | Book Doctors, Clinics & Medical Hotels in Iran",
+    "title": "LSevin | Book International Doctors, Clinics & Medical Hotels",
     "h1": "Book doctors, clinics, medical hotels and health tours in Iran",
-    "description": "Plan treatment in Iran in one place: book specialists and clinics, medical hotels near hospitals, in-hotel care and a free consultation with LSevin.",
+    "description": "Plan international treatment in one place: book specialists and clinics, medical hotels near hospitals, in-hotel care and a free consultation with LSevin.",
     "keywords": "automation healthcare,healthcare automation,medical tourism,medical booking",
     "heroTitle": "Experience the Best Medical Services with Us",
     "heroDescription": "On the journey to wellness, we bring you the best medical services with a team of top specialists, advanced equipment, and a safe, relaxing environment committed to high-quality treatment and exceptional care.",
@@ -16265,7 +16274,19 @@ declare const messages: {
     "onSale": "On sale",
     "rating4plus": "4★ & up",
     "allBrands": "All brands",
-    "filters": "Filters",
+    "filters": {
+      "search": "Search products…",
+      "sortPopularity": "Popularity",
+      "sortNewest": "Newest",
+      "sortPriceAsc": "Price: low to high",
+      "sortPriceDesc": "Price: high to low",
+      "sortRating": "Rating",
+      "anyRating": "Any rating",
+      "minPrice": "Min price",
+      "maxPrice": "Max price",
+      "inStockOnly": "In stock only",
+      "apply": "Apply filters"
+    },
     "priceRange": "Price range",
     "minPrice": "Min",
     "maxPrice": "Max",
@@ -18368,6 +18389,10 @@ declare const messages: {
     "removed": "Seal for {host} removed.",
     "removeFailed": "The seal could not be removed. Please try again.",
     "replaceHint": "Changes appear on the site within a few minutes."
+  },
+  "LocationAccess": {
+    "denied": "Location access is blocked. Tap the lock icon next to the site address, set Location to Allow, and try again.",
+    "unavailable": "We couldn't find your location. Check your connection or GPS and try again."
   }
 };
 export default messages;

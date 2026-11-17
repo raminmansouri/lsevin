@@ -4,10 +4,6 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight, Search, Sparkles } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 
-import {
-  hasLexicalContent,
-  LexicalRenderer,
-} from "@/components/editor/lexical-renderer";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { env } from "@/config/env/client";
 import {
@@ -16,10 +12,6 @@ import {
   isTourismCategory,
   TOURS_HOME_PATH,
 } from "@/features/categories/utils/category-href";
-import {
-  getCategoryOverlayClassName,
-  getCategoryOverlayStyle,
-} from "@/features/categories/utils/category-overlay";
 import { compareByPriority } from "@/features/categories/utils/priority";
 import type {
   CategoryBrowserCategory,
@@ -27,87 +19,56 @@ import type {
 } from "@/features/service-providers/actions/categories/get-category-browser-groups";
 import { Link, useRouter } from "@/i18n/navigation";
 
-const ALLOWED_GRADIENTS = [
-  "from-red-500/90 to-red-600/90",
-  "from-red-500/90 to-red-700/90",
-  "from-blue-500/90 to-blue-600/90",
-  "from-blue-500/90 to-blue-700/90",
-  "from-pink-500/90 to-pink-600/90",
-  "from-pink-500/90 to-rose-700/90",
-  "from-purple-500/90 to-purple-600/90",
-  "from-purple-500/90 to-purple-700/90",
-  "from-cyan-500/90 to-cyan-600/90",
-  "from-cyan-500/90 to-cyan-700/90",
-  "from-green-500/90 to-green-600/90",
-  "from-emerald-500/90 to-emerald-600/90",
-  "from-emerald-500/90 to-emerald-700/90",
-  "from-rose-500/90 to-rose-600/90",
-  "from-amber-500/90 to-amber-600/90",
-  "from-orange-500/90 to-orange-600/90",
-  "from-orange-500/90 to-orange-700/90",
-  "from-teal-500/90 to-teal-600/90",
-  "from-teal-500/90 to-teal-700/90",
-  "from-indigo-500/90 to-indigo-600/90",
-  "from-violet-500/90 to-violet-600/90",
-] as const;
-
-const FALLBACK_GRADIENTS = ALLOWED_GRADIENTS.slice(0, 8);
 const ROOT_PARENT_KEY = "__root__";
+const FEATURED_SLUG = "health-treatment-and-beauty";
+const FIRST_SLUGS = [FEATURED_SLUG, "tourism", "accommodation"];
+const LAST_SLUGS = ["educational-classes"];
 
 function parentKey(parentId?: string | null) {
   return parentId || ROOT_PARENT_KEY;
 }
 
+function slugOf(category: CategoryBrowserCategory) {
+  return ((category as { slug?: string | null }).slug ?? "").toLowerCase();
+}
+
+function slugRank(category: CategoryBrowserCategory) {
+  const slug = slugOf(category);
+  const first = FIRST_SLUGS.indexOf(slug);
+  if (first >= 0) return first;
+  if (LAST_SLUGS.includes(slug)) return 1000;
+  return 100;
+}
+
 export function buildCategoryImageSrc(value?: string | null) {
   const media = value?.trim();
   if (!media) return null;
-
   if (/^https?:\/\//i.test(media)) return media;
-
   return `${env.NEXT_PUBLIC_FILES_URL}/${media.replace(/^\//, "")}`;
 }
 
-function getCategoryHref(category: CategoryBrowserCategory) {
-  // Reached only for a category with nothing under it — anything with children is
-  // a button that descends a level instead. Opens the list; the destination's own
-  // toggle switches to the map.
-  return categoryProvidersHref(category);
-}
-
-function getGradientClass(category: CategoryBrowserCategory, index: number) {
-  return getCategoryOverlayClassName(
-    category.gradient,
-    FALLBACK_GRADIENTS[index % FALLBACK_GRADIENTS.length]
-  );
-}
-
-function getGradientStyle(category: CategoryBrowserCategory) {
-  return getCategoryOverlayStyle(category.gradient);
-}
-
 export function sortCategories(categories: CategoryBrowserCategory[]) {
-  // Admin priority first (1, 2, …); categories without one (0) follow, by name.
-  return [...categories].sort(
-    compareByPriority<CategoryBrowserCategory>((a, b) =>
-      a.name.localeCompare(b.name)
-    )
-  );
+  const byPriority = compareByPriority<CategoryBrowserCategory>((a, b) => a.name.localeCompare(b.name));
+  return [...categories].sort((a, b) => slugRank(a) - slugRank(b) || byPriority(a, b));
 }
 
-function CategoryMedia({ category }: { category: CategoryBrowserCategory }) {
-  const image = category.image ?? category.iconUrl;
-  const imageSrc = buildCategoryImageSrc(image);
+function localizeDigits(text: string, locale: string) {
+  return text.replace(/\d+/g, (digits) => [...digits].map((digit) => Number(digit).toLocaleString(locale)).join(""));
+}
+
+function CategoryMedia({ category, featured }: { category: CategoryBrowserCategory; featured: boolean }) {
+  const imageSrc = buildCategoryImageSrc(category.image ?? category.iconUrl);
 
   if (!imageSrc) {
     return (
-      <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
+      <div className="absolute inset-0 grid place-items-center bg-gradient-to-br from-[#0a5a44] to-[#062a20]">
         {category.icon ? (
-          <span className="text-4xl" aria-hidden="true">
+          <span className="text-5xl" aria-hidden="true">
             {category.icon}
           </span>
         ) : (
-          <span className="text-3xl font-bold text-gray-300" aria-hidden="true">
-            {category.name.slice(0, 1).toUpperCase()}
+          <span className="text-5xl font-black text-[#eacb7f]/40" aria-hidden="true">
+            {category.name.slice(0, 1)}
           </span>
         )}
       </div>
@@ -119,84 +80,59 @@ function CategoryMedia({ category }: { category: CategoryBrowserCategory }) {
       fill
       src={imageSrc}
       alt={category.name}
-      className="object-cover transition-transform duration-500 group-hover:scale-110"
-      sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-      fallbackClassName="rounded-2xl"
+      className="object-cover transition-transform duration-700 ease-out group-hover:scale-105 group-active:scale-105"
+      sizes={featured ? "(max-width: 640px) 100vw, 66vw" : "(max-width: 640px) 50vw, 33vw"}
+      fallbackClassName="h-full w-full"
     />
   );
-}
-
-function CategoryDescription({ description }: { description?: string | null }) {
-  if (description && hasLexicalContent(description)) {
-    return (
-      <LexicalRenderer
-        content={description}
-        className="mb-2 line-clamp-2 text-xs leading-4 text-white/85"
-      />
-    );
-  }
-
-  if (description?.trim()) {
-    return (
-      <p className="mb-2 line-clamp-2 text-xs leading-4 text-white/85">
-        {description}
-      </p>
-    );
-  }
-
-  return <p className="mb-2 line-clamp-2 text-xs leading-4 text-white/85">-</p>;
 }
 
 function CategoryCardContent({
   category,
   hasChildren,
-  index,
+  featured,
 }: {
   category: CategoryBrowserCategory;
   hasChildren: boolean;
-  index: number;
+  featured: boolean;
 }) {
   const locale = useLocale();
   const t = useTranslations("CategoryBrowser");
-  const gradientClass = getGradientClass(category, index);
-  const gradientStyle = getGradientStyle(category);
-  const childCount = Math.max(category.childCount, 0);
-  // Providers, never services. The old fallback swapped in a service count
-  // whenever the provider count was zero, so one shelf mixed "70 providers" with
-  // "121 services" and neither number could be read against the other.
-  const metaLabel = (hasChildren
-    ? t("subcategoriesCount", { count: childCount })
-    : t("providersCount", { count: Math.max(category.count, 0) }))
-    .replace(/\d+/g, (digits) => [...digits].map((digit) => Number(digit).toLocaleString(locale)).join(""));
+  const providers = Math.max(category.count, 0);
+  const meta = [
+    hasChildren ? t("subcategoriesCount", { count: Math.max(category.childCount, 0) }) : null,
+    providers > 0 || !hasChildren ? t("providersCount", { count: providers }) : null,
+  ]
+    .filter(Boolean)
+    .join(" · ");
 
   return (
     <>
-      <CategoryMedia category={category} />
-      <div
-        className={[
-          "pointer-events-none absolute inset-0",
-          gradientClass ? `bg-gradient-to-t ${gradientClass}` : "",
-        ]
-          .filter(Boolean)
-          .join(" ")}
-        style={gradientStyle}
-        data-category-gradient={category.gradient || undefined}
-        data-category-overlay={
-          gradientStyle?.background
-            ? "inline-style"
-            : gradientClass || "default"
-        }
-      />
+      <CategoryMedia category={category} featured={featured} />
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#03140f]/90 via-[#03140f]/25 to-transparent" />
+      <div className="pointer-events-none absolute inset-0 rounded-[26px] ring-1 ring-inset ring-[#eacb7f]/25" />
 
-      <div className="relative z-10 flex h-full flex-col justify-end p-4 text-left">
-        <h3 className="mb-1 text-base leading-tight font-bold text-white">
-          {category.name}
-        </h3>
-        <CategoryDescription description={category.description} />
-        <div className="flex items-center justify-between gap-2">
-          <p className="truncate text-xs text-white/90">{metaLabel}</p>
-          <ChevronRight size={16} className="shrink-0 text-white/90" />
+      {featured ? (
+        <span className="absolute start-4 top-4 z-10 inline-flex items-center gap-1.5 rounded-full bg-[#03140f]/45 px-3 py-1.5 text-[11px] font-bold text-[#eacb7f] ring-1 ring-[#eacb7f]/40 backdrop-blur-md">
+          <Sparkles size={12} />
+          {t("featured")}
+        </span>
+      ) : null}
+
+      <div className="relative z-10 flex h-full items-end gap-3 p-4 text-start">
+        <div className="min-w-0 flex-1">
+          <h3
+            className={`font-black leading-tight tracking-tight text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.45)] ${
+              featured ? "text-[26px]" : "text-[19px]"
+            }`}
+          >
+            {category.name}
+          </h3>
+          <p className="mt-1.5 truncate text-[12px] font-medium text-white/75">{localizeDigits(meta, locale)}</p>
         </div>
+        <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-white/15 text-white ring-1 ring-white/30 backdrop-blur-md transition group-hover:bg-[#eacb7f] group-hover:text-[#083f30]">
+          <ChevronLeft size={18} className="ltr:rotate-180" />
+        </span>
       </div>
     </>
   );
@@ -205,40 +141,32 @@ function CategoryCardContent({
 function CategoryCard({
   category,
   hasChildren,
-  index,
+  featured,
   onOpenCategory,
   opensTours = false,
 }: {
   category: CategoryBrowserCategory;
   hasChildren: boolean;
-  index: number;
+  featured: boolean;
   onOpenCategory: () => void;
   opensTours?: boolean;
 }) {
   const t = useTranslations("CategoryBrowser");
-  const className =
-    "group relative block aspect-[4/3] w-full overflow-hidden rounded-2xl shadow-sm transition-all hover:shadow-xl active:scale-95";
+  const className = [
+    "group relative block w-full overflow-hidden rounded-[26px] bg-[#062a20] shadow-[0_18px_40px_-22px_rgba(3,20,15,0.65)] transition-transform duration-300 active:scale-[0.97]",
+    featured ? "col-span-2 aspect-[16/10] sm:col-span-3 lg:col-span-4 lg:aspect-[21/8]" : "aspect-[3/4]",
+  ].join(" ");
+  const content = <CategoryCardContent category={category} hasChildren={hasChildren} featured={featured} />;
 
-  // Tourism (and its subcategories) is its own sub-application (C-001).
   if (opensTours) {
     return (
-      <Link
-        href={TOURS_HOME_PATH}
-        className={className}
-        aria-label={t("openCategory", { name: category.name })}
-        data-opens-tours="true"
-      >
-        <CategoryCardContent
-          category={category}
-          hasChildren={hasChildren}
-          index={index}
-        />
+      <Link href={TOURS_HOME_PATH} className={className} aria-label={t("openCategory", { name: category.name })} data-opens-tours="true">
+        {content}
       </Link>
     );
   }
 
   if (hasChildren) {
-    // A link to /categories/<slug>, so crawlers and new tabs reach the level too.
     return (
       <Link
         href={categoryBrowserHref(category)}
@@ -247,26 +175,14 @@ function CategoryCard({
         className={className}
         aria-label={t("openSubcategories", { name: category.name })}
       >
-        <CategoryCardContent
-          category={category}
-          hasChildren={hasChildren}
-          index={index}
-        />
+        {content}
       </Link>
     );
   }
 
   return (
-    <Link
-      href={getCategoryHref(category)}
-      className={className}
-      aria-label={t("openCategory", { name: category.name })}
-    >
-      <CategoryCardContent
-        category={category}
-        hasChildren={hasChildren}
-        index={index}
-      />
+    <Link href={categoryProvidersHref(category)} className={className} aria-label={t("openCategory", { name: category.name })}>
+      {content}
     </Link>
   );
 }
@@ -299,19 +215,15 @@ export function CategoryBrowserClient({
   totalCategories: number;
   totalProviders: number;
   tourismCategoryId?: string | null;
-  /** The category whose subcategories are shown (/categories/<slug>); null at the root. */
   parentId?: string | null;
 }) {
   const t = useTranslations("CategoryBrowser");
+  const locale = useLocale();
   const router = useRouter();
-  // /categories/<slug> opens a node's subcategories; the page resolves the slug.
   const selectedParentId = parentId;
   const [query, setQuery] = useState("");
 
-  const allCategories = useMemo(
-    () => categoryGroups.flatMap((group) => group.categories),
-    [categoryGroups]
-  );
+  const allCategories = useMemo(() => categoryGroups.flatMap((group) => group.categories), [categoryGroups]);
 
   const categoryById = useMemo(() => {
     const map = new Map<string, CategoryBrowserCategory>();
@@ -321,18 +233,13 @@ export function CategoryBrowserClient({
 
   const categoriesByParent = useMemo(() => {
     const map = new Map<string, CategoryBrowserCategory[]>();
-
     for (const category of allCategories) {
       const key = parentKey(category.parentId);
       const categories = map.get(key) ?? [];
       categories.push(category);
       map.set(key, categories);
     }
-
-    for (const [key, categories] of map.entries()) {
-      map.set(key, sortCategories(categories));
-    }
-
+    for (const [key, categories] of map.entries()) map.set(key, sortCategories(categories));
     return map;
   }, [allCategories]);
 
@@ -340,106 +247,61 @@ export function CategoryBrowserClient({
     (category: CategoryBrowserCategory) => {
       const nextPath: CategoryBrowserCategory[] = [];
       let current: CategoryBrowserCategory | undefined = category;
-
       while (current) {
         nextPath.unshift(current);
-        current = current.parentId
-          ? categoryById.get(current.parentId)
-          : undefined;
+        current = current.parentId ? categoryById.get(current.parentId) : undefined;
       }
-
       return nextPath;
     },
     [categoryById]
   );
 
-  // A /categories/<slug> link lands mid-tree, so the breadcrumb has to be reconstructed from
-  // the node up rather than started empty — otherwise "All categories" is the only
-  // way back out of a screen the visitor entered three levels down.
   const path = useMemo(() => {
-    const target = selectedParentId
-      ? categoryById.get(selectedParentId)
-      : undefined;
+    const target = selectedParentId ? categoryById.get(selectedParentId) : undefined;
     return target ? buildPathToCategory(target) : [];
   }, [selectedParentId, categoryById, buildPathToCategory]);
+
   function parentHref(id?: string) {
     const category = id ? categoryById.get(id) : undefined;
     return category ? categoryBrowserHref(category) : "/categories";
   }
-  function navigateToParent(id?: string) {
-    router.push(parentHref(id), { scroll: false });
-  }
-  const currentParent = path.length > 0 ? path[path.length - 1] : null;
 
-  // Tourism has no category screen of its own: the Tours app is its home.
+  const currentParent = path.length > 0 ? path[path.length - 1] : null;
+  const isTourism = useCallback(
+    (id: string) => isTourismCategory(id, (cid) => categoryById.get(cid)?.parentId, tourismCategoryId),
+    [categoryById, tourismCategoryId]
+  );
+
   useEffect(() => {
-    if (
-      currentParent &&
-      isTourismCategory(
-        currentParent.id,
-        (id) => categoryById.get(id)?.parentId,
-        tourismCategoryId
-      )
-    ) {
-      router.replace(TOURS_HOME_PATH);
-    }
-  }, [categoryById, currentParent, router, tourismCategoryId]);
+    if (currentParent && isTourism(currentParent.id)) router.replace(TOURS_HOME_PATH);
+  }, [currentParent, isTourism, router]);
 
   const hasQuery = query.trim().length > 0;
   const normalizedQuery = query.trim().toLowerCase();
   const searchedCategories = useMemo(() => {
     if (!normalizedQuery) return [];
-
     return sortCategories(
       allCategories.filter((category) =>
-        [category.name, category.description]
-          .filter(Boolean)
-          .some((value) => value.toLowerCase().includes(normalizedQuery))
+        [category.name, category.description].filter(Boolean).some((value) => value.toLowerCase().includes(normalizedQuery))
       )
     );
   }, [allCategories, normalizedQuery]);
 
   const filteredGroups = useMemo(() => {
     if (hasQuery) {
-      return searchedCategories.length
-        ? [
-            {
-              id: "search",
-              title: t("searchResults"),
-              categories: searchedCategories,
-            },
-          ]
-        : [];
+      return searchedCategories.length ? [{ id: "search", title: t("searchResults"), categories: searchedCategories }] : [];
     }
-
     if (currentParent) {
       return [
-        {
-          id: currentParent.id,
-          title: currentParent.name,
-          categories: categoriesByParent.get(currentParent.id) ?? [],
-        },
+        { id: currentParent.id, title: currentParent.name, categories: categoriesByParent.get(currentParent.id) ?? [] },
       ].filter((group) => group.categories.length > 0);
     }
-
     return categoryGroups
-      .map((group) => ({
-        ...group,
-        categories: sortCategories(
-          group.categories.filter((category) => !category.parentId)
-        ),
-      }))
-      .filter((group) => group.categories.length > 0);
-  }, [
-    categoriesByParent,
-    categoryGroups,
-    currentParent,
-    hasQuery,
-    searchedCategories,
-    t,
-  ]);
+      .map((group) => ({ ...group, categories: sortCategories(group.categories.filter((category) => !category.parentId)) }))
+      .filter((group) => group.categories.length > 0)
+      .sort((a, b) => Math.min(...a.categories.map(slugRank)) - Math.min(...b.categories.map(slugRank)));
+  }, [categoriesByParent, categoryGroups, currentParent, hasQuery, searchedCategories, t]);
 
-  // The card is a link to the category; leaving a search on the way.
   function openCategory() {
     setQuery("");
   }
@@ -449,18 +311,18 @@ export function CategoryBrowserClient({
       setQuery("");
       return;
     }
-
     if (path.length > 0) {
-      navigateToParent(path[path.length - 2]?.id);
+      router.push(parentHref(path[path.length - 2]?.id), { scroll: false });
       return;
     }
-
     router.back();
   }
 
+  const atRoot = !hasQuery && !currentParent;
+
   return (
-    <div className="min-h-screen bg-white pb-24" data-latin-digits>
-      <div className="sticky top-0 z-40 border-b border-gray-100 bg-white/95 px-5 pt-3 pb-4 backdrop-blur-xl">
+    <div className="min-h-screen bg-[#f6f8f7] pb-24" data-latin-digits>
+      <div className="sticky top-0 z-40 border-b border-gray-100 bg-white/95 px-5 pb-4 pt-3 backdrop-blur-xl">
         <div className="flex items-center gap-3">
           <button
             type="button"
@@ -468,29 +330,24 @@ export function CategoryBrowserClient({
             className="flex h-10 w-10 items-center justify-center rounded-full transition-colors hover:bg-gray-100"
             aria-label={t("goBack")}
           >
-            <ChevronLeft size={24} className="text-gray-700" />
+            <ChevronRight size={24} className="text-gray-700 ltr:rotate-180" />
           </button>
-
           <div className="min-w-0 flex-1">
-            <h1 className="truncate text-2xl font-bold text-gray-900">
-              {hasQuery
-                ? t("searchCategories")
-                : currentParent?.name || t("allCategories")}
+            <h1 className="truncate text-2xl font-black tracking-tight text-gray-900">
+              {hasQuery ? t("searchCategories") : currentParent?.name || t("allCategories")}
             </h1>
-            <p className="text-sm text-gray-600">
-              {t("categoriesCount", { count: totalCategories })} •{" "}
-              {t("providersCount", { count: totalProviders })}
+            <p className="text-sm text-gray-500">
+              {localizeDigits(
+                `${t("categoriesCount", { count: totalCategories })} • ${t("providersCount", { count: totalProviders })}`,
+                locale
+              )}
             </p>
           </div>
         </div>
 
         {path.length > 0 ? (
           <div className="mt-3 flex flex-wrap items-center gap-2 text-xs font-semibold text-gray-500">
-            <Link
-              href={parentHref()}
-              scroll={false}
-              className="rounded-full bg-gray-100 px-3 py-1 text-[#083f30]"
-            >
+            <Link href={parentHref()} scroll={false} className="rounded-full bg-gray-100 px-3 py-1 text-[#083f30]">
               {t("allCategories")}
             </Link>
             {path.map((category) => (
@@ -518,87 +375,50 @@ export function CategoryBrowserClient({
         </div>
       </div>
 
-      <main className="px-5 py-6">
-        {/*
-          Descending a level must never narrow the visitor to less than they could
-          already see. A parent holds providers of its own — everything filed on the
-          node itself rather than on one of its children — and without this they are
-          unreachable: the subcategory screen would list, say, six kinds of
-          accommodation with nothing in any of them while 35 hotels sit on the parent.
-        */}
+      <main className="px-4 py-6">
         {currentParent && !hasQuery && currentParent.count > 0 ? (
           <Link
-            href={
-              isTourismCategory(
-                currentParent.id,
-                (id) => categoryById.get(id)?.parentId,
-                tourismCategoryId
-              )
-                ? TOURS_HOME_PATH
-                : categoryProvidersHref(currentParent)
-            }
-            className="mb-6 flex items-center justify-between gap-3 rounded-2xl border border-gray-100 bg-gray-50 px-4 py-3 transition-colors hover:bg-gray-100"
+            href={isTourism(currentParent.id) ? TOURS_HOME_PATH : categoryProvidersHref(currentParent)}
+            className="mb-6 flex items-center justify-between gap-3 rounded-2xl border border-[#eacb7f]/40 bg-white px-4 py-3 shadow-sm transition-colors hover:bg-gray-50"
           >
-            <span className="min-w-0 text-sm font-semibold text-[#083f30]">
-              {t("viewAllProviders", {
-                count: currentParent.count,
-                name: currentParent.name,
-              })}
+            <span className="min-w-0 text-sm font-bold text-[#083f30]">
+              {t("viewAllProviders", { count: currentParent.count, name: currentParent.name })}
             </span>
-            <ChevronRight size={18} className="shrink-0 text-[#083f30]" />
+            <ChevronLeft size={18} className="shrink-0 text-[#083f30] ltr:rotate-180" />
           </Link>
         ) : null}
 
         {filteredGroups.length === 0 ? (
           <EmptyState hasQuery={hasQuery} />
         ) : (
-          <div className="space-y-8">
+          <div className="space-y-9">
             {filteredGroups.map((group) => {
-              const groupProviderCount = group.categories.reduce(
-                (sum, category) => sum + category.count,
-                0
-              );
-
+              const groupProviderCount = group.categories.reduce((sum, category) => sum + category.count, 0);
               return (
                 <section key={group.id}>
-                  <div className="mb-4 flex items-center justify-between gap-4">
-                    <div className="min-w-0">
-                      <h2 className="truncate text-xl font-bold text-gray-900">
-                        {group.title === "Other Services"
-                          ? t("otherServices")
-                          : group.title}
+                  <div className="mb-4 flex items-center justify-between gap-4 px-1">
+                    <div className="flex min-w-0 items-center gap-2.5">
+                      <span className="h-6 w-1 shrink-0 rounded-full bg-gradient-to-b from-[#eacb7f] to-[#c9a14a]" />
+                      <h2 className="truncate text-lg font-black tracking-tight text-gray-900">
+                        {group.title === "Other Services" ? t("otherServices") : group.title}
                       </h2>
-                      <p className="text-xs font-medium text-gray-500">
-                        {t("categoriesCount", {
-                          count: group.categories.length,
-                        })}
-                      </p>
                     </div>
-                    <span className="shrink-0 text-sm font-medium text-gray-500">
-                      {t("providersCount", { count: groupProviderCount })}
+                    <span className="shrink-0 rounded-full bg-white px-3 py-1 text-xs font-semibold text-gray-500 ring-1 ring-gray-200">
+                      {localizeDigits(t("providersCount", { count: groupProviderCount }), locale)}
                     </span>
                   </div>
 
                   <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-                    {group.categories.map((category, categoryIndex) => {
-                      const hasChildren =
-                        (categoriesByParent.get(category.id)?.length ?? 0) > 0;
-
-                      return (
-                        <CategoryCard
-                          key={category.id}
-                          category={category}
-                          hasChildren={hasChildren}
-                          index={categoryIndex}
-                          onOpenCategory={openCategory}
-                          opensTours={isTourismCategory(
-                            category.id,
-                            (id) => categoryById.get(id)?.parentId,
-                            tourismCategoryId
-                          )}
-                        />
-                      );
-                    })}
+                    {group.categories.map((category) => (
+                      <CategoryCard
+                        key={category.id}
+                        category={category}
+                        hasChildren={(categoriesByParent.get(category.id)?.length ?? 0) > 0}
+                        featured={atRoot && slugOf(category) === FEATURED_SLUG}
+                        onOpenCategory={openCategory}
+                        opensTours={isTourism(category.id)}
+                      />
+                    ))}
                   </div>
                 </section>
               );
@@ -607,21 +427,15 @@ export function CategoryBrowserClient({
         )}
       </main>
 
-      <div className="px-5 pb-8">
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#083f30] to-[#0a5a44] p-6">
+      <div className="px-4 pb-8">
+        <div className="relative overflow-hidden rounded-[26px] bg-gradient-to-br from-[#083f30] to-[#0a5a44] p-6 ring-1 ring-inset ring-[#eacb7f]/25">
           <div className="relative z-10">
             <div className="mb-3 flex items-center gap-2">
               <Sparkles size={18} className="text-[#eacb7f]" />
-              <span className="text-xs font-bold tracking-wide text-[#eacb7f] uppercase">
-                {t("smartDiscovery")}
-              </span>
+              <span className="text-xs font-bold uppercase tracking-wide text-[#eacb7f]">{t("smartDiscovery")}</span>
             </div>
-            <h3 className="mb-2 text-lg font-bold text-white">
-              {t("cantFindTitle")}
-            </h3>
-            <p className="mb-4 text-sm leading-6 text-white/90">
-              {t("cantFindDescription")}
-            </p>
+            <h3 className="mb-2 text-lg font-black text-white">{t("cantFindTitle")}</h3>
+            <p className="mb-4 text-sm leading-6 text-white/85">{t("cantFindDescription")}</p>
             <Link
               href="/n/app/mobile/search"
               className="inline-flex rounded-xl bg-[#eacb7f] px-6 py-3 text-sm font-bold text-[#083f30] shadow-lg transition-all hover:bg-[#e0b654] hover:shadow-xl active:scale-95"

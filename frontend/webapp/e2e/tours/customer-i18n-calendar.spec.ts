@@ -125,15 +125,15 @@ test("AT-31/AT-40: language switch keeps departure, travelers and currency; cale
   await skipIntro(context);
 
   // Details page: pick a display currency, then switch language → same tour, same currency.
-  await page.goto(`/en/tours/t/${tour.slug}`);
+  await page.goto(`/en/tours/${tour.slug}`);
   await page.getByTestId("display-settings").click();
   // The preference is saved by a server action; let it land before navigating.
   await Promise.all([
-    page.waitForResponse((r) => r.request().method() === "POST" && r.url().includes("/tours/t/")),
+    page.waitForResponse((r) => r.request().method() === "POST" && r.url().includes("/tours/")),
     page.getByTestId("currency-select").selectOption("USD"),
   ]);
   await page.getByTestId("language-select").selectOption("fa");
-  await expect(page).toHaveURL(new RegExp(`/fa/tours/t/${tour.slug}`));
+  await expect(page).toHaveURL(new RegExp(`/fa/tours/${tour.slug}`));
   await expect(page.getByTestId("tour-detail")).toBeVisible();
   await page.getByTestId("display-settings").click();
   await expect(page.getByTestId("currency-select")).toHaveValue("USD");
@@ -147,7 +147,7 @@ test("AT-31/AT-40: language switch keeps departure, travelers and currency; cale
   await expect(page.getByTestId("details-step")).toBeVisible();
   await page.getByTestId("display-settings").click();
   await page.getByTestId("language-select").selectOption("tr");
-  await expect(page).toHaveURL(new RegExp(`/tr/tours/t/${tour.slug}/book\\?departure=${tour.departureIds[1]}`));
+  await expect(page).toHaveURL(new RegExp(`/tr/tours/${tour.slug}/book\\?departure=${tour.departureIds[1]}`));
   await expect(page.getByTestId("details-step")).toBeVisible();
   await expect(page.getByTestId("participant").first().locator("input[type=text]").first()).toHaveValue("Leyla");
   await expect(page.getByTestId("tours-shell")).toHaveAttribute("dir", "ltr");

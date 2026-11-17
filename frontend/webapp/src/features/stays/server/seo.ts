@@ -2,7 +2,7 @@ import "server-only";
 
 import { resolveMediaUrl } from "@/features/service-providers/lib/media-url";
 import { absoluteUrl } from "@/lib/seo/alternates";
-import { breadcrumbList, imageObjects, organizationId } from "@/lib/seo/entity-schema";
+import { breadcrumbList, imageObjects, lodgingAsLocalBusiness, organizationId } from "@/lib/seo/entity-schema";
 import { publicMediaUrl } from "@/lib/seo/media-url";
 import { seoOrigin } from "@/lib/seo/origin";
 import { firstSeoPlainText } from "@/lib/seo/plain-text";
@@ -56,17 +56,19 @@ function compact<T extends Record<string, unknown>>(node: T): T {
 }
 
 export function propertySchema(p: PropertyDetail, locale: string, labels: { stays: string; amenities: string[]; home?: string }) {
-  const url = absoluteUrl(locale, `/stays/p/${p.slug}`);
+  const url = absoluteUrl(locale, `/stays/${p.slug}`);
   const name = p.name?.value ?? p.slug;
   const node = compact({
-    "@type": TYPE[p.kind],
+    // A LocalBusiness naming its lodging kind (see lodgingAsLocalBusiness): the
+    // lodging types are validated as Hotel Center price markup. Check-in/out,
+    // stars and pet rules are lodging-only properties and stay on the page.
+    ...lodgingAsLocalBusiness(TYPE[p.kind]),
     "@id": `${url}#lodging`,
     name,
     url,
     description: firstSeoPlainText([p.summary?.value, p.description?.value], 300) || undefined,
     // Image licence metadata: the photos are supplied by the property.
     image: imageObjects(p.media.filter((m) => !m.roomTypeId).slice(0, 6).map((m) => abs(m.url)), name, 6),
-    starRating: p.starRating ? { "@type": "Rating", ratingValue: p.starRating } : undefined,
     // Reviews come only from guests with a completed booking (stay.reviews, one per booking).
     aggregateRating: p.ratingAvg != null && p.reviewCount > 0 ? { "@type": "AggregateRating", ratingValue: p.ratingAvg, reviewCount: p.reviewCount, bestRating: 5, worstRating: 1 } : undefined,
     address: compact({
@@ -77,9 +79,6 @@ export function propertySchema(p: PropertyDetail, locale: string, labels: { stay
       streetAddress: p.location && !p.location.approximate ? p.address?.value : undefined,
     }),
     geo: p.location && !p.location.approximate ? { "@type": "GeoCoordinates", latitude: p.location.latitude, longitude: p.location.longitude } : undefined,
-    checkinTime: p.checkInTime,
-    checkoutTime: p.checkOutTime,
-    petsAllowed: p.rules.pets,
     smokingAllowed: p.rules.smoking,
     amenityFeature: labels.amenities.map((a) => ({ "@type": "LocationFeatureSpecification", name: a, value: true })),
     provider: { "@id": organizationId() },
@@ -110,7 +109,7 @@ export function citySchema(city: CityDetail, items: PropertyCard[], locale: stri
           itemListElement: items.slice(0, 30).map((c, i) => ({
             "@type": "ListItem",
             position: i + 1,
-            url: absoluteUrl(locale, `/stays/p/${c.slug}`),
+            url: absoluteUrl(locale, `/stays/${c.slug}`),
             name: c.name,
           })),
         },

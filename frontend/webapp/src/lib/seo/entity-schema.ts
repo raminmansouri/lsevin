@@ -58,6 +58,20 @@ export function businessTypeFor(...labels: (string | null | undefined)[]) {
   return "LocalBusiness";
 }
 
+/**
+ * schema.org's lodging types (Hotel, Motel, LodgingBusiness, ...) make Google
+ * validate the page as hotel-price markup for Hotel Center partners, which
+ * requires identifier, check-in/out times and priceSpecification; without them
+ * Search Console lists the page as an invalid "Hotels" item (Rich Results Test
+ * on /fa/providers/miraj-hotel, 2026-11-16: 13 critical issues). A lodging is
+ * therefore a LocalBusiness (valid Local business result) that names its kind
+ * in additionalType.
+ */
+export const LODGING_TYPES = new Set(["Hotel", "Motel", "Hostel", "BedAndBreakfast", "LodgingBusiness", "Resort", "Campground"]);
+export function lodgingAsLocalBusiness(type: string): { "@type": string; additionalType?: string } {
+  return LODGING_TYPES.has(type) ? { "@type": "LocalBusiness", additionalType: `https://schema.org/${type}` } : { "@type": type };
+}
+
 /** An entity's public URL: by slug when the data has one, else by id (which redirects to the slug). */
 type EntityRef = { id: string; slug?: string | null };
 
@@ -133,8 +147,9 @@ export function providerSchema(input: ProviderSchemaInput): Node {
     Number.isFinite(input.latitude) &&
     Number.isFinite(input.longitude) &&
     !(input.latitude === 0 && input.longitude === 0);
+  const type = businessTypeFor(input.providerType, input.name);
   return compact({
-    "@type": businessTypeFor(input.providerType, input.name),
+    ...lodgingAsLocalBusiness(type),
     "@id": `${url}#business`,
     name: input.name,
     url,

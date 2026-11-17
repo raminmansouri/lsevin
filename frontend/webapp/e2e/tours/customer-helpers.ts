@@ -67,7 +67,7 @@ export async function ready(page: Page) {
 }
 
 export function bookUrl(locale: string, slug: string, departureId?: string) {
-  return `/${locale}/tours/t/${slug}/book${departureId ? `?departure=${departureId}` : ""}`;
+  return `/${locale}/tours/${slug}/book${departureId ? `?departure=${departureId}` : ""}`;
 }
 
 export async function tourBookings(userId: string) {

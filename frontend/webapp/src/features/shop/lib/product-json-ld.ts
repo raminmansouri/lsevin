@@ -68,7 +68,9 @@ export function productJsonLd(product: ProductDetail, productUrl: string, produc
             : "https://schema.org/OutOfStock";
         return {
           "@type": "Product",
-          sku: variant.sku || variant.id,
+          // Google: one SKU, no whitespace. Some catalog SKUs hold the product
+          // name ("Smart Super Wave Medical Pillow"); the variant slug is used then.
+          sku: variant.sku && !/\s/.test(variant.sku) ? variant.sku : variant.slug || variant.id,
           inProductGroupWithID: product.id,
           name: variant.title ? `${product.name} - ${variant.title}` : product.name,
           ...properties,
@@ -92,7 +94,9 @@ export function productJsonLd(product: ProductDetail, productUrl: string, produc
       ...(seller ? { creditText: seller, creator: { "@type": "Organization", name: seller }, copyrightNotice: seller } : {}),
     })),
     ...(product.brandName ? { brand: { "@type": "Brand", name: product.brandName } } : {}),
-    ...(product.categoryName ? { category: product.categoryName } : {}),
+    // No `category`: Google's merchant listings read it as its product taxonomy
+    // and reported the shop's own category name as an invalid value (Rich
+    // Results Test, 2026-11-16). The shop category is in the breadcrumb.
     ...(hasVariant.length || product.priceUnavailable || !(Number(product.price) > 0)
       ? {}
       : { offers: offer(Number(product.price), product.compareAtPrice, product.currency, availability) }),

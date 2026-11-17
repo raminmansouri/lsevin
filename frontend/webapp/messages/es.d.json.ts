@@ -13782,7 +13782,19 @@ declare const messages: {
     "onSale": "En oferta",
     "rating4plus": "4★ o más",
     "allBrands": "Todas las marcas",
-    "filters": "Filtros",
+    "filters": {
+      "search": "Search products…",
+      "sortPopularity": "Popularity",
+      "sortNewest": "Newest",
+      "sortPriceAsc": "Price: low to high",
+      "sortPriceDesc": "Price: high to low",
+      "sortRating": "Rating",
+      "anyRating": "Any rating",
+      "minPrice": "Min price",
+      "maxPrice": "Max price",
+      "inStockOnly": "In stock only",
+      "apply": "Apply filters"
+    },
     "priceRange": "Rango de precios",
     "minPrice": "Mín.",
     "maxPrice": "Máx.",
@@ -14096,6 +14108,10 @@ declare const messages: {
       "user": "User",
       "assistant": "Assistant"
     }
+  },
+  "LocationAccess": {
+    "denied": "Location access is blocked. Tap the lock icon next to the site address, set Location to Allow, and try again.",
+    "unavailable": "We couldn't find your location. Check your connection or GPS and try again."
   }
 };
 export default messages;
