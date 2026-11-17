@@ -1,11 +1,11 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ArrowLeft, ArrowRight, Clock, Loader2, LogIn, ShieldCheck } from "lucide-react";
+import { ArrowLeft, Clock, Loader2, LogIn, ShieldCheck } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 
 import { formatInstant } from "@/features/tours/domain/calendar";
-import { directionOf } from "@/features/tours/domain/content";
+
 import { useToursPrefs } from "@/features/tours/ui/customer/prefs-context";
 import { formatMoney, intlLocale } from "@/features/tours/ui/shared/format";
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
@@ -68,8 +68,7 @@ export function StayBookingFlow({ ctx, signedIn, initialQuote }: { ctx: BookingC
   const pathname = usePathname();
   const { calendar } = useToursPrefs();
   const fmtDate = useStayDate();
-  const rtl = directionOf(locale) === "rtl";
-  const Back = rtl ? ArrowRight : ArrowLeft;
+  const Back = ArrowLeft; // mirrored in RTL by globals.css
   const selKey = `stays:checkout:${ctx.ratePlanId}:${ctx.checkIn}:${ctx.checkOut}:${ctx.occupancy.rooms}:${ctx.occupancy.adults}:${ctx.occupancy.childAges.join(".")}`;
 
   const [step, setStep] = useState<"details" | "review">("details");

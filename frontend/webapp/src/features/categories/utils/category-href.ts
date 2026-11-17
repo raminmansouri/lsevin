@@ -31,15 +31,14 @@ export function categoryProvidersHref(category: CategoryRef) {
 
 export function categoryCardHref(
   category: CategoryRef & { childCount: number },
-  /** Pass the Tourism root (from tour settings) so Tourism and its subtree open Tours directly. */
-  tourism?: { tourismCategoryId?: string | null; parentOf?: (id: string) => string | null | undefined },
+  /**
+   * Pass the Tourism root (from tour settings) so Tourism and its subtree open Tours directly,
+   * and the Accommodation root (from stay settings) so hotels and stays open the Stays app.
+   */
+  apps?: { tourismCategoryId?: string | null; staysCategoryId?: string | null; parentOf?: (id: string) => string | null | undefined },
 ) {
-  if (
-    tourism?.tourismCategoryId &&
-    isTourismCategory(category.id, tourism.parentOf ?? (() => null), tourism.tourismCategoryId)
-  ) {
-    return TOURS_HOME_PATH;
-  }
+  const app = subAppPathFor(category.id, apps);
+  if (app) return app;
   return category.childCount > 0
     ? categoryBrowserHref(category)
     : categoryProvidersHref(category);
@@ -47,6 +46,20 @@ export function categoryCardHref(
 
 /** The Tours sub-application (src/app/[locale]/tours). */
 export const TOURS_HOME_PATH = "/tours";
+
+/** The Stays (hotels and accommodation) sub-application (src/app/[locale]/stays). */
+export const STAYS_HOME_PATH = "/stays";
+
+/** The sub-application a category (or anything beneath it) opens, or null for the provider directory. */
+export function subAppPathFor(
+  categoryId: string,
+  apps?: { tourismCategoryId?: string | null; staysCategoryId?: string | null; parentOf?: (id: string) => string | null | undefined },
+): string | null {
+  const parentOf = apps?.parentOf ?? (() => null);
+  if (apps?.tourismCategoryId && isTourismCategory(categoryId, parentOf, apps.tourismCategoryId)) return TOURS_HOME_PATH;
+  if (apps?.staysCategoryId && isTourismCategory(categoryId, parentOf, apps.staysCategoryId)) return STAYS_HOME_PATH;
+  return null;
+}
 
 /**
  * Tourism and everything beneath it opens the Tours sub-application instead of

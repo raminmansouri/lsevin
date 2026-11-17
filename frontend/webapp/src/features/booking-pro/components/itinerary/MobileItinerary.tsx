@@ -310,6 +310,7 @@ export function MobileItinerary(props: {
       stays={stayOptions}
       city={main.city}
       country={main.country}
+      nearProvider={draft.providerId ? { id: draft.providerId, name: main.providerName || main.title } : null}
       onSaved={(child, totals) => {
         const wasEditing = Boolean(sheet.editing);
         onChildSaved(child, totals);

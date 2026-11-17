@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from "react";
 import {
   ArrowLeft,
-  ArrowRight,
   BadgeCheck,
   CalendarDays,
   Check,
@@ -114,7 +113,7 @@ export function TourDetailView({
   const router = useRouter();
   const fmt = useTourDateFormat();
   const rtl = directionOf(locale) === "rtl";
-  const Back = rtl ? ArrowRight : ArrowLeft;
+  const Back = ArrowLeft; // mirrored in RTL by globals.css
   const title = detail.text.title?.value ?? detail.slug;
   const recorded = useRef(false);
   const relatedSaved = new Set(savedIds);

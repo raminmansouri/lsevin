@@ -5,5 +5,26 @@
     "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
     "source": "https://commons.wikimedia.org/wiki/File:Traditional_Hotel,_Yazd,_Iran_(14473821732).jpg",
     "modified": "Cropped (bottom 6%), resized and converted to WebP"
+  },
+  "mashhad-imam-reza-shrine-night": {
+    "author": "mohammad hosein tabatabaeian",
+    "license": "CC BY-SA 3.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Imam_Reza_shrine.jpg",
+    "modified": "Cropped to 16:10, resized and converted to WebP"
+  },
+  "tabriz-el-goli-night": {
+    "author": "Yare zaman2000",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Eil_Goli(SHAH_GOLI)_nights_in_Tabriz.jpg",
+    "modified": "Cropped to 16:10, resized and converted to WebP"
+  },
+  "qom-masumeh-shrine-iwan": {
+    "author": "Amir Pashaei",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:One_of_the_iwan_ceilings_of_Fatima_Masumeh_Shrine_in_atabki_sahn,_Qom,_Iran.jpg",
+    "modified": "Cropped to 16:10, resized and converted to WebP"
   }
 }

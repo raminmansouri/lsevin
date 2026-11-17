@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { ArrowLeft, ArrowRight, Compass, Heart, Home, Luggage, User } from "lucide-react";
+import { ArrowLeft, Compass, Heart, Home, Luggage, User } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 
 import { LanguageLinks } from "@/components/locale/language-links";
@@ -41,7 +41,7 @@ export function ToursShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const dir = directionOf(locale);
   const bare = pathname.startsWith("/tours/intro") || pathname.startsWith("/tours/share/");
-  const BackIcon = dir === "rtl" ? ArrowRight : ArrowLeft;
+  const BackIcon = ArrowLeft; // mirrored in RTL by globals.css
 
   return (
     // data-latin-digits: the platform-wide PersianDigits pass must not rewrite digits inside

@@ -297,8 +297,8 @@ function Gallery({ media, title, saved, propertyId }: { media: MediaItem[]; titl
   const [open, setOpen] = useState<number | null>(null);
   const [copied, setCopied] = useState(false);
   const rtl = directionOf(locale) === "rtl";
-  const Prev = rtl ? ChevronRight : ChevronLeft;
-  const Next = rtl ? ChevronLeft : ChevronRight;
+  const Prev = ChevronLeft; // mirrored in RTL by globals.css
+  const Next = ChevronRight; // mirrored in RTL by globals.css
   const share = async () => {
     const url = window.location.href.split("?")[0];
     try {
@@ -357,7 +357,7 @@ function Gallery({ media, title, saved, propertyId }: { media: MediaItem[]; titl
                 if (e.key === "ArrowLeft") setOpen((o) => (o == null ? o : rtl ? Math.min(media.length - 1, o + 1) : Math.max(0, o - 1)));
               }}
             >
-              <StayImage src={media[open].url} alt={media[open].alt} className="max-h-[80dvh] w-full object-contain" sizes="100vw" priority />
+              <StayImage src={media[open].url} alt={media[open].alt} className="h-[80dvh] w-full" fit="contain" sizes="100vw" priority />
               <figcaption className="flex items-center justify-between gap-2 p-3 text-xs text-white/80">
                 <span>{t("gallery", { n: open + 1, count: media.length })}</span>
                 {media[open].credit ? <span>{media[open].credit}</span> : null}

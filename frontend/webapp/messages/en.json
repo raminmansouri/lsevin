@@ -1340,7 +1340,9 @@
     "entryResolveFailedSubtitle": "The link you opened pointed at a specific service, but we could not read it. Please try again.",
     "retry": "Try again",
     "close": "Close",
-    "stepConsultation": "Free consultation"
+    "stepConsultation": "Free consultation",
+    "addonDistance": "{distance} from {place}",
+    "addonCompareStays": "Compare all hotels and stays near {place}"
   },
   "Explore": {
     "lsevin": "LSevin",

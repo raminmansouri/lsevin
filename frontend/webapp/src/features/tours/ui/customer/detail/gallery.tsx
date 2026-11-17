@@ -70,8 +70,8 @@ export function Gallery({ media, title, overlay }: { media: Media[]; title: stri
   }
 
   const current = images[index] ?? images[0];
-  const Prev = rtl ? ChevronRight : ChevronLeft;
-  const Next = rtl ? ChevronLeft : ChevronRight;
+  const Prev = ChevronLeft; // mirrored in RTL by globals.css
+  const Next = ChevronRight; // mirrored in RTL by globals.css
 
   return (
     <section aria-label={t("label")} className="space-y-2" data-testid="gallery" data-image-count={total}>

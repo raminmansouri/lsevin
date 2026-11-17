@@ -204,8 +204,8 @@ export function CalendarPicker(props: SingleProps | RangeProps) {
     return { selected: iso === props.value, start: false, end: false, between: false };
   };
 
-  const PrevIcon = rtl ? ChevronRight : ChevronLeft;
-  const NextIcon = rtl ? ChevronLeft : ChevronRight;
+  const PrevIcon = ChevronLeft; // mirrored in RTL by globals.css
+  const NextIcon = ChevronRight; // mirrored in RTL by globals.css
 
   return (
     <div className={cn("w-full select-none", className)} data-testid={testId} data-calendar={calendar}>

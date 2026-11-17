@@ -6,6 +6,11 @@
  */
 import { isIsoDate } from "@/features/tours/domain/calendar";
 
+import { DEFAULT_RADIUS_M, formatNear, parseNear, parseRadius, type NearRef, type RadiusM } from "./geo";
+
+/** sessionStorage key: the last results URL, so "back" and the stays home return to it. */
+export const LAST_EXPLORE_KEY = "stays:last-explore";
+
 export const PROPERTY_KINDS = [
   "hotel",
   "hotel_apartment",
@@ -28,7 +33,8 @@ export const ENTIRE_PLACE_KINDS: readonly PropertyKind[] = ["villa", "apartment"
 export const MEAL_PLANS = ["room_only", "breakfast", "half_board", "full_board"] as const;
 export type MealPlan = (typeof MEAL_PLANS)[number];
 
-export const SORTS = ["recommended", "price_asc", "price_desc", "rating", "stars"] as const;
+/** "distance" only applies when the search is anchored to a place (`near`). */
+export const SORTS = ["recommended", "price_asc", "price_desc", "rating", "stars", "distance"] as const;
 export type StaySort = (typeof SORTS)[number];
 
 export type StaySearch = {
@@ -49,6 +55,12 @@ export type StaySearch = {
   instantOnly: boolean;
   accessible: boolean;
   availableOnly: boolean;
+  /** At least one bookable rate with breakfast (or more meals) included. */
+  breakfast: boolean;
+  /** Anchor place for distance filtering/sorting; see domain/geo.ts. */
+  near: NearRef | null;
+  /** Maximum straight-line distance from `near`, in metres (null = no limit, sort only). */
+  radius: RadiusM | null;
   sort: StaySort;
   page: number;
 };
@@ -71,6 +83,9 @@ export const DEFAULT_SEARCH: StaySearch = {
   instantOnly: false,
   accessible: false,
   availableOnly: false,
+  breakfast: false,
+  near: null,
+  radius: null,
   sort: "recommended",
   page: 1,
 };
@@ -110,6 +125,10 @@ export function parseStaySearch(raw: Raw): StaySearch {
   const city = get(raw, "city");
   const sort = get(raw, "sort") as StaySort | null;
   const rating = Number(get(raw, "rating"));
+  const near = parseNear(get(raw, "near"));
+  // A radius without an anchor means nothing; an anchor without a radius gets the default.
+  const radius = near ? (get(raw, "r") === "any" ? null : (parseRadius(get(raw, "r")) ?? DEFAULT_RADIUS_M)) : null;
+  const sortValid = sort && (SORTS as readonly string[]).includes(sort) && (sort !== "distance" || near);
   return {
     city: city && SLUG.test(city) ? city : null,
     q: q || null,
@@ -131,7 +150,10 @@ export function parseStaySearch(raw: Raw): StaySearch {
     instantOnly: get(raw, "instant") === "1",
     accessible: get(raw, "access") === "1",
     availableOnly: get(raw, "avail") === "1",
-    sort: sort && (SORTS as readonly string[]).includes(sort) ? sort : "recommended",
+    breakfast: get(raw, "bf") === "1",
+    near,
+    radius,
+    sort: sortValid ? sort! : "recommended",
     page: int(get(raw, "page"), 1, 200, 1),
   };
 }
@@ -158,7 +180,13 @@ export function toSearchParams(s: Partial<StaySearch>, opts: { omitCity?: boolea
   if (s.instantOnly) p.set("instant", "1");
   if (s.accessible) p.set("access", "1");
   if (s.availableOnly) p.set("avail", "1");
-  if (s.sort && s.sort !== "recommended") p.set("sort", s.sort);
+  if (s.breakfast) p.set("bf", "1");
+  if (s.near) {
+    p.set("near", formatNear(s.near));
+    if (s.radius == null) p.set("r", "any");
+    else if (s.radius !== DEFAULT_RADIUS_M) p.set("r", String(s.radius));
+  }
+  if (s.sort && s.sort !== "recommended" && (s.sort !== "distance" || s.near)) p.set("sort", s.sort);
   if (s.page && s.page > 1) p.set("page", String(s.page));
   return p;
 }
@@ -166,6 +194,25 @@ export function toSearchParams(s: Partial<StaySearch>, opts: { omitCity?: boolea
 /** Only the stay itself (dates + party) — carried from results to a property page. */
 export function stayQueryOnly(s: Partial<StaySearch>): URLSearchParams {
   return toSearchParams({ checkIn: s.checkIn, checkOut: s.checkOut, adults: s.adults, childAges: s.childAges, rooms: s.rooms });
+}
+
+/** The search with every narrowing filter removed (destination, dates, party and place kept). */
+export function withoutFilters(s: StaySearch): StaySearch {
+  return {
+    ...s,
+    kinds: [],
+    stars: [],
+    amenities: [],
+    minPrice: null,
+    maxPrice: null,
+    minRating: null,
+    freeCancellation: false,
+    instantOnly: false,
+    accessible: false,
+    availableOnly: false,
+    breakfast: false,
+    page: 1,
+  };
 }
 
 /** Number of narrowing filters applied (for the "Filters (3)" badge). */
@@ -180,6 +227,7 @@ export function activeFilterCount(s: StaySearch): number {
     (s.freeCancellation ? 1 : 0) +
     (s.instantOnly ? 1 : 0) +
     (s.accessible ? 1 : 0) +
-    (s.availableOnly ? 1 : 0)
+    (s.availableOnly ? 1 : 0) +
+    (s.breakfast ? 1 : 0)
   );
 }

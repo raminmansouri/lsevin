@@ -1,7 +1,7 @@
 "use client";
 
-import { useId, useState, type ReactNode } from "react";
-import { ArrowLeft, ArrowRight, BedDouble, Heart, Home, Luggage, Search, Settings2 } from "lucide-react";
+import { useEffect, useId, useState, type ReactNode } from "react";
+import { ArrowLeft, BedDouble, Heart, Home, Luggage, Search, Settings2 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
@@ -14,6 +14,9 @@ import { LanguageLinks } from "@/components/locale/language-links";
 import { Link, usePathname } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 
+import { parentPathOf } from "../../domain/navigation";
+import { LAST_EXPLORE_KEY } from "../../domain/search";
+
 export const PARENT_APP_PATH = "/";
 
 // A stay's own page is /stays/<slug> (served from p/<slug>): any first segment
@@ -23,6 +26,18 @@ const isStayPage = (p: string) => {
   const segment = p.split("/")[2];
   return Boolean(segment) && (segment === "p" || !OTHER_SECTIONS.has(segment));
 };
+
+function useBackTarget(pathname: string): string | null {
+  const [lastExplore, setLastExplore] = useState<string | null>(null);
+  useEffect(() => {
+    try {
+      setLastExplore(sessionStorage.getItem(LAST_EXPLORE_KEY));
+    } catch {
+      setLastExplore(null);
+    }
+  }, [pathname]);
+  return parentPathOf(pathname, lastExplore);
+}
 
 const TABS = [
   { key: "home", href: "/stays", icon: Home, match: (p: string) => p === "/stays" },
@@ -101,7 +116,8 @@ export function StaysShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const dir = directionOf(locale);
   const bare = pathname.startsWith("/stays/intro");
-  const BackIcon = dir === "rtl" ? ArrowRight : ArrowLeft;
+  const BackIcon = ArrowLeft; // mirrored in RTL by globals.css
+  const back = useBackTarget(pathname);
 
   return (
     <div dir={dir} lang={locale} data-testid="stays-shell" data-latin-digits="" className="min-h-dvh bg-slate-50 text-slate-900">
@@ -115,13 +131,13 @@ export function StaysShell({ children }: { children: ReactNode }) {
         <header className="sticky top-0 z-40 border-b border-slate-200/70 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80">
           <div className="mx-auto flex h-14 max-w-6xl items-center gap-2 px-3 sm:px-6">
             <Link
-              href={PARENT_APP_PATH}
+              href={back ?? PARENT_APP_PATH}
               className="flex min-h-11 items-center gap-1.5 rounded-full px-2 text-sm font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:outline-none"
-              data-testid="stays-back-to-lsevin"
+              data-testid={back ? "stays-back" : "stays-back-to-lsevin"}
             >
               <BackIcon className="size-4" aria-hidden="true" />
-              <span className="hidden sm:inline">{t("backToLsevin")}</span>
-              <span className="sr-only sm:hidden">{t("backToLsevin")}</span>
+              <span className="hidden sm:inline">{back ? t("back") : t("backToLsevin")}</span>
+              <span className="sr-only sm:hidden">{back ? t("back") : t("backToLsevin")}</span>
             </Link>
             <Link href="/stays" className="flex min-h-11 items-center gap-2 rounded-lg px-1 font-bold text-emerald-900 focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:outline-none">
               <BedDouble className="size-5 text-emerald-700" aria-hidden="true" />
