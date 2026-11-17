@@ -89,6 +89,15 @@ const nextConfig: NextConfig = {
   // raw bytes lets it pick the best encoding the browser offers.
   compress: false,
 
+  // Crawlers get blocking metadata: canonical, hreflang, robots and the redirect
+  // of an old product slug (migration 0110) are in <head>, never streamed into
+  // the body. Next's default list leaves out Googlebot (it renders JavaScript).
+  // The product route streams (loading boundaries), so that redirect is an
+  // instant meta refresh in <head>, which Google treats as permanent; a 308
+  // would need the slug history in the edge middleware. Next's defaults are kept.
+  htmlLimitedBots:
+    /[\w-]+-Google|Google-[\w-]+|Googlebot|Chrome-Lighthouse|Slurp|DuckDuckBot|baiduspider|yandex|sogou|bitlybot|tumblr|vkShare|quora link preview|redditbot|ia_archiver|Bingbot|BingPreview|applebot|facebookexternalhit|facebookcatalog|Twitterbot|LinkedInBot|Slackbot|Discordbot|WhatsApp|SkypeUriPreview|Yeti|googleweblight|GPTBot|OAI-SearchBot|ChatGPT-User|ClaudeBot|Claude-User|PerplexityBot|Amazonbot|PetalBot|YandexBot/i,
+
   experimental: {
     authInterrupts: true,
     // This app is built on the same four-core host that serves production.

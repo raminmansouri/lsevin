@@ -755,6 +755,22 @@ test("product URLs describe the product; a retired code slug moves once to it", 
   expect(target).toMatch(/^\/fa\/products\/[a-z0-9-]+$/);
   expect(words(target.split("/").pop()!)).toBeGreaterThanOrEqual(2);
   expect((await request.get(target, { maxRedirects: 0 })).status()).toBe(200);
+  // Crawlers get blocking metadata (next.config htmlLimitedBots): the redirect
+  // is a 308, or an instant meta refresh inside <head> (which Google treats as
+  // permanent) — never one streamed into the body.
+  const asGooglebot = await request.get(`/fa/products/${previous}`, {
+    maxRedirects: 0,
+    headers: { "user-agent": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)" },
+  });
+  if (asGooglebot.status() === 200) {
+    const head = (await asGooglebot.text()).split("</head>")[0];
+    const refresh = head.match(/<meta[^>]*http-equiv="refresh"[^>]*content="0;\s*url=([^"]+)"/i)?.[1];
+    expect(refresh, "meta refresh inside <head> for crawlers").toBeTruthy();
+    expect(new URL(refresh!.replace(/&amp;/g, "&"), "http://x").pathname).toBe(target);
+  } else {
+    expect([301, 308]).toContain(asGooglebot.status());
+    expect(new URL(asGooglebot.headers()["location"], "http://x").pathname).toBe(target);
+  }
 });
 
 test("a renamed tour's old slug moves once to its current URL", async ({ request }) => {
