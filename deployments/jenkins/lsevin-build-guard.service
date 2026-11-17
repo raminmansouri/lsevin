@@ -1,0 +1,15 @@
+[Unit]
+Description=LSevin build guard: cap BuildKit build cgroups (memory.high / cpu.max) so a build cannot starve the site
+After=docker.service
+
+[Service]
+Type=simple
+ExecStart=/usr/local/sbin/lsevin-build-guard
+Restart=always
+RestartSec=5
+Nice=10
+# Environment=BUILD_MEM_HIGH=4500M
+# Environment=BUILD_CPU_MAX=300000 100000
+
+[Install]
+WantedBy=multi-user.target
