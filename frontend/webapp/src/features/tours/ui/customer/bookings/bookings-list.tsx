@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState, type KeyboardEvent } from "react";
-import { CalendarDays, ChevronLeft, ChevronRight, Users } from "lucide-react";
+import { CalendarDays, ChevronRight, Users } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 
 import { Link } from "@/i18n/navigation";
@@ -41,7 +41,7 @@ export function BookingsList({ lists }: { lists: Record<Tab, MyTourBooking[]> })
   const rtl = directionOf(locale) === "rtl";
   const [tab, setTab] = useState<Tab>("upcoming");
   const refs = useRef<Record<string, HTMLButtonElement | null>>({});
-  const Chevron = rtl ? ChevronLeft : ChevronRight;
+  const Chevron = ChevronRight; // mirrored in RTL by globals.css
 
   function onKey(e: KeyboardEvent, i: number) {
     let next = i;

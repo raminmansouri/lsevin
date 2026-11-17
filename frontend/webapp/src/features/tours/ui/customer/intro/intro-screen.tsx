@@ -2,11 +2,10 @@
 
 import { useState, useTransition } from "react";
 import { ArrowLeft, ArrowRight, CalendarDays, CheckCircle2, Languages, ShieldCheck } from "lucide-react";
-import { useLocale, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 
 import { Link, useRouter } from "@/i18n/navigation";
 
-import { directionOf } from "../../../domain/content";
 import { completeIntroAction } from "../../../server/actions/customer";
 import { PARENT_APP_PATH } from "../shell/tours-shell";
 
@@ -25,13 +24,11 @@ const BACKGROUND = {
  */
 export function IntroScreen({ next }: { next: string }) {
   const t = useTranslations("TourApp");
-  const locale = useLocale();
   const router = useRouter();
   const [pending, start] = useTransition();
   const [failed, setFailed] = useState(false);
-  const rtl = directionOf(locale) === "rtl";
-  const Arrow = rtl ? ArrowLeft : ArrowRight;
-  const Back = rtl ? ArrowRight : ArrowLeft;
+  const Arrow = ArrowRight; // mirrored in RTL by globals.css
+  const Back = ArrowLeft; // mirrored in RTL by globals.css
 
   function proceed() {
     start(async () => {

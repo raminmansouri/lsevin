@@ -22,6 +22,8 @@ export interface ProviderCardItem {
    * instead of cascading it away. Null when no serviceDefinitionId was queried.
    */
   matchingServiceId?: string | null;
+  /** Straight-line metres from the provider of the main booking (add-on lists only). */
+  distanceM?: number | null;
 }
 
 /** Catalog list responses carry an exact `total` so callers can distinguish

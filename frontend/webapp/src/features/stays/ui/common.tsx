@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { Star } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 
@@ -10,6 +11,8 @@ import { Bdi } from "@/features/tours/ui/shared/bidi";
 import { formatClock, formatNumber, intlLocale } from "@/features/tours/ui/shared/format";
 import { Price } from "@/features/tours/ui/shared/price";
 import { cn } from "@/lib/utils";
+
+import { driveMinutes, preferWalking, walkMinutes } from "../domain/geo";
 
 /** A charged amount, with the visitor's chosen display currency as an approximation next to it. */
 export function Money({ amount, currency, className, testId }: { amount: number | null | undefined; currency: string; className?: string; testId?: string }) {
@@ -73,18 +76,33 @@ export function RatingBadge({ value, count, className }: { value: number | null;
   );
 }
 
+/**
+ * "650 m · about 8 min walk" / "4.2 km · about 14 min by car". Distances are
+ * straight-line, times are estimates (domain/geo.ts) and always say "about".
+ */
+export function useDistance() {
+  const t = useTranslations("StayApp.distance");
+  const num = useNumber();
+  const length = (m: number) => (m < 1000 ? t("meters", { distance: Math.round(m / 10) * 10 }) : t("km", { distance: num(m / 1000, { maximumFractionDigits: 1 }) }));
+  const travel = (m: number) => (preferWalking(m) ? t("walk", { minutes: walkMinutes(m) }) : t("drive", { minutes: driveMinutes(m) }));
+  return { length, travel };
+}
+
 /** Cover image with a meaningful fallback (never a broken image icon). */
 export function StayImage({
   src,
   alt,
   className,
   priority,
+  fit = "cover",
   sizes = "(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw",
 }: {
   src: string | null | undefined;
   alt: string;
+  /** Sizes the box (width/height/aspect, rounding); the photo fills it. */
   className?: string;
   priority?: boolean;
+  fit?: "cover" | "contain";
   sizes?: string;
 }) {
   const t = useTranslations("StayApp.card");
@@ -95,18 +113,35 @@ export function StayImage({
       </div>
     );
   }
+  const url = resolveMediaUrl(src);
+  const objectFit = fit === "contain" ? "object-contain" : "object-cover";
+  // Our own images (/images/…) and the Lsevin files host are resized and served as AVIF/WebP
+  // by next/image (next.config images.remotePatterns); any other address is shown as is.
+  if (!isOptimizable(url)) {
+    return (
+      <span className={cn("relative block overflow-hidden bg-slate-100", className)}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={url} alt={alt} loading={priority ? "eager" : "lazy"} fetchPriority={priority ? "high" : "auto"} decoding="async" className={cn("absolute inset-0 h-full w-full", objectFit)} />
+      </span>
+    );
+  }
   return (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img
-      src={resolveMediaUrl(src)}
-      alt={alt}
-      sizes={sizes}
-      loading={priority ? "eager" : "lazy"}
-      fetchPriority={priority ? "high" : "auto"}
-      decoding="async"
-      className={cn("bg-slate-100 object-cover", className)}
-    />
+    <span className={cn("relative block overflow-hidden bg-slate-100", className)}>
+      <Image src={url} alt={alt} fill sizes={sizes} priority={priority} quality={70} className={objectFit} />
+    </span>
   );
+}
+
+const FILES_BASE = (process.env.NEXT_PUBLIC_FILES_URL ?? "").replace(/\/+$/, "");
+
+function isOptimizable(url: string): boolean {
+  if (url.startsWith("/") && !url.startsWith("//")) return true;
+  if (!FILES_BASE || !url.startsWith(`${FILES_BASE}/`)) return false;
+  try {
+    return new URL(url).pathname.startsWith("/files/");
+  } catch {
+    return false;
+  }
 }
 
 export { Bdi };

@@ -21,7 +21,7 @@ test.describe("stays guest journey @critical", () => {
     await expect(page).toHaveURL(/\/fa\/stays\/intro$/);
     await expect(page.getByTestId("stays-intro")).toBeVisible();
     await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
-    await expect(page.getByRole("heading", { level: 1 })).toHaveText("جایی برای ماندن، همان‌طور که دوست دارید");
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("رزرو هتل و اقامتگاه، ساده و مطمئن");
     await expect(page.getByTestId("stays-intro-credit")).toContainText("CC BY 2.0");
     await evidence(page, testInfo, "stays__intro__01-loaded");
     await page.getByTestId("stays-intro-continue").click();
@@ -119,7 +119,7 @@ test.describe("stays guest journey @critical", () => {
     // Consent is required.
     await expect(page.getByTestId("stay-review-step")).toBeVisible();
     await page.getByTestId("stay-confirm").click();
-    await expect(page.getByText("برای ادامه، قوانین لغو را بپذیرید.")).toBeVisible();
+    await expect(page.getByText("برای ادامه، شرایط کنسلی را بپذیرید.")).toBeVisible();
     await page.getByTestId("stay-consent").check();
     await evidence(page, testInfo, "stays__journey__04-review-before-confirm");
     await page.getByTestId("stay-confirm").click();

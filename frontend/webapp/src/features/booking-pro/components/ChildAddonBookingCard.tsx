@@ -17,6 +17,10 @@ interface Props {
     city?: string | null;
     country?: string | null;
     value?: ChildBookingDraft;
+    /** The main booking's provider: add-ons are listed nearest to it first, with the distance shown. */
+    nearProvider?: { id: string; name: string } | null;
+    /** The main booking's date (YYYY-MM-DD): a nightly add-on (hotel) starts with check-in on that day. */
+    mainDate?: string | null;
     onChange: (next: ChildBookingDraft) => void;
     onSaved: (next: ChildBookingDraft, totals?: {
         subtotalAmount?: number;
@@ -30,7 +34,25 @@ async function getJson<T>(url: string): Promise<T> {
         throw new Error(`Failed request: ${url}`);
     return res.json();
 }
-export function ChildAddonBookingCard({ locale, draftId, addon, city, country, value, onChange, onSaved }: Props) {
+/** "600 m" / "2.4 km" in the viewer's language and digits. */
+function formatDistance(meters: number, locale: string) {
+    const km = meters >= 1000;
+    try {
+        return new Intl.NumberFormat(locale, { style: 'unit', unit: km ? 'kilometer' : 'meter', unitDisplay: 'short', maximumFractionDigits: km ? 1 : 0 }).format(km ? meters / 1000 : Math.round(meters / 10) * 10);
+    }
+    catch {
+        return km ? `${(meters / 1000).toFixed(1)} km` : `${Math.round(meters)} m`;
+    }
+}
+/** Day after an ISO date (YYYY-MM-DD), in UTC so no time zone shifts it. */
+function nextDay(iso: string) {
+    const d = new Date(`${iso}T12:00:00Z`);
+    d.setUTCDate(d.getUTCDate() + 1);
+    return d.toISOString().slice(0, 10);
+}
+/** Hotels / stays add-ons get a link to the full stays search around the main booking. */
+const STAY_ADDON = /هتل|اقامت|hotel|stay|accommodation|lodging/i;
+export function ChildAddonBookingCard({ locale, draftId, addon, city, country, value, nearProvider = null, mainDate = null, onChange, onSaved }: Props) {
     const tBooking = useTranslations("Booking");
     const [expanded, setExpanded] = useState(Boolean(addon.isRequired || value?.providerId));
     // The customer picks the city the translator/car is needed in; it starts at the main
@@ -86,13 +108,13 @@ export function ChildAddonBookingCard({ locale, draftId, addon, city, country, v
         getJson<{
             items: ProviderCardItem[];
             hasMore: boolean;
-        }>(`/api/booking-pro/catalog/providers?locale=${encodeURIComponent(locale)}&providerTypeId=${encodeURIComponent(addon.providerTypeId)}&context=addon${scope === 'country' && country ? `&country=${encodeURIComponent(country)}` : `&city=${encodeURIComponent(selectedCity)}`}&search=${encodeURIComponent(providerSearch)}&offset=${providerOffset}&take=3`)
+        }>(`/api/booking-pro/catalog/providers?locale=${encodeURIComponent(locale)}&providerTypeId=${encodeURIComponent(addon.providerTypeId)}&context=addon${scope === 'country' && country ? `&country=${encodeURIComponent(country)}` : `&city=${encodeURIComponent(selectedCity)}`}&search=${encodeURIComponent(providerSearch)}&offset=${providerOffset}&take=3${nearProvider ? `&nearProviderId=${encodeURIComponent(nearProvider.id)}` : ''}`)
             .then((data) => {
             setProviders((prev) => (providerOffset === 0 ? data.items : [...prev, ...data.items]));
             setHasMoreProviders(data.hasMore);
         })
             .catch(console.error);
-    }, [expanded, citiesLoaded, locale, addon.providerTypeId, selectedCity, providerSearch, providerOffset, country, scope]);
+    }, [expanded, citiesLoaded, locale, addon.providerTypeId, selectedCity, providerSearch, providerOffset, country, scope, nearProvider]);
     useEffect(() => {
         if (!expanded || !model.providerId)
             return;
@@ -140,6 +162,11 @@ export function ChildAddonBookingCard({ locale, draftId, addon, city, country, v
                 subtotalAmount: Number(data.item.value ?? 0),
                 currency: data.item.currency ?? 'USD',
             };
+            // A hotel for a booking on day D starts that day, for one night, until the guest changes it.
+            if (data.item.booking_ui_mode === 'date_range' && !next.selectedDateFrom && mainDate && /^\d{4}-\d{2}-\d{2}$/.test(mainDate)) {
+                next.selectedDateFrom = mainDate;
+                next.selectedDateTo = nextDay(mainDate);
+            }
             onChange(next);
             if (data.item.booking_ui_mode === 'custom_form') {
                 return getJson<{
@@ -150,7 +177,7 @@ export function ChildAddonBookingCard({ locale, draftId, addon, city, country, v
             setServiceForm(null);
         })
             .catch(console.error);
-    }, [model.serviceId]);
+    }, [model.serviceId, mainDate]);
     const complete = Boolean(model.providerId && model.serviceId && (!model.requiresSpecialist || model.specialistId) && (model.bookingUiMode !== 'custom_form' || model.formSubmissionId) && (model.bookingUiMode !== 'date_range' || Boolean(model.selectedDateFrom && model.selectedDateTo && model.selectedDateTo > model.selectedDateFrom)));
     async function saveChild() {
         if (!complete)
@@ -202,13 +229,17 @@ export function ChildAddonBookingCard({ locale, draftId, addon, city, country, v
           <SearchLoadMoreList title={tBooking("addonProvidersTitle", { addon: addon.label })} search={providerSearch} onSearchChange={(v) => {
                 setProviderOffset(0);
                 setProviderSearch(v);
-            }} items={providers} hasMore={hasMoreProviders} emptyText={tBooking("noProvidersFound")} onLoadMore={() => setProviderOffset((x) => x + 3)} renderItem={(item) => (<EntityCard title={item.name} subtitle={[item.city, item.country].filter(Boolean).join(', ')} description={item.description} imageUrl={item.imageUrl} selected={model.providerId === item.id} featured={Boolean(item.featuredScore || item.isSponsored)} meta={providerMeta(item, tBooking)} onClick={() => {
+            }} items={providers} hasMore={hasMoreProviders} emptyText={tBooking("noProvidersFound")} onLoadMore={() => setProviderOffset((x) => x + 3)} renderItem={(item) => (<EntityCard title={item.name} subtitle={[[item.city, item.country].filter(Boolean).join(', '), item.distanceM != null && nearProvider ? tBooking("addonDistance", { distance: formatDistance(item.distanceM, locale), place: nearProvider.name }) : null].filter(Boolean).join(' · ')} description={item.description} imageUrl={item.imageUrl} selected={model.providerId === item.id} featured={Boolean(item.featuredScore || item.isSponsored)} meta={providerMeta(item, tBooking)} onClick={() => {
                     setServiceOffset(0);
                     setSpecialistOffset(0);
                     setServices([]);
                     setSpecialists([]);
                     onChange({ ...model, providerId: item.id, serviceId: undefined, specialistId: undefined, formSubmissionId: undefined });
                 }}/>)}/>
+
+          {nearProvider && STAY_ADDON.test(addon.label) ? (<a href={`/${locale}/stays/explore?near=sp:${encodeURIComponent(nearProvider.id)}&sort=distance${mainDate ? `&in=${mainDate}&out=${nextDay(mainDate)}` : ''}`} target="_blank" rel="noopener" className="inline-flex min-h-11 items-center rounded-2xl border border-[#083f30]/20 bg-[#083f30]/5 px-4 text-sm font-semibold text-[#083f30] hover:bg-[#083f30]/10" data-testid="addon-compare-stays">
+              {tBooking("addonCompareStays", { place: nearProvider.name })}
+            </a>) : null}
 
           {model.providerId ? (<SearchLoadMoreList title={tBooking("addonServicesTitle", { addon: addon.label })} search={serviceSearch} onSearchChange={(v) => {
                     setServiceOffset(0);

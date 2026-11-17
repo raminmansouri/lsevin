@@ -34,11 +34,17 @@ export function StaySearchForm({
   variant = "hero",
   onSubmitted,
   target = "explore",
+  keep,
 }: {
   cities: CityOption[];
   initial?: Partial<StaySearch>;
   variant?: "hero" | "compact";
   onSubmitted?: () => void;
+  /**
+   * Filters, place and sort of the current results, kept when only dates or guests change
+   * (changing the city drops the place: "near the shrine" belongs to one city).
+   */
+  keep?: URLSearchParams;
   /** "explore" → /stays/explore; "here" → stay on the current path (property page). */
   target?: "explore" | { path: string };
 }) {
@@ -77,6 +83,13 @@ export function StaySearchForm({
       childAges: party.childAges as number[],
       rooms: party.rooms,
     });
+    if (keep) {
+      const cityChanged = (city?.slug ?? null) !== (initial?.city ?? null) || (!city && typed !== (initial?.q ?? ""));
+      for (const [k, v] of keep) {
+        if (cityChanged && (k === "near" || k === "r" || (k === "sort" && v === "distance"))) continue;
+        if (!params.has(k)) params.set(k, v);
+      }
+    }
     if (typeof target === "object") {
       params.delete("city");
       params.delete("q");
@@ -302,8 +315,9 @@ export function DatesDialog({
       <DialogContent className="max-h-[92dvh] overflow-y-auto sm:max-w-md" data-testid="stay-dates-dialog">
         <DialogHeader>
           <DialogTitle>{t("dates")}</DialogTitle>
-          <DialogDescription aria-live="polite">{!draft.from || draft.to ? t("pickCheckIn") : t("pickCheckOut")}</DialogDescription>
+          <DialogDescription className="sr-only">{t("datesHelp")}</DialogDescription>
         </DialogHeader>
+        <DateSteps from={draft.from} to={draft.to} nights={nights} />
         <CalendarPicker
           mode="range"
           calendar={calendar}
@@ -346,6 +360,49 @@ export function DatesDialog({
         </DialogFooter>
       </DialogContent>
     </Dialog>
+  );
+}
+
+/**
+ * Which date the next tap sets, made unmistakable: two step chips (check-in /
+ * check-out) with the active one highlighted, plus a live sentence that a
+ * screen reader also announces ("Now choose your check-out day").
+ */
+function DateSteps({ from, to, nights }: { from: string | null; to: string | null; nights: number }) {
+  const t = useTranslations("StayApp.search");
+  const fmt = useShortDate();
+  const step: "in" | "out" | "done" = !from ? "in" : !to ? "out" : "done";
+  const chip = (key: "in" | "out", label: string, iso: string | null) => {
+    const active = step === key;
+    return (
+      <div
+        data-testid={`stay-dates-step-${key}`}
+        data-active={active || undefined}
+        aria-current={active ? "step" : undefined}
+        className={cn(
+          "min-w-0 flex-1 rounded-2xl border px-3 py-2 transition",
+          active ? "border-emerald-600 bg-emerald-50 ring-2 ring-emerald-600/30" : "border-slate-200 bg-white",
+        )}
+      >
+        <div className={cn("text-xs", active ? "font-semibold text-emerald-800" : "text-slate-500")}>{label}</div>
+        <div className={cn("truncate text-sm font-bold", iso ? "text-slate-900" : "text-slate-400")}>{iso ? fmt(iso) : t("notSelected")}</div>
+      </div>
+    );
+  };
+  return (
+    <div className="space-y-2">
+      <div className="flex items-stretch gap-2">
+        {chip("in", t("checkIn"), from)}
+        {chip("out", t("checkOut"), to)}
+      </div>
+      <p
+        aria-live="polite"
+        data-testid="stay-dates-prompt"
+        className={cn("rounded-xl px-3 py-2 text-sm font-semibold", step === "done" ? "bg-slate-50 text-slate-700" : "bg-amber-50 text-amber-900")}
+      >
+        {step === "in" ? t("pickCheckIn") : step === "out" ? t("pickCheckOut") : t("datesChosen", { count: nights })}
+      </p>
+    </div>
   );
 }
 

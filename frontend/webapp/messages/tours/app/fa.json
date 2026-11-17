@@ -295,7 +295,7 @@
         "mapUnavailable": "نقشه در دسترس نیست — توقف‌ها به ترتیب در زیر آمده‌اند.",
         "timesLocal": "ساعت‌ها به وقت محلی تور ({zone}) هستند.",
         "empty": "برنامهٔ روزبه‌روز این تور هنوز اضافه نشده است.",
-        "summary": "{days, plural, one {# روز} other {# روز}} · {stops, plural, one {# توقف} other {# توقف}}"
+        "summary": "{days, plural, one {# روز} other {# روز}}، {stops, plural, one {# توقف} other {# توقف}}"
       },
       "transport": {
         "walk": "پیاده",
@@ -346,7 +346,7 @@
       },
       "reviews": {
         "title": "نظرات",
-        "summary": "{rating} از ۵ · {count, plural, one {# نظر تأییدشده} other {# نظر تأییدشده}}",
+        "summary": "{rating} از ۵، {count, plural, one {# نظر تأییدشده} other {# نظر تأییدشده}}",
         "none": "هنوز نظری ثبت نشده است. فقط مسافرانی که رزرو انجام‌شده دارند می‌توانند نظر بدهند.",
         "verified": "رزرو تأییدشده",
         "providerReply": "پاسخ برگزارکننده",
@@ -466,7 +466,7 @@
       },
       "noDepartures": "برای این تور حرکت پیش‌رویی وجود ندارد.",
       "departures": "ساعت‌های حرکت",
-      "departureTime": "{time} · {seats, plural, one {# جای خالی} other {# جای خالی}}",
+      "departureTime": "{time}، {seats, plural, one {# جای خالی} other {# جای خالی}}",
       "timeTbc": "ساعت هنوز قطعی نشده",
       "localTime": "به وقت محلی ({zone})",
       "soldOutDay": "ظرفیت این تاریخ تکمیل است.",
