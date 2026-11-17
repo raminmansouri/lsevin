@@ -10,6 +10,7 @@ import {
   categoryBrowserHref,
   categoryProvidersHref,
   isTourismCategory,
+  subAppPathFor,
   TOURS_HOME_PATH,
 } from "@/features/categories/utils/category-href";
 import { compareByPriority } from "@/features/categories/utils/priority";
@@ -143,13 +144,14 @@ function CategoryCard({
   hasChildren,
   featured,
   onOpenCategory,
-  opensTours = false,
+  opensApp = null,
 }: {
   category: CategoryBrowserCategory;
   hasChildren: boolean;
   featured: boolean;
   onOpenCategory: () => void;
-  opensTours?: boolean;
+  /** Tourism → /tours, Accommodation → /stays: the category's own app instead of a category screen. */
+  opensApp?: string | null;
 }) {
   const t = useTranslations("CategoryBrowser");
   const className = [
@@ -158,9 +160,15 @@ function CategoryCard({
   ].join(" ");
   const content = <CategoryCardContent category={category} hasChildren={hasChildren} featured={featured} />;
 
-  if (opensTours) {
+  if (opensApp) {
     return (
-      <Link href={TOURS_HOME_PATH} className={className} aria-label={t("openCategory", { name: category.name })} data-opens-tours="true">
+      <Link
+        href={opensApp}
+        className={className}
+        aria-label={t("openCategory", { name: category.name })}
+        data-opens-tours={opensApp === TOURS_HOME_PATH ? "true" : undefined}
+        data-opens-app={opensApp}
+      >
         {content}
       </Link>
     );
@@ -209,12 +217,14 @@ export function CategoryBrowserClient({
   totalCategories,
   totalProviders,
   tourismCategoryId = null,
+  staysCategoryId = null,
   parentId = null,
 }: {
   categoryGroups: CategoryBrowserGroup[];
   totalCategories: number;
   totalProviders: number;
   tourismCategoryId?: string | null;
+  staysCategoryId?: string | null;
   parentId?: string | null;
 }) {
   const t = useTranslations("CategoryBrowser");
@@ -416,7 +426,7 @@ export function CategoryBrowserClient({
                         hasChildren={(categoriesByParent.get(category.id)?.length ?? 0) > 0}
                         featured={atRoot && slugOf(category) === FEATURED_SLUG}
                         onOpenCategory={openCategory}
-                        opensTours={isTourism(category.id)}
+                        opensApp={subAppPathFor(category.id, { tourismCategoryId, staysCategoryId, parentOf: (cid) => categoryById.get(cid)?.parentId })}
                       />
                     ))}
                   </div>

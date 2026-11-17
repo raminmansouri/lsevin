@@ -32,11 +32,13 @@ export function HomeServiceProvidersCategories({
   locale = 'fa-IR',
   labels = defaultLabels,
   tourismCategoryId = null,
+  staysCategoryId = null,
 }: {
   categories: HomeCategory[];
   locale?: string;
   labels?: HomeCategoryLabels;
   tourismCategoryId?: string | null;
+  staysCategoryId?: string | null;
 }) {
   if (!categories.length) {
     return (
@@ -53,7 +55,7 @@ export function HomeServiceProvidersCategories({
   return (
     <>
       {categories.map((category) => (
-        <ServiceProviderCategoryCard key={category.id} category={category} locale={locale} labels={labels} tourismCategoryId={tourismCategoryId} />
+        <ServiceProviderCategoryCard key={category.id} category={category} locale={locale} labels={labels} tourismCategoryId={tourismCategoryId} staysCategoryId={staysCategoryId} />
       ))}
     </>
   );
@@ -61,12 +63,14 @@ export function HomeServiceProvidersCategories({
 
 function ServiceProviderCategoryCard({
   tourismCategoryId,
+  staysCategoryId,
   category,
   locale,
   labels,
 }: {
   category: HomeCategory;
   tourismCategoryId?: string | null;
+  staysCategoryId?: string | null;
   locale: string;
   labels: HomeCategoryLabels;
 }) {
@@ -85,7 +89,7 @@ function ServiceProviderCategoryCard({
 
   return (
     <Link
-      href={categoryCardHref(category, { tourismCategoryId })}
+      href={categoryCardHref(category, { tourismCategoryId, staysCategoryId })}
       className="group relative aspect-[4/3] overflow-hidden rounded-2xl bg-gray-100 shadow-sm transition-all hover:shadow-xl active:scale-95"
     >
       {mediaUrl ? (

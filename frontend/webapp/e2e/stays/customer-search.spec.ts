@@ -54,7 +54,9 @@ test.describe("stays search @regression", () => {
     await page.getByTestId("stays-filters-apply").click();
     await expect(page.getByTestId("stays-empty")).toBeVisible();
     await evidence(page, testInfo, "stays__search__02-empty-state");
-    await page.getByTestId("stays-empty").getByRole("button").click();
+    // The empty state names the fix and how many stays it brings back.
+    await expect(page.getByTestId("stays-empty-clear-filters")).toContainText("۳");
+    await page.getByTestId("stays-empty-clear-filters").click();
     await expect(page.getByTestId("stay-card")).toHaveCount(3);
     errors.assertClean();
   });

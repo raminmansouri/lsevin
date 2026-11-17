@@ -4,6 +4,8 @@ import { getTranslations } from "next-intl/server";
 
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { categoryCardHref } from "@/features/categories/utils/category-href";
+import { getStaysCategoryId } from "@/features/stays/server/settings";
+import { getTourSettings } from "@/features/tours/server/platform/settings";
 import type { HomeCategory } from "@/features/home/api/server/get-home-page";
 import { resolveMediaUrl } from "@/features/service-providers/lib/media-url";
 import { Link } from "@/i18n/navigation";
@@ -13,7 +15,13 @@ import { Reveal } from "../components/motion";
 /** Categories as a row of Persian arches, set in a gentle wave. */
 export async function DesktopCategories({ locale, categories }: { locale: string; categories: HomeCategory[] }) {
   if (!categories.length) return null;
-  const t = await getTranslations({ locale, namespace: "Home" });
+  const [t, tourismCategoryId, staysCategoryId] = await Promise.all([
+    getTranslations({ locale, namespace: "Home" }),
+    getTourSettings()
+      .then((settings) => settings.tourismCategoryId)
+      .catch(() => null),
+    getStaysCategoryId().catch(() => null),
+  ]);
   const columns = Math.min(categories.length, 6);
 
   return (
@@ -32,7 +40,7 @@ export async function DesktopCategories({ locale, categories }: { locale: string
       <div className="grid gap-6" style={{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }}>
         {categories.map((category, index) => (
           <Reveal key={category.id} delay={index * 90} className={index % 2 ? "mt-12" : ""}>
-            <Link href={categoryCardHref(category)} className="group block text-center">
+            <Link href={categoryCardHref(category, { tourismCategoryId, staysCategoryId })} className="group block text-center">
               <div className="relative h-[260px] overflow-hidden rounded-b-[26px] rounded-t-full bg-[#062a20] shadow-[0_24px_50px_-30px_rgba(6,42,32,0.6)] transition duration-500 group-hover:-translate-y-2 group-hover:shadow-[0_34px_70px_-30px_rgba(6,42,32,0.75)]">
                 {category.imageUrl ? (
                   <ImageWithFallback

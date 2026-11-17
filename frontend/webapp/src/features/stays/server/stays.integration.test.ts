@@ -20,6 +20,7 @@ import {
   sampleStayBuyer,
   seedStay,
   seedStayCity,
+  seedLegacyHotelProvider,
   seedStayProvider,
   seedUser,
   type SeedStayOptions,
@@ -38,6 +39,12 @@ vi.mock("@/app/[locale]/n/app/mobile/notifications/notification-service", async 
     return "00000000-0000-0000-0000-000000000000";
   }),
 }));
+
+// The booking-pro catalog (add-on test) imports session helpers that need the Next runtime; its
+// catalog reads never use them.
+vi.mock("@/features/booking-pro/utils/auth", () => ({ resolveCurrentUserId: vi.fn(async () => null) }));
+vi.mock("@/payment/server/gateway-eligibility", () => ({ resolveUserPaymentRegion: vi.fn(async () => "IR") }));
+vi.mock("@/features/finance/lib/server/iranian-visitor", () => ({ resolveIsIranianVisitor: vi.fn(async () => true) }));
 
 let sql: postgres.Sql;
 let booking: typeof import("./booking");
@@ -137,6 +144,184 @@ suite("stays (real database)", () => {
       await admin.setPriceRange(adminActor((await seedUser(sql as never)).id), stay.id, { ratePlanId: stay.ratePlanId, from: isoInDays(21), to: isoInDays(22), price: 9_000_000, weekdays: null });
       const q = await booking.quoteStaySelection(selection(stay, ci, isoInDays(23)));
       expect(q.quote.nightly.map((n) => n.amount)).toEqual([4_500_000, 9_000_000, 4_500_000]);
+    });
+  });
+
+  describe("location search, landmarks and provider import (0113)", () => {
+    /** Moves a seeded stay `meters` north of a point (1° latitude ≈ 111.32 km). */
+    async function placeNorthOf(stayId: string, lat: number, lng: number, meters: number) {
+      await sql`update stay.properties set latitude = ${lat + meters / 111320}, longitude = ${lng} where id = ${stayId}::uuid`;
+    }
+    const SHRINE = { lat: 29.60971, lng: 52.54302 };
+
+    async function cityWithShrine() {
+      const w = await world();
+      await sql`insert into stay.landmarks (city_id, slug, kind, name, latitude, longitude, is_quick)
+                values (${w.city.id}::uuid, 'haram', 'shrine', ${sql.json({ "fa-IR": "حرم شاهچراغ", "en-US": "Shah Cheragh Shrine" })}, ${SHRINE.lat}, ${SHRINE.lng}, true)`;
+      const mid = await seedStay(sql as never, { providerId: w.provider.id, cityId: w.city.id });
+      const far = await seedStay(sql as never, { providerId: w.provider.id, cityId: w.city.id });
+      await placeNorthOf(w.stay.id, SHRINE.lat, SHRINE.lng, 300);
+      await placeNorthOf(mid.id, SHRINE.lat, SHRINE.lng, 1500);
+      await placeNorthOf(far.id, SHRINE.lat, SHRINE.lng, 6000);
+      return { ...w, near: w.stay, mid, far };
+    }
+
+    it("filters by radius around a landmark, sorts by distance and reports each distance", async () => {
+      const w = await cityWithShrine();
+      const base = { ...DEFAULT_SEARCH, city: w.city.slug, near: { type: "lm" as const, city: w.city.slug, slug: "haram" } };
+      const r1 = await catalog.searchProperties({ ...base, radius: 1000, sort: "distance" }, "fa-IR");
+      expect(r1.items.map((c) => c.slug)).toEqual([w.near.slug]);
+      expect(r1.anchor).toMatchObject({ kind: "shrine", name: "حرم شاهچراغ" });
+      expect(r1.items[0].distanceM).toBeGreaterThan(280);
+      expect(r1.items[0].distanceM).toBeLessThan(320);
+      expect(r1.items[0].highlights).toContain("walkable");
+
+      const r2 = await catalog.searchProperties({ ...base, radius: 2000, sort: "distance" }, "fa-IR");
+      expect(r2.items.map((c) => c.slug)).toEqual([w.near.slug, w.mid.slug]);
+
+      const any = await catalog.searchProperties({ ...base, radius: null, sort: "distance" }, "en-US");
+      expect(any.items.map((c) => c.slug)).toEqual([w.near.slug, w.mid.slug, w.far.slug]);
+      expect(any.anchor?.name).toBe("Shah Cheragh Shrine");
+
+      // Best match puts the closest first when nothing else differs.
+      const best = await catalog.searchProperties({ ...base, radius: null }, "fa-IR");
+      expect(best.items[0].slug).toBe(w.near.slug);
+    });
+
+    it("an unknown place finds nothing instead of silently showing every stay", async () => {
+      const w = await cityWithShrine();
+      const r = await catalog.searchProperties({ ...DEFAULT_SEARCH, city: w.city.slug, near: { type: "lm", city: w.city.slug, slug: "no-such-place" }, radius: 2000 }, "fa-IR");
+      expect(r.total).toBe(0);
+      expect(r.anchor).toBeNull();
+    });
+
+    it("searches around a map point and around a Lsevin provider (booking add-on)", async () => {
+      const w = await cityWithShrine();
+      const pt = await catalog.searchProperties({ ...DEFAULT_SEARCH, city: w.city.slug, near: { type: "pt", lat: SHRINE.lat, lng: SHRINE.lng }, radius: 2000 }, "fa-IR");
+      expect(pt.items.map((c) => c.slug).sort()).toEqual([w.near.slug, w.mid.slug].sort());
+      expect(pt.anchor).toMatchObject({ kind: "point", name: null });
+
+      const clinic = await seedStayProvider(sql as never, null, { name: `Clinic ${Date.now()}` });
+      await sql`update category.service_providers set latitude = ${SHRINE.lat}, longitude = ${SHRINE.lng} where id = ${clinic.id}::uuid`;
+      const sp = await catalog.searchProperties({ ...DEFAULT_SEARCH, city: w.city.slug, near: { type: "sp", id: clinic.id }, radius: 1000, sort: "distance" }, "en-US");
+      expect(sp.items.map((c) => c.slug)).toEqual([w.near.slug]);
+      expect(sp.anchor?.kind).toBe("provider");
+      expect(sp.anchor?.name).toContain("Clinic");
+    });
+
+    it("price filters are per night even with dates (regression: they compared the whole-stay total)", async () => {
+      const w = await world({ basePrice: 4_500_000 });
+      const ci = isoInDays(20);
+      const co = isoInDays(23); // 3 nights = 13,500,000 in total
+      const base = { ...DEFAULT_SEARCH, city: w.city.slug, checkIn: ci, checkOut: co };
+      expect((await catalog.searchProperties({ ...base, maxPrice: 5_000_000 }, "fa-IR")).total).toBe(1);
+      expect((await catalog.searchProperties({ ...base, maxPrice: 4_000_000 }, "fa-IR")).total).toBe(0);
+      expect((await catalog.searchProperties({ ...base, minPrice: 4_000_000 }, "fa-IR")).total).toBe(1);
+    });
+
+    it("'breakfast included' keeps only stays with a breakfast (or better) rate", async () => {
+      const w = await world();
+      const roomOnly = await seedStay(sql as never, { providerId: w.provider.id, cityId: w.city.id });
+      await sql`update stay.rate_plans set meal_plan = 'room_only' where property_id = ${roomOnly.id}::uuid`;
+      const r = await catalog.searchProperties({ ...DEFAULT_SEARCH, city: w.city.slug, breakfast: true }, "fa-IR");
+      expect(r.items.map((c) => c.slug)).toEqual([w.stay.slug]);
+      expect(r.items[0].breakfastIncluded).toBe(true);
+    });
+
+    it("an empty search offers the change that finds stays", async () => {
+      const w = await cityWithShrine();
+      const s = { ...DEFAULT_SEARCH, city: w.city.slug, near: { type: "lm" as const, city: w.city.slug, slug: "haram" }, radius: 500 as const, amenities: ["sauna"] };
+      expect((await catalog.searchProperties(s, "fa-IR")).total).toBe(0);
+      const sug = await catalog.exploreSuggestions(s, "fa-IR");
+      expect(sug.withoutFilters).toBe(1); // only the 300 m stay is within 500 m
+      expect(sug.popular.length).toBeGreaterThan(0);
+      const tight = { ...s, amenities: [] as string[], radius: 500 as const };
+      await placeNorthOf(w.near.id, SHRINE.lat, SHRINE.lng, 800);
+      const wider = await catalog.exploreSuggestions(tight, "fa-IR");
+      expect(wider.widerRadius).toEqual({ radius: 1000, count: 1 });
+    });
+
+    it("a stay's surroundings include the city's landmarks with real distances", async () => {
+      const w = await cityWithShrine();
+      const d = await catalog.getPropertyDetail({ slug: w.near.slug }, "fa-IR");
+      const shrine = d!.nearby.find((n) => n.kind === "shrine");
+      expect(shrine?.name).toBe("حرم شاهچراغ");
+      expect(shrine!.distanceM).toBeGreaterThan(280);
+      expect(shrine!.distanceM).toBeLessThan(320);
+      expect(d!.nearby.some((n) => n.kind === "hospital")).toBe(true); // the host's own entry is kept
+    });
+
+    it("booking add-ons list hotels nearest to the main booking's provider first, with the distance", async () => {
+      const { listProviders } = await import("@/features/booking-pro/server/repository");
+      const town = `T${Date.now().toString(36)}`; // service_providers.city is varchar(15)
+      const clinic = await seedStayProvider(sql as never, null, { name: "Main clinic" });
+      const nearHotel = await seedStayProvider(sql as never, null, { name: "Near hotel" });
+      const farHotel = await seedStayProvider(sql as never, null, { name: "Far hotel" });
+      const noCoords = await seedStayProvider(sql as never, null, { name: "Hotel without a map pin" });
+      await sql`update category.service_providers set city = ${town} where id = any(${[clinic.id, nearHotel.id, farHotel.id, noCoords.id]}::uuid[])`;
+      await sql`update category.service_providers set latitude = ${SHRINE.lat}, longitude = ${SHRINE.lng} where id = ${clinic.id}::uuid`;
+      await sql`update category.service_providers set latitude = ${SHRINE.lat + 3000 / 111320}, longitude = ${SHRINE.lng}, featured_score = 100 where id = ${farHotel.id}::uuid`;
+      await sql`update category.service_providers set latitude = ${SHRINE.lat + 400 / 111320}, longitude = ${SHRINE.lng} where id = ${nearHotel.id}::uuid`;
+      const typeId = (await sql<{ t: string }[]>`select provider_type_id::text as t from category.service_providers where id = ${nearHotel.id}::uuid`)[0].t;
+      const r = await listProviders({ locale: "en-US", providerTypeId: typeId, city: town, addonContext: true, nearProviderId: clinic.id, take: 10 });
+      const ids = r.items.map((i) => i.id);
+      // Nearest first even though the far hotel is featured; providers without a pin come last.
+      expect(ids.indexOf(nearHotel.id)).toBeLessThan(ids.indexOf(farHotel.id));
+      expect(ids.indexOf(farHotel.id)).toBeLessThan(ids.indexOf(noCoords.id));
+      const near = r.items.find((i) => i.id === nearHotel.id)!;
+      expect(near.distanceM).toBeGreaterThan(380);
+      expect(near.distanceM).toBeLessThan(420);
+      expect(r.items.find((i) => i.id === noCoords.id)!.distanceM).toBeNull();
+      // Without a main provider the order is unchanged (featured first) and no distance is reported.
+      const plain = await listProviders({ locale: "en-US", providerTypeId: typeId, city: town, addonContext: true, take: 10 });
+      expect(plain.items[0].id).toBe(farHotel.id);
+      expect(plain.items.every((i) => i.distanceM == null)).toBe(true);
+      // A malformed id is ignored, never sent to SQL.
+      await expect(listProviders({ locale: "en-US", providerTypeId: typeId, city: town, addonContext: true, nearProviderId: "x' or 1=1 --" })).resolves.toBeTruthy();
+    });
+
+    it("imports a Lsevin hotel provider: kind, stars, amenities, occupancy, photos; skips an implausible price", async () => {
+      const owner = await seedUser(sql as never);
+      const city = await seedStayCity(sql as never);
+      const provider = await seedLegacyHotelProvider(sql as never);
+      const id = await admin.importProvider(adminActor(owner.id), provider.id, city.id);
+      const [p] = await sql<any[]>`select status, kind, star_rating, amenity_codes, confirmation_mode, contact_phone, provider_service_id, from_price, latitude
+                                     from stay.properties where id = ${id}::uuid`;
+      expect(p.status).toBe("draft"); // an admin reviews before publishing
+      expect(p.kind).toBe("hotel_apartment");
+      expect(p.star_rating).toBe(4);
+      expect(p.amenity_codes).toEqual(expect.arrayContaining(["parking", "laundry", "breakfast", "currency_exchange", "pool", "sauna", "haram_view"]));
+      expect(p.confirmation_mode).toBe("request");
+      expect(p.contact_phone).toBeNull(); // the account manager's phone is not published as the front desk's
+      expect(p.provider_service_id).not.toBeNull(); // booking anchor created for admin imports
+      expect(Number(p.from_price)).toBe(40_000_000); // the 2,000,000 slip is not the "from" price
+      const rooms = await sql<any[]>`select name->>'fa-IR' as name, base_occupancy, units, amenity_codes from stay.room_types where property_id = ${id}::uuid order by sort_order`;
+      expect(rooms.map((r) => [r.name, r.base_occupancy])).toEqual([
+        ["اتاق دو تخته رو به حرم", 2],
+        ["اتاق سه تخته", 3],
+        ["سوئیت خانواده چهار نفره", 4],
+      ]);
+      expect(rooms[0].amenity_codes).toEqual(["haram_view"]);
+      const media = await sql<any[]>`select url, is_cover from stay.media where property_id = ${id}::uuid order by sort_order`;
+      expect(media.map((m) => m.url)).toEqual(["Categories/services/legacy-cover.webp", "Categories/services/legacy-0.webp", "Categories/services/legacy-1.webp", "Categories/services/legacy-2.webp"]);
+      expect(media[0].is_cover).toBe(true);
+      const [audit] = await sql<any[]>`select detail from stay.audit_log where property_id = ${id}::uuid and action = 'imported_from_provider'`;
+      expect(audit.detail).toMatchObject({ rooms: 3, roomsSkippedImplausiblePrice: 1, photos: 4 });
+
+      // Twice is a conflict, an unknown provider is "not found" — never a generic failure.
+      await expect(admin.importProvider(adminActor(owner.id), provider.id, city.id)).rejects.toMatchObject({ kind: "conflict", code: "already_imported" });
+      await expect(admin.importProvider(adminActor(owner.id), "00000000-0000-4000-8000-000000000001", city.id)).rejects.toMatchObject({ kind: "not_found" });
+    });
+
+    it("publishes an import when asked and it is complete (the catalog migration's path)", async () => {
+      const city = await seedStayCity(sql as never);
+      const provider = await seedLegacyHotelProvider(sql as never, { category: "مهمان پذیر" });
+      const [{ id }] = await sql<{ id: string }[]>`select stay.import_provider(${provider.id}::uuid, ${city.id}::uuid, null, true)::text as id`;
+      const [p] = await sql<any[]>`select status, kind, published_at, provider_service_id from stay.properties where id = ${id}::uuid`;
+      expect(p).toMatchObject({ status: "published", kind: "guesthouse" });
+      expect(p.provider_service_id).toBeNull(); // created lazily at the first booking
+      const r = await catalog.searchProperties({ ...DEFAULT_SEARCH, city: city.slug }, "fa-IR");
+      expect(r.total).toBe(1);
     });
   });
 

@@ -2,9 +2,8 @@
 
 import { useState, useTransition } from "react";
 import { ArrowLeft, ArrowRight, BadgeCheck, BedDouble, CalendarCheck2, CheckCircle2, HeartPulse, Home, Hotel, Landmark, ReceiptText } from "lucide-react";
-import { useLocale, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 
-import { directionOf } from "@/features/tours/domain/content";
 import { Link, useRouter } from "@/i18n/navigation";
 
 import { completeStaysIntroAction } from "../../server/actions/customer";
@@ -31,13 +30,11 @@ export function StaysIntro({ next, cities }: { next: string; cities: IntroCity[]
   const t = useTranslations("StayApp.intro");
   const tNav = useTranslations("StayApp.nav");
   const tHome = useTranslations("StayApp.home");
-  const locale = useLocale();
   const router = useRouter();
   const [pending, start] = useTransition();
   const [failed, setFailed] = useState(false);
-  const rtl = directionOf(locale) === "rtl";
-  const Arrow = rtl ? ArrowLeft : ArrowRight;
-  const Back = rtl ? ArrowRight : ArrowLeft;
+  const Arrow = ArrowRight; // mirrored in RTL by globals.css
+  const Back = ArrowLeft; // mirrored in RTL by globals.css
 
   function proceed() {
     start(async () => {

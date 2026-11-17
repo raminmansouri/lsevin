@@ -6,9 +6,10 @@ import { contentLocaleFor, directionOf } from "@/features/tours/domain/content";
 import { currentActor } from "@/features/tours/server/platform/access";
 import { LocalizedText } from "@/features/tours/ui/shared/localized-text";
 import { parseStaySearch } from "@/features/stays/domain/search";
-import { getCity, listAmenities, listCities, searchProperties, wishlistIds } from "@/features/stays/server/catalog";
+import { exploreSuggestions, getCity, listAmenities, listCities, listLandmarks, searchProperties, wishlistIds } from "@/features/stays/server/catalog";
 import { logUnexpected } from "@/features/stays/server/errors";
 import { citySchema, STAY_INDEXABLE_LOCALES } from "@/features/stays/server/seo";
+import { StayImage } from "@/features/stays/ui/common";
 import { ExploreView } from "@/features/stays/ui/explore/explore-view";
 import { PageFaq } from "@/features/site-content/components/faq-section";
 import { Link } from "@/i18n/navigation";
@@ -48,7 +49,7 @@ export default async function StaysCityPage({ params, searchParams }: Props) {
   const search = { ...parseStaySearch(await searchParams), city: slug };
   const t = await getTranslations({ locale, namespace: "StayApp" });
   const actor = await currentActor();
-  const [cities, amenities, saved, result] = await Promise.all([
+  const [cities, amenities, saved, result, landmarks] = await Promise.all([
     listCities(content).catch(() => []),
     listAmenities(content).catch(() => []),
     actor.userId ? wishlistIds(actor.userId).catch(() => [] as string[]) : Promise.resolve([] as string[]),
@@ -56,7 +57,15 @@ export default async function StaysCityPage({ params, searchParams }: Props) {
       logUnexpected("stays.city", e);
       return null;
     }),
+    listLandmarks(slug, content).catch(() => []),
   ]);
+  const suggestions =
+    result && result.total === 0
+      ? await exploreSuggestions(search, content).catch((e) => {
+          logUnexpected("stays.city.suggestions", e);
+          return null;
+        })
+      : null;
   const title = t("meta.cityTitle", { city: city.name });
   return (
     <>
@@ -72,11 +81,24 @@ export default async function StaysCityPage({ params, searchParams }: Props) {
           <li aria-current="page">{city.name}</li>
         </ol>
       </nav>
+      {city.coverUrl ? (
+        <figure className="relative mx-4 mt-3 overflow-hidden rounded-3xl sm:mx-6" data-testid="stays-city-hero">
+          <StayImage src={city.coverUrl} alt={city.coverAlt ?? city.name} className="aspect-[16/7] w-full sm:aspect-[16/5]" priority sizes="(min-width: 1152px) 1104px, 100vw" />
+          <span className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" aria-hidden="true" />
+          <figcaption className="absolute inset-x-4 bottom-3 text-white">
+            <span className="block text-2xl font-extrabold drop-shadow sm:text-3xl">{city.name}</span>
+            {city.region ? <span className="block text-sm text-white/90">{city.region}</span> : null}
+          </figcaption>
+        </figure>
+      ) : null}
       <ExploreView
         search={search}
         result={result}
         cities={cities.map((c) => ({ slug: c.slug, name: c.name, region: c.region }))}
+        cityCounts={cities.map((c) => ({ slug: c.slug, name: c.name, count: c.propertyCount }))}
         amenities={amenities}
+        landmarks={landmarks}
+        suggestions={suggestions}
         savedIds={saved}
         heading={title}
         basePath={`/stays/city/${slug}`}

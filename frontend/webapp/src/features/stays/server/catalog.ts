@@ -7,9 +7,13 @@ import { normalizeSearchText } from "@/features/tours/domain/text";
 import { normalizeRules } from "../domain/cancellation";
 import { nightsBetween, todayIn, validateStayDates } from "../domain/dates";
 import { occupancyFits, quoteStay, StayQuoteError, type Occupancy, type RatePlanPricing, type RoomCapacity } from "../domain/pricing";
-import type { MealPlan, PropertyKind, StaySearch } from "../domain/search";
+import { distanceM, type NearRef } from "../domain/geo";
+import { RADII_M } from "../domain/geo";
+import { activeFilterCount, DEFAULT_SEARCH, withoutFilters, type MealPlan, type PropertyKind, type StaySearch } from "../domain/search";
 import type {
   Amenity,
+  Landmark,
+  SearchAnchor,
   CityDetail,
   CitySummary,
   PropertyCard,
@@ -274,7 +278,11 @@ const PAGE_SIZE = 20;
 const MAX_CANDIDATE_PROPERTIES = 600;
 
 export async function searchProperties(s: StaySearch, locale: string, opts: { pageSize?: number } = {}): Promise<SearchResult> {
-  const settings = await getStaySettings();
+  const [settings, anchor] = await Promise.all([getStaySettings(), s.near ? resolveAnchor(s.near, locale) : Promise.resolve(null)]);
+  const aLat = anchor?.latitude ?? null;
+  const aLng = anchor?.longitude ?? null;
+  // An anchor that no longer exists (deleted landmark, bad link) must not silently widen the search to everything.
+  const radius = s.near && !anchor ? 0 : anchor ? s.radius : null;
   const pageSize = opts.pageSize ?? PAGE_SIZE;
   const dateError = s.checkIn && s.checkOut
     ? validateStayDates(s.checkIn, s.checkOut, { today: todayIn(), maxNights: settings.maxNights, windowDays: settings.bookingWindowDays })
@@ -289,6 +297,8 @@ export async function searchProperties(s: StaySearch, locale: string, opts: { pa
     select p.id::text, p.slug, p.name, p.kind, p.star_rating, p.rating_avg, p.review_count, p.amenity_codes, p.confirmation_mode,
            p.step_free_access, p.medical_friendly, p.currency_code, p.tax_percent, p.child_free_under_age, p.popularity, p.is_featured,
            p.latitude, p.longitude, p.location_privacy, p.published_at,
+           case when ${aLat}::float8 is null or p.latitude is null then null
+                else stay.distance_m(${aLat}::float8, ${aLng}::float8, p.latitude::float8, p.longitude::float8) end as dist,
            c.slug as city_slug, c.name as city_name,
            (select m.url from stay.media m where m.property_id = p.id and m.room_type_id is null order by m.is_cover desc, m.sort_order limit 1) as cover_url,
            (select m.alt from stay.media m where m.property_id = p.id and m.room_type_id is null order by m.is_cover desc, m.sort_order limit 1) as cover_alt,
@@ -306,6 +316,9 @@ export async function searchProperties(s: StaySearch, locale: string, opts: { pa
        and (${s.minRating}::numeric is null or p.rating_avg >= ${s.minRating}::numeric)
        and (${s.instantOnly}::boolean = false or p.confirmation_mode = 'instant')
        and (${s.accessible}::boolean = false or p.step_free_access)
+       and (${radius}::float8 is null
+            or (p.latitude is not null and ${aLat}::float8 is not null
+                and stay.distance_m(${aLat}::float8, ${aLng}::float8, p.latitude::float8, p.longitude::float8) <= ${radius}::float8))
      order by p.is_featured desc, p.popularity desc, p.published_at desc nulls last
      limit ${MAX_CANDIDATE_PROPERTIES}
   `;
@@ -318,7 +331,8 @@ export async function searchProperties(s: StaySearch, locale: string, opts: { pa
   props.forEach((p, idx) => {
     const list = byProperty.get(p.id) ?? [];
     const pricing: PropertyPricing = { currency: p.currency_code, currencyDecimals: decimals[p.currency_code] ?? 0, childFreeUnderAge: p.child_free_under_age, taxPercent: Number(p.tax_percent) };
-    const fitting = list.filter((c) => occupancyFits(occupancy, c.capacity));
+    // "Breakfast included": only rates with at least breakfast count, so the prices shown are for those rates.
+    const fitting = list.filter((c) => occupancyFits(occupancy, c.capacity) && (!s.breakfast || c.mealPlan !== "room_only"));
     let total: number | null = null;
     let nights: number | null = null;
     let unitsLeft: number | null = null;
@@ -341,7 +355,8 @@ export async function searchProperties(s: StaySearch, locale: string, opts: { pa
     if (s.freeCancellation && !freeCancellation) return;
     if (s.availableOnly && available === false) return;
     if (fitting.length === 0) return; // nothing at this property can host the party
-    const priceForFilter = total ?? fromNightly;
+    // Price filters are per night (how guests compare hotel prices), with or without dates.
+    const priceForFilter = total != null && nights ? Math.round(total / nights) : fromNightly;
     if (s.minPrice && (priceForFilter == null || priceForFilter < s.minPrice)) return;
     if (s.maxPrice && (priceForFilter == null || priceForFilter > s.maxPrice)) return;
     const approximate = p.location_privacy === "approximate";
@@ -371,6 +386,9 @@ export async function searchProperties(s: StaySearch, locale: string, opts: { pa
       latitude: p.latitude == null ? null : roundCoord(Number(p.latitude), approximate),
       longitude: p.longitude == null ? null : roundCoord(Number(p.longitude), approximate),
       approximate,
+      distanceM: p.dist == null ? null : approximate ? Math.max(500, Math.round(Number(p.dist) / 500) * 500) : Math.round(Number(p.dist)),
+      breakfastIncluded: fitting.some((c) => c.mealPlan !== "room_only"),
+      highlights: [],
     });
   });
 
@@ -379,8 +397,23 @@ export async function searchProperties(s: StaySearch, locale: string, opts: { pa
   const priceBounds = prices.length ? { min: Math.min(...prices), max: Math.max(...prices) } : null;
   // Available stays first when dates are known, then the requested order.
   const availFirst = (a: PropertyCard, b: PropertyCard) => Number(b.available !== false) - Number(a.available !== false);
+  const nightlyOf = (c: PropertyCard) => (c.total != null && c.nights ? c.total / c.nights : c.fromNightly);
+  const nightly = cards.map(nightlyOf).filter((v): v is number => v != null).sort((a, b) => a - b);
+  const valueLine = nightly.length >= 4 ? nightly[Math.floor(nightly.length / 4)] : null;
+  const scoreOf = new Map<string, number>();
+  for (const c of cards) {
+    const h: PropertyCard["highlights"] = [];
+    if (c.distanceM != null && !c.approximate && c.distanceM <= 1200) h.push("walkable");
+    if ((c.ratingAvg ?? 0) >= 4.5 && c.reviewCount >= 3) h.push("top_rated");
+    const n = nightlyOf(c);
+    if (valueLine != null && n != null && n <= valueLine) h.push("great_value");
+    c.highlights = h;
+    scoreOf.set(c.id, matchScore(c, cards.length, c._rank, radius));
+  }
   const order: Record<string, (a: PropertyCard & { _rank: number }, b: PropertyCard & { _rank: number }) => number> = {
-    recommended: (a, b) => a._rank - b._rank,
+    // Best match: closeness to the chosen place, guest rating, availability and flexibility — see matchScore().
+    recommended: (a, b) => scoreOf.get(b.id)! - scoreOf.get(a.id)! || a._rank - b._rank,
+    distance: (a, b) => (a.distanceM ?? Number.POSITIVE_INFINITY) - (b.distanceM ?? Number.POSITIVE_INFINITY) || a._rank - b._rank,
     price_asc: (a, b) => priceOf(a) - priceOf(b) || a._rank - b._rank,
     price_desc: (a, b) => priceOf(b) - priceOf(a) || a._rank - b._rank,
     rating: (a, b) => (b.ratingAvg ?? 0) - (a.ratingAvg ?? 0) || b.reviewCount - a.reviewCount || a._rank - b._rank,
@@ -394,12 +427,106 @@ export async function searchProperties(s: StaySearch, locale: string, opts: { pa
     page: s.page,
     pageSize,
     priceBounds,
+    anchor,
   };
+}
+
+/**
+ * "Best match" (default sort). Transparent and deliberately simple:
+ *   - distance to the chosen place (when there is one) weighs most — it is why the guest set it;
+ *   - guest rating, damped when there are few reviews; star category;
+ *   - bookable for the dates, free cancellation, instant confirmation;
+ *   - the editorial order (featured, popularity) breaks near-ties.
+ */
+function matchScore(c: PropertyCard, count: number, rank: number, radius: number | null): number {
+  let score = 0;
+  if (c.distanceM != null) score += 40 * Math.max(0, 1 - c.distanceM / Math.max(radius ?? 5000, 1000));
+  const reviews = Math.min(c.reviewCount, 20) / 20;
+  score += ((c.ratingAvg ?? 4) / 5) * 20 * (0.5 + 0.5 * reviews);
+  score += (c.starRating ?? 2) * 2;
+  if (c.available === true) score += 15;
+  if (c.freeCancellation) score += 4;
+  if (c.instant) score += 3;
+  score += 10 * (1 - rank / Math.max(count, 1));
+  return score;
+}
+
+export type ExploreSuggestions = {
+  /** Stays found when every filter is removed (null: there were no filters). */
+  withoutFilters: number | null;
+  /** The nearest larger radius that finds stays (null: no place, or none helps). */
+  widerRadius: { radius: number | null; count: number } | null;
+  /** A few well-rated stays for the same trip, so an empty search is never a dead end. */
+  popular: PropertyCard[];
+};
+
+/**
+ * Ways out of an empty result (H02): what removing filters or widening the
+ * distance would find, plus popular stays for the same dates and party —
+ * in the same city when it has any, otherwise anywhere.
+ */
+export async function exploreSuggestions(s: StaySearch, locale: string): Promise<ExploreSuggestions> {
+  const base = { ...s, page: 1 };
+  const withoutFiltersCount = activeFilterCount(s) > 0 ? (await searchProperties(withoutFilters(base), locale, { pageSize: 1 })).total : null;
+  let widerRadius: ExploreSuggestions["widerRadius"] = null;
+  if (s.near && s.radius != null) {
+    const bigger: (number | null)[] = [...RADII_M.filter((r) => r > s.radius!), null];
+    for (const radius of bigger) {
+      const total = (await searchProperties({ ...base, radius: radius as StaySearch["radius"] }, locale, { pageSize: 1 })).total;
+      if (total > 0) {
+        widerRadius = { radius, count: total };
+        break;
+      }
+    }
+  }
+  const trip = { ...DEFAULT_SEARCH, checkIn: s.checkIn, checkOut: s.checkOut, adults: s.adults, childAges: s.childAges, rooms: s.rooms };
+  let popular = s.city ? (await searchProperties({ ...trip, city: s.city }, locale, { pageSize: 4 })).items : [];
+  if (popular.length === 0) popular = (await searchProperties(trip, locale, { pageSize: 4 })).items;
+  return { withoutFilters: withoutFiltersCount, widerRadius, popular };
+}
+
+/** Where a location search is anchored, in the visitor's language. Null when the reference is unknown. */
+export async function resolveAnchor(near: NearRef, locale: string): Promise<SearchAnchor | null> {
+  if (near.type === "pt") return { kind: "point", name: null, latitude: near.lat, longitude: near.lng, citySlug: null };
+  if (near.type === "lm") {
+    const [r] = await db<any[]>`
+      select l.kind, l.name, l.latitude::float8 as lat, l.longitude::float8 as lng, c.slug as city
+        from stay.landmarks l join stay.cities c on c.id = l.city_id
+       where c.slug = ${near.city} and l.slug = ${near.slug} and l.is_active`;
+    return r ? { kind: r.kind, name: pickStr(r.name, locale), latitude: r.lat, longitude: r.lng, citySlug: r.city } : null;
+  }
+  const [r] = await db<any[]>`
+    select name_translations, latitude::float8 as lat, longitude::float8 as lng
+      from category.service_providers where id = ${near.id}::uuid and is_active and latitude is not null and longitude is not null`;
+  return r ? { kind: "provider", name: pickStr(r.name_translations, locale) || null, latitude: r.lat, longitude: r.lng, citySlug: null } : null;
+}
+
+/** Landmarks of a city (or of every published city), for "near …" choices and a property's surroundings. */
+export async function listLandmarks(citySlug: string | null, locale: string): Promise<Landmark[]> {
+  const rows = await db<any[]>`
+    select l.slug, l.kind, l.name, l.latitude::float8 as lat, l.longitude::float8 as lng, l.is_quick, c.slug as city
+      from stay.landmarks l join stay.cities c on c.id = l.city_id and c.is_published
+     where l.is_active and (${citySlug}::text is null or c.slug = ${citySlug})
+     order by c.sort_order, l.sort_order, l.slug`;
+  return rows.map((r) => ({ city: r.city, slug: r.slug, kind: r.kind, name: pickStr(r.name, locale), latitude: r.lat, longitude: r.lng, quick: r.is_quick }));
 }
 
 /** Approximate locations are snapped to a ~1 km grid so the exact door is never exposed. */
 function roundCoord(v: number, approximate: boolean) {
   return approximate ? Math.round(v * 100) / 100 : v;
+}
+
+/**
+ * What is around a stay: places the host listed plus the city's landmarks within
+ * 15 km, nearest first. Approximate locations get distances rounded to 500 m.
+ */
+function mergeNearby(listed: PropertyDetail["nearby"], computed: PropertyDetail["nearby"], approximate: boolean): PropertyDetail["nearby"] {
+  const seen = new Set(listed.map((n) => n.name));
+  const all = [...listed, ...computed.filter((n) => n.distanceM <= 15000 && !seen.has(n.name))];
+  return all
+    .map((n) => (approximate ? { ...n, distanceM: Math.max(500, Math.round(n.distanceM / 500) * 500) } : n))
+    .sort((a, b) => a.distanceM - b.distanceM)
+    .slice(0, 8);
 }
 
 // Property detail --------------------------------------------------------------
@@ -427,7 +554,7 @@ export async function getPropertyDetail(
   if (!p) return null;
   if (opts.mode === "published" && (p.status !== "published" || !p.city_published)) return null;
 
-  const [media, amenities, policyRows, breakdown] = await Promise.all([
+  const [media, amenities, policyRows, breakdown, landmarks] = await Promise.all([
     db<any[]>`select id::text, url, alt, credit, room_type_id::text from stay.media where property_id = ${p.id}::uuid order by is_cover desc, sort_order, created_at`,
     listAmenities(locale),
     p.current_policy_id
@@ -435,6 +562,7 @@ export async function getPropertyDetail(
       : Promise.resolve([] as any[]),
     db<any[]>`select avg(cleanliness)::float8 as c, avg(location)::float8 as l, avg(staff)::float8 as s, avg(value)::float8 as v
                 from stay.reviews where property_id = ${p.id}::uuid and status = 'published'`,
+    listLandmarks(p.city_slug, locale).catch(() => [] as Landmark[]),
   ]);
   const amenitySet = new Set<string>(p.amenity_codes ?? []);
   const policy = policyRows[0];
@@ -465,10 +593,15 @@ export async function getPropertyDetail(
     checkInTime: String(p.cin).slice(0, 5),
     checkOutTime: String(p.cout).slice(0, 5),
     amenities: amenities.filter((a) => amenitySet.has(a.code)),
-    nearby: ((p.nearby ?? []) as any[])
-      .map((n) => ({ kind: String(n.kind ?? "place"), name: pickStr(n.name, locale), distanceM: Number(n.distanceM) }))
-      .filter((n) => n.name && Number.isFinite(n.distanceM))
-      .sort((a, b) => a.distanceM - b.distanceM),
+    nearby: mergeNearby(
+      ((p.nearby ?? []) as any[])
+        .map((n) => ({ kind: String(n.kind ?? "other"), name: pickStr(n.name, locale), distanceM: Number(n.distanceM) }))
+        .filter((n) => n.name && Number.isFinite(n.distanceM)),
+      p.latitude == null
+        ? []
+        : landmarks.map((l) => ({ kind: l.kind, name: l.name, distanceM: Math.round(distanceM(Number(p.latitude), Number(p.longitude), l.latitude, l.longitude)) })),
+      approximate,
+    ),
     accessibility: { stepFree: p.step_free_access, accessibleBathroom: p.accessible_bathroom, verified: Boolean(p.accessibility_verified_at) },
     medicalFriendly: p.medical_friendly,
     rules: {
@@ -617,6 +750,7 @@ async function cardsFor(ids: string[], locale: string): Promise<PropertyCard[]> 
 const EMPTY: StaySearch = {
   city: null, q: null, checkIn: null, checkOut: null, adults: 1, childAges: [], rooms: 1, kinds: [], stars: [], amenities: [],
   minPrice: null, maxPrice: null, minRating: null, freeCancellation: false, instantOnly: false, accessible: false, availableOnly: false,
+  breakfast: false, near: null, radius: null,
   sort: "recommended", page: 1,
 };
 

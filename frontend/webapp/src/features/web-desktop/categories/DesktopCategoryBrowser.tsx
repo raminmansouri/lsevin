@@ -146,6 +146,7 @@ export function DesktopCategoryBrowser({
   totalCategories,
   totalProviders,
   tourismCategoryId = null,
+  staysCategoryId = null,
   parentId = null,
 }: {
   categoryGroups: CategoryBrowserGroup[];
@@ -153,6 +154,8 @@ export function DesktopCategoryBrowser({
   totalProviders: number;
   /** Tourism root from tour settings: Tourism opens the Tours app instead of a category screen. */
   tourismCategoryId?: string | null;
+  /** Accommodation root from stay settings: its cards open the Stays app. */
+  staysCategoryId?: string | null;
   /** The category whose subcategories are shown (/categories/<slug>); null at the root. */
   parentId?: string | null;
 }) {
@@ -171,7 +174,7 @@ export function DesktopCategoryBrowser({
   const router = useRouter();
   const parentOf = (id: string) => byId.get(id)?.parentId;
   const hrefFor = (category: CategoryBrowserCategory) =>
-    categoryCardHref(category, { tourismCategoryId, parentOf });
+    categoryCardHref(category, { tourismCategoryId, staysCategoryId, parentOf });
 
   // Tourism has no category screen of its own: the Tours app is its home.
   useEffect(() => {

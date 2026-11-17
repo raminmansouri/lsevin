@@ -1,13 +1,12 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { ArrowLeft, ArrowRight, History, Search, SlidersHorizontal, Trash2 } from "lucide-react";
-import { useLocale, useTranslations } from "next-intl";
+import { ArrowRight, History, Search, SlidersHorizontal, Trash2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 import { Link, useRouter } from "@/i18n/navigation";
 
-import { directionOf } from "../../../domain/content";
 import { clearRecentViewsAction } from "../../../server/actions/customer";
 import type { DestinationCard as DestinationData, EditorialModule, TourCard as TourCardData } from "../../../server/platform/catalog";
 import type { TaxonomyTerm } from "../../../server/actions/customer/state";
@@ -19,8 +18,7 @@ import { TourCard } from "../tour-card";
 import { DesktopToursHome } from "@/features/web-desktop/tours/DesktopToursHome";
 
 function SectionHeader({ title, href, seeAll, id }: { title: string; href?: string; seeAll?: string; id: string }) {
-  const rtl = directionOf(useLocale()) === "rtl";
-  const Arrow = rtl ? ArrowLeft : ArrowRight;
+  const Arrow = ArrowRight; // mirrored in RTL by globals.css
   return (
     <div className="mb-3 flex items-center justify-between gap-3 px-4 sm:px-6">
       <h2 id={id} className="text-lg font-bold text-slate-900">
