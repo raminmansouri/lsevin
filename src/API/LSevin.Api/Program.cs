@@ -19,6 +19,7 @@ using BuildingBlocks.Web.OpenApi;
 using BuildingBlocks.Web.ProblemDetail.Extensions;
 using BuildingBlocks.Web.RateLimit;
 using LSevin.Api.Hubs;
+using LSevin.Api.Middleware.AdminAccess;
 using LSevinModels.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -78,6 +79,7 @@ try
     configuration.AddModulesSettingsFile(env.ContentRootPath);
 
     builder.Services.AddMemoryCache();
+    builder.Services.AddSingleton<IAdminAccessStore, PostgresAdminAccessStore>();
 
     //builder.Services.AddSignalR();
     builder.Services.AddAuthentication(); // whatever you us
@@ -178,6 +180,10 @@ try
     app.UseFileUploadService(configuration, env);
 
     app.UseAuthentication().UseAuthorization();
+
+    // Per-area admin permissions (roles managed at /admin/access-control in the web app). Needs the endpoint and
+    // the caller to be known, so it sits right after authorization. AdminAccess:Enabled=false switches it off.
+    app.UseMiddleware<AdminAccessMiddleware>();
 
     //app.UseEndpoints(endpoints =>
     //{

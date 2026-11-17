@@ -1,4 +1,6 @@
 import { randomUUID } from "node:crypto";
+import fs from "node:fs";
+import path from "node:path";
 
 import { type Browser, type BrowserContext, expect, type Page, test } from "@playwright/test";
 import { encode } from "next-auth/jwt";
@@ -7,7 +9,8 @@ import postgres from "postgres";
 /**
  * Admin access control, end to end: the real admin screens, middleware, guards and Postgres.
  *
- *   super admin   creates a role, ticks permissions, adds a person        (UI, persisted, reload)
+ *   an admin      (the ordinary `admin` role — most admins here never held superadmin) creates a role,
+ *                 ticks permissions, adds a person                                  (UI, persisted, reload)
  *   limited admin sees only what the role grants, is refused everything else — by menu,
  *                 by URL, by API and by write — and loses/gains access live when the role changes
  *   edge cases    disabled admin, last role removed, customer, anonymous, bad input, server failure
@@ -35,7 +38,6 @@ const ROLE = `${tag} Editor`;
 const sql = RUNNABLE ? postgres(DB_URL, { max: 2, prepare: false }) : null;
 const created = { roleIds: [] as string[] };
 let adminRoleId = "";
-let superRoleId = "";
 
 test.describe.configure({ mode: "serial" });
 
@@ -47,13 +49,11 @@ async function makeUser(id: string, label: string) {
 test.beforeAll(async () => {
   const s = sql!;
   adminRoleId = (await s<{ id: string }[]>`select id::text as id from identity.asp_net_roles where lower(name) = 'admin'`)[0]?.id;
-  superRoleId = (await s<{ id: string }[]>`select id::text as id from identity.asp_net_roles where lower(name) = 'superadmin'`)[0]?.id;
   expect(adminRoleId, "identity role 'admin' must exist in the test database").toBeTruthy();
-  expect(superRoleId, "identity role 'superadmin' must exist in the test database").toBeTruthy();
   for (const [key, label] of [["super", "super"], ["plain", "plain"], ["limited", "limited"], ["customer", "customer"]] as const) {
     await makeUser(ids[key], label);
   }
-  await s`insert into identity.asp_net_user_roles (user_id, role_id) values (${ids.super}, ${superRoleId}), (${ids.plain}, ${adminRoleId}), (${ids.limited}, ${adminRoleId})`;
+  await s`insert into identity.asp_net_user_roles (user_id, role_id) values (${ids.super}, ${adminRoleId}), (${ids.plain}, ${adminRoleId}), (${ids.limited}, ${adminRoleId})`;
 });
 
 test.afterAll(async () => {
@@ -169,7 +169,7 @@ test.describe("full-access admins are unaffected @critical", () => {
 
 test.describe("super admin manages roles @critical", () => {
   test("creates a role, ticks permissions, saves, and they survive a reload", async ({ browser }, testInfo) => {
-    const context = await signedIn(browser, ids.super, ["superadmin", "admin"]);
+    const context = await signedIn(browser, ids.super, ["admin"]);
     const page = await context.newPage();
     const errors = watchErrors(page);
     await open(page, "/en/admin/access-control");
@@ -207,7 +207,7 @@ test.describe("super admin manages roles @critical", () => {
   });
 
   test("the privileged and not-yet-wired areas cannot be ticked", async ({ browser }) => {
-    const context = await signedIn(browser, ids.super, ["superadmin", "admin"]);
+    const context = await signedIn(browser, ids.super, ["admin"]);
     const page = await context.newPage();
     await open(page, `/en/admin/access-control/roles/${await roleId()}`);
     for (const key of ["access-control", "identity-users", "table-browser"]) {
@@ -219,7 +219,7 @@ test.describe("super admin manages roles @critical", () => {
   });
 
   test("adds a person by searching for them; the membership persists", async ({ browser }, testInfo) => {
-    const context = await signedIn(browser, ids.super, ["superadmin", "admin"]);
+    const context = await signedIn(browser, ids.super, ["admin"]);
     const page = await context.newPage();
     await open(page, `/en/admin/access-control/roles/${await roleId()}`);
     await page.getByLabel("Search people").fill(`${tag}-limited`);
@@ -238,7 +238,7 @@ test.describe("super admin manages roles @critical", () => {
   });
 
   test("rejects bad input with specific messages and keeps the Create button honest", async ({ browser }) => {
-    const context = await signedIn(browser, ids.super, ["superadmin", "admin"]);
+    const context = await signedIn(browser, ids.super, ["admin"]);
     const page = await context.newPage();
     await open(page, "/en/admin/access-control");
     const create = page.getByRole("button", { name: "Create role" });
@@ -258,7 +258,7 @@ test.describe("super admin manages roles @critical", () => {
   });
 
   test("a failing server is reported as a server problem and nothing is saved", async ({ browser }) => {
-    const context = await signedIn(browser, ids.super, ["superadmin", "admin"]);
+    const context = await signedIn(browser, ids.super, ["admin"]);
     const page = await context.newPage();
     const id = (await roleId())!;
     await open(page, `/en/admin/access-control/roles/${id}`);
@@ -329,8 +329,59 @@ test.describe("limited admin @critical", () => {
     await context.close();
   });
 
+  test("server actions are checked by id: another area's action cannot be replayed through a page they hold", async ({ browser }) => {
+    const limitedCtx = await signedIn(browser, ids.limited, ["admin"]);
+    const page = await limitedCtx.newPage();
+    // Warm the pages whose actions we need, so the dev server has put them in its action manifest.
+    await open(page, "/en/admin/editorial");
+    await open(page, "/en/admin/editorial/pages/about-us"); // the page editor is what imports saveSitePageAction
+    const manager = await signedIn(browser, ids.super, ["admin"]);
+    const managerPage = await manager.newPage();
+    await open(managerPage, `/en/admin/access-control/roles/${await roleId()}`);
+
+    const idOf = async (exportedName: string, onlyUnder: string) => {
+      let found: string | undefined;
+      await expect
+        .poll(() => {
+          const manifest = JSON.parse(fs.readFileSync(path.join(process.cwd(), ".next/server/server-reference-manifest.json"), "utf8"));
+          found = Object.entries<{ exportedName?: string; workers?: unknown }>(manifest.node).find(
+            ([, a]) => {
+              // `workers` is an array in this Next version and an object keyed by page in others.
+              const pages = Array.isArray(a.workers) ? (a.workers as string[]) : Object.keys((a.workers ?? {}) as object);
+              return a.exportedName === exportedName && pages.length > 0 && pages.every((w) => w.includes(onlyUnder));
+            }
+          )?.[0];
+          return Boolean(found);
+        }, { timeout: 120_000, intervals: [2_000] })
+        .toBe(true);
+      return found!;
+    };
+    const rolesAction = await idOf("createRoleAction", "/admin/access-control");
+    const ownAction = await idOf("saveSitePageAction", "/admin/editorial");
+
+    const post = (action?: string) =>
+      limitedCtx.request.post("/en/admin/editorial", {
+        headers: { "content-type": "text/plain;charset=UTF-8", ...(action ? { "next-action": action } : {}) },
+        data: "[]",
+      });
+
+    // The limited admin may manage `editorial`, so this POST to /admin/editorial passes the URL gate…
+    // …but the action it names belongs to access control: refused.
+    expect((await post(rolesAction)).status()).toBe(403);
+    // Their own area's action gets past the gate (what it then does is the action's business).
+    const own = await post(ownAction);
+    expect([403, 503]).not.toContain(own.status());
+    // An id nobody can account for, and a write that names no action at all: refused.
+    expect((await post("deadbeefdeadbeefdeadbeefdeadbeefdeadbeef")).status()).toBe(403);
+    expect((await post()).status()).toBe(403);
+    // …and nothing was created by the replay.
+    expect(await sql!`select 1 from auth.roles where name like ${`${tag}%`} and name <> ${ROLE}`).toHaveLength(0);
+    await manager.close();
+    await limitedCtx.close();
+  });
+
   test("a grant takes effect without signing in again, and so does taking it away", async ({ browser }) => {
-    const superCtx = await signedIn(browser, ids.super, ["superadmin", "admin"]);
+    const superCtx = await signedIn(browser, ids.super, ["admin"]);
     const limitedCtx = await signedIn(browser, ids.limited, ["admin"]);
     const admin = await superCtx.newPage();
     const limited = await limitedCtx.newPage();
@@ -363,7 +414,7 @@ test.describe("limited admin @critical", () => {
   });
 
   test("a disabled admin loses the admin area entirely, even though their token still says admin", async ({ browser }, testInfo) => {
-    const superCtx = await signedIn(browser, ids.super, ["superadmin", "admin"]);
+    const superCtx = await signedIn(browser, ids.super, ["admin"]);
     const limitedCtx = await signedIn(browser, ids.limited, ["admin"]);
     const admin = await superCtx.newPage();
     const limited = await limitedCtx.newPage();
@@ -397,7 +448,7 @@ test.describe("limited admin @critical", () => {
   });
 
   test("removing the last role leaves them with no access — they do not become unlimited", async ({ browser }, testInfo) => {
-    const superCtx = await signedIn(browser, ids.super, ["superadmin", "admin"]);
+    const superCtx = await signedIn(browser, ids.super, ["admin"]);
     const limitedCtx = await signedIn(browser, ids.limited, ["admin"]);
     const admin = await superCtx.newPage();
     const limited = await limitedCtx.newPage();
@@ -421,7 +472,7 @@ test.describe("limited admin @critical", () => {
   });
 
   test("releasing them to full access restores everything", async ({ browser }) => {
-    const superCtx = await signedIn(browser, ids.super, ["superadmin", "admin"]);
+    const superCtx = await signedIn(browser, ids.super, ["admin"]);
     const limitedCtx = await signedIn(browser, ids.limited, ["admin"]);
     const admin = await superCtx.newPage();
     const limited = await limitedCtx.newPage();
@@ -465,7 +516,7 @@ test.describe("everyone else", () => {
 
 test.describe("presentation", () => {
   test("the screens work on a phone without horizontal scrolling", async ({ browser }, testInfo) => {
-    const context = await signedIn(browser, ids.super, ["superadmin", "admin"]);
+    const context = await signedIn(browser, ids.super, ["admin"]);
     const page = await context.newPage();
     await page.setViewportSize({ width: 390, height: 844 });
     await open(page, `/en/admin/access-control/roles/${await roleId()}`);
@@ -477,7 +528,7 @@ test.describe("presentation", () => {
   });
 
   test("Persian renders right-to-left with translated labels", async ({ browser }, testInfo) => {
-    const context = await signedIn(browser, ids.super, ["superadmin", "admin"]);
+    const context = await signedIn(browser, ids.super, ["admin"]);
     const page = await context.newPage();
     await open(page, "/fa/admin/access-control");
     await expect(page.getByRole("heading", { name: "مدیریت دسترسی‌ها", level: 1 })).toBeVisible();
@@ -488,7 +539,7 @@ test.describe("presentation", () => {
   });
 
   test("the role can be deleted; it disappears and its permissions go with it", async ({ browser }) => {
-    const context = await signedIn(browser, ids.super, ["superadmin", "admin"]);
+    const context = await signedIn(browser, ids.super, ["admin"]);
     const page = await context.newPage();
     const id = (await roleId())!;
     await open(page, `/en/admin/access-control/roles/${id}`);

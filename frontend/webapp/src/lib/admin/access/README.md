@@ -71,10 +71,44 @@ Replace each `assertAdmin()` / `getAdminContext().isAdmin` in the area with
 `assertAdmin("<resource>", "<level>")` / `adminMay(ctx, "<resource>")`, make sure pages that call a
 guard in render use `"view"`, then delete the prefix and add a test.
 
+## Server actions: checked by id
+
+A server action is invoked by id, not URL, so the URL gate alone would let a limited admin who may
+manage area A post area B's action id to a page of A. For a limited admin the middleware therefore
+also checks the action: `next build` writes `.next/server/server-reference-manifest.json` (action id →
+the page entries that import it); `/api/internal/admin-access?action=<id>` reads it, and
+`decideAdminAction()` (`actions.ts`) lets them call an action only if it is imported by a page outside
+the admin panel (customer-facing / shared), or by a page whose area they can `manage`. An id the
+manifest does not know is refused, and so is a write with no `Next-Action` header. No per-action
+registration is needed — new actions are covered automatically.
+
+## The .NET API
+
+A limited admin keeps the `admin` role and the web app hands the browser their access token, so
+without a backend check they could call admin endpoints directly. `src/API/LSevin.Api/Middleware/
+AdminAccess/` enforces the same model there: for an `admin` (not `superadmin`) calling an endpoint
+gated by the `admin` policy it reads `auth.staff_members` / `auth.role_admin_permissions` (10 s
+cache). Unmanaged admins pass exactly as before; managed ones are held to their grants by
+`AdminAccessPolicy.ResourceFor(route)` (default-deny: an admin route it cannot map is refused, and
+logged as `Admin access denied … {Route}` so a miss is visible); revoked ones get 403; an unreadable
+table is 503. Reference catalogues (categories, provider types, service definitions, geography) are
+readable by anyone who holds anything. `AdminAccess:Enabled=false` switches it off without a rebuild.
+**When you add a backend admin route under a new `…/admin/<segment>`, add the segment to
+`ResourceFor`** (a test checks every resource it names exists here). `UnlimitedOnly` must match
+`policy.ts`.
+
+## Never locked out
+
+Access changes are serialized and refuse to leave zero full-access admins (superadmin, or an `admin`
+not under management). Most production admins hold `admin`; there may be no superadmin at all, and
+nobody can change their own access.
+
 ## Known limits
 
-* Server actions that never had a Next-side guard (most .NET-backed modules authorize in the
-  backend only) are protected at the **route** level. A limited admin who replays another area's
-  action id, or calls the backend directly with their own token, is not stopped by this layer.
-  Closing it needs per-action guards and/or backend permission checks.
-* Cross-pod/site propagation is up to `ACCESS_CACHE_TTL_MS` (+ replication lag for site A/B).
+* A view-only role cannot use client-side actions on a page (every server action is a POST, which
+  needs `manage`); a role that must e.g. open a detail dialog needs `manage` on that area.
+* Tours and stays cannot be granted yet (`NOT_YET_GRANTABLE_PREFIXES`).
+* The repository has two middleware files; production runs the root `middleware.ts` (verified: `/otp`
+  without the OTP cookie redirects to sign-in, which only the root file does) while `next dev` here
+  compiled `src/middleware.ts`. Both call `enforceAdminAccess`; a test keeps them in step.
+* Cross-pod/site propagation is up to 10 s (+ replication lag for site A/B).

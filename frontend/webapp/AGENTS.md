@@ -30,10 +30,14 @@ Read `src/lib/admin/access/README.md` first. The short version:
 5. **Money, personal data, or anything that changes who may do what** is sensitive: add its prefix to
    `SENSITIVE_PREFIXES` (`catalog.ts`), and keep destructive/ledger operations on unlimited-only
    guards unless the task explicitly says otherwise.
-6. If you cannot wire an area's server-side checks now, add its prefix to
+6. **Backend admin routes** (`src/API/LSevin.Api`, `…/admin/<segment>`): add the segment to
+   `AdminAccessPolicy.ResourceFor` in `src/API/LSevin.Api/Middleware/AdminAccess/`, with a test in
+   `tests/shared/LSevin.UnitTests/Middlewares/AdminAccessTests.cs`. An unmapped admin route is refused
+   for limited admins.
+7. If you cannot wire an area's server-side checks now, add its prefix to
    `NOT_YET_GRANTABLE_PREFIXES` (`policy.ts`) so it cannot be granted until it is — do not leave a
    grant that silently does nothing.
-7. **Tests:** keep `src/lib/admin/access/*.test.ts` green (they fail on a stale manifest, an unknown
+8. **Tests:** keep `src/lib/admin/access/*.test.ts` green (they fail on a stale manifest, an unknown
    resource name in a guard, or a resource-less `requireApiAdmin()` in `/api/admin`), and add a case to
    `e2e/admin-access-control.spec.ts` when you add a guarded area.
 

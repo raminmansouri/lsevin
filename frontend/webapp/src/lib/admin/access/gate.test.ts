@@ -26,9 +26,22 @@ afterEach(() => vi.unstubAllGlobals());
 const answer = (access: AdminAccess) =>
   fetchMock.mockResolvedValue({ ok: true, json: async () => ({ access }) });
 
-const run = (path: string, opts: { method?: string; roles?: string[]; userId?: string } = {}) =>
+/** The Node server's two answers: who the caller is, and which pages import an action id. */
+const answerWithActions = (access: AdminAccess, actionPages: string[] | null | "down") =>
+  fetchMock.mockImplementation(async (url: string) => {
+    if (String(url).includes("?action=")) {
+      if (actionPages === "down") return { ok: false, status: 503, json: async () => ({}) };
+      return { ok: true, status: 200, json: async () => ({ actionPages }) };
+    }
+    return { ok: true, status: 200, json: async () => ({ access }) };
+  });
+
+const run = (path: string, opts: { method?: string; roles?: string[]; userId?: string; action?: string } = {}) =>
   enforceAdminAccess({
-    request: new NextRequest(`http://localhost:3140/en${path}`, { method: opts.method ?? "GET", headers: { cookie: "authjs.session-token=x" } }),
+    request: new NextRequest(`http://localhost:3140/en${path}`, {
+      method: opts.method ?? "GET",
+      headers: { cookie: "authjs.session-token=x", ...(opts.action ? { "next-action": opts.action } : {}) },
+    }),
     userId: opts.userId ?? `u-${Math.random()}`,
     roles: opts.roles ?? ["admin"],
     pathnameWithoutLocale: path,
@@ -134,6 +147,58 @@ describe("enforceAdminAccess", () => {
     expect(String(url)).toMatch(/\/api\/internal\/admin-access$/);
     expect(init.headers).toEqual({ cookie: "authjs.session-token=x" });
     expect(init.cache).toBe("no-store");
+  });
+});
+
+describe("server actions are checked by id, not only by the page they are posted to", () => {
+  const ACTION = "7f10ad525a61cb0ee3b0";
+  const editorialPage = ["app/[locale]/(admin)/admin/editorial/page"];
+  const bookingsPage = ["app/[locale]/(admin)/admin/bookings/page"];
+  const accessControlPages = ["app/[locale]/(admin)/admin/access-control/page"];
+
+  it("allows an action that belongs to the area they hold", async () => {
+    answerWithActions(limited, editorialPage);
+    expect(await run("/admin/editorial", { method: "POST", action: ACTION })).toBeNull();
+  });
+
+  it("refuses another area's action id posted to a page they DO hold — the replay", async () => {
+    answerWithActions(limited, bookingsPage);
+    const response = await run("/admin/editorial", { method: "POST", action: ACTION });
+    expect(response?.status).toBe(403);
+  });
+
+  it("refuses the privileged screens' actions, posted from anywhere", async () => {
+    answerWithActions(limited, accessControlPages);
+    expect((await run("/admin/editorial", { method: "POST", action: ACTION }))?.status).toBe(403);
+  });
+
+  it("refuses an action id the manifest does not know", async () => {
+    answerWithActions(limited, null);
+    expect((await run("/admin/editorial", { method: "POST", action: ACTION }))?.status).toBe(403);
+  });
+
+  it("refuses a write with no Next-Action header at all (it cannot be attributed to an area)", async () => {
+    answerWithActions(limited, editorialPage);
+    expect((await run("/admin/editorial", { method: "POST" }))?.status).toBe(403);
+  });
+
+  it("answers 503, never 'allow', when the manifest cannot be read", async () => {
+    answerWithActions(limited, "down");
+    expect((await run("/admin/editorial", { method: "POST", action: ACTION }))?.status).toBe(503);
+  });
+
+  it("does not look at action ids for an unlimited admin (and does not need the header)", async () => {
+    answerWithActions({ kind: "unlimited", reason: "admin" }, null);
+    expect(await run("/admin/editorial", { method: "POST" })).toBeNull();
+    expect(fetchMock.mock.calls.some(([url]) => String(url).includes("?action="))).toBe(false);
+  });
+
+  it("caches an action's pages, so a busy form does not ask every time", async () => {
+    answerWithActions(limited, editorialPage);
+    const userId = "same-user";
+    await run("/admin/editorial", { method: "POST", action: ACTION, userId });
+    await run("/admin/editorial", { method: "POST", action: ACTION, userId });
+    expect(fetchMock.mock.calls.filter(([url]) => String(url).includes("?action=")).length).toBe(1);
   });
 });
 

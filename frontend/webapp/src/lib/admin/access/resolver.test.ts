@@ -120,6 +120,34 @@ describe("the manifest and the catalogue", () => {
   });
 });
 
+describe("the .NET API enforces the same model (src/API/LSevin.Api/Middleware/AdminAccess)", () => {
+  // A limited admin keeps the `admin` role, so the API must hold them to their grants too. It has its own
+  // small copy of the route -> resource mapping; this keeps it honest: every resource it names must be a real
+  // one in the web app's catalogue, and its privileged set must equal ours.
+  const csPath = path.resolve(__dirname, "../../../../../../src/API/LSevin.Api/Middleware/AdminAccess/AdminAccessPolicy.cs");
+  const source = fs.existsSync(csPath) ? fs.readFileSync(csPath, "utf8") : null;
+
+  it("exists next to the web app (this guard is vacuous if the file moved)", () => {
+    expect(source, `expected ${csPath}`).not.toBeNull();
+  });
+
+  it("maps only to resources that exist in the catalogue", () => {
+    const named = new Set<string>();
+    for (const m of source!.matchAll(/=>\s*"([a-z][a-z0-9.-]*)"/g)) named.add(m[1]);
+    for (const m of source!.matchAll(/return\s+"([a-z][a-z0-9.-]*)"\s*;/g)) named.add(m[1]);
+    const known = new Set(allCatalogResources().map((r) => r.key));
+    const unknown = [...named].filter((key) => !known.has(key));
+    expect(unknown).toEqual([]);
+    expect(named.size).toBeGreaterThan(5);
+  });
+
+  it("treats the same areas as never-grantable", () => {
+    const block = source!.match(/UnlimitedOnly[^{]*\{([^}]*)\}/s)?.[1] ?? "";
+    const names = [...block.matchAll(/"([a-z-]+)"/g)].map((m) => m[1]).sort();
+    expect(names).toEqual(["access-control", "identity-users", "table-browser"]);
+  });
+});
+
 describe("decideAdminRequest — what the middleware does", () => {
   const limited = (grants: Record<string, "view" | "manage">): AdminAccess => ({ kind: "limited", grants });
   const unlimited: AdminAccess = { kind: "unlimited", reason: "admin" };

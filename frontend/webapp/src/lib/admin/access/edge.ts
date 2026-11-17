@@ -85,7 +85,48 @@ export async function fetchAdminAccess(userId: string, cookieHeader: string): Pr
   return { ok: false };
 }
 
+export type EdgeActionResult = { ok: true; pages: string[] | null } | { ok: false };
+
+type ActionCacheEntry = { result: EdgeActionResult; expires: number };
+const actionCache = new Map<string, ActionCacheEntry>();
+const ACTION_TTL_MS = 60_000;
+
+/**
+ * Which pages import this server action? Asked of the Node server (it can read the build manifest);
+ * cached per action id, because the answer only changes with a new build. A failure is returned, not
+ * guessed at.
+ */
+export async function fetchActionPages(actionId: string): Promise<EdgeActionResult> {
+  const hit = actionCache.get(actionId);
+  if (hit && hit.expires > Date.now()) return hit.result;
+
+  for (let attempt = 1; attempt <= FETCH_ATTEMPTS; attempt += 1) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+    try {
+      const response = await fetch(`${internalBase()}/api/internal/admin-access?action=${encodeURIComponent(actionId)}`, {
+        cache: "no-store",
+        signal: controller.signal,
+      });
+      if (response.status === 400) return { ok: true, pages: null }; // not even shaped like an action id
+      if (response.ok) {
+        const body = (await response.json()) as { actionPages?: string[] | null };
+        const result: EdgeActionResult = { ok: true, pages: Array.isArray(body.actionPages) ? body.actionPages : null };
+        if (actionCache.size >= MAX_ENTRIES) actionCache.clear();
+        actionCache.set(actionId, { result, expires: Date.now() + ACTION_TTL_MS });
+        return result;
+      }
+    } catch {
+      // timeout or connection failure: try again, then give up (the caller answers 503)
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+  return { ok: false };
+}
+
 /** Test seam. */
 export function clearEdgeAccessCache(): void {
   cache.clear();
+  actionCache.clear();
 }

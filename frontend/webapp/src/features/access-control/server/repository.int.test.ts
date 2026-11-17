@@ -69,6 +69,10 @@ d("admin access control (real database)", () => {
     await s`delete from auth.user_roles where user_id in (${ids.member}, ${ids.plain})`;
     await s`delete from auth.staff_members where user_id in (${ids.member}, ${ids.plain})`;
     await s`delete from identity.asp_net_user_roles where user_id = ${ids.member} and role_id = ${adminRoleId}`;
+    await s`delete from identity.asp_net_user_roles where user_id = ${ids.actor} and role_id = ${adminRoleId}`;
+    if (superRoleId) {
+      await s`insert into identity.asp_net_user_roles (user_id, role_id) values (${ids.superadmin}, ${superRoleId}) on conflict do nothing`;
+    }
     store.invalidateAdminAccess();
   });
 
@@ -262,6 +266,40 @@ d("admin access control (real database)", () => {
       await expect(repo.addMember(ids.actor, id, ids.actor)).rejects.toMatchObject({ code: "forbidden" });
       await expect(repo.manageAdmin(ids.actor, ids.actor)).rejects.toMatchObject({ code: "forbidden" });
       await expect(repo.setStaffStatus(ids.actor, ids.actor, "disabled")).rejects.toMatchObject({ code: "forbidden" });
+    });
+
+    it("never leaves the system without a full-access admin: two admins cannot limit each other", async () => {
+      const s = sql!;
+      // Full-access people outside this test (a shared database may have some): then the rule cannot
+      // be reached, and there is nothing to prove here.
+      const [{ others }] = await s<{ others: number }[]>`
+        select count(*)::int as others from identity.asp_net_users u
+        where u.id not in (${ids.actor}, ${ids.plain}, ${ids.member}, ${ids.superadmin})
+          and (exists (select 1 from identity.asp_net_user_roles ur join identity.asp_net_roles r on r.id = ur.role_id where ur.user_id = u.id and lower(r.name) in ('superadmin'))
+               or (exists (select 1 from identity.asp_net_user_roles ur join identity.asp_net_roles r on r.id = ur.role_id where ur.user_id = u.id and lower(r.name) = 'admin')
+                   and not exists (select 1 from auth.staff_members m where m.user_id = u.id)))`;
+      if (others > 0) return;
+      // Exactly two full-access admins: `actor` and `plain` (the super admin fixture is the third; remove its role).
+      await s`delete from identity.asp_net_user_roles where user_id = ${ids.superadmin}`;
+      await s`insert into identity.asp_net_user_roles (user_id, role_id) values (${ids.actor}, ${adminRoleId}) on conflict do nothing`;
+
+      // Admin 1 limits admin 2: fine, admin 1 is still full-access.
+      await repo.manageAdmin(ids.actor, ids.plain);
+      // Admin 2's session (still open in another tab) tries to limit admin 1 at the same moment: refused.
+      await expect(repo.manageAdmin(ids.plain, ids.actor)).rejects.toMatchObject({ code: "forbidden", message: expect.stringMatching(/full-access admin must remain/i) });
+      expect(await s`select 1 from auth.staff_members where user_id = ${ids.actor}`).toHaveLength(0);
+      expect(await store.loadAdminAccess(ids.actor, ["admin"])).toEqual({ kind: "unlimited", reason: "admin" });
+
+      // The same rule holds through the role-assignment route.
+      const roleId = await newRole("Lockout");
+      await expect(repo.addMember(ids.plain, roleId, ids.actor)).rejects.toMatchObject({ code: "forbidden" });
+      expect(await s`select 1 from auth.user_roles where role_id = ${roleId} and user_id = ${ids.actor}`).toHaveLength(0);
+      expect(await s`select 1 from auth.staff_members where user_id = ${ids.actor}`).toHaveLength(0);
+
+      // Putting the first one back to full access makes the second change legal again.
+      await repo.releaseStaff(ids.actor, ids.plain, "unlimited");
+      await repo.manageAdmin(ids.plain, ids.actor);
+      expect(await store.loadAdminAccess(ids.plain, ["admin"])).toEqual({ kind: "unlimited", reason: "admin" });
     });
 
     it("a super admin can never be limited", async () => {

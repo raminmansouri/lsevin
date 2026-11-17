@@ -73,6 +73,44 @@ const RESERVED_NAMES = new Set(["admin", "superadmin", "user", "financeadmin", "
 
 type Sql = typeof db;
 
+/** Serializes every change that can take full access away from someone. */
+const ACCESS_CHANGE_LOCK = 8_142_337_016;
+
+async function lockAccessChanges(sql: Sql) {
+  await sql`select pg_advisory_xact_lock(${ACCESS_CHANGE_LOCK})`;
+}
+
+/**
+ * Refuse any change that would leave nobody with full access.
+ *
+ * A person has full access when they hold the identity `superadmin` role, or the identity `admin`
+ * role without being under access management. Only a full-access admin can use these screens and
+ * nobody can change their own access, so one change cannot empty that set — but two admins limiting
+ * each other at the same moment could. The check runs inside the same transaction as the change,
+ * after taking {@link ACCESS_CHANGE_LOCK}, so the second of two such requests sees the first one's
+ * effect and is rolled back. (Most production admins hold `admin`; there may be no superadmin at all.)
+ */
+async function assertFullAccessRemains(sql: Sql) {
+  const [{ n }] = await sql<{ n: number }[]>`
+    select count(*)::int as n
+    from identity.asp_net_users u
+    where exists (
+            select 1 from identity.asp_net_user_roles ur join identity.asp_net_roles r on r.id = ur.role_id
+            where ur.user_id = u.id and lower(r.name) = 'superadmin'
+          )
+       or (
+            exists (
+              select 1 from identity.asp_net_user_roles ur join identity.asp_net_roles r on r.id = ur.role_id
+              where ur.user_id = u.id and lower(r.name) = 'admin'
+            )
+            and not exists (select 1 from auth.staff_members s where s.user_id = u.id)
+          )
+  `;
+  if (n < 1) {
+    throw new AccessControlError("forbidden", "At least one full-access admin must remain.");
+  }
+}
+
 async function audit(
   sql: Sql,
   actorUserId: string,
@@ -378,6 +416,7 @@ async function ensureStaff(sql: Sql, actorUserId: string, userId: string) {
 
 export async function addMember(actorUserId: string, roleId: string, userId: string): Promise<void> {
   await db.begin(async (sql) => {
+    await lockAccessChanges(sql as unknown as Sql);
     const [role] = await sql`select 1 from auth.roles where id = ${roleId}::uuid and is_system = false for update`;
     if (!role) throw new AccessControlError("not_found", "Role not found.");
     await assertManageable(sql as unknown as Sql, actorUserId, userId);
@@ -387,6 +426,7 @@ export async function addMember(actorUserId: string, roleId: string, userId: str
       values (${userId}::uuid, ${roleId}::uuid)
       on conflict (user_id, role_id) do nothing
     `;
+    await assertFullAccessRemains(sql as unknown as Sql);
     await audit(sql as unknown as Sql, actorUserId, "member.added", { roleId, targetUserId: userId });
   });
   invalidateAdminAccess(userId);
@@ -457,8 +497,10 @@ export async function listUnmanagedAdmins(): Promise<Omit<StaffRow, "status" | "
 /** Put an existing admin under management with no roles yet (they lose access until given one). */
 export async function manageAdmin(actorUserId: string, userId: string): Promise<void> {
   await db.begin(async (sql) => {
+    await lockAccessChanges(sql as unknown as Sql);
     await assertManageable(sql as unknown as Sql, actorUserId, userId);
     await ensureStaff(sql as unknown as Sql, actorUserId, userId);
+    await assertFullAccessRemains(sql as unknown as Sql);
     await audit(sql as unknown as Sql, actorUserId, "staff.managed", { targetUserId: userId });
   });
   invalidateAdminAccess(userId);
