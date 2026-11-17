@@ -1,23 +1,24 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
-import { ChevronLeft, Clock, Globe, Loader2, Stethoscope, User } from "lucide-react";
+import { ChevronLeft, Clock, CreditCard, Globe, Loader2, Stethoscope, User } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { resolveHomeMediaUrl } from "@/features/home/components/home-media";
 import MultiMediaPickerInput from "@/features/media-picker-addon/components/MultiMediaPickerInput";
-import { useRouter } from "@/i18n/navigation";
+import { Link, useRouter } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 
-import type { BookingOptions, BookingSource } from "../patient-booking-types";
+import type { BookingOptions, BookingSource, OpenUnpaidBooking } from "../patient-booking-types";
 import { createVideoSessionAction, getBookingOptionsAction } from "../server/patient-booking";
 import {
   formatSessionDate,
   formatSessionTime,
   sessionDayKey,
 } from "./doctor-panel/panel-format";
+import { useNow } from "./doctor-panel/use-now";
 
 type Gender = "male" | "female" | "other";
 
@@ -51,12 +52,18 @@ export function VideoBookingPage({
   const [files, setFiles] = useState<string[]>([]);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
   const [isPending, startTransition] = useTransition();
+  // The patient's own unpaid request still inside its hold; booking another waits for it.
+  const [openUnpaid, setOpenUnpaid] = useState<OpenUnpaidBooking | null>(null);
+  const now = useNow(15_000);
+  const holdLeftMs = openUnpaid ? new Date(openUnpaid.holdExpiresAt).getTime() - now : 0;
+  const blocked = openUnpaid !== null && holdLeftMs > 0;
 
   const load = useCallback(() => {
     getBookingOptionsAction(doctorId, serviceId)
       .then((result) => {
         if (result.ok && result.data) {
           setOptions(result.data);
+          setOpenUnpaid(result.data.openUnpaid);
           setName((prev) => prev || result.data!.patientName);
           setError(null);
         } else {
@@ -67,6 +74,15 @@ export function VideoBookingPage({
   }, [doctorId, serviceId, t]);
 
   useEffect(load, [load]);
+
+  // Once the hold runs out (or was paid elsewhere), ask the server again so booking opens up.
+  const holdExpired = openUnpaid !== null && holdLeftMs <= 0;
+  useEffect(() => {
+    if (holdExpired) {
+      setOpenUnpaid(null);
+      load();
+    }
+  }, [holdExpired, load]);
 
   // The picked package (the first until the patient picks), and its free times.
   const selected = options?.packages.find((p) => p.minutes === minutes) ?? options?.packages[0] ?? null;
@@ -89,6 +105,7 @@ export function VideoBookingPage({
   const activeDay = days.find((d) => d.key === day) ?? days[0] ?? null;
 
   const submit = () => {
+    if (blocked) return;
     if (!options || !selected || !slot) {
       toast.error(t("errors.pickTime"));
       return;
@@ -109,6 +126,11 @@ export function VideoBookingPage({
         });
         if (result.ok && result.data) {
           router.replace(`/n/app/mobile/consultation/sessions/${result.data.id}`);
+          return;
+        }
+        if (result.error === "pendingPayment" && result.pending) {
+          setOpenUnpaid(result.pending);
+          window.scrollTo({ top: 0, behavior: "smooth" });
           return;
         }
         setFieldErrors(result.fieldErrors ?? {});
@@ -149,6 +171,13 @@ export function VideoBookingPage({
 
       {options && (
         <div className="space-y-4 px-5 pt-4">
+          {blocked && openUnpaid && (
+            <OpenUnpaidNotice
+              sessionId={openUnpaid.id}
+              minutesLeft={Math.max(1, Math.ceil(holdLeftMs / 60_000))}
+            />
+          )}
+
           <DoctorSummary options={options} selected={selected} />
 
           {options.service && (
@@ -310,11 +339,13 @@ export function VideoBookingPage({
           <button
             type="button"
             onClick={submit}
-            disabled={isPending || !slot}
+            disabled={isPending || !slot || blocked}
             className="w-full rounded-2xl bg-[#083f30] py-3.5 text-sm font-bold text-white disabled:bg-gray-300"
           >
             {isPending ? (
               <Loader2 className="mx-auto h-5 w-5 animate-spin" aria-hidden />
+            ) : blocked ? (
+              t("openUnpaid.blockedButton")
             ) : slot ? (
               t("submit", { time: `${formatSessionDate(locale, slot)} ${formatSessionTime(locale, slot)}` })
             ) : days.length === 0 ? (
@@ -326,6 +357,28 @@ export function VideoBookingPage({
         </div>
       )}
 
+    </div>
+  );
+}
+
+/** Shown while the patient's earlier request still waits for payment: pay that one first. */
+function OpenUnpaidNotice({ sessionId, minutesLeft }: { sessionId: string; minutesLeft: number }) {
+  const t = useTranslations("Consultation.booking.openUnpaid");
+  return (
+    <div role="alert" className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-amber-900">
+      <div className="flex items-start gap-3">
+        <CreditCard className="mt-0.5 h-5 w-5 shrink-0" aria-hidden />
+        <div className="min-w-0 space-y-1">
+          <p className="text-sm font-bold leading-6">{t("title")}</p>
+          <p className="text-xs leading-5">{t("minutesLeft", { minutes: minutesLeft })}</p>
+        </div>
+      </div>
+      <Link
+        href={`/n/app/mobile/consultation/sessions/${sessionId}`}
+        className="mt-3 block w-full rounded-xl bg-[#083f30] py-3 text-center text-sm font-bold text-white"
+      >
+        {t("continue")}
+      </Link>
     </div>
   );
 }

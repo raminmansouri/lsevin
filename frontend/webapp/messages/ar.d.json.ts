@@ -14110,7 +14110,8 @@ declare const messages: {
         "notCancellable": "لم يعد بالإمكان إلغاء هذه الاستشارة.",
         "notResolvable": "لم يعد هذا الخيار متاحاً. حدّث الصفحة.",
         "receiptNotAllowed": "تُدفع هذه الاستشارة عبر الإنترنت وليس بإيصال.",
-        "receiptMissing": "اختر ملف الإيصال أولاً."
+        "receiptMissing": "اختر ملف الإيصال أولاً.",
+        "pendingPayment": "لديك حجز استشارة مفتوح. يرجى إكمال الدفع أولاً."
       },
       "joinCall": "الانضمام إلى المكالمة",
       "joinLater": "يتفعّل زر الانضمام عند فتح غرفة المكالمة.",
@@ -14174,7 +14175,13 @@ declare const messages: {
         "confirmTime": "تأكيد الموعد الجديد",
         "back": "رجوع"
       },
-      "forService": "بخصوص: {name}"
+      "forService": "بخصوص: {name}",
+      "openUnpaid": {
+        "title": "لديك حجز استشارة مفتوح. يرجى إكمال الدفع أولاً.",
+        "minutesLeft": "هذا الموعد محجوز لك لمدة {minutes, number} دقيقة أخرى. بعد ذلك يمكنك حجز استشارة جديدة.",
+        "continue": "متابعة الدفع",
+        "blockedButton": "أكمل حجزك المفتوح أولاً"
+      }
     },
     "call": {
       "phase": {

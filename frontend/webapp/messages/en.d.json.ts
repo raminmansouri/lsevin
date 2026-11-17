@@ -15003,7 +15003,8 @@ declare const messages: {
         "notCancellable": "This consultation can no longer be cancelled.",
         "notResolvable": "This choice is no longer available. Refresh the page.",
         "receiptNotAllowed": "This consultation is paid online, not by receipt.",
-        "receiptMissing": "Choose the receipt file first."
+        "receiptMissing": "Choose the receipt file first.",
+        "pendingPayment": "You have an open consultation reservation. Please finish paying for it first."
       },
       "joinCall": "Join call",
       "joinLater": "The join button opens when the call room opens.",
@@ -15067,7 +15068,13 @@ declare const messages: {
         "confirmTime": "Confirm new time",
         "back": "Back"
       },
-      "forService": "About: {name}"
+      "forService": "About: {name}",
+      "openUnpaid": {
+        "title": "You have an open consultation reservation. Please finish paying for it first.",
+        "minutesLeft": "The time is held for you for {minutes, plural, one {# more minute} other {# more minutes}}. After that you can book a new consultation.",
+        "continue": "Continue to payment",
+        "blockedButton": "Finish your open reservation first"
+      }
     },
     "call": {
       "phase": {

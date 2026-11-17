@@ -24,7 +24,6 @@ import { COMMON_TRANSLATION_KEY } from "@/features/shared/types/constants";
 import { cn } from "@/lib/utils";
 
 import { Input, type InputProps } from "../ui/input";
-import { ScrollArea } from "../ui/scroll-area";
 
 type PhoneInputProps = Omit<
   React.InputHTMLAttributes<HTMLInputElement>,
@@ -106,38 +105,46 @@ const CountrySelect = ({
       <PopoverContent className="w-[300px] p-0">
         <Command>
           <CommandInput placeholder={t("Input.search")} />
-          <CommandList>
-            <ScrollArea className="h-72">
-              <CommandEmpty>کشوری یافت نشد.</CommandEmpty>
-              <CommandGroup>
-                {options
-                  .filter((x) => x.value)
-                  .map((option) => (
-                    <CommandItem
-                      className="gap-2"
-                      key={option.value}
-                      onSelect={() => handleSelect(option.value)}
-                    >
-                      <FlagComponent
-                        country={option.value}
-                        countryName={option.label}
-                      />
-                      <span className="flex-1 text-sm">{option.label}</span>
-                      {option.value && (
-                        <span className="text-sm">
-                          {`+${RPNInput.getCountryCallingCode(option.value)}`}
-                        </span>
+          {/*
+            Native scroller only. A Radix ScrollArea nested inside cmdk's
+            CommandList (itself overflow-y:auto) gave iOS Safari two stacked
+            scroll containers, and touch scrolling back up after scrolling
+            down got stuck. One native list with contained overscroll and
+            vertical pan scrolls reliably on iOS Safari and Android Chrome.
+          */}
+          <CommandList
+            data-slot="phone-country-list"
+            className="max-h-72 touch-pan-y overscroll-contain [-webkit-overflow-scrolling:touch]"
+          >
+            <CommandEmpty>کشوری یافت نشد.</CommandEmpty>
+            <CommandGroup>
+              {options
+                .filter((x) => x.value)
+                .map((option) => (
+                  <CommandItem
+                    className="gap-2"
+                    key={option.value}
+                    onSelect={() => handleSelect(option.value)}
+                  >
+                    <FlagComponent
+                      country={option.value}
+                      countryName={option.label}
+                    />
+                    <span className="flex-1 text-sm">{option.label}</span>
+                    {option.value && (
+                      <span className="text-sm">
+                        {`+${RPNInput.getCountryCallingCode(option.value)}`}
+                      </span>
+                    )}
+                    <CheckIcon
+                      className={cn(
+                        "ml-auto size-4",
+                        option.value === value ? "opacity-100" : "opacity-0"
                       )}
-                      <CheckIcon
-                        className={cn(
-                          "ml-auto size-4",
-                          option.value === value ? "opacity-100" : "opacity-0"
-                        )}
-                      />
-                    </CommandItem>
-                  ))}
-              </CommandGroup>
-            </ScrollArea>
+                    />
+                  </CommandItem>
+                ))}
+            </CommandGroup>
           </CommandList>
         </Command>
       </PopoverContent>
