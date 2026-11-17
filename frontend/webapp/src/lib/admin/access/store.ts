@@ -81,7 +81,7 @@ export async function loadAdminAccess(
     cache.set(userId, { access, expires: Date.now() + ACCESS_CACHE_TTL_MS });
     return access;
   } catch (error) {
-    // Migration 0110 not applied yet (undefined_table / undefined_column): nobody can be under
+    // Migration 0112 not applied yet (undefined_table / undefined_column): nobody can be under
     // access management, so every admin keeps exactly the access they had before this feature.
     // This is what lets the app be deployed before the migration is run without locking anyone
     // out. It is NOT a fallback for other failures — those throw below.
