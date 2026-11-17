@@ -31,7 +31,11 @@ import {
   Award,
   Globe,
   Loader2,
+  LocateFixed,
 } from "lucide-react";
+
+import { toast } from "sonner";
+import { rememberUserLocation } from "@/features/shared/types/coordinates";
 
 import NearbyMap from "./NearbyMap";
 import { SpecialtyMultiSelect } from "./SpecialtyMultiSelect";
@@ -282,6 +286,7 @@ export default function NearbyClient({
   const nearbyQuery = (next: NearbyFiltersInput, view: "map" | "list" = "map") =>
     buildNearbyQuery(next, view, slugs);
   const t = useTranslations("MapDiscovery");
+  const tLocation = useTranslations("LocationAccess");
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [viewMode, setViewMode] = useState<"map" | "list">(initialView);
@@ -378,24 +383,22 @@ export default function NearbyClient({
       initialFilters.cityCode != null;
     if (hasExplicitLocation) return;
 
-    // 2) Fall back to a best-effort IP lookup (no GPS prompt). IP is only accurate
-    //    enough to CENTER the map and pick a country — never to pin the user or
-    //    compute distance — so we set neither userLocation nor query coords here.
+    // 2) No position on file. The server already centred the map on the
+    //    visitor's country (IP). Ask for the exact position politely: our own
+    //    card first, the browser's prompt only after "Use my location". If the
+    //    browser already allows it, just locate; if it refused, stay on the
+    //    country.
     let cancelled = false;
     (async () => {
+      let state: PermissionState | "unknown" = "unknown";
       try {
-        const res = await fetch("/api/location/client-ip-geo", { cache: "no-store" });
-        if (res.status === 204 || !res.ok) return;
-        const geo = await res.json();
-        if (cancelled || !geo) return;
-        if (typeof geo.latitude === "number" && typeof geo.longitude === "number") {
-          logGeo("nearby.ip", { lat: geo.latitude, lng: geo.longitude, countryCode: geo.countryCode });
-          setCenter({ lat: geo.latitude, lng: geo.longitude, zoom: 10 });
-        }
-        if (geo.countryCode) setDetectedCountry(String(geo.countryCode));
+        state = (await navigator.permissions?.query({ name: "geolocation" as PermissionName }))?.state ?? "unknown";
       } catch {
-        // best-effort; fall back to the server-provided center
+        // No Permissions API (older Safari): offer the card.
       }
+      if (cancelled) return;
+      if (state === "granted") requestCurrentLocation();
+      else if (state !== "denied") setAskForLocation(true);
     })();
     return () => {
       cancelled = true;
@@ -633,13 +636,16 @@ export default function NearbyClient({
   };
 
   const [isLocating, setIsLocating] = useState(false);
+  const [askForLocation, setAskForLocation] = useState(false);
 
   const requestCurrentLocation = () => {
     if (typeof navigator === "undefined" || !navigator.geolocation) {
       logGeo("nearby.gps.unsupported", {});
+      toast.error(tLocation("unavailable"));
       return;
     }
     setIsLocating(true);
+    setAskForLocation(false);
     navigator.geolocation.getCurrentPosition(
       (position) => {
         setIsLocating(false);
@@ -650,6 +656,7 @@ export default function NearbyClient({
           lng,
           accuracyM: Math.round(position.coords.accuracy),
         });
+        rememberUserLocation({ latitude: lat, longitude: lng });
         // A real GPS fix supersedes any coarse IP center and drives distance sort.
         setUserLocation({ lat, lng });
         setCenter({ lat, lng, zoom: 14 });
@@ -681,6 +688,7 @@ export default function NearbyClient({
         // Permission denied / unavailable / timeout: keep the current view rather
         // than snapping the user to a wrong fallback point.
         logGeo("nearby.gps.error", { code: error.code, message: error.message });
+        toast.error(error.code === error.PERMISSION_DENIED ? tLocation("denied") : tLocation("unavailable"));
       },
       GEO_OPTIONS,
     );
@@ -720,6 +728,37 @@ export default function NearbyClient({
   return (
     <div className="relative min-h-screen bg-white">
       {isPending && <PendingOverlay />}
+
+      {askForLocation ? (
+        <div
+          role="dialog"
+          aria-labelledby="map-location-ask-title"
+          data-testid="map-location-ask"
+          className="fixed inset-x-4 bottom-24 z-[70] rounded-2xl border border-gray-100 bg-white p-4 shadow-xl"
+        >
+          <div id="map-location-ask-title" className="flex items-center gap-2 text-sm font-bold text-gray-900">
+            <LocateFixed size={18} className="text-[#083f30]" aria-hidden />
+            {t("locationPrompt.title")}
+          </div>
+          <p className="mt-1.5 text-sm leading-6 text-gray-600">{t("locationPrompt.body")}</p>
+          <div className="mt-3 flex gap-2">
+            <button
+              type="button"
+              onClick={() => setAskForLocation(false)}
+              className="h-11 flex-1 rounded-xl border border-gray-200 text-sm font-bold text-gray-700"
+            >
+              {t("locationPrompt.notNow")}
+            </button>
+            <button
+              type="button"
+              onClick={requestCurrentLocation}
+              className="h-11 flex-1 rounded-xl bg-[#083f30] text-sm font-bold text-white"
+            >
+              {t("locationPrompt.allow")}
+            </button>
+          </div>
+        </div>
+      ) : null}
 
       <div className="sticky top-0 z-50 bg-white border-b border-gray-100">
         <div className="px-5 pt-3 pb-4">

@@ -1,6 +1,6 @@
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { LexicalRenderer } from "./lexical-renderer";
 
@@ -34,5 +34,30 @@ describe("LexicalRenderer", () => {
     );
 
     expect(html).toContain("<h3>Services</h3>");
+  });
+
+  // The Turkish home page's package description nested a paragraph in a
+  // paragraph; <p><p> broke hydration for the whole page (2026-11-14).
+  it("never nests a <p> inside a <p>", () => {
+    const html = render(
+      editorState({ type: "paragraph", children: [{ type: "paragraph", children: [text("Paket açıklaması")] }] })
+    );
+
+    expect(html).toContain("Paket açıklaması");
+    expect(html).not.toMatch(/<p[^>]*>(?:(?!<\/p>).)*<p/);
+  });
+
+  // 2026-11-15: seeded stays FAQ answers are plain text; each render logged
+  // "Failed to parse Lexical content" (and failed the stays E2E console guard).
+  it("shows plain text as is without logging an error; malformed editor JSON still logs", () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+    try {
+      expect(render("وقتی تاریخ را انتخاب کنید")).toContain("وقتی تاریخ را انتخاب کنید");
+      expect(error).not.toHaveBeenCalled();
+      render('{"root": broken');
+      expect(error).toHaveBeenCalledTimes(1);
+    } finally {
+      error.mockRestore();
+    }
   });
 });

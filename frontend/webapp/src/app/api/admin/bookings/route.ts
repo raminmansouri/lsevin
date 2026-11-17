@@ -4,7 +4,7 @@ import { listAdminBookings } from '@/features/booking-pro/server/admin-repositor
 import { requireApiAdmin } from '@/lib/auth/api-guard';
 
 export async function GET(request: NextRequest) {
-  const auth = await requireApiAdmin();
+  const auth = await requireApiAdmin("bookings", "view");
   if (auth instanceof NextResponse) return auth;
 
   const { searchParams } = new URL(request.url);

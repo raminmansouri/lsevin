@@ -1,5 +1,7 @@
 import { buildPublicMetadata } from "@/lib/seo/metadata";
 import { PublicSiteSchema } from "@/lib/seo/site-schema";
+import { collectionPage, graph, organizationId, providerUrl, serviceUrl } from "@/lib/seo/entity-schema";
+import { JsonLd } from "@/lib/seo/json-ld";
 import { Award, ChevronRight, Gift, Map, Search, Sparkles, Star, TrendingUp } from 'lucide-react';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 
@@ -38,6 +40,7 @@ import { LANDING_CATEGORY_LIMIT } from "@/features/categories/constants";
 
 import { DesktopHome } from "@/features/web-desktop/home/DesktopHome";
 import { EnamadSeal } from "@/components/trust/enamad-seal";
+import { listDomainTrustSeals } from "@/features/trust-seal/server/repository";
 import { absoluteUrl } from "@/lib/seo/alternates";
 import { FaqSection } from "@/features/site-content/components/faq-section";
 import { SiteLinks } from "@/features/site-content/components/site-links";
@@ -233,6 +236,8 @@ async function Home({ params }: PageProps) {
   setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: 'Home' });
   const pageT = await getTranslations({ locale, namespace: 'HomePage' });
+  // Every domain's Enamad seal: this page is cached once for all domains, the browser picks its own.
+  const trustSeals = await listDomainTrustSeals();
   const labels: HomePageLabels = {
     common: {
       noDescription: t('common.noDescription'),
@@ -347,6 +352,23 @@ async function Home({ params }: PageProps) {
     <>
     <div className="min-h-screen bg-white xl:hidden">
       <PublicSiteSchema locale={locale} />
+      {/* The landing page and what it features, in page order (trusted providers, then services). */}
+      <JsonLd
+        data={graph(
+          collectionPage({
+            type: "WebPage",
+            url: absoluteUrl(locale),
+            name: pageT("title"),
+            locale,
+            about: { "@id": organizationId() },
+            items: [
+              ...trustedProviders.map((p) => ({ url: providerUrl(locale, p), name: p.name, image: p.imageUrl })),
+              ...featuredServices.map((s) => ({ url: serviceUrl(locale, s), name: s.displayName, image: s.imageUrl })),
+              ...trendingServices.map((s) => ({ url: serviceUrl(locale, s), name: s.displayName, image: s.imageUrl })),
+            ],
+          })
+        )}
+      />
       {/* One stable, descriptive h1 in the static shell. The greeting row below is
           per visitor (guest title or the signed-in name), so it is not a heading. */}
       <h1 className="sr-only">{pageT('h1')}</h1>
@@ -526,7 +548,7 @@ async function Home({ params }: PageProps) {
   alignItems:'center',
   marginBottom:'37px'}}>
     
-      <EnamadSeal alt={labels.common.trustSeal} />
+      <EnamadSeal seals={trustSeals} alt={labels.common.trustSeal} />
    </div>
     </div>
     <DesktopHome

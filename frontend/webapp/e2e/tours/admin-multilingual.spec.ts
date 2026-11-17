@@ -57,7 +57,7 @@ test("AT-27 destination + translated title: draft only in preview, public after 
   const customer = await browser.newContext();
   await skipIntro(customer);
   const cpage = await customer.newPage();
-  await cpage.goto(`/en/tours/t/${t.slug}`);
+  await cpage.goto(`/en/tours/${t.slug}`);
   await expect(cpage.locator("body")).toContainText(`Sea tour ${s}`);
   await expect(cpage.locator("body")).not.toContainText(newTitle);
 
@@ -93,9 +93,9 @@ test("AT-27 destination + translated title: draft only in preview, public after 
   await expect(page.locator('[data-field="title"]')).toHaveAttribute("data-status", "published");
 
   // 5. Only the intended content is public, per language.
-  await cpage.goto(`/en/tours/t/${t.slug}`);
+  await cpage.goto(`/en/tours/${t.slug}`);
   await expect(cpage.locator("body")).toContainText(newTitle);
-  await cpage.goto(`/fa/tours/t/${t.slug}`);
+  await cpage.goto(`/fa/tours/${t.slug}`);
   await expect(cpage.locator("body")).toContainText(`تور دریایی ${s}`);
   await expect(cpage.locator("body")).not.toContainText(newTitle);
   await cpage.goto("/fa/tours");

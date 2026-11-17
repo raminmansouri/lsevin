@@ -89,6 +89,15 @@ const nextConfig: NextConfig = {
   // raw bytes lets it pick the best encoding the browser offers.
   compress: false,
 
+  // Crawlers get blocking metadata: canonical, hreflang, robots and the redirect
+  // of an old product slug (migration 0110) are in <head>, never streamed into
+  // the body. Next's default list leaves out Googlebot (it renders JavaScript).
+  // The product route streams (loading boundaries), so that redirect is an
+  // instant meta refresh in <head>, which Google treats as permanent; a 308
+  // would need the slug history in the edge middleware. Next's defaults are kept.
+  htmlLimitedBots:
+    /[\w-]+-Google|Google-[\w-]+|Googlebot|Chrome-Lighthouse|Slurp|DuckDuckBot|baiduspider|yandex|sogou|bitlybot|tumblr|vkShare|quora link preview|redditbot|ia_archiver|Bingbot|BingPreview|applebot|facebookexternalhit|facebookcatalog|Twitterbot|LinkedInBot|Slackbot|Discordbot|WhatsApp|SkypeUriPreview|Yeti|googleweblight|GPTBot|OAI-SearchBot|ChatGPT-User|ClaudeBot|Claude-User|PerplexityBot|Amazonbot|PetalBot|YandexBot/i,
+
   experimental: {
     authInterrupts: true,
     // This app is built on the same four-core host that serves production.
@@ -184,18 +193,10 @@ const nextConfig: NextConfig = {
     ] as const;
     return [
       // The home page's address is the locale root (/fa); its file still lives at
-      // n/app/mobile/home and a beforeFiles rewrite serves it there. "/" picks the
-      // default locale; the old /n/app/mobile/home moves permanently, query kept.
-      //
-      // The financial panel host is excluded: config redirects run before the
-      // middleware, so without `missing` its "/" was sent to the customer home
-      // instead of being rewritten to /financial.
-      {
-        source: "/",
-        missing: [{ type: "host", value: "financial\\..*" }],
-        destination: `/${routing.defaultLocale}`,
-        permanent: false,
-      },
+      // n/app/mobile/home and a beforeFiles rewrite serves it there. "/" is
+      // answered by the middleware, which picks the visitor's language
+      // (src/lib/market/market.ts resolveFirstLanguage); the old
+      // /n/app/mobile/home moves permanently, query kept.
       {
         source: `/:locale(${localePattern})/n/app/mobile/home`,
         destination: "/:locale",
@@ -217,6 +218,23 @@ const nextConfig: NextConfig = {
         {
           source: `/n/app/mobile/${oldPath}`,
           destination: `/${routing.defaultLocale}/${newPath}`,
+          permanent: true,
+        },
+      ]),
+      // A tour is /tours/<slug> and a stay /stays/<slug> (2026-11-16); the
+      // pages still live under t/ and p/ (rewrites below). Old links move once.
+      ...[
+        ["tours/t", "tours"],
+        ["stays/p", "stays"],
+      ].flatMap(([oldBase, newBase]) => [
+        {
+          source: `/:locale(${localePattern})/${oldBase}/:slug/:rest*`,
+          destination: `/:locale/${newBase}/:slug/:rest*`,
+          permanent: true,
+        },
+        {
+          source: `/:locale(${localePattern})/${oldBase}/:slug`,
+          destination: `/:locale/${newBase}/:slug`,
           permanent: true,
         },
       ]),
@@ -304,9 +322,20 @@ const nextConfig: NextConfig = {
       ...entityRewrites,
     ];
 
-    if (!bookingOrigin) return { beforeFiles, afterFiles: seoRewrites, fallback: [] };
+    // /tours/<slug> and /stays/<slug>: as `fallback` rewrites, which run only
+    // when no route matched. Every page here sits under the dynamic [locale]
+    // segment, and `afterFiles` rewrites run before dynamic routes: as an
+    // afterFiles rule, /fa/tours/explore was sent to the tour page (2026-11-16).
+    const detailRewrites = [
+      ["tours", "tours/t"],
+      ["stays", "stays/p"],
+    ].flatMap(([publicBase, pageBase]) => [
+      { source: `/:locale(${localePattern})/${publicBase}/:slug/book`, destination: `/:locale/${pageBase}/:slug/book` },
+      { source: `/:locale(${localePattern})/${publicBase}/:slug`, destination: `/:locale/${pageBase}/:slug` },
+    ]);
+    if (!bookingOrigin) return { beforeFiles, afterFiles: seoRewrites, fallback: detailRewrites };
 
-    return { beforeFiles, fallback: [], afterFiles: [
+    return { beforeFiles, fallback: detailRewrites, afterFiles: [
       ...seoRewrites,
       // locale assets
       {

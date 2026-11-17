@@ -68,6 +68,14 @@ so point-in-time backups on each server are the safety net:
   The older Worker `dawn-hall-fae2` / route `*.lsevincare.com/*` was left untouched (it never runs: the subdomains are DNS only).
 * To start sending Iranian visitors to A: set `IR_REDIRECT=on` (only after the gate below is cleared).
 
+## 2026-11-14: Worker routes REMOVED (Cloudflare error 1027)
+With `IR_REDIRECT=off` the Worker only passed requests through, but every request still counted against the Free plan's
+100,000 Worker requests/day. When it ran out, `lsevincare.com` and `appmain.lsevin.com` answered 429 / error 1027 for everyone.
+Deleted the routes `lsevincare.com/*` (lsevincare-geo) and `appmain.lsevin.com/*` (lsevin-appmain-geo); the scripts remain
+in the account. Do NOT re-run `cf-apply.sh` / `cf-apply-appmain.sh` on the Free plan (they recreate the routes); use them only after
+upgrading, or after changing the Worker to run for Iranian requests only (a route cannot filter by country on Free).
+Route `*.lsevincare.com/*` -> `dawn-hall-fae2` was left in place (it should never run, see above).
+
 ## GATE before IR_REDIRECT=on
 Pages served by A currently embed `appmain.lsevin.com` (58 references: images, links, API calls) because the webapp image
 was built with B's public URLs (Next.js bakes `NEXT_PUBLIC_*` in at build time). A visitor on `ir.lsevincare.com` would

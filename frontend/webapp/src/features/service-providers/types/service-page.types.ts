@@ -36,6 +36,10 @@ export interface AlRecommendation {
   country: string;
   price: number;
   currency: string;
+  /** The provider's own price, for per-visitor pricing (ViewerPrice). */
+  sourceAmount?: number | null;
+  sourceCurrencyCode?: string | null;
+  providerId?: string | null;
   verified: boolean;
   link: string;
 }
@@ -85,6 +89,10 @@ export interface ServiceGalleryItem {
   displayOrder: number;
   isPrimary: boolean;
   source: 'provider_service_gallery' | 'provider_gallery' | 'staff_gallery' | 'media_library' | 'fallback';
+  /** When the item was added (ISO), for VideoObject.uploadDate. */
+  createdAt?: string | null;
+  /** Video length in seconds when the media library knows it. */
+  durationSeconds?: number | null;
 }
 
 export interface ProviderProfileSummary {

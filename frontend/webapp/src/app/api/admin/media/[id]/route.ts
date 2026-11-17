@@ -66,7 +66,7 @@ export async function DELETE(
   context: { params: Promise<{ id: string }> }
 ) {
   try {
-    const auth = await requireApiAdmin();
+    const auth = await requireApiAdmin("media", "manage");
     if (auth instanceof NextResponse) return auth;
 
     const { id } = await context.params;

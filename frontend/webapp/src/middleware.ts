@@ -13,6 +13,7 @@ import { routing } from "./i18n/routing";
 import { getSession } from "./lib/auth/session";
 import { UserRole } from "./types/common";
 import { publicAppOrigin, publicAppUrl } from "./lib/http/public-origin";
+import { enforceAdminAccess } from "./lib/admin/access/gate";
 
 type Locale = (typeof routing.locales)[number];
 
@@ -150,6 +151,16 @@ export default async function middleware(request: NextRequest) {
     if (!canAccessAdmin) {
       return NextResponse.redirect(publicAppUrl(request, `${localePrefix}/`));
     }
+
+    // Access management (src/lib/admin/access). Mirrors the root middleware.ts — see gate.ts.
+    const blocked = await enforceAdminAccess({
+      request,
+      userId: session!.user.id as string,
+      roles,
+      pathnameWithoutLocale,
+      localePrefix,
+    });
+    if (blocked) return blocked;
   }
 
   return intlResponse || NextResponse.next();

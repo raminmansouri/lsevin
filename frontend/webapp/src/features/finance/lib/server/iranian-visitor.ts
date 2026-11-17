@@ -10,6 +10,7 @@ import { resolveCurrentUserId } from "@/features/booking-pro/utils/auth";
 import { getUserPhoneCountryCode } from "./currency-queries";
 import { getSession } from "@/lib/auth/session";
 import { routing } from "@/i18n/routing";
+import { countryFromHeaders } from "@/lib/market/server";
 
 /**
  * Is this visitor Iranian? Decides the pricing currency (Rial, no multiplier)
@@ -79,6 +80,11 @@ async function isIranianFromSessionPhone(): Promise<boolean | null> {
 async function isIranianFromClientIp(): Promise<boolean | null> {
   try {
     const headerList = await headers();
+    // The edge's own country first (Cloudflare CF-IPCountry on lsevincare.com,
+    // Caddy GeoIP X-Country on lsevin.ir). Behind Cloudflare the forwarded IP is
+    // a Cloudflare server, so the third-party lookup below only helps locally.
+    const edgeCountry = countryFromHeaders(headerList);
+    if (edgeCountry) return edgeCountry === "IR";
     const ip = getClientIpFromHeaders(headerList);
     if (!ip) return null;
 

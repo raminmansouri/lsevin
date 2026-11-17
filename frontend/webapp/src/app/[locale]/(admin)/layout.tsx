@@ -27,6 +27,8 @@ import {
 } from "@/features/shared/components/admin-sidebar";
 import { getClientMessages } from "@/i18n/client-messages";
 import { getAdminTableGroups } from "@/lib/admin/table-groups";
+import { allowedNavHrefs } from "@/features/shared/config/admin-nav-filter";
+import { getAdminContext } from "@/lib/auth/admin-guard";
 import { LocalePageProps } from "@/types/next";
 import { getProfileForEdit } from "@/features/profile/actions/profile.actions";
 
@@ -43,7 +45,7 @@ export default async function AdminLayout({ children, params }: LocalePageProps)
   // The admin catalog is the heaviest in the app (AdminGenerated alone is ~76 KB).
   // It is mounted here rather than in the root layout so it never reaches the
   // customer-facing mobile app — see @/i18n/client-messages.
-  const [messages, tableGroups] = await Promise.all([
+  const [messages, tableGroups, adminCtx] = await Promise.all([
     getClientMessages("admin"),
     // The ~215 database tables belong in the nav, not only on the /admin page.
     // Resolved server-side because it needs DB introspection and the caller's
@@ -51,12 +53,18 @@ export default async function AdminLayout({ children, params }: LocalePageProps)
     // client sidebar. `getResolvedAdminNavigation` memoises in-process, so this
     // is one query on cold start and free afterwards.
     getAdminTableGroups().catch(() => []),
+    // What this admin may open. A limited admin sees only their areas; the middleware and the
+    // guards enforce it, this just keeps the menu honest. If access cannot be read, show no
+    // menu rather than a full one — the page itself will explain the outage.
+    getAdminContext().catch(() => null),
   ]);
+  // null = everything (unlimited admin); otherwise the hrefs this admin may open.
+  const allowedHrefs = adminCtx ? allowedNavHrefs(adminCtx.access) : [];
 
   return (
     <NextIntlClientProvider messages={messages}>
       <SidebarProvider>
-        <AdminSidebar tableGroups={tableGroups} />
+        <AdminSidebar tableGroups={tableGroups} allowedHrefs={allowedHrefs} />
         <SidebarInset>
           <header className="bg-background/95 supports-[backdrop-filter]:bg-background/80 h-header sticky top-0 z-10 flex shrink-0 items-center gap-2 border-b px-4 backdrop-blur">
             <SidebarTrigger />
@@ -66,7 +74,7 @@ export default async function AdminLayout({ children, params }: LocalePageProps)
               <AdminBreadcrumbs />
             </div>
             <div className="ms-auto flex shrink-0 items-center gap-2">
-              <AdminCommandPalette tableGroups={tableGroups} />
+              <AdminCommandPalette tableGroups={tableGroups} allowedHrefs={allowedHrefs} />
               <AdminBugReportFloatingButton />
               <AdminNotificationsBell />
               <ThemeToggle />

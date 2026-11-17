@@ -14,6 +14,13 @@ const nextBin = fileURLToPath(
 );
 console.log(`Building Next.js in ${mode} mode.`);
 await import("./prepare-pwa.mjs");
+// Snapshot the admin routes the access-control layer enforces (see src/lib/admin/access).
+const manifest = spawnSync(
+  process.execPath,
+  [fileURLToPath(new URL("./admin-access-manifest.mjs", import.meta.url))],
+  { stdio: "inherit" }
+);
+if (manifest.status !== 0) process.exit(manifest.status ?? 1);
 const result = spawnSync(process.execPath, [nextBin, "build"], {
   stdio: "inherit",
   env: { ...process.env, BUILD_MODE: mode },

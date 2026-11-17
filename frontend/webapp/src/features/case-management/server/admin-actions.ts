@@ -30,7 +30,7 @@ export async function updateAdminCaseStepAction(
   input: unknown
 ): Promise<AdminCaseStepActionResult> {
   try {
-    const actor = await assertAdmin();
+    const actor = await assertAdmin("cases", "manage");
     const values = updateSchema.parse(input);
 
     await db.begin(async (tx) => {

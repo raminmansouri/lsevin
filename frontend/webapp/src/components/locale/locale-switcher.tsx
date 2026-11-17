@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
-import { markLocaleChosenExplicitly } from "@/i18n/locale-by-country";
+import { persistLocaleChoice } from "./persist-locale-choice";
 
 type Props = {
     /** `glass` when the switcher sits on the dark pine app bar. */
@@ -48,12 +48,7 @@ export default function LocaleSwitcher({ variant = "default" }: Props) {
         // this language across navigation (including the browser Back button). Setting
         // it synchronously here also ensures the switch navigation itself isn't bounced
         // back by the cookie-vs-URL guard in middleware.
-        document.cookie = `NEXT_LOCALE=${nextLocale};path=/;max-age=31536000;samesite=lax`;
-        const sharedDomain = window.location.hostname === "lsevin.com" || window.location.hostname.endsWith(".lsevin.com") ? ";domain=.lsevin.com" : "";
-        const secure = window.location.protocol === "https:" ? ";secure" : "";
-        document.cookie = `LSEVIN_LOCALE=${nextLocale};path=/;max-age=31536000;samesite=lax${sharedDomain}${secure}`;
-        // Lock in the explicit choice so location-based auto-switching won't override it.
-        markLocaleChosenExplicitly();
+        persistLocaleChoice(nextLocale);
         startTransition(() => {
             router.replace(
                 // @ts-expect-error -- TypeScript will validate that only known `params`

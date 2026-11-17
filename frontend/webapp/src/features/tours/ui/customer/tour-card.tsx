@@ -87,7 +87,7 @@ export function TourCard({
       <div className="flex min-w-0 flex-1 flex-col gap-1.5 p-3">
         <h3 className="line-clamp-2 text-[15px] font-bold leading-6 text-slate-900">
           <Link
-            href={`/tours/t/${card.slug}`}
+            href={`/tours/${card.slug}`}
             className="after:absolute after:inset-0 after:content-[''] focus-visible:outline-none"
             data-testid="tour-card-link"
           >

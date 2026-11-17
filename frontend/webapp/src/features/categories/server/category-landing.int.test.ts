@@ -10,7 +10,10 @@ import { randomUUID } from 'node:crypto';
  */
 
 const admin = vi.hoisted(() => ({ isAdmin: true }));
-vi.mock('@/lib/auth/admin-guard', () => ({ getAdminContext: vi.fn(async () => ({ isAdmin: admin.isAdmin })) }));
+vi.mock('@/lib/auth/admin-guard', () => ({
+  getAdminContext: vi.fn(async () => ({ isAdmin: admin.isAdmin })),
+  adminMay: (ctx: { isAdmin: boolean }) => ctx.isAdmin,
+}));
 // No Next runtime here: cache invalidation is a no-op, and "use cache" helpers are not involved.
 vi.mock('next/cache', () => ({ revalidateTag: vi.fn(), revalidatePath: vi.fn(), unstable_cache: (fn: unknown) => fn }));
 

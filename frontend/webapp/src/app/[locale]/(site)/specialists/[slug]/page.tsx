@@ -9,6 +9,7 @@ import {
   breadcrumbList,
   graph,
   personSchema,
+  providerUrl,
 } from "@/lib/seo/entity-schema";
 import { JsonLd } from "@/lib/seo/json-ld";
 import { getIndexableLocales } from "@/lib/seo/locale-eligibility";
@@ -105,6 +106,10 @@ export default async function SpecialistPage({ params }: PageProps) {
           }),
           breadcrumbList([
             { name: brand, url: absoluteUrl(locale) },
+            // Home > the clinic they work at > the specialist, as a visitor gets there.
+            ...(data.providers?.[0]
+              ? [{ name: data.providers[0].name, url: providerUrl(locale, data.providers[0]) }]
+              : []),
             { name: specialist.name, url: canonicalUrl },
           ])
         )}

@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+# lsevin-build-guard - runs ON SERVER B as a systemd service. Caps every Docker/BuildKit build cgroup so a webapp `next build` cannot starve the
+# production site (incident 2026-11-15/17: build = 4.3 GB RSS + 460% CPU, available memory fell to 3.5%).
+# Why a watcher: BuildKit ignores `docker build --resource ...` and creates its cgroup as /sys/fs/cgroup/system.slice/<parent>:docker:<id> with no
+# limit, and the daemon's cgroup-parent setting does not place it under a capped slice (verified 2026-11-17). Writing memory.high / cpu.max into that
+# cgroup works while the build runs. memory.high is a SOFT ceiling: the build is throttled / swapped, never OOM-killed.
+# Tunables (systemd Environment=): BUILD_MEM_HIGH (default 4500M), BUILD_CPU_MAX (default "300000 100000" = 300% of the cores), INTERVAL (3 s).
+set -uo pipefail
+MEM_HIGH=${BUILD_MEM_HIGH:-4500M}; CPU_MAX=${BUILD_CPU_MAX:-300000 100000}; INTERVAL=${INTERVAL:-3}
+n=0
+echo "lsevin-build-guard started: memory.high=$MEM_HIGH cpu.max=$CPU_MAX"
+while true; do
+  for g in /sys/fs/cgroup/system.slice/*:docker:*; do
+    [ -d "$g" ] || continue
+    if [ "$(cat "$g/memory.high" 2>/dev/null)" = "max" ]; then
+      if echo "$MEM_HIGH" > "$g/memory.high" 2>/dev/null && echo "$CPU_MAX" > "$g/cpu.max" 2>/dev/null; then
+        n=$((n + 1)); echo "capped $(basename "$g") (#$n) memory.high=$(cat "$g/memory.high") cpu.max=$(cat "$g/cpu.max")"
+      fi
+    fi
+  done
+  sleep "$INTERVAL"
+done

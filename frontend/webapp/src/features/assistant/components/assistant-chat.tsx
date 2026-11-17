@@ -107,7 +107,7 @@ export function AssistantChat({
     if (inputRef.current) inputRef.current.style.height = "auto";
   };
 
-  const suggestions = [t("suggestions.hair"), t("suggestions.dental"), t("suggestions.nose")];
+  const suggestions = [t("suggestions.hair"), t("suggestions.dental"), t("suggestions.nose"), t("suggestions.bmi")];
 
   return (
     <div className="flex h-full flex-col bg-gray-50">

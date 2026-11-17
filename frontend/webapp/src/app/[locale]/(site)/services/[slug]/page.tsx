@@ -11,7 +11,9 @@ import {
   graph,
   providerUrl,
   serviceSchema,
+  videoObjects,
 } from "@/lib/seo/entity-schema";
+import { cityLabel } from "@/lib/seo/place-names";
 import { JsonLd } from "@/lib/seo/json-ld";
 import { getIndexableLocales } from "@/lib/seo/locale-eligibility";
 import { buildPublicMetadata } from "@/lib/seo/metadata";
@@ -99,6 +101,8 @@ export default async function TreatmentDetailPage({
 
   const { service } = data;
   const brand = (await getTranslations({ locale, namespace: "LocaleLayout" }))("title");
+  const providersLabel = (await getTranslations({ locale, namespace: "Home" }))("trustedPage.title");
+  const city = service ? await cityLabel(service.country, service.city, locale) : null;
 
   return (
     <>
@@ -121,16 +125,34 @@ export default async function TreatmentDetailPage({
               providerId: service.clinicId,
               providerSlug: service.clinicSlug,
               providerName: service.clinic,
-              city: service.city,
+              city,
               country: service.country,
             }),
             breadcrumbList([
               { name: brand, url: absoluteUrl(locale) },
+              { name: providersLabel, url: absoluteUrl(locale, "/providers") },
               ...(service.clinicId && service.clinic
                 ? [{ name: service.clinic, url: providerUrl(locale, { id: service.clinicId, slug: service.clinicSlug }) }]
                 : []),
               { name: service.name, url: canonicalUrl },
-            ])
+            ]),
+            ...videoObjects(
+              (service.galleryItems ?? [])
+                .filter((item) => item.mediaType?.toLowerCase().includes("video"))
+                .map((item) => ({
+                  url: item.url,
+                  name: item.title,
+                  description: item.description,
+                  uploadDate: item.createdAt,
+                  durationSeconds: item.durationSeconds,
+                })),
+              {
+                name: service.name,
+                thumbnail: service.images?.[0],
+                owner: service.clinic,
+                description: service.subtitle || service.definitionDescription,
+              }
+            )
           )}
         />
       ) : null}

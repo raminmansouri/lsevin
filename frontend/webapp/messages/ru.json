@@ -43,7 +43,8 @@
       "suggestions": {
         "hair": "Пересадка волос",
         "dental": "Стоматология",
-        "nose": "Ринопластика"
+        "nose": "Ринопластика",
+        "bmi": "Calculate my BMI"
       }
     },
     "card": {
@@ -5361,7 +5362,7 @@
     }
   },
   "Footer": {
-    "tagline": "Медицинские услуги, красота, проживание и фитнес для гостей Ирана.",
+    "tagline": "Медицинские, косметические, гостиничные и фитнес-услуги для международных путешественников.",
     "cta": "Найти места рядом",
     "enamadAlt": "Электронный знак доверия Enamad",
     "copyright": "© {year} Lsevin. Все права защищены.",
@@ -13941,7 +13942,19 @@
     "onSale": "Со скидкой",
     "rating4plus": "4★ и выше",
     "allBrands": "Все бренды",
-    "filters": "Фильтры",
+    "filters": {
+      "search": "Search products…",
+      "sortPopularity": "Popularity",
+      "sortNewest": "Newest",
+      "sortPriceAsc": "Price: low to high",
+      "sortPriceDesc": "Price: high to low",
+      "sortRating": "Rating",
+      "anyRating": "Any rating",
+      "minPrice": "Min price",
+      "maxPrice": "Max price",
+      "inStockOnly": "In stock only",
+      "apply": "Apply filters"
+    },
     "priceRange": "Диапазон цен",
     "minPrice": "Мин.",
     "maxPrice": "Макс.",
@@ -14199,5 +14212,9 @@
     "providerText": "Если вы владелец или руководитель этого центра, запросите управление его страницей в панели LSevin.",
     "staffText": "Если вы этот врач, запросите управление своим профилем в панели LSevin.",
     "button": "Это моя страница"
+  },
+  "LocationAccess": {
+    "denied": "Location access is blocked. Tap the lock icon next to the site address, set Location to Allow, and try again.",
+    "unavailable": "We couldn't find your location. Check your connection or GPS and try again."
   }
 }

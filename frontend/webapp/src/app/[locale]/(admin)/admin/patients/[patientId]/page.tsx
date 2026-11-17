@@ -81,7 +81,7 @@ export default function AdminPatientDetailPage({ params }: Props) {
 async function SuspenseBoundary({ params }: { params: Props["params"] }) {
   // The (admin) layout and the middleware both gate this URL, but the guard is
   // repeated here so the page cannot become readable by a routing change alone.
-  const ctx = await assertAdmin();
+  const ctx = await assertAdmin("patients", "view");
   const { patientId } = await params;
 
   const patient = await getPatientById(patientId);

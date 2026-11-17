@@ -3,7 +3,7 @@
 import { z } from "zod/v4";
 
 import sql from "@/config/database/db";
-import { getAdminContext } from "@/lib/auth/admin-guard";
+import { adminMay, getAdminContext } from "@/lib/auth/admin-guard";
 
 import { MAX_CATEGORY_PRIORITY } from "../../constants";
 import { revalidateCategoryLanding } from "../../server/revalidate-landing";
@@ -32,8 +32,8 @@ export async function setCategoryPriorityAction(input: {
     return { ok: false, code: "INVALID", message: `Priority must be a whole number from 0 to ${MAX_CATEGORY_PRIORITY}.` };
   }
 
-  const { isAdmin } = await getAdminContext();
-  if (!isAdmin) return { ok: false, code: "FORBIDDEN", message: "Forbidden." };
+  const adminCtx = await getAdminContext();
+  if (!adminMay(adminCtx, "categories")) return { ok: false, code: "FORBIDDEN", message: "Forbidden." };
 
   const priority = parsed.data.priority ?? 0;
   try {

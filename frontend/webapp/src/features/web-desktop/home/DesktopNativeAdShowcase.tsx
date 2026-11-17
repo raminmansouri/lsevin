@@ -54,7 +54,9 @@ export function DesktopNativeAdShowcase({ slides, labels }: { slides: SponsoredS
   useEffect(() => {
     videoRefs.current.forEach((video, index) => {
       if (!video) return;
-      if (index === active) void video.play().catch(() => undefined);
+      // Below xl the showcase is in the HTML but hidden (display: none): playing
+      // it there downloaded the whole video on phones for nothing.
+      if (index === active && video.getClientRects().length > 0) void video.play().catch(() => undefined);
       else video.pause();
     });
   }, [active]);
@@ -162,7 +164,11 @@ export function DesktopNativeAdShowcase({ slides, labels }: { slides: SponsoredS
                     muted
                     loop
                     playsInline
-                    preload={isFront ? "auto" : "none"}
+                    // "metadata", not "auto": this showcase is in the HTML at every width
+                    // (hidden below xl), and "auto" made phones (and Googlebot's
+                    // smartphone crawler) download the whole video. play() still
+                    // loads it where it is shown (2026-11-17).
+                    preload={isFront ? "metadata" : "none"}
                     className="h-full w-full object-cover"
                   />
                 ) : (

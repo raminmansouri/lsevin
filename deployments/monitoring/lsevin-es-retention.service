@@ -2,6 +2,8 @@
 Description=Delete Elasticsearch log indices older than 7 days
 
 [Service]
+# 2026-11-17: 7 -> 4 days (container logs reached 4.5 GB/day from a postgres error loop; ES held 17 GB)
+Environment=KEEP_DAYS=4
 Type=oneshot
 ExecStart=/usr/local/sbin/lsevin-es-retention
 Nice=10

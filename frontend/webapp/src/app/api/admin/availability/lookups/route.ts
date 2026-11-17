@@ -28,7 +28,7 @@ const LOOKUP_TYPES = new Set<AvailabilityLookupType>([
 ]);
 
 export async function GET(request: NextRequest) {
-  const auth = await requireApiAdmin();
+  const auth = await requireApiAdmin("shared-lookups", "view");
   if (auth instanceof NextResponse) return auth;
 
   const params = request.nextUrl.searchParams;

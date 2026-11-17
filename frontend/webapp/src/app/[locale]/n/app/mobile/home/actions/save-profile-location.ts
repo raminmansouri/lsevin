@@ -6,8 +6,8 @@ import sql from '@/config/database/db';
 import { getUserId } from '@/lib/auth/session';
 
 const saveProfileLocationSchema = z.object({
-  countryId: z.string().uuid().nullable().optional(),
-  cityId: z.string().uuid().nullable().optional(),
+  countryId: z.guid().nullable().optional(),
+  cityId: z.guid().nullable().optional(),
   latitude: z.coerce.number().min(-90).max(90),
   longitude: z.coerce.number().min(-180).max(180),
 });

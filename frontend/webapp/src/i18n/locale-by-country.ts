@@ -1,91 +1,17 @@
-import { routing } from "./routing";
+import { AUTO_LOCALES, languageForCountry } from "@/lib/market/market";
 
 /**
- * Locales that are translated completely enough to switch a visitor into
- * automatically based on their detected location.
- *
- * The app ships message files for every locale in `routing.locales`, but only
- * `fa`, `ar` and `en` are fully translated — `tr`, `es`, `ku`, `de` and `fr`
- * are partial stubs that mostly fall back to English through the shallow message
- * merge in `i18n/request.ts`. Auto-switching a visitor into a half-translated
- * locale is worse than English, so visitors from those regions stay on English
- * until the translation is complete. Promote a locale by simply adding it here
- * once its `messages/<locale>.json` is finished.
+ * Country -> language rules live in src/lib/market/market.ts (one place for the
+ * middleware, prices and the client). Kept here for existing imports.
  */
-export const AUTO_LOCALES = new Set<string>(["fa", "ar", "en"]);
+export { AUTO_LOCALES };
 
-/** Used whenever a country has no fully-translated language we can switch to. */
+/** Used whenever a country has no language we switch into automatically. */
 export const DEFAULT_AUTO_LOCALE = "en";
 
-/**
- * ISO-3166 alpha-2 country code → the app language primarily spoken there.
- * Only languages present in {@link AUTO_LOCALES} actually take effect; every
- * other country resolves to {@link DEFAULT_AUTO_LOCALE} (English). The non-auto
- * entries (tr/de/fr/es countries) are listed so that promoting them later is a
- * one-line change to AUTO_LOCALES rather than a fresh mapping.
- */
-const COUNTRY_TO_LANGUAGE: Record<string, string> = {
-  // Persian
-  IR: "fa",
-  AF: "fa",
-  // Arabic-speaking countries
-  SA: "ar",
-  AE: "ar",
-  EG: "ar",
-  IQ: "ar",
-  JO: "ar",
-  KW: "ar",
-  QA: "ar",
-  BH: "ar",
-  OM: "ar",
-  LB: "ar",
-  SY: "ar",
-  YE: "ar",
-  PS: "ar",
-  DZ: "ar",
-  MA: "ar",
-  TN: "ar",
-  LY: "ar",
-  SD: "ar",
-  MR: "ar",
-  SO: "ar",
-  DJ: "ar",
-  KM: "ar",
-  // Not yet fully translated → currently resolve to English (see AUTO_LOCALES).
-  TR: "tr",
-  DE: "de",
-  AT: "de",
-  CH: "de",
-  FR: "fr",
-  BE: "fr",
-  LU: "fr",
-  MC: "fr",
-  ES: "es",
-  MX: "es",
-  AR: "es",
-  CO: "es",
-  CL: "es",
-  PE: "es",
-};
-
-/**
- * The app locale to use for a visitor located in `countryCode`. Returns the
- * country's language when we have a complete translation for it, otherwise
- * English. Always returns a locale that exists in `routing.locales`.
- */
+/** The app locale for a visitor located in `countryCode` (English when none). */
 export function localeForCountry(countryCode?: string | null): string {
-  const code = (countryCode || "").trim().toUpperCase();
-  const language = COUNTRY_TO_LANGUAGE[code];
-
-  if (
-    language &&
-    AUTO_LOCALES.has(language) &&
-    (routing.locales as readonly string[]).includes(language)
-  ) {
-    return language;
-  }
-
-  return DEFAULT_AUTO_LOCALE;
+  return languageForCountry(countryCode) ?? DEFAULT_AUTO_LOCALE;
 }
 
 // Remembers that the visitor explicitly picked a language from a switcher. Once

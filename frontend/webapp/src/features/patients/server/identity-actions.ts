@@ -44,7 +44,7 @@ function fieldErrorsFrom(error: ZodError): Record<string, string[]> {
 export async function scanForDuplicatesAction(
   input: ScanForDuplicatesInput
 ): Promise<PatientActionResult<PatientMatchCandidateRow[]>> {
-  const ctx = await assertAdmin();
+  const ctx = await assertAdmin("patients", "manage");
   const t = await getTranslations(PATIENTS_TRANSLATION_KEY);
   let values;
   try {
@@ -70,7 +70,7 @@ export async function scanForDuplicatesAction(
 export async function reviewMatchCandidateAction(
   input: ReviewMatchCandidateInput
 ): Promise<PatientActionResult<PatientMatchCandidateRow>> {
-  const ctx = await assertAdmin();
+  const ctx = await assertAdmin("patients", "manage");
   const t = await getTranslations(PATIENTS_TRANSLATION_KEY);
   let values;
   try {
@@ -166,7 +166,7 @@ export async function resolveReconciliationConflictAction(input: {
   discardId: string;
   action: "keep_both" | "mark_outdated" | "entered_in_error";
 }): Promise<PatientActionResult<{ resolved: boolean }>> {
-  const ctx = await assertAdmin();
+  const ctx = await assertAdmin("patients", "manage");
   const t = await getTranslations(PATIENTS_TRANSLATION_KEY);
 
   if (input.action !== "keep_both") {

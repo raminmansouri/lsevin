@@ -4,7 +4,8 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { ExploreContent } from "@/app/[locale]/n/app/mobile/explore/explore-content";
 import { getExplorePageData, parseExploreFilters } from "@/app/[locale]/n/app/mobile/explore/explore.data";
 import { absoluteUrl } from "@/lib/seo/alternates";
-import { breadcrumbList, graph } from "@/lib/seo/entity-schema";
+import { breadcrumbList, collectionPage, graph } from "@/lib/seo/entity-schema";
+import { exploreListedItems } from "@/app/[locale]/n/app/mobile/explore/explore-schema";
 import { JsonLd } from "@/lib/seo/json-ld";
 import { INDEXABLE_CATEGORY_LOCALES } from "@/lib/seo/locale-eligibility";
 import { buildPublicMetadata } from "@/lib/seo/metadata";
@@ -62,22 +63,23 @@ export default async function SpecialtyPage({ params, searchParams }: PageProps)
 
   const pageUrl = absoluteUrl(locale, `/specialties/${ref.slug ?? ref.id}`);
   const brand = (await getTranslations({ locale, namespace: "LocaleLayout" }))("title");
-  const name = type?.label || (await getTranslations({ locale, namespace: "Explore" }))("header.title");
+  const explore = (await getTranslations({ locale, namespace: "Explore" }))("header.title");
+  const name = type?.label || explore;
 
   return (
     <>
       <JsonLd
         data={graph(
-          {
-            "@type": "CollectionPage",
-            "@id": `${pageUrl}#webpage`,
+          collectionPage({
             url: pageUrl,
             name,
-            ...(type?.description ? { description: type.description } : {}),
-            inLanguage: locale,
-          },
+            description: type?.description,
+            locale,
+            items: exploreListedItems(locale, data),
+          }),
           breadcrumbList([
             { name: brand, url: absoluteUrl(locale) },
+            { name: explore, url: absoluteUrl(locale, "/explore") },
             { name, url: pageUrl },
           ])
         )}

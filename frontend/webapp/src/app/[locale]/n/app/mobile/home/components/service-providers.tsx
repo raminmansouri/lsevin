@@ -7,9 +7,8 @@ import { ImageWithFallback } from '@/components/ui/image-with-fallback';
 
 import type { HomeFeaturedService } from '@/features/home/api/server/get-home-page';
 import { resolveHomeMediaUrl } from '@/features/home/components/home-media';
-import { SafePriceText } from '@/features/home/components/safe-price-text';
+import { ViewerPrice } from '@/features/finance/components/viewer-price';
 import { HomeLexicalDescription } from '@/features/home/components/home-lexical-description';
-import { formatMoney } from '@/features/finance/lib/money';
 import { Link } from '@/i18n/navigation';
 import { entityPath } from '@/lib/routes/public-paths';
 
@@ -113,12 +112,12 @@ export default function HomeFeaturedServicesSuspenseBoundary({
 function FeaturedServiceCard({
   service,
   locale,
-  selectedCountryCode,
   labels,
   layout,
 }: {
   service: HomeFeaturedService;
   locale: string;
+  /** Unused: the price is resolved per visitor in the browser (ViewerPrice). */
   selectedCountryCode?: string | null;
   labels: HomeFeaturedServiceLabels;
   layout: FeaturedServiceLayout;
@@ -234,21 +233,23 @@ function FeaturedServiceCard({
           </div>
 
           <div className="min-w-0 text-end">
+            {/* Priced per visitor (language currency, domestic or international
+                price): this rail is cached and shared, so the server cannot. */}
             {service.originalAmount && service.originalAmount > service.priceAmount ? (
-              <div className="truncate text-[9px] text-gray-400 line-through @min-[220px]:text-xs">
-                {formatMoney(
-                  { amount: service.originalAmount, currencyCode: service.currencyCode },
-                  { locale, compact: false }
-                )}
-              </div>
+              <ViewerPrice
+                amount={service.originalAmount}
+                sourceCurrencyCode={service.currencyCode}
+                providerId={service.providerId}
+                locale={locale}
+                className="block truncate text-[9px] font-normal text-gray-400 line-through @min-[220px]:text-xs"
+              />
             ) : null}
-            <SafePriceText
+            <ViewerPrice
               amount={service.priceAmount}
               sourceCurrencyCode={service.currencyCode}
-              selectedCountryCode={selectedCountryCode}
+              providerId={service.providerId}
               locale={locale}
               className="block truncate text-[11px] font-bold text-[#083f30] @min-[220px]:text-lg"
-              showSourceWhenConverted
             />
           </div>
         </div>

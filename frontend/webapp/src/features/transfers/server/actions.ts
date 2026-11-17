@@ -35,7 +35,7 @@ function fieldErrorsFrom(error: ZodError): Record<string, string[]> {
 export async function upsertTransferRouteAction(
   input: UpsertTransferRouteInput
 ): Promise<TransferRouteActionResult<{ id: string }>> {
-  await assertAdmin();
+  await assertAdmin("transfer-routes", "manage");
   const t = await getTranslations(TRANSFERS_TRANSLATION_KEY);
 
   let values;
@@ -64,7 +64,7 @@ export async function upsertTransferRouteAction(
 export async function deleteTransferRouteAction(input: {
   id: string;
 }): Promise<TransferRouteActionResult> {
-  await assertAdmin();
+  await assertAdmin("transfer-routes", "manage");
   const t = await getTranslations(TRANSFERS_TRANSLATION_KEY);
 
   const deleted = await deleteTransferRoute(input.id);

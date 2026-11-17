@@ -64,7 +64,7 @@ export async function createProcessTemplateVersionAction(
   input: unknown
 ): Promise<TemplateVersionResult> {
   try {
-    const actor = await assertAdmin();
+    const actor = await assertAdmin("case-templates", "manage");
     if (!actor.userId) return { ok: false, error: "unknown" };
     const values = versionSchema.parse(input);
     const stepKeys = new Set(values.steps.map((step) => step.stepKey));

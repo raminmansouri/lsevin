@@ -46,7 +46,8 @@ declare const messages: {
       "suggestions": {
         "hair": "Hair transplant",
         "dental": "Dentistry",
-        "nose": "Nose surgery"
+        "nose": "Nose surgery",
+        "bmi": "Calculate my BMI"
       }
     },
     "card": {
@@ -446,7 +447,8 @@ declare const messages: {
     "searchResults": "Search results",
     "goBack": "Go back",
     "viewAllProviders": "View all {count} providers in {name}",
-    "providersIn": "{name} providers"
+    "providersIn": "{name} providers",
+    "featured": "Featured"
   },
   "Booking": {
     "dayParts": {
@@ -3298,7 +3300,21 @@ declare const messages: {
     "renderedOn": "Rendered on",
     "staffOrder": "Order",
     "staffOrderHint": "1 = first on the provider's page; 0 = no position",
-    "staffOrderSaved": "Order saved"
+    "staffOrderSaved": "Order saved",
+    "zibalDomainTokensTitle": "Zibal token per domain",
+    "zibalDomainTokensDescription": "Each domain (for example lsevincare.com, appmain.lsevin.com and lsevin.ir) has its own Zibal merchant. A payment uses the token of the domain the customer is on, and the customer returns to that domain. Zibal is not offered on a domain without a token.",
+    "zibalNoDomainsYet": "No domains yet.",
+    "zibalDomain": "Domain",
+    "zibalMerchantToken": "Zibal merchant token",
+    "zibalCurrentToken": "Current",
+    "zibalPasteToken": "Paste the merchant code from the Zibal panel",
+    "zibalLeaveBlankToKeep": "Leave blank to keep the current token.",
+    "zibalTokenRequired": "A new domain needs a token.",
+    "zibalRemoveDomain": "Remove this domain",
+    "zibalAddDomain": "Add domain",
+    "zibalSettingsTitle": "Zibal settings",
+    "zibalSettingsDescription": "Amounts are sent to Zibal in Rial; a Toman gateway currency is converted before sending.",
+    "zibalSandboxDescription": "Sandbox uses Zibal's test merchant and moves no money. It does not work on the production server (payments stop there), so keep it off in production."
   },
   "HomeHero": {
     "title": "Health and beauty without borders, all in one place",
@@ -3312,7 +3328,7 @@ declare const messages: {
     }
   },
   "Footer": {
-    "tagline": "Medical, beauty, stay and fitness services for visitors to Iran.",
+    "tagline": "Medical, beauty, stay and fitness services for international travellers.",
     "cta": "Find places near you",
     "enamadAlt": "Enamad electronic trust seal",
     "copyright": "© {year} Lsevin. All rights reserved.",
@@ -3476,7 +3492,19 @@ declare const messages: {
       "permission": {
         "title": "Turn on location",
         "dismiss": "Not now",
-        "enable": "Turn on"
+        "enable": "Turn on",
+        "why": "To show clinics, hotels and services near you, LSevin would like to use your location. It is only used on this device to find what is closest, and you can change it any time.",
+        "deniedTitle": "Location is turned off for this site",
+        "deniedHelp": "No problem — we used your region instead. To use your exact location later, tap the lock icon next to the address bar, allow “Location”, and reload the page. Or just search for your city below."
+      },
+      "search": {
+        "label": "Search a city or country",
+        "placeholder": "e.g. Istanbul, Dubai, Tehran",
+        "searching": "Searching…",
+        "noResults": "No city or country matches “{query}”.",
+        "hint": "Type at least two letters.",
+        "country": "Country",
+        "popular": "Popular destinations"
       }
     },
     "sponsoredCarousel": {
@@ -5727,13 +5755,22 @@ declare const messages: {
       "toursPlatformTaxonomy": "2. Categories & tags",
       "editorial": "Editorial",
       "assistant": "AI assistant",
-      "shopApprovals": "Delivery approvals"
+      "shopApprovals": "Delivery approvals",
+      "accessControl": "Access control",
+      "staysPlatform": "Hotels and stays",
+      "staysDashboard": "Stays overview",
+      "staysSettings": "1. Stays settings",
+      "staysCities": "2. Destinations",
+      "staysProperties": "3. Hotels and stays",
+      "staysBookings": "Stay bookings",
+      "staysReviews": "Stay reviews",
+      "enamad": "Enamad trust seal"
     }
   },
   "HomePage": {
-    "title": "LSevin | Book Doctors, Clinics & Medical Hotels in Iran",
+    "title": "LSevin | Book International Doctors, Clinics & Medical Hotels",
     "h1": "Book doctors, clinics, medical hotels and health tours in Iran",
-    "description": "Plan treatment in Iran in one place: book specialists and clinics, medical hotels near hospitals, in-hotel care and a free consultation with LSevin.",
+    "description": "Plan international treatment in one place: book specialists and clinics, medical hotels near hospitals, in-hotel care and a free consultation with LSevin.",
     "keywords": "automation healthcare,healthcare automation,medical tourism,medical booking",
     "heroTitle": "Experience the Best Medical Services with Us",
     "heroDescription": "On the journey to wellness, we bring you the best medical services with a team of top specialists, advanced equipment, and a safe, relaxing environment committed to high-quality treatment and exceptional care.",
@@ -9454,7 +9491,13 @@ declare const messages: {
     "expandedNote": "No services in your selected area — showing the nearest available, sorted by distance.",
     "noResults": "No services found. Try widening your filters.",
     "showMap": "Map",
-    "showList": "List"
+    "showList": "List",
+    "locationPrompt": {
+      "title": "Show what's near you?",
+      "body": "With your location we can open the map right where you are and sort providers by distance. It stays on this device.",
+      "allow": "Use my location",
+      "notNow": "Not now"
+    }
   },
   "NearbyMap": {
     "mapboxNotConfiguredTitle": "Mapbox is not configured",
@@ -16132,6 +16175,15 @@ declare const messages: {
           }
         }
       }
+    },
+    "rateHealth": {
+      "title": "Rate per US dollar",
+      "description": "Each currency has one rate against USD; every other pair is derived from it. Enter new rates as USD → currency. A currency without one is shown to visitors in USD; direct pairs between two other currencies are no longer used.",
+      "currency": "Currency",
+      "perUsd": "Units per 1 USD",
+      "ok": "In use",
+      "stale": "Older than {days} days",
+      "missing": "No USD rate — shown in USD"
     }
   },
   "MobileNotifications": {
@@ -16286,7 +16338,19 @@ declare const messages: {
     "onSale": "On sale",
     "rating4plus": "4★ & up",
     "allBrands": "All brands",
-    "filters": "Filters",
+    "filters": {
+      "search": "Search products…",
+      "sortPopularity": "Popularity",
+      "sortNewest": "Newest",
+      "sortPriceAsc": "Price: low to high",
+      "sortPriceDesc": "Price: high to low",
+      "sortRating": "Rating",
+      "anyRating": "Any rating",
+      "minPrice": "Min price",
+      "maxPrice": "Max price",
+      "inStockOnly": "In stock only",
+      "apply": "Apply filters"
+    },
     "priceRange": "Price range",
     "minPrice": "Min",
     "maxPrice": "Max",
@@ -18453,6 +18517,38 @@ declare const messages: {
     "notes": "Notes",
     "footerNote": "This pre-invoice is for information only and is not a tax invoice or a payment receipt.",
     "issuedAt": "Issued {date}"
+  },
+  "AdminEnamad": {
+    "heading": "Enamad trust seal",
+    "intro": "Each domain has its own Enamad seal. A domain shows only its own seal; a domain without one shows none.",
+    "addTitle": "Add or replace a domain's seal",
+    "addDescription": "Copy the whole install code from the Enamad panel and paste it here. If the domain already has a seal, the new code replaces it.",
+    "domain": "Domain",
+    "code": "Enamad seal code",
+    "codeHint": "Paste the whole <a ...><img ...></a> code or the seal URL.",
+    "parsed": "Found seal id {id}.",
+    "save": "Save seal",
+    "saving": "Saving…",
+    "saved": "Seal for {host} saved.",
+    "invalidHost": "Enter a domain like lsevincare.com.",
+    "invalidSeal": "No Enamad id and code found. Copy the whole code from the Enamad panel.",
+    "saveFailed": "The seal could not be saved. Please try again.",
+    "forbidden": "You are not allowed to do this.",
+    "listTitle": "Saved seals",
+    "listDescription": "On each domain the site shows that domain's seal in the footer and on the home page.",
+    "empty": "No seals yet.",
+    "openOnEnamad": "View on Enamad",
+    "remove": "Remove the seal of {host}",
+    "removeConfirm": "Click again to remove the seal of {host}",
+    "removeShort": "Remove",
+    "removeConfirmShort": "Sure?",
+    "removed": "Seal for {host} removed.",
+    "removeFailed": "The seal could not be removed. Please try again.",
+    "replaceHint": "Changes appear on the site within a few minutes."
+  },
+  "LocationAccess": {
+    "denied": "Location access is blocked. Tap the lock icon next to the site address, set Location to Allow, and try again.",
+    "unavailable": "We couldn't find your location. Check your connection or GPS and try again."
   }
 };
 export default messages;

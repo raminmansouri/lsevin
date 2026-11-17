@@ -50,6 +50,8 @@ function mergeMessages(base: Messages, override: Messages): Messages {
  * merged per key exactly like the main bundle, English filling any gap.
  */
 const TOUR_MESSAGE_AREAS = ["app", "admin", "shared"] as const;
+/** Stays (hotels / اقامتگاه) keep the same layout: messages/stays/<area>/<locale>.json — StayApp, StayAdmin. */
+const STAY_MESSAGE_AREAS = ["app", "admin"] as const;
 async function loadTourMessages(locale: string): Promise<Messages> {
   let merged: Messages = {};
   for (const area of TOUR_MESSAGE_AREAS) {
@@ -60,7 +62,28 @@ async function loadTourMessages(locale: string): Promise<Messages> {
       // A locale without its own tours file falls back to English via the merge above.
     }
   }
+  for (const area of STAY_MESSAGE_AREAS) {
+    try {
+      const mod = (await import(`../../messages/stays/${area}/${locale}.json`)).default as Messages;
+      merged = mergeMessages(merged, mod);
+    } catch {
+      // Same fallback: a locale without its own stays file shows English.
+    }
+  }
   return merged;
+}
+
+/**
+ * Admin access control (roles, permissions, members) keeps its strings in
+ * messages/admin-access/<locale>.json — namespace AdminAccess — so the screen can evolve
+ * without churning the shared catalogs. A locale without a file falls back to English.
+ */
+async function loadAdminAccessMessages(locale: string): Promise<Messages> {
+  try {
+    return (await import(`../../messages/admin-access/${locale}.json`)).default as Messages;
+  } catch {
+    return {};
+  }
 }
 
 export default getRequestConfig(async ({ requestLocale }) => {
@@ -75,7 +98,7 @@ export default getRequestConfig(async ({ requestLocale }) => {
 
   const en = mergeMessages(
     (await import(`../../messages/en.json`)).default as Messages,
-    await loadTourMessages("en"),
+    mergeMessages(await loadTourMessages("en"), await loadAdminAccessMessages("en")),
   );
 
   if (locale === "en") {
@@ -84,7 +107,7 @@ export default getRequestConfig(async ({ requestLocale }) => {
 
   const current = mergeMessages(
     (await import(`../../messages/${locale}.json`)).default as Messages,
-    await loadTourMessages(locale),
+    mergeMessages(await loadTourMessages(locale), await loadAdminAccessMessages(locale)),
   );
 
   return {

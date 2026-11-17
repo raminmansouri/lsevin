@@ -59,7 +59,7 @@ export interface Provider {
   responseTime: string;
   image?: string;
   images: string[];
-  videos?: { id: string; url: string; title?: string | null }[];
+  videos?: { id: string; url: string; title?: string | null; description?: string | null; uploadDate?: string | null; durationSeconds?: number | null }[];
   certifications: Certification[];
   languages: string[];
   attributes: ProviderAttribute[];

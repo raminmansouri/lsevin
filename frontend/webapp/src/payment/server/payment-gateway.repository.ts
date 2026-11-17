@@ -1,10 +1,22 @@
 import "server-only";
 
 import sql from "@/config/database/db";
-import type { PaymentGatewayCode } from "../types";
+import { currentRequestHost } from "@/lib/http/request-host";
+
+import {
+  domainsMissingToken,
+  findDomainMerchant,
+  maskDomainMerchants,
+  mergeDomainMerchants,
+  normalizeDomainMerchants,
+} from "../domain-merchants";
+import { isIranianCardGateway, PAYMENT_GATEWAY_CODES, zibalSandboxAllowed } from "../gateways";
+import type { DomainMerchant, PaymentGatewayCode } from "../types";
 
 export type PaymentGatewayAdminSettings = {
   merchantId?: string | null;
+  /** Zibal: one merchant token per public domain. */
+  domainMerchants?: DomainMerchant[];
   sandbox?: boolean;
   currency?: string;
   minimumAmount?: number | null;
@@ -69,7 +81,7 @@ type PaymentGatewayRow = {
   updatedBy: string | null;
 };
 
-const SUPPORTED_GATEWAYS = ["zarinpal", "btcpay"] as const;
+const SUPPORTED_GATEWAYS = PAYMENT_GATEWAY_CODES;
 
 // Fiat units a gateway may bill in. Zarinpal is IRR/IRT; BTCPay prices in USD/EUR.
 const SUPPORTED_CURRENCIES = new Set(["IRR", "IRT", "USD", "EUR"]);
@@ -141,6 +153,7 @@ function normalizeSettings(value: PaymentGatewayAdminSettings | null | undefined
 
   return {
     merchantId: typeof settings.merchantId === "string" ? settings.merchantId.trim() : null,
+    domainMerchants: normalizeDomainMerchants(settings.domainMerchants),
     sandbox: toBoolean(settings.sandbox, true),
     currency: normalizedCurrency,
     minimumAmount: toNumber(settings.minimumAmount, normalizedCurrency === "IRT" ? 1000 : 10000),
@@ -195,12 +208,21 @@ export function maskGatewaySecrets<T extends PaymentGatewayConfig>(gateway: T): 
     settings: {
       ...gateway.settings,
       merchantId: maskSecret(gateway.settings.merchantId),
+      domainMerchants: maskDomainMerchants(gateway.settings.domainMerchants),
       apiKey: gateway.settings.apiKey ? maskSecret(gateway.settings.apiKey) : gateway.settings.apiKey,
       webhookSecret: gateway.settings.webhookSecret
         ? maskSecret(gateway.settings.webhookSecret)
         : gateway.settings.webhookSecret,
     },
   };
+}
+
+/** A save the admin has to correct (shown as-is), as opposed to an infrastructure failure. */
+export class PaymentGatewayValidationError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "PaymentGatewayValidationError";
+  }
 }
 
 export async function ensurePaymentGatewayTable(): Promise<void> {
@@ -278,6 +300,39 @@ export async function ensurePaymentGatewayTable(): Promise<void> {
     )
     on conflict (code) do nothing
   `;
+
+  // Zibal: the same fixed id as migration 0107, so both sites create the identical row and
+  // replication never meets two rows for one code. Disabled until the admin configures it.
+  await sql`
+    insert into booking.payment_gateways (
+      id, code, provider, display_name, description, is_enabled, supports_refund, sort_order, settings
+    ) values (
+      md5('lsevin:payment-gateway:zibal')::uuid,
+      'zibal', 'zibal', 'Zibal',
+      'Iranian card gateway (Zibal). One merchant token per domain.',
+      false, false, 5,
+      ${jsonb({
+        merchantId: "",
+        sandbox: false,
+        currency: "IRR",
+        minimumAmount: 10000,
+        descriptionTemplate: "LSevin booking {{bookingId}}",
+        enabledContexts: ["booking_online_card", "wallet_topup"],
+        domainMerchants: [],
+      })}
+    )
+    on conflict (code) do nothing
+  `;
+}
+
+/**
+ * Whether a gateway can take a payment on this domain. Only Zibal depends on the domain
+ * (a token per domain); outside a request there is no domain, so Zibal is not usable then.
+ */
+function usableOnHost(gateway: PaymentGatewayConfig, host: string | null): boolean {
+  if (gateway.code !== "zibal") return true;
+  if (gateway.settings.sandbox) return zibalSandboxAllowed();
+  return Boolean(findDomainMerchant(gateway.settings.domainMerchants, host));
 }
 
 export async function listPaymentGatewayConfigs(input?: {
@@ -310,6 +365,8 @@ export async function listPaymentGatewayConfigs(input?: {
 
 export async function listEnabledPaymentGatewayOptions(input?: {
   context?: "booking_online_card" | "wallet_topup";
+  /** Defaults to the current request's domain. */
+  host?: string | null;
 }): Promise<PublicPaymentGatewayOption[]> {
   await ensurePaymentGatewayTable();
   const context = input?.context ?? "booking_online_card";
@@ -337,13 +394,33 @@ export async function listEnabledPaymentGatewayOptions(input?: {
     order by sort_order asc, display_name asc
   `;
 
-  return rows.map(mapRow).map((gateway) => ({
+  const gateways = rows.map(mapRow);
+  // Only an enabled Zibal depends on the domain; without one, the request is never consulted
+  // (so pages that list gateways render exactly as before).
+  const host = gateways.some((gateway) => gateway.code === "zibal")
+    ? input?.host !== undefined
+      ? input.host
+      : await currentRequestHost()
+    : null;
+  return gateways.filter((gateway) => usableOnHost(gateway, host)).map((gateway) => ({
     code: gateway.code,
     displayName: gateway.displayName,
     provider: gateway.provider,
     currency: gateway.settings.currency || "IRR",
     sortOrder: gateway.sortOrder,
   }));
+}
+
+/**
+ * The Iranian card gateway a payment on this domain should use: the first one (sort order)
+ * that is enabled for the context and usable here, or null when none is.
+ */
+export async function resolveIranianCardGateway(input?: {
+  context?: "booking_online_card" | "wallet_topup";
+  host?: string | null;
+}): Promise<PaymentGatewayCode | null> {
+  const options = await listEnabledPaymentGatewayOptions(input);
+  return options.find((option) => isIranianCardGateway(option.code))?.code ?? null;
 }
 
 export async function getPaymentGatewayConfig(input: {
@@ -410,6 +487,13 @@ export async function savePaymentGatewayConfig(input: {
   const existingSettings = existing?.settings ?? {};
   const incomingSettings = normalizeSettings(input.settings);
 
+  if (input.settings.domainMerchants !== undefined) {
+    const missing = domainsMissingToken(existingSettings.domainMerchants, input.settings.domainMerchants);
+    if (missing.length) {
+      throw new PaymentGatewayValidationError(`Enter the merchant token for ${missing.join(", ")}.`);
+    }
+  }
+
   // Secrets reach the form masked, so the admin submits them blank unless they
   // are deliberately rotating one. A blank field therefore has to mean "keep the
   // stored value" — without this the plain spread below would null them out on
@@ -423,6 +507,11 @@ export async function savePaymentGatewayConfig(input: {
     merchantId: keepSecret(incomingSettings.merchantId, existingSettings.merchantId) || "",
     apiKey: keepSecret(incomingSettings.apiKey, existingSettings.apiKey),
     webhookSecret: keepSecret(incomingSettings.webhookSecret, existingSettings.webhookSecret),
+    // Tokens arrive masked too: blank keeps the stored one for that domain, a removed domain is dropped.
+    domainMerchants:
+      input.settings.domainMerchants === undefined
+        ? existingSettings.domainMerchants ?? []
+        : mergeDomainMerchants(existingSettings.domainMerchants, input.settings.domainMerchants),
   });
 
   const rows = await sql<PaymentGatewayRow[]>`

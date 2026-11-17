@@ -2,7 +2,12 @@ import "server-only";
 
 import { seoOrigin } from "@/lib/seo/origin";
 import { getPaymentProvider } from "@/payment/providers";
-import { getEnabledPaymentGatewayConfig, getPaymentGatewayConfig } from "@/payment/server/payment-gateway.repository";
+import { isIranianCardGateway, isPaymentGatewayCode } from "@/payment/gateways";
+import {
+  getEnabledPaymentGatewayConfig,
+  getPaymentGatewayConfig,
+  resolveIranianCardGateway,
+} from "@/payment/server/payment-gateway.repository";
 import type { PaymentGatewayCode } from "@/payment/types";
 
 import sql from "@/config/database/db";
@@ -40,8 +45,15 @@ function callbackUrl(gateway: string, locale: string): string {
   return `${getAppBaseUrl()}/${locale || "fa"}/api/shop/payments/${gateway}/callback`;
 }
 
-function gatewayForPaymentCurrency(currency: string): PaymentGatewayCode {
-  return ["IRR", "IRT"].includes(String(currency).toUpperCase()) ? "zarinpal" : "btcpay";
+/**
+ * Rial/Toman orders pay on an Iranian card gateway: Zibal or Zarinpal, whichever the admin
+ * ranks first among those enabled and usable on this domain (Zarinpal when none is, which
+ * then fails with the same "disabled" error as before). Everything else pays with BTCPay.
+ */
+async function gatewayForOrder(methodProvider: string | null, currency: string): Promise<PaymentGatewayCode> {
+  const iranian = isIranianCardGateway(methodProvider) || ["IRR", "IRT"].includes(String(currency).toUpperCase());
+  if (methodProvider === "btcpay" || !iranian) return "btcpay";
+  return (await resolveIranianCardGateway()) ?? "zarinpal";
 }
 
 async function assertOrderBelongsToCaller(orderCustomerId: string | null, orderEmail: string): Promise<void> {
@@ -135,10 +147,7 @@ export async function startOrderPayment(input: {
   }
 
   // --- online gateway -------------------------------------------------------
-  const gateway: PaymentGatewayCode =
-    method.provider === "zarinpal" || method.provider === "btcpay"
-      ? (method.provider as PaymentGatewayCode)
-      : gatewayForPaymentCurrency(order.paymentCurrency);
+  const gateway = await gatewayForOrder(method.provider, order.paymentCurrency);
 
   const gatewayConfig = await getEnabledPaymentGatewayConfig({ code: gateway });
   const provider = getPaymentProvider(gateway);
@@ -218,7 +227,7 @@ export async function verifyGatewayCallback(input: {
   status?: string | null;
 }): Promise<VerifyPaymentResult> {
   const gateway = String(input.gateway || "").toLowerCase();
-  if (gateway !== "zarinpal" && gateway !== "btcpay") {
+  if (!isPaymentGatewayCode(gateway)) {
     return { orderNumber: "", orderId: "", status: "failed", message: "Unknown gateway." };
   }
   const authority = String(input.authority || "").trim();

@@ -12,11 +12,19 @@
 \else
 \set exclude 'recent_searches,recent_views,weather_cache'
 \endif
+-- Optional allow-list: -v only=a,b,c registers ONLY these tables. Use it for schema=public, where SymmetricDS's own sym_* tables (never
+-- registered: guarded below) and per-site state (schema_migrations, background_jobs, sessions, ...) live. Dry-run with this first.
+\if :{?only}
+\else
+\set only ''
+\endif
 begin;
 create temp table _tbl on commit drop as
   select t.table_name from information_schema.tables t
   where t.table_schema=:'schema' and t.table_type='BASE TABLE'
     and t.table_name <> all (string_to_array(:'exclude', ','))
+    and t.table_name !~ '^sym_'
+    and (:'only' = '' or t.table_name = any(string_to_array(:'only', ',')))
     and exists (select 1 from information_schema.table_constraints c where c.table_schema=:'schema' and c.table_name=t.table_name and c.constraint_type='PRIMARY KEY')
     and not exists (select 1 from sym_trigger s where s.source_schema_name=:'schema' and s.source_table_name=t.table_name);
 create temp table _upd on commit drop as

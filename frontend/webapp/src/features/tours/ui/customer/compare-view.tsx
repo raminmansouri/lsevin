@@ -49,7 +49,7 @@ export function CompareView({ tours }: { tours: TourDetail[] }) {
               </th>
               {tours.map((d) => (
                 <th key={d.id} scope="col" className="p-3 text-start align-top font-bold">
-                  <Link href={`/tours/t/${d.slug}`} className="text-emerald-800 underline-offset-2 hover:underline">
+                  <Link href={`/tours/${d.slug}`} className="text-emerald-800 underline-offset-2 hover:underline">
                     <LocalizedText text={d.text.title} />
                   </Link>
                 </th>

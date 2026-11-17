@@ -3,6 +3,7 @@ import sharedSql from "@/config/database/db";
 import { mirrorWalletCredit } from "@/accounting/server/legacy-bridge";
 import { getPaymentProvider } from "@/payment/providers";
 import { getPaymentGatewayConfig } from "@/payment/server/payment-gateway.repository";
+import { isIranianCardGateway } from "@/payment/gateways";
 import type { PaymentGatewayCode } from "@/payment/types";
 
 type WalletIntentRow = {
@@ -29,7 +30,7 @@ function createSqlClient() {
 
 function normalizeGateway(value?: string | null): PaymentGatewayCode {
   const gateway = String(value || "").trim().toLowerCase();
-  if (gateway !== "zarinpal") {
+  if (!isIranianCardGateway(gateway)) {
     throw new Error("Unsupported wallet payment gateway.");
   }
 
@@ -216,7 +217,8 @@ export async function verifyWalletTopUpPayment(input: {
           amount: String(intent.amount),
           idempotencyKey: `deposit:${gateway}:${authority}`,
           sourceType: "deposit",
-          counterpartAccountKey: gateway === "btcpay" ? "clearing_btcpay" : "clearing_zarinpal",
+          counterpartAccountKey:
+            gateway === "btcpay" ? "clearing_btcpay" : gateway === "zibal" ? "clearing_zibal" : "clearing_zarinpal",
           description: `شارژ کیف پول از ${gatewayConfig.displayName}`,
           actorUserId: intent.userId,
         },

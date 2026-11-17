@@ -10,6 +10,10 @@ import { getExplorePageData, parseExploreFilters } from "./explore.data";
 import { absoluteUrl } from "@/lib/seo/alternates";
 import { directoryHref } from "@/lib/routes/filter-paths";
 import { otherFilters, resolveListingParams, resolvedSlugs } from "@/lib/seo/listing-params";
+import { breadcrumbList, collectionPage, graph } from "@/lib/seo/entity-schema";
+import { JsonLd } from "@/lib/seo/json-ld";
+
+import { exploreListedItems } from "./explore-schema";
 
 export async function generateMetadata({
   params,
@@ -55,6 +59,30 @@ export default async function Explore({
   }
   const filters = parseExploreFilters(listing.params);
   const data = await getExplorePageData({ locale, filters });
+  const pageUrl = absoluteUrl(locale, "/explore");
+  const [t, brand] = await Promise.all([
+    getTranslations({ locale, namespace: "Explore" }),
+    getTranslations({ locale, namespace: "LocaleLayout" }).then((l) => l("title")),
+  ]);
 
-  return <ExploreContent locale={locale} filters={filters} data={data} pageUrl={absoluteUrl(locale, "/explore")} />;
+  return (
+    <>
+      <JsonLd
+        data={graph(
+          collectionPage({
+            url: pageUrl,
+            name: t("header.title"),
+            description: t("header.subtitle"),
+            locale,
+            items: exploreListedItems(locale, data),
+          }),
+          breadcrumbList([
+            { name: brand, url: absoluteUrl(locale) },
+            { name: t("header.title"), url: pageUrl },
+          ])
+        )}
+      />
+      <ExploreContent locale={locale} filters={filters} data={data} pageUrl={pageUrl} />
+    </>
+  );
 }

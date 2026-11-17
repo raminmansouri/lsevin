@@ -48,7 +48,7 @@ export default function AdminTransferRoutesPage({ params }: Props) {
 async function SuspenseBoundary({ params }: { params: Promise<LocaleParams> }) {
   // The (admin) layout and the middleware both gate this URL, but the guard is
   // repeated here so the page cannot become readable by a routing change alone.
-  await assertAdmin();
+  await assertAdmin("transfer-routes", "view");
 
   const { locale } = await params;
   const t = await getTranslations(TRANSFERS_TRANSLATION_KEY);

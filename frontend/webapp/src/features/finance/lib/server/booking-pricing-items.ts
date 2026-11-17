@@ -1,0 +1,86 @@
+import 'server-only';
+
+import sql from '@/config/database/db';
+import { resolveCurrentUserId } from '@/features/booking-pro/utils/auth';
+import { roundMoney } from '../money';
+import { convertMoney, convertProviderPrice, resolvePreferredCurrencyCode } from './currency-queries';
+import { resolveIsIranianVisitor } from './iranian-visitor';
+import type { ViewerPrice, ViewerPriceRequest } from './viewer-pricing';
+
+/**
+ * Prices a batch of items in the currency the booking flow BILLS in (booking-pro
+ * repository): rial for Iranian customers, else the currency of their phone
+ * number's country (USD for guests) with the international multiplier. Used where a
+ * price must match the booking total, e.g. meal plans in the booking wizard.
+ * Browsing prices use priceItemsForViewer (viewer-pricing.ts) instead.
+ *
+ *  - Iranian visitor (phone +98, or IP/locale for guests): Rial, no multiplier.
+ *    A provider's own Toman price still wins if one is set (existing behaviour).
+ *  - Anyone else: the currency of their phone number's country (USD for guests),
+ *    multiplied by the provider's international multiplier.
+ *
+ * The visitor is resolved once per batch, not once per price.
+ */
+export async function priceItemsForBooking(items: ViewerPriceRequest[]): Promise<(ViewerPrice | null)[]> {
+    const userId = await resolveCurrentUserId().catch(() => null);
+    const isIranian = await resolveIsIranianVisitor().catch(() => false);
+
+    const targetCurrencyCode = isIranian
+        ? 'IRR'
+        : await resolvePreferredCurrencyCode({ userId, fallbackCurrencyCode: 'USD' }).catch(() => 'USD');
+
+    const providerIds = Array.from(new Set(items.map((item) => item.providerId).filter((id): id is string => Boolean(id))));
+    const multipliers = new Map<string, number | null>();
+    if (!isIranian && providerIds.length) {
+        const rows = await sql<{ id: string; multiplier: string | null }[]>`
+      select id::text as id, international_price_multiplier as multiplier
+      from category.service_providers
+      where id = any(${providerIds})
+    `;
+        for (const row of rows) multipliers.set(row.id, row.multiplier == null ? null : Number(row.multiplier));
+    }
+
+    return Promise.all(
+        items.map(async (item): Promise<ViewerPrice | null> => {
+            if (!Number.isFinite(item.amount) || !item.sourceCurrencyCode) return null;
+
+            try {
+                if (isIranian) {
+                    if (item.valueToman != null && Number.isFinite(item.valueToman)) {
+                        return { amount: item.valueToman, currencyCode: 'IRT' };
+                    }
+                    const converted = await convertMoney({
+                        amount: item.amount,
+                        sourceCurrencyCode: item.sourceCurrencyCode,
+                        targetCurrencyCode: targetCurrencyCode,
+                    });
+                    return {
+                        amount: roundMoney(converted.targetAmount, converted.targetCurrencyCode),
+                        currencyCode: converted.targetCurrencyCode,
+                    };
+                }
+
+                const convertTo = (code: string) =>
+                    convertProviderPrice({
+                        amount: item.amount,
+                        sourceCurrencyCode: item.sourceCurrencyCode,
+                        targetCurrencyCode: code,
+                        providerMultiplier: item.providerId ? (multipliers.get(item.providerId) ?? null) : null,
+                    });
+                // No rate for the visitor's currency: show USD (with the multiplier), never Rial.
+                const converted = await convertTo(targetCurrencyCode).catch((error) => {
+                    if (targetCurrencyCode === 'USD') throw error;
+                    console.warn('[viewer-pricing] no rate for', targetCurrencyCode, '- falling back to USD');
+                    return convertTo('USD');
+                });
+                return {
+                    amount: roundMoney(converted.targetAmount, converted.targetCurrencyCode),
+                    currencyCode: converted.targetCurrencyCode,
+                };
+            } catch (error) {
+                console.error('[viewer-pricing] conversion failed', item.sourceCurrencyCode, '->', targetCurrencyCode, error);
+                return null;
+            }
+        }),
+    );
+}

@@ -74,11 +74,30 @@ def esc(s):
     return str(s).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
 
 
-def telegram_send(text):
-    """returns True when delivered (or when there is no token: dry run)."""
-    token, chats = os.environ.get("TELEGRAM_BOT_TOKEN", ""), [c for c in os.environ.get("TELEGRAM_CHAT_ID", "").split(",") if c.strip()]
+def _ids(name):
+    return [c.strip() for c in os.environ.get(name, "").split(",") if c.strip()]
+
+
+def chats_for(sev):
+    """Where a message of this severity goes.
+    TELEGRAM_CRITICAL_CHAT_ID (the channel) receives ONLY critical messages; TELEGRAM_CHAT_ID (the private chats) receives everything else.
+    Without TELEGRAM_CRITICAL_CHAT_ID the old behaviour applies: every message goes to every chat in TELEGRAM_CHAT_ID.
+    sev "all" (the --test-telegram message) goes to every configured chat."""
+    normal, crit = _ids("TELEGRAM_CHAT_ID"), _ids("TELEGRAM_CRITICAL_CHAT_ID")
+    if not crit:
+        return normal
+    if sev == "critical":
+        return crit
+    if sev == "all":
+        return normal + [c for c in crit if c not in normal]
+    return [c for c in normal if c not in crit]
+
+
+def telegram_send(text, sev="warning"):
+    """returns True when delivered (or when there is no token / no chat for this severity: dry run)."""
+    token, chats = os.environ.get("TELEGRAM_BOT_TOKEN", ""), chats_for(sev)
     if not token or not chats:
-        log("[dry-run, no Telegram token/chat] " + text.replace("\n", " | ")[:400])
+        log(f"[dry-run, no Telegram token/chat for {sev}] " + text.replace("\n", " | ")[:400])
         return True
     ok = True
     for chunk in [text[i:i + 3900] for i in range(0, len(text), 3900)] or [""]:
@@ -97,10 +116,10 @@ def telegram_send(text):
     return ok
 
 
-def notify(st, text):
-    """send now, or queue for the next cycle when Telegram is unreachable."""
-    if not telegram_send(text):
-        st.setdefault("outbox", []).append({"t": now(), "text": text})
+def notify(st, text, sev="warning"):
+    """send now, or queue for the next cycle when Telegram is unreachable (the severity decides the chat, also when retried)."""
+    if not telegram_send(text, sev):
+        st.setdefault("outbox", []).append({"t": now(), "text": text, "sev": sev})
         st["outbox"] = st["outbox"][-40:]
 
 
@@ -109,7 +128,7 @@ def flush_outbox(st):
     for m in st.get("outbox", []):
         if now() - m["t"] > 6 * 3600:
             continue
-        if not telegram_send("(delayed) " + m["text"]):
+        if not telegram_send("(delayed) " + m["text"], m.get("sev", "warning")):
             keep.append(m)
     st["outbox"] = keep
 
@@ -254,20 +273,20 @@ def step(cfg, st, send):
     except Exception as e:
         prom_ok = False
     st["prom_fail"] = 0 if prom_ok else st.get("prom_fail", 0) + 1
-    messages = []
+    messages = []          # (severity, text): "critical" goes to the critical channel, everything else to the private chats
     if st["prom_fail"] == 3:
-        messages.append(f"{ICON['critical']} <b>MONITORING BROKEN</b>: Prometheus is not answering (3 checks in a row). Alerts about the servers are blind until this is fixed.")
+        messages.append(("critical", f"{ICON['critical']} <b>MONITORING BROKEN</b>: Prometheus is not answering (3 checks in a row). Alerts about the servers are blind until this is fixed."))
     if prom_ok and st.get("prom_fail_notified"):
-        messages.append("✅ Prometheus answers again.")
+        messages.append(("critical", "✅ Prometheus answers again."))     # closes the MONITORING BROKEN message in the same chat
     st["prom_fail_notified"] = st["prom_fail"] >= 3
     if not prom_ok:
         # public URL checks still run (they do not need Prometheus)
-        cfg = {"rules": [], "http_checks": cfg.get("http_checks", [])}
+        cfg = {"rules": [], "http_checks": cfg.get("http_checks", []), "critical_min_for_seconds": cfg.get("critical_min_for_seconds", 0)}
     active, errors = evaluate(cfg, st, None)
     if errors:
         st["rule_errors"] = st.get("rule_errors", 0) + 1
         if st["rule_errors"] == 3:
-            messages.append(f"\U0001F7E0 <b>monitoring rules failing to evaluate</b>: " + esc(", ".join(errors[:5])))
+            messages.append(("warning", f"\U0001F7E0 <b>monitoring rules failing to evaluate</b>: " + esc(", ".join(errors[:5]))))
     else:
         st["rule_errors"] = 0
     fired, resolved, reminders = [], [], []
@@ -278,7 +297,10 @@ def step(cfg, st, send):
         if not cur:
             alerts[key] = cur = {"since": t, "firing": False, "clean": 0, "sev": a["severity"], "site": a["site"], "rule": a["rule"]}
         cur.update(text=a["text"], value=a["value"], sev=a["severity"], clean=0, seen=t)
-        if not cur["firing"] and t - cur["since"] >= a["for"]:
+        # a CRITICAL alert (it pages the critical channel, notifications on) only fires when it has lasted at least critical_min_for_seconds
+        # (rules.json; default 0 = the rule's own "for"): problems that clear within a few minutes never wake anyone up
+        need = max(a["for"], cfg.get("critical_min_for_seconds", 0)) if a["severity"] == "critical" else a["for"]
+        if not cur["firing"] and t - cur["since"] >= need:
             cur["firing"] = True; cur["notified"] = t; fired.append(cur)
         elif cur["firing"] and t - cur.get("notified", t) >= REMIND.get(cur["sev"], 43200):
             cur["notified"] = t; reminders.append(cur)
@@ -293,21 +315,25 @@ def step(cfg, st, send):
             if cur.get("firing"):
                 resolved.append(cur)
             del alerts[key]
-    lines = []
-    if fired:
-        lines.append(f"<b>{len(fired)} new alert{'s' if len(fired) > 1 else ''}</b>")
-        for c in sorted(fired, key=lambda c: c["sev"] != "critical"):
-            lines.append(f"{ICON.get(c['sev'], '')} <b>{esc(c['rule'])}</b> [{esc(c['site'])}] {esc(c['text'])}")
-    if reminders:
-        lines.append("⏰ <b>still open</b>")
-        for c in reminders:
-            lines.append(f"{ICON.get(c['sev'], '')} {esc(c['rule'])} [{esc(c['site'])}] {esc(c['text'])} (open {nice_age(t - c['since'])})")
-    if resolved:
-        lines.append("✅ <b>resolved</b>")
-        for c in resolved:
-            lines.append(f"{esc(c['rule'])} [{esc(c['site'])}] after {nice_age(t - c['since'])}")
-    if lines:
-        messages.append("\n".join(lines))
+    # one message per destination: criticals (new, still open, resolved) in one, everything else in another
+    for bucket in ("critical", "other"):
+        is_b = (lambda c, b=bucket: (c["sev"] == "critical") == (b == "critical"))
+        f_b, r_b, s_b = [c for c in fired if is_b(c)], [c for c in reminders if is_b(c)], [c for c in resolved if is_b(c)]
+        lines = []
+        if f_b:
+            lines.append(f"<b>{len(f_b)} new alert{'s' if len(f_b) > 1 else ''}</b>")
+            for c in f_b:
+                lines.append(f"{ICON.get(c['sev'], '')} <b>{esc(c['rule'])}</b> [{esc(c['site'])}] {esc(c['text'])}")
+        if r_b:
+            lines.append("⏰ <b>still open</b>")
+            for c in r_b:
+                lines.append(f"{ICON.get(c['sev'], '')} {esc(c['rule'])} [{esc(c['site'])}] {esc(c['text'])} (open {nice_age(t - c['since'])})")
+        if s_b:
+            lines.append("✅ <b>resolved</b>")
+            for c in s_b:
+                lines.append(f"{esc(c['rule'])} [{esc(c['site'])}] after {nice_age(t - c['since'])}")
+        if lines:
+            messages.append((bucket if bucket == "critical" else "warning", "\n".join(lines)))
     # --- daily summary
     cfgh = cfg.get("daily_summary_utc", "07:00")
     today = datetime.datetime.utcnow().strftime("%Y-%m-%d")
@@ -318,14 +344,15 @@ def step(cfg, st, send):
         open_ = [c for c in alerts.values() if c.get("firing")]
         if open_:
             body = "\n".join(f"{ICON.get(c['sev'], '')} {esc(c['rule'])} [{esc(c['site'])}] {esc(c['text'])} (open {nice_age(t - c['since'])})" for c in open_)
-            messages.append(f"\U0001F4CB <b>Daily summary</b>: {len(open_)} open alert(s)\n{body}")
+            messages.append(("info", f"\U0001F4CB <b>Daily summary</b>: {len(open_)} open alert(s)\n{body}"))
         else:
-            messages.append("✅ <b>Daily summary</b>: everything OK on both servers (replication, files, backups, builds, providers, resources).")
-    for m in messages:
+            messages.append(("info", "✅ <b>Daily summary</b>: everything OK on both servers (replication, files, backups, builds, providers, resources)."))
+    for sev, m in messages:
         if send:
-            notify(st, m)
+            notify(st, m, sev)
         else:
-            print("WOULD SEND:\n" + re.sub(r"<[^>]+>", "", m) + "\n")
+            dest = ",".join(f"…{c[-4:]}" for c in chats_for(sev)) or "(no chat: dry run)"
+            print(f"WOULD SEND [{sev} -> {dest}]:\n" + re.sub(r"<[^>]+>", "", m) + "\n")
     return active
 
 
@@ -338,7 +365,7 @@ def main():
         log("no rules.json"); sys.exit(2)
     os.makedirs(STATE_DIR, exist_ok=True)
     if "--test-telegram" in args:
-        ok = telegram_send("✅ LSevin monitoring test message from server B.")
+        ok = telegram_send("✅ LSevin monitoring test message from server B (sent to every configured chat).", "all")
         print("delivered" if ok else "FAILED"); sys.exit(0 if ok else 1)
     st = load_json(STATE_FILE, {})
     if "--list" in args:
@@ -353,7 +380,7 @@ def main():
         return
     log("alerter started")
     if not st.get("started_notified_at") or now() - st["started_notified_at"] > 3600:
-        notify(st, "\U0001F7E2 LSevin alerter started on server B and is watching: downtime, resources, replication/files/DB, backups, Jenkins builds, SMS/WhatsApp providers.")
+        notify(st, "\U0001F7E2 LSevin alerter started on server B and is watching: downtime, resources, replication/files/DB, backups, Jenkins builds, SMS/WhatsApp providers.", "info")
         st["started_notified_at"] = now()
     while True:
         try:

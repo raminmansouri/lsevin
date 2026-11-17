@@ -5,7 +5,9 @@
  *
  *   pnpm test:local-env                       # every suite; reuse the test database if it exists
  *   pnpm test:local-env --reset               # rebuild the test database from the local dev database
- *   pnpm test:local-env --suite categories    # one suite (itinerary | categories | site-chrome); repeatable
+ *   pnpm test:local-env --suite categories    # one suite (itinerary | categories | shop-api | domain-settings | site-chrome); repeatable
+ *   pnpm test:local-env --suite admin-access  # roles & permissions for the admin panel (src/lib/admin/access)
+ *   pnpm test:local-env --webpack             # run the dev server with webpack instead of Turbopack
  *   pnpm test:local-env --unit                # unit tests only (no database, no server)
  *   pnpm test:local-env --e2e-only            # skip unit + integration (e.g. after they passed)
  *   pnpm test:itinerary                       # = --suite itinerary
@@ -32,6 +34,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { startApiStub } from './api-stub.mjs';
+import { startZibalStub } from './zibal-stub.mjs';
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const argv = process.argv.slice(2);
@@ -53,7 +56,7 @@ const SUITES = {
     unit: ['src/features/categories'],
     integration: ['src/features/categories/server/category-landing.int.test.ts'],
     e2e: 'playwright.category-landing.config.ts',
-    warmup: [{ path: '/fa/n/app/mobile/home', signedIn: false }, { path: '/fa/n/app/mobile/categories', signedIn: false }],
+    warmup: [{ path: '/fa', signedIn: false }, { path: '/fa/categories', signedIn: false }],
   },
   'shop-api': {
     unit: ['src/features/shop-api/shop-api.test.ts'],
@@ -61,24 +64,42 @@ const SUITES = {
     e2e: 'playwright.shop-api.config.ts',
     warmup: [{ path: '/fa/developers/shop-api', signedIn: false }],
   },
+  // Per-domain Enamad seals and the Zibal gateway (a token per domain), on two test domains
+  // (site-a.localhost / site-b.localhost: Chromium resolves *.localhost to this machine).
+  'domain-settings': {
+    unit: ['src/features/trust-seal', 'src/payment', 'src/lib/http/host.test.ts'],
+    integration: ['src/payment/server/domain-payments.int.test.ts'],
+    e2e: 'playwright.domain-settings.config.ts',
+    // Admin and wallet pages need a real signed-in user; the specs create one and retry first compiles.
+    warmup: [{ path: '/fa', signedIn: false }, { path: '/en', signedIn: false }],
+  },
+  // Admin access control: roles, the permission matrix, limited admins (migration 0110).
+  'admin-access': {
+    unit: ['src/lib/admin/access', 'src/features/shared/config'],
+    integration: ['src/features/access-control/server/repository.int.test.ts'],
+    e2e: 'playwright.admin-access.config.ts',
+    // A public page: it proves the server is up. Admin pages need a real user and compile on first use,
+    // which the spec's navigation retries cover.
+    warmup: [{ path: '/en/sign-in', signedIn: false }],
+  },
   'site-chrome': {
     unit: [],
     integration: [],
     e2e: 'playwright.site-chrome.config.ts',
-    warmup: [{ path: '/fa/n/app/mobile/home', signedIn: false }, { path: '/fa/n/app/mobile/categories', signedIn: false }],
+    warmup: [{ path: '/fa', signedIn: false }, { path: '/fa/categories', signedIn: false }],
   },
 };
 const requested = argv.flatMap((arg, index) => (arg === '--suite' ? [argv[index + 1]] : arg.startsWith('--suite=') ? [arg.slice(8)] : []));
 const suites = requested.length ? requested : Object.keys(SUITES);
 const unknown = suites.filter((name) => !SUITES[name]);
 if (unknown.length) {
-  console.error(`[local-env] unknown suite(s): ${unknown.join(', ')} — expected ${Object.keys(SUITES).join(', ')}`);
+  console.error(`[local-env] unknown suite(s): ${unknown.join(', ')} â€” expected ${Object.keys(SUITES).join(', ')}`);
   process.exit(2);
 }
 const results = [];
 
 function log(message) { console.log(`[local-env] ${message}`); }
-function record(name, ok, detail = '') { results.push({ name, ok, detail }); log(`${ok ? 'PASS' : 'FAIL'} ${name}${detail ? ` — ${detail}` : ''}`); }
+function record(name, ok, detail = '') { results.push({ name, ok, detail }); log(`${ok ? 'PASS' : 'FAIL'} ${name}${detail ? ` â€” ${detail}` : ''}`); }
 
 function readEnvLocal(key) {
   const file = path.join(APP, '.env.local');
@@ -119,6 +140,24 @@ function prepareDatabase() {
   skipped.forEach((line) => log(`  skipped ${line}`));
   const repeat = psql(`select count(*) from pg_indexes where indexname like 'ux_booking%child%one%'`).stdout.trim();
   if (repeat !== '0') throw new Error('migration 0078 is not in effect in the test database');
+}
+
+/**
+ * The seals the test domains show (content.domain_trust_seals, migration 0107). The page picks its
+ * seal by domain and localhost has none, so the seal specs run on site-a.localhost / site-b.localhost.
+ * site-a carries lsevincare.com's real seal, so the same spec passes against lsevincare.com itself.
+ */
+function seedTestDomains() {
+  const seeded = psql(`
+    do $$ begin
+      if to_regclass('content.domain_trust_seals') is null then raise exception 'migration 0107 is not applied (run with --reset)'; end if;
+    end $$;
+    insert into content.domain_trust_seals (host, enamad_id, enamad_code) values
+      ('site-a.localhost', '7764782', 'XcQgNRMRzN92gDmZbf8t5GMh1mtctW9d'),
+      ('site-b.localhost', '1111111', 'TestSealForSiteB01')
+    on conflict (host) do update set enamad_id = excluded.enamad_id, enamad_code = excluded.enamad_code, is_active = true;
+  `);
+  if (seeded.status !== 0) throw new Error(`seeding the test domains failed: ${seeded.stderr}`);
 }
 
 function freePort(preferred) {
@@ -210,6 +249,8 @@ async function main() {
   if (args.has('--unit')) return;
 
   prepareDatabase();
+  // Only the suites that run on site-a/site-b.localhost need the seals (and migration 0107).
+  if (suites.some((name) => name === 'domain-settings' || name === 'site-chrome')) seedTestDomains();
   const databaseUrl = testDatabaseUrl();
   const secret = process.env.AUTH_SECRET || readEnvLocal('AUTH_SECRET');
   if (!secret) throw new Error('AUTH_SECRET not found (environment or .env.local)');
@@ -219,9 +260,12 @@ async function main() {
 
   const filesPort = await freePort(3901);
   const stubPort = await freePort(3911);
+  const zibalPort = await freePort(3921);
   const appPort = await freePort(3140);
   const files = await startFileServer(filesPort);
   const stub = await startApiStub(stubPort);
+  const zibal = await startZibalStub(zibalPort);
+  const zibalUrl = `http://127.0.0.1:${zibalPort}`;
   const stubUrl = `http://localhost:${stubPort}`;
   const base = `http://localhost:${appPort}`;
   // Not under test-results/: Playwright empties that folder when it starts.
@@ -229,7 +273,7 @@ async function main() {
   const devLog = fs.openSync(devLogPath, 'w');
   log(`dev server output: ${devLogPath}`);
   log(`starting Next dev server on ${base} (API stub ${stubUrl}; first compile can take several minutes)`);
-  const server = spawn(process.execPath, [path.join(APP, 'node_modules/next/dist/bin/next'), 'dev', '--turbopack', '-p', String(appPort)], {
+  const server = spawn(process.execPath, [path.join(APP, 'node_modules/next/dist/bin/next'), 'dev', ...(args.has('--webpack') ? ['--webpack'] : ['--turbopack']), '-p', String(appPort)], {
     cwd: APP,
     env: {
       ...process.env,
@@ -239,6 +283,7 @@ async function main() {
       NEXT_PUBLIC_FILES_URL: `http://localhost:${filesPort}/files`,
       AUTH_URL: base,
       NEXT_PUBLIC_APP_URL: base,
+      ZIBAL_API_BASE_URL: zibalUrl,
     },
     stdio: ['ignore', devLog, devLog],
   });
@@ -253,12 +298,14 @@ async function main() {
     for (const name of suites) {
       await runAsync(`end-to-end: ${name} (Playwright)`, 'npx', ['playwright', 'test', '--config', SUITES[name].e2e], {
         E2E_BASE_URL: base, E2E_DATABASE_URL: databaseUrl, E2E_AUTH_SECRET: secret, E2E_API_STUB_URL: stubUrl,
+        E2E_ZIBAL_STUB_URL: zibalUrl,
       });
     }
   } finally {
     stop(server);
     files.close();
     stub.close();
+    zibal.close();
     fs.closeSync(devLog);
   }
 }

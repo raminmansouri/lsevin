@@ -3,6 +3,7 @@
   "prometheus": "",
   "eval_seconds": 60,
   "daily_summary_utc": "07:00",
+  "critical_min_for_seconds": 600,
   "http_checks": [
     {
       "name": "global app (lsevincare.com)",
@@ -223,6 +224,13 @@
       "summary": "disk {value}% full: Kubernetes evicts pods above about 85-90%"
     },
     {
+      "name": "disk_filling_fast",
+      "severity": "critical",
+      "for": 600,
+      "expr": "predict_linear(lsevin_disk_used_percent[1h], 14400) > 95 and lsevin_disk_used_percent > 85",
+      "summary": "disk is above 85% and filling fast: projected {value}% within 4 hours. Kubernetes evicts pods (the database too) at about 95%. Find the writer first (webapp ISR cache in the pods, build cache, logs) - backtest: this would have fired 5 h before the 2026-11-17 eviction."
+    },
+    {
       "name": "postgres_connections",
       "severity": "warning",
       "for": 300,
@@ -416,7 +424,7 @@
       "severity": "warning",
       "for": 1800,
       "expr": "lsevin_release_behind == 1",
-      "summary": "server A has not applied B's latest release for 30 minutes (lsevin-release-sync on A; log /var/log/lsevin-release-sync.log). Most likely causes: disk above 85% (kubelet deletes the staged image; free space first), VPN down, or a failing migration"
+      "summary": "server A has not applied B's latest release for 30 minutes (lsevin-release-sync on A; log /var/log/lsevin-release-sync.log)"
     },
     {
       "name": "release_check_failing",

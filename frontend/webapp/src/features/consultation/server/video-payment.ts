@@ -4,10 +4,13 @@ import db from "@/config/database/db";
 import { createNotificationFromTemplate } from "@/app/[locale]/n/app/mobile/notifications/notification-service";
 import { seoOrigin } from "@/lib/seo/origin";
 import { getPaymentProvider } from "@/payment/providers";
+import { isIranianCardGateway } from "@/payment/gateways";
 import {
   getEnabledPaymentGatewayConfig,
   getPaymentGatewayConfig,
+  resolveIranianCardGateway,
 } from "@/payment/server/payment-gateway.repository";
+import type { PaymentGatewayCode } from "@/payment/types";
 
 import { PANEL_TIME_ZONE } from "../doctor-panel-types";
 import {
@@ -26,15 +29,16 @@ import { getReceiptForReview, markReceiptReviewed } from "./session-changes-repo
  * Paying for a video consultation. Like the shop, this adds no payment engine
  * of its own: it maps a consultation.video_sessions row onto the platform's
  * gateway adapters (@/payment) and records each attempt in
- * consultation.video_session_payments. Iranian cards go through Zarinpal, the
- * only gateway wired here for now.
+ * consultation.video_session_payments. Iranian cards go through the Iranian card
+ * gateway the admin ranks first on this domain (Zibal or Zarinpal); each attempt
+ * records which one, and its callback is verified by that same gateway.
  */
-const GATEWAY = "zarinpal" as const;
+const FALLBACK_GATEWAY: PaymentGatewayCode = "zarinpal";
 
 export type StartPaymentError = "notFound" | "alreadyPaid" | "expired" | "paymentUnavailable";
 
-function callbackUrl(locale: string): string {
-  return `${seoOrigin()}/${locale}/api/consultation/payments/${GATEWAY}/callback`;
+function callbackUrl(gateway: PaymentGatewayCode, locale: string): string {
+  return `${seoOrigin()}/${locale}/api/consultation/payments/${gateway}/callback`;
 }
 
 /** Converts the session's price into the gateway's currency (Rial or Toman). */
@@ -70,9 +74,10 @@ export async function startVideoSessionPayment(input: {
   if (session.status !== "awaiting_payment") return { error: "alreadyPaid" };
   if (session.expired || !(await extendPaymentHold(session.id))) return { error: "expired" };
 
+  const gateway = (await resolveIranianCardGateway().catch(() => null)) ?? FALLBACK_GATEWAY;
   let gatewayConfig;
   try {
-    gatewayConfig = await getEnabledPaymentGatewayConfig({ code: GATEWAY });
+    gatewayConfig = await getEnabledPaymentGatewayConfig({ code: gateway });
   } catch (error) {
     console.error("[consultation] payment gateway unavailable", error);
     return { error: "paymentUnavailable" };
@@ -85,7 +90,7 @@ export async function startVideoSessionPayment(input: {
   const paymentId = await createSessionPayment({
     sessionId: session.id,
     userId: input.userId,
-    gateway: GATEWAY,
+    gateway,
     amount: session.priceAmount,
     currency: session.priceCurrency,
     gatewayAmount,
@@ -94,7 +99,7 @@ export async function startVideoSessionPayment(input: {
   });
 
   try {
-    const result = await getPaymentProvider(GATEWAY).initiate(
+    const result = await getPaymentProvider(gateway).initiate(
       {
         payment: {
           paymentId,
@@ -109,7 +114,7 @@ export async function startVideoSessionPayment(input: {
           metadata: { kind: "video_consultation", sessionId: session.id },
         },
         locale: input.locale,
-        callbackUrl: callbackUrl(input.locale),
+        callbackUrl: callbackUrl(gateway, input.locale),
       },
       gatewayConfig
     );
@@ -207,8 +212,9 @@ export async function verifyVideoSessionPayment(input: {
   status: string;
   locale: string;
 }): Promise<{ sessionId: string | null; outcome: PaymentOutcome }> {
-  if (input.gateway !== GATEWAY || !input.authority) return { sessionId: null, outcome: "failed" };
-  const payment = await findPaymentByAuthority(GATEWAY, input.authority);
+  if (!isIranianCardGateway(input.gateway) || !input.authority) return { sessionId: null, outcome: "failed" };
+  const gateway = input.gateway as PaymentGatewayCode;
+  const payment = await findPaymentByAuthority(gateway, input.authority);
   if (!payment) return { sessionId: null, outcome: "failed" };
   const sessionId = payment.sessionId;
 
@@ -222,10 +228,10 @@ export async function verifyVideoSessionPayment(input: {
     return { sessionId, outcome: "cancelled" };
   }
 
-  const gatewayConfig = await getPaymentGatewayConfig({ code: GATEWAY, includeSecrets: true });
+  const gatewayConfig = await getPaymentGatewayConfig({ code: gateway, includeSecrets: true });
   if (!gatewayConfig) return { sessionId, outcome: "failed" };
 
-  const verification = await getPaymentProvider(GATEWAY).verify(
+  const verification = await getPaymentProvider(gateway).verify(
     {
       authority: input.authority,
       status: input.status,

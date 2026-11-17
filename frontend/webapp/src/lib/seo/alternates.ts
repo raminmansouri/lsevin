@@ -1,6 +1,6 @@
 import "server-only";
 import { routing } from "@/i18n/routing";
-import { contentLanguageFor } from "./language-tags";
+import { hreflangFor } from "./language-tags";
 import { seoOrigin } from "./origin";
 
 export type SeoLocale = (typeof routing.locales)[number];
@@ -31,8 +31,12 @@ export function absoluteUrl(locale: string, path = ""): string {
 /** Existing callers retain routed locales; provenance-aware callers can narrow eligibility. */
 export function languageAlternates(path = "", eligibleLocales: readonly SeoLocale[] = routing.locales): Record<string, string> {
   const languages: Record<string, string> = {};
-  for (const locale of eligibleLocales) languages[contentLanguageFor(locale)] = absoluteUrl(locale, path);
-  if (eligibleLocales.includes(routing.defaultLocale)) languages["x-default"] = absoluteUrl(routing.defaultLocale, path);
+  for (const locale of eligibleLocales) languages[hreflangFor(locale)] = absoluteUrl(locale, path);
+  // The home page's x-default is the site root, which picks the visitor's
+  // language (middleware: choice, IP country, browser language) - the case
+  // x-default is for. Other pages fall back to their Persian version.
+  if (!path && eligibleLocales.length > 1) languages["x-default"] = `${seoOrigin()}/`;
+  else if (eligibleLocales.includes(routing.defaultLocale)) languages["x-default"] = absoluteUrl(routing.defaultLocale, path);
   return languages;
 }
 

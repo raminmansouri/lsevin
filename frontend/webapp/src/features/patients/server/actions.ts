@@ -77,7 +77,7 @@ function fieldErrorsFrom(error: ZodError): Record<string, string[]> {
 export async function findPatientByIdentifierAction(
   input: FindPatientByIdentifierInput
 ): Promise<PatientActionResult<{ patientId: string | null }>> {
-  await assertAdmin();
+  await assertAdmin("patients", "manage");
   const t = await getTranslations(PATIENTS_TRANSLATION_KEY);
   let values;
   try {
@@ -101,7 +101,7 @@ export async function findPatientByIdentifierAction(
 export async function searchPatientsAction(
   input: SearchPatientsInput
 ): Promise<PatientActionResult<PatientSearchResultRow[]>> {
-  await assertAdmin();
+  await assertAdmin("patients", "manage");
   const t = await getTranslations(PATIENTS_TRANSLATION_KEY);
   let values;
   try {
@@ -117,7 +117,7 @@ export async function searchPatientsAction(
 }
 
 export async function createPatientAction(input: CreatePatientInput): Promise<PatientActionResult<PatientRow>> {
-  const ctx = await assertAdmin();
+  const ctx = await assertAdmin("patients", "manage");
   const t = await getTranslations(PATIENTS_TRANSLATION_KEY);
   let values;
   try {
@@ -144,7 +144,7 @@ export async function createPatientAction(input: CreatePatientInput): Promise<Pa
 }
 
 export async function updatePatientAction(input: UpdatePatientInput): Promise<PatientActionResult<PatientRow>> {
-  const ctx = await assertAdmin();
+  const ctx = await assertAdmin("patients", "manage");
   const t = await getTranslations(PATIENTS_TRANSLATION_KEY);
   let values;
   try {
@@ -188,7 +188,7 @@ export async function updatePatientAction(input: UpdatePatientInput): Promise<Pa
 export async function addPatientIdentifierAction(
   input: AddPatientIdentifierInput
 ): Promise<PatientActionResult<PatientIdentifierRow>> {
-  const ctx = await assertAdmin();
+  const ctx = await assertAdmin("patients", "manage");
   const t = await getTranslations(PATIENTS_TRANSLATION_KEY);
   let values;
   try {
@@ -231,7 +231,7 @@ export async function addPatientIdentifierAction(
 export async function linkAccountToPatientAction(
   input: LinkAccountToPatientInput
 ): Promise<PatientActionResult<AccountPatientLinkRow>> {
-  const ctx = await assertAdmin();
+  const ctx = await assertAdmin("patients", "manage");
   const t = await getTranslations(PATIENTS_TRANSLATION_KEY);
   let values;
   try {
@@ -265,7 +265,7 @@ export async function linkAccountToPatientAction(
 export async function addPatientContactAction(
   input: AddPatientContactInput
 ): Promise<PatientActionResult<PatientContactRow>> {
-  const ctx = await assertAdmin();
+  const ctx = await assertAdmin("patients", "manage");
   const t = await getTranslations(PATIENTS_TRANSLATION_KEY);
   let values;
   try {
@@ -298,7 +298,7 @@ export async function addPatientContactAction(
 export async function addPatientAddressAction(
   input: AddPatientAddressInput
 ): Promise<PatientActionResult<PatientAddressRow>> {
-  const ctx = await assertAdmin();
+  const ctx = await assertAdmin("patients", "manage");
   const t = await getTranslations(PATIENTS_TRANSLATION_KEY);
   let values;
   try {
@@ -329,7 +329,7 @@ export async function addPatientAddressAction(
 }
 
 export async function addPatientNoteAction(input: AddPatientNoteInput): Promise<PatientActionResult<PatientNoteRow>> {
-  const ctx = await assertAdmin();
+  const ctx = await assertAdmin("patients", "manage");
   const t = await getTranslations(PATIENTS_TRANSLATION_KEY);
   let values;
   try {
@@ -364,7 +364,7 @@ export async function addPatientNoteAction(input: AddPatientNoteInput): Promise<
 }
 
 export async function archivePatientNoteAction(input: ArchivePatientNoteInput): Promise<PatientActionResult<PatientNoteRow>> {
-  const ctx = await assertAdmin();
+  const ctx = await assertAdmin("patients", "manage");
   const t = await getTranslations(PATIENTS_TRANSLATION_KEY);
   let values;
   try {

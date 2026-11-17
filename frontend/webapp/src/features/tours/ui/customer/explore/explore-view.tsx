@@ -7,7 +7,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Link, useRouter } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
-
+import { rememberUserLocation } from "@/features/shared/types/coordinates";
 import { directionOf } from "../../../domain/content";
 import { clearRecentSearchesAction, recordSearchAction } from "../../../server/actions/customer";
 import type { TaxonomyTerm } from "../../../server/actions/customer/state";
@@ -135,7 +135,10 @@ export function ExploreView({
     }
     setGeo({ state: "asking" });
     navigator.geolocation.getCurrentPosition(
-      (p) => setGeo({ state: "on", pos: { lat: p.coords.latitude, lng: p.coords.longitude } }),
+      (p) => {
+        rememberUserLocation({ latitude: p.coords.latitude, longitude: p.coords.longitude });
+        setGeo({ state: "on", pos: { lat: p.coords.latitude, lng: p.coords.longitude } });
+      },
       (err) => setGeo({ state: err.code === err.PERMISSION_DENIED ? "denied" : "error" }),
       { maximumAge: 600_000, timeout: 10_000 },
     );

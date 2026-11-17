@@ -7,7 +7,7 @@ import { toast } from "sonner";
 
 import { ConsultationCtaButton } from "@/features/consultation/components/consultation-cta-button";
 import { FavoriteButton } from "@/features/favorites/components/favorite-button";
-import { getViewerPricingAction } from "@/features/finance/actions/viewer-currency.actions";
+import { useViewerPriceOptions } from "@/features/finance/components/use-viewer-price-options";
 import { PriceConverterCardClient } from "@/features/finance/components/price-converter-card-client";
 import { ViewerPrice } from "@/features/finance/components/viewer-price";
 import { MealPlanPrices } from "@/features/meal-plans/components/meal-plan-prices";
@@ -23,7 +23,6 @@ import { useReviewEligibility } from "@/app/[locale]/n/app/components/useReviewE
 import RecommendationSection from "@/app/[locale]/n/app/mobile/components/RecommendationSection";
 import {
   AddonsSection,
-  applyInternationalMultiplier,
   MediaPreview,
   OffersSection,
   PoliciesSection,
@@ -66,33 +65,23 @@ export function DesktopServiceView({ data, serviceId, locale }: { data: GetServi
     [clinicData?.beforeAfter, service.providerServiceId]
   );
 
-  // Viewer pricing: the same rules as the mobile page.
-  const [selectedCurrency, setSelectedCurrency] = useState(service.displayCurrencyCode || service.currency);
-  const [primaryCurrency, setPrimaryCurrency] = useState(service.displayCurrencyCode || service.currency);
-  const [isIranianViewer, setIsIranianViewer] = useState<boolean | null>(null);
-  useEffect(() => {
-    let alive = true;
-    getViewerPricingAction().then(({ currencyCode, isIranian }) => {
-      if (!alive) return;
-      setIsIranianViewer(isIranian);
-      if (!currencyCode) return;
-      if (!service.priceOptions.some((price) => price.targetCurrencyCode === currencyCode)) return;
-      setPrimaryCurrency(currencyCode);
-      setSelectedCurrency(currencyCode);
-    });
-    return () => {
-      alive = false;
-    };
-  }, [service.priceOptions]);
-
-  const viewerPriceOptions = useMemo(
-    () => applyInternationalMultiplier(service.priceOptions, service.internationalPriceMultiplier, isIranianViewer),
-    [service.priceOptions, service.internationalPriceMultiplier, isIranianViewer]
-  );
-  const viewerOriginalPriceOptions = useMemo(
-    () => applyInternationalMultiplier(service.originalPriceOptions, service.internationalPriceMultiplier, isIranianViewer),
-    [service.originalPriceOptions, service.internationalPriceMultiplier, isIranianViewer]
-  );
+  // Priced for this visitor on the server (src/lib/market): the page language's
+  // currency first, domestic or international price. Nothing is shown until it
+  // arrives; the cached page alone can't know the visitor.
+  const viewerPricing = useViewerPriceOptions({
+    amount: service.displayPrice.sourceAmount ?? service.priceOptions[0]?.sourceAmount ?? service.displayPrice.amount,
+    originalAmount: service.displayOriginalPrice?.sourceAmount ?? null,
+    sourceCurrencyCode: service.displayPrice.sourceCurrencyCode ?? service.priceOptions[0]?.sourceCurrencyCode ?? service.currency,
+    providerId: service.displayPrice.providerId ?? service.clinicId ?? null,
+    valueToman: service.displayPrice.valueToman ?? null,
+    currencies: service.priceOptions.map((price) => price.targetCurrencyCode),
+    locale,
+  });
+  const [pickedCurrency, setSelectedCurrency] = useState<string | null>(null);
+  const primaryCurrency = viewerPricing?.displayCurrencyCode ?? service.displayCurrencyCode ?? service.currency;
+  const selectedCurrency = pickedCurrency ?? primaryCurrency;
+  const viewerPriceOptions = viewerPricing?.options ?? [];
+  const viewerOriginalPriceOptions = viewerPricing?.originalOptions ?? [];
   const selectedPrice = viewerPriceOptions.find((price) => price.targetCurrencyCode === selectedCurrency) || viewerPriceOptions[0];
   const selectedOriginalPrice = viewerOriginalPriceOptions.find((price) => price.targetCurrencyCode === selectedCurrency) || viewerOriginalPriceOptions[0];
   const displayPrice = selectedPrice?.targetAmount ?? service.displayPrice.amount;
@@ -496,7 +485,7 @@ export function DesktopServiceView({ data, serviceId, locale }: { data: GetServi
             {data.serviceAttributes.length ? (
               <Panel><ServiceAttributesSection attributes={data.serviceAttributes} currency={service.currency} locale={locale} /></Panel>
             ) : null}
-            {data.addOns.length ? <Panel><AddonsSection addOns={data.addOns} locale={locale} /></Panel> : null}
+            {data.addOns.length ? <Panel><AddonsSection addOns={data.addOns} locale={locale} providerId={service.clinicId} /></Panel> : null}
             {data.uploadRequirements.length || data.domainRequirements.length ? (
               <Panel><RequirementsSection uploadRequirements={data.uploadRequirements} domainRequirements={data.domainRequirements} /></Panel>
             ) : null}

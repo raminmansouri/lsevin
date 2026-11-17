@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { seoOrigin } from '@/lib/seo/origin';
+import { readGatewayReturn } from '@/payment/gateways';
+import { gatewayReturnOrigin } from '@/payment/server/return-origin';
 import { verifyGatewayPayment } from '@/payment/server/payment.service';
 
 export async function GET(
@@ -18,8 +20,8 @@ export async function GET(
     return NextResponse.redirect(returnUrl);
   }
 
-  const authority = request.nextUrl.searchParams.get('Authority') ?? request.nextUrl.searchParams.get('authority') ?? '';
-  const status = request.nextUrl.searchParams.get('Status') ?? request.nextUrl.searchParams.get('status') ?? '';
+  // Zarinpal: ?Authority=&Status=OK; Zibal: ?trackId=&success=1.
+  const { authority, status } = readGatewayReturn(gateway, request.nextUrl.searchParams);
 
   const result = await verifyGatewayPayment({ gateway: gateway as any, authority, status, locale });
   if (result.nextActionUrl) return NextResponse.redirect(result.nextActionUrl);
@@ -28,7 +30,7 @@ export async function GET(
   const bookingPath = result.bookingId
     ? `/${locale}/n/app/mobile/bookings/${result.bookingId}`
     : `/${locale}/n/app/mobile/bookings`;
-  const url = new URL(bookingPath, seoOrigin());
+  const url = new URL(bookingPath, await gatewayReturnOrigin(gateway));
   url.searchParams.set('payment', result.status);
   if (result.referenceId) url.searchParams.set('ref', String(result.referenceId));
   if (result.message) url.searchParams.set('message', result.message);

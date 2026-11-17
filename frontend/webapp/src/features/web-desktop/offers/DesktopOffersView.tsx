@@ -6,10 +6,10 @@ import { useEffect, useMemo, useState, useTransition } from "react";
 
 import { Link, useRouter } from "@/i18n/navigation";
 import { slugLookup, type ListingSlugs } from "@/lib/routes/filter-paths";
+import { ViewerPrice } from "@/features/finance/components/viewer-price";
 import {
   bookingHref,
   buildOffersQuery,
-  formatPrice,
   navigateSmooth,
   offerImageUrl,
   PendingOverlay,
@@ -226,8 +226,8 @@ export function DesktopOffersView({ tabs, offers, featuredOffer, filters }: Prop
 
                       <div className="my-4 flex flex-col items-center justify-center gap-2 border-s-2 border-dashed border-[#e3dccb] px-5 text-center">
                         <span className="lsd-outline-num text-[48px] font-black leading-none">٪{number(offer.discountPercent)}</span>
-                        <span className="text-xs text-[#a8a08e] line-through">{formatPrice(offer.originalPrice, offer.currency, locale)}</span>
-                        <span className="text-base font-black text-[#083f30]">{formatPrice(offer.discountedPrice, offer.currency, locale)}</span>
+                        <ViewerPrice amount={offer.originalPrice} sourceCurrencyCode={offer.currency} providerId={offer.providerId} className="text-xs font-normal text-[#a8a08e] line-through" />
+                        <ViewerPrice amount={offer.discountedPrice} sourceCurrencyCode={offer.currency} providerId={offer.providerId} className="text-base font-black text-[#083f30]" />
                         <div className="mt-1 flex items-center gap-2">
                           <CopyCode code={offer.code} label={t("code.copy")} />
                           <Link

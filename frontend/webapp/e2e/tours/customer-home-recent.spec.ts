@@ -13,7 +13,7 @@ test.afterAll(closeDb);
 test.describe.configure({ timeout: 360_000 });
 
 async function view(page: import("@playwright/test").Page, slug: string) {
-  await page.goto(`/en/tours/t/${slug}`);
+  await page.goto(`/en/tours/${slug}`);
   await expect(page.getByTestId("tour-detail")).toBeVisible();
   // The view is recorded by a server action after hydration; wait until it is stored.
   await expect

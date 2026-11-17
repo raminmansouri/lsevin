@@ -26,7 +26,7 @@ function fieldErrorsFrom(error: ZodError): Record<string, string[]> {
 export async function generatePatientPassportAction(
   input: GeneratePassportInput
 ): Promise<PatientActionResult<PatientPassportRow>> {
-  const ctx = await assertAdmin();
+  const ctx = await assertAdmin("patients", "manage");
   const t = await getTranslations(PATIENTS_TRANSLATION_KEY);
   let values;
   try {

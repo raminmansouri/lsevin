@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { seoOrigin } from "@/lib/seo/origin";
 import { verifyWalletTopUpPayment } from "@/features/wallet/payment-callback";
+import { readGatewayReturn } from "@/payment/gateways";
+import { gatewayReturnOrigin } from "@/payment/server/return-origin";
 
 /**
  * The single return endpoint for every wallet top-up gateway.
@@ -31,20 +33,14 @@ export async function GET(
   { params }: { params: Promise<{ locale: string; gateway: string }> }
 ) {
   const { locale, gateway } = await params;
-  const authority =
-    request.nextUrl.searchParams.get("Authority") ??
-    request.nextUrl.searchParams.get("authority") ??
-    "";
-  const status =
-    request.nextUrl.searchParams.get("Status") ??
-    request.nextUrl.searchParams.get("status") ??
-    "";
+  // Zarinpal: ?Authority=&Status=OK; Zibal: ?trackId=&success=1.
+  const { authority, status } = readGatewayReturn(gateway, request.nextUrl.searchParams);
 
   const result = await verifyWalletTopUpPayment({ gateway, authority, status });
 
   const url = new URL(
     `/${locale || "fa"}/n/app/mobile/profile/wallet`,
-    getAppBaseUrl()
+    gateway === "zibal" ? await gatewayReturnOrigin(gateway) : getAppBaseUrl()
   );
   url.searchParams.set("walletPaymentStatus", result.status);
   // `payment` is what the Zarinpal handler set before the merge. No wallet screen

@@ -1,9 +1,8 @@
 import "server-only";
 
 import { headers } from "next/headers";
-import { UserRole } from "@/types/common";
 import { adminLocales } from "./config";
-import { getSession } from "../auth/session";
+import { getAdminContext } from "../auth/admin-guard";
 import { AdminAuthError } from "./errors";
 
 export type AdminSession = {
@@ -30,12 +29,13 @@ export async function getAdminSession(): Promise<AdminSession> {
   // auth() throws rather than returning null on a malformed or key-rotated session
   // cookie, which is precisely the case this guard exists for. Same idiom as
   // assertAdminUserId() in admin/wallet-payment-intents/actions.ts.
-  const session = await getSession().catch(() => null);
-  const userId = session?.user?.id;
-  const roles = session?.user?.roles;
-  const isAdmin = roles?.includes(UserRole.Admin) || roles?.includes(UserRole.SuperAdmin);
+  // Unlimited admins only. The generic table browser is `table-browser`, which can never be
+  // granted to a limited admin (it reaches every table, auth.* included), so this guard keeps
+  // its original meaning; a managed admin is refused here exactly like a customer.
+  const ctx = await getAdminContext();
+  const userId = ctx.userId;
 
-  if (!userId || !isAdmin) {
+  if (!userId || !ctx.isAdmin) {
     throw new AdminAuthError();
   }
 

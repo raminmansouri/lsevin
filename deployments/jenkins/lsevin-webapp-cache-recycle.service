@@ -1,0 +1,9 @@
+[Unit]
+Description=LSevin webapp cache recycle: roll-restart the webapp pods before their ISR page cache fills the disk
+After=k3s.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/lsevin-webapp-cache-recycle
+Nice=10
+TimeoutStartSec=900

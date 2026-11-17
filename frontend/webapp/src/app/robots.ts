@@ -58,7 +58,11 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       {
         userAgent: "*",
-        allow: "/",
+        // The shop's product photos are served through the same-origin image
+        // proxy (src/features/shop/lib/image.ts), and so are their og:image and
+        // structured-data images: under the /api/ rule Google could index none
+        // of them (found 2026-11-15). The longer, more specific allow wins.
+        allow: ["/", "/api/shop/img"],
         disallow,
       },
     ],

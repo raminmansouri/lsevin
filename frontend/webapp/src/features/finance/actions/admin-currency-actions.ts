@@ -17,7 +17,7 @@ import {
 } from '../schemas/admin-currency-schemas';
 
 export async function upsertCurrencyAction(input: CurrencyFormInput) {
-    await assertAdmin();
+    await assertAdmin("finance.currencies", "manage");
     const data = CurrencyFormSchema.parse(input);
 
     await sql`
@@ -67,7 +67,7 @@ export async function upsertCurrencyAction(input: CurrencyFormInput) {
 }
 
 export async function createExchangeRateAction(input: ExchangeRateFormInput) {
-    await assertAdmin();
+    await assertAdmin("finance.exchange-rates", "manage");
     const data = ExchangeRateFormSchema.parse(input);
 
     if (data.baseCurrencyCode === data.quoteCurrencyCode) {
@@ -120,7 +120,7 @@ export async function createExchangeRateAction(input: ExchangeRateFormInput) {
 // them here would let an edit silently masquerade as a different historical
 // observation. Changing the pair itself still goes through "new rate".
 export async function updateExchangeRateAction(input: ExchangeRateUpdateInput) {
-    await assertAdmin();
+    await assertAdmin("finance.exchange-rates", "manage");
     const data = ExchangeRateUpdateSchema.parse(input);
 
     const result = await sql`
@@ -147,7 +147,7 @@ export async function updateExchangeRateAction(input: ExchangeRateUpdateInput) {
 // those two things from drifting apart. Locked the same way create is, so a
 // concurrent create/delete on the same pair can't race each other.
 export async function deleteExchangeRateAction(id: string) {
-    await assertAdmin();
+    await assertAdmin("finance.exchange-rates", "manage");
 
     await sql.begin(async (tx) => {
         const [target] = await tx<{
@@ -194,7 +194,7 @@ export async function deleteExchangeRateAction(id: string) {
 }
 
 export async function toggleCurrencyActiveAction(code: string, isActive: boolean) {
-    await assertAdmin();
+    await assertAdmin("finance.currencies", "manage");
 
     await sql`
     update finance.currencies
@@ -214,7 +214,7 @@ export async function toggleCurrencyActiveAction(code: string, isActive: boolean
 export type CurrencyDeleteResult = { ok: boolean; usedIn?: string[] };
 
 export async function deleteCurrencyAction(input: CurrencyDeleteInput): Promise<CurrencyDeleteResult> {
-    await assertAdmin();
+    await assertAdmin("finance.currencies", "manage");
     const { code } = CurrencyDeleteSchema.parse(input);
 
     const rows = await sql<{ tableKey: string }[]>`

@@ -4,7 +4,7 @@ import { requireApiAdmin } from "@/lib/auth/api-guard";
 import sql from "@/config/database/db";
 
 export async function GET(request: NextRequest) {
-  const auth = await requireApiAdmin();
+  const auth = await requireApiAdmin() /* unlimited admins only: serves arbitrary tables or personal data */;
   if (auth instanceof NextResponse) return auth;
 
   const { searchParams } = new URL(request.url);

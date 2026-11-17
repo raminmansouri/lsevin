@@ -413,7 +413,7 @@ export function BookingFlow({
   return (
     <div className="mx-auto max-w-3xl px-4 pt-3 pb-40 sm:px-6" data-testid="booking-flow" data-step={draft.step}>
       <div className="flex items-center gap-2">
-        <Link href={`/tours/t/${detail.slug}`} aria-label={t("back")} className="flex size-11 items-center justify-center rounded-full bg-white shadow-sm ring-1 ring-slate-200">
+        <Link href={`/tours/${detail.slug}`} aria-label={t("back")} className="flex size-11 items-center justify-center rounded-full bg-white shadow-sm ring-1 ring-slate-200">
           <Back className="size-5" aria-hidden="true" />
         </Link>
         <div className="min-w-0">

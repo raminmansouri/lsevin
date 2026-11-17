@@ -38,6 +38,7 @@ export async function generateMetadata({ params }: PageProps) {
     path: categoryBrowserHref(ref),
     title: `${category?.name || t("allCategories")} | ${brand}`,
     descriptions: [category?.description, t("cantFindDescription")],
+    image: category?.image,
     eligibleLocales: INDEXABLE_CATEGORY_LOCALES,
   });
 }

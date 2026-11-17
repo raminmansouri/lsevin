@@ -85,7 +85,7 @@ test("keyboard-only calendar navigation, selection and travelers", async ({ page
 test("dialogs trap focus; map has a text alternative", async ({ page, context }) => {
   const c = await seedCatalog([{ days: 2, images: 3 }]);
   await skipIntro(context);
-  await page.goto(`/en/tours/t/${c.tours[0].slug}`);
+  await page.goto(`/en/tours/${c.tours[0].slug}`);
 
   const trigger = page.getByRole("button", { name: "Open photo 1 of 3 in full screen" }).first();
   await trigger.focus();

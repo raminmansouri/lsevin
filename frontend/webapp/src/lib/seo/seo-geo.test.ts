@@ -6,8 +6,8 @@ import { GUIDE_LOCALES } from "@/features/guides/types";
 import { routing } from "@/i18n/routing";
 
 import { languageAlternates } from "./alternates";
-import { breadcrumbList, businessTypeFor, personSchema, providerSchema, serviceSchema } from "./entity-schema";
-import { contentLanguageFor, directionFor, routeLocaleFor } from "./language-tags";
+import { breadcrumbList, businessTypeFor, lodgingAsLocalBusiness, personSchema, providerSchema, serviceSchema } from "./entity-schema";
+import { contentLanguageFor, directionFor, hreflangFor, routeLocaleFor } from "./language-tags";
 import { indexableLocalesFromKeys } from "./locale-eligibility";
 import { buildPublicMetadata } from "./metadata";
 import { toSeoPlainText } from "./plain-text";
@@ -70,12 +70,16 @@ describe("language tags", () => {
     expect(routing.locales.filter((l) => directionFor(l) === "rtl").sort()).toEqual(["ar", "fa", "ku"]);
   });
 
-  it("publishes Sorani as ckb while URLs keep /ku", () => {
+  it("declares Sorani as ckb in the document, ku-Arab in hreflang, while URLs keep /ku", () => {
     expect(contentLanguageFor("ku")).toBe("ckb");
     expect(contentLanguageFor("fa")).toBe("fa");
+    // Google's hreflang takes ISO 639-1 (+ script/region) codes only; ckb is ignored.
+    expect(hreflangFor("ku")).toBe("ku-Arab");
     const languages = languageAlternates("/consulting");
-    expect(languages.ckb).toBe("https://lsevincare.com/ku/consulting");
+    expect(languages["ku-Arab"]).toBe("https://lsevincare.com/ku/consulting");
+    expect(languages.ckb).toBeUndefined();
     expect(languages.ku).toBeUndefined();
+    for (const code of Object.keys(languages)) expect(code).toMatch(/^(x-default|[a-z]{2}(-[A-Z][a-z]{3})?(-[A-Z]{2})?)$/);
     expect(Object.keys(languages)).toHaveLength(routing.locales.length + 1);
   });
 });
@@ -91,6 +95,10 @@ describe("plain text", () => {
 describe("entity schema", () => {
   it("maps provider types to schema.org business types in several languages", () => {
     expect(businessTypeFor("هتل")).toBe("Hotel");
+    // Published as a LocalBusiness naming its kind: a Hotel type is validated
+    // by Google as Hotel Center price markup (13 critical issues, 2026-11-16).
+    expect(lodgingAsLocalBusiness("Hotel")).toEqual({ "@type": "LocalBusiness", additionalType: "https://schema.org/Hotel" });
+    expect(lodgingAsLocalBusiness("Dentist")).toEqual({ "@type": "Dentist" });
     expect(businessTypeFor("Hospital")).toBe("Hospital");
     expect(businessTypeFor("کلینیک زیبایی")).toBe("MedicalClinic");
     expect(businessTypeFor("عيادة")).toBe("MedicalClinic");
@@ -125,7 +133,10 @@ describe("entity schema", () => {
     // A related entity with a slug is linked by its slug, not its id.
     expect(JSON.stringify(node.makesOffer)).toContain("https://lsevincare.com/fa/services/laser-s1");
     expect(node.description).toBe("درمان پوست و مو");
-    expect(node.image).toEqual(["https://lsevincare.com/files/a.jpg", "https://cdn.example.com/b.jpg"]);
+    // Photos carry Google's image licence metadata, credited to the business.
+    const images = node.image as Record<string, unknown>[];
+    expect(images.map((image) => image.contentUrl)).toEqual(["https://lsevincare.com/files/a.jpg", "https://cdn.example.com/b.jpg"]);
+    expect(images[0]).toMatchObject({ "@type": "ImageObject", creditText: node.name, creator: { "@type": "Organization", name: node.name } });
     expect(node.geo).toBeUndefined(); // 0,0 is a missing location, not the Gulf of Guinea
     expect(node.employee).toBeUndefined();
     expect(json).not.toMatch(/aggregateRating|ratingValue|price/);

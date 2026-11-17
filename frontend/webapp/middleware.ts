@@ -10,11 +10,45 @@ import {
   isProtectedPath,
 } from "@/lib/auth/routes";
 
+import { enforceAdminAccess } from "./src/lib/admin/access/gate";
 import { routing } from "./src/i18n/routing";
 import { getSession } from "./src/lib/auth/session";
 import { UserRole } from "./src/types/common";
 import { publicAppOrigin, publicAppUrl } from "./src/lib/http/public-origin";
 import { legacyEntityRoute } from "./src/lib/routes/legacy-entity-route";
+import { countryFromHeaders, languageForCountry, languageFromAcceptLanguage, normalizeCountry, resolveFirstLanguage } from "./src/lib/market/market";
+
+async function redirectRootToVisitorLanguage(request: NextRequest) {
+  // Crawlers get exactly what a visitor from their country gets (Google,
+  // "How Google crawls locale-adaptive pages": treat Googlebot like any user
+  // from the country it appears to come from; until 2026-11-15 crawlers were
+  // always sent to /fa). Only this x-default root adapts: every language has
+  // its own URL with hreflang, and a URL that names a language is never
+  // redirected, so all versions stay crawlable from any country.
+  const chosen = request.cookies.get("LSEVIN_LOCALE")?.value || request.cookies.get("NEXT_LOCALE")?.value || null;
+  const ipCountry = countryFromHeaders(request.headers);
+  const acceptLanguage = request.headers.get("accept-language");
+
+  // The phone country only matters when nothing before it decided, so the
+  // session is read only then.
+  let phoneCountry: string | null = null;
+  if (!chosen && !languageForCountry(ipCountry) && !languageFromAcceptLanguage(acceptLanguage)) {
+    const session = await getSession({ redirectToLogin: false }).catch(() => null);
+    const raw = (session?.user as { phoneNumberCountryCode?: string | null } | undefined)?.phoneNumberCountryCode?.trim() ?? "";
+    phoneCountry = normalizeCountry(raw) ?? (raw.replace(/\D/g, "") === "98" ? "IR" : null);
+  }
+
+  const { language, source } = resolveFirstLanguage({ chosen, ipCountry, acceptLanguage, phoneCountry });
+  // publicAppUrl keeps the visitor on the public host they came to
+  // (lsevincare.com, lsevin.ir, appmain...), as every other redirect here.
+  const url = publicAppUrl(request, `/${language}`);
+  url.search = request.nextUrl.search;
+  const response = NextResponse.redirect(url, 307);
+  // Differs per visitor: never stored by Cloudflare or the browser.
+  response.headers.set("Cache-Control", "private, no-store");
+  response.headers.set("X-Language-Source", source);
+  return response;
+}
 
 type Locale = (typeof routing.locales)[number];
 
@@ -52,6 +86,13 @@ export default async function middleware(request: NextRequest) {
     const url = request.nextUrl.clone();
     url.pathname = `/${routing.defaultLocale}${legacyEntity}`;
     return NextResponse.rewrite(url);
+  }
+
+  // The bare site root opens in the visitor's language (src/lib/market/market.ts):
+  // their own choice, else their IP country, browser language, phone country,
+  // Persian. A URL that names a language is never redirected.
+  if (request.nextUrl.pathname === "/") {
+    return redirectRootToVisitorLanguage(request);
   }
 
   const intlResponse = intlMiddleware(request);
@@ -219,6 +260,17 @@ export default async function middleware(request: NextRequest) {
     if (!canAccessAdmin) {
       return NextResponse.redirect(publicAppUrl(request, `${localePrefix}/`));
     }
+
+    // Access management (src/lib/admin/access): limits a managed admin to the areas their roles
+    // grant. Shared with src/middleware.ts — see gate.ts.
+    const blocked = await enforceAdminAccess({
+      request,
+      userId: session!.user.id as string,
+      roles,
+      pathnameWithoutLocale,
+      localePrefix,
+    });
+    if (blocked) return blocked;
   }
 
   return intlResponse || NextResponse.next();

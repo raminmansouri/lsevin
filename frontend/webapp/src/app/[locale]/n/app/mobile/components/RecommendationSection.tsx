@@ -3,6 +3,7 @@
 import { Star, MapPin, BadgeCheck, ChevronRight } from "lucide-react";
 import { toPublicPath } from "@/lib/routes/public-paths";
 import { formatCurrencyAmount } from "@/features/finance/lib/money";
+import { ViewerPrice } from "@/features/finance/components/viewer-price";
 import { useNavigate } from "@/hooks/use-navigate";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { resolveHomeMediaUrl } from "@/features/home/components/home-media";
@@ -19,6 +20,9 @@ interface RecommendationCard {
   country: string;
   price?: number;
   currency?: string;
+  sourceAmount?: number | null;
+  sourceCurrencyCode?: string | null;
+  providerId?: string | null;
   verified?: boolean;
   link: string;
 }
@@ -92,7 +96,11 @@ export default function RecommendationSection({
 
           {card.price !== undefined && (
             <div className="whitespace-nowrap text-sm font-bold text-[#083f30] ms-auto">
-              {formatCurrencyAmount(card.price, card.currency, locale)}
+              {card.sourceAmount != null && card.sourceCurrencyCode ? (
+                <ViewerPrice amount={card.sourceAmount} sourceCurrencyCode={card.sourceCurrencyCode} providerId={card.providerId ?? null} locale={locale} />
+              ) : (
+                formatCurrencyAmount(card.price, card.currency, locale)
+              )}
             </div>
           )}
         </div>

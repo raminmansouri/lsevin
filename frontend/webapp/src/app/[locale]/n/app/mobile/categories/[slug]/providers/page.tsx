@@ -45,6 +45,7 @@ export async function generateMetadata({ params }: Pick<PageProps, "params">) {
     path: categoryProvidersHref(ref),
     title: `${t("providersIn", { name: category.name })} | ${brand}`,
     descriptions: [category.description, t("cantFindDescription")],
+    image: category.image,
     eligibleLocales: INDEXABLE_CATEGORY_LOCALES,
   });
 }

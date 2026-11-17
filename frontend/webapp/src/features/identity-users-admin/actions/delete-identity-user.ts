@@ -10,6 +10,10 @@ const schema = z.object({ userId: z.guid() });
 // Child rows to remove before deleting the user, in FK-safe order. Each is
 // deleted only if the table exists, so this stays correct across schema drift.
 const CHILD_TABLES: ReadonlyArray<readonly [table: string, column: string]> = [
+  // Admin access management (migration 0110). auth.user_roles has an FK to the user that does
+  // not cascade, so an assigned custom role would otherwise block the delete. auth.staff_members
+  // cascades by itself.
+  ["auth.user_roles", "user_id"],
   ["identity.asp_net_user_roles", "user_id"],
   ["identity.asp_net_user_claims", "user_id"],
   ["identity.asp_net_user_logins", "user_id"],

@@ -10,7 +10,7 @@ export async function upsertCompensationPolicyAction(payload: CompensationPolicy
   // Every export of a 'use server' module is a public POST endpoint. Without this
   // guard an anonymous caller could rewrite the platform fee, approve refunds and
   // move provider ledger entries.
-  await assertAdmin();
+  await assertAdmin("commercial.policies", "manage");
 
   const input = CompensationPolicyFormSchema.parse(payload);
   const rows = input.policyId
@@ -57,7 +57,7 @@ export async function upsertCompensationPolicyAction(payload: CompensationPolicy
 }
 
 export async function deleteCompensationPolicyAction(policyId: string) {
-  await assertAdmin();
+  await assertAdmin("commercial.policies", "manage");
 
   await sql`delete from commercial.compensation_policies where id = ${policyId}`;
   revalidatePath('/admin/commercial/policies');
@@ -65,7 +65,7 @@ export async function deleteCompensationPolicyAction(policyId: string) {
 }
 
 export async function createRefundRequestAction(payload: RefundRequestInput) {
-  await assertAdmin();
+  await assertAdmin("commercial.refund-requests", "manage");
 
   const input = RefundRequestSchema.parse(payload);
   const created = await createRefundRequest(input);
@@ -75,7 +75,7 @@ export async function createRefundRequestAction(payload: RefundRequestInput) {
 }
 
 export async function approveRefundRequestAction(refundRequestId: string, adminUserId?: string | null, adminNote?: string | null) {
-  await assertAdmin();
+  await assertAdmin("commercial.refund-requests", "manage");
 
   const result = await approveRefundRequest(refundRequestId, adminUserId, adminNote);
   revalidatePath('/admin/commercial/refund-requests');
@@ -84,7 +84,7 @@ export async function approveRefundRequestAction(refundRequestId: string, adminU
 }
 
 export async function rejectRefundRequestAction(refundRequestId: string, adminUserId?: string | null, adminNote?: string | null) {
-  await assertAdmin();
+  await assertAdmin("commercial.refund-requests", "manage");
 
   const result = await rejectRefundRequest(refundRequestId, adminUserId, adminNote);
   revalidatePath('/admin/commercial/refund-requests');
@@ -93,7 +93,7 @@ export async function rejectRefundRequestAction(refundRequestId: string, adminUs
 }
 
 export async function executeRefundRequestAction(refundRequestId: string, adminUserId?: string | null) {
-  await assertAdmin();
+  await assertAdmin("commercial.refund-requests", "manage");
 
   const result = await executeRefundRequest(refundRequestId, adminUserId);
   revalidatePath('/admin/commercial/refund-requests');

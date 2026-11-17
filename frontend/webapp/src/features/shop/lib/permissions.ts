@@ -1,5 +1,6 @@
 import "server-only";
 
+import { type AdminAccess, can } from "@/lib/admin/access/policy";
 import { getAdminContext } from "@/lib/auth/admin-guard";
 import { UserRole } from "@/types/common";
 
@@ -44,18 +45,39 @@ const PERMISSION_ROLES: Record<ShopPermission, string[]> = {
   "shop.integrations.manage": ADMIN,
 };
 
+/**
+ * The admin-panel resource (src/lib/admin/access) that lets a *limited* admin exercise a Shop
+ * permission. Money-touching permissions have no entry on purpose: they stay with the finance
+ * roles and unlimited admins, and cannot be handed out through a custom role.
+ */
+const PERMISSION_RESOURCE: Partial<Record<ShopPermission, string>> = {
+  "shop.catalog.manage": "shop.products",
+  "shop.orders.manage": "shop.orders",
+  "shop.inventory.manage": "shop.inventory",
+  "shop.merchandising.manage": "shop.merchandising",
+};
+
 export type ShopAdminActor = { userId?: string; roles: string[] };
 
-export async function getShopActor(): Promise<ShopAdminActor & { isAdmin: boolean }> {
-  const ctx = await getAdminContext().catch(() => ({ userId: undefined, roles: [], isAdmin: false }));
+type ShopActor = ShopAdminActor & { isAdmin: boolean; access?: AdminAccess };
+
+export async function getShopActor(): Promise<ShopActor> {
+  const ctx = await getAdminContext().catch(() => null);
+  if (!ctx) return { userId: undefined, roles: [], isAdmin: false };
+  // ctx.roles already has admin/superadmin removed for a limited admin.
   const roles = (ctx.roles ?? []).map((role) => String(role).trim().toLowerCase()).filter(Boolean);
-  return { userId: ctx.userId, roles, isAdmin: Boolean(ctx.isAdmin) };
+  return { userId: ctx.userId, roles, isAdmin: Boolean(ctx.isAdmin), access: ctx.access };
+}
+
+function actorMay(actor: ShopActor, permission: ShopPermission): boolean {
+  const allowed = PERMISSION_ROLES[permission] ?? [];
+  if (actor.roles.some((r) => allowed.includes(r))) return true;
+  const resource = PERMISSION_RESOURCE[permission];
+  return Boolean(resource && actor.access && can(actor.access, resource, "manage"));
 }
 
 export async function hasShopPermission(permission: ShopPermission): Promise<boolean> {
-  const actor = await getShopActor();
-  const allowed = PERMISSION_ROLES[permission] ?? [];
-  return actor.roles.some((r) => allowed.includes(r));
+  return actorMay(await getShopActor(), permission);
 }
 
 /**
@@ -64,8 +86,7 @@ export async function hasShopPermission(permission: ShopPermission): Promise<boo
  */
 export async function assertShopPermission(permission: ShopPermission): Promise<ShopAdminActor> {
   const actor = await getShopActor();
-  const allowed = PERMISSION_ROLES[permission] ?? [];
-  if (!actor.roles.some((r) => allowed.includes(r))) {
+  if (!actorMay(actor, permission)) {
     throw new Error(`Forbidden: "${permission}" is required for this action.`);
   }
   return actor;
