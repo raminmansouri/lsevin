@@ -16,7 +16,7 @@ import {
   startStayCheckout,
   submitStayReview,
 } from "../booking";
-import { getRoomOffers, recordView } from "../catalog";
+import { getPriceCalendar, getRoomOffers, recordView } from "../catalog";
 import { fail, runStayAction } from "../errors";
 import { clearRecentViews, markStaysIntroCompleted, toggleWishlist } from "../state";
 
@@ -40,7 +40,7 @@ const occupancy = z
 const selection = z
   .object({ propertyId: uuid, roomTypeId: uuid, ratePlanId: uuid, checkIn: isoDate, checkOut: isoDate, occupancy })
   .strict();
-const name = z.string().trim().min(1).max(80);
+const optName = z.string().trim().max(80).nullable().optional();
 
 function parse<T>(schema: z.ZodType<T>, input: unknown): T {
   const r = schema.safeParse(input);
@@ -128,8 +128,13 @@ export async function confirmStayCheckoutAction(input: unknown) {
           acceptedPolicyVersion: z.number().int().min(1),
           uiLocale: z.string().max(10),
           displayCalendar: z.enum(CALENDAR_IDS as [string, ...string[]]),
-          buyer: z.object({ firstName: name, lastName: name, phone: z.string().trim().min(5).max(20), email: z.string().trim().max(200).nullable().optional() }).strict(),
-          guests: z.array(z.object({ firstName: name, lastName: name }).strict()).min(1).max(10),
+          // Optional: the account's own name / mobile / email fill anything left out (server side).
+          buyer: z
+            .object({ firstName: optName, lastName: optName, phone: z.string().trim().max(20).nullable().optional(), email: z.string().trim().max(200).nullable().optional() })
+            .strict()
+            .nullable()
+            .optional(),
+          guests: z.array(z.object({ firstName: z.string().trim().max(80), lastName: z.string().trim().max(80) }).strict()).max(20).nullable().optional(),
           specialRequests: z.string().max(1000).nullable().optional(),
           arrivalTime: z.string().max(5).nullable().optional(),
           policyAccepted: z.literal(true),
@@ -185,5 +190,13 @@ export async function submitStayReviewAction(input: unknown) {
     const actor = await requireUser();
     const id = await submitStayReview(actor.userId, { ...data, locale: contentLocaleFor(data.locale) });
     return { id };
+  });
+}
+
+/** Cheapest nightly price per day for the date picker (public, read-only). */
+export async function stayPriceCalendarAction(input: unknown) {
+  return runStayAction("priceCalendar", async () => {
+    const data = parse(z.object({ propertyId: uuid, from: isoDate, days: z.number().int().min(1).max(120), occupancy }).strict(), input);
+    return getPriceCalendar(data.propertyId, data.from, data.days, data.occupancy);
   });
 }

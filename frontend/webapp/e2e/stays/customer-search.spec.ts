@@ -111,6 +111,9 @@ test.describe("stays search @regression", () => {
     await page.goto(`/fa/stays/city/${world.city.slug}?${stayQuery(ci, co)}`);
     await expect(page.getByTestId("stay-card-price")).toContainText("ظرفیت ندارد");
     await page.goto(`/fa/stays/${stay.slug}?${stayQuery(ci, co)}`);
+    await expect(page.getByTestId("stay-detail-none-available")).toBeVisible();
+    // Full rooms are folded under one line, with the reason when opened.
+    await page.getByTestId("stay-rooms-full-toggle").click();
     await expect(page.getByTestId("stay-plan-unavailable").first()).toBeVisible();
     await expect(page.getByTestId("stay-reserve")).toHaveCount(0);
 

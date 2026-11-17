@@ -16,13 +16,9 @@ async function openBooking(page: Page, slug: string, ci: string, co: string) {
   await expect(page).toHaveURL(/\/book\?/);
 }
 
+/** Signed in: the account's name and mobile are the booker's; nothing to fill. */
 async function fillDetails(page: Page) {
-  await page.getByTestId("stay-field-buyer.firstName").fill("Ali");
-  await page.getByTestId("stay-field-buyer.lastName").fill("Rezaei");
-  await page.getByTestId("stay-field-buyer.phone").fill("+989121234567");
-  await page.getByTestId("stay-same-as-contact").click();
-  await page.getByTestId("stay-details-continue").click();
-  await page.getByTestId("stay-consent").check();
+  await expect(page.getByTestId("stay-booker-name")).toBeVisible();
 }
 
 async function guest(browser: { newContext: () => Promise<BrowserContext> }) {

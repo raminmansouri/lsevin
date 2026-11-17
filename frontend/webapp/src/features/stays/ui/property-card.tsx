@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils";
 import { toggleStayWishlistAction } from "../server/actions/customer";
 import type { PropertyCard as Card } from "../types";
 
-import { Money, RatingBadge, StarRating, StayImage, useDistance } from "./common";
+import { LinkPending, Money, RatingBadge, StarRating, StayImage, useDistance } from "./common";
 
 export function WishlistButton({ propertyId, initialSaved, className }: { propertyId: string; initialSaved: boolean; className?: string }) {
   const t = useTranslations("StayApp.card");
@@ -102,6 +102,7 @@ export function PropertyCardView({
         <H className="text-base leading-6 font-bold text-slate-900">
           <Link href={href} className="after:absolute after:inset-0 after:content-[''] focus-visible:outline-none focus-visible:after:ring-2 focus-visible:after:ring-emerald-600 focus-visible:after:rounded-2xl" data-testid="stay-card-link">
             {card.name}
+            <LinkPending overlay />
           </Link>
         </H>
         <p className="flex items-center gap-1 text-xs text-slate-600">

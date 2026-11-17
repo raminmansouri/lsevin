@@ -772,6 +772,8 @@ export async function importProvider(actor: Actor, providerId: string, cityId: s
     return await db.begin(async (tx) => {
       const [r] = await tx<{ id: string }[]>`select stay.import_provider(${providerId}::uuid, ${cityId}::uuid, ${actor.userId}::uuid, false)::text as id`;
       await tx`select stay.ensure_booking_anchor(${r.id}::uuid)`;
+      // Room photos from the provider's services (0115).
+      await tx`select stay.import_room_photos(${r.id}::uuid)`;
       return r.id;
     });
   } catch (e) {

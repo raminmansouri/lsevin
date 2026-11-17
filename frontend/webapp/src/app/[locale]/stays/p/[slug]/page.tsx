@@ -1,3 +1,4 @@
+import { cache } from "react";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
@@ -5,7 +6,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { contentLocaleFor } from "@/features/tours/domain/content";
 import { currentActor } from "@/features/tours/server/platform/access";
 import { parseStaySearch } from "@/features/stays/domain/search";
-import { getPropertyDetail, getRoomOffers, listCities, listReviews, wishlistIds } from "@/features/stays/server/catalog";
+import { getPropertyDetail, getRoomOffers, listAmenities, listLandmarks, listReviews, reviewStats, similarStays, wishlistIds } from "@/features/stays/server/catalog";
 import { propertyLocales, propertySchema } from "@/features/stays/server/seo";
 import { PropertyView } from "@/features/stays/ui/detail/property-view";
 import { JsonLd } from "@/lib/seo/json-ld";
@@ -16,9 +17,14 @@ type Props = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
+/** One database read per request, shared by generateMetadata and the page. */
+const loadProperty = cache((slug: string, content: string) => getPropertyDetail({ slug }, content));
+
+const GUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 export async function generateMetadata({ params, searchParams }: Props): Promise<Metadata> {
   const { locale, slug } = await params;
-  const p = await getPropertyDetail({ slug }, contentLocaleFor(locale)).catch(() => null);
+  const p = await loadProperty(slug, contentLocaleFor(locale)).catch(() => null);
   if (!p) return { robots: { index: false, follow: true } };
   const t = await getTranslations({ locale, namespace: "StayApp.meta" });
   const name = p.name?.value ?? slug;
@@ -41,30 +47,41 @@ export default async function StayPropertyPage({ params, searchParams }: Props) 
   const { locale, slug } = await params;
   setRequestLocale(locale);
   const content = contentLocaleFor(locale);
-  const property = await getPropertyDetail({ slug }, content);
+  const property = await loadProperty(slug, content);
   if (!property) notFound();
-  const search = parseStaySearch(await searchParams);
+  const raw = await searchParams;
+  const search = parseStaySearch(raw);
+  const room = typeof raw.room === "string" && GUID.test(raw.room) ? raw.room : null;
   const occupancy = { rooms: search.rooms, adults: Math.max(search.adults, search.rooms), childAges: search.childAges };
-  const actor = await currentActor();
-  const t = await getTranslations({ locale, namespace: "StayApp.nav" });
-  const home = (await getTranslations({ locale, namespace: "LocaleLayout" }))("title");
-  const [offers, reviews, saved, cities] = await Promise.all([
+  const [actor, t, home] = await Promise.all([
+    currentActor(),
+    getTranslations({ locale, namespace: "StayApp.nav" }),
+    getTranslations({ locale, namespace: "LocaleLayout" }),
+  ]);
+  const [offers, reviews, stats, saved, similar, landmarks, amenities] = await Promise.all([
     getRoomOffers(property.id, { checkIn: search.checkIn, checkOut: search.checkOut, occupancy }, content),
-    listReviews(property.id, { limit: 10 }),
+    listReviews(property.id, { limit: 30 }),
+    reviewStats(property.id).catch(() => ({ histogram: [0, 0, 0, 0, 0], recommendPercent: null })),
     actor.userId ? wishlistIds(actor.userId).catch(() => [] as string[]) : Promise.resolve([] as string[]),
-    listCities(content).catch(() => []),
+    similarStays(property, content).catch(() => []),
+    listLandmarks(property.city.slug, content).catch(() => []),
+    listAmenities(content).catch(() => []),
   ]);
   return (
     <>
-      <JsonLd data={propertySchema(property, locale, { stays: t("stays"), home, amenities: property.amenities.map((a) => a.label) })} />
+      <JsonLd data={propertySchema(property, locale, { stays: t("stays"), home: home("title"), amenities: property.amenities.map((a) => a.label) })} />
       <PropertyView
         property={property}
         rooms={offers.rooms}
         reviews={reviews}
+        reviewStats={stats}
+        similar={similar.map((c) => ({ ...c, latitude: null, longitude: null, distanceM: property.location?.approximate ? null : c.distanceM }))}
+        landmarks={landmarks}
+        amenityLabels={Object.fromEntries(amenities.map((a) => [a.code, { label: a.label, icon: a.icon }]))}
         search={search}
         dateError={offers.dateError}
         saved={saved.includes(property.id)}
-        cities={cities.map((c) => ({ slug: c.slug, name: c.name, region: c.region }))}
+        focusRoomId={room}
       />
     </>
   );
