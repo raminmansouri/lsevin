@@ -1,6 +1,6 @@
 import "server-only";
 
-import { headers } from "next/headers";
+import { cookies, headers } from "next/headers";
 import {
   unstable_cacheLife as cacheLife,
   unstable_cacheTag as cacheTag,
@@ -9,17 +9,22 @@ import { getLocale } from "next-intl/server";
 import { resolveCurrentUserId } from "@/features/booking-pro/utils/auth";
 import { getUserPhoneCountryCode } from "./currency-queries";
 import { getSession } from "@/lib/auth/session";
+import { routing } from "@/i18n/routing";
 
 /**
- * Is this visitor Iranian? Priority order (agreed with the business):
- *   1. Logged-in customer's phone number country code (+98) -- authoritative
- *      when available, since phone/OTP auth is already Iran-first here.
- *   2. IP geolocation -- for guests, or a logged-in customer without a phone
- *      country code on the session. Cached per IP for a day via the data
- *      cache (`lookupIpCountryCodeCached` below), so repeat visits from the
- *      same address don't re-pay the ipapi.co round trip.
- *   3. Locale (fa-*) -- last resort, when neither of the above resolved.
- *   4. Otherwise: not Iranian.
+ * Is this visitor Iranian? Decides the pricing currency (Rial, no multiplier)
+ * versus the foreign currency with the provider's international multiplier.
+ *
+ * Logged-in customer (unchanged):
+ *   1. Phone number country code (+98) -- authoritative when available, since
+ *      phone/OTP auth is already Iran-first here.
+ *   2. IP geolocation, when the account has no phone country. Cached per IP
+ *      for a day via the data cache (`lookupIpCountryCodeCached` below).
+ *   3. Locale (fa-*), when neither of the above resolved.
+ *
+ * Guest (not logged in): the site language alone. "fa" means Iranian pricing;
+ * every other language gets the foreign currency with the multiplier, exactly
+ * like a logged-in non-Iranian customer.
  *
  * Only call this from an already-dynamic render path (a page/layout using
  * force-dynamic, or a route handler / server action). `headers()` opts the
@@ -27,6 +32,13 @@ import { getSession } from "@/lib/auth/session";
  * (e.g. the mobile home rails) would undo that page's ISR.
  */
 export async function resolveIsIranianVisitor(): Promise<boolean> {
+    const userId = await resolveCurrentUserId().catch(() => null);
+    if (!userId) {
+        const fromLocale = await isIranianFromLocale();
+        console.log('[iranian-visitor] guest, decided by LOCALE:', fromLocale);
+        return fromLocale;
+    }
+
     const fromPhone = await isIranianFromSessionPhone();
     if (fromPhone !== null) {
         console.log('[iranian-visitor] decided by PHONE:', fromPhone);
@@ -81,10 +93,53 @@ async function isIranianFromClientIp(): Promise<boolean | null> {
 
 async function isIranianFromLocale(): Promise<boolean> {
   try {
-    const locale = await getLocale();
+    const locale = await resolveRequestLocale();
     return locale.toLowerCase().startsWith("fa");
   } catch {
     return false;
+  }
+}
+
+/**
+ * The site language this request was made in.
+ *
+ * Pages and server actions run behind the i18n middleware, which sets
+ * next-intl's locale header from the /[locale] segment. The price API routes
+ * (/api/finance/price, /api/booking-pro/meal-plans, ...) are excluded from the
+ * middleware, so there `getLocale()` would always answer the default ("fa") and
+ * an English-page guest would be priced as Iranian. For those, the language of
+ * the page that made the fetch (its Referer) decides, then the visitor's saved
+ * NEXT_LOCALE choice, then the default.
+ */
+async function resolveRequestLocale(): Promise<string> {
+  const headerList = await headers();
+
+  const fromMiddleware = headerList.get(NEXT_INTL_LOCALE_HEADER);
+  if (isSupportedLocale(fromMiddleware)) return fromMiddleware;
+
+  const fromReferer = localeFromPath(headerList.get("referer"));
+  if (fromReferer) return fromReferer;
+
+  const cookieStore = await cookies();
+  const fromCookie = cookieStore.get("NEXT_LOCALE")?.value;
+  if (isSupportedLocale(fromCookie)) return fromCookie;
+
+  return getLocale();
+}
+
+const NEXT_INTL_LOCALE_HEADER = "x-next-intl-locale";
+
+function isSupportedLocale(value: string | null | undefined): value is string {
+  return Boolean(value) && (routing.locales as readonly string[]).includes(value as string);
+}
+
+function localeFromPath(url: string | null): string | null {
+  if (!url) return null;
+  try {
+    const segment = new URL(url, "http://local").pathname.split("/")[1]?.toLowerCase();
+    return isSupportedLocale(segment) ? segment : null;
+  } catch {
+    return null;
   }
 }
 

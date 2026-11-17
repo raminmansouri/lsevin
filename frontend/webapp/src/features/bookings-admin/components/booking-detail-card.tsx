@@ -8,13 +8,16 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 
 import { reviewChildBookingAction } from "../actions/review-child-booking";
 import { formatDepositAmount, getDepositSplit } from "../lib/deposit-split";
+import { BOOKING_STATUSES } from "../schemas";
 import type { BookingDetail } from "../types";
+import { BookingAddonsAdminPanel, RemoveChildButton } from "./booking-addons-admin-panel";
 
-export function BookingDetailCard({ booking }: { booking: BookingDetail }) {
+export function BookingDetailCard({ booking, locale }: { booking: BookingDetail; locale: string }) {
   const tAdmin = useTranslations("AdminGenerated");
   const depositSplit = getDepositSplit(booking);
   return (
@@ -59,6 +62,7 @@ export function BookingDetailCard({ booking }: { booking: BookingDetail }) {
               <div className="text-muted-foreground">{item.sourceType} · {item.addonKind} · {tAdmin("quantityShort")} {item.quantity}</div>
             </div>
           )) : <p className="text-sm text-muted-foreground">{tAdmin("noAddOns")}</p>}
+          <BookingAddonsAdminPanel booking={booking} locale={locale} />
         </CardContent>
       </Card>
 
@@ -107,7 +111,16 @@ function ChildBookingCard({ item, parentBookingId }: { item: any; parentBookingI
         <div className="text-sm text-muted-foreground">{item.bookingUiMode} · {item.currency} {item.subtotalAmount}</div>
       </div>
       <div className="grid gap-2 md:grid-cols-2">
-        <Input value={status} onChange={(e) => setStatus(e.target.value)} />
+        <Select value={status} onValueChange={setStatus} disabled={isPending}>
+          <SelectTrigger className="w-full" aria-label={tAdmin("status")}><SelectValue /></SelectTrigger>
+          <SelectContent>
+            {/* Legacy child rows can hold Draft; keep it selectable so it isn't silently rewritten. */}
+            {(BOOKING_STATUSES as readonly string[]).includes(status) ? null : <SelectItem value={status}>{status}</SelectItem>}
+            {BOOKING_STATUSES.map((value) => (
+              <SelectItem key={value} value={value}>{tAdmin(`bookingAdminStatus_${value}`)}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
         <Input value={item.selectedDate || ''} disabled />
       </div>
       <Textarea rows={3} value={note} onChange={(e) => setNote(e.target.value)} placeholder={tAdmin("reviewNote")} />
@@ -120,6 +133,7 @@ function ChildBookingCard({ item, parentBookingId }: { item: any; parentBookingI
             toast.error(error?.message ?? tAdmin("failedToUpdateChildBooking"));
           }
         })}>{tAdmin("saveChildReview")}</Button>
+        <RemoveChildButton childBookingId={item.id} parentBookingId={parentBookingId} />
       </div>
     </div>
   );
