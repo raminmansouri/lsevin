@@ -159,3 +159,54 @@ export function categoryTotalProviderCount() {
     )
   `;
 }
+
+/**
+ * The admin's display order over the whole tree, for lists that show categories of every
+ * level side by side (filter chips, pickers).
+ *
+ * `category.categories.display_order` is a position among siblings (1 first; 0 = not placed,
+ * after the placed ones), set by drag and drop on the admin categories page. Comparing it
+ * across parents would interleave Hotel with Hospital, so each category gets a `sort_path`:
+ * its position under every ancestor from the root down. Ordering by `sort_path` gives
+ * Accommodation, Hotel, Villa, Health, Hospital... with each parent before its children.
+ *
+ * Exposes `category_tree_order` (`category_id`, `sort_path int[]`). Must follow
+ * `with recursive`, either alone or after another CTE list:
+ *
+ * ```ts
+ * sql`
+ *   with recursive ${categoryTreeOrderCte()}
+ *   select c.id from category.categories c
+ *   left join category_tree_order o on o.category_id = c.id
+ *   order by o.sort_path
+ * `
+ * ```
+ */
+export function categoryTreeOrderCte() {
+  return sql`
+    category_sibling_position as (
+      select
+        c.id,
+        c.parent_id,
+        row_number() over (
+          partition by c.parent_id
+          order by case when coalesce(c.display_order, 0) > 0 then 0 else 1 end,
+                   coalesce(c.display_order, 0),
+                   c.create_date,
+                   c.id
+        )::int as position
+      from category.categories c
+    ),
+    category_tree_order as (
+      select p.id as category_id, array[p.position] as sort_path
+      from category_sibling_position p
+      where p.parent_id is null
+      union all
+      select child.id, parent.sort_path || child.position
+      from category_sibling_position child
+      join category_tree_order parent on parent.category_id = child.parent_id
+      -- Guards against a parent cycle in bad data; real trees are 2-3 levels deep.
+      where cardinality(parent.sort_path) < 16
+    )
+  `;
+}

@@ -1343,7 +1343,9 @@ declare const messages: {
     "entryResolveFailedSubtitle": "The link you opened pointed at a specific service, but we could not read it. Please try again.",
     "retry": "Try again",
     "close": "Close",
-    "stepConsultation": "Free consultation"
+    "stepConsultation": "Free consultation",
+    "addonDistance": "{distance} from {place}",
+    "addonCompareStays": "Compare all hotels and stays near {place}"
   },
   "Explore": {
     "lsevin": "LSevin",
@@ -7130,8 +7132,8 @@ declare const messages: {
       "cancel": "Cancel"
     },
     "homepage": {
-      "priority": "Landing priority",
-      "priorityHint": "1 shows first. Empty means no priority.",
+      "priority": "Display order",
+      "priorityHint": "Position among categories with the same parent: 1 shows first. Use \"Arrange order\" to drag them into place.",
       "priorityLabel": "Priority of \"{name}\"",
       "saving": "Saving…",
       "saved": "Priority of \"{name}\" saved.",
@@ -7141,7 +7143,7 @@ declare const messages: {
       "showOnHome": "Show on landing page",
       "shown": "Shown",
       "hidden": "Hidden",
-      "landingNote": "The landing page shows up to {limit} top-level categories, only ones that have providers. Prioritised ones come first, the rest by number of providers."
+      "landingNote": "The landing page shows up to {limit} main categories, only ones that have providers, in display order. Use \"Arrange order\" to set the order of main categories and of the subcategories under each one."
     },
     "table": {
       "name": "Name",
@@ -7178,6 +7180,18 @@ declare const messages: {
       "deactivated": "Category deactivated. It is now hidden across the site.",
       "parentInactive": "Turn the parent category on first.",
       "failed": "Could not change the category status."
+    },
+    "ordering": {
+      "open": "Arrange order",
+      "title": "Arrange category order",
+      "description": "Drag categories into the order customers should see them. Open a main category to order its subcategories. Each change is saved as soon as you drop.",
+      "subcategories": "{count, plural, one {# subcategory} other {# subcategories}}",
+      "moveUp": "Move \"{name}\" up",
+      "moveDown": "Move \"{name}\" down",
+      "saved": "Order saved.",
+      "failed": "Could not save the order.",
+      "stale": "The categories changed meanwhile. The list was reloaded; please try again.",
+      "loadFailed": "Could not load the categories."
     }
   },
   "ServiceDefinition": {
