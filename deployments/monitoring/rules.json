@@ -3,6 +3,7 @@
   "prometheus": "",
   "eval_seconds": 60,
   "daily_summary_utc": "07:00",
+  "critical_min_for_seconds": 600,
   "http_checks": [
     {
       "name": "global app (lsevincare.com)",
@@ -416,7 +417,7 @@
       "severity": "warning",
       "for": 1800,
       "expr": "lsevin_release_behind == 1",
-      "summary": "server A has not applied B's latest release for 30 minutes (lsevin-release-sync on A; log /var/log/lsevin-release-sync.log). Most likely causes: disk above 85% (kubelet deletes the staged image; free space first), VPN down, or a failing migration"
+      "summary": "server A has not applied B's latest release for 30 minutes (lsevin-release-sync on A; log /var/log/lsevin-release-sync.log)"
     },
     {
       "name": "release_check_failing",

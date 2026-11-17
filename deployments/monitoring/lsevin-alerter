@@ -281,7 +281,7 @@ def step(cfg, st, send):
     st["prom_fail_notified"] = st["prom_fail"] >= 3
     if not prom_ok:
         # public URL checks still run (they do not need Prometheus)
-        cfg = {"rules": [], "http_checks": cfg.get("http_checks", [])}
+        cfg = {"rules": [], "http_checks": cfg.get("http_checks", []), "critical_min_for_seconds": cfg.get("critical_min_for_seconds", 0)}
     active, errors = evaluate(cfg, st, None)
     if errors:
         st["rule_errors"] = st.get("rule_errors", 0) + 1
@@ -297,7 +297,10 @@ def step(cfg, st, send):
         if not cur:
             alerts[key] = cur = {"since": t, "firing": False, "clean": 0, "sev": a["severity"], "site": a["site"], "rule": a["rule"]}
         cur.update(text=a["text"], value=a["value"], sev=a["severity"], clean=0, seen=t)
-        if not cur["firing"] and t - cur["since"] >= a["for"]:
+        # a CRITICAL alert (it pages the critical channel, notifications on) only fires when it has lasted at least critical_min_for_seconds
+        # (rules.json; default 0 = the rule's own "for"): problems that clear within a few minutes never wake anyone up
+        need = max(a["for"], cfg.get("critical_min_for_seconds", 0)) if a["severity"] == "critical" else a["for"]
+        if not cur["firing"] and t - cur["since"] >= need:
             cur["firing"] = True; cur["notified"] = t; fired.append(cur)
         elif cur["firing"] and t - cur.get("notified", t) >= REMIND.get(cur["sev"], 43200):
             cur["notified"] = t; reminders.append(cur)

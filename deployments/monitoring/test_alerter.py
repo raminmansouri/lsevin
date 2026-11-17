@@ -244,6 +244,42 @@ class Routing(unittest.TestCase):
         self.assertTrue(any(s == "critical" and "MONITORING BROKEN" in m for s, m in zip(e.sent_sev, e.sent)))
         self.assertTrue(any(s == "info" and "Daily summary" in m for s, m in zip(e.sent_sev, e.sent)))
 
+    def test_critical_waits_for_critical_min_for_seconds_but_warning_does_not(self):
+        e, st = fresh()
+        cfg = dict(CFG, critical_min_for_seconds=600)
+        e.rows["E1"] = [({"site": "B"}, 87.0)]                                    # warning, for 120 s
+        e.rows["E2"] = [({"direction": "incoming", "site": "A"}, 1.0)]            # critical, for 0 s -> raised to 600 s
+        for _ in range(3): e.tick(cfg, st)                                         # 3 min
+        self.assertEqual(e.sent_sev, ["warning"], "the warning fires at its own 120 s, the critical is still pending")
+        for _ in range(6): e.tick(cfg, st)                                         # 9 min total
+        self.assertEqual(e.sent_sev, ["warning"])
+        e.tick(cfg, st); e.tick(cfg, st)                                           # 11 min total
+        self.assertEqual(e.sent_sev, ["warning", "critical"]); self.assertIn("sync_error", e.sent[1])
+
+    def test_critical_that_clears_before_the_minimum_never_notifies(self):
+        e, st = fresh()
+        cfg = dict(CFG, critical_min_for_seconds=600)
+        e.rows["E2"] = [({"direction": "incoming", "site": "A"}, 1.0)]
+        for _ in range(8): e.tick(cfg, st)                                         # 8 min failing
+        e.rows["E2"] = []
+        for _ in range(5): e.tick(cfg, st)
+        self.assertEqual(e.sent, [], "no 'new alert' and no 'resolved' for a problem that fixed itself")
+
+    def test_http_check_critical_also_waits_and_the_minimum_survives_a_prometheus_outage(self):
+        e, st = fresh()
+        cfg = dict(CFG, critical_min_for_seconds=600)
+        e.http["site"] = (False, "HTTP 502")
+        e.prom_up = False                                                          # step() swaps cfg while Prometheus is down
+        for _ in range(9): e.tick(cfg, st)
+        self.assertFalse(any("site" in m and "HTTP 502" in m for m in e.sent), "9 min < 10 min")
+        for _ in range(2): e.tick(cfg, st)
+        self.assertTrue(any(s == "critical" and "HTTP 502" in m for s, m in zip(e.sent_sev, e.sent)))
+
+    def test_without_the_setting_nothing_changes(self):
+        e, st = fresh()
+        e.rows["E2"] = [({"direction": "incoming", "site": "A"}, 1.0)]
+        e.tick(CFG, st); self.assertEqual(e.sent_sev, ["critical"])
+
     def test_retried_message_keeps_its_severity(self):
         e, st = fresh()
         e.telegram_up = False
