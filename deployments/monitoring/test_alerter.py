@@ -7,6 +7,7 @@ spec = importlib.util.spec_from_loader("alerter", loader)
 A = importlib.util.module_from_spec(spec)
 loader.exec_module(A)
 REAL_HTTP_CHECK = A.http_check          # Env() replaces A.http_check with a fake; keep the real one for the HTTP tests
+REAL_TELEGRAM_SEND = A.telegram_send    # Env() replaces A.telegram_send with a fake; keep the real one for the routing tests
 
 
 class Env:
@@ -27,10 +28,12 @@ class Env:
             return self.rows.get(expr, [])
         A.prom_query = pq
         A.http_check = lambda c: self.http.get(c["name"], (True, "ok"))
-        def tg(text):
+        self.sent_sev = []          # severity of each delivered message, parallel to self.sent
+        def tg(text, sev="warning"):
             if not self.telegram_up:
                 return False
             self.sent.append(text)
+            self.sent_sev.append(sev)
             return True
         A.telegram_send = tg
 
@@ -164,6 +167,91 @@ class HttpCheck(unittest.TestCase):
         ok, _ = REAL_HTTP_CHECK({"url": url, "slow_seconds": 1})
         self.assertTrue(ok); self.assertEqual(len(hits), 1)
 
+
+class Routing(unittest.TestCase):
+    """criticals go ONLY to the channel (TELEGRAM_CRITICAL_CHAT_ID), everything else ONLY to the private chats (TELEGRAM_CHAT_ID)"""
+    PRIV, CHAN = "111111111,22222222", "-1001234567890"
+
+    def setUp(self):
+        self.saved = {k: os.environ.get(k) for k in ("TELEGRAM_BOT_TOKEN", "TELEGRAM_CHAT_ID", "TELEGRAM_CRITICAL_CHAT_ID")}
+        os.environ["TELEGRAM_BOT_TOKEN"] = "t"
+        os.environ["TELEGRAM_CHAT_ID"] = self.PRIV
+        os.environ["TELEGRAM_CRITICAL_CHAT_ID"] = self.CHAN
+        self.addCleanup(self.restore)
+
+    def restore(self):
+        for k, v in self.saved.items():
+            os.environ.pop(k, None) if v is None else os.environ.__setitem__(k, v)
+
+    def test_chats_for_each_severity(self):
+        self.assertEqual(A.chats_for("critical"), ["-1001234567890"])
+        for sev in ("warning", "info"):
+            self.assertEqual(A.chats_for(sev), ["111111111", "22222222"])
+        self.assertEqual(A.chats_for("all"), ["111111111", "22222222", "-1001234567890"])
+
+    def test_channel_listed_in_both_variables_still_gets_only_criticals(self):
+        os.environ["TELEGRAM_CHAT_ID"] = self.PRIV + "," + self.CHAN       # the old single-variable setup
+        self.assertEqual(A.chats_for("critical"), ["-1001234567890"])
+        self.assertEqual(A.chats_for("warning"), ["111111111", "22222222"])
+
+    def test_without_critical_chat_the_old_behaviour_is_kept(self):
+        os.environ["TELEGRAM_CRITICAL_CHAT_ID"] = ""
+        os.environ["TELEGRAM_CHAT_ID"] = self.PRIV + "," + self.CHAN
+        for sev in ("critical", "warning", "info", "all"):
+            self.assertEqual(A.chats_for(sev), ["111111111", "22222222", "-1001234567890"])
+
+    def test_real_telegram_send_posts_only_to_the_routed_chats(self):
+        import json, urllib.request
+        posted = []
+        class R:
+            def read(self): return b"{}"
+        real_open = urllib.request.urlopen
+        urllib.request.urlopen = lambda req, timeout=0: (posted.append(json.loads(req.data)["chat_id"]), R())[1]
+        try:
+            self.assertTrue(REAL_TELEGRAM_SEND("x", "critical")); self.assertEqual(posted, ["-1001234567890"])
+            posted.clear(); self.assertTrue(REAL_TELEGRAM_SEND("x", "warning")); self.assertEqual(posted, ["111111111", "22222222"])
+        finally:
+            urllib.request.urlopen = real_open
+
+    def test_mixed_batch_is_split_into_a_critical_and_a_non_critical_message(self):
+        e, st = fresh()
+        e.rows["E1"] = [({"site": "B"}, 87.0)]                                    # warning: disk_high
+        e.rows["E2"] = [({"direction": "incoming", "site": "A"}, 1.0)]            # critical: sync_error
+        for _ in range(3): e.tick(CFG, st)
+        self.assertEqual(len(e.sent), 2)
+        by_sev = dict(zip(e.sent_sev, e.sent))
+        self.assertEqual(set(by_sev), {"critical", "warning"})
+        self.assertIn("sync_error", by_sev["critical"]); self.assertNotIn("disk_high", by_sev["critical"])
+        self.assertIn("disk_high", by_sev["warning"]); self.assertNotIn("sync_error", by_sev["warning"])
+
+    def test_critical_resolved_goes_to_the_critical_chat_and_warning_resolved_does_not(self):
+        e, st = fresh()
+        e.rows["E1"] = [({"site": "B"}, 87.0)]; e.rows["E2"] = [({"direction": "incoming", "site": "A"}, 1.0)]
+        for _ in range(3): e.tick(CFG, st)
+        e.sent.clear(); e.sent_sev.clear()
+        e.rows["E1"] = []; e.rows["E2"] = []
+        for _ in range(2): e.tick(CFG, st)
+        resolved = {s: m for s, m in zip(e.sent_sev, e.sent) if "resolved" in m}
+        self.assertEqual(set(resolved), {"critical", "warning"})
+        self.assertIn("sync_error", resolved["critical"]); self.assertIn("disk_high", resolved["warning"])
+
+    def test_monitoring_broken_is_critical_and_summary_and_startup_are_not(self):
+        e, st = fresh(); st["summary_day"] = "2000-01-01"
+        cfg = dict(CFG, daily_summary_utc="00:00")
+        e.prom_up = False
+        for _ in range(3): e.tick(cfg, st)
+        sev = {m.split("</b>")[0][:40]: s for s, m in zip(e.sent_sev, e.sent)}
+        self.assertTrue(any(s == "critical" and "MONITORING BROKEN" in m for s, m in zip(e.sent_sev, e.sent)))
+        self.assertTrue(any(s == "info" and "Daily summary" in m for s, m in zip(e.sent_sev, e.sent)))
+
+    def test_retried_message_keeps_its_severity(self):
+        e, st = fresh()
+        e.telegram_up = False
+        e.rows["E2"] = [({"direction": "incoming", "site": "A"}, 1.0)]
+        e.tick(CFG, st)
+        self.assertEqual([m["sev"] for m in st["outbox"]], ["critical"])
+        e.telegram_up = True; e.tick(CFG, st)
+        self.assertEqual(e.sent_sev, ["critical"]); self.assertEqual(st["outbox"], [])
 
 
 if __name__ == "__main__":
