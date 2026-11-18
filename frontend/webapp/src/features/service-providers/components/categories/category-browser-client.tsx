@@ -83,7 +83,7 @@ function CategoryMedia({ category, featured }: { category: CategoryBrowserCatego
       src={imageSrc}
       alt={category.name}
       className="object-cover transition-transform duration-700 ease-out group-hover:scale-105 group-active:scale-105"
-      sizes={featured ? "(max-width: 640px) 100vw, 66vw" : "(max-width: 640px) 50vw, 33vw"}
+      sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
       fallbackClassName="h-full w-full"
     />
   );
@@ -125,7 +125,7 @@ function CategoryCardContent({
         <div className="min-w-0 flex-1">
           <h3
             className={`font-black leading-tight tracking-tight text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.45)] ${
-              featured ? "text-[26px]" : "text-[19px]"
+              featured ? "text-[21px]" : "text-[19px]"
             }`}
           >
             {category.name}
@@ -157,7 +157,7 @@ function CategoryCard({
   const t = useTranslations("CategoryBrowser");
   const className = [
     "group relative block w-full overflow-hidden rounded-[26px] bg-[#062a20] shadow-[0_18px_40px_-22px_rgba(3,20,15,0.65)] transition-transform duration-300 active:scale-[0.97]",
-    featured ? "col-span-2 aspect-[16/10] sm:col-span-3 lg:col-span-4 lg:aspect-[21/8]" : "aspect-[3/4]",
+    "aspect-square",
   ].join(" ");
   const content = <CategoryCardContent category={category} hasChildren={hasChildren} featured={featured} />;
 
