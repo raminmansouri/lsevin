@@ -13,7 +13,7 @@ const schema = z.object({
 });
 
 export async function reviewChildBookingAction(input: unknown) {
-  await assertAdmin();
+  await assertAdmin("bookings", "manage");
   const values = schema.parse(input);
 
   await db`

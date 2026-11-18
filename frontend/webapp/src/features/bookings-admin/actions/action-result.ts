@@ -2,7 +2,7 @@ import "server-only";
 
 import { z } from "zod/v4";
 
-import { getAdminContext, type AdminContext } from "@/lib/auth/admin-guard";
+import { adminMay, getAdminContext, type AdminContext } from "@/lib/auth/admin-guard";
 
 /**
  * Structured outcome of an admin booking action. Server actions that throw lose their
@@ -33,7 +33,9 @@ export class AdminActionError extends Error {
 export async function requireBookingAdmin(): Promise<AdminContext> {
   const ctx = await getAdminContext();
   if (!ctx.userId) throw new AdminActionError("UNAUTHENTICATED");
-  if (!ctx.isAdmin) throw new AdminActionError("FORBIDDEN");
+  // `bookings` (manage): unlimited admins, or a limited admin whose role manages bookings.
+  // (`ctx.isAdmin` alone would lock every limited admin out of these actions.)
+  if (!adminMay(ctx, "bookings", "manage")) throw new AdminActionError("FORBIDDEN");
   return ctx;
 }
 
