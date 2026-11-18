@@ -107,6 +107,12 @@ function columns(
       cell: ({ row }) => <span className="text-sm">{formatDate(row.original.createDate)}</span>,
     },
     {
+      accessorKey: "addedBy",
+      header: t("addedBy"),
+      // The date it was added is the "Created" column, so only the name is shown here.
+      cell: ({ row }) => <span className="text-sm font-medium">{row.original.addedBy || "-"}</span>,
+    },
+    {
       id: "actions",
       header: "Actions",
       cell: ({ row }) => (
@@ -151,7 +157,13 @@ export function ServiceProvidersAdminList({ items, pagination }: Props) {
 
   const onDuplicate = (item: AdminServiceProviderListItem) => {
     if (!window.confirm(tAdmin("duplicateServiceProviderConfirm", { name: item.name }))) return;
-    duplicate.execute({ id: item.id });
+    // The copy is a new provider, so it records who made it (admins share one login).
+    const addedBy = window.prompt(tAdmin("addedByPrompt"))?.trim();
+    if (!addedBy) {
+      toast.error(tAdmin("addedByRequired"));
+      return;
+    }
+    duplicate.execute({ id: item.id, addedBy });
   };
 
   const onDelete = (item: AdminServiceProviderListItem) => {
@@ -168,5 +180,5 @@ export function ServiceProvidersAdminList({ items, pagination }: Props) {
 }
 
 export function ServiceProvidersAdminListSkeleton() {
-  return <DataTableSkeleton columnCount={8} rowCount={10} />;
+  return <DataTableSkeleton columnCount={9} rowCount={10} />;
 }

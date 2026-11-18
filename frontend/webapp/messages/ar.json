@@ -2785,7 +2785,22 @@
     "internationalPriceMultiplierHint": "السعر الدولي = السعر المحوّل × هذا المعامل. اتركه فارغًا لاستخدام القيمة الافتراضية.",
     "staffOrder": "Order",
     "staffOrderHint": "1 = first on the provider's page; 0 = no position",
-    "staffOrderSaved": "Order saved"
+    "staffOrderSaved": "Order saved",
+    "addedBy": "أُضيف بواسطة",
+    "addedAt": "تاريخ الإضافة",
+    "addedByPlaceholder": "اسمك",
+    "addedByHint": "اكتب اسمك. يُحفظ مع التاريخ ولا يمكن تغييره لاحقًا أبدًا.",
+    "addedByRequired": "أدخل اسم المسؤول الذي يضيف مقدم الخدمة هذا.",
+    "addedByUnknown": "غير مسجّل",
+    "addedByLockedHint": "مقفل: لا يمكن تغيير من أضاف مقدم الخدمة هذا ولا تاريخ الإضافة.",
+    "addedByPrompt": "اسمك (يُحفظ كـ«أُضيف بواسطة» في النسخة ولا يمكن تغييره لاحقًا):",
+    "branches": "الفروع",
+    "branchesDescription": "مواقع أخرى للمنشأة نفسها. تظهر تحت «فروع أخرى» فوق التقييمات مباشرة. الربط باتجاهين: إضافة الفرع B هنا تضيف هذا المزوّد إلى فروع B أيضًا، والحذف يزيل الطرفين.",
+    "branchProvider": "مزوّد الفرع",
+    "addBranch": "إضافة فرع",
+    "branchSaved": "تمت إضافة الفرع.",
+    "branchDeleted": "تمت إزالة الفرع.",
+    "noBranchesYet": "لا توجد فروع بعد"
   },
   "HomeHero": {
     "title": "الصحة والجمال بلا حدود، كل شيء في مكان واحد",
@@ -11816,7 +11831,13 @@
     "includeSpecificDetailsAboutTheService": "أضف تفاصيل محددة عن الخدمة",
     "cancel": "إلغاء",
     "exampleHairTransplantDentalCareSpaDay": "مثال: زراعة الشعر، العناية بالأسنان، يوم سبا",
-    "shareDetailsOfYourOwnExperienceAtThis": "شارك تفاصيل تجربتك الشخصية في هذا المكان"
+    "shareDetailsOfYourOwnExperienceAtThis": "شارك تفاصيل تجربتك الشخصية في هذا المكان",
+    "branches": {
+      "title": "فروع أخرى",
+      "subtitle": "المنشأة نفسها في مواقع أخرى",
+      "viewBranch": "عرض الفرع",
+      "tab": "الفروع"
+    }
   },
   "MobileOffers": {
     "title": "العروض الخاصة",

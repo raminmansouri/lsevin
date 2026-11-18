@@ -17,6 +17,7 @@ import type {
   ProviderBeforeAfter,
   ProviderPageDataResponse,
   ProviderPolicy,
+  ProviderBranch,
   Recommendation,
   ReviewsPage,
   Review,
@@ -144,6 +145,17 @@ type RecommendationRow = {
   priceFrom: number | string | null;
   currency: string | null;
   valueToman: number | string | null;
+};
+
+type BranchRow = {
+  id: string;
+  image: string | null;
+  title: string;
+  city: string | null;
+  country: string | null;
+  street: string | null;
+  addressDetail: string | null;
+  link: string;
 };
 
 type CustomerIdentity = {
@@ -504,6 +516,7 @@ export async function getProviderPageDataFromDb(
       policies,
       isFavorite,
       beforeAfter,
+      branchRows,
     ] = await Promise.all([
       getServiceRows(locale, providerId),
       getSpecialistRows(locale, providerId),
@@ -518,6 +531,7 @@ export async function getProviderPageDataFromDb(
       getProviderPolicies(locale, providerId),
       isProviderFavorite(providerId, input.userId),
       getProviderBeforeAfter(locale, providerId),
+      getBranchRows(locale, providerId),
     ]);
 
     const services = await Promise.all(
@@ -600,6 +614,17 @@ export async function getProviderPageDataFromDb(
       reviewsHasMore: reviewsPage.hasMore,
       localRecommendations,
       internationalRecommendations,
+      branches: branchRows.map(
+        (branch): ProviderBranch => ({
+          id: branch.id,
+          title: branch.title,
+          image: branch.image || "",
+          city: branch.city,
+          country: branch.country,
+          address: providerAddressLine(branch.street, branch.addressDetail, null),
+          link: branch.link,
+        }),
+      ),
     });
   } catch (error) {
     return fail(
@@ -1114,6 +1139,7 @@ async function getRecommendationRows(
     cross join src
     left join category.provider_recommendations pr
       on pr.source_provider_id = ${providerId}::uuid and pr.target_provider_id = sp.id
+      and pr.type <> 'branch'
     left join media.media_library sp_media
       on sp_media.id = case when sp.image_url ~* ${UUID_PATTERN} then sp.image_url::uuid else null end
     left join lateral (
@@ -1143,6 +1169,13 @@ async function getRecommendationRows(
     ) sim on true
     where sp.id <> ${providerId}::uuid
       and sp.is_active = true
+      -- Branches have their own "Other branches" section; keep them out of "similar".
+      and not exists (
+        select 1 from category.provider_recommendations br
+        where br.source_provider_id = ${providerId}::uuid
+          and br.target_provider_id = sp.id
+          and br.type = 'branch'
+      )
       and (
         (${sameCountry} = true and ${country} <> '' and lower(sp.country) = lower(${country}))
         or (${sameCountry} = false and (${country} = '' or lower(sp.country) <> lower(${country})))
@@ -1161,6 +1194,41 @@ async function getRecommendationRows(
       coalesce(sp.rating, 0) desc,
       coalesce(sp.review_count, 0) desc
     limit 6
+  `;
+}
+
+// Branches the admin linked from this provider (provider_recommendations.type = 'branch').
+// The admin "Branches" box saves both directions (A→B and B→A), so each side lists the other.
+async function getBranchRows(locale: string, providerId: string): Promise<BranchRow[]> {
+  return sql<BranchRow[]>`
+    select
+      sp.id::text,
+      coalesce(sp_media.file_url, nullif(sp.image_url, ''), gallery.url) as image,
+      common.get_translation_t(sp.name_translations, ${locale}, 'en-US') as title,
+      nullif(sp.city, '') as city,
+      nullif(sp.country, '') as country,
+      nullif(common.get_translation_t(coalesce(sp.street_translations, '{}'::jsonb), ${locale}, 'en-US'), '') as street,
+      nullif(common.get_translation_t(coalesce(sp.detail_translations, '{}'::jsonb), ${locale}, 'en-US'), '') as "addressDetail",
+      concat('/providers/', coalesce(sp.slug, sp.id::text)) as link
+    from category.provider_recommendations pr
+    join category.service_providers sp on sp.id = pr.target_provider_id
+    left join media.media_library sp_media
+      on sp_media.id = case when sp.image_url ~* ${UUID_PATTERN} then sp.image_url::uuid else null end
+    left join lateral (
+      select coalesce(ml.file_url, nullif(pgi.url, '')) as url
+      from category.provider_gallery_items pgi
+      left join media.media_library ml
+        on ml.id = case when pgi.url ~* ${UUID_PATTERN} then pgi.url::uuid else null end
+      where pgi.service_provider_id = sp.id
+        and coalesce(ml.file_url, nullif(pgi.url, '')) is not null
+      order by pgi.display_order asc, pgi.create_date asc
+      limit 1
+    ) gallery on true
+    where pr.source_provider_id = ${providerId}::uuid
+      and pr.type = 'branch'
+      and sp.id <> ${providerId}::uuid
+      and sp.is_active = true
+    order by pr.create_date asc nulls last, sp.id
   `;
 }
 

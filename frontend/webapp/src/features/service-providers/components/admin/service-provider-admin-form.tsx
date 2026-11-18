@@ -1,10 +1,10 @@
 "use client";
 
 
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useMemo, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Save, ArrowLeft } from "lucide-react";
+import { Save, ArrowLeft, Lock } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
@@ -105,6 +105,8 @@ function buildServiceProviderDefaultValues(
     internationalPriceMultiplier: provider?.internationalPriceMultiplier ?? null,
     imageUrl: provider?.imageUrl ?? "",
     timezoneId: provider?.timezoneId ?? "UTC",
+    // Only sent on create; the edit form never shows or submits it.
+    addedBy: "",
   };
 }
 
@@ -192,6 +194,37 @@ function LocalizedInputBridge({
   );
 }
 
+function formatAddedAt(value: string | null | undefined, locale: string) {
+  if (!value) return null;
+  try {
+    return new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" }).format(new Date(value));
+  } catch {
+    return value;
+  }
+}
+
+/** Read-only "added by / added at" shown on the edit form; these can never be changed. */
+function AddedByLockedNote({ provider }: { provider?: AdminServiceProviderDetails }) {
+  const tAdmin = useTranslations("AdminGenerated");
+  const locale = useLocale();
+  return (
+    <div className="flex items-start gap-3 rounded-xl border bg-muted/40 p-4 text-sm">
+      <Lock className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
+      <div className="space-y-1">
+        <div>
+          <span className="text-muted-foreground">{tAdmin("addedBy")}: </span>
+          <span className="font-medium">{provider?.addedBy || tAdmin("addedByUnknown")}</span>
+        </div>
+        <div>
+          <span className="text-muted-foreground">{tAdmin("addedAt")}: </span>
+          <span className="font-medium">{formatAddedAt(provider?.addedAt, locale) || tAdmin("addedByUnknown")}</span>
+        </div>
+        <p className="text-xs text-muted-foreground">{tAdmin("addedByLockedHint")}</p>
+      </div>
+    </div>
+  );
+}
+
 export function ServiceProviderAdminForm({ provider, lookups, locale }: Props) {
   const t = useTranslations("AdminGenerated");
   const tAdmin = useTranslations("AdminGenerated");
@@ -271,6 +304,7 @@ export function ServiceProviderAdminForm({ provider, lookups, locale }: Props) {
         sponsoredTag: values.sponsoredTag?.trim() || null,
         imageUrl: normalizeMediaPickerValue(values.imageUrl) || null,
         timezoneId: values.timezoneId?.trim() || "UTC",
+        addedBy: isEdit ? undefined : values.addedBy?.trim() || "",
       });
     });
   };
@@ -370,6 +404,35 @@ export function ServiceProviderAdminForm({ provider, lookups, locale }: Props) {
                     <h3 className="text-base font-semibold">{tAdmin("identity")}</h3>
                     <p className="text-sm text-muted-foreground">{tAdmin("nameDescriptionProviderTypeStatusAndVisualIdentity")}</p>
                   </div>
+
+                  {isEdit ? (
+                    <AddedByLockedNote provider={provider} />
+                  ) : (
+                    <FormField
+                      control={form.control}
+                      name="addedBy"
+                      render={({ field }) => (
+                        <FormItem className="rounded-xl border border-amber-300/60 bg-amber-50/40 p-4 dark:bg-amber-950/10">
+                          <FormLabel>
+                            {tAdmin("addedBy")} <span className="text-destructive">*</span>
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              {...field}
+                              value={field.value ?? ""}
+                              maxLength={100}
+                              placeholder={tAdmin("addedByPlaceholder")}
+                              disabled={isPending}
+                            />
+                          </FormControl>
+                          <FormDescription>{tAdmin("addedByHint")}</FormDescription>
+                          {form.formState.errors.addedBy ? (
+                            <p className="text-sm font-medium text-destructive">{tAdmin("addedByRequired")}</p>
+                          ) : null}
+                        </FormItem>
+                      )}
+                    />
+                  )}
 
                   <FormField
                     control={form.control}

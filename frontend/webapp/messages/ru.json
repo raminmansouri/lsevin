@@ -1825,7 +1825,15 @@
     "zipCode": "Почтовый индекс",
     "staffOrder": "Order",
     "staffOrderHint": "1 = first on the provider's page; 0 = no position",
-    "staffOrderSaved": "Order saved"
+    "staffOrderSaved": "Order saved",
+    "addedBy": "Added by",
+    "addedAt": "Added on",
+    "addedByPlaceholder": "Your name",
+    "addedByHint": "Type your own name. It is saved with the date and can never be changed later.",
+    "addedByRequired": "Enter the name of the admin adding this provider.",
+    "addedByUnknown": "Not recorded",
+    "addedByLockedHint": "Locked: who added this provider and when can't be changed.",
+    "addedByPrompt": "Your name (saved as \"Added by\" on the copy, can't be changed later):"
   },
   "AdminLazySelect": {
     "emptyText": "Ничего не найдено.",

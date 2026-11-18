@@ -56,7 +56,7 @@ d("duplicateServiceProvider slug (real database)", () => {
   it("gives each copy (and its services) a fresh unique slug instead of colliding", async () => {
     const copies = [];
     for (const from of [sourceId, sourceId, null]) {
-      const copy = await duplicateServiceProvider(from ?? copies[0].id);
+      const copy = await duplicateServiceProvider(from ?? copies[0].id, "Test admin");
       created.push(copy.id);
       copies.push(copy);
     }

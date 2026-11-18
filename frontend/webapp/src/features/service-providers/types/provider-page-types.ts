@@ -161,6 +161,17 @@ export interface Recommendation {
   sourceCurrency?: string | null;
 }
 
+/** Another location of the same business, linked by an admin as a "branch". */
+export interface ProviderBranch {
+  id: string;
+  title: string;
+  image: string;
+  city: string | null;
+  country: string | null;
+  address: string | null;
+  link: string;
+}
+
 export interface ProviderPageDataResponse {
   provider: Provider;
   services: Service[];
@@ -171,4 +182,6 @@ export interface ProviderPageDataResponse {
   reviewsHasMore: boolean;
   localRecommendations: Recommendation[];
   internationalRecommendations: Recommendation[];
+  /** Branches the admin linked to this provider (type "branch"); empty when there are none. */
+  branches?: ProviderBranch[];
 }

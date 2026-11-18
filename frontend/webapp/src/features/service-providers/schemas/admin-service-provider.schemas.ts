@@ -63,6 +63,13 @@ export const saveServiceProviderProfileSchema = z.object({
   // the provider uses the global finance.settings default.
   internationalPriceMultiplier: z.coerce.number().positive().max(4, "ضریب قیمت بین‌المللی حداکثر ۴ است.").optional().nullable(),  imageUrl: adminNullableMediaValueSchema,
   timezoneId: z.string().min(1).default("UTC"),
+  // Name of the admin adding the provider (admins share one login). Asked for on create
+  // only; it can never be changed afterwards (see migration 0115).
+  addedBy: z.string().trim().max(100).optional().nullable(),
+}).superRefine((value, ctx) => {
+  if (!value.serviceProviderId && !value.addedBy?.trim()) {
+    ctx.addIssue({ code: "custom", path: ["addedBy"], message: "addedByRequired" });
+  }
 });
 
 export type SaveServiceProviderProfileInput = z.infer<typeof saveServiceProviderProfileSchema>;

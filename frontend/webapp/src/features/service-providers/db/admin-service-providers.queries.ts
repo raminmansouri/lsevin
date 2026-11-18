@@ -123,6 +123,9 @@ export type AdminServiceProviderListItem = {
   featuredScore: number;
   createDate: string;
   lastModifiedDate: string | null;
+  /** Admin name typed on the create form; null for providers added before migration 0115. */
+  addedBy: string | null;
+  addedAt: string | null;
 };
 
 export type AdminProviderAttributeOption = {
@@ -357,6 +360,10 @@ export type AdminServiceProviderDetails = {
   timezoneId: string;
   createDate: string;
   lastModifiedDate: string | null;
+  /** Admin name typed on the create form; locked forever. Null for older providers. */
+  addedBy: string | null;
+  /** Set by the database when the provider was inserted; locked forever. */
+  addedAt: string | null;
   attributes: AdminProviderAttribute[];
   /** Attribute definitions of this provider's type, with Select options, so the
    * admin Attributes tab can render an input that matches each attribute type. */
@@ -636,22 +643,57 @@ function buildWhere(
   return sql`where ${combined}`;
 }
 
+// The admin data table sends its sort as the column id, "-" in front for descending
+// ("createDate", "-providerTypeName"; see useTableState). The older "<key>-asc|desc"
+// values are still accepted for any link that uses them.
 function buildOrder(sortOrder?: string, locale = "fa-IR") {
-  switch (sortOrder) {
-    case "name-asc":
-      return sql`${translated(sql`sp.name_translations`, locale)} asc nulls last`;
-    case "name-desc":
-      return sql`${translated(sql`sp.name_translations`, locale)} desc nulls last`;
-    case "rating-desc":
-      return sql`sp.rating desc nulls last, sp.review_count desc nulls last`;
-    case "featured-desc":
-      return sql`sp.featured_score desc nulls last, sp.rating desc nulls last`;
-    case "created-asc":
-      return sql`sp.create_date asc`;
-    case "created-desc":
+  const legacy: Record<string, string> = {
+    "name-asc": "name",
+    "name-desc": "-name",
+    "rating-desc": "-rating",
+    "featured-desc": "-featuredScore",
+    "created-asc": "createDate",
+    "created-desc": "-createDate",
+  };
+  const value = legacy[sortOrder ?? ""] ?? sortOrder ?? "";
+  const desc = value.startsWith("-");
+  const column = desc ? value.slice(1) : value;
+  const dir = desc ? sql`desc` : sql`asc`;
+
+  let key;
+  switch (column) {
+    case "name":
+      key = sql`${translated(sql`sp.name_translations`, locale)} ${dir} nulls last`;
+      break;
+    case "providerTypeName":
+      key = sql`${translated(sql`pt.name_translations`, locale)} ${dir} nulls last`;
+      break;
+    case "contactEmail":
+      key = sql`sp.email ${dir} nulls last`;
+      break;
+    case "isActive":
+      key = sql`sp.is_active ${dir}, coalesce(sp.accredited, false) ${dir}`;
+      break;
+    case "serviceCount":
+      key = sql`coalesce(svc.service_count, 0) ${dir}`;
+      break;
+    case "rating":
+      key = sql`coalesce(sp.rating, 0) ${dir}, coalesce(sp.review_count, 0) ${dir}`;
+      break;
+    case "featuredScore":
+      key = sql`coalesce(sp.featured_score, 0) ${dir}, coalesce(sp.rating, 0) ${dir}`;
+      break;
+    case "addedBy":
+      key = sql`sp.added_by ${dir} nulls last, sp.added_at ${dir} nulls last`;
+      break;
+    case "createDate":
+      key = sql`sp.create_date ${dir} nulls last`;
+      break;
     default:
-      return sql`sp.create_date desc`;
+      key = sql`sp.create_date desc nulls last`;
   }
+  // id breaks ties so paging never repeats or skips a row.
+  return sql`${key}, sp.id`;
 }
 
 export async function getAdminServiceProviders(
@@ -704,6 +746,8 @@ export async function getAdminServiceProviders(
         coalesce(sp.featured_score, 0)::float8 as "featuredScore",
         sp.create_date::text as "createDate",
         sp.last_modified_date::text as "lastModifiedDate",
+        sp.added_by as "addedBy",
+        sp.added_at::text as "addedAt",
         count(*) over() as total_count
       from category.service_providers sp
       join category.provider_types pt on pt.id = sp.provider_type_id
@@ -809,6 +853,10 @@ type ProviderRow = {
   timezoneId: string;
   createDate: string;
   lastModifiedDate: string | null;
+  /** Admin name typed on the create form; locked forever. Null for older providers. */
+  addedBy: string | null;
+  /** Set by the database when the provider was inserted; locked forever. */
+  addedAt: string | null;
 };
 
 export async function getAdminServiceProviderById(
@@ -852,7 +900,9 @@ export async function getAdminServiceProviderById(
         sp.image_url as "imageUrl",
         sp.timezone_id as "timezoneId",
         sp.create_date::text as "createDate",
-        sp.last_modified_date::text as "lastModifiedDate"
+        sp.last_modified_date::text as "lastModifiedDate",
+        sp.added_by as "addedBy",
+        sp.added_at::text as "addedAt"
       from category.service_providers sp
       join category.provider_types pt on pt.id = sp.provider_type_id
       where sp.id = ${id}
