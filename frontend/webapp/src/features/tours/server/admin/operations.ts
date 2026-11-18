@@ -122,3 +122,71 @@ export async function removeBlackout(actor: Actor, input: { blackoutId: string; 
     return { unblocked: unblocked.length };
   });
 }
+
+/**
+ * Stops a recurring schedule. The rule is kept (switched off) so the audit trail and past
+ * departures still point at it; no new departures are generated from it. Its future
+ * departures nobody has booked or is holding are removed with it; departures that already
+ * have bookings stay and are returned, because those need an explicit cancellation (with
+ * refunds and a customer notice) on the departures board.
+ */
+export async function removeScheduleRule(actor: Actor, input: { ruleId: string; reason: string }) {
+  assertAdminActor(actor);
+  const id = requireUuid(input.ruleId, "schedule_rule_not_found");
+  const reason = requireReason(input.reason);
+  return db.begin(async (tx) => {
+    const [r] = await tx<any[]>`
+      update tour.schedule_rules sr set is_active = false
+        from tour.tours t
+       where sr.id = ${id}::uuid and t.id = sr.tour_id
+      returning sr.tour_id::text, t.service_provider_id::text`;
+    if (!r) throw fail.notFound("schedule_rule_not_found");
+    const removed = await tx`
+      update tour.departures set is_active = false, status_reason = 'schedule_removed', last_modified_date = now()
+       where schedule_rule_id = ${id}::uuid and is_active and status = 'scheduled' and starts_at > now()
+         and booked_count = 0 and held_count = 0
+      returning id`;
+    const kept = await tx<{ id: string }[]>`
+      select id::text from tour.departures
+       where schedule_rule_id = ${id}::uuid and is_active and status <> 'cancelled' and starts_at > now() and (booked_count > 0 or held_count > 0)`;
+    await audit(tx as unknown as typeof db, actor, r.service_provider_id, "schedule_rule", id, "removed",
+      { tourId: r.tour_id, removedDepartures: removed.length, keptWithBookings: kept.length, reason });
+    return { removedDepartures: removed.length, departuresWithBookings: kept.map((k) => k.id) };
+  });
+}
+
+/**
+ * Removes one departure that nobody has booked or is holding (it disappears for customers and
+ * is never generated again). A departure with bookings must be cancelled instead, so the
+ * travellers are refunded and told.
+ */
+export async function removeDeparture(actor: Actor, input: { departureId: string; reason: string }) {
+  assertAdminActor(actor);
+  const id = requireUuid(input.departureId, "departure_not_found");
+  const reason = requireReason(input.reason);
+  return db.begin(async (tx) => {
+    const [d] = await tx<any[]>`
+      select service_provider_id::text, tour_id::text, booked_count, held_count, status, is_active
+        from tour.departures where id = ${id}::uuid for update`;
+    if (!d || !d.is_active) throw fail.notFound("departure_not_found");
+    if (d.booked_count > 0 || d.held_count > 0) throw fail.conflict("departure_has_bookings");
+    if (d.status === "in_progress" || d.status === "completed") throw fail.conflict("departure_not_editable");
+    await tx`update tour.departures set is_active = false, status_reason = 'removed', last_modified_date = now() where id = ${id}::uuid`;
+    await audit(tx as unknown as typeof db, actor, d.service_provider_id, "departure", id, "removed", { tourId: d.tour_id, reason });
+    return { removed: true };
+  });
+}
+
+/** Removes a price adjustment; quotes from now on use the plain price (existing bookings keep theirs). */
+export async function removePriceRule(actor: Actor, input: { priceRuleId: string; reason: string }) {
+  assertAdminActor(actor);
+  const id = requireUuid(input.priceRuleId, "price_rule_not_found");
+  const reason = requireReason(input.reason);
+  const [r] = await db<any[]>`
+    delete from tour.price_rules pr using tour.tours t
+     where pr.id = ${id}::uuid and t.id = pr.tour_id
+    returning pr.tour_id::text, pr.date_from::text, pr.date_to::text, pr.kind, pr.value, t.service_provider_id::text`;
+  if (!r) throw fail.notFound("price_rule_not_found");
+  await audit(db, actor, r.service_provider_id, "price_rule", id, "removed", { tourId: r.tour_id, from: r.date_from, to: r.date_to, kind: r.kind, value: Number(r.value), reason });
+  return { removed: true };
+}

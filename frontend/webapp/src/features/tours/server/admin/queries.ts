@@ -237,7 +237,7 @@ export async function tourBundle(actor: Actor, tourId: string) {
     db<any[]>`select id::text, option_id::text, date_from::text, date_to::text, kind, value, entered_calendar, note from tour.price_rules where tour_id = ${tourId}::uuid order by date_from`,
     db<any[]>`select d.id::text, d.starts_on::text, d.local_start_time::text, d.starts_at, d.timezone, d.capacity, d.booked_count, d.held_count, d.status,
                      d.is_blocked, d.is_active, d.delay_minutes, d.status_reason, d.option_id::text
-                from tour.departures d where d.tour_id = ${tourId}::uuid and d.starts_at > now() - interval '30 days' order by d.starts_at limit 200`,
+                from tour.departures d where d.tour_id = ${tourId}::uuid and d.is_active and d.starts_at > now() - interval '30 days' order by d.starts_at limit 200`,
     publishRequirements(tourId),
     db<any[]>`select revision, material_change, change_summary, created_by::text, created_at from tour.revisions where tour_id = ${tourId}::uuid order by revision desc limit 50`,
     db<any[]>`select id::text, actor_user_id::text, actor_scope, entity_type, entity_id::text, action, detail, created_at
@@ -336,7 +336,7 @@ export async function departuresBoard(actor: Actor, f: DepartureBoardFilters) {
       from tour.departures d
       join tour.tours t on t.id = d.tour_id
       join category.service_providers sp on sp.id = d.service_provider_id
-     where d.tour_id is not null
+     where d.tour_id is not null and d.is_active
        and (${from}::date is null or d.starts_on >= ${from}::date)
        and (${to}::date is null or d.starts_on <= ${to}::date)
        and (${from}::date is not null or ${to}::date is not null or d.starts_at > now() - interval '1 day')

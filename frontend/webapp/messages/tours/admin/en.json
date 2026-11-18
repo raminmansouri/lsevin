@@ -105,7 +105,8 @@
       "invalid_decision": "Unknown decision.",
       "invalid_value": "A value is invalid.",
       "duplicate": "This already exists.",
-      "too_many_items": "Too many items (max 50)."
+      "too_many_items": "Too many items (max 50).",
+      "departure_has_bookings": "This departure has bookings or held seats. Cancel it on the departures board so travellers are refunded and told."
     },
     "dashboard": {
       "title": "Tours platform",
@@ -510,7 +511,16 @@
       "blocked": "blocked",
       "direction": "Direction",
       "increase": "Increase",
-      "decrease": "Decrease"
+      "decrease": "Decrease",
+      "removeRule": "Remove schedule",
+      "ruleRemoved": "Schedule removed. Its future departures without bookings were removed too.",
+      "ruleKeptBooked": "{count, plural, one {# departure of this schedule has bookings and was kept: cancel it on the departures board.} other {# departures of this schedule have bookings and were kept: cancel them on the departures board.}}",
+      "removePriceRule": "Remove",
+      "priceRuleRemoved": "Price adjustment removed.",
+      "removeDeparture": "Remove",
+      "departureRemoved": "Departure removed.",
+      "departureActions": "Actions",
+      "manageOnBoard": "Manage on board"
     },
     "history": {
       "revisions": "Revisions",
