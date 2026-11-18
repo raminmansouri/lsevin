@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,7 +10,16 @@ import { Link } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 
 import { isIsoDate, isoToParts, weekStartForLocale, type CalendarId } from "../../domain/calendar";
-import { addBlackoutAction, addPriceRuleAction, addScheduleRuleAction, materializeDeparturesAction, removeBlackoutAction } from "../../server/admin/actions";
+import {
+  addBlackoutAction,
+  addPriceRuleAction,
+  addScheduleRuleAction,
+  materializeDeparturesAction,
+  removeBlackoutAction,
+  removeDepartureAction,
+  removePriceRuleAction,
+  removeScheduleRuleAction,
+} from "../../server/admin/actions";
 import type { TourBundle } from "../../server/admin/queries";
 
 import { currencyLabel, formatPrice, MoneyInput, OptionSelect, pickLabel, useAdminDates } from "./inputs";
@@ -113,10 +123,22 @@ export function ScheduleTab({ bundle }: { bundle: TourBundle }) {
         </form>
         <ul className="space-y-1 text-sm">
           {bundle.rules.map((r) => (
-            <li key={r.id} className="rounded border px-3 py-2">
+            <li key={r.id} className={cn("flex flex-wrap items-center justify-between gap-2 rounded border px-3 py-2", !r.is_active && "text-muted-foreground")} data-testid="schedule-rule" data-active={r.is_active ? "true" : "false"}>
+              <span>
               {t(`kindLabel.${r.kind}`)} · {tc(r.calendar)} · <span dir="ltr">{String(r.local_time).slice(0, 5)}</span> · {t("from")} {day(r.start_date)}{r.end_date ? ` ${t("to")} ${day(r.end_date)}` : ""} · {t("capacity")}: {r.capacity}
               {r.kind === "weekly" ? ` · ${weekdayOrder(locale).filter((n) => (r.weekdays as number[]).includes(n)).map(wd).join("، ")}` : r.kind === "monthly_day" ? ` · ${t("monthDay")}: ${num(r.month_day)}` : ""}
               {!r.is_active ? ` · ${t("inactive")}` : ""}
+              </span>
+              {r.is_active ? (
+                <ReasonAction label={t("removeRule")} variant="destructive" testId="remove-rule"
+                  onConfirm={(reason) => run(() => removeScheduleRuleAction({ ruleId: r.id, reason }), {
+                    onSuccess: (res) => {
+                      const kept = res?.departuresWithBookings?.length ?? 0;
+                      if (kept) toast.warning(t("ruleKeptBooked", { count: kept }));
+                    },
+                    success: t("ruleRemoved"),
+                  })} />
+              ) : null}
             </li>
           ))}
         </ul>
@@ -175,9 +197,13 @@ export function ScheduleTab({ bundle }: { bundle: TourBundle }) {
         </form>
         <ul className="space-y-1 text-sm">
           {bundle.priceRules.map((r) => (
-            <li key={r.id} className="rounded border px-3 py-2">
+            <li key={r.id} className="flex flex-wrap items-center justify-between gap-2 rounded border px-3 py-2" data-testid="price-rule">
+              <span>
               {day(r.date_from)} – {day(r.date_to)} · <span dir={r.kind === "percent" ? "ltr" : undefined}>{r.kind === "percent" ? `${r.value}%` : formatPrice(r.value, currency, locale)}</span>
               {r.note ? ` · ${r.note}` : ""}
+              </span>
+              <ReasonAction label={t("removePriceRule")} variant="destructive" testId="remove-price-rule"
+                onConfirm={(reason) => run(() => removePriceRuleAction({ priceRuleId: r.id, reason }), { success: t("priceRuleRemoved") })} />
             </li>
           ))}
         </ul>
@@ -188,7 +214,7 @@ export function ScheduleTab({ bundle }: { bundle: TourBundle }) {
         {bundle.departures.length === 0 ? <EmptyState>{t("noDepartures")}</EmptyState> : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
-              <thead><tr className="text-muted-foreground"><th className="p-1.5 text-start">{t("when")}</th><th className="p-1.5 text-start">{t("capacity")}</th><th className="p-1.5 text-start">{t("booked")}</th><th className="p-1.5 text-start">{t("held")}</th><th className="p-1.5 text-start">{t("status")}</th></tr></thead>
+              <thead><tr className="text-muted-foreground"><th className="p-1.5 text-start">{t("when")}</th><th className="p-1.5 text-start">{t("capacity")}</th><th className="p-1.5 text-start">{t("booked")}</th><th className="p-1.5 text-start">{t("held")}</th><th className="p-1.5 text-start">{t("status")}</th><th className="p-1.5 text-start"><span className="sr-only">{t("departureActions")}</span></th></tr></thead>
               <tbody>
                 {bundle.departures.map((d) => (
                   <tr key={d.id} className="border-t">
@@ -198,6 +224,15 @@ export function ScheduleTab({ bundle }: { bundle: TourBundle }) {
                     <td className="p-1.5 tabular-nums">{d.booked_count}</td>
                     <td className="p-1.5 tabular-nums">{d.held_count}</td>
                     <td className="p-1.5"><StatusBadge status={d.status} label={tds(d.status)} />{d.is_blocked ? <span className="ms-1 text-xs text-rose-700">{t("blocked")}</span> : null}</td>
+                    <td className="p-1.5 text-end" data-testid="departure-actions">
+                      {d.booked_count === 0 && d.held_count === 0 && (d.status === "scheduled" || d.status === "delayed") ? (
+                        <ReasonAction label={t("removeDeparture")} variant="destructive" testId="remove-departure"
+                          onConfirm={(reason) => run(() => removeDepartureAction({ departureId: d.id, reason }), { success: t("departureRemoved") })} />
+                      ) : (
+                        // Booked departures are cancelled (refunds, customer notice) or changed on the board.
+                        <Link href={`${TOURS_PLATFORM_BASE}/departures?tour=${core.id}`} className="text-sm underline">{t("manageOnBoard")}</Link>
+                      )}
+                    </td>
                   </tr>
                 ))}
               </tbody>

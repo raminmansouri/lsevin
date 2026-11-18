@@ -471,4 +471,84 @@ suite("tours admin panel (real database)", () => {
     await authoring.approveAndPublish(admin, t.id, "ok");
     expect((await getTourDetail(t.slug, "en-US"))?.text.title?.value).toBe("Persepolis day tour");
   });
+
+  describe("removing schedules, departures and price adjustments (2026-11-18: admin could not remove them)", () => {
+    const isoIn = (days: number) => new Date(Date.now() + days * 86_400_000).toISOString().slice(0, 10);
+    const activeOf = (ruleId: string) => sql<any[]>`
+      select id::text, booked_count, is_active, status from tour.departures where schedule_rule_id = ${ruleId}::uuid and is_active order by starts_at`;
+
+    async function tourWithRule() {
+      const owner = await seedUser(sql);
+      const p = await seedProvider(sql, owner.id);
+      const t = await seedTour(sql, { providerId: p.id, departures: 0, capacity: 8 });
+      const admin = adminActor((await seedUser(sql)).id);
+      // Every day for the next two weeks at 09:00.
+      const rule = await authoring.addScheduleRule(admin, t.id, {
+        calendar: "gregory", kind: "weekly", weekdays: [1, 2, 3, 4, 5, 6, 7], localTime: "09:00", startDate: isoIn(2), endDate: isoIn(15), capacity: 8,
+      });
+      return { t, admin, ruleId: rule.id };
+    }
+
+    it("removing a recurring schedule stops it, removes its unsold future departures, keeps booked ones and never regenerates them", async () => {
+      const { t, admin, ruleId } = await tourWithRule();
+      const before = await activeOf(ruleId);
+      expect(before.length).toBeGreaterThanOrEqual(10);
+      const customer = await seedUser(sql);
+      await bookOnce({ ...t, departureIds: [before[0].id] }, customer.id, before[0].id, 1);
+      session.actor = admin;
+      const res = await actions.removeScheduleRuleAction({ ruleId, reason: "Season over for this route" });
+      expect(res).toMatchObject({ ok: true, data: { removedDepartures: before.length - 1, departuresWithBookings: [before[0].id] } });
+      const [rule] = await sql<any[]>`select is_active from tour.schedule_rules where id = ${ruleId}::uuid`;
+      expect(rule.is_active).toBe(false);
+      expect((await activeOf(ruleId)).map((d) => d.id)).toEqual([before[0].id]);
+      // Generating again creates nothing from a stopped schedule.
+      expect((await authoring.materializeDepartures(admin, t.id)).created).toBe(0);
+      expect((await activeOf(ruleId)).length).toBe(1);
+      // Removed departures are gone from the admin tab and the board.
+      const bundle = await queries.tourBundle(admin, t.id);
+      expect(bundle.departures.map((d: any) => d.id)).toEqual([before[0].id]);
+      const [a] = await sql<any[]>`select detail from tour.audit_log where entity_id = ${ruleId}::uuid and action = 'removed'`;
+      expect(a.detail).toMatchObject({ reason: "Season over for this route", keptWithBookings: 1 });
+      // A reason is required; an unknown rule is not found.
+      expect(await actions.removeScheduleRuleAction({ ruleId, reason: "" })).toMatchObject({ ok: false });
+      expect(await actions.removeScheduleRuleAction({ ruleId: "00000000-0000-4000-8000-000000000001", reason: "No such rule" })).toMatchObject({ ok: false, error: { kind: "not_found" } });
+    });
+
+    it("an unsold departure can be removed and is not generated again; a booked one must be cancelled instead", async () => {
+      const { t, admin, ruleId } = await tourWithRule();
+      const [first, second] = await activeOf(ruleId);
+      const customer = await seedUser(sql);
+      await bookOnce({ ...t, departureIds: [second.id] }, customer.id, second.id, 1);
+      session.actor = admin;
+      expect(await actions.removeDepartureAction({ departureId: first.id, reason: "Guide unavailable that day" })).toMatchObject({ ok: true });
+      expect(await actions.removeDepartureAction({ departureId: second.id, reason: "Guide unavailable that day" })).toMatchObject({ ok: false, error: { kind: "conflict", code: "departure_has_bookings" } });
+      expect((await dep(second.id)).booked_count).toBe(1);
+      expect((await authoring.materializeDepartures(admin, t.id)).created).toBe(0);
+      const ids = (await activeOf(ruleId)).map((d) => d.id);
+      expect(ids).not.toContain(first.id);
+      expect(ids).toContain(second.id);
+    });
+
+    it("a cancelled departure of an active schedule is not recreated by the next generation (regression)", async () => {
+      const { t, admin, ruleId } = await tourWithRule();
+      const [first] = await activeOf(ruleId);
+      session.actor = admin;
+      const res = await actions.cancelDepartureAction({ departureId: first.id, reasonCode: "weather", reason: "Storm warning for the region", notice: { sourceLocale: "fa-IR", texts: { "fa-IR": { title: "لغو", body: "لغو شد." } } } });
+      expect(res).toMatchObject({ ok: true });
+      const slots = await sql<any[]>`select count(*)::int as n from tour.departures d join tour.departures c on c.id = ${first.id}::uuid where d.tour_id = c.tour_id and d.starts_at = c.starts_at`;
+      expect((await authoring.materializeDepartures(admin, t.id)).created).toBe(0);
+      const after = await sql<any[]>`select count(*)::int as n from tour.departures d join tour.departures c on c.id = ${first.id}::uuid where d.tour_id = c.tour_id and d.starts_at = c.starts_at`;
+      expect(after[0].n).toBe(slots[0].n);
+    });
+
+    it("a price adjustment can be removed (with a reason, audited)", async () => {
+      const { t, admin } = await tourWithRule();
+      const pr = await authoring.addPriceRule(admin, t.id, { from: isoIn(2), to: isoIn(9), calendar: "gregory", kind: "percent", value: -10 });
+      session.actor = admin;
+      expect(await actions.removePriceRuleAction({ priceRuleId: pr.id, reason: "Promotion ended early" })).toMatchObject({ ok: true });
+      expect((await sql<any[]>`select count(*)::int as n from tour.price_rules where id = ${pr.id}::uuid`)[0].n).toBe(0);
+      const [a] = await sql<any[]>`select detail from tour.audit_log where entity_id = ${pr.id}::uuid and action = 'removed'`;
+      expect(a.detail).toMatchObject({ reason: "Promotion ended early", value: -10 });
+    });
+  });
 });

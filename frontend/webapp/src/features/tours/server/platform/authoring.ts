@@ -634,6 +634,11 @@ export async function materializeDepartures(actor: Actor, tourId: string, horizo
         select ${tourId}::uuid, ${rule.option_id}::uuid, ${rule.id}::uuid, t.service_provider_id, t.provider_service_id, ${date}::date,
                ${date}::date + (t.duration_days - 1), ${time}::time, t.timezone, ${startsAt}, ${rule.capacity}
           from tour.tours t where t.id = ${tourId}::uuid
+           -- A slot an operator cancelled or removed is never generated again (the unique slot
+           -- index ignores cancelled departures, so it alone would recreate them).
+           and not exists (select 1 from tour.departures x
+                            where x.tour_id = ${tourId}::uuid and x.starts_at = ${startsAt}
+                              and coalesce(x.option_id, '00000000-0000-0000-0000-000000000000'::uuid) = coalesce(${rule.option_id}::uuid, '00000000-0000-0000-0000-000000000000'::uuid))
         on conflict do nothing returning id`;
       created += r.length;
     }
