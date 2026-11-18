@@ -65,6 +65,19 @@ const nextConfig: NextConfig = {
           { key: "X-Robots-Tag", value: "noindex" },
         ],
       },
+      // Only lsevincare.com is indexed (2026-11-18, owner's decision). Every other
+      // host this server answers on (lsevin.ir, lsevincare.ir, appmain.lsevin.com,
+      // the site-A variants) serves the same pages and is kept out of search with
+      // a response header: no page reads the request host, so static and ISR pages
+      // stay static. Last in the list so it overrides the facet "noindex, follow".
+      // robots.txt must keep allowing these hosts, or crawlers never see it. A
+      // host allowlist, not a blocklist: site A's image rewrites appmain.lsevin.com
+      // to its own host (deployments/jenkins/site-variant/build-site-variant.sh).
+      {
+        source: "/:path*",
+        missing: [{ type: "host" as const, value: String.raw`(?:www\.)?lsevincare\.com` }],
+        headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }],
+      },
     ];
   },
 
