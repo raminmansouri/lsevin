@@ -13935,7 +13935,9 @@
       "productsLabel": "PRODUCTS",
       "warrantyTitle": "Seller's guarantee"
     },
-    "sellers": "{count} sellers"
+    "sellers": "{count} sellers",
+    "subcategories": "子类别",
+    "subcategoriesAll": "全部"
   },
   "Footer": {
     "columns": {

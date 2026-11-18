@@ -14075,7 +14075,9 @@
       "productsLabel": "PRODUCTS",
       "warrantyTitle": "Seller's guarantee"
     },
-    "sellers": "Продавцов: {count}"
+    "sellers": "Продавцов: {count}",
+    "subcategories": "Подкатегории",
+    "subcategoriesAll": "Все"
   },
   "SitePages": {
     "faqTitle": "Часто задаваемые вопросы",

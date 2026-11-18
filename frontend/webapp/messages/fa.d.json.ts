@@ -16576,7 +16576,9 @@ declare const messages: {
         "completed": "تحویل گرفته شد",
         "cancelled": "لغو شده"
       }
-    }
+    },
+    "subcategories": "زیرمجموعه‌ها",
+    "subcategoriesAll": "همه"
   },
   "ShopAdmin": {
     "apiTokens": {

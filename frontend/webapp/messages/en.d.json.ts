@@ -16554,7 +16554,9 @@ declare const messages: {
         "completed": "Picked up",
         "cancelled": "Cancelled"
       }
-    }
+    },
+    "subcategories": "Subcategories",
+    "subcategoriesAll": "All"
   },
   "ShopAdmin": {
     "apiTokens": {
