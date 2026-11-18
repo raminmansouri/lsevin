@@ -13912,7 +13912,9 @@ declare const messages: {
       "productsLabel": "PRODUCTS",
       "warrantyTitle": "Seller's guarantee"
     },
-    "sellers": "{count} sellers"
+    "sellers": "{count} sellers",
+    "subcategories": "ژێرپۆلەکان",
+    "subcategoriesAll": "هەموو"
   },
   "ShopMedia": {
     "hint": "وێنەی یەکەم وێنەی سەرەکییە. بۆ جێبەجێکردنی گۆڕانکارییەکان پاشەکەوت بکە.",

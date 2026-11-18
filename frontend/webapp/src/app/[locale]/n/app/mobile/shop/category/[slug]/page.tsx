@@ -17,6 +17,7 @@ import { ShopHeader } from "@/features/shop/components/ShopHeader";
 import { ProductListViewClient } from "@/features/shop/components/ProductListViewClient";
 import { ShopViewTracker } from "@/features/shop/components/ShopViewTracker";
 import { shopImageSrc } from "@/features/shop/lib/image";
+import { Link } from "@/i18n/navigation";
 
 // Customer currency is resolved per request; category data remains cached.
 export const dynamic = "force-dynamic";
@@ -54,6 +55,8 @@ export default async function ShopCategoryPage({
   const categories = await getShopCategoriesCached(locale).catch(() => []);
   const category = categories.find((c) => c.slug === slug);
   if (!category) notFound();
+  const parent = category.parentId ? categories.find((c) => c.id === category.parentId) ?? null : null;
+  const children = categories.filter((c) => c.parentId === category.id);
 
   const [brands, feed] = await Promise.all([
     getShopBrandsCached(locale, slug).catch(() => []),
@@ -96,15 +99,30 @@ export default async function ShopCategoryPage({
           breadcrumbList([
             { name: brand, url: absoluteUrl(locale) },
             { name: t("title"), url: absoluteUrl(locale, "/shop") },
+            ...(parent ? [{ name: parent.name, url: absoluteUrl(locale, `/shop/${encodeURIComponent(parent.slug)}`) }] : []),
             { name: category.name, url: categoryUrl },
           ])
         )}
       />
-      <ShopHeader back="/shop" />
+      <ShopHeader back={parent ? `/shop/${parent.slug}` : "/shop"} />
       <ShopViewTracker categoryId={category.id} surface="category" />
       {category.bannerUrl ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img src={shopImageSrc(category.bannerUrl)} alt={category.name} className="h-32 w-full object-cover" />
+      ) : null}
+      {children.length ? (
+        <nav aria-label={t("subcategories")} className="flex gap-2 overflow-x-auto px-4 pt-4 pb-1 [scrollbar-width:none]">
+          <span className="shrink-0 rounded-full bg-[#083f30] px-4 py-2 text-sm font-semibold text-white">{t("subcategoriesAll")}</span>
+          {children.map((child) => (
+            <Link
+              key={child.id}
+              href={`/shop/${child.slug}`}
+              className="shrink-0 rounded-full border border-neutral-200 bg-white px-4 py-2 text-sm font-semibold text-neutral-700 transition hover:border-[#c9a55a] hover:text-[#083f30]"
+            >
+              {child.name}
+            </Link>
+          ))}
+        </nav>
       ) : null}
       <Suspense fallback={null}>
         <ProductListViewClient

@@ -4,6 +4,7 @@ import { getTranslations } from "next-intl/server";
 
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import type { HomeCategory } from "@/features/home/api/server/get-home-page";
+import { getHeroArches } from "@/features/home/api/server/hero-arches";
 import { resolveMediaUrl } from "@/features/service-providers/lib/media-url";
 import { Link } from "@/i18n/navigation";
 
@@ -42,7 +43,16 @@ export async function DesktopHero({
   const secondLine = words.slice(half).join(" ");
 
   const providerTotal = categories.reduce((sum, category) => sum + category.providerCount, 0);
-  const pictures = categories.filter((category) => category.imageUrl).slice(0, 3);
+  const arches = await getHeroArches(locale).catch(() => []);
+  const fallback = categories.filter((category) => category.imageUrl);
+  const pictures = [0, 1, 2].map((index) => {
+    const arch = arches.find((item) => item.slot === index + 1);
+    if (arch?.imageUrl) {
+      return { imageUrl: arch.imageUrl, label: arch.label || fallback[index]?.label || "", href: arch.linkUrl };
+    }
+    const category = fallback[index];
+    return category ? { imageUrl: category.imageUrl, label: category.label, href: null } : undefined;
+  });
   const ribbon = categories.map((category) => category.label);
 
   return (
@@ -137,8 +147,11 @@ export async function DesktopHero({
                             </div>
                           )}
                           <div className="absolute inset-0 bg-gradient-to-t from-[#062a20]/80 via-transparent to-transparent" />
-                          {picture ? (
+                          {picture?.label ? (
                             <span className="absolute inset-x-0 bottom-5 text-center text-sm font-semibold text-white">{picture.label}</span>
+                          ) : null}
+                          {picture?.href ? (
+                            <Link href={picture.href} aria-label={picture.label || undefined} className="absolute inset-0 z-10" />
                           ) : null}
                         </div>
                       </div>
