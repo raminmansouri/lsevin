@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 
 import type { PropertyDetail, ReviewItem } from "../../types";
 import { useNumber, useStayDate } from "../common";
+import { listSeparator } from "../../domain/locales";
 
 /** Scores are 1–5 in the database; shown out of 5 like the rest of the site. */
 export function ReviewCard({ review: r, compact = false }: { review: ReviewItem; compact?: boolean }) {
@@ -29,7 +30,7 @@ export function ReviewCard({ review: r, compact = false }: { review: ReviewItem;
           <p className="truncate font-semibold text-slate-900">{r.authorName || t("guest")}</p>
           <p className="text-xs text-slate-500">
             {r.stayMonth ? t("stayed", { month: monthYear(r.stayMonth) }) : fmt(r.createdAt.slice(0, 10))}
-            {r.nights ? ` ، ${t("reviewNights", { count: r.nights })}` : ""}
+            {r.nights ? `${listSeparator(locale)}${t("reviewNights", { count: r.nights })}` : ""}
           </p>
         </div>
         <span className="inline-flex shrink-0 items-center gap-0.5 rounded-md bg-emerald-700 px-1.5 py-0.5 text-xs font-bold text-white">

@@ -705,7 +705,8 @@
         "notifyMe": "Turn on notifications",
         "notifyOn": "Notifications are on: you will hear about the host's reply on this device.",
         "notifyDenied": "Notifications are blocked for this site in your browser. This page still updates by itself."
-      }
+      },
+      "copyCode": "Copy booking code"
     },
     "wishlist": {
       "title": "Saved stays",

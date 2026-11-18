@@ -14,6 +14,7 @@ import type { StayQuote } from "../../domain/pricing";
 import { confirmStayCheckoutAction, startStayCheckoutAction } from "../../server/actions/customer";
 import type { CheckoutProfile } from "../../server/booking";
 import { Money, StarRating, StayImage, useClock, useShortDate } from "../common";
+import { listSeparator } from "../../domain/locales";
 
 export type BookingContext = {
   propertyId: string;
@@ -277,7 +278,9 @@ export function StayBookingFlow({ ctx, signedIn, profile, initialQuote }: { ctx:
           </h2>
           {ctx.starRating ? <StarRating count={ctx.starRating} /> : null}
           <p className="mt-0.5 text-sm text-slate-600">
-            {ctx.roomName}، {tMeals(ctx.mealPlan as never)}
+            {ctx.roomName}
+            {listSeparator(locale)}
+            {tMeals(ctx.mealPlan as never)}
           </p>
         </div>
       </div>
@@ -299,7 +302,9 @@ export function StayBookingFlow({ ctx, signedIn, profile, initialQuote }: { ctx:
       </dl>
       <p className="flex items-center gap-2 border-t border-slate-100 px-3 py-2.5 text-sm text-slate-700">
         <Users className="size-4 text-slate-500" aria-hidden="true" />
-        {t("nightsRooms", { nights, rooms: ctx.occupancy.rooms })}، {t("guestsLine", { adults: ctx.occupancy.adults, children })}
+        {t("nightsRooms", { nights, rooms: ctx.occupancy.rooms })}
+        {listSeparator(locale)}
+        {t("guestsLine", { adults: ctx.occupancy.adults, children })}
       </p>
       {quote ? (
         <div className="border-t border-slate-100 px-3 py-3">

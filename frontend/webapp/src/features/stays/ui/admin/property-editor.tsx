@@ -24,6 +24,7 @@ import { Field, NativeSelect, ReasonAction, SaveBar, Section, StatusBadge, confi
 import { addDaysIso } from "@/features/tours/domain/calendar";
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
+import { intlLocale } from "@/features/tours/ui/shared/format";
 
 import { todayIn } from "../../domain/dates";
 import { ENTIRE_PLACE_KINDS, MEAL_PLANS, PROPERTY_KINDS, type PropertyKind } from "../../domain/search";
@@ -46,8 +47,10 @@ import type { CalendarDay, PropertyAdminData } from "../../server/admin/properti
 import type { Amenity } from "../../types";
 
 import { FieldError, STAYS_ADMIN_BASE, useStayAdminAction } from "./shared";
+import { STAY_CONTENT_LOCALES } from "../../domain/locales";
 
-const LOCALES = ["fa-IR", "en-US", "ar-SA"] as const;
+// Every platform language; Persian (the source) first.
+const LOCALES = STAY_CONTENT_LOCALES;
 const TABS = ["details", "rooms", "calendar", "photos", "policy", "history"] as const;
 type Tab = (typeof TABS)[number];
 
@@ -766,7 +769,7 @@ function CalendarTab({ data }: { data: PropertyAdminData }) {
   const [inv, setInv] = useState({ from: todayIn(), to: addDaysIso(todayIn(), 1), units: "", stopSell: "", closedToArrival: "", minNights: "" });
   const [price, setPrice] = useState({ ratePlanId: "", from: todayIn(), to: addDaysIso(todayIn(), 1), price: "", weekdays: [] as number[] });
   const tri = (v: string) => (v === "" ? null : v === "1");
-  const weekdayName = (d: number) => new Intl.DateTimeFormat(locale, { weekday: "short", timeZone: "UTC" }).format(new Date(Date.UTC(2024, 0, 7 + d)));
+  const weekdayName = (d: number) => new Intl.DateTimeFormat(intlLocale(locale), { weekday: "short", timeZone: "UTC" }).format(new Date(Date.UTC(2024, 0, 7 + d)));
 
   if (rooms.length === 0) return <p className="text-muted-foreground text-sm">{t("rooms.hint")}</p>;
   return (

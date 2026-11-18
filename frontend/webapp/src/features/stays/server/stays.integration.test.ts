@@ -21,6 +21,7 @@ import {
   seedStay,
   seedStayCity,
   seedLegacyHotelProvider,
+  seedStayBooking,
   seedStayProvider,
   seedUser,
   type SeedStayOptions,
@@ -657,6 +658,32 @@ suite("stays (real database)", () => {
       await booking.sweepStayDeadlines();
       const [bb] = await sql<any[]>`select status from stay.bookings where booking_id = ${b.bookingId}::uuid`;
       expect(bb.status).toBe("expired");
+    });
+  });
+
+  describe("languages", () => {
+    it("a language without its own text falls back to English, never to Persian (regression)", async () => {
+      const { stay } = await world();
+      const persianWifi = (await catalog.getPropertyDetail({ slug: stay.slug }, "fa-IR"))?.amenities.find((a) => a.code === "wifi")?.label;
+      for (const locale of ["de-DE", "tr-TR", "ru-RU", "zh-CN", "ku-KU", "tg-TJ"]) {
+        const p = await catalog.getPropertyDetail({ slug: stay.slug }, locale);
+        expect(p?.name?.value, locale).toBe(stay.name["en-US"]);
+        const amenity = p?.amenities.find((a) => a.code === "wifi");
+        // Kurdish is written in Arabic script: it must be Kurdish, not the Persian label.
+        if (locale === "ku-KU") expect(amenity?.label, locale).not.toBe(persianWifi);
+        else expect(amenity?.label, locale).not.toMatch(/[؀-ۿ]/);
+      }
+      expect((await catalog.getPropertyDetail({ slug: stay.slug }, "fa-IR"))?.name?.value).toBe(stay.name["fa-IR"]);
+    });
+
+    it("review room names follow the reader's language", async () => {
+      const { stay } = await world();
+      const u = await seedUser(sql as never);
+      const { bookingId } = await seedStayBooking(sql as never, stay, u.id, { checkIn: isoInDays(-6), checkOut: isoInDays(-4), status: "completed" });
+      await sql`insert into stay.reviews (booking_id, property_id, user_id, rating, status, locale) values (${bookingId}::uuid, ${stay.id}::uuid, ${u.id}::uuid, 5, 'published', 'fa-IR')`;
+      await sql`update stay.room_types set name = name || '{"de-DE":"Doppelzimmer"}'::jsonb where id = ${stay.roomTypeId}::uuid`;
+      const [r] = await catalog.listReviews(stay.id, { locale: "de-DE" });
+      expect(r.roomName).toBe("Doppelzimmer");
     });
   });
 

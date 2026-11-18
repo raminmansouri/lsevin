@@ -3,7 +3,7 @@
 import { useEffect, useState, useTransition } from "react";
 import Image from "next/image";
 import { BadgeCheck, ChevronLeft, Headphones, HeartPulse, History, MapPinned } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
 import { Link } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
@@ -16,6 +16,7 @@ import { PropertyCardView } from "../property-card";
 import { StaySearchForm, type CityOption } from "../search/search-form";
 
 import { TYPE_CREDITS } from "./type-credits";
+import { listSeparator } from "../../domain/locales";
 
 /**
  * "Browse by type" photos: licensed Wikimedia Commons pictures of real Iranian stays where one
@@ -47,6 +48,7 @@ export function StaysHome({
   kindCounts?: Record<string, number>;
 }) {
   const t = useTranslations("StayApp.home");
+  const locale = useLocale();
   const tKinds = useTranslations("StayApp.kinds");
   const saved = new Set(savedIds);
   const [recentItems, setRecent] = useState(recent);
@@ -133,7 +135,7 @@ export function StaysHome({
           {t("photoCredits")}{" "}
           {TYPE_CREDITS.map((c, i) => (
             <span key={c.kind}>
-              {i ? "، " : null}
+              {i ? listSeparator(locale) : null}
               <a href={c.source} target="_blank" rel="noopener noreferrer nofollow" className="underline-offset-2 hover:underline" dir="ltr">
                 {c.author} ({c.license})
               </a>

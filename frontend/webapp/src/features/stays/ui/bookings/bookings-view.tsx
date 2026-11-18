@@ -154,7 +154,7 @@ export function BookingDetail({ booking, justCreated, pushKey = null }: { bookin
                 <dt className="text-xs text-slate-500">{t("bookingRef")}</dt>
                 <dd className="flex items-center gap-2 font-mono font-bold" dir="ltr" data-testid="stay-voucher-code">
                   {b.voucherCode}
-                  <button type="button" aria-label="copy" onClick={() => void navigator.clipboard?.writeText(b.voucherCode)} className="print:hidden">
+                  <button type="button" aria-label={t("copyCode")} onClick={() => void navigator.clipboard?.writeText(b.voucherCode)} className="print:hidden">
                     <Copy className="size-4 text-slate-500" aria-hidden="true" />
                   </button>
                 </dd>

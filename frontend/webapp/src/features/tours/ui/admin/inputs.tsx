@@ -46,7 +46,10 @@ export function pickLabel(map: Record<string, string> | null | undefined, uiLoca
   if (exact) return exact;
   const sameLang = Object.entries(map).find(([k, v]) => v && k.split("-")[0].toLowerCase() === lang)?.[1];
   if (sameLang) return sameLang;
-  return map["fa-IR"] || map["en-US"] || Object.values(map).find(Boolean) || fallback;
+  // Missing in the admin's language: English, then Persian (the source) — a Turkish or German admin
+  // reads English rather than Persian.
+  const order = lang === "fa" ? [map["fa-IR"], map["en-US"]] : [map["en-US"], map["fa-IR"]];
+  return order.find(Boolean) || Object.values(map).find(Boolean) || fallback;
 }
 
 /** Display name of a BCP 47 tag ("fa-IR" → "فارسی"), falling back to Intl. */

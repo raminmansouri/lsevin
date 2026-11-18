@@ -54,7 +54,7 @@ async function cachedPropertyExtrasStore(property: Pick<PropertyDetail, "id" | "
 
 async function propertyExtras(property: Pick<PropertyDetail, "id" | "city" | "location">, locale: string) {
   const [reviews, stats, similar, landmarks, amenities] = await Promise.all([
-    listReviews(property.id, { limit: 30 }),
+    listReviews(property.id, { limit: 30, locale }),
     reviewStats(property.id).catch(() => ({ histogram: [0, 0, 0, 0, 0], recommendPercent: null as number | null })),
     similarStays(property, locale).catch(() => []),
     listLandmarks(property.city.slug, locale).catch(() => []),

@@ -18,7 +18,7 @@ export default async function StaysAdminPreviewPage({ params }: { params: Promis
   const property = await getPropertyDetail({ id }, content, { mode: "preview", revealExactLocation: true });
   if (!property) notFound();
   const occupancy = { rooms: 1, adults: 2, childAges: [] as number[] };
-  const [offers, reviews] = await Promise.all([getRoomOffers(property.id, { checkIn: null, checkOut: null, occupancy }, content), listReviews(property.id)]);
+  const [offers, reviews] = await Promise.all([getRoomOffers(property.id, { checkIn: null, checkOut: null, occupancy }, content), listReviews(property.id, { locale: content })]);
   return (
     <ToursPrefsProvider initial={{ calendar: locale === "fa" ? "persian" : "gregory", currency: null, currencies: [], signedIn: false, userName: null }}>
       <div className="overflow-hidden rounded-lg border bg-slate-50" data-testid="stays-admin-preview-page">

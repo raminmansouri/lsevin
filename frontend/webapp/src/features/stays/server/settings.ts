@@ -2,6 +2,8 @@ import "server-only";
 
 import db from "@/config/database/db";
 
+import { STAY_CONTENT_LOCALES } from "../domain/locales";
+
 export type StaySettings = {
   holdMinutes: number;
   paymentWindowMinutes: number;
@@ -21,7 +23,7 @@ export const STAY_SETTING_DEFAULTS: StaySettings = {
   maxNights: 30,
   maxRooms: 5,
   bookingWindowDays: 365,
-  enabledLocales: ["fa-IR", "en-US", "ar-SA"],
+  enabledLocales: [...STAY_CONTENT_LOCALES],
 };
 
 export const STAY_SETTING_KEYS: Record<string, keyof StaySettings> = {

@@ -17,6 +17,7 @@ import { createPropertyAction, importProviderAction, importableProvidersAction, 
 import type { AdminPropertyRow } from "../../server/admin/properties";
 
 import { FieldError, STAYS_ADMIN_BASE, useStayAdminAction } from "./shared";
+import { STAY_CONTENT_LOCALES } from "../../domain/locales";
 
 type CityOpt = { id: string; label: string };
 
@@ -259,7 +260,7 @@ function CreateDialog({ open, onOpenChange, cities }: { open: boolean; onOpenCha
               </NativeSelect>
             </Field>
           </div>
-          <LocalizedTextInput label={`${t("editor.name")} *`} locales={["fa-IR", "en-US", "ar-SA"]} value={name} onChange={setName} error={fieldErrors.name ? t("common.required") : undefined} />
+          <LocalizedTextInput label={`${t("editor.name")} *`} locales={STAY_CONTENT_LOCALES} value={name} onChange={setName} error={fieldErrors.name ? t("common.required") : undefined} />
         </div>
         <DialogFooter>
           <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
