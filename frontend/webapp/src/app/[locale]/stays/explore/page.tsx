@@ -4,7 +4,8 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { contentLocaleFor } from "@/features/tours/domain/content";
 import { currentActor } from "@/features/tours/server/platform/access";
 import { parseStaySearch } from "@/features/stays/domain/search";
-import { exploreSuggestions, listAmenities, listCities, listLandmarks, searchProperties, wishlistIds } from "@/features/stays/server/catalog";
+import { wishlistIds } from "@/features/stays/server/catalog";
+import { cachedAmenities, cachedCities, cachedLandmarks, catalogSearch, catalogSuggestions } from "@/features/stays/server/cache";
 import { logUnexpected } from "@/features/stays/server/errors";
 import { ExploreView } from "@/features/stays/ui/explore/explore-view";
 import { alternatesFor } from "@/lib/seo/alternates";
@@ -37,21 +38,21 @@ export default async function StaysExplorePage({
   const t = await getTranslations({ locale, namespace: "StayApp.explore" });
   const actor = await currentActor();
   const [cities, amenities, saved] = await Promise.all([
-    listCities(content).catch(() => []),
-    listAmenities(content).catch(() => []),
+    cachedCities(content).catch(() => []),
+    cachedAmenities(content).catch(() => []),
     actor.userId ? wishlistIds(actor.userId).catch(() => [] as string[]) : Promise.resolve([] as string[]),
   ]);
   // A failed search shows a retry state (not "no stays"), so an outage never looks like an empty catalog.
-  const result = await searchProperties(search, content).catch((e) => {
+  const result = await catalogSearch(search, content).catch((e) => {
     logUnexpected("stays.explore", e);
     return null;
   });
   const city = cities.find((c) => c.slug === search.city);
   const landmarkCity = search.city ?? result?.anchor?.citySlug ?? null;
   const [landmarks, suggestions] = await Promise.all([
-    landmarkCity ? listLandmarks(landmarkCity, content).catch(() => []) : Promise.resolve([]),
+    landmarkCity ? cachedLandmarks(landmarkCity, content).catch(() => []) : Promise.resolve([]),
     result && result.total === 0
-      ? exploreSuggestions(search, content).catch((e) => {
+      ? catalogSuggestions(search, content).catch((e) => {
           logUnexpected("stays.explore.suggestions", e);
           return null;
         })

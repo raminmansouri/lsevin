@@ -189,6 +189,7 @@ export async function submitStayReviewAction(input: unknown) {
     );
     const actor = await requireUser();
     const id = await submitStayReview(actor.userId, { ...data, locale: contentLocaleFor(data.locale) });
+    // Not shown until an admin publishes it; moderation clears the catalogue cache.
     return { id };
   });
 }

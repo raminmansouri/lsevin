@@ -173,7 +173,7 @@
 })();
 
 /* PROFILE_VIEW_STORE_END */
-const VERSION = "v1-1ace604952c9c834";
+const VERSION = "v1-b888cf36a0ecca43";
 const SHELL_CACHE = `lsevin-pwa-shell-${VERSION}`;
 const ASSET_CACHE = "lsevin-pwa-assets-v2";
 const APPLICATION_CACHE = "lsevin-pwa-application-v2";
@@ -648,16 +648,32 @@ self.addEventListener("push", (event) => {
     self.registration.showNotification(data.title || "LSevin", {
       body: data.body || "",
       icon: "/favicon.ico",
+      data: { url: typeof data.url === "string" ? data.url : null },
     })
   );
 });
 
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
+  // Open the page the notification is about (e.g. the booking), never another origin.
+  let target = null;
+  try {
+    const raw = event.notification.data && event.notification.data.url;
+    if (raw) {
+      const u = new URL(raw, self.location.origin);
+      if (u.origin === self.location.origin) target = u.href;
+    }
+  } catch {
+    target = null;
+  }
   event.waitUntil(
     self.clients
       .matchAll({ type: "window", includeUncontrolled: true })
       .then((clients) => {
+        for (const client of clients) {
+          if (target && client.url === target && "focus" in client) return client.focus();
+        }
+        if (target && self.clients.openWindow) return self.clients.openWindow(target);
         for (const client of clients) {
           if ("focus" in client) return client.focus();
         }

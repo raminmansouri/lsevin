@@ -1,6 +1,7 @@
 import "server-only";
 
 import sql from "@/config/database/db";
+import { notificationSiteId } from "./site";
 import { listChannelConfigsForDispatch, type NotificationChannelCode } from "./channel.repository";
 import { sendEmail } from "./senders/email";
 import { sendSms } from "./senders/sms";
@@ -45,13 +46,19 @@ export type DispatchResult = { processed: number; sent: number; failed: number; 
  * immediately at creation time, since "delivered" for in_app just means the row exists.
  */
 export async function dispatchQueuedDeliveries(batchSize = 20): Promise<DispatchResult> {
+  // notify.* is replicated between sites; a site sends only what it queued itself
+  // (rows from before origin tagging have no originSite and stay claimable by either).
+  const site = notificationSiteId();
   const claimed = await sql<ClaimedDeliveryRow[]>`
     update notify.notification_deliveries
     set status = 'processing', attempted_at = now()
     where id in (
-      select id from notify.notification_deliveries
-      where status = 'queued' and channel <> 'in_app'
-      order by created_at asc
+      select d.id from notify.notification_deliveries d
+      where d.status = 'queued' and d.channel <> 'in_app'
+        and (${site}::text is null or exists (
+          select 1 from notify.notifications n
+           where n.id = d.notification_id and coalesce(n.payload->>'originSite', ${site}::text) = ${site}::text))
+      order by d.created_at asc
       limit ${batchSize}
       for update skip locked
     )

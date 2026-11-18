@@ -1,4 +1,5 @@
 import sql from "@/config/database/db";
+import { notificationSiteId } from "@/features/notification/server/site";
 
 export type NotificationChannel =
   | "in_app"
@@ -235,7 +236,7 @@ export async function createNotification(input: SendNotificationInput) {
       ${input.body},
       ${input.entityType ?? null},
       ${input.entityId ? sql`${input.entityId}::uuid` : null},
-      ${sql.json(input.data ?? {})},
+      ${sql.json({ originSite: notificationSiteId(), ...(input.data ?? {}) } as never)},
       'queued'
     )
     returning id::text as id

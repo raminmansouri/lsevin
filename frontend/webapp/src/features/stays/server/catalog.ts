@@ -786,6 +786,16 @@ export async function getPriceCalendar(
   return { currency: rows[0].currency, days: rows.map((r) => ({ date: r.date, price: r.price == null || locked.has(r.date) ? null : Number(r.price) })) };
 }
 
+/** Published stays per property type (home page "browse by type"). */
+export async function kindCounts(): Promise<Record<string, number>> {
+  const rows = await db<{ kind: string; n: number }[]>`
+    select p.kind, count(*)::int as n
+      from stay.properties p join stay.cities c on c.id = p.city_id
+     where p.status = 'published' and c.is_published
+     group by p.kind`;
+  return Object.fromEntries(rows.map((r) => [r.kind, r.n]));
+}
+
 /** Other published stays of the same city, nearest first (or most popular without coordinates). */
 export async function similarStays(property: Pick<PropertyDetail, "id" | "city" | "location">, locale: string, limit = 4): Promise<PropertyCard[]> {
   const near = property.location ? `pt:${property.location.latitude},${property.location.longitude}` : null;

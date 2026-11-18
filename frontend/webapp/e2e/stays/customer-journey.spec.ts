@@ -127,11 +127,13 @@ test.describe("stays guest journey @critical", () => {
     await evidence(page, testInfo, "stays__journey__04-before-confirm");
     await page.getByTestId("stay-confirm").click();
 
-    // Booking page: waiting for payment, address withheld.
+    // Booking page: waiting for payment; a hotel's address and directions show at once.
     await expect(page).toHaveURL(/\/fa\/stays\/bookings\/[0-9a-f-]{36}\?new=1$/);
     const bookingId = page.url().match(/bookings\/([0-9a-f-]{36})/)![1];
     await expect(page.getByTestId("stay-booking-status")).toHaveAttribute("data-status", "pending_payment");
-    await expect(page.getByTestId("stay-booking-address")).toContainText("پس از قطعی شدن");
+    await expect(page.getByTestId("stay-booking-address")).toContainText("ارم");
+    await expect(page.getByTestId("stay-booking-directions-google")).toHaveAttribute("href", /google\.com\/maps\/dir/);
+    await expect(page.getByTestId("stay-booking-directions-neshan")).toBeVisible();
     await expect(page.getByTestId("stay-booking-detail-total")).toHaveText(summaryTotal);
     expect(await bookingRow(bookingId)).toMatchObject({ status: "pending_payment", rooms: 1, check_in: ci, check_out: co });
     const [saved] = await db()<any[]>`select buyer, guests, special_requests from stay.bookings where booking_id = ${bookingId}::uuid`;

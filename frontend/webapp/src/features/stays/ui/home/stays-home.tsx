@@ -1,10 +1,12 @@
 "use client";
 
 import { useEffect, useState, useTransition } from "react";
-import { BadgeCheck, Building2, Headphones, HeartPulse, History, Home, Hotel, Landmark, MapPinned, Tent, TreePine } from "lucide-react";
+import Image from "next/image";
+import { BadgeCheck, ChevronLeft, Headphones, HeartPulse, History, MapPinned } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { Link } from "@/i18n/navigation";
+import { cn } from "@/lib/utils";
 
 import { LAST_EXPLORE_KEY, parseStaySearch, type PropertyKind, type StaySearch } from "../../domain/search";
 import { clearStayRecentViewsAction } from "../../server/actions/customer";
@@ -13,13 +15,20 @@ import { StayImage } from "../common";
 import { PropertyCardView } from "../property-card";
 import { StaySearchForm, type CityOption } from "../search/search-form";
 
-const TYPES: { kind: PropertyKind; icon: typeof Hotel }[] = [
-  { kind: "hotel", icon: Hotel },
-  { kind: "traditional", icon: Landmark },
-  { kind: "hotel_apartment", icon: Building2 },
-  { kind: "villa", icon: Home },
-  { kind: "cottage", icon: TreePine },
-  { kind: "ecolodge", icon: Tent },
+import { TYPE_CREDITS } from "./type-credits";
+
+/**
+ * "Browse by type" photos: licensed Wikimedia Commons pictures of real Iranian stays where one
+ * exists (credits in public/images/stays/CREDITS.json and under the grid), resized to 800×600
+ * WebP and served through next/image at the tile's width.
+ */
+const TYPES: { kind: PropertyKind; image: string }[] = [
+  { kind: "hotel", image: "/images/stays/type-hotel.webp" },
+  { kind: "traditional", image: "/images/stays/type-traditional.webp" },
+  { kind: "hotel_apartment", image: "/images/stays/type-hotel-apartment.webp" },
+  { kind: "villa", image: "/images/stays/type-villa.webp" },
+  { kind: "cottage", image: "/images/stays/type-cottage.webp" },
+  { kind: "ecolodge", image: "/images/stays/type-ecolodge.webp" },
 ];
 
 export function StaysHome({
@@ -28,12 +37,14 @@ export function StaysHome({
   featured,
   recent,
   savedIds,
+  kindCounts = {},
 }: {
   cities: CitySummary[];
   cityOptions: CityOption[];
   featured: PropertyCard[];
   recent: PropertyCard[];
   savedIds: string[];
+  kindCounts?: Record<string, number>;
 }) {
   const t = useTranslations("StayApp.home");
   const tKinds = useTranslations("StayApp.kinds");
@@ -51,6 +62,8 @@ export function StaysHome({
     }
   }, []);
   const lastCity = last?.search.city ? cityOptions.find((c) => c.slug === last.search.city)?.name : null;
+  // Types with stays first (most first); a type without any yet is shown as "coming soon", not as a dead end.
+  const types = TYPES.map((x, order) => ({ ...x, order, count: kindCounts[x.kind] ?? 0 })).sort((a, b) => Number(b.count > 0) - Number(a.count > 0) || b.count - a.count || a.order - b.order);
 
   return (
     <div className="space-y-10 pb-6">
@@ -72,6 +85,61 @@ export function StaysHome({
             {lastCity ? t("continueSearchIn", { city: lastCity }) : t("continueSearch")}
           </Link>
         ) : null}
+      </section>
+
+      <section className="px-4 sm:px-6" aria-labelledby="stays-types" data-testid="stays-types">
+        <h2 id="stays-types" className="text-lg font-bold">
+          {t("browseByType")}
+        </h2>
+        <ul className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+          {types.map(({ kind, image, count }, i) => {
+            const body = (
+              <>
+                <Image
+                  src={image}
+                  alt={t(`typeAlt.${kind}` as never)}
+                  fill
+                  sizes="(min-width: 1024px) 16vw, (min-width: 640px) 33vw, 50vw"
+                  priority={i < 2}
+                  className={cn("object-cover transition duration-300", count ? "group-hover:scale-105" : "grayscale-[60%]")}
+                />
+                <span className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-transparent" aria-hidden="true" />
+                <span className="absolute inset-x-3 bottom-2.5 flex items-end justify-between gap-2 text-white">
+                  <span className="min-w-0">
+                    <span className="block truncate text-base font-extrabold drop-shadow">{tKinds(kind)}</span>
+                    <span className="block text-xs text-white/90">{count ? t("propertyCount", { count }) : t("comingSoon")}</span>
+                  </span>
+                  {count ? <ChevronLeft className="size-5 shrink-0 opacity-90" aria-hidden="true" /> : null}
+                </span>
+              </>
+            );
+            const tile = "group relative block aspect-[4/3] overflow-hidden rounded-2xl bg-slate-200";
+            return (
+              <li key={kind}>
+                {count ? (
+                  <Link href={`/stays/explore?type=${kind}`} className={cn(tile, "focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2 focus-visible:outline-none")} data-testid={`stays-type-${kind}`}>
+                    {body}
+                  </Link>
+                ) : (
+                  <div className={tile} data-testid={`stays-type-${kind}`} aria-disabled="true">
+                    {body}
+                  </div>
+                )}
+              </li>
+            );
+          })}
+        </ul>
+        <p className="mt-2 text-[11px] leading-5 text-slate-500" data-testid="stays-types-credits">
+          {t("photoCredits")}{" "}
+          {TYPE_CREDITS.map((c, i) => (
+            <span key={c.kind}>
+              {i ? "، " : null}
+              <a href={c.source} target="_blank" rel="noopener noreferrer nofollow" className="underline-offset-2 hover:underline" dir="ltr">
+                {c.author} ({c.license})
+              </a>
+            </span>
+          ))}
+        </p>
       </section>
 
       {recentItems.length ? (
@@ -152,24 +220,6 @@ export function StaysHome({
         </section>
       ) : null}
 
-      <section className="px-4 sm:px-6" aria-labelledby="stays-types">
-        <h2 id="stays-types" className="text-lg font-bold">
-          {t("browseByType")}
-        </h2>
-        <ul className="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-6">
-          {TYPES.map(({ kind, icon: Icon }) => (
-            <li key={kind}>
-              <Link
-                href={`/stays/explore?type=${kind}`}
-                className="flex min-h-20 flex-col items-center justify-center gap-1.5 rounded-2xl bg-white p-2 text-center text-xs font-semibold text-slate-800 ring-1 ring-slate-200 hover:bg-emerald-50 focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:outline-none"
-              >
-                <Icon className="size-6 text-emerald-700" aria-hidden="true" />
-                {tKinds(kind)}
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </section>
 
       <section className="mx-4 rounded-3xl bg-rose-50 p-5 ring-1 ring-rose-100 sm:mx-6 md:flex md:items-center md:justify-between md:gap-6" aria-labelledby="stays-medical">
         <div className="flex items-start gap-3">

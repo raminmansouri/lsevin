@@ -27,7 +27,9 @@ export async function sendPush(delivery: DeliveryToSend, settings: NotificationC
 
   const title = delivery.channelContent?.push?.title || delivery.title;
   const body = delivery.channelContent?.push?.body || delivery.body;
-  const payload = JSON.stringify({ title, body });
+  // The service worker opens `url` (same origin only) when the notification is tapped.
+  const url = delivery.channelContent?.push?.url;
+  const payload = JSON.stringify(url ? { title, body, url } : { title, body });
 
   let successCount = 0;
   const errors: string[] = [];
