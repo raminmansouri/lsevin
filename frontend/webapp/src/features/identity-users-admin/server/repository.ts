@@ -1,5 +1,6 @@
 import "server-only";
 import { db } from "@/features/booking-admin-shared/server/db";
+import { buildSearchPatterns, USER_LIST_PAGE_SIZE, type UserListParams, type UserListSort } from "@/features/customers-admin/lib/user-list-params";
 
 export type IdentityRole = { id: string; name: string };
 
@@ -11,14 +12,35 @@ export async function getAllRoles() {
   `;
 }
 
-export async function getIdentityUsers() {
-  return db<any[]>`
-    select u.*, c.id as "customerId"
+/** Built per call: postgres.js fragments are not reused across queries. */
+function orderBy(sort: UserListSort) {
+  switch (sort) {
+    case "newest": return db`order by u.created_at desc nulls last, u.id`;
+    case "oldest": return db`order by u.created_at asc nulls last, u.id`;
+    case "name_asc": return db`order by lower(concat_ws(' ', u.first_name, u.last_name)) asc, u.created_at desc`;
+    case "name_desc": return db`order by lower(concat_ws(' ', u.first_name, u.last_name)) desc, u.created_at desc`;
+  }
+}
+
+/** Paged identity-user list; search covers name, email, username and phone. */
+export async function getIdentityUsers({ q, sort, page }: UserListParams) {
+  const { text, digits } = buildSearchPatterns(q);
+  const offset = (page - 1) * USER_LIST_PAGE_SIZE;
+  const rows = await db<any[]>`
+    select u.*, c.id as "customerId", count(*) over() as "totalCount"
     from identity.asp_net_users u
     left join customer.customers c on lower(c.email) = lower(u.email)
-    order by u.created_at desc
-    limit 300
+    ${text ? db`where (
+      concat_ws(' ', u.first_name, u.last_name) ilike ${text}
+      or u.email ilike ${text}
+      or u.user_name ilike ${text}
+      or concat(u.phone_number_country_code, u.phone_number) ilike ${text}
+      ${digits ? db`or regexp_replace(concat(u.phone_number_country_code, u.phone_number, ' ', u.user_name), '\\D', '', 'g') like ${digits}` : db``}
+    )` : db``}
+    ${orderBy(sort)}
+    limit ${USER_LIST_PAGE_SIZE} offset ${offset}
   `;
+  return { items: rows, total: Number(rows[0]?.totalCount ?? 0) };
 }
 
 export async function getIdentityUserById(userId: string) {
