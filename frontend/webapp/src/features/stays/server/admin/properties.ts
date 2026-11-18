@@ -758,128 +758,30 @@ export async function searchProviders(q: string, locale: string) {
   return rows.map((r) => ({ id: r.id, name: pickStr(r.name_translations, locale), city: r.city as string }));
 }
 
-function slugify(input: string): string {
-  return input
-    .toLowerCase()
-    .normalize("NFKD")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "")
-    .slice(0, 80);
-}
-
 /**
- * Creates a DRAFT property from a legacy provider: names, description, address,
- * coordinates, rating and gallery are copied; rooms with nightly prices become
- * room types + rate plans. Nothing is published — an admin reviews it first.
+ * Turns an existing Lsevin accommodation provider into a draft stay, with the
+ * same rules the catalog migration used (stay.import_provider, 0113): rooms from
+ * its nightly services with occupancy read from their names ("سه تخته" → 3),
+ * stars / kind / amenities from its attributes, photos from its gallery, the
+ * default cancellation policy, request-to-book. The admin reviews and publishes.
  */
 export async function importProvider(actor: Actor, providerId: string, cityId: string): Promise<string> {
-  const [sp] = await db<any[]>`
-    select id::text, name_translations, description_translations, street_translations, city, latitude, longitude, phone_number,
-           phone_number_country_code, image_url, timezone_id
-      from category.service_providers where id = ${providerId}::uuid`;
-  if (!sp) throw fail.notFound("provider_not_found");
   const [dup] = await db<{ id: string }[]>`select id::text from stay.properties where service_provider_id = ${providerId}::uuid limit 1`;
   if (dup) throw fail.conflict("already_imported", { propertyId: dup.id });
-
-  const en = (sp.name_translations?.["en-US"] as string) || sp.city || "stay";
-  let slug = slugify(en) || "stay";
-  const [taken] = await db<{ n: number }[]>`select count(*)::int as n from stay.properties where slug = ${slug}`;
-  if (taken.n > 0) slug = `${slug}-${providerId.slice(0, 6)}`;
-  const name = cleanTr(sp.name_translations);
-  const phone = sp.phone_number ? `${sp.phone_number_country_code ?? ""}${sp.phone_number}`.replace(/[^0-9+ -]/g, "").slice(0, 20) : null;
-
-  const id = await createProperty(actor, {
-    serviceProviderId: providerId,
-    cityId,
-    slug,
-    kind: "hotel",
-    inventoryModel: "rooms",
-    starRating: null,
-    name: Object.keys(name).length ? name : { "fa-IR": en },
-    summary: {},
-    description: cleanTr(sp.description_translations),
-    houseRules: {},
-    address: cleanTr(sp.street_translations),
-    latitude: sp.latitude == null ? null : Number(sp.latitude),
-    longitude: sp.longitude == null ? null : Number(sp.longitude),
-    locationPrivacy: "exact",
-    checkInTime: "14:00",
-    checkOutTime: "12:00",
-    amenityCodes: [],
-    nearby: [],
-    stepFreeAccess: false,
-    accessibleBathroom: false,
-    medicalFriendly: false,
-    petsAllowed: false,
-    smokingAllowed: false,
-    partiesAllowed: false,
-    familiesOnly: false,
-    idRequired: true,
-    childFreeUnderAge: 5,
-    confirmationMode: "request",
-    requestTimeoutHours: 24,
-    currencyCode: "IRR",
-    taxPercent: 0,
-    timezone: sp.timezone_id && /\//.test(sp.timezone_id) ? sp.timezone_id : "Asia/Tehran",
-    contactPhone: phone && /^\+?[0-9 -]{5,20}$/.test(phone) ? phone : null,
-    isFeatured: false,
-  });
-
-  const gallery = await db<any[]>`
-    select coalesce(nullif(ml.file_url, ''), g.url) as url
-      from category.provider_gallery_items g left join media.media_library ml on ml.id::text = g.url
-     where g.service_provider_id = ${providerId}::uuid and coalesce(g.media_type, 'image') ilike 'image%'
-     order by g.display_order, g.create_date limit 20`.catch(() => [] as any[]);
-  const urls = [sp.image_url, ...gallery.map((g) => g.url)].filter((u): u is string => typeof u === "string" && u.trim() !== "");
-  for (const url of [...new Set(urls)].slice(0, 20)) {
-    await addMedia(actor, id, { url: url.trim(), alt: Object.keys(name).length ? name : { "fa-IR": en }, credit: null, roomTypeId: null }).catch(() => undefined);
+  try {
+    return await db.begin(async (tx) => {
+      const [r] = await tx<{ id: string }[]>`select stay.import_provider(${providerId}::uuid, ${cityId}::uuid, ${actor.userId}::uuid, false)::text as id`;
+      await tx`select stay.ensure_booking_anchor(${r.id}::uuid)`;
+      // Room photos from the provider's services (0115).
+      await tx`select stay.import_room_photos(${r.id}::uuid)`;
+      return r.id;
+    });
+  } catch (e) {
+    const message = String((e as { message?: string })?.message ?? "");
+    if (message === "PROVIDER_NOT_FOUND") throw fail.notFound("provider_not_found");
+    if (message === "CITY_NOT_FOUND") throw fail.validation("invalid_property", { fields: { cityId: "not_found" } });
+    if (message === "ALREADY_IMPORTED") throw fail.conflict("already_imported");
+    throw e;
   }
-
-  const rooms = await db<any[]>`
-    select ps.id::text, coalesce(nullif(ps.display_name_translations::text, '{}'), sd.name_translations::text)::jsonb as name, ps.value, ps.currency
-      from category.provider_services ps join category.service_definitions sd on sd.id = ps.service_definition_id
-     where ps.service_provider_id = ${providerId}::uuid and ps.is_active and sd.booking_ui_mode = 'date_range' and ps.value > 0
-     order by ps.value limit 20`;
-  let i = 0;
-  for (const r of rooms) {
-    i += 1;
-    const roomId = await saveRoomType(actor, id, null, {
-      code: `room-${i}`,
-      name: cleanTr(r.name),
-      description: {},
-      units: 1,
-      baseOccupancy: 2,
-      maxAdults: 2,
-      maxChildren: 1,
-      maxOccupancy: 3,
-      extraBeds: 0,
-      beds: [],
-      sizeM2: null,
-      bedrooms: null,
-      bathrooms: null,
-      amenityCodes: [],
-      sortOrder: i,
-      isActive: true,
-    }).catch(() => null);
-    if (!roomId || (r.currency && r.currency !== "IRR")) continue;
-    await saveRatePlan(actor, id, null, {
-      roomTypeId: roomId,
-      code: "standard",
-      name: {},
-      mealPlan: "room_only",
-      refundable: true,
-      basePrice: Number(r.value),
-      extraAdultPrice: 0,
-      childPrice: 0,
-      minNights: 1,
-      maxNights: 30,
-      longStayNights: null,
-      longStayPercent: null,
-      sortOrder: 1,
-      isActive: true,
-    }).catch(() => null);
-  }
-  await db.begin(async (tx) => audit(tx as unknown as Tx, actor, id, "property", id, "imported_from_provider", { providerId, rooms: rooms.length }));
-  return id;
 }
 

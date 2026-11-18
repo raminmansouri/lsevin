@@ -10,9 +10,10 @@ import {
   categoryBrowserHref,
   categoryProvidersHref,
   isTourismCategory,
+  subAppPathFor,
   TOURS_HOME_PATH,
 } from "@/features/categories/utils/category-href";
-import { compareByPriority } from "@/features/categories/utils/priority";
+import { compareByPriority, priorityRank } from "@/features/categories/utils/priority";
 import type {
   CategoryBrowserCategory,
   CategoryBrowserGroup,
@@ -21,8 +22,6 @@ import { Link, useRouter } from "@/i18n/navigation";
 
 const ROOT_PARENT_KEY = "__root__";
 const FEATURED_SLUG = "health-treatment-and-beauty";
-const FIRST_SLUGS = [FEATURED_SLUG, "tourism", "accommodation"];
-const LAST_SLUGS = ["educational-classes"];
 
 function parentKey(parentId?: string | null) {
   return parentId || ROOT_PARENT_KEY;
@@ -32,13 +31,6 @@ function slugOf(category: CategoryBrowserCategory) {
   return ((category as { slug?: string | null }).slug ?? "").toLowerCase();
 }
 
-function slugRank(category: CategoryBrowserCategory) {
-  const slug = slugOf(category);
-  const first = FIRST_SLUGS.indexOf(slug);
-  if (first >= 0) return first;
-  if (LAST_SLUGS.includes(slug)) return 1000;
-  return 100;
-}
 
 export function buildCategoryImageSrc(value?: string | null) {
   const media = value?.trim();
@@ -47,9 +39,19 @@ export function buildCategoryImageSrc(value?: string | null) {
   return `${env.NEXT_PUBLIC_FILES_URL}/${media.replace(/^\//, "")}`;
 }
 
+/**
+ * The admin's display order (Admin → Categories → "Arrange order"), then the name. Siblings
+ * only: display_order is a position among categories with the same parent. This used to put a
+ * hard-coded slug list first, which overrode whatever order the admin set; migration 0114 seeded
+ * the display order from that list.
+ */
 export function sortCategories(categories: CategoryBrowserCategory[]) {
-  const byPriority = compareByPriority<CategoryBrowserCategory>((a, b) => a.name.localeCompare(b.name));
-  return [...categories].sort((a, b) => slugRank(a) - slugRank(b) || byPriority(a, b));
+  return [...categories].sort(compareByPriority<CategoryBrowserCategory>((a, b) => a.name.localeCompare(b.name)));
+}
+
+/** Category groups follow their first main category, so the admin's order decides them too. */
+export function groupRank(categories: CategoryBrowserCategory[]) {
+  return categories.length ? Math.min(...categories.map((category) => priorityRank(category.displayOrder))) : Number.POSITIVE_INFINITY;
 }
 
 function localizeDigits(text: string, locale: string) {
@@ -143,13 +145,14 @@ function CategoryCard({
   hasChildren,
   featured,
   onOpenCategory,
-  opensTours = false,
+  opensApp = null,
 }: {
   category: CategoryBrowserCategory;
   hasChildren: boolean;
   featured: boolean;
   onOpenCategory: () => void;
-  opensTours?: boolean;
+  /** Tourism → /tours, Accommodation → /stays: the category's own app instead of a category screen. */
+  opensApp?: string | null;
 }) {
   const t = useTranslations("CategoryBrowser");
   const className = [
@@ -158,9 +161,15 @@ function CategoryCard({
   ].join(" ");
   const content = <CategoryCardContent category={category} hasChildren={hasChildren} featured={featured} />;
 
-  if (opensTours) {
+  if (opensApp) {
     return (
-      <Link href={TOURS_HOME_PATH} className={className} aria-label={t("openCategory", { name: category.name })} data-opens-tours="true">
+      <Link
+        href={opensApp}
+        className={className}
+        aria-label={t("openCategory", { name: category.name })}
+        data-opens-tours={opensApp === TOURS_HOME_PATH ? "true" : undefined}
+        data-opens-app={opensApp}
+      >
         {content}
       </Link>
     );
@@ -209,12 +218,14 @@ export function CategoryBrowserClient({
   totalCategories,
   totalProviders,
   tourismCategoryId = null,
+  staysCategoryId = null,
   parentId = null,
 }: {
   categoryGroups: CategoryBrowserGroup[];
   totalCategories: number;
   totalProviders: number;
   tourismCategoryId?: string | null;
+  staysCategoryId?: string | null;
   parentId?: string | null;
 }) {
   const t = useTranslations("CategoryBrowser");
@@ -299,7 +310,11 @@ export function CategoryBrowserClient({
     return categoryGroups
       .map((group) => ({ ...group, categories: sortCategories(group.categories.filter((category) => !category.parentId)) }))
       .filter((group) => group.categories.length > 0)
-      .sort((a, b) => Math.min(...a.categories.map(slugRank)) - Math.min(...b.categories.map(slugRank)));
+      .sort((a, b) => {
+        const ra = groupRank(a.categories);
+        const rb = groupRank(b.categories);
+        return ra === rb ? 0 : ra < rb ? -1 : 1;
+      });
   }, [categoriesByParent, categoryGroups, currentParent, hasQuery, searchedCategories, t]);
 
   function openCategory() {
@@ -416,7 +431,7 @@ export function CategoryBrowserClient({
                         hasChildren={(categoriesByParent.get(category.id)?.length ?? 0) > 0}
                         featured={atRoot && slugOf(category) === FEATURED_SLUG}
                         onOpenCategory={openCategory}
-                        opensTours={isTourism(category.id)}
+                        opensApp={subAppPathFor(category.id, { tourismCategoryId, staysCategoryId, parentOf: (cid) => categoryById.get(cid)?.parentId })}
                       />
                     ))}
                   </div>

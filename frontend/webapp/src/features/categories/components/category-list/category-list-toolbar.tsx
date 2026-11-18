@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "@/i18n/navigation";
 
 import { CATEGORY_TRANSLATION_KEY } from "../../constants";
+import { CategoryOrderDialog } from "./category-order-dialog";
 
 export const CategoryListToolbar = () => {
   const t = useTranslations(CATEGORY_TRANSLATION_KEY);
@@ -16,6 +17,9 @@ export const CategoryListToolbar = () => {
   };
 
   return (
-    <Button onClick={handleAddCategory}>{t("actions.addCategory")}</Button>
+    <div className="flex flex-wrap items-center gap-2">
+      <CategoryOrderDialog />
+      <Button onClick={handleAddCategory}>{t("actions.addCategory")}</Button>
+    </div>
   );
 };

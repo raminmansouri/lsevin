@@ -23,6 +23,8 @@ const VALID_TYPES = new Set<AdminLookupType>([
   "currencies",
   "addons",
   "paymentMethods",
+  "users",
+  "transferRoutes",
 ]);
 
 function toPositiveInt(value: string | null, fallback: number) {
@@ -57,6 +59,7 @@ export async function GET(request: NextRequest) {
     providerTypeKey: searchParams.get("providerTypeKey"),
     categoryId: searchParams.get("categoryId"),
     excludeProviderId: searchParams.get("excludeProviderId"),
+    providerId: searchParams.get("providerId"),
     ids: idsParam ? idsParam.split(",").map((id) => id.trim()).filter(Boolean) : undefined,
   });
 

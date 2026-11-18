@@ -6,6 +6,7 @@ import { unstable_noStore as noStore } from "next/cache";
 
 import {
   categoryProviderCountsCte,
+  categoryTreeOrderCte,
   providerInCategorySubtree,
 } from "@/features/categories/db/category-tree";
 import { normalizeDigits, parseCoordinate } from "./nearby.geo";
@@ -524,8 +525,8 @@ export async function getNearbyPageData({
     favoriteProviderIds.map((x) => x.entity_id),
   );
 
-  const categoryRows = await sql<NearbyCategory[]>`
-    with recursive ${categoryProviderCountsCte()}
+  const categoryRows = await sql<(NearbyCategory & { sortPath: number[] | null })[]>`
+    with recursive ${categoryProviderCountsCte()}, ${categoryTreeOrderCte()}
     select distinct
       c.id::text as id,
       c.slug,
@@ -539,8 +540,11 @@ export async function getNearbyPageData({
         nullif(btrim(category_icon_media.storage_path), ''),
         nullif(btrim(category_icon_media.storage_key), ''),
         nullif(btrim(split_part(coalesce(c.icon_url, ''), ',', 1)), '')
-      ) as image
+      ) as image,
+      o.sort_path as "sortPath"
     from category.categories c
+    left join category_tree_order o
+      on o.category_id = c.id
     left join media.media_library category_image_media
       on category_image_media.id::text = nullif(btrim(split_part(coalesce(c.image_url, ''), ',', 1)), '')
     left join media.media_library category_icon_media
@@ -553,12 +557,13 @@ export async function getNearbyPageData({
       on pc.category_id = c.id
      and pc.provider_count > 0
     where c.is_active = true
-    order by label asc
+    -- The admin's display order: each main category, then its subcategories.
+    order by o.sort_path asc nulls last, label asc
   `;
 
   const categories: NearbyCategory[] = [
     { id: "all", label: labels.all },
-    ...categoryRows.map((row) => ({
+    ...categoryRows.map(({ sortPath: _sortPath, ...row }) => ({
       ...row,
       image: row.image ? coalesceImage(row.image) : undefined,
     })),

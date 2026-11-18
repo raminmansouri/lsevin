@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod/v4";
 import { db } from "@/features/booking-admin-shared/server/db";
+import { assertAdmin } from "@/lib/auth/admin-guard";
 
 const schema = z.object({
   childBookingId: z.guid(),
@@ -12,6 +13,7 @@ const schema = z.object({
 });
 
 export async function reviewChildBookingAction(input: unknown) {
+  await assertAdmin();
   const values = schema.parse(input);
 
   await db`
@@ -25,6 +27,7 @@ export async function reviewChildBookingAction(input: unknown) {
         ),
         last_modified_date = now()
     where id = ${values.childBookingId}
+      and parent_booking_id = ${values.parentBookingId}
   `;
 
   revalidatePath(`/admin/bookings/${values.parentBookingId}/update`);

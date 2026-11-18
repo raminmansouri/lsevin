@@ -1,12 +1,11 @@
 "use client";
 
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useLocale, useTranslations } from "next-intl";
+import { ChevronRight } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { Link } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 
-import { directionOf } from "../../domain/content";
 import type { DestinationCard as DestinationData } from "../../server/platform/catalog";
 import { LocalizedText } from "../shared/localized-text";
 
@@ -15,8 +14,7 @@ import { TourImage } from "./common";
 /** Destination tile (2-landing_page_tours.png "Popular Destinations"). */
 export function DestinationCard({ destination, className }: { destination: DestinationData; className?: string }) {
   const t = useTranslations("TourApp.destinations");
-  const rtl = directionOf(useLocale()) === "rtl";
-  const Chevron = rtl ? ChevronLeft : ChevronRight;
+  const Chevron = ChevronRight; // mirrored in RTL by globals.css
   const name = destination.name?.value ?? destination.slug;
   return (
     <Link

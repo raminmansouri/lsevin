@@ -15,6 +15,7 @@ import { resolveDisplayPrice } from "@/features/finance/lib/server/toman-price";
 import {
   categoryProviderCountsCte,
   categoryTotalProviderCount,
+  categoryTreeOrderCte,
   providerInCategorySubtree,
 } from "@/features/categories/db/category-tree";
 
@@ -696,7 +697,7 @@ async function getExploreCatalogCached(
     // list of six businesses, and picking a category told you nothing about how much
     // you would get back.
     sql<(ExploreCategory & { totalProviders: number })[]>`
-      with recursive ${categoryProviderCountsCte()}
+      with recursive ${categoryProviderCountsCte()}, ${categoryTreeOrderCte()}
       select
         c.id::text as id,
         c.slug,
@@ -707,8 +708,12 @@ async function getExploreCatalogCached(
       join category_provider_counts pc
         on pc.category_id = c.id
        and pc.provider_count > 0
+      left join category_tree_order o
+        on o.category_id = c.id
       where c.is_active = true
-      order by pc.provider_count desc, label asc
+      -- The admin's display order (Admin → Categories → "Arrange order"): each main
+      -- category, then its subcategories in their order.
+      order by o.sort_path asc nulls last, label asc
     `,
     sql<ExploreProviderType[]>`
     select

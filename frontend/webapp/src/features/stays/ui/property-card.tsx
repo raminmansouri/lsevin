@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Accessibility, BadgeCheck, Heart, HeartPulse, MapPin, Zap } from "lucide-react";
+import { Accessibility, BadgeCheck, Coffee, Footprints, Heart, HeartPulse, MapPin, Sparkles, Zap } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { useToursPrefs } from "@/features/tours/ui/customer/prefs-context";
@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils";
 import { toggleStayWishlistAction } from "../server/actions/customer";
 import type { PropertyCard as Card } from "../types";
 
-import { Money, RatingBadge, StarRating, StayImage } from "./common";
+import { LinkPending, Money, RatingBadge, StarRating, StayImage, useDistance } from "./common";
 
 export function WishlistButton({ propertyId, initialSaved, className }: { propertyId: string; initialSaved: boolean; className?: string }) {
   const t = useTranslations("StayApp.card");
@@ -69,14 +69,18 @@ export function PropertyCardView({
   query,
   priority,
   headingLevel = 3,
+  anchorName,
 }: {
   card: Card;
   saved: boolean;
   query?: string;
   priority?: boolean;
   headingLevel?: 2 | 3;
+  /** Name of the place the search is anchored to ("Imam Reza Holy Shrine"), for the distance line. */
+  anchorName?: string | null;
 }) {
   const t = useTranslations("StayApp.card");
+  const { length, travel } = useDistance();
   const tKinds = useTranslations("StayApp.kinds");
   const H = headingLevel === 2 ? "h2" : "h3";
   const href = `/stays/${card.slug}${query ? `?${query}` : ""}`;
@@ -98,18 +102,43 @@ export function PropertyCardView({
         <H className="text-base leading-6 font-bold text-slate-900">
           <Link href={href} className="after:absolute after:inset-0 after:content-[''] focus-visible:outline-none focus-visible:after:ring-2 focus-visible:after:ring-emerald-600 focus-visible:after:rounded-2xl" data-testid="stay-card-link">
             {card.name}
+            <LinkPending overlay />
           </Link>
         </H>
         <p className="flex items-center gap-1 text-xs text-slate-600">
           <MapPin className="size-3.5" aria-hidden="true" />
           {card.city.name}
         </p>
+        {card.distanceM != null && anchorName ? (
+          <p className="flex items-start gap-1 text-xs font-medium text-emerald-900" data-testid="stay-card-distance">
+            <Footprints className="mt-0.5 size-3.5 shrink-0 text-emerald-700" aria-hidden="true" />
+            <span>
+              {t("distanceTo", { distance: length(card.distanceM), place: anchorName })}
+              {card.approximate ? null : <span className="text-slate-600"> · {travel(card.distanceM)}</span>}
+            </span>
+          </p>
+        ) : null}
         <RatingBadge value={card.ratingAvg} count={card.reviewCount} />
         <ul className="flex flex-wrap gap-1.5 text-[11px] text-slate-700">
           <li className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2 py-0.5">
             {card.instant ? <Zap className="size-3 text-amber-600" aria-hidden="true" /> : <BadgeCheck className="size-3 text-slate-500" aria-hidden="true" />}
             {card.instant ? t("instant") : t("request")}
           </li>
+          {card.breakfastIncluded ? (
+            <li className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-amber-900">
+              <Coffee className="size-3" aria-hidden="true" />
+              {t("breakfast")}
+            </li>
+          ) : null}
+          {card.highlights.includes("top_rated") ? (
+            <li className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-emerald-900">
+              <Sparkles className="size-3" aria-hidden="true" />
+              {t("topRated")}
+            </li>
+          ) : null}
+          {card.highlights.includes("great_value") ? (
+            <li className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-emerald-900">{t("greatValue")}</li>
+          ) : null}
           {card.accessible ? (
             <li className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2 py-0.5">
               <Accessibility className="size-3" aria-hidden="true" />

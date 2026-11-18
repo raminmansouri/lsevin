@@ -8,7 +8,7 @@ import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetT
 import { Link, useRouter } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 import { rememberUserLocation } from "@/features/shared/types/coordinates";
-import { directionOf } from "../../../domain/content";
+
 import { clearRecentSearchesAction, recordSearchAction } from "../../../server/actions/customer";
 import type { TaxonomyTerm } from "../../../server/actions/customer/state";
 import type { DestinationCard, TourCard as TourCardData, TourSearch } from "../../../server/platform/catalog";
@@ -65,7 +65,6 @@ export function ExploreView({
   const locale = useLocale();
   const router = useRouter();
   const prefs = useToursPrefs();
-  const rtl = directionOf(locale) === "rtl";
   const [pending, start] = useTransition();
   const [q, setQ] = useState(search.q ?? "");
   const [sheetOpen, setSheetOpen] = useState(openFilters);
@@ -156,8 +155,8 @@ export function ExploreView({
       .filter((p): p is NonNullable<typeof p> => Boolean(p));
   }, [results.items, destBySlug]);
 
-  const Prev = rtl ? ChevronRight : ChevronLeft;
-  const Next = rtl ? ChevronLeft : ChevronRight;
+  const Prev = ChevronLeft; // mirrored in RTL by globals.css
+  const Next = ChevronRight; // mirrored in RTL by globals.css
   const categories = taxonomy.category ?? [];
 
   return (

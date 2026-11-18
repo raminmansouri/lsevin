@@ -42,7 +42,9 @@ export type AdminLookupType =
   | "policyTypes"
   | "currencies"
   | "addons"
-  | "paymentMethods";
+  | "paymentMethods"
+  | "users"
+  | "transferRoutes";
 
 export type AdminLookupSearchResult = {
   items: AdminLookupOption[];
@@ -63,6 +65,8 @@ export type SearchAdminLookupOptionsParams = {
   providerTypeKey?: string | null;
   categoryId?: string | null;
   excludeProviderId?: string | null;
+  /** Narrow providerServices / staff to one provider (admin booking form). */
+  providerId?: string | null;
   ids?: string[];
 };
 
@@ -391,6 +395,23 @@ function normalizeLocaleCode(locale?: string | null) {
     .trim()
     .replace("_", "-");
   return normalized || "fa-IR";
+}
+
+function userLookupLabel() {
+  return sql`concat_ws(' · ',
+    nullif(trim(concat(coalesce(u.first_name, ''), ' ', coalesce(u.last_name, ''))), ''),
+    nullif(concat_ws(' ', nullif(trim(u.phone_number_country_code), ''), nullif(trim(u.phone_number), '')), ''),
+    nullif(u.email, '')
+  )`;
+}
+
+function transferRouteLabel(locale: string) {
+  return sql`concat(
+    ${translated(sql`sp.name_translations`, locale)}, ': ',
+    ${translated(sql`r.from_translations`, locale)}, ' → ',
+    ${translated(sql`r.to_translations`, locale)},
+    case when coalesce(r.vehicle_type, '') <> '' then concat(' (', r.vehicle_type, ')') else '' end
+  )`;
 }
 
 function translated(columnSql: any, locale: string) {
@@ -1444,6 +1465,26 @@ export async function searchAdminProviderLookupOptions(
           from shop.payment_methods
           where code = any(${requestedIds})
         `;
+      } else if (params.type === "currencies") {
+        rows = await sql<AdminLookupOption[]>`
+          select code as id, code, concat(code, case when nullif(name, '') is not null then concat(' · ', name) else '' end) as label
+          from finance.currencies
+          where code = any(${requestedIds})
+        `;
+      } else if (params.type === "users") {
+        rows = await sql<AdminLookupOption[]>`
+          select u.id::text, ${userLookupLabel()} as label
+          from identity.asp_net_users u
+          where u.id::text = any(${requestedIds})
+        `;
+      } else if (params.type === "transferRoutes") {
+        rows = await sql<AdminLookupOption[]>`
+          select r.id::text, ${transferRouteLabel(locale)} as label, concat(ps.currency, ' ', ps.value::text) as code
+          from transfer.routes r
+          join category.provider_services ps on ps.id = r.provider_service_id
+          join category.service_providers sp on sp.id = r.service_provider_id
+          where r.id::text = any(${requestedIds})
+        `;
       }
 
       return ok({ items: rows, hasMore: false, page: 1, pageSize: rows.length || 1 });
@@ -1564,6 +1605,10 @@ export async function searchAdminProviderLookupOptions(
         select s.id::text, concat(${staffLabel}, case when nullif(${staffTitle}, '') is not null then concat(' · ', ${staffTitle}) else '' end) as label
         from category.staff s
         where s.is_active = true
+          and ${params.providerId?.trim() ? sql`exists (
+            select 1 from category.provider_staffs pst
+            where pst.staff_id = s.id and pst.service_provider_id::text = ${params.providerId.trim()}
+          )` : sql`true`}
           and ${hasQuery ? sql`(${staffLabel} ilike ${like} or ${staffTitle} ilike ${like} or coalesce(s.specialty, '') ilike ${like})` : sql`true`}
         order by label
         limit ${limit} offset ${offset}
@@ -1571,10 +1616,13 @@ export async function searchAdminProviderLookupOptions(
     } else if (params.type === "providers") {
       const providerLabel = translated(sql`sp.name_translations`, locale);
       const excludeProviderId = params.excludeProviderId?.trim();
+      const providerTypeKeyFilter = params.providerTypeKey?.trim().toLowerCase() || null;
       rows = await sql<AdminLookupOption[]>`
         select sp.id::text, concat(${providerLabel}, ' · ', coalesce(sp.city, ''), case when coalesce(sp.country, '') <> '' then concat(', ', sp.country) else '' end) as label
         from category.service_providers sp
+        left join category.provider_types pt on pt.id = sp.provider_type_id
         where ${excludeProviderId ? sql`sp.id::text <> ${excludeProviderId}` : sql`true`}
+          and ${providerTypeKeyFilter ? sql`lower(pt.name_translations->>'en-US') = ${providerTypeKeyFilter}` : sql`true`}
           and ${hasQuery ? sql`(${providerLabel} ilike ${like} or coalesce(sp.email, '') ilike ${like} or coalesce(sp.city, '') ilike ${like} or coalesce(sp.country, '') ilike ${like})` : sql`true`}
         order by label
         limit ${limit} offset ${offset}
@@ -1617,6 +1665,7 @@ export async function searchAdminProviderLookupOptions(
         left join category.provider_types pt on pt.id = sp.provider_type_id
         where ps.is_active = true
           and ${providerTypeKey ? sql`lower(pt.name_translations->>'en-US') = ${providerTypeKey}` : sql`true`}
+          and ${params.providerId?.trim() ? sql`ps.service_provider_id::text = ${params.providerId.trim()}` : sql`true`}
           and ${hasQuery ? sql`(${providerLabel} ilike ${like} or ${serviceLabel} ilike ${like})` : sql`true`}
         order by label
         limit ${limit} offset ${offset}
@@ -1675,6 +1724,32 @@ export async function searchAdminProviderLookupOptions(
         where is_active = true
           and ${hasQuery ? sql`(name ilike ${like} or description ilike ${like} or source_type ilike ${like} or addon_kind ilike ${like})` : sql`true`}
         order by source_type, name
+        limit ${limit} offset ${offset}
+      `;
+    } else if (params.type === "users") {
+      // Customer picker for admin-created bookings: match on name, email or phone.
+      const digits = query.replace(/\D/g, "");
+      rows = await sql<AdminLookupOption[]>`
+        select u.id::text, ${userLookupLabel()} as label
+        from identity.asp_net_users u
+        where ${hasQuery ? sql`(
+          concat_ws(' ', u.first_name, u.last_name) ilike ${like}
+          or u.email ilike ${like}
+          or u.user_name ilike ${like}
+          or ${digits ? sql`concat(u.phone_number_country_code, u.phone_number) ilike ${`%${digits}%`}` : sql`false`}
+        )` : sql`true`}
+        order by u.created_at desc
+        limit ${limit} offset ${offset}
+      `;
+    } else if (params.type === "transferRoutes") {
+      const providerTypeLabel = transferRouteLabel(locale);
+      rows = await sql<AdminLookupOption[]>`
+        select r.id::text, ${providerTypeLabel} as label, concat(ps.currency, ' ', ps.value::text) as code
+        from transfer.routes r
+        join category.provider_services ps on ps.id = r.provider_service_id
+        join category.service_providers sp on sp.id = r.service_provider_id
+        where ${hasQuery ? sql`${providerTypeLabel} ilike ${like}` : sql`true`}
+        order by label
         limit ${limit} offset ${offset}
       `;
     } else if (params.type === "paymentMethods") {

@@ -957,8 +957,10 @@ function normalizeCatalogSearch(search?: string) {
         .trim();
 }
 
-export async function listProviders(params: { locale?: Locale; search?: string; providerTypeId?: string; providerId?: string; serviceId?: string; serviceDefinitionId?: string; specialistId?: string; city?: string; country?: string; take?: number; offset?: number; addonContext?: boolean; }) {
+export async function listProviders(params: { locale?: Locale; search?: string; providerTypeId?: string; providerId?: string; serviceId?: string; serviceDefinitionId?: string; specialistId?: string; city?: string; country?: string; take?: number; offset?: number; addonContext?: boolean; nearProviderId?: string; }) {
   const { locale = 'fa-IR', search = '', providerTypeId, providerId, serviceId, serviceDefinitionId, specialistId, city, country, take = 8, offset = 0, addonContext = false } = params;
+  // Add-ons (a hotel, a driver) for a booking at provider X: nearest to X first, with the distance shown.
+  const nearProviderId = params.nearProviderId && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(params.nearProviderId) ? params.nearProviderId : null;
   const searchText = normalizeCatalogSearch(search);
   const normalizedSearchText = searchText.replace(/[يى]/g, 'ی').replace(/ك/g, 'ک');
   const like = `%${searchText}%`;
@@ -993,6 +995,15 @@ export async function listProviders(params: { locale?: Locale; search?: string; 
              sp.description_translations,
              sp.email,
              sp.phone_number,
+             (
+               select case when sp.latitude is null or sp.longitude is null then null
+                           else round((2 * 6371008.8 * asin(least(1, sqrt(
+                                  power(sin(radians(sp.latitude::float8 - a.latitude::float8) / 2), 2)
+                                  + cos(radians(a.latitude::float8)) * cos(radians(sp.latitude::float8))
+                                    * power(sin(radians(sp.longitude::float8 - a.longitude::float8) / 2), 2)))))::numeric) end
+                 from category.service_providers a
+                where a.id = ${nearProviderId}::uuid and a.latitude is not null and a.longitude is not null
+             ) as distance_m,
              concat_ws(' ',
                common.get_translation_t(sp.name_translations, ${locale}, 'fa-IR'),
                common.get_translation_t(sp.description_translations, ${locale}, 'fa-IR'),
@@ -1073,6 +1084,7 @@ export async function listProviders(params: { locale?: Locale; search?: string; 
                response_time,
                success_rate,
                total_patients,
+               distance_m,
                (
                    select ps_match.id::text
                    from category.provider_services ps_match
@@ -1125,6 +1137,7 @@ export async function listProviders(params: { locale?: Locale; search?: string; 
             when coalesce(p.city, '') ilike ${like} or coalesce(p.country, '') ilike ${like} then 2
             else 5
         end,
+      p.distance_m asc nulls last,
       p.featured_score desc nulls last,
       p.rating desc nulls last,
       p.review_count desc nulls last
@@ -1148,6 +1161,7 @@ export async function listProviders(params: { locale?: Locale; search?: string; 
         successRate: row.success_rate,
         totalPatients: row.total_patients,
         matchingServiceId: row.matching_service_id ?? null,
+        distanceM: row.distance_m == null ? null : Number(row.distance_m),
     }));
 
     const total = Number(rows[0]?.total_count ?? 0);

@@ -1,14 +1,14 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
-import { ArrowLeft, ArrowRight, CalendarDays, Clock, Minus, Plus, Timer, Users } from "lucide-react";
+import { ArrowLeft, CalendarDays, Clock, Minus, Plus, Timer, Users } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 
 import { calendarDisplayName } from "../../../domain/calendar";
-import { contentLocaleFor, directionOf } from "../../../domain/content";
+import { contentLocaleFor } from "../../../domain/content";
 import { TRAVELER_CLASSES, type Quote, type TravelerClass } from "../../../domain/pricing";
 import {
   confirmCheckoutAction,
@@ -110,7 +110,6 @@ export function BookingFlow({
   const prefs = useToursPrefs();
   const fmt = useTourDateFormat();
   const errorText = useToursErrorMessage();
-  const rtl = directionOf(locale) === "rtl";
   const tz = detail.facts.timezone;
   const currency = detail.facts.currency;
 
@@ -376,7 +375,7 @@ export function BookingFlow({
   }
 
   const stepIndex = STEPS.indexOf(draft.step);
-  const Back = rtl ? ArrowRight : ArrowLeft;
+  const Back = ArrowLeft; // mirrored in RTL by globals.css
   const options = detail.options;
 
   // ---------------------------------------------------------------------

@@ -58,3 +58,18 @@ export async function getBookingDefinitionId(): Promise<string | null> {
   const [r] = await db<{ v: string | null }[]>`select value #>> '{}' as v from stay.settings where key = 'booking_service_definition_id'`;
   return r?.v ?? null;
 }
+
+let staysCategoryCache: { at: number; value: string | null } | null = null;
+
+/**
+ * The provider category whose cards open the stays app instead of a provider
+ * list (stay.settings `accommodation_category_id`, set by migration 0113 from
+ * the "accommodation" root) — the stays counterpart of tour.settings
+ * `tourism_category_id`. Cached for 5 minutes; null when unset.
+ */
+export async function getStaysCategoryId(): Promise<string | null> {
+  if (staysCategoryCache && Date.now() - staysCategoryCache.at < 300_000) return staysCategoryCache.value;
+  const [r] = await db<{ v: string | null }[]>`select value #>> '{}' as v from stay.settings where key = 'accommodation_category_id'`;
+  staysCategoryCache = { at: Date.now(), value: r?.v ?? null };
+  return staysCategoryCache.value;
+}

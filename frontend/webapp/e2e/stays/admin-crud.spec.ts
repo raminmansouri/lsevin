@@ -134,6 +134,8 @@ test.describe("stays admin @critical", () => {
     await act(page, () => page.getByTestId("stays-admin-inv-apply").click());
     await expect(page.getByTestId("stays-admin-cal-day").first().getByTestId("stays-admin-cal-left")).toContainText("۰");
     await customer.reload();
+    await expect(customer.getByTestId("stay-detail-none-available")).toBeVisible();
+    await customer.getByTestId("stay-rooms-full-toggle").click();
     await expect(customer.getByTestId("stay-plan-unavailable").first()).toBeVisible();
 
     // 8. Pause → customers no longer find it; restore brings it back.

@@ -4,7 +4,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { contentLocaleFor } from "@/features/tours/domain/content";
 import { currentActor } from "@/features/tours/server/platform/access";
 import { parseStaySearch } from "@/features/stays/domain/search";
-import { listAmenities, listCities, searchProperties, wishlistIds } from "@/features/stays/server/catalog";
+import { exploreSuggestions, listAmenities, listCities, listLandmarks, searchProperties, wishlistIds } from "@/features/stays/server/catalog";
 import { logUnexpected } from "@/features/stays/server/errors";
 import { ExploreView } from "@/features/stays/ui/explore/explore-view";
 import { alternatesFor } from "@/lib/seo/alternates";
@@ -47,6 +47,16 @@ export default async function StaysExplorePage({
     return null;
   });
   const city = cities.find((c) => c.slug === search.city);
+  const landmarkCity = search.city ?? result?.anchor?.citySlug ?? null;
+  const [landmarks, suggestions] = await Promise.all([
+    landmarkCity ? listLandmarks(landmarkCity, content).catch(() => []) : Promise.resolve([]),
+    result && result.total === 0
+      ? exploreSuggestions(search, content).catch((e) => {
+          logUnexpected("stays.explore.suggestions", e);
+          return null;
+        })
+      : Promise.resolve(null),
+  ]);
   const stays = (await getTranslations({ locale, namespace: "StayApp.nav" }))("stays");
   return (
     <>
@@ -61,7 +71,10 @@ export default async function StaysExplorePage({
       search={search}
       result={result}
       cities={cities.map((c) => ({ slug: c.slug, name: c.name, region: c.region }))}
+      cityCounts={cities.map((c) => ({ slug: c.slug, name: c.name, count: c.propertyCount }))}
       amenities={amenities}
+      landmarks={landmarks}
+      suggestions={suggestions}
       savedIds={saved}
       heading={city ? t("titleIn", { city: city.name }) : t("title")}
     />

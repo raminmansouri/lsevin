@@ -121,6 +121,8 @@ export const SEGMENT_NAMESPACES = {
     "AdminTable",
     "AsyncSelect",
     "AvailabilityAdmin",
+    // /admin/booking-drafts/[draftId]/pre-invoice renders a "use client" printable view.
+    "BookingDraftsAdmin",
     "Category",
     // Admin case detail has interactive step controls. The server-rendered
     // timeline already had access to this namespace, but its client controls

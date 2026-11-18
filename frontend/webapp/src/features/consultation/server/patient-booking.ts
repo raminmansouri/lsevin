@@ -14,6 +14,7 @@ import {
   type BookingError,
   type BookingOptions,
   type CreateVideoSessionInput,
+  type OpenUnpaidBooking,
   type PatientVideoSession,
   type PatientVideoSessionListItem,
   type PatientVideoSessionLists,
@@ -25,6 +26,7 @@ import {
   createVideoSessionIfFree,
   getAccountName,
   getMediaFiles,
+  getOpenUnpaidSession,
   getPatientSession,
   listFreeSlots,
   listPatientSessions,
@@ -95,10 +97,11 @@ export async function getBookingOptionsAction(
     if (!doctor) return fail("notFound");
 
     const priced = doctorPackages(ctx, id.data);
-    const [slotLists, patientName, service] = await Promise.all([
+    const [slotLists, patientName, service, openUnpaid] = await Promise.all([
       Promise.all(priced.map((pkg) => listFreeSlots(id.data, pkg.minutes, BOOKING_DAYS_AHEAD))),
       getAccountName(userId),
       serviceForDoctor(ctx, id.data, serviceId),
+      getOpenUnpaidSession(userId),
     ]);
     const packages = priced.map((pkg, index) => ({ minutes: pkg.minutes, priceLabel: pkg.priceLabel, slots: slotLists[index] }));
     return {
@@ -112,6 +115,7 @@ export async function getBookingOptionsAction(
         service: service ? { id: service.id, name: service.name } : null,
         patientName,
         foreignVisitor: !ctx.isIranian,
+        openUnpaid,
       },
     };
   } catch (error) {
@@ -148,7 +152,7 @@ const CreateSchema = z.object({
  */
 export async function createVideoSessionAction(
   input: CreateVideoSessionInput
-): Promise<ConsultationActionResult<{ id: string }>> {
+): Promise<ConsultationActionResult<{ id: string }> & { pending?: OpenUnpaidBooking }> {
   const userId = await signedInUserId();
   if (!userId) return fail("signIn");
 
@@ -167,6 +171,11 @@ export async function createVideoSessionAction(
     const ctx = await loadOfferContext(await getLocale());
     if (!ctx.enabled) return fail("unavailable");
     if (!(await videoDoctorIsBookable(values.doctorId))) return fail("notFound");
+
+    // One unpaid request at a time: say so before "slotTaken" could hide it. Checked again
+    // under the lock in createVideoSessionIfFree, which is what really decides.
+    const open = await getOpenUnpaidSession(userId);
+    if (open) return { ...fail("pendingPayment"), pending: open };
 
     const priced = doctorPackages(ctx, values.doctorId);
     const pkg = values.packageMinutes ? priced.find((p) => p.minutes === values.packageMinutes) : priced[0];
@@ -193,7 +202,7 @@ export async function createVideoSessionAction(
         }
       : null;
 
-    const id = await createVideoSessionIfFree({
+    const outcome = await createVideoSessionIfFree({
       doctorId: values.doctorId,
       patientUserId: userId,
       scheduledAt: wanted,
@@ -207,7 +216,9 @@ export async function createVideoSessionAction(
       attachmentMediaIds: values.attachmentMediaIds,
       snapshot,
     });
-    return id ? { ok: true, data: { id } } : fail("slotTaken");
+    if (outcome.kind === "pendingPayment") return { ...fail("pendingPayment"), pending: outcome.pending };
+    if (outcome.kind === "slotTaken") return fail("slotTaken");
+    return { ok: true, data: { id: outcome.id } };
   } catch (error) {
     return fail("loadFailed", error);
   }

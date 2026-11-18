@@ -54,7 +54,9 @@ test.describe("stays search @regression", () => {
     await page.getByTestId("stays-filters-apply").click();
     await expect(page.getByTestId("stays-empty")).toBeVisible();
     await evidence(page, testInfo, "stays__search__02-empty-state");
-    await page.getByTestId("stays-empty").getByRole("button").click();
+    // The empty state names the fix and how many stays it brings back.
+    await expect(page.getByTestId("stays-empty-clear-filters")).toContainText("۳");
+    await page.getByTestId("stays-empty-clear-filters").click();
     await expect(page.getByTestId("stay-card")).toHaveCount(3);
     errors.assertClean();
   });
@@ -109,6 +111,9 @@ test.describe("stays search @regression", () => {
     await page.goto(`/fa/stays/city/${world.city.slug}?${stayQuery(ci, co)}`);
     await expect(page.getByTestId("stay-card-price")).toContainText("ظرفیت ندارد");
     await page.goto(`/fa/stays/${stay.slug}?${stayQuery(ci, co)}`);
+    await expect(page.getByTestId("stay-detail-none-available")).toBeVisible();
+    // Full rooms are folded under one line, with the reason when opened.
+    await page.getByTestId("stay-rooms-full-toggle").click();
     await expect(page.getByTestId("stay-plan-unavailable").first()).toBeVisible();
     await expect(page.getByTestId("stay-reserve")).toHaveCount(0);
 

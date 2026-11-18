@@ -106,7 +106,10 @@ const getCategoryRows = unstable_cache(
       from category.categories c
       join category_doctor_counts cdc on cdc.category_id = c.id
       where c.is_active = true
-      order by coalesce(c.display_order, 0) asc, name asc
+      -- Admin display order among siblings (1 first; 0 = not placed, after the rest).
+      order by case when coalesce(c.display_order, 0) > 0 then 0 else 1 end,
+               coalesce(c.display_order, 0) asc,
+               name asc
     `;
   },
   ["consultation-doctor-finder-categories"],

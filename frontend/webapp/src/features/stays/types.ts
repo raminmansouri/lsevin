@@ -48,6 +48,31 @@ export type PropertyCard = {
   latitude: number | null;
   longitude: number | null;
   approximate: boolean;
+  /** Straight-line distance to the search's place (null when the search has none). */
+  distanceM: number | null;
+  /** At least one fitting rate includes breakfast or more. */
+  breakfastIncluded: boolean;
+  /** Short, factual reasons this stay stands out in these results. */
+  highlights: ("walkable" | "top_rated" | "great_value")[];
+};
+
+/** The place a location search is anchored to. */
+export type SearchAnchor = {
+  kind: "point" | "provider" | Landmark["kind"];
+  name: string | null;
+  latitude: number;
+  longitude: number;
+  citySlug: string | null;
+};
+
+export type Landmark = {
+  city: string;
+  slug: string;
+  kind: "shrine" | "attraction" | "park" | "shopping" | "airport" | "station" | "hospital" | "clinic" | "beach" | "university" | "other";
+  name: string;
+  latitude: number;
+  longitude: number;
+  quick: boolean;
 };
 
 export type SearchResult = {
@@ -56,6 +81,7 @@ export type SearchResult = {
   page: number;
   pageSize: number;
   priceBounds: { min: number; max: number } | null;
+  anchor: SearchAnchor | null;
 };
 
 export type Amenity = { code: string; group: string; label: string; icon: string | null };
@@ -117,6 +143,10 @@ export type ReviewItem = {
   createdAt: string;
   providerReply: string | null;
   stayMonth: string | null;
+  nights: number | null;
+  /** The room type the reviewer stayed in (reviews are tied to a booking). */
+  roomTypeId: string | null;
+  roomName: string | null;
 };
 
 export type PropertyDetail = {

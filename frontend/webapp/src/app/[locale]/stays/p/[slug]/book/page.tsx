@@ -5,6 +5,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { contentLocaleFor } from "@/features/tours/domain/content";
 import { currentActor } from "@/features/tours/server/platform/access";
 import { parseStaySearch } from "@/features/stays/domain/search";
+import { getCheckoutProfile } from "@/features/stays/server/booking";
 import { getPropertyDetail, getRoomOffers } from "@/features/stays/server/catalog";
 import { StayBookingFlow, type BookingContext } from "@/features/stays/ui/booking/booking-flow";
 import { Link } from "@/i18n/navigation";
@@ -71,10 +72,14 @@ export default async function StayBookPage({ params, searchParams }: Props) {
     confirmationMode: property.confirmationMode,
     requestTimeoutHours: property.requestTimeoutHours,
     timezone: property.timezone,
-    coverUrl: property.media[0]?.url ?? null,
+    coverUrl: room.media[0]?.url ?? property.media.find((m) => !m.roomTypeId)?.url ?? property.media[0]?.url ?? null,
+    starRating: property.starRating,
+    checkInTime: property.checkInTime,
+    checkOutTime: property.checkOutTime,
     policy: { version: property.policy.version, rules: plan.refundable ? property.policy.rules : [], noShowRefundPercent: property.policy.noShowRefundPercent, text: property.policy.text?.value ?? null },
     houseRules,
   };
   const actor = await currentActor();
-  return <StayBookingFlow ctx={ctx} signedIn={Boolean(actor.userId)} initialQuote={plan.quote} />;
+  const profile = actor.userId ? await getCheckoutProfile(actor.userId).catch(() => null) : null;
+  return <StayBookingFlow ctx={ctx} signedIn={Boolean(actor.userId)} profile={profile} initialQuote={plan.quote} />;
 }

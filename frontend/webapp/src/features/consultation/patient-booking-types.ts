@@ -44,6 +44,18 @@ export type BookingOptions = {
    * site, which can't be reached from abroad without an Iranian VPN.
    */
   foreignVisitor: boolean;
+  /**
+   * The patient's own request still waiting for payment inside its 15-minute hold. While there
+   * is one, they can't book another; the screen sends them to pay for it instead.
+   */
+  openUnpaid: OpenUnpaidBooking | null;
+};
+
+/** A request of the patient's that is still unpaid and holding its time. */
+export type OpenUnpaidBooking = {
+  id: string;
+  /** When the hold runs out, ISO; after that the patient can book again. */
+  holdExpiresAt: string;
 };
 
 export type CreateVideoSessionInput = {
@@ -116,6 +128,8 @@ export type BookingError =
   | "unavailable"
   | "notFound"
   | "slotTaken"
+  /** The patient already has an unpaid request inside its hold; they must pay for it first. */
+  | "pendingPayment"
   | "invalid"
   | "notJoinable"
   | "alreadyPaid"

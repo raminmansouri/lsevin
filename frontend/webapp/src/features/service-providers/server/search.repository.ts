@@ -9,6 +9,7 @@ import {
 import { cookies } from "next/headers";
 
 import sql from "@/config/database/db";
+import { categoryTreeOrderCte } from "@/features/categories/db/category-tree";
 import { resolveIsIranianVisitor } from "@/features/finance/lib/server/iranian-visitor";
 import { resolveDisplayPrice } from "@/features/finance/lib/server/toman-price";
 
@@ -428,14 +429,19 @@ export async function getSearchResultCategoriesCached(args: {
   cacheLife("default");
 
   const rows = await sql<SearchCategoryRow[]>`
-    WITH params AS (
+    -- The 12 busiest categories are the filter chips; they are shown in the admin's
+    -- display order (each main category, then its subcategories), not by count.
+    WITH RECURSIVE ${categoryTreeOrderCte()},
+    params AS (
       SELECT
         ${args.locale}::text AS locale,
         ${args.providerTypeId}::uuid AS provider_type_id,
         NULLIF(BTRIM(${args.country}::text), '') AS country,
         NULLIF(BTRIM(${args.city}::text), '') AS city
-    )
+    ),
+    top_categories AS (
     SELECT
+      c.id AS category_id,
       c.id::text AS id,
       common.get_translation_t(c.name_translations, params.locale, 'en-US') AS label,
       COUNT(DISTINCT ps.id)::int AS count
@@ -450,7 +456,12 @@ export async function getSearchResultCategoriesCached(args: {
       AND (params.city IS NULL OR lower(sp.city) = lower(params.city))
     GROUP BY c.id, c.name_translations, c.display_order, params.locale
     ORDER BY count DESC, c.display_order ASC, label ASC
-    LIMIT 12;
+    LIMIT 12
+    )
+    SELECT top_categories.id, top_categories.label, top_categories.count
+    FROM top_categories
+    LEFT JOIN category_tree_order o ON o.category_id = top_categories.category_id
+    ORDER BY o.sort_path ASC NULLS LAST, top_categories.count DESC, top_categories.label ASC;
   `;
 
   const labels = getSearchStaticLabels(args.locale);

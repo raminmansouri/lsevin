@@ -92,6 +92,16 @@ function chosenFromChild(child: ChildBookingDraft, locale: string): ChosenServic
   };
 }
 
+/** "600 m" / "2.4 km" in the viewer's language and digits. */
+function formatDistance(meters: number, locale: string) {
+  const km = meters >= 1000;
+  try {
+    return new Intl.NumberFormat(locale, { style: 'unit', unit: km ? 'kilometer' : 'meter', unitDisplay: 'short', maximumFractionDigits: km ? 1 : 0 }).format(km ? meters / 1000 : Math.round(meters / 10) * 10);
+  } catch {
+    return km ? `${(meters / 1000).toFixed(1)} km` : `${Math.round(meters)} m`;
+  }
+}
+
 export function AddonBookingSheet(props: {
   open: boolean;
   onClose: () => void;
@@ -107,9 +117,11 @@ export function AddonBookingSheet(props: {
   stays: StayOption[];
   city?: string | null;
   country?: string | null;
+  /** The main booking's provider: add-ons are listed nearest to it first, with the distance shown. */
+  nearProvider?: { id: string; name: string } | null;
   onSaved: (child: ChildBookingDraft, totals?: ItineraryTotals) => void;
 }) {
-  const { open, onClose, locale, calendar, draftId, addon, editing, initialDate, tripDays, events, stays, city, country, onSaved } = props;
+  const { open, onClose, locale, calendar, draftId, addon, editing, initialDate, tripDays, events, stays, city, country, nearProvider = null, onSaved } = props;
   const t = useTranslations('BookingItinerary');
   const tBooking = useTranslations('Booking');
 
@@ -156,7 +168,7 @@ export function AddonBookingSheet(props: {
   const debouncedProviderSearch = useDebounced(providerSearch);
   const debouncedServiceSearch = useDebounced(serviceSearch);
   const providerUrl = citiesReady
-    ? `/api/booking-pro/catalog/providers?locale=${encodeURIComponent(locale)}&providerTypeId=${encodeURIComponent(addon.providerTypeId)}&context=addon${scope === 'country' && country ? `&country=${encodeURIComponent(country)}` : `&city=${encodeURIComponent(selectedCity)}`}&search=${encodeURIComponent(debouncedProviderSearch)}`
+    ? `/api/booking-pro/catalog/providers?locale=${encodeURIComponent(locale)}&providerTypeId=${encodeURIComponent(addon.providerTypeId)}&context=addon${scope === 'country' && country ? `&country=${encodeURIComponent(country)}` : `&city=${encodeURIComponent(selectedCity)}`}&search=${encodeURIComponent(debouncedProviderSearch)}${nearProvider ? `&nearProviderId=${encodeURIComponent(nearProvider.id)}` : ''}`
     : null;
   const providers = usePagedList<ProviderCardItem>(step === 'provider' ? providerUrl : null);
   const servicesUrl = model.providerId
@@ -363,7 +375,9 @@ export function AddonBookingSheet(props: {
               <span className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-slate-100">{image ? <ImageWithFallback fill sizes="56px" src={image} alt="" className="object-cover"/> : null}</span>
               <span className="min-w-0 flex-1">
                 <span className="block truncate text-sm font-extrabold text-slate-900">{item.name}</span>
-                <span className="block truncate text-xs text-slate-500">{[item.city, item.country].filter(Boolean).join('، ')}</span>
+                <span className="block truncate text-xs text-slate-500">
+                  {[[item.city, item.country].filter(Boolean).join('، '), item.distanceM != null && nearProvider ? tBooking('addonDistance', { distance: formatDistance(item.distanceM, locale), place: nearProvider.name }) : null].filter(Boolean).join(' · ')}
+                </span>
               </span>
               {radioDot(selected)}
             </button>);

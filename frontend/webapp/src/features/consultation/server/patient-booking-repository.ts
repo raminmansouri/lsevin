@@ -1,5 +1,7 @@
 import "server-only";
 
+import type { TransactionSql } from "postgres";
+
 import db from "@/config/database/db";
 
 import type { VideoSessionStatus } from "../doctor-panel-types";
@@ -108,13 +110,56 @@ export type SessionSnapshot = {
   serviceId: string | null;
 };
 
+/** A patient's unpaid request whose hold is still running, which blocks booking another. */
+export type OpenUnpaidSession = { id: string; holdExpiresAt: string };
+
+/** The pool, or a transaction already holding the patient's lock. */
+type Sql = typeof db | TransactionSql<{}>;
+
 /**
- * Books the slot as an unpaid request, or returns null when it was taken in the
- * meantime. The per-doctor lock makes the check and the insert one step, so two
- * patients can never get the same time.
+ * The patient's request that is still waiting for payment inside its hold (the same rule the
+ * slot uses: `awaiting_payment` and `hold_expires_at > now()`). A request with a bank receipt
+ * the admin is still checking does not count: the patient has already paid for it their way.
  */
-export async function createVideoSessionIfFree(args: CreateArgs): Promise<string | null> {
-  return db.begin(async (tx) => {
+async function findOpenUnpaid(sql: Sql, userId: string): Promise<OpenUnpaidSession | null> {
+  const rows = await sql<{ id: string; hold_expires_at: Date }[]>`
+    select vs.id::text as id, vs.hold_expires_at
+    from consultation.video_sessions vs
+    where vs.patient_user_id = ${userId}::uuid
+      and vs.status = 'awaiting_payment'
+      and vs.hold_expires_at > now()
+      and not exists (
+        select 1 from consultation.video_session_payments p
+        where p.session_id = vs.id and p.gateway = 'receipt' and p.status = 'awaiting_review'
+      )
+    order by vs.hold_expires_at desc
+    limit 1
+  `;
+  const row = rows[0];
+  return row ? { id: row.id, holdExpiresAt: new Date(row.hold_expires_at).toISOString() } : null;
+}
+
+/** See findOpenUnpaid; for the booking screen. */
+export function getOpenUnpaidSession(userId: string): Promise<OpenUnpaidSession | null> {
+  return findOpenUnpaid(db, userId);
+}
+
+export type CreateSessionOutcome =
+  | { kind: "created"; id: string }
+  | { kind: "slotTaken" }
+  | { kind: "pendingPayment"; pending: OpenUnpaidSession };
+
+/**
+ * Books the slot as an unpaid request. The per-doctor lock makes the slot check and the insert
+ * one step, so two patients can never get the same time; the per-patient lock (always taken
+ * first) does the same for "one unpaid request at a time", so a double submit can't make two.
+ */
+export async function createVideoSessionIfFree(args: CreateArgs): Promise<CreateSessionOutcome> {
+  return db.begin(async (tx): Promise<CreateSessionOutcome> => {
+    await tx`select pg_advisory_xact_lock(hashtext(${`video-session-patient:${args.patientUserId}`}))`;
+    const pending = await findOpenUnpaid(tx, args.patientUserId);
+    if (pending) return { kind: "pendingPayment", pending };
+
     await tx`select pg_advisory_xact_lock(hashtext(${`video-session:${args.doctorId}`}))`;
     const rows = await tx<{ id: string }[]>`
       insert into consultation.video_sessions (
@@ -139,7 +184,8 @@ export async function createVideoSessionIfFree(args: CreateArgs): Promise<string
       returning id::text as id
     `;
     const id = rows[0]?.id ?? null;
-    if (id && args.snapshot) {
+    if (!id) return { kind: "slotTaken" };
+    if (args.snapshot) {
       const snap = args.snapshot;
       await tx`
         update consultation.video_sessions set
@@ -153,7 +199,7 @@ export async function createVideoSessionIfFree(args: CreateArgs): Promise<string
         where id = ${id}::uuid
       `;
     }
-    return id;
+    return { kind: "created", id };
   });
 }
 

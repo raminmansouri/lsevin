@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, useTransition } from "react";
-import { Building2, HeartPulse, Home, Hotel, Landmark, ReceiptText, ShieldCheck, Tent, TreePine, Undo2 } from "lucide-react";
+import { useEffect, useState, useTransition } from "react";
+import { BadgeCheck, Building2, Headphones, HeartPulse, History, Home, Hotel, Landmark, MapPinned, Tent, TreePine } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { Link } from "@/i18n/navigation";
 
-import type { PropertyKind } from "../../domain/search";
+import { LAST_EXPLORE_KEY, parseStaySearch, type PropertyKind, type StaySearch } from "../../domain/search";
 import { clearStayRecentViewsAction } from "../../server/actions/customer";
 import type { CitySummary, PropertyCard } from "../../types";
 import { StayImage } from "../common";
@@ -40,6 +40,17 @@ export function StaysHome({
   const saved = new Set(savedIds);
   const [recentItems, setRecent] = useState(recent);
   const [, start] = useTransition();
+  // The guest's last search (this tab): the form starts from it and one tap reopens the results.
+  const [last, setLast] = useState<{ href: string; search: StaySearch } | null>(null);
+  useEffect(() => {
+    try {
+      const href = sessionStorage.getItem(LAST_EXPLORE_KEY);
+      if (href && href.startsWith("/stays/")) setLast({ href, search: parseStaySearch(new URLSearchParams(href.split("?")[1] ?? "")) });
+    } catch {
+      // storage unavailable: start empty
+    }
+  }, []);
+  const lastCity = last?.search.city ? cityOptions.find((c) => c.slug === last.search.city)?.name : null;
 
   return (
     <div className="space-y-10 pb-6">
@@ -49,8 +60,18 @@ export function StaysHome({
         </h1>
         <p className="mt-2 max-w-xl text-sm leading-6 text-emerald-50 md:text-base">{t("heroSubtitle")}</p>
         <div className="mt-6 text-slate-900">
-          <StaySearchForm cities={cityOptions} />
+          <StaySearchForm key={last?.href ?? "new"} cities={cityOptions} initial={last?.search} />
         </div>
+        {last ? (
+          <Link
+            href={last.href}
+            className="mt-3 inline-flex min-h-11 items-center gap-2 rounded-full bg-white/15 px-4 text-sm font-semibold text-white ring-1 ring-white/30 hover:bg-white/25"
+            data-testid="stays-continue-search"
+          >
+            <History className="size-4" aria-hidden="true" />
+            {lastCity ? t("continueSearchIn", { city: lastCity }) : t("continueSearch")}
+          </Link>
+        ) : null}
       </section>
 
       {recentItems.length ? (
@@ -71,7 +92,7 @@ export function StaysHome({
               {t("clearRecent")}
             </button>
           </div>
-          <ul className="mt-3 flex snap-x gap-3 overflow-x-auto pb-2">
+          <ul className="-mx-4 mt-3 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 [scrollbar-width:none] sm:mx-0 sm:px-0 [&::-webkit-scrollbar]:hidden">
             {recentItems.map((c) => (
               <li key={c.id} className="w-64 shrink-0 snap-start">
                 <PropertyCardView card={c} saved={saved.has(c.id)} />
@@ -172,11 +193,11 @@ export function StaysHome({
         <h2 id="stays-why" className="text-lg font-bold">
           {t("whyTitle")}
         </h2>
-        <ul className="mt-3 grid gap-3 md:grid-cols-3">
+        <ul className="mt-3 grid gap-3 md:grid-cols-3" data-testid="stays-why">
           {[
-            { icon: ReceiptText, title: t("why1Title"), text: t("why1") },
-            { icon: Undo2, title: t("why2Title"), text: t("why2") },
-            { icon: ShieldCheck, title: t("why3Title"), text: t("why3") },
+            { icon: BadgeCheck, title: t("why1Title"), text: t("why1") },
+            { icon: MapPinned, title: t("why2Title"), text: t("why2") },
+            { icon: Headphones, title: t("why3Title"), text: t("why3") },
           ].map(({ icon: Icon, title, text }) => (
             <li key={title} className="rounded-2xl bg-white p-4 ring-1 ring-slate-200">
               <Icon className="size-6 text-emerald-700" aria-hidden="true" />

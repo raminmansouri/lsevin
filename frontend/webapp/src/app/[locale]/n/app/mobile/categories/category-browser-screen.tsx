@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 
 import { categoryBrowserHref } from "@/features/categories/utils/category-href";
 import { getCategoryBrowserGroups } from "@/features/service-providers/actions/categories/get-category-browser-groups";
+import { getStaysCategoryId } from "@/features/stays/server/settings";
 import { getTourSettings } from "@/features/tours/server/platform/settings";
 import type {
   CategoryBrowserCategory,
@@ -31,7 +32,7 @@ export type CategoryBrowserData = {
  * Tourism opens the Tours sub-application (C-001); its id is configuration.
  */
 export async function loadCategoryBrowser(locale: string) {
-  const [data, tourismCategoryId] = await Promise.all([
+  const [data, tourismCategoryId, staysCategoryId] = await Promise.all([
     getCategoryBrowserGroups(locale).catch((): CategoryBrowserData => ({
       groups: [],
       totalCategories: 0,
@@ -40,8 +41,9 @@ export async function loadCategoryBrowser(locale: string) {
     getTourSettings()
       .then((settings) => settings.tourismCategoryId)
       .catch(() => null),
+    getStaysCategoryId().catch(() => null),
   ]);
-  return { data, tourismCategoryId };
+  return { data, tourismCategoryId, staysCategoryId };
 }
 
 /** The category's ancestors from the root down, ending with the category itself. */
@@ -72,6 +74,8 @@ export async function CategoryBrowserScreen({
   parent: CategoryBrowserCategory | null;
 }) {
   const t = await getTranslations({ locale, namespace: "CategoryBrowser" });
+  // Accommodation (hotels, stays) opens the Stays app; its id is configuration like Tourism's.
+  const staysCategoryId = await getStaysCategoryId().catch(() => null);
   const brand = (await getTranslations({ locale, namespace: "LocaleLayout" }))("title");
   const rootUrl = absoluteUrl(locale, "/categories");
   const pageUrl = parent ? absoluteUrl(locale, categoryBrowserHref(parent)) : rootUrl;
@@ -122,6 +126,7 @@ export async function CategoryBrowserScreen({
           totalCategories={data.totalCategories}
           totalProviders={data.totalProviders}
           tourismCategoryId={tourismCategoryId}
+          staysCategoryId={staysCategoryId}
           parentId={parent?.id ?? null}
         />
         <SponsoredPlacementSlot locale={locale} placement="categories" />
@@ -131,6 +136,7 @@ export async function CategoryBrowserScreen({
         totalCategories={data.totalCategories}
         totalProviders={data.totalProviders}
         tourismCategoryId={tourismCategoryId}
+        staysCategoryId={staysCategoryId}
         parentId={parent?.id ?? null}
       />
       <div className="lsd hidden pb-14 xl:block">
