@@ -39,7 +39,10 @@ export async function PATCH(
   context: { params: Promise<{ id: string }> }
 ) {
   try {
-    const auth = await requireApiUser();
+    // Admin-only: this can rewrite fileUrl/translations of any library row, which the public site
+    // renders. It used to accept any signed-in user (customers and providers included).
+    // Only the admin Media Manager calls it; customer/provider uploads go through /storage and POST.
+    const auth = await requireApiAdmin("media", "manage");
     if (auth instanceof NextResponse) return auth;
 
     const { id } = await context.params;
