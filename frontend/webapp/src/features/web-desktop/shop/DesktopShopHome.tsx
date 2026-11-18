@@ -152,7 +152,7 @@ export async function DesktopShopHome({
                             <span className="absolute inset-0 bg-gradient-to-t from-[#062a20] via-[#062a20]/60 to-[#062a20]/30" aria-hidden="true" />
                           </>
                         ) : null}
-                        <span className="relative line-clamp-1 text-center text-[15px] font-black text-white">{shortcut.label}</span>
+                        <span className="relative line-clamp-2 text-balance text-center font-display text-[15px] font-black leading-tight text-white">{shortcut.label}</span>
                         <span className="lsd-plaque-line relative h-px bg-[#eacb7f]" aria-hidden="true" />
                       </span>
                     </Link>
@@ -175,7 +175,7 @@ export async function DesktopShopHome({
                     >
                       {promo.imageUrl ? (
                         // eslint-disable-next-line @next/next/no-img-element
-                        <img src={shopImageSrc(promo.imageUrl)} alt={promo.label} className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1.6s] group-hover:scale-105" />
+                        <img src={shopImageSrc(promo.imageUrl)} alt="" aria-hidden="true" className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1.6s] group-hover:scale-105" />
                       ) : (
                         <div className="absolute inset-0" />
                       )}
@@ -186,7 +186,7 @@ export async function DesktopShopHome({
                           {promo.badge ? (
                             <span className="mb-1.5 inline-block rounded-full bg-[#eacb7f] px-2.5 py-0.5 text-[10px] font-black text-[#062a20]">{promo.badge}</span>
                           ) : null}
-                          <p className="text-xl font-black leading-tight">{promo.label}</p>
+                          <p className="font-display text-xl font-black leading-tight">{promo.label}</p>
                         </div>
                         <ArrowLeft size={18} className="shrink-0 text-[#eacb7f] opacity-0 transition duration-500 group-hover:-translate-x-1 group-hover:opacity-100 ltr:rotate-180" />
                       </div>
