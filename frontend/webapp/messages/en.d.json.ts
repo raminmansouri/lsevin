@@ -18591,6 +18591,37 @@ declare const messages: {
   "LocationAccess": {
     "denied": "Location access is blocked. Tap the lock icon next to the site address, set Location to Allow, and try again.",
     "unavailable": "We couldn't find your location. Check your connection or GPS and try again."
+  },
+  "AdminUserLists": {
+    "signedUp": "Signed up",
+    "unknownDate": "Unknown",
+    "total": "{count, plural, one {# result} other {# results}}",
+    "sort": {
+      "label": "Sort by",
+      "newest": "Newest signups first",
+      "oldest": "Oldest signups first",
+      "nameAsc": "Name (A to Z)",
+      "nameDesc": "Name (Z to A)"
+    },
+    "pager": {
+      "previous": "Previous",
+      "next": "Next",
+      "page": "Page {page} of {pages}"
+    },
+    "customers": {
+      "title": "Customers",
+      "description": "Booking customers, linked identity users, documents and wallet operations",
+      "searchPlaceholder": "Search by name, email or phone...",
+      "empty": "There are no customers yet.",
+      "emptySearch": "No customer matches this search."
+    },
+    "users": {
+      "title": "Users",
+      "description": "Users that own bookings, drafts, wallets and preferences",
+      "searchPlaceholder": "Search by name, email or phone...",
+      "empty": "There are no users yet.",
+      "emptySearch": "No user matches this search."
+    }
   }
 };
 export default messages;

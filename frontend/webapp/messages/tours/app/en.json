@@ -112,7 +112,19 @@
         "body": "New tours are on their way."
       },
       "sponsored": "Sponsored",
-      "heroPhotoPlace": "Naqsh-e Jahan Square, Isfahan"
+      "heroPhotoPlace": "Naqsh-e Jahan Square, Isfahan",
+      "rankings": {
+        "mostViewed": "Most viewed tours",
+        "bestSelling": "Best-selling tours",
+        "views": "{count, plural, one {{n} view} other {{n} views}}",
+        "bookings": "{count, plural, one {{n} booking} other {{n} bookings}}",
+        "month": "This month",
+        "all": "All time",
+        "period": "Time period",
+        "monthEmpty": "No bookings in the last 30 days yet",
+        "seeAll": "See all",
+        "rank": "Rank {rank}"
+      }
     },
     "explore": {
       "title": "Explore tours",

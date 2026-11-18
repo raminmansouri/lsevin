@@ -112,7 +112,19 @@
         "body": "نحضّر جولات جديدة. يُرجى العودة قريباً."
       },
       "sponsored": "مُموَّل",
-      "heroPhotoPlace": "ميدان نقش جهان، أصفهان"
+      "heroPhotoPlace": "ميدان نقش جهان، أصفهان",
+      "rankings": {
+        "mostViewed": "الجولات الأكثر مشاهدة",
+        "bestSelling": "الجولات الأكثر مبيعًا",
+        "views": "{count, plural, one {مشاهدة واحدة} two {مشاهدتان} few {{n} مشاهدات} other {{n} مشاهدة}}",
+        "bookings": "{count, plural, one {حجز واحد} two {حجزان} few {{n} حجوزات} other {{n} حجز}}",
+        "month": "هذا الشهر",
+        "all": "كل الأوقات",
+        "period": "الفترة الزمنية",
+        "monthEmpty": "لا توجد حجوزات في آخر 30 يومًا بعد",
+        "seeAll": "عرض الكل",
+        "rank": "المرتبة {rank}"
+      }
     },
     "explore": {
       "title": "استكشف الجولات",

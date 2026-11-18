@@ -15,6 +15,7 @@ import { LocalizedText } from "../../shared/localized-text";
 import { TourImage } from "../common";
 import { DestinationCard } from "../destination-card";
 import { TourCard } from "../tour-card";
+import { RankedTours, type TourRankings } from "./ranked-tours";
 import { DesktopToursHome } from "@/features/web-desktop/tours/DesktopToursHome";
 
 function SectionHeader({ title, href, seeAll, id }: { title: string; href?: string; seeAll?: string; id: string }) {
@@ -100,6 +101,7 @@ export function ToursHome({
   modules,
   categories,
   savedIds,
+  rankings,
 }: {
   recent: TourCardData[];
   discovery: TourCardData[];
@@ -108,6 +110,7 @@ export function ToursHome({
   modules: EditorialModule[];
   categories: TaxonomyTerm[];
   savedIds: string[];
+  rankings: TourRankings;
 }) {
   const t = useTranslations("TourApp");
   const router = useRouter();
@@ -180,6 +183,8 @@ export function ToursHome({
       ) : null}
 
       <ToursErrorAlert error={error} className="mx-4 sm:mx-6" />
+
+      <RankedTours rankings={rankings} categories={categories} saved={saved} variant="mobile" />
 
       {recent.length > 0 ? (
         <section aria-labelledby="recent-title" data-testid="recently-viewed" data-section-order="1">
@@ -286,6 +291,7 @@ export function ToursHome({
       collections={collections}
       categories={categories}
       saved={saved}
+      rankings={rankings}
       hero={hero}
       heroImage={heroImage}
       heroCredit={hero?.imageUrl ? null : { credit: HOME_HERO.credit, source: HOME_HERO.source }}

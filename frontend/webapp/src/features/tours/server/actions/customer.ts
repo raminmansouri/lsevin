@@ -24,6 +24,7 @@ import {
   mergeGuestHistory,
   recordRecentSearch,
   recordRecentView,
+  recordTourView,
   toggleWishlist,
 } from "../platform/catalog";
 import { fail, runAction } from "../platform/errors";
@@ -117,6 +118,8 @@ export async function saveCommunicationPrefsAction(input: {
 export async function recordViewAction(tourId: string) {
   return runAction("recordView", async () => {
     const id = parse(uuid, tourId);
+    // The anonymous view total counts every visitor; only the personal history below needs consent.
+    await recordTourView(id).catch((err) => console.error("[tours] view count not recorded", err));
     const actor = await currentActor();
     if (!(await historyAllowed(actor))) return { recorded: false };
     const owner = await ownerKey(actor, { create: true });

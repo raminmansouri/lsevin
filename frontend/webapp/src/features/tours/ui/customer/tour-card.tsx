@@ -1,6 +1,7 @@
 "use client";
 
-import { Clock, Images, MapPin, Star, Zap } from "lucide-react";
+import { Clock, Images, MapPin, Star, Tag, Zap } from "lucide-react";
+import type { ReactNode } from "react";
 import { useLocale, useTranslations } from "next-intl";
 
 import { Link } from "@/i18n/navigation";
@@ -33,6 +34,9 @@ export function TourCard({
   className,
   distanceKm,
   testId = "tour-card",
+  rank,
+  stat,
+  categoryLabel,
 }: {
   card: TourCardData;
   saved?: boolean;
@@ -40,6 +44,12 @@ export function TourCard({
   className?: string;
   distanceKm?: number | null;
   testId?: string;
+  /** Position in a ranking (1 = top), shown as a numbered seal on the photo. */
+  rank?: number;
+  /** A ranking figure (e.g. "1,240 views") shown on the photo in place of the photo count. */
+  stat?: ReactNode;
+  /** Category name, shown with the duration. */
+  categoryLabel?: string | null;
 }) {
   const t = useTranslations("TourApp");
   const locale = useLocale();
@@ -76,7 +86,20 @@ export function TourCard({
           </div>
           <WishlistButton tourId={card.id} initialSaved={saved} title={title} className="relative z-10" />
         </div>
-        {card.imageCount > 1 ? (
+        {rank != null ? (
+          <span
+            data-testid="card-rank"
+            aria-label={t("home.rankings.rank", { rank })}
+            className="pointer-events-none absolute -bottom-4 end-3 z-10 flex size-9 items-center justify-center rounded-full bg-emerald-800 text-sm font-black text-white shadow-md ring-2 ring-white"
+          >
+            {formatNumber(rank, locale)}
+          </span>
+        ) : null}
+        {stat != null ? (
+          <span data-testid="card-stat" className="absolute bottom-2 start-2 inline-flex items-center gap-1 rounded-full bg-black/60 px-2 py-0.5 text-[11px] font-semibold text-white">
+            {stat}
+          </span>
+        ) : card.imageCount > 1 ? (
           <span className="absolute bottom-2 start-2 inline-flex items-center gap-1 rounded-full bg-black/55 px-2 py-0.5 text-[11px] font-medium text-white">
             <Images className="size-3" aria-hidden="true" />
             {t("card.photos", { count: card.imageCount })}
@@ -85,7 +108,7 @@ export function TourCard({
       </div>
 
       <div className="flex min-w-0 flex-1 flex-col gap-1.5 p-3">
-        <h3 className="line-clamp-2 text-[15px] font-bold leading-6 text-slate-900">
+        <h3 className={cn("line-clamp-2 text-[15px] font-bold leading-6 text-slate-900", rank != null && "pe-9")}>
           <Link
             href={`/tours/${card.slug}`}
             className="after:absolute after:inset-0 after:content-[''] focus-visible:outline-none"
@@ -100,6 +123,12 @@ export function TourCard({
             <span className="inline-flex items-center gap-1">
               <MapPin className="size-3.5" aria-hidden="true" />
               <LocalizedText text={card.destination.name} badge={false} />
+            </span>
+          ) : null}
+          {categoryLabel ? (
+            <span className="inline-flex items-center gap-1" data-testid="card-category">
+              <Tag className="size-3.5" aria-hidden="true" />
+              {categoryLabel}
             </span>
           ) : null}
           <span className="inline-flex items-center gap-1">

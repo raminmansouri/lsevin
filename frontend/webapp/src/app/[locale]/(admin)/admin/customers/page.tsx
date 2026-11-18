@@ -1,29 +1,38 @@
+import { getTranslations } from "next-intl/server";
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageHeader } from "@/components/page/page-header";
-import { CustomerSearch } from "@/features/customers-admin/components/customer-search";
+import { UserList, USER_LISTS_NAMESPACE } from "@/features/customers-admin/components/user-list";
+import { parseUserListParams, type UserListSearchParams } from "@/features/customers-admin/lib/user-list-params";
 import { getCustomers } from "@/features/customers-admin/server/repository";
+import type { LocaleParams } from "@/types/next";
 
-type Props = { searchParams: Promise<{ q?: string }> };
+type Props = { params: Promise<LocaleParams>; searchParams: Promise<UserListSearchParams> };
 
-export default async function CustomersPage({ searchParams }: Props) {
-  const { q = "" } = await searchParams;
-  const items = await getCustomers(q);
+export default async function CustomersPage({ params, searchParams }: Props) {
+  const { locale } = await params;
+  const listParams = parseUserListParams(await searchParams);
+  const [{ items, total }, t] = await Promise.all([
+    getCustomers(listParams),
+    getTranslations({ locale, namespace: USER_LISTS_NAMESPACE }),
+  ]);
   return (
     <Card>
-      <CardHeader className="flex-between border-b"><CardTitle><PageHeader title="Customers" description="Booking customers, linked identity users, documents and wallet operations" /></CardTitle></CardHeader>
-      <CardContent className="space-y-3">
-        <CustomerSearch initialQuery={q} />
-        {items.length === 0 && (
-          <div className="rounded-md border border-dashed p-6 text-center text-sm text-muted-foreground">
-            {q ? "مشتری‌ای با این نام پیدا نشد." : "هیچ مشتری‌ای وجود ندارد."}
-          </div>
-        )}
-        {items.map((item) => (
-          <a key={item.id} href={`/admin/customers/${item.id}/update`} className="block rounded-md border p-4 hover:bg-muted/40">
-            <div className="font-medium">{item.first_name} {item.last_name}</div>
-            <div className="text-sm text-muted-foreground">{item.email} · {item.phone_number_country_code} {item.phone_number}</div>
-          </a>
-        ))}
+      <CardHeader className="flex-between border-b"><CardTitle><PageHeader title={t("customers.title")} description={t("customers.description")} /></CardTitle></CardHeader>
+      <CardContent>
+        <UserList
+          locale={locale}
+          kind="customers"
+          params={listParams}
+          total={total}
+          rows={items.map((item) => ({
+            id: item.id,
+            href: `/admin/customers/${item.id}/update`,
+            name: [item.first_name, item.last_name].filter(Boolean).join(" ") || "—",
+            meta: [item.email, [item.phone_number_country_code, item.phone_number].filter(Boolean).join(" ")].filter(Boolean).join(" · "),
+            signedUpAt: item.create_date,
+          }))}
+        />
       </CardContent>
     </Card>
   );
