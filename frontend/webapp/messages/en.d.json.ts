@@ -15752,7 +15752,10 @@ declare const messages: {
           "push": "Send push notifications to subscribed browsers.",
           "whatsapp": "Send WhatsApp messages via WhatsiPlus.",
           "bale": "Send messages via the Bale bot; the recipient must have linked their account first."
-        }
+        },
+        "generatePushKeys": "Generate push keys",
+        "generatePushKeysHint": "The keys are created and stored on the server; the private key is never shown. Then switch the channel on.",
+        "pushKeysCreated": "Push keys created and saved."
       }
     },
     "paymentMethods": {
