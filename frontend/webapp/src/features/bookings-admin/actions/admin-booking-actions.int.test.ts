@@ -16,6 +16,7 @@ vi.mock("@/lib/auth/admin-guard", () => ({
     if (!adminState.ctx.isAdmin) throw new Error("Forbidden");
     return adminState.ctx;
   }),
+  adminMay: vi.fn((ctx: { isAdmin: boolean }) => ctx.isAdmin),
 }));
 
 import { db } from "@/features/booking-admin-shared/server/db";

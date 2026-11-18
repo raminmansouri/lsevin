@@ -7,7 +7,7 @@ import { normalizeSearchText } from "@/features/tours/domain/text";
 import { normalizeRules } from "../domain/cancellation";
 import { nightsBetween, todayIn, validateStayDates } from "../domain/dates";
 import { occupancyFits, quoteStay, StayQuoteError, type Occupancy, type RatePlanPricing, type RoomCapacity } from "../domain/pricing";
-import { distanceM, type NearRef } from "../domain/geo";
+import { distanceM, parseNear as parseNearRef, type NearRef } from "../domain/geo";
 import { RADII_M } from "../domain/geo";
 import { activeFilterCount, DEFAULT_SEARCH, withoutFilters, type MealPlan, type PropertyKind, type StaySearch } from "../domain/search";
 import type {
@@ -711,12 +711,15 @@ export async function getRoomOffers(
 
 // Reviews --------------------------------------------------------------------
 
-export async function listReviews(propertyId: string, opts: { limit?: number; offset?: number } = {}): Promise<ReviewItem[]> {
+export async function listReviews(propertyId: string, opts: { limit?: number; offset?: number; roomTypeId?: string | null } = {}): Promise<ReviewItem[]> {
   const rows = await db<any[]>`
     select r.id::text, r.rating, r.cleanliness, r.location, r.staff, r.value, r.body, r.locale, r.author_name, r.created_at, r.provider_reply,
-           to_char(b.check_in, 'YYYY-MM') as stay_month
-      from stay.reviews r join stay.bookings b on b.booking_id = r.booking_id
+           to_char(b.check_in, 'YYYY-MM') as stay_month, b.nights, b.room_type_id::text as room_type_id, rt.name as room_name
+      from stay.reviews r
+      join stay.bookings b on b.booking_id = r.booking_id
+      left join stay.room_types rt on rt.id = b.room_type_id
      where r.property_id = ${propertyId}::uuid and r.status = 'published'
+       and (${opts.roomTypeId ?? null}::uuid is null or b.room_type_id = ${opts.roomTypeId ?? null}::uuid)
      order by r.created_at desc
      limit ${opts.limit ?? 10} offset ${opts.offset ?? 0}
   `;
@@ -730,7 +733,68 @@ export async function listReviews(propertyId: string, opts: { limit?: number; of
     createdAt: new Date(r.created_at).toISOString(),
     providerReply: r.provider_reply,
     stayMonth: r.stay_month,
+    nights: r.nights == null ? null : Number(r.nights),
+    roomTypeId: r.room_type_id,
+    roomName: r.room_name ? pickStr(r.room_name, "fa-IR") : null,
   }));
+}
+
+/** How many published reviews per star (1–5), and the share that rated 4 or 5. */
+export async function reviewStats(propertyId: string): Promise<{ histogram: number[]; recommendPercent: number | null }> {
+  const rows = await db<{ rating: number; n: number }[]>`
+    select rating, count(*)::int as n from stay.reviews where property_id = ${propertyId}::uuid and status = 'published' group by rating`;
+  const histogram = [0, 0, 0, 0, 0];
+  for (const r of rows) if (r.rating >= 1 && r.rating <= 5) histogram[r.rating - 1] = r.n;
+  const total = histogram.reduce((a, b) => a + b, 0);
+  return { histogram, recommendPercent: total ? Math.round(((histogram[3] + histogram[4]) / total) * 100) : null };
+}
+
+/**
+ * Cheapest bookable price per night for each day from `from` (the date picker shows it under the
+ * day). A day is null when no room type that fits the party has a unit left (or stop-sell).
+ * Base nightly price of one unit (taxes and fees come with the quote), like the result cards.
+ */
+export async function getPriceCalendar(
+  propertyId: string,
+  from: string,
+  days: number,
+  occupancy: Occupancy,
+): Promise<{ currency: string; days: { date: string; price: number | null }[] }> {
+  const party = occupancy.adults + occupancy.childAges.length;
+  const rows = await db<{ date: string; price: string | null; currency: string; entire: boolean; provider_id: string | null }[]>`
+    select d::date::text as date, p.currency_code as currency, p.inventory_model = 'entire_place' as entire, p.service_provider_id::text as provider_id,
+           min(coalesce(o.price, rp.base_price)) filter (
+             where coalesce(i.units_override, rt.units) - coalesce(i.sold, 0) - coalesce(i.held, 0) >= ${occupancy.rooms}
+               and not coalesce(i.stop_sell, false)) as price
+      from stay.properties p
+      cross join generate_series(${from}::date, ${from}::date + ${Math.max(0, days - 1)}::int, interval '1 day') d
+      join stay.room_types rt on rt.property_id = p.id and rt.is_active and rt.max_occupancy * ${occupancy.rooms}::int >= ${party}::int
+      join stay.rate_plans rp on rp.room_type_id = rt.id and rp.is_active
+      left join stay.inventory i on i.room_type_id = rt.id and i.stay_date = d::date
+      left join stay.rate_overrides o on o.rate_plan_id = rp.id and o.stay_date = d::date
+     where p.id = ${propertyId}::uuid and p.status = 'published'
+     group by d, p.id
+     order by d`;
+  if (rows.length === 0) return { currency: "IRR", days: [] };
+  let locked = new Set<string>();
+  if (rows[0].entire && rows[0].provider_id && (await hasLegacyHotelLocks())) {
+    const l = await db<{ d: string }[]>`
+      select distinct stay_date::text as d from provider_portal.hotel_date_availability
+       where service_provider_id = ${rows[0].provider_id}::uuid and stay_date >= ${from}::date and stay_date < ${from}::date + ${days}::int`;
+    locked = new Set(l.map((x) => x.d));
+  }
+  return { currency: rows[0].currency, days: rows.map((r) => ({ date: r.date, price: r.price == null || locked.has(r.date) ? null : Number(r.price) })) };
+}
+
+/** Other published stays of the same city, nearest first (or most popular without coordinates). */
+export async function similarStays(property: Pick<PropertyDetail, "id" | "city" | "location">, locale: string, limit = 4): Promise<PropertyCard[]> {
+  const near = property.location ? `pt:${property.location.latitude},${property.location.longitude}` : null;
+  const res = await searchProperties(
+    { ...EMPTY, city: property.city.slug, near: near ? parseNearRef(near) : null, radius: null, sort: near ? "distance" : "recommended" },
+    locale,
+    { pageSize: limit + 1 },
+  );
+  return res.items.filter((c) => c.id !== property.id).slice(0, limit);
 }
 
 // Personal lists ------------------------------------------------------------------

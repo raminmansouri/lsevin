@@ -1,8 +1,8 @@
 /**
  * The complete guest journey on a phone, Persian (RTL):
  * first visit → intro → home → search (destination, dates, party) → results →
- * stay page → room/rate → sign-in gate → hold → guest details (with validation)
- * → policy consent → booking → wallet payment → confirmed voucher → refresh →
+ * stay page → room → sign-in gate → hold → one-screen checkout in the account's
+ * name (optional companions, validated) → booking → wallet payment → confirmed voucher → refresh →
  * trips list → cancellation with refund preview → cancelled after refresh.
  * Every step checks what the guest sees AND what the database holds.
  */
@@ -82,12 +82,15 @@ test.describe("stays guest journey @critical", () => {
     await settled(page);
     await expect(page.getByTestId("stay-title")).toHaveText(stay.name["fa-IR"]);
     await expect(page.getByTestId("stay-breadcrumbs")).toContainText(world.city.name);
-    const plan = page.getByTestId("stay-rate-plan").filter({ has: page.getByTestId("stay-reserve") }).first();
-    await expect(plan.getByTestId("stay-plan-total")).toBeVisible();
+    // No search form on the stay page: the stay is one line (dates · party) that opens the pickers.
+    await expect(page.getByTestId("stay-detail-search")).toHaveCount(0);
+    await expect(page.getByTestId("stay-bar-guests")).toContainText("۱ کودک");
+    const room = page.getByTestId("stay-room").filter({ has: page.getByTestId("stay-reserve") }).first();
+    await expect(room.getByTestId("stay-plan-total")).toBeVisible();
     await evidence(page, testInfo, "stays__journey__02-stay-page-priced");
 
     // Reserve while signed out → sign-in gate that keeps the selection.
-    await plan.getByTestId("stay-reserve").click();
+    await room.getByTestId("stay-reserve").click();
     await expect(page).toHaveURL(/\/fa\/stays\/.+\/book\?room=/);
     await expect(page.getByTestId("stay-booking-signin")).toBeVisible();
     const bookUrl = page.url();
@@ -100,28 +103,28 @@ test.describe("stays guest journey @critical", () => {
     expect((await soldOn(stay.roomTypeId, ci)).held).toBe(1);
     const summaryTotal = await page.getByTestId("stay-booking-total").innerText();
 
-    // Field-level validation, then a valid form.
-    await page.getByTestId("stay-details-continue").click();
-    await expect(page.locator("#buyer\\.firstName-err")).toBeVisible();
-    await expect(page.getByTestId("stay-field-buyer.firstName")).toBeFocused();
-    await page.getByTestId("stay-field-buyer.firstName").fill("سارا");
-    await page.getByTestId("stay-field-buyer.lastName").fill("احمدی");
-    await page.getByTestId("stay-field-buyer.phone").fill("09121234567");
-    await page.getByTestId("stay-same-as-contact").click();
+    // Signed in: the booking is in the account's name — nothing to type (regression 2026-11-17:
+    // contact and guest names were required again from a signed-in customer).
+    await expect(page.getByTestId("stay-booker-name")).toHaveText("Sara Ahmadi");
+    await expect(page.getByTestId("stay-field-buyer.firstName")).toHaveCount(0);
+    // Companions are optional; a half-filled one is a field error, focused.
+    await page.getByTestId("stay-companions-toggle").click();
+    await page.getByTestId("stay-companion-add").click();
+    await page.getByTestId("stay-field-guests.0.firstName").fill("علی");
+    await page.getByTestId("stay-confirm").click();
+    await expect(page.locator("#guests\\.0\\.lastName-err")).toBeVisible();
+    await expect(page.getByTestId("stay-field-guests.0.lastName")).toBeFocused();
+    await page.getByTestId("stay-field-guests.0.lastName").fill("احمدی");
+    await page.getByTestId("stay-note-toggle").click();
     await page.getByTestId("stay-field-specialRequests").fill("اتاق آرام لطفاً");
-    await evidence(page, testInfo, "stays__journey__03-details-filled");
+    await evidence(page, testInfo, "stays__journey__03-checkout-one-screen");
     // The draft survives a refresh (sessionStorage, never the URL).
     await page.reload();
-    await expect(page.getByTestId("stay-field-buyer.lastName")).toHaveValue("احمدی");
+    await expect(page.getByTestId("stay-field-guests.0.lastName")).toHaveValue("احمدی");
     expect(page.url()).not.toContain("احمدی");
-    await page.getByTestId("stay-details-continue").click();
-
-    // Consent is required.
-    await expect(page.getByTestId("stay-review-step")).toBeVisible();
-    await page.getByTestId("stay-confirm").click();
-    await expect(page.getByText("برای ادامه، شرایط کنسلی را بپذیرید.")).toBeVisible();
-    await page.getByTestId("stay-consent").check();
-    await evidence(page, testInfo, "stays__journey__04-review-before-confirm");
+    await expect(page.getByTestId("stay-hold-active")).toBeVisible();
+    await expect(page.getByTestId("stay-policy-summary")).toContainText("کنسلی رایگان");
+    await evidence(page, testInfo, "stays__journey__04-before-confirm");
     await page.getByTestId("stay-confirm").click();
 
     // Booking page: waiting for payment, address withheld.
@@ -131,6 +134,11 @@ test.describe("stays guest journey @critical", () => {
     await expect(page.getByTestId("stay-booking-address")).toContainText("پس از قطعی شدن");
     await expect(page.getByTestId("stay-booking-detail-total")).toHaveText(summaryTotal);
     expect(await bookingRow(bookingId)).toMatchObject({ status: "pending_payment", rooms: 1, check_in: ci, check_out: co });
+    const [saved] = await db()<any[]>`select buyer, guests, special_requests from stay.bookings where booking_id = ${bookingId}::uuid`;
+    expect(saved.buyer).toMatchObject({ firstName: "Sara", lastName: "Ahmadi" });
+    expect(saved.buyer.phone).toMatch(/^0?9\d{9}$/);
+    expect(saved.guests).toEqual([{ firstName: "علی", lastName: "احمدی" }]);
+    expect(saved.special_requests).toBe("اتاق آرام لطفاً");
     expect(await soldOn(stay.roomTypeId, ci)).toMatchObject({ sold: 1, held: 0 });
 
     // Pay from the wallet.

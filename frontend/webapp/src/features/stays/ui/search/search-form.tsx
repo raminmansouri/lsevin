@@ -292,11 +292,17 @@ export function DatesDialog({
   onOpenChange,
   value,
   onChange,
+  dayInfo,
+  note,
 }: {
   open: boolean;
   onOpenChange: (v: boolean) => void;
   value: { from: string | null; to: string | null };
   onChange: (v: { from: string | null; to: string | null }) => void;
+  /** Per-day extras, e.g. the property's cheapest nightly price; soldOut days cannot be a check-in. */
+  dayInfo?: (iso: string) => { sublabel?: React.ReactNode; srLabel?: string; soldOut?: boolean } | null;
+  /** Shown under the calendar (e.g. "prices per night, in thousand toman"). */
+  note?: React.ReactNode;
 }) {
   const t = useTranslations("StayApp.search");
   const locale = useLocale();
@@ -329,12 +335,18 @@ export function DatesDialog({
             // minIso/maxIso only limit navigation; days outside the bookable window must also be unselectable.
             if (iso < today || iso > addDaysIso(today, WINDOW_DAYS)) return { disabled: true, state: "unavailable" };
             if (draft.from && !draft.to && iso > draft.from && nightsBetween(draft.from, iso) > MAX_NIGHTS) return { disabled: true, state: "too_long" };
-            return {};
+            const extra = dayInfo?.(iso);
+            if (!extra) return {};
+            // A sold-out night cannot start a stay, but can be the check-out day of one.
+            const pickingCheckOut = Boolean(draft.from && !draft.to && iso > draft.from);
+            if (extra.soldOut && !pickingCheckOut) return { disabled: true, state: "sold_out", srLabel: extra.srLabel, sublabel: extra.sublabel };
+            return { state: extra.soldOut ? "sold_out" : "available", srLabel: extra.srLabel, sublabel: extra.sublabel };
           }}
           onChange={(r) => setDraft(r.from && r.to && r.from === r.to ? { from: r.from, to: null } : r)}
           labels={{ previousMonth: t("previousMonth"), nextMonth: t("nextMonth"), grid: t("calendarGrid"), rangeStart: t("rangeStart"), rangeEnd: t("rangeEnd") }}
           testId="stay-range-calendar"
         />
+        {note ? <div className="text-xs text-slate-500" data-testid="stay-dates-note">{note}</div> : null}
         <DialogFooter className="flex-row items-center justify-between gap-2 sm:justify-between">
           <button
             type="button"

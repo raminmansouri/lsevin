@@ -40,7 +40,11 @@ type Repo = {
 };
 let repo: Repo;
 
-const landingIds = async () => (await repo.getHomeCategories({ locale: 'en' }, 200)).map((row) => row.id);
+// Only this test's categories: real rows also carry positions (migration 0114 numbers every category),
+// so absolute places on the shelf depend on the database; the relative order is what is under test.
+const fixtureIds = new Set([ids.first, ids.second, ids.unprioritised, ids.hidden, ids.empty, ids.child]);
+const landingIds = async () =>
+  (await repo.getHomeCategories({ locale: 'en' }, 200)).map((row) => row.id).filter((id) => fixtureIds.has(id));
 const priorityOf = async (id: string) => (await sql!`select coalesce(display_order, 0)::int as p from category.categories where id = ${id}`)[0]?.p;
 
 d('landing category priority (real database)', () => {

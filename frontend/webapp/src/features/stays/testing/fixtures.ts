@@ -76,15 +76,20 @@ export async function seedLegacyHotelProvider(sql: Sql, opts: { lat?: number; ln
   const defId = uid();
   await sql`insert into category.service_definitions (id, name_translations, description_translations, category_id, duration_minutes, pricing_model, is_active, currency, value, booking_ui_mode, requires_specialist)
             values (${defId}, ${sql.json({ "fa-IR": "اقامت شبانه", "en-US": "Nightly stay" })}, '{}', ${cat.id}, 1440, 'Fixed', true, 'IRR', 0, 'date_range', false)`;
-  const rooms: [string, number][] = [
-    ["اتاق دو تخته دبل", 2_000_000], // data-entry slip: a tenth of the others → must be skipped
-    ["اتاق دو تخته رو به حرم", 40_000_000],
-    ["اتاق سه تخته", 55_000_000],
-    ["سوئیت خانواده چهار نفره", 70_000_000],
+  const rooms: [string, number, string | null][] = [
+    ["اتاق دو تخته دبل", 2_000_000, null], // data-entry slip: a tenth of the others → must be skipped
+    ["اتاق دو تخته رو به حرم", 40_000_000, "Categories/services/room-haram.webp"],
+    ["اتاق سه تخته", 55_000_000, "Categories/services/room-triple.webp"],
+    ["سوئیت خانواده چهار نفره", 70_000_000, null],
   ];
-  for (const [name, value] of rooms) {
-    await sql`insert into category.provider_services (id, service_definition_id, display_name_translations, description_translations, is_active, service_provider_id, currency, value, create_date)
-              values (${uid()}, ${defId}, ${sql.json({ "fa-IR": name })}, '{}', true, ${provider.id}, 'IRR', ${value}, now())`;
+  for (const [name, value, image] of rooms) {
+    const serviceId = uid();
+    await sql`insert into category.provider_services (id, service_definition_id, display_name_translations, description_translations, is_active, service_provider_id, currency, value, image_url, create_date)
+              values (${serviceId}, ${defId}, ${sql.json({ "fa-IR": name })}, '{}', true, ${provider.id}, 'IRR', ${value}, ${image}, now())`;
+    if (image === "Categories/services/room-haram.webp") {
+      await sql`insert into category.provider_service_gallery_items (title_translations, description_translations, url, media_type, display_order, is_primary, provider_service_id)
+                values ('{}', '{}', 'Categories/services/room-haram-2.webp', 'image', 1, false, ${serviceId})`;
+    }
   }
   for (let i = 0; i < 3; i++) {
     await sql`insert into category.provider_gallery_items (title_translations, description_translations, url, media_type, display_order, service_provider_id, create_date)
