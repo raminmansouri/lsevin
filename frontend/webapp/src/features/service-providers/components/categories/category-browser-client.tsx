@@ -100,6 +100,7 @@ function CategoryCardContent({
 }) {
   const locale = useLocale();
   const t = useTranslations("CategoryBrowser");
+  const isRtl = ["fa", "ar", "ku"].includes(locale);
   const providers = Math.max(category.count, 0);
   const meta = [
     hasChildren ? t("subcategoriesCount", { count: Math.max(category.childCount, 0) }) : null,
@@ -133,7 +134,7 @@ function CategoryCardContent({
           <p className="mt-1.5 truncate text-[12px] font-medium text-white/75">{localizeDigits(meta, locale)}</p>
         </div>
         <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-white/15 text-white ring-1 ring-white/30 backdrop-blur-md transition group-hover:bg-[#eacb7f] group-hover:text-[#083f30]">
-          <ChevronLeft size={18} className="ltr:rotate-180" />
+          {isRtl ? <ChevronLeft size={18} /> : <ChevronRight size={18} />}
         </span>
       </div>
     </>
@@ -155,6 +156,8 @@ function CategoryCard({
   opensApp?: string | null;
 }) {
   const t = useTranslations("CategoryBrowser");
+  const locale = useLocale();
+  const dir = ["fa", "ar", "ku"].includes(locale) ? "rtl" : "ltr";
   const className = [
     "group relative block w-full overflow-hidden rounded-[26px] bg-[#062a20] shadow-[0_18px_40px_-22px_rgba(3,20,15,0.65)] transition-transform duration-300 active:scale-[0.97]",
     "aspect-square",
@@ -165,7 +168,7 @@ function CategoryCard({
     return (
       <Link
         href={opensApp}
-        className={className}
+        className={className} dir={dir}
         aria-label={t("openCategory", { name: category.name })}
         data-opens-tours={opensApp === TOURS_HOME_PATH ? "true" : undefined}
         data-opens-app={opensApp}
@@ -181,7 +184,7 @@ function CategoryCard({
         href={categoryBrowserHref(category)}
         onClick={onOpenCategory}
         scroll={false}
-        className={className}
+        className={className} dir={dir}
         aria-label={t("openSubcategories", { name: category.name })}
       >
         {content}
@@ -190,7 +193,7 @@ function CategoryCard({
   }
 
   return (
-    <Link href={categoryProvidersHref(category)} className={className} aria-label={t("openCategory", { name: category.name })}>
+    <Link href={categoryProvidersHref(category)} className={className} dir={dir} aria-label={t("openCategory", { name: category.name })}>
       {content}
     </Link>
   );
@@ -423,7 +426,7 @@ export function CategoryBrowserClient({
                     </span>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+                  <div dir="rtl" className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
                     {group.categories.map((category) => (
                       <CategoryCard
                         key={category.id}
