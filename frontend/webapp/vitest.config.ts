@@ -49,6 +49,7 @@ export default defineConfig({
       "src/features/service-providers/**/*.test.ts",
       "src/features/shop-api/**/*.test.ts",
       "src/features/site-content/**/*.test.ts",
+      "src/features/blog/**/*.test.ts",
       "src/features/trust-seal/**/*.test.ts",
       "src/features/assistant/tools/*.test.ts",
       "src/lib/routes/**/*.test.ts",

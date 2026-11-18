@@ -12,6 +12,7 @@ import { getTourSettings } from "@/features/tours/server/platform/settings";
 import { listTourSitemapEntries } from "@/features/tours/server/platform/seo";
 import { propertyLocales, STAY_INDEXABLE_LOCALES } from "@/features/stays/domain/seo-locales";
 import { allGuides, guideLocales, guidePath } from "@/features/guides/registry";
+import { getPublishedPostIndex } from "@/features/blog/server/repository";
 import { getPublishedSitePageIndex } from "@/features/site-content/server/repository";
 import { routing } from "@/i18n/routing";
 import { absoluteUrl, languageAlternates, type SeoLocale } from "@/lib/seo/alternates";
@@ -245,8 +246,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...(page.updatedAt ? { lastModified: page.updatedAt } : {}),
   }));
 
+  // Blog: the index (indexable where at least one post is published) and each post in the
+  // languages it is published in. Never throws: an outage yields no blog entries, not a failed sitemap.
+  const posts = await getPublishedPostIndex();
+  const blogLocales = [...new Set(posts.flatMap((post) => post.locales))];
+  const blogEntries = posts.length
+    ? [
+        { path: "/blog", locales: blogLocales },
+        ...posts.map((post) => ({ path: `/blog/${post.slug}`, locales: post.locales, lastModified: post.updatedAt })),
+      ]
+    : [];
+
   const entries: (CatalogEntry & { lastModified?: string })[] = [
     ...sitePages,
+    ...blogEntries,
     ...STATIC_PATHS,
     ...guideEntries(),
     ...catalog,

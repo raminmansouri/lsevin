@@ -1,3 +1,4 @@
+import { getPublishedPostIndex } from "@/features/blog/server/repository";
 import { allGuides, guideLocales, guidePath } from "@/features/guides/registry";
 import { getPublishedSitePage, getPublishedSitePageIndex } from "@/features/site-content/server/repository";
 import { absoluteUrl } from "@/lib/seo/alternates";
@@ -24,8 +25,19 @@ async function companyPages() {
   return lines.filter((line): line is string => Boolean(line));
 }
 
+/** Published blog posts: one line per post in its first available language (English preferred). */
+async function blogPosts() {
+  const index = await getPublishedPostIndex();
+  return index.slice(0, 50).map(({ slug, locales, titles }) => {
+    const locale = locales.includes("en") ? "en" : locales[0];
+    const key = locale === "en" ? "en-US" : Object.keys(titles).find((k) => k.startsWith(locale)) ?? Object.keys(titles)[0];
+    return `- [${titles[key] ?? slug}](${absoluteUrl(locale, `/blog/${slug}`)}) (${locales.join(", ")})`;
+  });
+}
+
 export async function GET() {
   const company = await companyPages();
+  const blog = await blogPosts();
   const guides = allGuides().flatMap((guide) =>
     guideLocales(guide).map((locale) => {
       const copy = guide.copy[locale]!;
@@ -50,6 +62,7 @@ export async function GET() {
     `- [Hotels and places to stay in Iran](${absoluteUrl("en", "/stays/intro")}): city pages list each stay with total prices for chosen dates, cancellation rules and verified-guest reviews`,
     "",
     ...(company.length ? ["## About LSevin and policies", ...company, ""] : []),
+    ...(blog.length ? ["## Blog", ...blog, ""] : []),
     "## Medical travel guides",
     ...guides,
     "",
