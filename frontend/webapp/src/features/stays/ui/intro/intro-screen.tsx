@@ -71,6 +71,7 @@ export function StaysIntro({ next, cities }: { next: string; cities: IntroCity[]
         <div className="relative mx-auto flex w-full max-w-xl flex-1 flex-col px-6 pt-6 pb-[calc(2rem+env(safe-area-inset-bottom))]">
           <Link
             href={PARENT_APP_PATH}
+            prefetch={false}
             className="inline-flex min-h-11 items-center gap-1.5 self-start rounded-full bg-black/30 px-3 text-sm font-medium backdrop-blur hover:bg-black/40 focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none"
           >
             <Back className="size-4" aria-hidden="true" />

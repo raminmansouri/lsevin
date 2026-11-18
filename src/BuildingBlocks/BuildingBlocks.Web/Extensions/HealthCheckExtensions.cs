@@ -67,10 +67,15 @@ public static class HealthCheckExtensions
                     WebConstants.HealthChecks.HealthCheckReadyTag,
                 ]
             )
-            .AddPrivateMemoryHealthCheck(
+            .AddWorkingSetHealthCheck(
                 // Keep this below the production 1 GiB container limit while allowing
                 // the API's normal managed-memory working set. Memory pressure should
                 // remove a pod from service, not make the liveness probe restart it.
+                // This must measure the WORKING SET (resident memory), not private bytes:
+                // private bytes include reserved/committed-but-untouched GC address space
+                // and reached ~1.1 GB while the resident set was ~450-550 MB, so the check
+                // failed on a healthy pod ("privatememory ... Maximum=943718400,
+                // Current=1163726848") and kept /readiness at 503 for hours.
                 900 * 1024 * 1024,
                 tags: [WebConstants.HealthChecks.HealthCheckReadyTag]
             )

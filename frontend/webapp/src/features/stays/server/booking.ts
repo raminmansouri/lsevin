@@ -14,6 +14,7 @@ import type { BookingStatus, MyStayBooking } from "../types";
 import { pick, pickStr } from "./catalog";
 import { fail, logUnexpected, mapStayError } from "./errors";
 import { renderStayNotice, type StayNoticeKind } from "./notifications";
+import { routing } from "@/i18n/routing";
 import { getStaySettings, type StaySettings } from "./settings";
 
 /**
@@ -593,7 +594,7 @@ const bookingSelect = () => db`
   select sb.booking_id::text, sb.voucher_code, sb.status, sb.property_id::text, p.slug, p.name, sb.content_snapshot, sb.check_in::text, sb.check_out::text,
          sb.nights, sb.rooms, sb.adults, sb.child_ages, sb.currency_code, sb.total_amount, bb.paid_amount, bb.payment_status, sb.confirmation_mode,
          sb.buyer, sb.guests, sb.special_requests, sb.arrival_time, sb.policy_snapshot, sb.price_snapshot, sb.payment_deadline_at, sb.request_expires_at,
-         sb.created_at, sb.cancelled_at, sb.cancel_reason, sb.refund_quote, sb.ui_locale,
+         sb.created_at, sb.cancelled_at, sb.cancel_reason, sb.refund_quote, sb.ui_locale, p.location_privacy,
          (select m.url from stay.media m where m.property_id = p.id and m.room_type_id is null order by m.is_cover desc, m.sort_order limit 1) as cover_url,
          exists (select 1 from stay.reviews r where r.booking_id = sb.booking_id) as reviewed
     from stay.bookings sb
@@ -604,6 +605,10 @@ const bookingSelect = () => db`
 function toMyBooking(r: any, locale: string): MyStayBooking {
   const snap = r.content_snapshot ?? {};
   const confirmed = ["confirmed", "completed"].includes(r.status);
+  // A hotel's address and map pin are public on its page, so the guest sees them from the start.
+  // Only a private home (approximate location) keeps the exact address and phone until confirmed (H09).
+  const isPrivate = r.location_privacy === "approximate";
+  const reveal = confirmed || !isPrivate;
   const policyText = pick(r.policy_snapshot?.texts, locale)?.value ?? null;
   return {
     bookingId: r.booking_id,
@@ -631,10 +636,10 @@ function toMyBooking(r: any, locale: string): MyStayBooking {
     checkInTime: snap.checkInTime ?? "14:00",
     checkOutTime: snap.checkOutTime ?? "12:00",
     timezone: snap.timezone ?? "Asia/Tehran",
-    // The exact address and phone are released only once the stay is confirmed (H09).
-    address: confirmed ? (pick(snap.address, locale)?.value ?? null) : null,
-    location: confirmed && snap.latitude != null ? { latitude: snap.latitude, longitude: snap.longitude } : null,
-    contactPhone: confirmed ? (snap.contactPhone ?? null) : null,
+    privateHome: isPrivate,
+    address: reveal ? (pick(snap.address, locale)?.value ?? null) : null,
+    location: reveal && snap.latitude != null ? { latitude: snap.latitude, longitude: snap.longitude } : null,
+    contactPhone: reveal ? (snap.contactPhone ?? null) : null,
     buyer: r.buyer,
     guests: r.guests ?? [],
     specialRequests: r.special_requests,
@@ -702,9 +707,24 @@ export async function audit(tx: Tx, actor: { userId: string | null }, propertyId
     values (${actor.userId}::uuid, ${propertyId}::uuid, ${entityType}, ${entityId}::uuid, ${action}, ${db.json(detail as never)})`;
 }
 
+/** Public link to the booking, in the guest's language, on this site. */
+export function stayBookingUrl(bookingId: string, uiLocale: string | null | undefined): string {
+  const base = (process.env.NEXT_PUBLIC_URL || "").replace(/\/$/, "");
+  const lang = String(uiLocale || "fa").split("-")[0].toLowerCase();
+  const prefix = (routing.locales as readonly string[]).includes(lang) ? lang : routing.defaultLocale;
+  return `${base}/${prefix}/stays/bookings/${bookingId}`;
+}
+
+/**
+ * Tells the guest about a booking event on every channel they can be reached on: in-app,
+ * email (account address, else the booker's), SMS (account mobile, else the booker's) and web
+ * push (devices the account subscribed). Channels an admin has switched off in
+ * /admin/notification-channels are recorded as cancelled by the dispatcher, not lost silently.
+ * Once per booking and event (dedupe key), so a retry or a second tab never notifies twice.
+ */
 export async function notifyStayEvent(bookingId: string, kind: StayNoticeKind) {
   const [b] = await db<any[]>`
-    select user_id::text, ui_locale, display_calendar, voucher_code, content_snapshot, check_in::text, check_out::text
+    select user_id::text, ui_locale, display_calendar, voucher_code, content_snapshot, check_in::text, check_out::text, buyer
       from stay.bookings where booking_id = ${bookingId}::uuid`;
   if (!b) return;
   const claimed = await db`
@@ -720,6 +740,13 @@ export async function notifyStayEvent(bookingId: string, kind: StayNoticeKind) {
       voucher: b.voucher_code,
       propertyName: pickStr(b.content_snapshot?.propertyName, b.ui_locale),
     });
+    const profile = await getCheckoutProfile(b.user_id).catch(() => null);
+    const email = profile?.email || (typeof b.buyer?.email === "string" && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(b.buyer.email) ? b.buyer.email : null);
+    const phone = profile?.phone || (typeof b.buyer?.phone === "string" && b.buyer.phone.trim() ? b.buyer.phone.replace(/[\s-]/g, "") : null);
+    const url = stayBookingUrl(bookingId, b.ui_locale);
+    const channels: ("in_app" | "push" | "email" | "sms")[] = ["in_app", "push"];
+    if (email) channels.push("email");
+    if (phone) channels.push("sms");
     const { createNotification } = await import("@/app/[locale]/n/app/mobile/notifications/notification-service");
     await createNotification({
       recipientUserId: b.user_id,
@@ -728,12 +755,29 @@ export async function notifyStayEvent(bookingId: string, kind: StayNoticeKind) {
       body,
       entityType: "stay_booking",
       entityId: bookingId,
-      channels: ["in_app"],
-      data: { kind, voucher: b.voucher_code, href: `/stays/bookings/${bookingId}` },
+      channels,
+      emailTo: email,
+      phoneTo: phone,
+      data: {
+        kind,
+        voucher: b.voucher_code,
+        href: `/stays/bookings/${bookingId}`,
+        channelContent: {
+          in_app: { title, body },
+          email: { subject: title, body: `${body}
+
+${url}` },
+          sms: { body: `${title}
+${body}
+${url}` },
+          push: { title, body, url },
+        },
+      },
     });
   } catch (e) {
     await db`delete from stay.booking_events where dedupe_key = ${`notify:${kind}:${bookingId}`}`;
     throw mapStayError(e, "notifyStayEvent");
   }
 }
+
 

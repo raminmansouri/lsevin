@@ -8,7 +8,7 @@ export type DeliveryToSend = {
   recipientUserId: string | null;
   title: string;
   body: string;
-  channelContent: Record<string, { title?: string; subject?: string; body?: string } | undefined>;
+  channelContent: Record<string, { title?: string; subject?: string; body?: string; url?: string } | undefined>;
 };
 
 /**

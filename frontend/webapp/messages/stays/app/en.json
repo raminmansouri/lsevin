@@ -149,7 +149,17 @@
       "emptyTitle": "More stays are on the way",
       "emptyText": "New hotels and stays are added every week.",
       "continueSearch": "Continue your last search",
-      "continueSearchIn": "Continue your search in {city}"
+      "continueSearchIn": "Continue your search in {city}",
+      "comingSoon": "Coming soon",
+      "photoCredits": "Photos:",
+      "typeAlt": {
+        "hotel": "Garden and pool of the Abbasi Hotel, Isfahan",
+        "traditional": "Courtyard of a traditional hotel in Yazd",
+        "hotel_apartment": "Bedroom and dining area of a hotel apartment",
+        "villa": "Two-storey villa among trees in northern Iran",
+        "cottage": "Thatched wooden cottages in the Ramsar forest",
+        "ecolodge": "Tarlan ecolodge in Tarkhinabad village, Hamedan"
+      }
     },
     "explore": {
       "title": "Hotels and stays",
@@ -643,7 +653,6 @@
       "guests": "Guests",
       "contact": "Contact",
       "address": "Address",
-      "addressAfterConfirm": "The address and host phone appear here once your booking is confirmed.",
       "hostPhone": "Host phone",
       "directions": "Directions",
       "payment": "Payment",
@@ -669,7 +678,34 @@
         "thanks": "Thank you. Your review will appear after a short check.",
         "already": "You have reviewed this stay."
       },
-      "loadError": "We could not load this booking."
+      "loadError": "We could not load this booking.",
+      "privateAddressAfterConfirm": "This is a private home: the exact address and host phone appear here once your booking is confirmed.",
+      "live": {
+        "title": {
+          "pending_payment": "Your request was accepted",
+          "confirmed": "Your stay is confirmed",
+          "declined": "The host could not accept your request",
+          "expired": "The payment window has ended",
+          "cancelled": "Booking cancelled",
+          "completed": "Stay completed",
+          "no_show": "Marked as no-show",
+          "requested": "Waiting for the host"
+        },
+        "text": {
+          "pending_payment": "Complete payment here to confirm the booking.",
+          "confirmed": "Your voucher and stay details are on this page.",
+          "declined": "Nothing was charged. Try another stay.",
+          "expired": "Payment was not completed in time and the room was released.",
+          "cancelled": "Refund details are on this page.",
+          "completed": "We hope you enjoyed your stay.",
+          "no_show": "Contact support for help.",
+          "requested": "This page updates as soon as the host replies."
+        },
+        "notifyHint": "This page updates by itself as soon as the host replies. Turn on notifications to hear about it on this device too.",
+        "notifyMe": "Turn on notifications",
+        "notifyOn": "Notifications are on: you will hear about the host's reply on this device.",
+        "notifyDenied": "Notifications are blocked for this site in your browser. This page still updates by itself."
+      }
     },
     "wishlist": {
       "title": "Saved stays",

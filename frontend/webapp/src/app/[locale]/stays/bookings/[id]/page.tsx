@@ -8,6 +8,7 @@ import { ToursError } from "@/features/tours/server/platform/errors";
 import { getMyStayBooking, reconcileStayBooking } from "@/features/stays/server/booking";
 import { logUnexpected } from "@/features/stays/server/errors";
 import { BookingDetail } from "@/features/stays/ui/bookings/bookings-view";
+import { getChannelConfig } from "@/features/notification/server/channel.repository";
 import { Link } from "@/i18n/navigation";
 
 export const metadata: Metadata = { robots: { index: false, follow: false } };
@@ -48,5 +49,9 @@ export default async function StayBookingPage({ params, searchParams }: { params
     if (after && after !== booking.status) booking = await getMyStayBooking(actor.userId, id, content);
   }
   const { new: isNew } = await searchParams;
-  return <BookingDetail booking={booking} justCreated={isNew === "1"} />;
+  // Web push needs the admin-enabled push channel and its public VAPID key; without them the page
+  // still offers browser notifications while it is open.
+  const push = ["requested", "pending_payment"].includes(booking.status) ? await getChannelConfig("push").catch(() => null) : null;
+  const pushKey = push?.isEnabled ? (push.settings.vapidPublicKey ?? null) : null;
+  return <BookingDetail booking={booking} justCreated={isNew === "1"} pushKey={pushKey} />;
 }

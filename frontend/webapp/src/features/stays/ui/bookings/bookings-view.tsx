@@ -15,7 +15,9 @@ import { cn } from "@/lib/utils";
 import { cancelStayAction, quoteStayCancellationAction, submitStayReviewAction } from "../../server/actions/customer";
 import type { MyStayBooking } from "../../types";
 import { Money, StayImage, useClock, useStayDate } from "../common";
+import { directionsLinks } from "../detail/location";
 
+import { NotifyMeCard, StatusChangeBanner, useLiveBookingStatus } from "./live-status";
 import { StayPaymentPanel } from "./payment-panel";
 
 const STATUS_STYLE: Record<string, string> = {
@@ -94,7 +96,7 @@ export function BookingsList({ groups }: { groups: { upcoming: MyStayBooking[]; 
   );
 }
 
-export function BookingDetail({ booking, justCreated }: { booking: MyStayBooking; justCreated: boolean }) {
+export function BookingDetail({ booking, justCreated, pushKey = null }: { booking: MyStayBooking; justCreated: boolean; pushKey?: string | null }) {
   const t = useTranslations("StayApp.bookings");
   const tBook = useTranslations("StayApp.book");
   const tMeals = useTranslations("StayApp.meals");
@@ -108,9 +110,12 @@ export function BookingDetail({ booking, justCreated }: { booking: MyStayBooking
   const b = booking;
   const live = ["pending_payment", "requested", "confirmed"].includes(b.status);
   const showVoucher = b.status === "confirmed" || b.status === "completed";
+  const change = useLiveBookingStatus(b.bookingId, b.status);
+  const waiting = b.status === "requested" || b.status === "pending_payment";
 
   return (
     <div className="space-y-4 px-4 py-4 sm:px-6 print:p-0" data-testid="stay-booking-detail">
+      <StatusChangeBanner change={change} />
       {justCreated && b.status === "requested" ? (
         <div role="status" className="rounded-2xl bg-sky-50 p-4 text-sky-900 ring-1 ring-sky-200" data-testid="stay-request-sent">
           <p className="font-bold">{tBook("requestSent")}</p>
@@ -122,6 +127,8 @@ export function BookingDetail({ booking, justCreated }: { booking: MyStayBooking
           {tBook("confirmedTitle")}
         </div>
       ) : null}
+
+      {waiting ? <NotifyMeCard pushKey={pushKey} /> : null}
 
       <header className="flex flex-wrap items-start justify-between gap-3">
         <div>
@@ -194,33 +201,40 @@ export function BookingDetail({ booking, justCreated }: { booking: MyStayBooking
           <section className="rounded-2xl bg-white p-4 ring-1 ring-slate-200" data-testid="stay-booking-address">
             <h2 className="font-bold">{t("address")}</h2>
             {b.address || b.location || b.contactPhone ? (
-              <div className="mt-2 space-y-2 text-sm">
+              <div className="mt-2 space-y-3 text-sm">
                 {b.address ? (
-                  <p className="flex items-start gap-1.5">
+                  <p className="flex items-start gap-1.5" data-testid="stay-booking-address-text">
                     <MapPin className="mt-0.5 size-4 shrink-0 text-emerald-700" aria-hidden="true" />
                     {b.address}
                   </p>
                 ) : null}
                 {b.contactPhone ? (
-                  <a href={`tel:${b.contactPhone}`} className="flex items-center gap-1.5 font-semibold text-emerald-800" dir="ltr">
+                  <a href={`tel:${b.contactPhone}`} className="inline-flex min-h-11 items-center gap-1.5 font-semibold text-emerald-800" dir="ltr">
                     <Phone className="size-4" aria-hidden="true" />
                     {b.contactPhone}
                   </a>
                 ) : null}
                 {b.location ? (
-                  <a
-                    href={`https://www.google.com/maps/dir/?api=1&destination=${b.location.latitude},${b.location.longitude}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex min-h-11 items-center gap-1.5 rounded-full px-4 font-semibold ring-1 ring-slate-300 print:hidden"
-                  >
-                    <Navigation className="size-4" aria-hidden="true" />
-                    {t("directions")}
-                  </a>
+                  <ul className="grid grid-cols-2 gap-2 print:hidden" data-testid="stay-booking-directions">
+                    {directionsLinks(b.location.latitude, b.location.longitude).map((l) => (
+                      <li key={l.id}>
+                        <a
+                          href={l.href}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex min-h-11 items-center justify-center gap-1.5 rounded-full px-3 font-semibold ring-1 ring-slate-300 hover:bg-emerald-50"
+                          data-testid={`stay-booking-directions-${l.id}`}
+                        >
+                          <Navigation className="size-4 text-emerald-700" aria-hidden="true" />
+                          {tDetail(`mapApps.${l.id}`)}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
                 ) : null}
               </div>
             ) : (
-              <p className="mt-2 text-sm text-slate-600">{t("addressAfterConfirm")}</p>
+              <p className="mt-2 text-sm text-slate-600">{b.privateHome ? t("privateAddressAfterConfirm") : b.city}</p>
             )}
           </section>
 
