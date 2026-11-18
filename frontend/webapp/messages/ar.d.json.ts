@@ -2788,7 +2788,22 @@ declare const messages: {
     "internationalPriceMultiplierHint": "السعر الدولي = السعر المحوّل × هذا المعامل. اتركه فارغًا لاستخدام القيمة الافتراضية.",
     "staffOrder": "Order",
     "staffOrderHint": "1 = first on the provider's page; 0 = no position",
-    "staffOrderSaved": "Order saved"
+    "staffOrderSaved": "Order saved",
+    "addedBy": "أُضيف بواسطة",
+    "addedAt": "تاريخ الإضافة",
+    "addedByPlaceholder": "اسمك",
+    "addedByHint": "اكتب اسمك. يُحفظ مع التاريخ ولا يمكن تغييره لاحقًا أبدًا.",
+    "addedByRequired": "أدخل اسم المسؤول الذي يضيف مقدم الخدمة هذا.",
+    "addedByUnknown": "غير مسجّل",
+    "addedByLockedHint": "مقفل: لا يمكن تغيير من أضاف مقدم الخدمة هذا ولا تاريخ الإضافة.",
+    "addedByPrompt": "اسمك (يُحفظ كـ«أُضيف بواسطة» في النسخة ولا يمكن تغييره لاحقًا):",
+    "branches": "الفروع",
+    "branchesDescription": "مواقع أخرى للمنشأة نفسها. تظهر تحت «فروع أخرى» فوق التقييمات مباشرة. الربط باتجاهين: إضافة الفرع B هنا تضيف هذا المزوّد إلى فروع B أيضًا، والحذف يزيل الطرفين.",
+    "branchProvider": "مزوّد الفرع",
+    "addBranch": "إضافة فرع",
+    "branchSaved": "تمت إضافة الفرع.",
+    "branchDeleted": "تمت إزالة الفرع.",
+    "noBranchesYet": "لا توجد فروع بعد"
   },
   "HomeHero": {
     "title": "الصحة والجمال بلا حدود، كل شيء في مكان واحد",
@@ -11819,7 +11834,13 @@ declare const messages: {
     "includeSpecificDetailsAboutTheService": "أضف تفاصيل محددة عن الخدمة",
     "cancel": "إلغاء",
     "exampleHairTransplantDentalCareSpaDay": "مثال: زراعة الشعر، العناية بالأسنان، يوم سبا",
-    "shareDetailsOfYourOwnExperienceAtThis": "شارك تفاصيل تجربتك الشخصية في هذا المكان"
+    "shareDetailsOfYourOwnExperienceAtThis": "شارك تفاصيل تجربتك الشخصية في هذا المكان",
+    "branches": {
+      "title": "فروع أخرى",
+      "subtitle": "المنشأة نفسها في مواقع أخرى",
+      "viewBranch": "عرض الفرع",
+      "tab": "الفروع"
+    }
   },
   "MobileOffers": {
     "title": "العروض الخاصة",
@@ -17006,6 +17027,37 @@ declare const messages: {
   "LocationAccess": {
     "denied": "الوصول إلى الموقع محظور. اضغط على رمز القفل بجانب عنوان الموقع، واجعل «Location» على «Allow»، ثم حاول مرة أخرى.",
     "unavailable": "تعذّر تحديد موقعك. تحقّق من الاتصال أو GPS وحاول مرة أخرى."
+  },
+  "AdminUserLists": {
+    "signedUp": "تاريخ التسجيل",
+    "unknownDate": "غير معروف",
+    "total": "{count} نتيجة",
+    "sort": {
+      "label": "ترتيب حسب",
+      "newest": "الأحدث تسجيلًا أولًا",
+      "oldest": "الأقدم تسجيلًا أولًا",
+      "nameAsc": "الاسم (أ إلى ي)",
+      "nameDesc": "الاسم (ي إلى أ)"
+    },
+    "pager": {
+      "previous": "السابق",
+      "next": "التالي",
+      "page": "الصفحة {page} من {pages}"
+    },
+    "customers": {
+      "title": "جميع العملاء",
+      "description": "عملاء الحجوزات والمستخدمون المرتبطون والمستندات وعمليات المحفظة",
+      "searchPlaceholder": "ابحث بالاسم أو البريد الإلكتروني أو الهاتف...",
+      "empty": "لا يوجد عملاء بعد.",
+      "emptySearch": "لا يوجد عميل يطابق هذا البحث."
+    },
+    "users": {
+      "title": "المستخدمون",
+      "description": "المستخدمون الذين لديهم حجوزات ومسودات ومحافظ وتفضيلات",
+      "searchPlaceholder": "ابحث بالاسم أو البريد الإلكتروني أو الهاتف...",
+      "empty": "لا يوجد مستخدمون بعد.",
+      "emptySearch": "لا يوجد مستخدم يطابق هذا البحث."
+    }
   }
 };
 export default messages;

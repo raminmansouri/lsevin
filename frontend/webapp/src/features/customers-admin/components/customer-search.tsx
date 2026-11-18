@@ -5,7 +5,13 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { Input } from "@/components/ui/input";
 
-export function CustomerSearch({ initialQuery }: { initialQuery: string }) {
+export function CustomerSearch({
+  initialQuery,
+  placeholder = "جستجوی نام مشتری...",
+}: {
+  initialQuery: string;
+  placeholder?: string;
+}) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -34,7 +40,6 @@ export function CustomerSearch({ initialQuery }: { initialQuery: string }) {
   return (
     <Input
       type="search"
-      dir="rtl"
       value={value}
       onChange={(e) => setValue(e.target.value)}
       onKeyDown={(e) => {
@@ -43,8 +48,8 @@ export function CustomerSearch({ initialQuery }: { initialQuery: string }) {
           applySearch(value);
         }
       }}
-      placeholder="جستجوی نام مشتری..."
-      aria-label="جستجوی نام مشتری"
+      placeholder={placeholder}
+      aria-label={placeholder}
     />
   );
 }

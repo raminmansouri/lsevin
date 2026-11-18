@@ -497,6 +497,61 @@ export async function listOffers(locale: string, limit = 10): Promise<TourCard[]
 }
 
 // ----------------------------------------------------------------------------
+// Rankings on the tours home: most viewed, best selling
+// ----------------------------------------------------------------------------
+
+export type RankedTour = { card: TourCard; count: number };
+
+/** Tours that sell: confirmed bookings, plus ones that already ran (completed / no-show). */
+const SOLD_STATUSES = ["confirmed", "completed", "no_show"];
+
+async function rankedCards(rows: { id: string; n: string | number }[], locale: string, limit: number): Promise<RankedTour[]> {
+  const counts = new Map(rows.map((r) => [r.id, Number(r.n)]));
+  // cardsByIds drops tours that are unpublished or whose provider is inactive, so ask for a few spare.
+  const cards = await cardsByIds(rows.map((r) => r.id), locale);
+  return cards.slice(0, limit).map((card) => ({ card, count: counts.get(card.id) ?? 0 }));
+}
+
+/** Published tours with the most tour-page views (tour.tours.view_count, migration 0116). */
+export async function listMostViewed(locale: string, limit = 4): Promise<RankedTour[]> {
+  const rows = await db<{ id: string; n: string }[]>`
+    select t.id::text, t.view_count as n
+      from tour.tours t
+     where t.status = 'published' and t.view_count > 0
+       and exists (select 1 from category.service_providers sp where sp.id = t.service_provider_id and sp.is_active)
+     order by t.view_count desc, t.published_at desc nulls last, t.id
+     limit ${limit * 2}
+  `;
+  return rankedCards(rows, locale, limit);
+}
+
+/**
+ * Published tours with the most sold bookings (one booking = one count, whatever its seats).
+ * sinceDays limits it to bookings confirmed in the last N days (falls back to created_at).
+ */
+export async function listBestSelling(locale: string, opts: { sinceDays?: number; limit?: number } = {}): Promise<RankedTour[]> {
+  const limit = opts.limit ?? 4;
+  const since = opts.sinceDays ?? null;
+  const rows = await db<{ id: string; n: number }[]>`
+    select b.tour_id::text as id, count(*)::int as n
+      from tour.bookings b
+      join tour.tours t on t.id = b.tour_id and t.status = 'published'
+     where b.status = any(${SOLD_STATUSES}::text[])
+       and (${since}::int is null or coalesce(b.confirmed_at, b.created_at) >= now() - make_interval(days => ${since}::int))
+       and exists (select 1 from category.service_providers sp where sp.id = t.service_provider_id and sp.is_active)
+     group by b.tour_id
+     order by n desc, max(coalesce(b.confirmed_at, b.created_at)) desc, b.tour_id
+     limit ${limit * 2}
+  `;
+  return rankedCards(rows, locale, limit);
+}
+
+/** One tour-page view, counted for every visitor (no personal data; see migration 0116). */
+export async function recordTourView(tourId: string) {
+  await db`update tour.tours set view_count = view_count + 1 where id = ${tourId}::uuid and status = 'published'`;
+}
+
+// ----------------------------------------------------------------------------
 // Recent views, wishlist, recent searches (C-009, C-030, C-103, C-104)
 // ----------------------------------------------------------------------------
 

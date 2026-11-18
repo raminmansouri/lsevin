@@ -3313,7 +3313,22 @@
     "zibalAddDomain": "Add domain",
     "zibalSettingsTitle": "Zibal settings",
     "zibalSettingsDescription": "Amounts are sent to Zibal in Rial; a Toman gateway currency is converted before sending.",
-    "zibalSandboxDescription": "Sandbox uses Zibal's test merchant and moves no money. It does not work on the production server (payments stop there), so keep it off in production."
+    "zibalSandboxDescription": "Sandbox uses Zibal's test merchant and moves no money. It does not work on the production server (payments stop there), so keep it off in production.",
+    "addedBy": "Added by",
+    "addedAt": "Added on",
+    "addedByPlaceholder": "Your name",
+    "addedByHint": "Type your own name. It is saved with the date and can never be changed later.",
+    "addedByRequired": "Enter the name of the admin adding this provider.",
+    "addedByUnknown": "Not recorded",
+    "addedByLockedHint": "Locked: who added this provider and when can't be changed.",
+    "addedByPrompt": "Your name (saved as \"Added by\" on the copy, can't be changed later):",
+    "branches": "Branches",
+    "branchesDescription": "Other locations of this business. They show under \"Other branches\" right above the reviews. Two-way: adding B here also adds this provider to B's branches, and removing removes both.",
+    "branchProvider": "Branch provider",
+    "addBranch": "Add branch",
+    "branchSaved": "Branch added.",
+    "branchDeleted": "Branch removed.",
+    "noBranchesYet": "No branches yet"
   },
   "HomeHero": {
     "title": "Health and beauty without borders, all in one place",
@@ -12710,6 +12725,12 @@
     },
     "certifications": {
       "certificateImage": "Certificate image {number}"
+    },
+    "branches": {
+      "title": "Other branches",
+      "subtitle": "The same business in other locations",
+      "viewBranch": "View branch",
+      "tab": "Branches"
     }
   },
   "MobileOffers": {
@@ -18570,5 +18591,36 @@
   "LocationAccess": {
     "denied": "Location access is blocked. Tap the lock icon next to the site address, set Location to Allow, and try again.",
     "unavailable": "We couldn't find your location. Check your connection or GPS and try again."
+  },
+  "AdminUserLists": {
+    "signedUp": "Signed up",
+    "unknownDate": "Unknown",
+    "total": "{count, plural, one {# result} other {# results}}",
+    "sort": {
+      "label": "Sort by",
+      "newest": "Newest signups first",
+      "oldest": "Oldest signups first",
+      "nameAsc": "Name (A to Z)",
+      "nameDesc": "Name (Z to A)"
+    },
+    "pager": {
+      "previous": "Previous",
+      "next": "Next",
+      "page": "Page {page} of {pages}"
+    },
+    "customers": {
+      "title": "Customers",
+      "description": "Booking customers, linked identity users, documents and wallet operations",
+      "searchPlaceholder": "Search by name, email or phone...",
+      "empty": "There are no customers yet.",
+      "emptySearch": "No customer matches this search."
+    },
+    "users": {
+      "title": "Users",
+      "description": "Users that own bookings, drafts, wallets and preferences",
+      "searchPlaceholder": "Search by name, email or phone...",
+      "empty": "There are no users yet.",
+      "emptySearch": "No user matches this search."
+    }
   }
 }

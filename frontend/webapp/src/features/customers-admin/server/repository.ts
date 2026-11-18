@@ -1,17 +1,35 @@
 import "server-only";
 import { db } from "@/features/booking-admin-shared/server/db";
+import { buildSearchPatterns, USER_LIST_PAGE_SIZE, type UserListParams, type UserListSort } from "@/features/customers-admin/lib/user-list-params";
 
-export async function getCustomers(q?: string) {
-  const term = q?.trim();
-  const pattern = term ? `%${term.replace(/[\\%_]/g, "\\$&")}%` : null;
-  return db<any[]>`
-    select c.*, u.user_name as "userName", u.id as "identityUserId"
+/** Built per call: postgres.js fragments are not reused across queries. */
+function orderBy(sort: UserListSort) {
+  switch (sort) {
+    case "newest": return db`order by c.create_date desc nulls last, c.id`;
+    case "oldest": return db`order by c.create_date asc nulls last, c.id`;
+    case "name_asc": return db`order by lower(concat_ws(' ', c.first_name, c.last_name)) asc, c.create_date desc`;
+    case "name_desc": return db`order by lower(concat_ws(' ', c.first_name, c.last_name)) desc, c.create_date desc`;
+  }
+}
+
+/** Paged customer list; search covers name, email and phone. */
+export async function getCustomers({ q, sort, page }: UserListParams) {
+  const { text, digits } = buildSearchPatterns(q);
+  const offset = (page - 1) * USER_LIST_PAGE_SIZE;
+  const rows = await db<any[]>`
+    select c.*, u.user_name as "userName", u.id as "identityUserId", count(*) over() as "totalCount"
     from customer.customers c
     left join identity.asp_net_users u on lower(u.email) = lower(c.email)
-    ${pattern ? db`where concat_ws(' ', c.first_name, c.last_name) ilike ${pattern}` : db``}
-    order by c.create_date desc
-    limit 300
+    ${text ? db`where (
+      concat_ws(' ', c.first_name, c.last_name) ilike ${text}
+      or c.email ilike ${text}
+      or concat(c.phone_number_country_code, c.phone_number) ilike ${text}
+      ${digits ? db`or regexp_replace(concat(c.phone_number_country_code, c.phone_number), '\\D', '', 'g') like ${digits}` : db``}
+    )` : db``}
+    ${orderBy(sort)}
+    limit ${USER_LIST_PAGE_SIZE} offset ${offset}
   `;
+  return { items: rows, total: Number(rows[0]?.totalCount ?? 0) };
 }
 
 export async function getCustomerById(customerId: string) {

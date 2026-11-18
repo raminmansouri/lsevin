@@ -11,6 +11,7 @@ import { isProviderConfigured, resolveMapProvider } from "@/components/map/map-p
 import { VideoGallery } from "@/components/media/video-gallery";
 import { ConsultationCtaButton } from "@/features/consultation/components/consultation-cta-button";
 import { ClaimPageCard } from "@/features/service-providers/components/details/claim-page-card";
+import { ProviderBranchesSection } from "@/features/service-providers/components/details/provider-branches-section";
 import { FavoriteButton } from "@/features/favorites/components/favorite-button";
 import { ViewerPrice } from "@/features/finance/components/viewer-price";
 import { useFetchProviderPageData } from "@/features/service-providers/api/client/fetch-provider-page-data";
@@ -28,7 +29,7 @@ import { useReviewEligibility } from "@/app/[locale]/n/app/components/useReviewE
 import { AnimatedWords, CountUp, Magnetic, Reveal, ScrollParallax, Tilt } from "../components/motion";
 
 type ReviewSort = "newest" | "buyers" | "helpful";
-const SECTIONS = ["about", "services", "beforeAfter", "specialists", "reviews"] as const;
+const SECTIONS = ["about", "services", "beforeAfter", "specialists", "branches", "reviews"] as const;
 type SectionId = (typeof SECTIONS)[number];
 
 /** Rich text may be Lexical JSON; render it as plain paragraphs. */
@@ -152,6 +153,7 @@ export function DesktopProviderView({ initialData }: { initialData?: ProviderPag
     services: t("tabs.services"),
     beforeAfter: tGallery("gallery.beforeAfterTitle"),
     specialists: t("tabs.specialists"),
+    branches: t("branches.tab"),
     reviews: t("tabs.reviews"),
   };
   const scrollTo = (id: SectionId) => document.getElementById(`lsd-${id}`)?.scrollIntoView({ behavior: "smooth" });
@@ -367,7 +369,11 @@ export function DesktopProviderView({ initialData }: { initialData?: ProviderPag
         <div className="min-w-0">
           {/* Sticky section nav */}
           <nav ref={navRef} className="sticky top-24 z-20 mb-12 flex w-fit gap-1 rounded-full bg-white/85 p-1.5 shadow-sm ring-1 ring-[#dce4e0] backdrop-blur-md">
-            {SECTIONS.filter((id) => id !== "beforeAfter" || data.beforeAfter?.length).map((id) => (
+            {SECTIONS.filter(
+              (id) =>
+                (id !== "beforeAfter" || data.beforeAfter?.length) &&
+                (id !== "branches" || data.branches?.length),
+            ).map((id) => (
               <button
                 key={id}
                 type="button"
@@ -544,6 +550,15 @@ export function DesktopProviderView({ initialData }: { initialData?: ProviderPag
             <Reveal className="mt-20">
               <VideoGallery videos={provider.videos.map((video) => ({ id: video.id, src: resolveMediaUrl(video.url), title: video.title ?? null }))} />
             </Reveal>
+          ) : null}
+
+          {/* Other branches (admin-linked, "branch" type): right above the reviews, hidden when empty */}
+          {data.branches?.length ? (
+            <section id="lsd-branches" className="lsd-anchor mt-20">
+              <Reveal>
+                <ProviderBranchesSection branches={data.branches} variant="desktop" />
+              </Reveal>
+            </section>
           ) : null}
 
           {/* Reviews */}

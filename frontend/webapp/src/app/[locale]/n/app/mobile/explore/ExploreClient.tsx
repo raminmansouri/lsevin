@@ -1059,7 +1059,7 @@ export default function ExploreClient({
               <div>
                 <div className="mb-3 flex items-center gap-2">
                   <MapPin size={20} className="text-[#083f30]" />
-                  <h3 className="font-bold text-gray-900">{t("filters.location")}</h3>
+                  <h3 className="font-sans font-bold text-gray-900">{t("filters.location")}</h3>
                 </div>
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                   <LazySearchableSelect
@@ -1094,7 +1094,7 @@ export default function ExploreClient({
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
                     <DollarSign size={20} className="text-[#083f30]" />
-                    <h3 className="font-bold text-gray-900">{t("filters.priceRange")}</h3>
+                    <h3 className="font-sans font-bold text-gray-900">{t("filters.priceRange")}</h3>
                   </div>
                   <span className="text-sm font-semibold text-[#083f30]">
                     {pricePrefix}0 - {pricePrefix}
@@ -1147,7 +1147,7 @@ export default function ExploreClient({
               <div>
                 <div className="flex items-center gap-2 mb-3">
                   <Star size={20} className="text-[#083f30]" />
-                  <h3 className="font-bold text-gray-900">{t("filters.minimumRating")}</h3>
+                  <h3 className="font-sans font-bold text-gray-900">{t("filters.minimumRating")}</h3>
                 </div>
                 <div className="grid grid-cols-5 gap-2">
                   {[0, 3.0, 3.5, 4.0, 4.5].map((rating) => (
@@ -1171,7 +1171,7 @@ export default function ExploreClient({
               <div>
                 <div className="flex items-center gap-2 mb-3">
                   <Clock size={20} className="text-[#083f30]" />
-                  <h3 className="font-bold text-gray-900">{t("filters.responseTime")}</h3>
+                  <h3 className="font-sans font-bold text-gray-900">{t("filters.responseTime")}</h3>
                 </div>
                 <div className="grid grid-cols-3 gap-2">
                   {[
@@ -1222,7 +1222,7 @@ export default function ExploreClient({
                       />
                     </div>
                     <div className="text-left">
-                      <h3 className="font-bold text-gray-900">{t("filters.verifiedOnly")}</h3>
+                      <h3 className="font-sans font-bold text-gray-900">{t("filters.verifiedOnly")}</h3>
                       <p className="text-sm text-gray-600">{t("filters.verifiedOnlyDescription")}</p>
                     </div>
                   </div>
@@ -1239,7 +1239,7 @@ export default function ExploreClient({
               <div>
                 <div className="flex items-center gap-2 mb-3">
                   <Globe size={20} className="text-[#083f30]" />
-                  <h3 className="font-bold text-gray-900">{t("filters.languagesSpoken")}</h3>
+                  <h3 className="font-sans font-bold text-gray-900">{t("filters.languagesSpoken")}</h3>
                 </div>
 
                 <select

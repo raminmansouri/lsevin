@@ -10,6 +10,7 @@ import { TourImage } from "@/features/tours/ui/customer/common";
 import { HeroSearch } from "@/features/tours/ui/customer/home/tours-home";
 import { ToursErrorAlert, type ToursActionError } from "@/features/tours/ui/shared/error-alert";
 import { LocalizedText } from "@/features/tours/ui/shared/localized-text";
+import { RankedTours, type TourRankings } from "@/features/tours/ui/customer/home/ranked-tours";
 import { TourCard } from "@/features/tours/ui/customer/tour-card";
 import { Link } from "@/i18n/navigation";
 
@@ -47,6 +48,7 @@ export function DesktopToursHome({
   collections,
   categories,
   saved,
+  rankings,
   hero,
   heroImage,
   heroCredit,
@@ -62,6 +64,7 @@ export function DesktopToursHome({
   collections: EditorialModule[];
   categories: TaxonomyTerm[];
   saved: Set<string>;
+  rankings: TourRankings;
   hero: EditorialModule | undefined;
   heroImage: string;
   heroCredit: { credit: string; source: string } | null;
@@ -130,6 +133,9 @@ export function DesktopToursHome({
 
       <div className="mx-auto max-w-[1360px] space-y-20 px-14 pt-14">
         <ToursErrorAlert error={error} />
+
+        {/* Most viewed and best-selling tours: below the category stamps, above Recently viewed */}
+        <RankedTours rankings={rankings} categories={categories} saved={saved} variant="desktop" />
 
         {/* Recently viewed, or popular tours */}
         {firstRail.length ? (

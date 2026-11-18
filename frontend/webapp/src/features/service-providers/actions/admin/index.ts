@@ -2,6 +2,8 @@
 
 import { z } from "zod/v4";
 
+import type { TransactionSql } from "postgres";
+
 import sql from "@/config/database/db";
 import { createAuthenticatedSafeAction } from "@/lib/safe-action";
 import { LocaleHeaderTypes } from "@/types/common";
@@ -255,6 +257,10 @@ const saveServiceProviderProfileSchema = z.object({
   internationalPriceMultiplier: z.coerce.number().positive().optional().nullable(),
   imageUrl: nullableMediaValueSchema,
   timezoneId: z.string().min(1).default("UTC"),
+  // Name of the admin adding the provider, typed by hand (admins share one login).
+  // Required on create, written only by the insert below and never by the update:
+  // migration 0115 locks added_by / added_at at the database too.
+  addedBy: z.string().trim().max(100).optional().nullable(),
 });
 
 export type SaveServiceProviderProfileInput = z.infer<
@@ -270,6 +276,15 @@ const saveServiceProviderProfileHandler = async (
   try {
     const languages = splitCsv(input.languagesText);
     const specialties = splitCsv(input.specialtiesText);
+    const addedBy = input.addedBy?.trim() ?? "";
+
+    if (!input.serviceProviderId && !addedBy) {
+      return {
+        data: undefined,
+        error: problem("Enter the name of the admin adding this provider.", 400),
+        payload: input,
+      };
+    }
 
     const id = await sql.begin(async (tx) => {
       if (input.serviceProviderId) {
@@ -349,6 +364,7 @@ const saveServiceProviderProfileHandler = async (
           international_price_multiplier,
           image_url,
           timezone_id,
+          added_by,
           search_vector
         ) values (
           public.uuid_generate_v4(),
@@ -383,6 +399,7 @@ const saveServiceProviderProfileHandler = async (
           ${input.internationalPriceMultiplier ?? null},
           ${nullableString(input.imageUrl)},
           ${input.timezoneId || "UTC"},
+          ${addedBy},
           to_tsvector('simple', coalesce(${getTranslationForSearchVector(input.name)}, '') || ' ' || coalesce(${input.email}, ''))
         ) returning id::text
       `;
@@ -433,13 +450,17 @@ export const deleteServiceProviderDirectAction = createAuthenticatedSafeAction(
   { adminRequired: true },
 );
 
-const duplicateServiceProviderDirectSchema = z.object({ id: uuidSchema });
+const duplicateServiceProviderDirectSchema = z.object({
+  id: uuidSchema,
+  // The copy is a new provider, so it records who made it, not who added the source.
+  addedBy: z.string().trim().min(1, "Enter the name of the admin adding this provider.").max(100),
+});
 
 export const duplicateServiceProviderDirectAction = createAuthenticatedSafeAction(
   duplicateServiceProviderDirectSchema,
   async (input) => {
     try {
-      const copy = await duplicateServiceProvider(input.id);
+      const copy = await duplicateServiceProvider(input.id, input.addedBy);
       revalidateAdminServiceProvider(copy.id);
       return { data: copy, error: undefined };
     } catch (error: any) {
@@ -1057,8 +1078,37 @@ const providerRecommendationSchema = z.object({
   serviceProviderId: uuidSchema,
   id: optionalUuidSchema,
   targetProviderId: uuidSchema,
-  type: z.string().min(1).max(20),
+  type: z.string().trim().min(1).max(20),
+}).refine((input) => input.targetProviderId !== input.serviceProviderId, {
+  message: "A provider cannot be linked to itself.",
+  path: ["targetProviderId"],
 });
+
+// Adding the same provider with the same type twice (e.g. a "branch") keeps one row.
+async function insertRecommendationOnce(
+  tx: TransactionSql,
+  sourceProviderId: string,
+  targetProviderId: string,
+  type: string,
+): Promise<{ id: string }[]> {
+  return tx<{ id: string }[]>`
+    with existing as (
+      select id from category.provider_recommendations
+      where source_provider_id = ${sourceProviderId}
+        and target_provider_id = ${targetProviderId}
+        and type = ${type}
+      limit 1
+    ), inserted as (
+      insert into category.provider_recommendations (source_provider_id, target_provider_id, type)
+      select ${sourceProviderId}, ${targetProviderId}, ${type}
+      where not exists (select 1 from existing)
+      returning id
+    )
+    select id::text from inserted
+    union all
+    select id::text from existing
+  `;
+}
 
 export const saveProviderRecommendationAction = createAuthenticatedSafeAction(
   providerRecommendationSchema,
@@ -1071,12 +1121,26 @@ export const saveProviderRecommendationAction = createAuthenticatedSafeAction(
             where id = ${input.id} and source_provider_id = ${input.serviceProviderId}
             returning id::text
           `
-        : await sql<{ id: string }[]>`
-            insert into category.provider_recommendations (source_provider_id, target_provider_id, type)
-            values (${input.serviceProviderId}, ${input.targetProviderId}, ${input.type})
-            returning id::text
-          `;
+        : await sql.begin(async (tx) => {
+            const linked = await insertRecommendationOnce(
+              tx,
+              input.serviceProviderId,
+              input.targetProviderId,
+              input.type,
+            );
+            // Branches are two-way: adding B as a branch of A also adds A as a branch of B.
+            if (input.type === "branch") {
+              await insertRecommendationOnce(
+                tx,
+                input.targetProviderId,
+                input.serviceProviderId,
+                "branch",
+              );
+            }
+            return linked;
+          });
       revalidateAdminServiceProvider(input.serviceProviderId);
+      if (input.type === "branch") revalidateAdminServiceProvider(input.targetProviderId);
       return { data: rows[0]?.id, error: undefined };
     } catch (error: any) {
       return {
@@ -1093,8 +1157,26 @@ export const deleteProviderRecommendationAction = createAuthenticatedSafeAction(
   z.object({ serviceProviderId: uuidSchema, id: uuidSchema }),
   async (input) => {
     try {
-      await sql`delete from category.provider_recommendations where id = ${input.id} and source_provider_id = ${input.serviceProviderId}`;
+      const deleted = await sql.begin(async (tx) => {
+        const rows = await tx<{ targetProviderId: string; type: string }[]>`
+          delete from category.provider_recommendations
+          where id = ${input.id} and source_provider_id = ${input.serviceProviderId}
+          returning target_provider_id::text as "targetProviderId", type
+        `;
+        const row = rows[0];
+        // Branches are two-way: removing B from A's branches also removes A from B's.
+        if (row?.type === "branch") {
+          await tx`
+            delete from category.provider_recommendations
+            where source_provider_id = ${row.targetProviderId}
+              and target_provider_id = ${input.serviceProviderId}
+              and type = 'branch'
+          `;
+        }
+        return row;
+      });
       revalidateAdminServiceProvider(input.serviceProviderId);
+      if (deleted?.type === "branch") revalidateAdminServiceProvider(deleted.targetProviderId);
       return { data: input.id, error: undefined };
     } catch (error: any) {
       return {

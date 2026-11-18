@@ -92,12 +92,6 @@
   }
 }
 
-@layer utilities {
-  body {
-    font-family: Arial, Helvetica, sans-serif;
-  }
-}
-
 :root {
   --background: hsl(0 0% 100%); /* #ffffff */
   --foreground: hsl(0 0% 0%); /* #000000 */
@@ -207,6 +201,8 @@
 */
 
 @theme inline {
+  --font-sans: var(--ls-text);
+  --font-display: var(--ls-title);
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
@@ -282,21 +278,8 @@
   transform: none !important;
 }
 
-html[lang="fa"],
-html[lang="fa"] * {
-  font-family: var(--font-vazirmatn), Tahoma, sans-serif;
-}
-/* ---------------------------------------------------------------------------
-   Print / "Save as PDF" for the accounting reports.
 
-   PDFs are produced by the browser's print dialog rather than a server-side PDF
-   writer: generating a Persian PDF on the server means embedding a font and doing
-   RTL shaping inside the writer, which is where Persian output usually ends up with
-   disconnected or reversed letters. The browser already shapes it correctly.
 
-   What is left here is making the printed page look like a report instead of a
-   screenshot of an admin panel.
-   --------------------------------------------------------------------------- */
 @media print {
   /* Chrome and Safari drop background colours by default, which turns the status
      tints on the approval queues into invisible white blocks. */

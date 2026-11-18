@@ -420,6 +420,20 @@ export function ServiceProviderAdminDashboard({
                 {provider.providerTypeName} · {provider.city},{" "}
                 {provider.country}
               </CardDescription>
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
+                <span>
+                  {tAdmin("addedBy")}:{" "}
+                  <span className="font-medium text-foreground">
+                    {provider.addedBy || tAdmin("addedByUnknown")}
+                  </span>
+                </span>
+                <span>
+                  {tAdmin("addedAt")}:{" "}
+                  <span className="font-medium text-foreground">
+                    {provider.addedAt ? dateText(provider.addedAt) : tAdmin("addedByUnknown")}
+                  </span>
+                </span>
+              </div>
             </div>
             <Button asChild>
               <Link href={`/admin/service-providers/${provider.id}/update`}>
@@ -494,11 +508,18 @@ export function ServiceProviderAdminDashboard({
               <BookingsTab provider={provider} />
             </TabsContent>
             <TabsContent value="recommendations" className="m-0 p-6">
-              <RecommendationsManager
-                provider={provider}
-                lookups={lookups}
-                locale={locale}
-              />
+              <div className="space-y-6">
+                <RecommendationsManager
+                  provider={provider}
+                  lookups={lookups}
+                  locale={locale}
+                />
+                <BranchesManager
+                  provider={provider}
+                  lookups={lookups}
+                  locale={locale}
+                />
+              </div>
             </TabsContent>
           </Tabs>
         </CardContent>
@@ -3199,6 +3220,84 @@ function BookingsTab({ provider }: { provider: AdminServiceProviderDetails }) {
   );
 }
 
+// Branches: other locations of the same business. Stored in provider_recommendations with
+// type "branch"; the public page shows them under "Other branches", right above the reviews.
+// Two-way: adding B here also adds this provider as a branch of B (and removing removes both).
+function BranchesManager({ provider, lookups, locale }: Props) {
+  const tAdmin = useTranslations("AdminGenerated");
+  const [isPending, startTransition] = useTransition();
+  const [targetProviderId, setTargetProviderId] = useState("");
+  const branches = provider.recommendations.filter((item) => item.type === "branch");
+  const save = useAction(saveProviderRecommendationAction, {
+    startTransition,
+    onSuccess: () => {
+      setTargetProviderId("");
+      toast.success(tAdmin("branchSaved"));
+    },
+    onError: ActionErrorToast,
+  });
+  const del = useAction(deleteProviderRecommendationAction, {
+    startTransition,
+    onSuccess: () => toast.success(tAdmin("branchDeleted")),
+    onError: ActionErrorToast,
+  });
+  return (
+    <RelationCard title={tAdmin("branches")} description={tAdmin("branchesDescription")}>
+      <div className="grid gap-3 md:grid-cols-[1fr_auto]">
+        <LazyAdminLookupSelect
+          lookupType="providers"
+          locale={locale}
+          value={targetProviderId}
+          onValueChange={setTargetProviderId}
+          placeholder={tAdmin("branchProvider")}
+          initialOptions={lookups.providers.filter(
+            (item) => String(item.id) !== provider.id,
+          )}
+          queryParams={{ excludeProviderId: provider.id }}
+          disabled={isPending}
+          contentClassName="w-[460px]"
+        />
+        <Button
+          onClick={() =>
+            save.execute({
+              serviceProviderId: provider.id,
+              targetProviderId,
+              type: "branch",
+            })
+          }
+          disabled={isPending || !targetProviderId}
+        >
+          <Plus className="me-2 h-4 w-4" /> {tAdmin("addBranch")}
+        </Button>
+      </div>
+      <div className="space-y-2">
+        {branches.length ? (
+          branches.map((item) => (
+            <div
+              key={item.id}
+              className="flex items-center justify-between rounded-xl border p-3"
+            >
+              <div className="font-medium">{item.targetProviderName}</div>
+              <Button
+                variant="ghost"
+                size="sm"
+                disabled={isPending}
+                onClick={() =>
+                  del.execute({ serviceProviderId: provider.id, id: item.id })
+                }
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </div>
+          ))
+        ) : (
+          <EmptyState title={tAdmin("noBranchesYet")} />
+        )}
+      </div>
+    </RelationCard>
+  );
+}
+
 function RecommendationsManager({ provider, lookups, locale }: Props) {
   const t = useTranslations("AdminGenerated");
   const tAdmin = useTranslations("AdminGenerated");
@@ -3215,6 +3314,8 @@ function RecommendationsManager({ provider, lookups, locale }: Props) {
     onSuccess: () => toast.success(tAdmin("recommendationDeleted")),
     onError: ActionErrorToast,
   });
+  // Branch links live in the separate Branches box below, not in this list.
+  const recommendations = provider.recommendations.filter((item) => item.type !== "branch");
   return (
     <RelationCard
       title={tAdmin("recommendations")}
@@ -3254,8 +3355,8 @@ function RecommendationsManager({ provider, lookups, locale }: Props) {
         </Button>
       </div>
       <div className="space-y-2">
-        {provider.recommendations.length ? (
-          provider.recommendations.map((item) => (
+        {recommendations.length ? (
+          recommendations.map((item) => (
             <div
               key={item.id}
               className="flex items-center justify-between rounded-xl border p-3"

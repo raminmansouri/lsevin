@@ -22,6 +22,7 @@ import {
 import { useEffect, useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { ClaimPageCard } from "@/features/service-providers/components/details/claim-page-card";
+import { ProviderBranchesSection } from "@/features/service-providers/components/details/provider-branches-section";
 import { useParams, useSearchParams } from "next/navigation";
 import { BeforeAfterGallery } from "@/features/service-providers/components/before-after-gallery";
 import { FavoriteButton } from "@/features/favorites/components/favorite-button";
@@ -155,7 +156,7 @@ export function ProviderDetailView({ initialData }: { initialData?: ProviderPage
   const providerId = initialData?.provider.id || firstParam(params.id as string | string[] | undefined);
 
   const [selectedTab, setSelectedTab] = useState<
-    "overview" | "services" | "beforeAfter" | "specialists" | "reviews"
+    "overview" | "services" | "beforeAfter" | "specialists" | "branches" | "reviews"
   >("overview");
 
   const { sectionRef: servicesRef, requestScroll: scrollToServices } = useSectionScroll(selectedTab === "services");
@@ -461,6 +462,7 @@ export function ProviderDetailView({ initialData }: { initialData?: ProviderPage
                 ? [{ id: "beforeAfter", label: tGallery("gallery.beforeAfterTitle") }]
                 : []),
               { id: "specialists", label: t("tabs.specialists") },
+              ...(data.branches?.length ? [{ id: "branches", label: t("branches.tab") }] : []),
               { id: "reviews", label: t("tabs.reviews") },
             ].map((tab) => (
               <button
@@ -593,6 +595,10 @@ export function ProviderDetailView({ initialData }: { initialData?: ProviderPage
               </button>
             )) : <EmptyState title={t("empty.specialists.title")} text={t("empty.specialists.text")} />}
           </div>
+        ) : null}
+
+        {selectedTab === "branches" ? (
+          <ProviderBranchesSection branches={data.branches} variant="mobile" />
         ) : null}
 
         {selectedTab === "reviews" ? (

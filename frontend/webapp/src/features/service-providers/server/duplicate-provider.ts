@@ -179,7 +179,7 @@ function pickCopyNames(source: Record<string, string>, taken: Record<string, Set
   }
 }
 
-export async function duplicateServiceProvider(sourceId: string): Promise<{ id: string; name: Record<string, string> }> {
+export async function duplicateServiceProvider(sourceId: string, addedBy: string): Promise<{ id: string; name: Record<string, string> }> {
   return sql.begin(async (rawTx) => {
     const tx = rawTx as unknown as Tx;
 
@@ -202,6 +202,8 @@ export async function duplicateServiceProvider(sourceId: string): Promise<{ id: 
       `create temp table _dup_map (kind text not null, old_id uuid not null, new_id uuid not null) on commit drop`,
     );
     const [{ id: newId }] = await tx.unsafe(`select public.uuid_generate_v4() as id`);
+    // Bound through a transaction-local setting because copyTable builds its SQL as text.
+    await tx.unsafe(`select set_config('lsevin.dup_added_by', $1, true)`, [addedBy.trim()]);
     await tx.unsafe(`insert into _dup_map (kind, old_id, new_id) values ('provider', $1, $2)`, [sourceId, newId]);
 
     // The provider row itself: new name, starts hidden so an admin can check it
@@ -220,6 +222,9 @@ export async function duplicateServiceProvider(sourceId: string): Promise<{ id: 
           rating: "0",
           review_count: "0",
           is_sponsored: "false",
+          // Who added the copy, not who added the source (added_at is set by the
+          // database on insert, migration 0115).
+          added_by: "nullif(current_setting('lsevin.dup_added_by', true), '')",
           create_date: "now()",
           last_modified_date: "now()",
         },

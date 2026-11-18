@@ -240,7 +240,7 @@ export function DesktopExploreView({
                     ) : null}
                     <div className="absolute inset-0 bg-gradient-to-t from-[#062a20] via-[#062a20]/35 to-transparent" />
                     <div className="absolute inset-x-6 bottom-5 text-white">
-                      <p className={`${index === 0 ? "text-3xl" : "text-lg"} font-black leading-tight`}>{type.label}</p>
+                      <p className={`${index === 0 ? "text-3xl" : "text-lg"} font-display font-black leading-tight`}>{type.label}</p>
                       {index === 0 && plainText(type.description) ? (
                         <p className="mt-2 line-clamp-2 max-w-md text-sm text-white/70">{plainText(type.description)}</p>
                       ) : null}

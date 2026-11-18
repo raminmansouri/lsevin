@@ -547,7 +547,8 @@ test.describe("presentation", () => {
     await page.getByTestId("delete-role-confirm").click();
     await expect(toast(page, "Role deleted.")).toBeVisible();
     await expect(page).toHaveURL(/\/admin\/access-control$/);
-    await expect(page.getByTestId("roles-list")).not.toContainText(ROLE);
+    // The list itself is not rendered when this was the last role (empty state), so assert on the name.
+    await expect(page.getByText(ROLE, { exact: false })).toHaveCount(0);
     expect(await sql!`select 1 from auth.role_admin_permissions where role_id = ${id}`).toHaveLength(0);
     expect(await sql!`select 1 from auth.roles where id = ${id}`).toHaveLength(0);
     await context.close();

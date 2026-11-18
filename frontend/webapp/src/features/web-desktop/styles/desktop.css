@@ -147,6 +147,10 @@
     animation: lsd-sheen 7s linear infinite;
   }
 
+  .lsd-gold-text .lsd-words > span {
+    color: var(--lsd-gold);
+  }
+
   /* Section heading with a gold line that grows in */
   .lsd-heading::after {
     content: "";
