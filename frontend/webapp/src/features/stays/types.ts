@@ -143,6 +143,10 @@ export type ReviewItem = {
   createdAt: string;
   providerReply: string | null;
   stayMonth: string | null;
+  nights: number | null;
+  /** The room type the reviewer stayed in (reviews are tied to a booking). */
+  roomTypeId: string | null;
+  roomName: string | null;
 };
 
 export type PropertyDetail = {

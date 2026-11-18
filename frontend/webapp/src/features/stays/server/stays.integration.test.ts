@@ -302,11 +302,23 @@ suite("stays (real database)", () => {
         ["سوئیت خانواده چهار نفره", 4],
       ]);
       expect(rooms[0].amenity_codes).toEqual(["haram_view"]);
-      const media = await sql<any[]>`select url, is_cover from stay.media where property_id = ${id}::uuid order by sort_order`;
+      const media = await sql<any[]>`select url, is_cover from stay.media where property_id = ${id}::uuid and room_type_id is null order by sort_order`;
       expect(media.map((m) => m.url)).toEqual(["Categories/services/legacy-cover.webp", "Categories/services/legacy-0.webp", "Categories/services/legacy-1.webp", "Categories/services/legacy-2.webp"]);
       expect(media[0].is_cover).toBe(true);
       const [audit] = await sql<any[]>`select detail from stay.audit_log where property_id = ${id}::uuid and action = 'imported_from_provider'`;
       expect(audit.detail).toMatchObject({ rooms: 3, roomsSkippedImplausiblePrice: 1, photos: 4 });
+      // Room photos (0115): each room shows its own pictures, not the hotel's front door.
+      const roomMedia = await sql<any[]>`select rt.name->>'fa-IR' as room, m.url from stay.media m join stay.room_types rt on rt.id = m.room_type_id
+                                          where m.property_id = ${id}::uuid order by rt.sort_order, m.sort_order`;
+      expect(roomMedia.map((m) => [m.room, m.url])).toEqual([
+        ["اتاق دو تخته رو به حرم", "Categories/services/room-haram.webp"],
+        ["اتاق دو تخته رو به حرم", "Categories/services/room-haram-2.webp"],
+        ["اتاق سه تخته", "Categories/services/room-triple.webp"],
+      ]);
+      const [{ again }] = await sql<{ again: number }[]>`select stay.import_room_photos(${id}::uuid) as again`;
+      expect(again).toBe(0); // re-runnable: nothing is added twice
+      const offers = await catalog.getRoomOffers(id, { checkIn: null, checkOut: null, occupancy: { rooms: 1, adults: 2, childAges: [] } }, "fa-IR");
+      expect(offers.rooms.find((r) => r.name === "سوئیت خانواده چهار نفره")?.media).toEqual([]); // no photo → no borrowed hotel picture
 
       // Twice is a conflict, an unknown provider is "not found" — never a generic failure.
       await expect(admin.importProvider(adminActor(owner.id), provider.id, city.id)).rejects.toMatchObject({ kind: "conflict", code: "already_imported" });
@@ -322,6 +334,114 @@ suite("stays (real database)", () => {
       expect(p.provider_service_id).toBeNull(); // created lazily at the first booking
       const r = await catalog.searchProperties({ ...DEFAULT_SEARCH, city: city.slug }, "fa-IR");
       expect(r.total).toBe(1);
+    });
+  });
+
+  describe("hotel page v3: checkout from the account, price calendar, room reviews", () => {
+    async function start(stay: SeededStay, userId: string, inDays: number, nights = 1, occ = { rooms: 1, adults: 2, childAges: [] as number[] }) {
+      const sel = selection(stay, isoInDays(inDays), isoInDays(inDays + nights), occ);
+      const started = await booking.startStayCheckout(userId, { ...sel, idempotencyKey: idemKey() });
+      return {
+        ...sel,
+        holdId: started.holdId,
+        idempotencyKey: idemKey(),
+        expectedTotal: started.quote.total,
+        acceptedPolicyVersion: started.policy.version,
+        uiLocale: "fa-IR",
+        displayCalendar: "persian" as const,
+      };
+    }
+
+    it("books in the account holder's name with nothing typed: name, mobile (0-prefixed), email; no companions needed", async () => {
+      const { stay } = await world();
+      const u = await seedUser(sql as never, { firstName: "Maryam", lastName: "Karimi" });
+      const r = await booking.confirmStayCheckout(u.id, await start(stay, u.id, 120));
+      const [b] = await sql<any[]>`select buyer, guests from stay.bookings where booking_id = ${r.bookingId}::uuid`;
+      const [acc] = await sql<any[]>`select phone_number, email from identity.asp_net_users where id = ${u.id}::uuid`;
+      expect(b.buyer).toEqual({ firstName: "Maryam", lastName: "Karimi", phone: `0${acc.phone_number}`, email: acc.email });
+      expect(b.guests).toEqual([]);
+      const profile = await booking.getCheckoutProfile(u.id);
+      expect(profile).toMatchObject({ firstName: "Maryam", lastName: "Karimi", phone: `0${acc.phone_number}` });
+    });
+
+    it("typed details override the account; blank companions are dropped, half-filled ones are field errors", async () => {
+      const { stay } = await world();
+      const u = await seedUser(sql as never);
+      const input = await start(stay, u.id, 125);
+      await expect(
+        booking.confirmStayCheckout(u.id, { ...input, guests: [{ firstName: "Reza", lastName: "" }] }),
+      ).rejects.toMatchObject({ kind: "validation", code: "invalid_guest_details", details: { fields: { "guests.0.lastName": "required" } } });
+      const r = await booking.confirmStayCheckout(u.id, {
+        ...input,
+        buyer: { firstName: "Ali", lastName: "Rezaei", phone: "09121234567", email: null },
+        guests: [{ firstName: "  ", lastName: "" }, { firstName: "Sara", lastName: "Rezaei" }],
+      });
+      const [b] = await sql<any[]>`select buyer, guests from stay.bookings where booking_id = ${r.bookingId}::uuid`;
+      expect(b.buyer).toMatchObject({ firstName: "Ali", lastName: "Rezaei", phone: "09121234567" });
+      expect(b.guests).toEqual([{ firstName: "Sara", lastName: "Rezaei" }]);
+    });
+
+    it("the account's own name is accepted as it is, even with a digit; a typed one follows the name rules (regression)", async () => {
+      const { stay } = await world();
+      const u = await seedUser(sql as never, { firstName: "Sara", lastName: "Tester42" });
+      const r = await booking.confirmStayCheckout(u.id, await start(stay, u.id, 128));
+      const [b] = await sql<any[]>`select buyer from stay.bookings where booking_id = ${r.bookingId}::uuid`;
+      expect(b.buyer).toMatchObject({ firstName: "Sara", lastName: "Tester42" });
+      const v = await seedUser(sql as never);
+      await expect(booking.confirmStayCheckout(v.id, { ...(await start(stay, v.id, 129)), buyer: { lastName: "R2D2" } })).rejects.toMatchObject({
+        kind: "validation",
+        details: { fields: { "buyer.lastName": "invalid" } },
+      });
+    });
+
+    it("an account without a name must type one (validation 'required', never a server error)", async () => {
+      const { stay } = await world();
+      const u = await seedUser(sql as never);
+      await sql`update identity.asp_net_users set first_name = '', last_name = '' where id = ${u.id}::uuid`;
+      const input = await start(stay, u.id, 130);
+      await expect(booking.confirmStayCheckout(u.id, input)).rejects.toMatchObject({
+        kind: "validation",
+        details: { fields: { "buyer.firstName": "required", "buyer.lastName": "required" } },
+      });
+      const r = await booking.confirmStayCheckout(u.id, { ...input, buyer: { firstName: "Hamid", lastName: "Naderi" } });
+      expect(r.status).toBe("pending_payment");
+    });
+
+    it("price calendar: cheapest nightly price per day; overrides apply; stop-sell and full nights are null; too large a party has no price", async () => {
+      const { stay, owner } = await world({ units: 2, basePrice: 5_000_000 });
+      const from = isoInDays(60);
+      await admin.setPriceRange(adminActor(owner.id), stay.id, { ratePlanId: stay.ratePlanId, from: isoInDays(61), to: isoInDays(62), price: 7_500_000, weekdays: null });
+      await sql`insert into stay.inventory (room_type_id, stay_date, stop_sell) values (${stay.roomTypeId}::uuid, ${isoInDays(62)}::date, true)`;
+      await sql`insert into stay.inventory (room_type_id, stay_date, sold) values (${stay.roomTypeId}::uuid, ${isoInDays(63)}::date, 2)`;
+      const cal = await catalog.getPriceCalendar(stay.id, from, 5, { rooms: 1, adults: 2, childAges: [] });
+      expect(cal.currency).toBe("IRR");
+      expect(cal.days.map((d) => d.price)).toEqual([5_000_000, 7_500_000, null, null, 5_000_000]);
+      expect(cal.days[0].date).toBe(from);
+      // Two rooms for one night: a day with only one unit left has no price.
+      await sql`insert into stay.inventory (room_type_id, stay_date, sold) values (${stay.roomTypeId}::uuid, ${isoInDays(64)}::date, 1)`;
+      const two = await catalog.getPriceCalendar(stay.id, isoInDays(64), 1, { rooms: 2, adults: 2, childAges: [] });
+      expect(two.days).toEqual([{ date: isoInDays(64), price: null }]);
+      const huge = await catalog.getPriceCalendar(stay.id, from, 3, { rooms: 1, adults: 30, childAges: [] });
+      expect(huge.days).toEqual([]);
+    });
+
+    it("reviews know the room the guest stayed in; stats count stars and recommendations", async () => {
+      const { stay, owner } = await world();
+      const ids: string[] = [];
+      for (const [i, rating] of [5, 4, 2].entries()) {
+        const u = await seedUser(sql as never);
+        const r = await book(stay, u.id, isoInDays(170 + i * 2), isoInDays(171 + i * 2));
+        await sql`update stay.bookings set status = 'completed' where booking_id = ${r.bookingId}::uuid`;
+        const id = await booking.submitStayReview(u.id, { bookingId: r.bookingId, rating, body: `review ${rating}`, locale: "fa-IR" });
+        await ops.moderateReview(adminActor(owner.id), id, "published", null);
+        ids.push(id);
+      }
+      const all = await catalog.listReviews(stay.id, { limit: 10 });
+      expect(all).toHaveLength(3);
+      expect(all.every((r) => r.roomTypeId === stay.roomTypeId && r.roomName && r.nights === 1)).toBe(true);
+      expect(await catalog.listReviews(stay.id, { roomTypeId: stay.roomTypeId })).toHaveLength(3);
+      expect(await catalog.listReviews(stay.id, { roomTypeId: "00000000-0000-4000-8000-000000000009" })).toHaveLength(0);
+      expect(await catalog.reviewStats(stay.id)).toEqual({ histogram: [0, 1, 0, 1, 1], recommendPercent: 67 });
     });
   });
 
@@ -438,7 +558,7 @@ suite("stays (real database)", () => {
           ...sel, holdId: started.holdId, idempotencyKey: idemKey(), expectedTotal: started.quote.total, acceptedPolicyVersion: started.policy.version,
           uiLocale: "fa-IR", displayCalendar: "persian", buyer: { ...sampleStayBuyer, phone: "12" }, guests: [{ firstName: "", lastName: "X" }],
         }),
-      ).rejects.toMatchObject({ kind: "validation", code: "invalid_guest_details", details: { fields: { "buyer.phone": "invalid", "guests.0.firstName": "invalid" } } });
+      ).rejects.toMatchObject({ kind: "validation", code: "invalid_guest_details", details: { fields: { "buyer.phone": "invalid", "guests.0.firstName": "required" } } });
     });
 
     it("an expired hold is released by the sweep and can no longer be converted", async () => {

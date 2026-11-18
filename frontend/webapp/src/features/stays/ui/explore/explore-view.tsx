@@ -1,5 +1,7 @@
 "use client";
 
+import dynamic from "next/dynamic";
+
 import { useEffect, useMemo, useState, useTransition } from "react";
 import { Crosshair, List, LocateFixed, Map as MapIcon, MapPin, SlidersHorizontal, X } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
@@ -19,7 +21,13 @@ import { useDistance } from "../common";
 import { PropertyCardView } from "../property-card";
 import { StaySearchForm, type CityOption } from "../search/search-form";
 
-import { StaysMap } from "./stays-map";
+import type { StaysMap as StaysMapType } from "./stays-map";
+
+// The map (and its CSS) is only downloaded when the guest switches to the map view.
+const StaysMap = dynamic(() => import("./stays-map").then((m) => m.StaysMap), {
+  ssr: false,
+  loading: () => <div className="h-[60dvh] animate-pulse rounded-2xl bg-slate-100" />,
+}) as typeof StaysMapType;
 
 /** Amenities offered as one-tap filters, in this order, when the catalog has them. */
 const QUICK_AMENITIES = ["parking", "haram_view", "pool", "kitchen", "family_rooms", "companion_beds"];
@@ -335,8 +343,11 @@ function LocationBar({
   geoError: boolean;
 }) {
   const t = useTranslations("StayApp.explore");
-  const chips = landmarks.filter((l) => l.quick).slice(0, 6);
-  const chip = "inline-flex min-h-10 shrink-0 items-center gap-1.5 rounded-full bg-white px-3 text-sm font-medium text-slate-800 ring-1 ring-slate-300 hover:bg-emerald-50 focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:outline-none";
+  const [more, setMore] = useState(false);
+  const quick = landmarks.filter((l) => l.quick).slice(0, 6);
+  // Mobile first: a tidy two-column grid that wraps (never a sideways scroll); extra places on demand.
+  const chips = more ? quick : quick.slice(0, 3);
+  const chip = "inline-flex min-h-11 min-w-0 items-center gap-1.5 rounded-2xl bg-white px-3 text-start text-[13px] font-medium text-slate-800 ring-1 ring-slate-300 hover:bg-emerald-50 focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:outline-none";
   return (
     <section aria-label={t("locationTitle")} className="space-y-2" data-testid="stays-location-bar">
       {hasAnchor ? (
@@ -359,19 +370,24 @@ function LocationBar({
           </button>
         </div>
       ) : null}
-      <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:px-0" data-testid="stays-near-chips">
+      <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap" data-testid="stays-near-chips">
         {chips.map((l) => (
           <button key={`${l.city}/${l.slug}`} type="button" onClick={() => onLandmark(l)} className={chip} data-testid={`stays-near-${l.slug}`}>
-            <MapPin className="size-4 text-emerald-700" aria-hidden="true" />
-            {t("nearPlace", { place: l.name })}
+            <MapPin className="size-4 shrink-0 text-emerald-700" aria-hidden="true" />
+            <span className="line-clamp-2">{t("nearPlace", { place: l.name })}</span>
           </button>
         ))}
+        {quick.length > 3 ? (
+          <button type="button" onClick={() => setMore((v) => !v)} aria-expanded={more} className={chip} data-testid="stays-near-more">
+            <span className="text-emerald-800">{more ? t("fewerPlaces") : t("morePlaces", { count: quick.length - 3 })}</span>
+          </button>
+        ) : null}
         <button type="button" onClick={onNearMe} className={chip} data-testid="stays-near-me">
-          <LocateFixed className="size-4 text-emerald-700" aria-hidden="true" />
+          <LocateFixed className="size-4 shrink-0 text-emerald-700" aria-hidden="true" />
           {t("nearMe")}
         </button>
         <button type="button" onClick={onPickOnMap} className={chip} data-testid="stays-pick-on-map">
-          <Crosshair className="size-4 text-emerald-700" aria-hidden="true" />
+          <Crosshair className="size-4 shrink-0 text-emerald-700" aria-hidden="true" />
           {t("pickOnMap")}
         </button>
       </div>
@@ -407,6 +423,7 @@ function PickedPointBar({ onSearch, onCancel }: { onSearch: (r: RadiusM) => void
 /** One-tap filters guests use most (competitor research: capacity, free cancellation, breakfast, parking…). */
 function QuickFilters({ search, amenities, onToggle }: { search: StaySearch; amenities: Amenity[]; onToggle: (p: Partial<StaySearch>) => void }) {
   const t = useTranslations("StayApp.explore");
+  const [more, setMore] = useState(false);
   const byCode = new Map(amenities.map((a) => [a.code, a]));
   const toggles: { key: string; label: string; on: boolean; patch: Partial<StaySearch> }[] = [];
   if (search.checkIn) toggles.push({ key: "avail", label: t("availableOnly"), on: search.availableOnly, patch: { availableOnly: !search.availableOnly } });
@@ -419,9 +436,11 @@ function QuickFilters({ search, amenities, onToggle }: { search: StaySearch; ame
     const on = search.amenities.includes(code);
     toggles.push({ key: code, label: a.label, on, patch: { amenities: on ? search.amenities.filter((c) => c !== code) : [...search.amenities, code] } });
   }
+  // Wraps instead of scrolling sideways; the less used ones fold behind "more" (active ones always show).
+  const shown = more ? toggles : toggles.filter((q, i) => i < 5 || q.on);
   return (
-    <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:px-0" role="group" aria-label={t("quickTitle")} data-testid="stays-quick-filters">
-      {toggles.map((q) => (
+    <div className="flex flex-wrap gap-2" role="group" aria-label={t("quickTitle")} data-testid="stays-quick-filters">
+      {shown.map((q) => (
         <button
           key={q.key}
           type="button"
@@ -436,6 +455,11 @@ function QuickFilters({ search, amenities, onToggle }: { search: StaySearch; ame
           {q.label}
         </button>
       ))}
+      {toggles.length > shown.length || more ? (
+        <button type="button" onClick={() => setMore((v) => !v)} aria-expanded={more} className="inline-flex min-h-9 items-center rounded-full px-3 text-xs font-bold text-emerald-800 ring-1 ring-emerald-300" data-testid="stays-quick-more">
+          {more ? t("fewerFilters") : t("moreFilters", { count: toggles.length - shown.length })}
+        </button>
+      ) : null}
     </div>
   );
 }

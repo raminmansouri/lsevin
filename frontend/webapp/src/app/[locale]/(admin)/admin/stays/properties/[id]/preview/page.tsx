@@ -22,7 +22,7 @@ export default async function StaysAdminPreviewPage({ params }: { params: Promis
   return (
     <ToursPrefsProvider initial={{ calendar: locale === "fa" ? "persian" : "gregory", currency: null, currencies: [], signedIn: false, userName: null }}>
       <div className="overflow-hidden rounded-lg border bg-slate-50" data-testid="stays-admin-preview-page">
-        <PropertyView property={property} rooms={offers.rooms} reviews={reviews} search={DEFAULT_SEARCH} dateError={null} saved={false} cities={[]} preview />
+        <PropertyView property={property} rooms={offers.rooms} reviews={reviews} search={DEFAULT_SEARCH} dateError={null} saved={false} preview />
       </div>
     </ToursPrefsProvider>
   );

@@ -1,7 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { Star } from "lucide-react";
+import { useLinkStatus } from "next/link";
+import { Loader2, Star } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 
 import { resolveMediaUrl } from "@/features/service-providers/lib/media-url";
@@ -142,6 +143,25 @@ function isOptimizable(url: string): boolean {
   } catch {
     return false;
   }
+}
+
+/**
+ * Instant feedback for a tapped link while the next page renders on the server. Must be
+ * rendered inside the <Link>. `overlay` covers the nearest positioned ancestor (a card).
+ */
+export function LinkPending({ overlay = false, className }: { overlay?: boolean; className?: string }) {
+  const { pending } = useLinkStatus();
+  if (!pending) return null;
+  if (overlay) {
+    return (
+      <span className={cn("pointer-events-none absolute inset-0 z-10 flex items-center justify-center rounded-2xl bg-white/50", className)} role="status" data-testid="link-pending">
+        <span className="flex size-10 items-center justify-center rounded-full bg-white shadow-md">
+          <Loader2 className="size-5 animate-spin text-emerald-700" aria-hidden="true" />
+        </span>
+      </span>
+    );
+  }
+  return <Loader2 className={cn("size-4 animate-spin", className)} role="status" aria-hidden="true" data-testid="link-pending" />;
 }
 
 export { Bdi };

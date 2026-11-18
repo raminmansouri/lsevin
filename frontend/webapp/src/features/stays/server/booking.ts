@@ -166,9 +166,13 @@ export type ConfirmStayInput = StaySelection & {
   acceptedPolicyVersion: number;
   uiLocale: string;
   displayCalendar: CalendarId;
-  buyer: { firstName: string; lastName: string; phone: string; email?: string | null };
-  /** One lead guest per room. */
-  guests: StayGuest[];
+  /**
+   * Who books. Optional: the signed-in account's name, mobile and email are used for anything
+   * left out (customers are never asked again for what their account already has).
+   */
+  buyer?: { firstName?: string | null; lastName?: string | null; phone?: string | null; email?: string | null } | null;
+  /** Optional companions (names only); blank entries are ignored. The booker is the lead guest. */
+  guests?: StayGuest[] | null;
   specialRequests?: string | null;
   arrivalTime?: string | null;
 };
@@ -191,17 +195,66 @@ function voucherCode() {
   return `ST-${Array.from(randomBytes(8), (b) => alphabet[b % alphabet.length]).join("")}`;
 }
 
-export function validateGuestDetails(input: Pick<ConfirmStayInput, "buyer" | "guests" | "specialRequests" | "arrivalTime">, rooms: number) {
+export type StayBuyer = { firstName: string; lastName: string; phone: string; email: string | null };
+export type CheckoutProfile = StayBuyer;
+
+/** The signed-in customer's own details, used as the booker (mobile in local form, e.g. 0912…). */
+export async function getCheckoutProfile(userId: string): Promise<CheckoutProfile | null> {
+  const [u] = await db<any[]>`
+    select first_name, last_name, phone_number, phone_number_country_code, email
+      from identity.asp_net_users where id = ${userId}::uuid`;
+  if (!u) return null;
+  const digits = String(u.phone_number ?? "").replace(/\D/g, "");
+  const cc = String(u.phone_number_country_code ?? "").toUpperCase();
+  const phone = !digits ? "" : (cc === "IR" || cc === "98" || cc === "+98") && !digits.startsWith("0") ? `0${digits}` : digits;
+  const email = String(u.email ?? "").trim();
+  return {
+    firstName: String(u.first_name ?? "").trim(),
+    lastName: String(u.last_name ?? "").trim(),
+    phone,
+    email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ? email : null,
+  };
+}
+
+/**
+ * Typed values win over the account's; empty typed values fall back to it. `fromAccount` marks
+ * the names taken from the account: they were accepted at sign-up, so they are not re-judged by
+ * the typed-name rules (a name with a digit must not block a signed-in customer from booking).
+ */
+export function mergeBuyer(typed: ConfirmStayInput["buyer"], profile: CheckoutProfile | null): StayBuyer & { fromAccount: { firstName: boolean; lastName: boolean } } {
+  const v = (x: string | null | undefined) => (x ?? "").trim();
+  return {
+    firstName: (v(typed?.firstName) || profile?.firstName || "").slice(0, 80),
+    lastName: (v(typed?.lastName) || profile?.lastName || "").slice(0, 80),
+    phone: (v(typed?.phone) || profile?.phone || "").replace(/[\s-]/g, ""),
+    email: v(typed?.email) || profile?.email || null,
+    fromAccount: { firstName: !v(typed?.firstName) && Boolean(profile?.firstName), lastName: !v(typed?.lastName) && Boolean(profile?.lastName) },
+  };
+}
+
+/** Companions with neither name are dropped; a half-filled one is an error. */
+export function cleanGuests(guests: ConfirmStayInput["guests"]): StayGuest[] {
+  return (guests ?? [])
+    .map((g) => ({ firstName: (g?.firstName ?? "").trim(), lastName: (g?.lastName ?? "").trim() }))
+    .filter((g) => g.firstName || g.lastName);
+}
+
+export function validateGuestDetails(input: {
+  buyer: StayBuyer & { fromAccount?: { firstName: boolean; lastName: boolean } };
+  guests: StayGuest[];
+  specialRequests?: string | null;
+  arrivalTime?: string | null;
+}) {
   const errors: Record<string, string> = {};
-  if (!NAME_RE.test(input.buyer.firstName?.trim() ?? "")) errors["buyer.firstName"] = "invalid";
-  if (!NAME_RE.test(input.buyer.lastName?.trim() ?? "")) errors["buyer.lastName"] = "invalid";
-  const phone = String(input.buyer.phone ?? "").replace(/[\s-]/g, "");
-  if (!/^\+?\d{7,15}$/.test(phone)) errors["buyer.phone"] = "invalid";
+  const nameOk = (v: string, trusted: boolean | undefined) => (trusted ? v.length > 0 : NAME_RE.test(v));
+  if (!nameOk(input.buyer.firstName, input.buyer.fromAccount?.firstName)) errors["buyer.firstName"] = input.buyer.firstName ? "invalid" : "required";
+  if (!nameOk(input.buyer.lastName, input.buyer.fromAccount?.lastName)) errors["buyer.lastName"] = input.buyer.lastName ? "invalid" : "required";
+  if (!/^\+?\d{7,15}$/.test(input.buyer.phone)) errors["buyer.phone"] = input.buyer.phone ? "invalid" : "required";
   if (input.buyer.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.buyer.email)) errors["buyer.email"] = "invalid";
-  if (input.guests.length !== rooms) errors.guests = "count_mismatch";
+  if (input.guests.length > 20) errors.guests = "too_many";
   input.guests.forEach((g, i) => {
-    if (!NAME_RE.test(g.firstName?.trim() ?? "")) errors[`guests.${i}.firstName`] = "invalid";
-    if (!NAME_RE.test(g.lastName?.trim() ?? "")) errors[`guests.${i}.lastName`] = "invalid";
+    if (!NAME_RE.test(g.firstName)) errors[`guests.${i}.firstName`] = g.firstName ? "invalid" : "required";
+    if (!NAME_RE.test(g.lastName)) errors[`guests.${i}.lastName`] = g.lastName ? "invalid" : "required";
   });
   if ((input.specialRequests ?? "").length > 1000) errors.specialRequests = "too_long";
   if (input.arrivalTime && !/^([01][0-9]|2[0-3]):[0-5][0-9]$/.test(input.arrivalTime)) errors.arrivalTime = "invalid";
@@ -214,7 +267,10 @@ export async function confirmStayCheckout(userId: string, input: ConfirmStayInpu
 
   const replay = await findByIdempotencyKey(userId, input.idempotencyKey);
   if (replay) return { ...replay, replayed: true };
-  validateGuestDetails(input, input.occupancy.rooms);
+  const merged = mergeBuyer(input.buyer, await getCheckoutProfile(userId));
+  const guests = cleanGuests(input.guests);
+  validateGuestDetails({ buyer: merged, guests, specialRequests: input.specialRequests, arrivalTime: input.arrivalTime });
+  const { fromAccount: _fromAccount, ...buyer } = merged;
   const settings = await getStaySettings();
 
   let result: ConfirmStayResult;
@@ -309,8 +365,8 @@ export async function confirmStayCheckout(userId: string, input: ConfirmStayInpu
           ${input.occupancy.childAges}::smallint[], ${q.currency}, ${q.total}, ${db.json(q as never)},
           ${r.policy.id}::uuid, ${db.json(policySnapshot as never)}, now(), ${db.json(contentSnapshot as never)},
           ${input.uiLocale}, ${input.displayCalendar},
-          ${db.json({ firstName: input.buyer.firstName.trim(), lastName: input.buyer.lastName.trim(), phone: input.buyer.phone.replace(/[\s-]/g, ""), email: input.buyer.email?.trim() || null } as never)},
-          ${db.json(input.guests.map((g) => ({ firstName: g.firstName.trim(), lastName: g.lastName.trim() })) as never)},
+          ${db.json(buyer as never)},
+          ${db.json(guests as never)},
           ${input.specialRequests?.trim() || null}, ${input.arrivalTime || null}, ${voucherCode()}, ${input.idempotencyKey},
           ${requestExpires}, ${paymentDeadline}, ${status === "confirmed" ? new Date() : null}
         )`;

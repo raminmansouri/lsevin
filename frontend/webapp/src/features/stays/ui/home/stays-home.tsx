@@ -92,7 +92,7 @@ export function StaysHome({
               {t("clearRecent")}
             </button>
           </div>
-          <ul className="mt-3 flex snap-x gap-3 overflow-x-auto pb-2">
+          <ul className="-mx-4 mt-3 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 [scrollbar-width:none] sm:mx-0 sm:px-0 [&::-webkit-scrollbar]:hidden">
             {recentItems.map((c) => (
               <li key={c.id} className="w-64 shrink-0 snap-start">
                 <PropertyCardView card={c} saved={saved.has(c.id)} />
