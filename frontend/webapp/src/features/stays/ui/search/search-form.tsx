@@ -38,7 +38,7 @@ export function StaySearchForm({
 }: {
   cities: CityOption[];
   initial?: Partial<StaySearch>;
-  variant?: "hero" | "compact";
+  variant?: "hero" | "compact" | "luxe";
   onSubmitted?: () => void;
   /**
    * Filters, place and sort of the current results, kept when only dates or guests change
@@ -102,7 +102,12 @@ export function StaySearchForm({
 
   const datesLabel = range.from && range.to ? `${shortDate(range.from)} – ${shortDate(range.to)}` : t("addDates");
   const guestsLabel = t("summary", { adults: party.adults, children, rooms: party.rooms });
-  const box = "flex min-h-14 w-full items-center gap-3 rounded-2xl bg-white px-4 text-start ring-1 ring-slate-200 focus-within:ring-2 focus-within:ring-emerald-600";
+  const luxe = variant === "luxe";
+  const box = luxe
+    ? "flex min-h-14 w-full items-center gap-3 rounded-2xl bg-white px-4 text-start ring-1 ring-[#eacb7f]/40 transition hover:bg-[#fbf6ea] focus-within:bg-[#fbf6ea] md:min-h-16 md:rounded-full md:bg-transparent md:ring-0"
+    : "flex min-h-14 w-full items-center gap-3 rounded-2xl bg-white px-4 text-start ring-1 ring-slate-200 focus-within:ring-2 focus-within:ring-emerald-600";
+  const iconClass = luxe ? "size-5 shrink-0 text-[#b08a3c]" : "size-5 shrink-0 text-emerald-700";
+  const separator = luxe ? "md:border-s md:border-[#eacb7f]/50" : undefined;
 
   return (
     <form
@@ -111,13 +116,20 @@ export function StaySearchForm({
       role="search"
       aria-label={t("title")}
       data-testid="stay-search-form"
-      className={cn("grid gap-2", variant === "hero" ? "md:grid-cols-[1.4fr_1.2fr_1fr_auto]" : "md:grid-cols-[1.2fr_1fr_auto]")}
+      className={cn(
+        "grid gap-2",
+        luxe
+          ? "md:grid-cols-[1.4fr_1.2fr_1fr_auto] md:items-center md:gap-0 md:rounded-full md:bg-white md:p-2 md:shadow-[0_30px_80px_-30px_rgba(0,0,0,0.55)] md:ring-1 md:ring-[#eacb7f]/50"
+          : variant === "hero"
+            ? "md:grid-cols-[1.4fr_1.2fr_1fr_auto]"
+            : "md:grid-cols-[1.2fr_1fr_auto]",
+      )}
     >
       {target === "explore" ? (
-        <DestinationField cities={cities} query={query} setQuery={setQuery} city={city} setCity={setCity} className={box} />
+        <DestinationField cities={cities} query={query} setQuery={setQuery} city={city} setCity={setCity} className={box} iconClass={iconClass} />
       ) : null}
 
-      <div>
+      <div className={separator}>
         <button
           type="button"
           onClick={() => setDatesOpen(true)}
@@ -125,7 +137,7 @@ export function StaySearchForm({
           aria-describedby={errors.dates ? "stay-dates-error" : undefined}
           data-testid="stay-dates-button"
         >
-          <CalendarDays className="size-5 shrink-0 text-emerald-700" aria-hidden="true" />
+          <CalendarDays className={iconClass} aria-hidden="true" />
           <span className="min-w-0">
             <span className="block text-xs text-slate-500">{t("dates")}</span>
             <span className="block truncate text-sm font-semibold text-slate-900" data-testid="stay-dates-value">
@@ -141,7 +153,7 @@ export function StaySearchForm({
         ) : null}
       </div>
 
-      <div>
+      <div className={separator}>
         <button
           type="button"
           onClick={() => setGuestsOpen(true)}
@@ -149,7 +161,7 @@ export function StaySearchForm({
           aria-describedby={errors.guests ? "stay-guests-error" : undefined}
           data-testid="stay-guests-button"
         >
-          <Users className="size-5 shrink-0 text-emerald-700" aria-hidden="true" />
+          <Users className={iconClass} aria-hidden="true" />
           <span className="min-w-0">
             <span className="block text-xs text-slate-500">{t("guests")}</span>
             <span className="block truncate text-sm font-semibold text-slate-900" data-testid="stay-guests-value">
@@ -167,10 +179,16 @@ export function StaySearchForm({
       <button
         type="submit"
         data-testid="stay-search-submit"
-        className="inline-flex min-h-14 items-center justify-center gap-2 rounded-2xl bg-orange-500 px-6 text-base font-bold text-white shadow-sm hover:bg-orange-600 focus-visible:ring-4 focus-visible:ring-orange-200 focus-visible:outline-none"
+        aria-label={t("submit")}
+        className={cn(
+          "inline-flex min-h-14 items-center justify-center gap-2 font-bold focus-visible:outline-none",
+          luxe
+            ? "rounded-2xl bg-[#083f30] px-6 text-[#eacb7f] shadow-[0_10px_30px_-10px_rgba(8,63,48,0.8)] transition hover:bg-[#0a5a44] hover:shadow-[0_0_0_6px_rgba(234,203,127,0.25)] focus-visible:ring-4 focus-visible:ring-[#eacb7f]/50 md:size-14 md:rounded-full md:px-0"
+            : "rounded-2xl bg-orange-500 px-6 text-base text-white shadow-sm hover:bg-orange-600 focus-visible:ring-4 focus-visible:ring-orange-200",
+        )}
       >
         <Search className="size-5" aria-hidden="true" />
-        {t("submit")}
+        <span className={luxe ? "md:sr-only" : undefined}>{t("submit")}</span>
       </button>
 
       <DatesDialog open={datesOpen} onOpenChange={setDatesOpen} value={range} onChange={(r) => { setRange(r); setErrors((e) => ({ ...e, dates: undefined })); }} />
@@ -187,7 +205,9 @@ function DestinationField({
   city,
   setCity,
   className,
+  iconClass = "size-5 shrink-0 text-emerald-700",
 }: {
+  iconClass?: string;
   cities: CityOption[];
   query: string;
   setQuery: (v: string) => void;
@@ -217,7 +237,7 @@ function DestinationField({
   return (
     <div className="relative">
       <div className={className}>
-        <MapPin className="size-5 shrink-0 text-emerald-700" aria-hidden="true" />
+        <MapPin className={iconClass} aria-hidden="true" />
         <div className="min-w-0 flex-1">
           <label htmlFor={id} className="block text-xs text-slate-500">
             {t("destination")}

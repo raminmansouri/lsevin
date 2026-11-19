@@ -211,7 +211,7 @@ export const SEGMENT_NAMESPACES = {
   /** The Tours sub-application (src/app/[locale]/tours/**). */
   tours: ["TourApp", "TourShared", "BottomTabBar"],
   /** The Stays sub-application (src/app/[locale]/stays/**): hotels and اقامتگاه. */
-  stays: ["StayApp", "TourShared"],
+  stays: ["StayApp", "TourShared", "BottomTabBar"],
   providerPanel: ["AdminGenerated"],
   providerPortal: ["ProviderPortal"],
 } as const satisfies Record<string, readonly string[]>;

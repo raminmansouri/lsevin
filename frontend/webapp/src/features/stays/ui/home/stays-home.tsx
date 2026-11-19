@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useTransition } from "react";
 import Image from "next/image";
-import { BadgeCheck, ChevronLeft, Headphones, HeartPulse, History, MapPinned } from "lucide-react";
+import { BadgeCheck, ChevronLeft, Headphones, Heart, HeartPulse, History, Luggage, MapPin, MapPinned } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 
 import { Link } from "@/i18n/navigation";
@@ -14,6 +14,7 @@ import type { CitySummary, PropertyCard } from "../../types";
 import { StayImage } from "../common";
 import { PropertyCardView } from "../property-card";
 import { StaySearchForm, type CityOption } from "../search/search-form";
+import { DisplaySettings } from "../shell/stays-shell";
 
 import { TYPE_CREDITS } from "./type-credits";
 import { listSeparator } from "../../domain/locales";
@@ -50,6 +51,8 @@ export function StaysHome({
   const t = useTranslations("StayApp.home");
   const locale = useLocale();
   const tKinds = useTranslations("StayApp.kinds");
+  const tNav = useTranslations("StayApp.nav");
+  const titleWords = t("heroTitle").split(" ");
   const saved = new Set(savedIds);
   const [recentItems, setRecent] = useState(recent);
   const [, start] = useTransition();
@@ -69,24 +72,90 @@ export function StaysHome({
 
   return (
     <div className="space-y-10 pb-6">
-      <section className="relative overflow-hidden bg-gradient-to-b from-emerald-900 to-emerald-700 px-4 pt-8 pb-10 text-white sm:rounded-b-3xl sm:px-8 md:pt-12" aria-labelledby="stays-home-title">
-        <h1 id="stays-home-title" className="text-3xl leading-tight font-extrabold md:text-4xl">
-          {t("heroTitle")}
-        </h1>
-        <p className="mt-2 max-w-xl text-sm leading-6 text-emerald-50 md:text-base">{t("heroSubtitle")}</p>
-        <div className="mt-6 text-slate-900">
-          <StaySearchForm key={last?.href ?? "new"} cities={cityOptions} initial={last?.search} />
+      <section
+        className="relative isolate overflow-hidden px-4 pt-6 pb-12 text-white sm:px-8 md:pb-16 xl:mx-6 xl:mt-2 xl:rounded-[2.5rem]"
+        aria-labelledby="stays-home-title"
+      >
+        <Image
+          src="/images/stays/yazd-traditional-courtyard.webp"
+          alt=""
+          fill
+          priority
+          sizes="100vw"
+          className="-z-20 object-cover"
+        />
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 -z-10 bg-[linear-gradient(180deg,rgba(4,33,26,0.55)_0%,rgba(4,33,26,0.72)_45%,rgba(4,33,26,0.96)_100%)]"
+        />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-x-10 top-16 bottom-0 -z-10 hidden rounded-t-[999px] border border-b-0 border-[#eacb7f]/35 md:block"
+        />
+
+        <div className="flex items-center justify-between gap-3">
+          <span className="text-[11px] font-semibold tracking-[0.35em] text-[#eacb7f]" dir="ltr">
+            L SEVIN STAYS
+          </span>
+          <div className="flex items-center gap-2">
+            <Link
+              href="/stays/bookings"
+              className="flex h-11 items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 text-sm font-medium text-[#f4ead0] backdrop-blur-md transition hover:bg-white/20 focus-visible:ring-2 focus-visible:ring-[#eacb7f] focus-visible:outline-none"
+            >
+              <Luggage className="size-4" aria-hidden="true" />
+              <span className="hidden sm:inline">{tNav("bookings")}</span>
+            </Link>
+            <Link
+              href="/stays/wishlist"
+              aria-label={tNav("wishlist")}
+              className="flex h-11 items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 text-sm font-medium text-[#f4ead0] backdrop-blur-md transition hover:bg-white/20 focus-visible:ring-2 focus-visible:ring-[#eacb7f] focus-visible:outline-none"
+            >
+              <Heart className="size-4" aria-hidden="true" />
+              <span className="hidden sm:inline">{tNav("wishlist")}</span>
+              {savedIds.length ? (
+                <span className="grid h-5 min-w-5 place-items-center rounded-full bg-[#eacb7f] px-1.5 text-[11px] font-bold text-[#083f30]">
+                  {savedIds.length.toLocaleString(locale)}
+                </span>
+              ) : null}
+            </Link>
+            <DisplaySettings variant="glass" />
+          </div>
         </div>
-        {last ? (
-          <Link
-            href={last.href}
-            className="mt-3 inline-flex min-h-11 items-center gap-2 rounded-full bg-white/15 px-4 text-sm font-semibold text-white ring-1 ring-white/30 hover:bg-white/25"
-            data-testid="stays-continue-search"
-          >
-            <History className="size-4" aria-hidden="true" />
-            {lastCity ? t("continueSearchIn", { city: lastCity }) : t("continueSearch")}
-          </Link>
-        ) : null}
+
+        <div className="mx-auto mt-10 max-w-3xl text-center md:mt-16">
+          <h1 id="stays-home-title" className="font-display text-[46px] leading-[1.05] text-balance md:text-[72px]">
+            {titleWords[0]}{" "}
+            <span className="text-[#eacb7f]">{titleWords.slice(1).join(" ")}</span>
+          </h1>
+          <p className="mx-auto mt-4 max-w-xl text-sm leading-7 text-[#d9e4df] md:text-base">{t("heroSubtitle")}</p>
+        </div>
+
+        <div className="mx-auto mt-8 max-w-5xl text-slate-900 md:mt-10">
+          <StaySearchForm key={last?.href ?? "new"} cities={cityOptions} initial={last?.search} variant="luxe" />
+        </div>
+
+        <div className="mx-auto mt-5 flex max-w-5xl flex-wrap items-center justify-center gap-2">
+          {last ? (
+            <Link
+              href={last.href}
+              className="inline-flex min-h-10 items-center gap-2 rounded-full bg-[#eacb7f] px-4 text-sm font-semibold text-[#083f30] transition hover:bg-[#f2d996]"
+              data-testid="stays-continue-search"
+            >
+              <History className="size-4" aria-hidden="true" />
+              {lastCity ? t("continueSearchIn", { city: lastCity }) : t("continueSearch")}
+            </Link>
+          ) : null}
+          {cityOptions.slice(0, 5).map((c) => (
+            <Link
+              key={c.slug}
+              href={`/stays/explore?city=${encodeURIComponent(c.slug)}`}
+              className="inline-flex min-h-10 items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-4 text-sm text-[#f4ead0] backdrop-blur-md transition hover:border-[#eacb7f]/60 hover:text-[#eacb7f]"
+            >
+              <MapPin className="size-3.5" aria-hidden="true" />
+              {c.name}
+            </Link>
+          ))}
+        </div>
       </section>
 
       <section className="px-4 sm:px-6" aria-labelledby="stays-types" data-testid="stays-types">
