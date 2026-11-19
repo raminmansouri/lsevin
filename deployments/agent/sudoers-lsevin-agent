@@ -1,0 +1,6 @@
+# /etc/sudoers.d/lsevin-agent  (installed by install.sh, validated with visudo -cf)
+# The Claude incident agent can run exactly one privileged program, and that program is a hard allow-list (see lsevin-agent-ctl).
+Defaults:lsevin-agent !requiretty, secure_path="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+lsevin-agent ALL=(root) NOPASSWD: /usr/local/sbin/lsevin-agent-ctl *
+# Server B only: the unprivileged account that site A's watcher connects to (forced command, see lsevin-agent-hub)
+@HUB_RULE@

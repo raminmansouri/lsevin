@@ -1,0 +1,15 @@
+#!/bin/bash
+# lsevin-agent-hub (server B) - forced SSH command for the account lsevin-hub. Site A's watcher connects with a dedicated key:
+#   ssh lsevin-hub@B state            -> open critical alerts
+#   ssh lsevin-hub@B report <base64>  -> post the agent's report to the critical channel
+# (authorized_keys: command="/usr/local/sbin/lsevin-agent-hub",restrict ssh-ed25519 ...). Nothing else can be run through this key.
+set -u
+c=${SSH_ORIGINAL_COMMAND:-}
+case "${c%% *}" in
+  state) exec ${LSEVIN_SUDO:-sudo} /usr/local/sbin/lsevin-agent-hub-priv state ;;
+  report)
+    arg=${c#report }
+    [[ "$arg" =~ ^[A-Za-z0-9+/=]{1,6000}$ ]] || { echo "bad report" >&2; exit 2; }
+    exec ${LSEVIN_SUDO:-sudo} /usr/local/sbin/lsevin-agent-hub-priv report "$arg" ;;
+  *) echo "not allowed" >&2; exit 2 ;;
+esac

@@ -116,6 +116,22 @@ def telegram_send(text, sev="warning"):
     return ok
 
 
+def dispatch_agent(c):
+    """Hand a newly FIRING critical alert to the incident agent (deployments/agent). Off unless AGENT_DISPATCH names an executable.
+    Fire-and-forget: the dispatcher has its own ENABLED switch, cooldown and daily cap, and posts its report to the critical channel.
+    It never raises: a broken agent must not stop alerting."""
+    cmd = os.environ.get("AGENT_DISPATCH", "")
+    if not cmd or not os.access(cmd, os.X_OK):
+        return False
+    try:
+        subprocess.Popen([cmd, str(c.get("site", "")), str(c.get("rule", "")), str(c.get("text", ""))[:400]],
+                         stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, start_new_session=True)
+        return True
+    except Exception as e:  # noqa
+        log(f"agent dispatch failed: {e}")
+        return False
+
+
 def notify(st, text, sev="warning"):
     """send now, or queue for the next cycle when Telegram is unreachable (the severity decides the chat, also when retried)."""
     if not telegram_send(text, sev):
@@ -316,8 +332,12 @@ def step(cfg, st, send):
                 resolved.append(cur)
             del alerts[key]
     # one message per destination: criticals (new, still open, resolved) in one, everything else in another
+    if send:
+        for c in fired:
+            if c["sev"] == "critical":
+                dispatch_agent(c)
     for bucket in ("critical", "other"):
-        is_b = (lambda c, b=bucket: (c["sev"] == "critical") == (b == "critical"))
+        is_b =(lambda c, b=bucket: (c["sev"] == "critical") == (b == "critical"))
         f_b, r_b, s_b = [c for c in fired if is_b(c)], [c for c in reminders if is_b(c)], [c for c in resolved if is_b(c)]
         lines = []
         if f_b:

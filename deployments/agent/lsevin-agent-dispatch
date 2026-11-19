@@ -1,0 +1,21 @@
+#!/bin/bash
+# lsevin-agent-dispatch (server B, root) - called by lsevin-alerter when a CRITICAL alert starts firing (it has lasted >= critical_min_for_seconds).
+#   usage: lsevin-agent-dispatch SITE RULE "alert text"
+# Alerts about site A are NOT handled here: A cannot be reached from B (A drops foreign inbound), so A's own watcher pulls them from the hub.
+# Guards: ENABLED flag, one attempt per rule per 60 minutes. The agent's report goes to the critical Telegram channel.
+set -u
+SITE=${1:-}; RULE=${2:-}; TEXT=${3:-}
+ETC=${LSEVIN_AGENT_ETC:-/etc/lsevin-agent}; STATE=${LSEVIN_AGENT_STATE:-/var/lib/lsevin-agent}
+RUNNER=${LSEVIN_AGENT_RUNNER:-"runuser -u lsevin-agent -- /usr/local/sbin/lsevin-agent-run"}
+HUBPRIV=${LSEVIN_AGENT_HUBPRIV:-/usr/local/sbin/lsevin-agent-hub-priv}
+[ "$SITE" = "B" ] || exit 0
+[ -e "$ETC/ENABLED" ] || exit 0
+mkdir -p "$STATE"
+key=$(printf '%s' "$RULE" | tr -c 'A-Za-z0-9._-' '_'); stamp="$STATE/dispatch-$key"
+now=$(date +%s); last=$(cat "$stamp" 2>/dev/null || echo 0)
+[ $((now - last)) -ge 3600 ] || exit 0
+echo "$now" > "$stamp"
+result=$($RUNNER B "$RULE" "$TEXT" 2>&1)
+rc=$?
+msg=$(printf '🤖 agent on B — %s (exit %s)\n%s' "$RULE" "$rc" "$result" | base64 -w0)
+$HUBPRIV report "$msg" >/dev/null 2>&1

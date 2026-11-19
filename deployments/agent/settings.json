@@ -1,0 +1,33 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(sudo /usr/local/sbin/lsevin-agent-ctl:*)",
+      "Bash(df:*)",
+      "Bash(free:*)",
+      "Bash(uptime)",
+      "Bash(ps:*)",
+      "Bash(ss:*)",
+      "Bash(date:*)",
+      "Bash(cat /proc/pressure/memory)",
+      "Bash(cat /proc/loadavg)",
+      "Bash(cat /proc/meminfo)",
+      "Read(/var/log/**)"
+    ],
+    "deny": [
+      "Edit",
+      "Write",
+      "NotebookEdit",
+      "WebFetch",
+      "WebSearch",
+      "Task",
+      "Read(/etc/**)",
+      "Read(/root/**)",
+      "Read(/home/**)",
+      "Read(/var/lib/**)",
+      "Read(/proc/*/environ)",
+      "Read(**/.env)",
+      "Read(**/*.env)",
+      "Read(**/id_*)"
+    ]
+  }
+}

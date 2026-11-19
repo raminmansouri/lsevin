@@ -1,0 +1,27 @@
+#!/bin/bash
+# lsevin-agent-watch (server A, runs every minute as lsevin-agent via lsevin-agent-watch.timer)
+# A cannot be reached from B, so A PULLS: it asks the hub on B (over the OpenVPN route, forced SSH command) for open critical alerts of
+# site A, runs the local agent once per alert episode, and sends the report back to B, which posts it to the critical channel.
+# If B/the VPN is down there is nothing to pull and B's own alerting pages the human.
+set -u
+ETC=/etc/lsevin-agent; STATE=/var/lib/lsevin-agent
+[ -r "$ETC/agent.env" ] && { set -a; . "$ETC/agent.env"; set +a; }
+B_HOST=${B_HOST:-202.133.90.50}
+[ -e "$ETC/ENABLED" ] || exit 0
+seen="$STATE/watch-seen"; touch "$seen"
+SSH=(ssh -i "$STATE/.ssh/id_ed25519" -o BatchMode=yes -o ConnectTimeout=15 -o StrictHostKeyChecking=accept-new -o UserKnownHostsFile="$STATE/.ssh/known_hosts" "lsevin-hub@$B_HOST")
+lines=$("${SSH[@]}" state 2>/dev/null) || exit 0
+while IFS='|' read -r site rule since b64; do
+  [ "$site" = "A" ] || continue
+  ep="$rule@$since"
+  grep -qxF "$ep" "$seen" && continue
+  last=$(grep -F "rule-last:$rule=" "$seen" | tail -1 | cut -d= -f2); last=${last:-0}
+  now=$(date +%s)
+  [ $((now - last)) -ge 3600 ] || { echo "$ep" >> "$seen"; continue; }
+  echo "$ep" >> "$seen"; echo "rule-last:$rule=$now" >> "$seen"
+  text=$(printf '%s' "$b64" | base64 -d 2>/dev/null)
+  result=$(/usr/local/sbin/lsevin-agent-run A "$rule" "$text" 2>&1); rc=$?
+  msg=$(printf '🤖 agent on A — %s (exit %s)\n%s' "$rule" "$rc" "$result" | base64 -w0)
+  "${SSH[@]}" "report $msg" >/dev/null 2>&1
+done <<< "$lines"
+tail -n 500 "$seen" > "$seen.tmp" && mv "$seen.tmp" "$seen"

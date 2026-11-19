@@ -1,0 +1,32 @@
+#!/bin/bash
+# lsevin-agent-hub-priv (server B, root) - the two things the A-side agent and the B dispatcher are allowed to ask of the hub:
+#   state            print the OPEN critical alerts as   site|rule|since|base64(text)   (from the alerter's own state file)
+#   report <base64>  post a message (max 3500 chars, plain text) to the CRITICAL Telegram channel
+# Called through sudo by lsevin-hub (forced SSH command, see lsevin-agent-hub) or by lsevin-agent-dispatch (root).
+set -u
+ENV=${LSEVIN_ALERTER_ENV:-/etc/lsevin-alerter/telegram.env}
+STATE=${LSEVIN_ALERTER_STATE_FILE:-/var/lib/lsevin-alerter/state.json}
+case "${1:-}" in
+  state)
+    python3 - "$STATE" <<'PY'
+import json, sys, base64
+try:
+    st = json.load(open(sys.argv[1]))
+except Exception:
+    sys.exit(0)
+for c in st.get("alerts", {}).values():
+    if c.get("firing") and c.get("sev") == "critical":
+        text = (c.get("text") or "")[:400].replace("\n", " ")
+        print("%s|%s|%d|%s" % (c.get("site", "?"), c.get("rule", "?"), int(c.get("since", 0)), base64.b64encode(text.encode()).decode()))
+PY
+    ;;
+  report)
+    [ -n "${2:-}" ] || exit 2
+    msg=$(printf '%s' "$2" | base64 -d 2>/dev/null | head -c 3500) || exit 2
+    tok=$(grep -m1 '^TELEGRAM_BOT_TOKEN=' "$ENV" | cut -d= -f2- | tr -d "\"' ")
+    chat=$(grep -m1 '^TELEGRAM_CRITICAL_CHAT_ID=' "$ENV" | cut -d= -f2- | tr -d "\"' ")
+    [ -n "$tok" ] && [ -n "$chat" ] || { echo "telegram not configured" >&2; exit 3; }
+    curl -s -4 -m 25 -o /dev/null -w '%{http_code}\n' "https://api.telegram.org/bot${tok}/sendMessage" --data-urlencode "chat_id=${chat}" --data-urlencode "text=${msg}"
+    ;;
+  *) echo "usage: state | report <base64>" >&2; exit 2 ;;
+esac

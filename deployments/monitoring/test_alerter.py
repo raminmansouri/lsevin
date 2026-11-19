@@ -8,6 +8,7 @@ A = importlib.util.module_from_spec(spec)
 loader.exec_module(A)
 REAL_HTTP_CHECK = A.http_check          # Env() replaces A.http_check with a fake; keep the real one for the HTTP tests
 REAL_TELEGRAM_SEND = A.telegram_send    # Env() replaces A.telegram_send with a fake; keep the real one for the routing tests
+REAL_DISPATCH = A.dispatch_agent
 
 
 class Env:
@@ -279,6 +280,41 @@ class Routing(unittest.TestCase):
         e, st = fresh()
         e.rows["E2"] = [({"direction": "incoming", "site": "A"}, 1.0)]
         e.tick(CFG, st); self.assertEqual(e.sent_sev, ["critical"])
+
+    def test_agent_dispatch_only_for_newly_firing_criticals(self):
+        e, st = fresh()
+        calls = []
+        A.dispatch_agent = lambda c: calls.append((c["site"], c["rule"], c["sev"]))
+        try:
+            e.rows["E1"] = [({"site": "A"}, 83.0)]                                   # warning: never dispatched
+            e.rows["E2"] = [({"direction": "incoming", "site": "B"}, 1.0)]           # critical: dispatched once
+            for _ in range(6): e.tick(CFG, st)
+            self.assertEqual(calls, [("B", "sync_error", "critical")])
+        finally:
+            A.dispatch_agent = REAL_DISPATCH
+
+    def test_agent_dispatch_is_off_without_the_env_var_and_never_raises(self):
+        os.environ.pop("AGENT_DISPATCH", None)
+        self.assertFalse(REAL_DISPATCH({"site": "B", "rule": "x", "text": "y"}))
+        os.environ["AGENT_DISPATCH"] = "/nonexistent/dispatch"
+        try:
+            self.assertFalse(REAL_DISPATCH({"site": "B", "rule": "x", "text": "y"}))
+        finally:
+            os.environ.pop("AGENT_DISPATCH", None)
+
+    @unittest.skipIf(os.name == "nt", "needs a POSIX shell script as the dispatcher")
+    def test_agent_dispatch_runs_the_executable_with_site_rule_text(self):
+        d = tempfile.mkdtemp(); out = os.path.join(d, "args"); script = os.path.join(d, "disp")
+        open(script, "w").write('#!/bin/sh\nprintf "%s|%s|%s" "$1" "$2" "$3" > "' + out + '"\n'); os.chmod(script, 0o755)
+        os.environ["AGENT_DISPATCH"] = script
+        try:
+            self.assertTrue(REAL_DISPATCH({"site": "B", "rule": "oom_kill", "text": "the kernel killed 2 processes"}))
+            for _ in range(50):
+                if os.path.exists(out): break
+                time.sleep(0.1)
+            self.assertEqual(open(out).read(), "B|oom_kill|the kernel killed 2 processes")
+        finally:
+            os.environ.pop("AGENT_DISPATCH", None)
 
     def test_retried_message_keeps_its_severity(self):
         e, st = fresh()

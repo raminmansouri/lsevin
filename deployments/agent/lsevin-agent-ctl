@@ -1,0 +1,98 @@
+#!/bin/bash
+# lsevin-agent-ctl - the ONLY privileged tool the Claude incident agent may use (via sudo, see sudoers.d/lsevin-agent).
+# It is a hard allow-list written in code: whatever the model asks for, nothing outside it runs.
+#   lsevin-agent-ctl kubectl get|describe|top|logs|events ...        read only (never secrets)
+#   lsevin-agent-ctl kubectl rollout status|history ...               read only
+#   lsevin-agent-ctl kubectl rollout restart deployment/<allow-listed>   rolling restart, no downtime for 2-replica apps
+#   lsevin-agent-ctl kubectl delete pod <name>...                     only pods that are NOT stateful (never postgres/eventstore/...)
+#   lsevin-agent-ctl systemctl status|is-active|list-timers|restart|start <allow-listed unit>
+#   lsevin-agent-ctl journalctl ...                                   read only
+#   lsevin-agent-ctl docker ps|stats|logs|inspect|images|system df    read only
+#   lsevin-agent-ctl probe <https-url>                                HTTP GET, prints the status code only
+# Never possible here: exec into pods, scale, rollback, delete anything but pods, docker rm/prune/volume, file edits, SQL.
+set -u
+KUBECTL=${LSEVIN_AGENT_KUBECTL:-"/usr/local/bin/k3s kubectl"}
+NS=lsevin
+LOG=${LSEVIN_AGENT_CTL_LOG:-/var/log/lsevin-agent/ctl.log}
+RESTART_OK='^deployment/(lsevin-webapp|lsevin-api|lsevin-portal|crm|crm-worker|crm-scheduler|kibana|grafana|prometheus|blackbox-exporter)$'
+STATEFUL='^(postgres|pgbouncer|eventstore|seaweedfs|elasticsearch|redis|prometheus)(-|$)'
+UNITS_OK='^(lsevin-build-guard|lsevin-webapp-cache-recycle|lsevin-es-retention|lsevin-alerter|lsevin-agent-watch)(\.service|\.timer)?$'
+
+mkdir -p "$(dirname "$LOG")" 2>/dev/null
+say_log() { printf '%s %s uid=%s %s\n' "$(date -u +%FT%TZ)" "$1" "${SUDO_UID:-$UID}" "${*:2}" >> "$LOG" 2>/dev/null; }
+deny() { say_log DENIED "$*"; echo "DENIED by lsevin-agent-ctl: $*" >&2; exit 13; }
+run() { say_log RUN "$*"; "$@"; }
+
+[ $# -ge 1 ] || deny "no command"
+cmd=$1; shift
+case "$cmd" in
+  kubectl)
+    [ $# -ge 1 ] || deny "kubectl needs a verb"
+    verb=$1; shift
+    for a in "$@"; do
+      case "$a" in
+        -n|--namespace|--namespace=*|-n=*|--kubeconfig*|--context*|--token*|--as|--as=*|--as-group*|--server*|-s|--raw|--raw=*|-f|--filename*|-k|--kustomize*|-w|--watch|--follow|--insecure*|--certificate*|--client-*)
+          deny "flag $a is not allowed (the namespace is fixed to lsevin; no watching/following)" ;;
+        -A|--all-namespaces) case "$verb" in get|top|events) ;; *) deny "-A only for get/top/events";; esac ;;
+      esac
+      case "${a,,}" in *secret*) deny "secrets are off limits ($a)";; esac
+    done
+    case "$verb" in
+      get|describe|top|logs|events)
+        # namespace is forced to lsevin unless the caller asked for -A (read only)
+        if printf '%s\n' "$@" | grep -qxE -- '-A|--all-namespaces'; then run $KUBECTL "$verb" "$@"; else run $KUBECTL -n "$NS" "$verb" "$@"; fi ;;
+      rollout)
+        [ $# -ge 1 ] || deny "rollout needs a subcommand"
+        sub=$1; shift
+        case "$sub" in
+          status|history) run $KUBECTL -n "$NS" rollout "$sub" "$@" ;;
+          restart)
+            [ $# -eq 1 ] || deny "rollout restart takes exactly one target"
+            [[ "$1" =~ $RESTART_OK ]] || deny "restarting $1 is not allowed (postgres, redis, eventstore, elasticsearch, pgbouncer, seaweedfs need a human)"
+            run $KUBECTL -n "$NS" rollout restart "$1" ;;
+          *) deny "rollout $sub (rollback/undo needs a human: migrations may not be backward compatible)" ;;
+        esac ;;
+      delete)
+        [ "${1:-}" = pod ] || [ "${1:-}" = pods ] || deny "only pods can be deleted"
+        shift
+        [ $# -ge 1 ] || deny "no pod named"
+        for p in "$@"; do
+          case "$p" in -*) deny "no flags on delete ($p)";; esac
+          [[ "$p" =~ $STATEFUL ]] && deny "pod $p is stateful"
+        done
+        run $KUBECTL -n "$NS" delete pod "$@" ;;
+      *) deny "kubectl $verb" ;;
+    esac ;;
+  systemctl)
+    [ $# -ge 1 ] || deny "systemctl needs a verb"
+    verb=$1; shift
+    case "$verb" in
+      status|is-active|list-timers|list-units) run systemctl "$verb" --no-pager "$@" ;;
+      restart|start)
+        [ $# -eq 1 ] || deny "exactly one unit"
+        [[ "$1" =~ $UNITS_OK ]] || deny "unit $1 is not on the allow-list"
+        run systemctl "$verb" "$1" ;;
+      *) deny "systemctl $verb" ;;
+    esac ;;
+  journalctl)
+    for a in "$@"; do case "$a" in --vacuum*|--rotate|--flush|--sync|--relinquish-var|--smart-relinquish-var|--setup-keys|--update-catalog|--user-unit=*|--root*|--directory*|-D|--file*|-f|--follow) deny "journalctl flag $a" ;; esac; done
+    run journalctl --no-pager "$@" ;;
+  docker)
+    [ $# -ge 1 ] || deny "docker needs a verb"
+    verb=$1; shift
+    case "$verb" in
+      # no "inspect": it prints container environment variables (secrets) into the model's context
+      stats) run docker stats --no-stream "$@" ;;
+      ps|logs|images|info)
+        for a in "$@"; do case "$a" in -f|--follow) deny "docker $verb $a (no following)" ;; esac; done
+        run docker "$verb" "$@" ;;
+      system) [ "${1:-}" = df ] || deny "docker system ${1:-}"; run docker system df ;;
+      *) deny "docker $verb" ;;
+    esac ;;
+  probe)
+    probe_re='^https?://[A-Za-z0-9._:/?=%&-]+$'
+    [ $# -eq 1 ] && [[ "$1" =~ $probe_re ]] || deny "probe needs one plain http(s) URL"
+    say_log RUN "probe $1"
+    curl -s -o /dev/null -m 20 -w '%{http_code} %{time_total}s\n' -k "$1" ;;
+  *) deny "unknown command $cmd" ;;
+esac
