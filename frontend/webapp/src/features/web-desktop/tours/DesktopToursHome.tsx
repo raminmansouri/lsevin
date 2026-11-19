@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, History, MapPin, Trash2 } from "lucide-react";
+import { ArrowLeft, Heart, History, Luggage, MapPin, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { ReactNode } from "react";
 
@@ -8,6 +8,7 @@ import type { TaxonomyTerm } from "@/features/tours/server/actions/customer/stat
 import type { DestinationCard as DestinationData, EditorialModule, TourCard as TourCardData } from "@/features/tours/server/platform/catalog";
 import { TourImage } from "@/features/tours/ui/customer/common";
 import { HeroSearch } from "@/features/tours/ui/customer/home/tours-home";
+import { DisplaySettingsButton } from "@/features/tours/ui/customer/shell/display-settings";
 import { ToursErrorAlert, type ToursActionError } from "@/features/tours/ui/shared/error-alert";
 import { LocalizedText } from "@/features/tours/ui/shared/localized-text";
 import { RankedTours, type TourRankings } from "@/features/tours/ui/customer/home/ranked-tours";
@@ -85,6 +86,32 @@ export function DesktopToursHome({
             <TourImage src={heroImage} alt="" className="h-full w-full" eager />
           </div>
           <div className="absolute inset-0 bg-gradient-to-t from-[#04130e] via-[#062a20]/55 to-[#062a20]/10" />
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-x-10 top-10 bottom-0 rounded-t-[999px] border border-b-0 border-[#eacb7f]/30"
+          />
+          <div className="absolute inset-x-0 top-0 z-10 flex items-center justify-end gap-2 px-10 pt-8">
+            <Link
+              href="/tours/bookings"
+              className="flex h-11 items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 text-sm font-medium text-[#f4ead0] backdrop-blur-md transition hover:bg-white/20 focus-visible:ring-2 focus-visible:ring-[#eacb7f] focus-visible:outline-none"
+            >
+              <Luggage className="size-4" aria-hidden="true" />
+              {t("nav.bookings")}
+            </Link>
+            <Link
+              href="/tours/wishlist"
+              className="flex h-11 items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 text-sm font-medium text-[#f4ead0] backdrop-blur-md transition hover:bg-white/20 focus-visible:ring-2 focus-visible:ring-[#eacb7f] focus-visible:outline-none"
+            >
+              <Heart className="size-4" aria-hidden="true" />
+              {t("nav.wishlist")}
+              {saved.size ? (
+                <span className="grid h-5 min-w-5 place-items-center rounded-full bg-[#eacb7f] px-1.5 text-[11px] font-bold text-[#083f30]">
+                  {saved.size}
+                </span>
+              ) : null}
+            </Link>
+            <DisplaySettingsButton variant="glass" />
+          </div>
           <div className="absolute inset-x-0 bottom-0 px-14 pb-24">
             <Reveal className="max-w-3xl space-y-4">
               <span className="text-[10px] font-bold tracking-[0.5em] text-[#eacb7f]">L SEVIN JOURNEYS</span>
@@ -96,7 +123,7 @@ export function DesktopToursHome({
               </p>
               {hero?.isSponsored ? <span className="inline-block rounded-full bg-black/40 px-3 py-1 text-xs text-white">{t("home.sponsored")}</span> : null}
               <div className="max-w-2xl">
-                <HeroSearch />
+                <HeroSearch compact luxe />
               </div>
             </Reveal>
           </div>

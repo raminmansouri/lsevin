@@ -5,6 +5,9 @@ import { ArrowLeft, Compass, Heart, Home, Luggage, User } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 
 import { LanguageLinks } from "@/components/locale/language-links";
+import LocaleSwitcher from "@/components/locale/locale-switcher";
+import NotificationsBar from "@/features/shared/components/Notifications/notifications-bar";
+import { DesktopHeader } from "@/features/web-desktop/components/DesktopHeader";
 import { Link, usePathname } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 
@@ -55,7 +58,18 @@ export function ToursShell({ children }: { children: ReactNode }) {
         {t("skipToContent")}
       </a>
       {bare ? null : (
-        <header className="sticky top-0 z-40 border-b border-slate-200/70 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80">
+        <DesktopHeader
+          actions={
+            <>
+              <NotificationsBar variant="glass" />
+              <LocaleSwitcher variant="glass" />
+            </>
+          }
+        />
+      )}
+
+      {bare ? null : (
+        <header className="sticky top-0 z-40 border-b border-slate-200/70 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80 xl:hidden">
           <div className="mx-auto flex h-14 max-w-6xl items-center gap-2 px-3 sm:px-6">
             <Link
               href={PARENT_APP_PATH}
@@ -97,7 +111,8 @@ export function ToursShell({ children }: { children: ReactNode }) {
                 {t("bookings")}
               </Link>
             </nav>
-            <div className="ms-auto md:ms-1">
+            <div className="ms-auto flex items-center gap-1 md:ms-1">
+              <LocaleSwitcher />
               <DisplaySettingsButton />
             </div>
           </div>

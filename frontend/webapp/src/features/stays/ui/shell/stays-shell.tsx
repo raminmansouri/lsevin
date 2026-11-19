@@ -7,10 +7,12 @@ import { useLocale, useTranslations } from "next-intl";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { directionOf } from "@/features/tours/domain/content";
 import { useToursPrefs } from "@/features/tours/ui/customer/prefs-context";
-import { LanguageSelect } from "@/features/tours/ui/customer/shell/display-settings";
 import { CalendarSwitcher } from "@/features/tours/ui/shared/calendar-switcher";
 import { currencyName } from "@/features/tours/ui/shared/format";
 import { LanguageLinks } from "@/components/locale/language-links";
+import LocaleSwitcher from "@/components/locale/locale-switcher";
+import NotificationsBar from "@/features/shared/components/Notifications/notifications-bar";
+import { DesktopHeader } from "@/features/web-desktop/components/DesktopHeader";
 import { Link, usePathname } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 
@@ -46,12 +48,11 @@ const TABS = [
   { key: "bookings", href: "/stays/bookings", icon: Luggage, match: (p: string) => p.startsWith("/stays/bookings") },
 ] as const;
 
-function DisplaySettings() {
+export function DisplaySettings({ variant = "plain" }: { variant?: "plain" | "glass" }) {
   const t = useTranslations("StayApp.prefs");
   const locale = useLocale();
   const prefs = useToursPrefs();
   const [open, setOpen] = useState(false);
-  const langId = useId();
   const curId = useId();
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -60,7 +61,12 @@ function DisplaySettings() {
           type="button"
           aria-label={t("open")}
           data-testid="stays-display-settings"
-          className="flex size-11 items-center justify-center rounded-full text-slate-700 hover:bg-slate-100 focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:outline-none"
+          className={cn(
+            "flex size-11 items-center justify-center rounded-full focus-visible:ring-2 focus-visible:outline-none",
+            variant === "glass"
+              ? "border border-white/20 bg-white/10 text-[#f4ead0] backdrop-blur-md hover:bg-white/20 focus-visible:ring-[#eacb7f]"
+              : "text-slate-700 hover:bg-slate-100 focus-visible:ring-emerald-600",
+          )}
         >
           <Settings2 className="size-5" aria-hidden="true" />
         </button>
@@ -71,12 +77,6 @@ function DisplaySettings() {
           <SheetDescription>{t("description")}</SheetDescription>
         </SheetHeader>
         <div className="space-y-5 px-4 pb-6">
-          <div className="space-y-1.5">
-            <label htmlFor={langId} className="text-sm font-semibold text-slate-800">
-              {t("language")}
-            </label>
-            <LanguageSelect id={langId} />
-          </div>
           <div className="space-y-1.5">
             <span className="text-sm font-semibold text-slate-800">{t("calendar")}</span>
             <CalendarSwitcher value={prefs.calendar} onChange={(c) => void prefs.setCalendar(c)} compact />
@@ -128,7 +128,18 @@ export function StaysShell({ children }: { children: ReactNode }) {
         {t("skipToContent")}
       </a>
       {bare ? null : (
-        <header className="sticky top-0 z-40 border-b border-slate-200/70 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80">
+        <DesktopHeader
+          actions={
+            <>
+              <NotificationsBar variant="glass" />
+              <LocaleSwitcher variant="glass" />
+            </>
+          }
+        />
+      )}
+
+      {bare ? null : (
+        <header className="sticky top-0 z-40 border-b border-slate-200/70 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80 xl:hidden">
           <div className="mx-auto flex h-14 max-w-6xl items-center gap-2 px-3 sm:px-6">
             <Link
               href={back ?? PARENT_APP_PATH}
@@ -164,7 +175,8 @@ export function StaysShell({ children }: { children: ReactNode }) {
                 );
               })}
             </nav>
-            <div className="ms-auto md:ms-1">
+            <div className="ms-auto flex items-center gap-1 md:ms-1">
+              <LocaleSwitcher />
               <DisplaySettings />
             </div>
           </div>

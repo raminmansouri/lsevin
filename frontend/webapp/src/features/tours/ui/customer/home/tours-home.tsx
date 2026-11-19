@@ -50,7 +50,7 @@ const HOME_HERO = {
   source: "https://commons.wikimedia.org/wiki/File:Naqsh-e_Jahan_Square_from_the_gheisariye_Vault.jpg",
 };
 
-export function HeroSearch({ defaultValue = "", compact = false }: { defaultValue?: string; compact?: boolean }) {
+export function HeroSearch({ defaultValue = "", compact = false, luxe = false }: { defaultValue?: string; compact?: boolean; luxe?: boolean }) {
   const t = useTranslations("TourApp.home");
   const router = useRouter();
   const [q, setQ] = useState(defaultValue);
@@ -63,11 +63,17 @@ export function HeroSearch({ defaultValue = "", compact = false }: { defaultValu
       }}
       className={compact ? "" : "mt-5"}
     >
-      <div className="flex items-center gap-2 rounded-2xl bg-white p-1.5 shadow-lg ring-1 ring-slate-200">
+      <div
+        className={
+          luxe
+            ? "flex items-center gap-2 rounded-full bg-white p-1.5 shadow-[0_30px_80px_-30px_rgba(0,0,0,0.6)] ring-1 ring-[#eacb7f]/50"
+            : "flex items-center gap-2 rounded-2xl bg-white p-1.5 shadow-lg ring-1 ring-slate-200"
+        }
+      >
         <label htmlFor="tours-hero-search" className="sr-only">
           {t("searchLabel")}
         </label>
-        <Search className="ms-2 size-5 shrink-0 text-slate-400" aria-hidden="true" />
+        <Search className={luxe ? "ms-3 size-5 shrink-0 text-[#b08a3c]" : "ms-2 size-5 shrink-0 text-slate-400"} aria-hidden="true" />
         <input
           id="tours-hero-search"
           type="search"
@@ -77,14 +83,28 @@ export function HeroSearch({ defaultValue = "", compact = false }: { defaultValu
           className="min-h-11 min-w-0 flex-1 bg-transparent text-[15px] text-slate-900 outline-none placeholder:text-slate-400"
           enterKeyHint="search"
         />
-        <button type="submit" className="sr-only">
-          {t("search")}
+        <button
+          type="submit"
+          aria-label={t("search")}
+          data-testid="hero-search-submit"
+          className={
+            luxe
+              ? "inline-flex size-11 shrink-0 items-center justify-center gap-2 rounded-full bg-[#083f30] text-sm font-bold text-[#eacb7f] shadow-[0_10px_30px_-10px_rgba(8,63,48,0.8)] transition hover:bg-[#0a5a44] focus-visible:ring-2 focus-visible:ring-[#eacb7f] focus-visible:outline-none sm:w-auto sm:px-5"
+              : "sr-only"
+          }
+        >
+          {luxe ? <Search className="size-4" aria-hidden="true" /> : null}
+          <span className={luxe ? "hidden sm:inline" : undefined}>{t("search")}</span>
         </button>
         <Link
           href="/tours/explore?filters=1"
           aria-label={t("filters")}
           data-testid="hero-filters"
-          className="flex size-11 items-center justify-center rounded-xl bg-emerald-50 text-emerald-800 hover:bg-emerald-100 focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:outline-none"
+          className={
+            luxe
+              ? "flex size-11 shrink-0 items-center justify-center rounded-full bg-[#fbf6ea] text-[#083f30] ring-1 ring-[#eacb7f]/50 transition hover:bg-[#f4ead0] focus-visible:ring-2 focus-visible:ring-[#eacb7f] focus-visible:outline-none"
+              : "flex size-11 items-center justify-center rounded-xl bg-emerald-50 text-emerald-800 hover:bg-emerald-100 focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:outline-none"
+          }
         >
           <SlidersHorizontal className="size-5" aria-hidden="true" />
         </Link>
@@ -119,8 +139,8 @@ export function ToursHome({
   const saved = new Set(savedIds);
   const hero = modules.find((m) => m.kind === "hero");
   const collections = modules.filter((m) => m.kind === "collection" || m.kind === "offers");
-  // Without a published editorial hero, use a fixed licensed photo rather than whatever destination comes first.
   const heroImage = hero?.imageUrl ?? HOME_HERO.src;
+  const titleWords = t("home.heroTitle").split(" ");
   const nothing = recent.length === 0 && discovery.length === 0 && destinations.length === 0 && offers.length === 0 && collections.length === 0;
 
   function clearHistory() {
@@ -139,48 +159,70 @@ export function ToursHome({
   return (
     <>
     <div className="space-y-8 pb-6 xl:hidden">
-      {/* Hero (C-010): admin hero module when published, otherwise a licensed photo of Naqsh-e Jahan Square. */}
-      <section aria-labelledby="tours-hero-title" className="relative overflow-hidden md:mx-6 md:mt-4 md:rounded-3xl">
-        <TourImage src={heroImage} alt="" className="absolute inset-0 h-full w-full" eager />
-        <div className="absolute inset-0 bg-gradient-to-b from-emerald-950/70 via-emerald-900/40 to-slate-50 md:to-emerald-950/30" />
-        <div className="relative px-4 pt-10 pb-6 sm:px-8 md:pb-10">
-          <h1 id="tours-hero-title" className="max-w-md text-3xl leading-tight font-extrabold text-white drop-shadow sm:text-4xl">
-            {hero?.title ? <LocalizedText text={hero.title} badge={false} /> : t("home.heroTitle")}
+      <section
+        aria-labelledby="tours-hero-title"
+        className="relative isolate overflow-hidden px-4 pt-6 pb-8 text-white sm:px-8 md:mx-6 md:mt-4 md:rounded-[2rem] md:pb-12"
+      >
+        <TourImage src={heroImage} alt="" className="absolute inset-0 -z-20 h-full w-full" eager />
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 -z-10 bg-[linear-gradient(180deg,rgba(4,33,26,0.5)_0%,rgba(4,33,26,0.7)_45%,rgba(4,33,26,0.96)_100%)]"
+        />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-x-8 top-14 bottom-0 -z-10 hidden rounded-t-[999px] border border-b-0 border-[#eacb7f]/35 md:block"
+        />
+
+        <span className="block text-[11px] font-semibold tracking-[0.35em] text-[#eacb7f]" dir="ltr">
+          L SEVIN TOURS
+        </span>
+
+        <div className="mt-8 text-center md:mt-12">
+          <h1 id="tours-hero-title" className="font-display text-[44px] leading-[1.05] text-balance drop-shadow md:text-[60px]">
+            {hero?.title ? (
+              <LocalizedText text={hero.title} badge={false} />
+            ) : (
+              <>
+                {titleWords[0]} <span className="text-[#eacb7f]">{titleWords.slice(1).join(" ")}</span>
+              </>
+            )}
           </h1>
-          <p className="mt-2 max-w-md text-sm text-white/90">
+          <p className="mx-auto mt-3 max-w-md text-sm leading-7 text-[#d9e4df]">
             {hero?.subtitle ? <LocalizedText text={hero.subtitle} badge={false} /> : t("home.heroSubtitle")}
           </p>
           {hero?.isSponsored ? <span className="mt-2 inline-block rounded-full bg-black/40 px-2 py-0.5 text-[11px] text-white">{t("home.sponsored")}</span> : null}
-          <div className="max-w-xl">
-            <HeroSearch />
-          </div>
-          {hero?.imageUrl ? null : (
-            <p className="mt-2 text-end text-[10px] text-slate-500" data-testid="tours-hero-credit">
-              {t("home.heroPhotoPlace")} ·{" "}
-              <a href={HOME_HERO.source} target="_blank" rel="noopener noreferrer" className="hover:underline">
-                {HOME_HERO.credit}
-              </a>
-            </p>
-          )}
         </div>
-      </section>
 
-      {categories.length > 0 ? (
-        <nav aria-label={t("home.categories")} className="-mt-4">
-          <ul className="flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] sm:px-6">
-            {categories.map((c) => (
-              <li key={c.code} className="shrink-0">
-                <Link
-                  href={`/tours/explore?category=${c.code}`}
-                  className="flex min-h-11 items-center rounded-full border border-slate-200 bg-white px-4 text-sm font-medium text-slate-700 shadow-sm hover:border-emerald-300 hover:text-emerald-800 focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:outline-none"
-                >
-                  {c.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </nav>
-      ) : null}
+        <div className="mx-auto mt-6 max-w-xl">
+          <HeroSearch compact luxe />
+        </div>
+
+        {categories.length > 0 ? (
+          <nav aria-label={t("home.categories")} className="mt-5">
+            <ul className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:justify-center sm:px-0">
+              {categories.map((c) => (
+                <li key={c.code} className="shrink-0">
+                  <Link
+                    href={`/tours/explore?category=${c.code}`}
+                    className="flex min-h-10 items-center rounded-full border border-white/20 bg-white/10 px-4 text-sm text-[#f4ead0] backdrop-blur-md transition hover:border-[#eacb7f]/60 hover:text-[#eacb7f] focus-visible:ring-2 focus-visible:ring-[#eacb7f] focus-visible:outline-none"
+                  >
+                    {c.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        ) : null}
+
+        {hero?.imageUrl ? null : (
+          <p className="mt-5 text-center text-[10px] text-white/50" data-testid="tours-hero-credit">
+            {t("home.heroPhotoPlace")} ·{" "}
+            <a href={HOME_HERO.source} target="_blank" rel="noopener noreferrer" className="hover:underline">
+              {HOME_HERO.credit}
+            </a>
+          </p>
+        )}
+      </section>
 
       <ToursErrorAlert error={error} className="mx-4 sm:mx-6" />
 
