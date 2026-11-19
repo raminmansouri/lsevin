@@ -824,8 +824,16 @@ async function clearStaffChildren(db: QueryLike, staffId: string) {
 }
 
 // A staff member may only perform services offered by at least one of the providers they are assigned to.
-async function assertServicesOfferedByAssignedProviders(db: QueryLike, input: StaffMutationInput) {
-  const serviceDefinitionIds = uniqueText((input.services || []).map((service) => service.serviceDefinitionId));
+// Services the staff member was already linked to before this save (legacy data from before this rule existed)
+// are kept as-is and not validated, so old links never block editing an existing staff profile.
+async function assertServicesOfferedByAssignedProviders(
+  db: QueryLike,
+  input: StaffMutationInput,
+  existingServiceDefinitionIds: Set<string> = new Set()
+) {
+  const serviceDefinitionIds = uniqueText((input.services || []).map((service) => service.serviceDefinitionId)).filter(
+    (id) => !existingServiceDefinitionIds.has(id)
+  );
   if (serviceDefinitionIds.length === 0) return;
 
   const providerIds = uniqueText((input.providerAssignments || []).map((provider) => provider.serviceProviderId));
@@ -852,8 +860,13 @@ async function assertServicesOfferedByAssignedProviders(db: QueryLike, input: St
   }
 }
 
-async function insertStaffChildren(db: QueryLike, staffId: string, input: StaffMutationInput) {
-  await assertServicesOfferedByAssignedProviders(db, input);
+async function insertStaffChildren(
+  db: QueryLike,
+  staffId: string,
+  input: StaffMutationInput,
+  existingServiceDefinitionIds: Set<string> = new Set()
+) {
+  await assertServicesOfferedByAssignedProviders(db, input, existingServiceDefinitionIds);
 
   for (const provider of input.providerAssignments || []) {
     if (!provider.serviceProviderId) continue;
@@ -1049,8 +1062,13 @@ export async function updateStaff(input: StaffMutationInput & { staffId: string 
       where id = ${input.staffId}
     `;
 
+    const existingServiceRows = await tx<{ id: string }[]>`
+      select service_definition_id::text as id from category.staff_services where staff_id = ${input.staffId}
+    `;
+    const existingServiceDefinitionIds = new Set(existingServiceRows.map((row) => row.id));
+
     await clearStaffChildren(tx, input.staffId);
-    await insertStaffChildren(tx, input.staffId, input);
+    await insertStaffChildren(tx, input.staffId, input, existingServiceDefinitionIds);
     return input.staffId;
   });
 }

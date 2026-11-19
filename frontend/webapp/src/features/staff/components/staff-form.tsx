@@ -434,10 +434,18 @@ export function StaffForm({ staff, options, locale = "fa-IR" }: StaffFormProps) 
     onError: (error) => toast.error(error?.detail || "Staff save failed."),
   });
 
+  // Services already saved on this staff profile. Old links that the providers don't offer are kept and only flagged,
+  // so they never block saving; the server applies the same rule.
+  const savedServiceDefinitionIds = useMemo(
+    () => new Set((defaultValues.services || []).map((item) => item?.serviceDefinitionId).filter(Boolean) as string[]),
+    [defaultValues]
+  );
+
   const onSubmit = async (values: StaffFormInput) => {
     let hasServiceOutsideProviders = false;
     (values.services || []).forEach((item, index) => {
-      if (!item.serviceDefinitionId || isServiceOfferedBySelectedProviders(item.serviceDefinitionId) !== false) return;
+      if (!item.serviceDefinitionId || savedServiceDefinitionIds.has(item.serviceDefinitionId)) return;
+      if (isServiceOfferedBySelectedProviders(item.serviceDefinitionId) !== false) return;
       hasServiceOutsideProviders = true;
       form.setError(`services.${index}.serviceDefinitionId`, { type: "manual", message: t("serviceNotOfferedBySelectedProviders") });
     });
@@ -680,7 +688,11 @@ export function StaffForm({ staff, options, locale = "fa-IR" }: StaffFormProps) 
                       searchPlaceholder="Search service definitions by name, category, or pricing model..."
                     />
                     {watchedServices?.[index]?.serviceDefinitionId && isServiceOfferedBySelectedProviders(watchedServices[index].serviceDefinitionId) === false && !form.formState.errors.services?.[index]?.serviceDefinitionId ? (
-                      <p className="text-sm text-amber-700">{t("serviceNotOfferedBySelectedProviders")}</p>
+                      <p className="text-sm text-amber-700">
+                        {savedServiceDefinitionIds.has(watchedServices[index].serviceDefinitionId)
+                          ? t("savedServiceNotOfferedBySelectedProviders")
+                          : t("serviceNotOfferedBySelectedProviders")}
+                      </p>
                     ) : null}
                     </div>
                     <FormField control={form.control} name={`services.${index}.isActive`} render={({ field }) => (
