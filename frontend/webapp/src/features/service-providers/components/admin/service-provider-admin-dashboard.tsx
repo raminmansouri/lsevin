@@ -1386,6 +1386,28 @@ function findMatchingOption(
   );
 }
 
+const PERSIAN_ARABIC_SCRIPT = /[\u0600-\u06FF\u0750-\u077F\uFB50-\uFDFF\uFE70-\uFEFF]/;
+
+/**
+ * Text attributes used to be saved from a single input as { "en-US": text },
+ * whatever language was typed. Text in Persian script in that English-only slot
+ * is really the Persian value, so treat it as fa-IR when loading it to edit.
+ */
+function repairLegacyAttributeValue(
+  value?: Record<string, string> | null,
+): Record<string, string> {
+  if (!value) return {};
+  const keys = Object.keys(value).filter((key) => String(value[key] ?? "").trim());
+  if (keys.length === 1 && keys[0] === "en-US" && PERSIAN_ARABIC_SCRIPT.test(value["en-US"])) {
+    return { "fa-IR": value["en-US"] };
+  }
+  return value;
+}
+
+function emptyAttributeValue(): AdminLocalizedInputValue {
+  return { translations: {} };
+}
+
 /** datetime-local wants "YYYY-MM-DDTHH:mm"; tolerate ISO strings already saved. */
 function toDateTimeLocalValue(raw: string) {
   const match = raw.match(/^(\d{4}-\d{2}-\d{2})(?:[T ](\d{2}:\d{2}))?/);
@@ -1398,8 +1420,12 @@ function AttributesManager({ provider, lookups, locale }: Props) {
   const tAdmin = useTranslations("AdminGenerated");
   const [isPending, startTransition] = useTransition();
   const [attributeDefinitionId, setAttributeDefinitionId] = useState("");
-  // Plain value for Text/Number/DateTime/Boolean; option id for Select types.
+  // Plain value for Number/DateTime/Boolean; option id for Select types.
   const [value, setValue] = useState("");
+  // Text attributes are entered once per site language (fa, en, ar, ...).
+  const [localizedValue, setLocalizedValue] = useState<AdminLocalizedInputValue>(
+    () => emptyAttributeValue(),
+  );
 
   const definitions = provider.attributeDefinitions ?? [];
   const selectedDefinition = definitions.find(
@@ -1415,6 +1441,7 @@ function AttributesManager({ provider, lookups, locale }: Props) {
     onSuccess: () => {
       toast.success(tAdmin("attributeSaved"));
       setValue("");
+      setLocalizedValue(emptyAttributeValue());
     },
     onError: ActionErrorToast,
   });
@@ -1431,6 +1458,15 @@ function AttributesManager({ provider, lookups, locale }: Props) {
     const definition = definitions.find((item) => item.id === nextId);
     const existing = provider.attributes.find(
       (item) => item.attributeDefinitionId === nextId,
+    );
+    setLocalizedValue(
+      existing
+        ? toLocalizedInputValue(
+            repairLegacyAttributeValue(existing.value),
+            locale,
+            SUPPORTED_LOCALE_HEADERS,
+          )
+        : emptyAttributeValue(),
     );
     if (!definition || !existing) {
       setValue(definition?.attributeTypeId === ATTR_TYPE.Boolean ? "false" : "");
@@ -1471,7 +1507,16 @@ function AttributesManager({ provider, lookups, locale }: Props) {
           );
           return option && Object.keys(option.value).length ? option.value : null;
         }
-        return trimmed ? { "en-US": trimmed } : null;
+        {
+          const translations = normalizeLocalizedContentForDatabase(
+            localizedValue,
+            locale,
+            SUPPORTED_LOCALE_HEADERS,
+          );
+          return Object.values(translations).some((item) => item?.trim())
+            ? translations
+            : null;
+        }
     }
   };
 
@@ -1552,12 +1597,20 @@ function AttributesManager({ provider, lookups, locale }: Props) {
             </Select>
           );
         }
+        if (!attributeDefinitionId) {
+          return (
+            <Input placeholder={tAdmin("value")} disabled value="" readOnly />
+          );
+        }
         return (
-          <Input
-            value={value}
-            onChange={(e) => setValue(e.target.value)}
-            placeholder={tAdmin("value")}
-            disabled={isPending}
+          <LocalizedInputBridge
+            key={attributeDefinitionId}
+            label={tAdmin("value")}
+            value={localizedValue}
+            onChange={setLocalizedValue}
+            locale={locale}
+            multiline
+            rows={3}
           />
         );
     }
@@ -1577,7 +1630,7 @@ function AttributesManager({ provider, lookups, locale }: Props) {
       const option = findMatchingOption(definition, item.value);
       if (option?.label) return option.label;
     }
-    return translationText(item.value, "-", locale);
+    return translationText(repairLegacyAttributeValue(item.value), "-", locale);
   };
 
   return (
@@ -1585,7 +1638,7 @@ function AttributesManager({ provider, lookups, locale }: Props) {
       title={tAdmin("providerAttributes")}
       description="Dynamic attributes configured per provider type."
     >
-      <div className="grid gap-3 md:grid-cols-[320px_1fr_auto]">
+      <div className="grid items-start gap-3 md:grid-cols-[320px_1fr_auto]">
         <LazyAdminLookupSelect
           lookupType="attributeDefinitions"
           locale={locale}
@@ -1631,15 +1684,26 @@ function AttributesManager({ provider, lookups, locale }: Props) {
                   {displayValue(item)}
                 </p>
               </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() =>
-                  del.execute({ serviceProviderId: provider.id, id: item.id })
-                }
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
+              <div className="flex shrink-0 gap-1">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  disabled={isPending}
+                  onClick={() => handleDefinitionChange(item.attributeDefinitionId)}
+                >
+                  <Edit className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  disabled={isPending}
+                  onClick={() =>
+                    del.execute({ serviceProviderId: provider.id, id: item.id })
+                  }
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
           ))
         ) : (
