@@ -1,6 +1,7 @@
 import 'server-only';
 
 import sql from '@/config/database/db';
+import { localizedProviderAttributeValue } from "@/features/service-providers/server/provider-attribute-sql";
 import { convertProviderPrice, resolvePreferredCurrencyCode } from '@/features/finance/lib/server/currency-queries';
 import { resolveIsIranianVisitor } from '@/features/finance/lib/server/iranian-visitor';
 import { resolveDisplayPrice } from '@/features/finance/lib/server/toman-price';
@@ -1039,7 +1040,7 @@ async function getProviderAttributes(providerId: string, locale: string): Promis
       pa.id::text as id,
       common.get_translation_t(pad.name_translations, ${locale}, ${DEFAULT_FALLBACK_LOCALE}) as name,
       common.get_translation_t(pad.description_translations, ${locale}, ${DEFAULT_FALLBACK_LOCALE}) as description,
-      common.get_translation_t(pa.value_translations, ${locale}, ${DEFAULT_FALLBACK_LOCALE}) as value,
+      ${localizedProviderAttributeValue(locale)} as value,
       pad.is_required,
       at.name as attribute_type
     from category.provider_attributes pa

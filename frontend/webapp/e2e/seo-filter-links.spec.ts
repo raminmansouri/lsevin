@@ -194,10 +194,76 @@ test.describe("listing links", () => {
       expect(html, path).not.toMatch(/<meta name="robots" content="noindex/);
     }
     const filtered = await request.get(`/fa/categories/${fixture.leaf.slug}/providers?view=map`);
-    expect(filtered.headers()["x-robots-tag"]).toBe("noindex, follow");
+    // "noindex, follow"; on a host other than lsevincare.com (a local server)
+    // the host rule in next.config makes it "noindex, nofollow".
+    expect(filtered.headers()["x-robots-tag"]).toMatch(/^noindex, (no)?follow$/);
     const sitemap = await (await request.get("/sitemap.xml")).text();
     expect(sitemap).toContain(`/fa/categories/${fixture.parent.slug}</loc>`);
     expect(sitemap).toContain(`/fa/categories/${fixture.leaf.slug}/providers</loc>`);
     expect(sitemap).not.toMatch(/categories\?parent=|categoryId=|providerTypeId=/);
+  });
+});
+
+/**
+ * Catalog pages are reached by slug only (reported 2026-11-19): a provider
+ * created on 2026-11-09 had no slug, so search, the map and /providers linked
+ * /fa/providers/<uuid>, and the id path, which only redirects to a slug,
+ * answered 404. Migration 0120 named the missed rows.
+ */
+// Case-sensitive, and not after "Categories": media files live under
+// Categories/services/<uuid>.jpg, which is an image, not a page link.
+const ENTITY_ID_LINK = new RegExp(`(?<!Categories)/(providers|services|specialists|packages|specialties)/${UUID.source}`);
+
+test.describe("catalog entity links", () => {
+  test("every catalog row has a slug", async () => {
+    const sql = postgres(DB_URL, { max: 1, prepare: false });
+    try {
+      const rows = await sql<{ t: string; n: number }[]>`
+        select 'providers' t, count(*)::int n from category.service_providers where is_active and coalesce(slug, '') = ''
+        union all select 'services', count(*)::int from category.provider_services where is_active and coalesce(slug, '') = ''
+        union all select 'specialists', count(*)::int from category.staff where is_active and coalesce(slug, '') = ''
+        union all select 'specialties', count(*)::int from category.provider_types where is_active and coalesce(slug, '') = ''
+        union all select 'packages', count(*)::int from marketing.special_packages where is_active and coalesce(slug, '') = ''
+        union all select 'categories', count(*)::int from category.categories where is_active and coalesce(slug, '') = ''`;
+      expect(rows.filter((row) => row.n > 0)).toEqual([]);
+    } finally {
+      await sql.end();
+    }
+  });
+
+  test("search result opens the provider's slug page, survives refresh and back", async ({ page }) => {
+    // A search a visitor would type; every provider result must link by slug.
+    let provider: { name: string; href: string } | undefined;
+    for (const term of ["کلینیک", "حکیم", "هتل", "مرکز"]) {
+      const api = await page.request.get(`/api/customer/search-results?q=${encodeURIComponent(term)}&locale=fa`);
+      expect(api.status(), term).toBe(200);
+      const results = ((await api.json()).results ?? []) as { type?: string; name: string; href: string }[];
+      expect(results.filter((result) => ENTITY_ID_LINK.test(result.href)).map((result) => result.href), term).toEqual([]);
+      provider ??= results.find((result) => result.type === "provider");
+      if (provider) break;
+    }
+    expect(provider, "a provider in the search results").toBeTruthy();
+    expect(provider!.href).toMatch(/^\/providers\/[a-z0-9-]+$/);
+
+    const term = provider!.name.trim().split(/\s+/)[0];
+    await page.goto(`/fa/n/app/mobile/search-results?q=${encodeURIComponent(term)}`, { waitUntil: "domcontentloaded" });
+    await page.getByText(provider!.name, { exact: true }).first().click();
+    await page.waitForURL((url) => url.pathname === `/fa${provider!.href}`);
+    const reloaded = await page.reload({ waitUntil: "domcontentloaded" });
+    expect(reloaded?.status()).toBe(200);
+    await page.goBack({ waitUntil: "domcontentloaded" });
+    await expect(page).toHaveURL(/search-results/);
+  });
+
+  test("map, providers, explore and offers render no id links to catalog pages", async ({ page }) => {
+    for (const path of ["/fa/map", "/fa/map?view=list", "/fa/providers", "/fa/explore", "/fa/offers"]) {
+      const response = await page.goto(path, { waitUntil: "domcontentloaded" });
+      expect(response?.status(), path).toBeLessThan(400);
+      await settle(page);
+      const html = await page.content();
+      // Rendered anchors and the data the client navigates with (router.push).
+      const ids = [...html.matchAll(new RegExp(ENTITY_ID_LINK.source, "g"))].map((m) => m[0]);
+      expect(ids, path).toEqual([]);
+    }
   });
 });

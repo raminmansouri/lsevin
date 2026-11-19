@@ -1,0 +1,316 @@
+{
+  "Blog": {
+    "home": "خانه",
+    "blog": "وبلاگ",
+    "blogDescription": "مقاله‌ها، راهنماها و پاسخ‌های السوین.",
+    "categories": "دسته‌بندی‌ها",
+    "allCategories": "همه",
+    "readMore": "مطالعه",
+    "minRead": "{count} دقیقه مطالعه",
+    "updated": "به‌روزرسانی",
+    "by": "نویسنده: {name}",
+    "reviewedBy": "بازبینی پزشکی: {name}",
+    "aboutAuthor": "درباره نویسنده",
+    "noPosts": "هنوز مقاله‌ای به این زبان منتشر نشده است.",
+    "previous": "قبلی",
+    "next": "بعدی",
+    "pagination": "صفحه‌ها",
+    "pageOf": "صفحه {page} از {pages}",
+    "tocTitle": "در این مقاله",
+    "faqTitle": "پرسش‌های متداول",
+    "relatedTitle": "بیشتر بخوانید",
+    "video": "ویدئو",
+    "fallbackNotice": "این مقاله هنوز به زبان شما در دسترس نیست و نسخه‌ای به زبان دیگر نمایش داده می‌شود.",
+    "previewBanner": "پیش‌نمایش پیش‌نویس ذخیره‌شده. این صفحه عمومی نیست."
+  },
+  "AdminBlog": {
+    "title": "وبلاگ",
+    "intro": "مقاله‌ها را با بلوک بنویسید: تیتر، متن، تصویر، ویدئو و پرسش‌های متداول، برای هر زبان جداگانه.",
+    "back": "همه مقاله‌ها",
+    "newPost": "مقاله جدید",
+    "create": "ایجاد مقاله",
+    "creating": "در حال ایجاد…",
+    "cancel": "انصراف",
+    "save": "ذخیره",
+    "saving": "در حال ذخیره…",
+    "publish": "انتشار",
+    "publishing": "در حال انتشار…",
+    "update": "به‌روزرسانی",
+    "unpublish": "لغو انتشار",
+    "preview": "پیش‌نمایش",
+    "viewPublic": "مشاهده",
+    "postTitle": "عنوان",
+    "postTitlePlaceholder": "عنوان مقاله",
+    "excerpt": "چکیده",
+    "excerptHint": "یک یا دو جمله که در فهرست‌ها و نتایج جستجو نمایش داده می‌شود.",
+    "content": "محتوا",
+    "languages": "زبان‌ها",
+    "firstLanguage": "زبان اول",
+    "sidePanel": "تنظیمات مقاله",
+    "search": "جستجو",
+    "filters": "فیلترها",
+    "statusFilter": "وضعیت",
+    "all": "همه",
+    "filter": "فیلتر",
+    "actions": "اقدامات",
+    "updated": "به‌روزرسانی",
+    "edit": "ویرایش",
+    "remove": "حذف",
+    "emptyList": "هنوز مقاله‌ای نیست. اولین مقاله را بسازید.",
+    "unsaved": "تغییرات ذخیره‌نشده",
+    "allSaved": "همه تغییرات ذخیره شد",
+    "autosaved": "ذخیره خودکار {time}",
+    "recoverBanner": "یک نسخه ذخیره‌نشده از {time} بازیابی شد.",
+    "recoverRestore": "بازگردانی",
+    "recoverDiscard": "رد کردن",
+    "newLanguage": "{language} هنوز محتوایی ندارد.",
+    "copyFrom": "شروع از ساختار:",
+    "emptyBlocks": "این مقاله هنوز بلوکی ندارد. با دکمه + یک بلوک اضافه کنید.",
+    "addBlock": "افزودن بلوک",
+    "searchBlocks": "جستجوی بلوک",
+    "moveUp": "انتقال به بالا",
+    "moveDown": "انتقال به پایین",
+    "duplicate": "تکثیر",
+    "drag": "برای جابه‌جایی بکشید",
+    "deletePost": "حذف {title}",
+    "confirmDeletePost": "«{title}» در همه زبان‌ها حذف شود؟ این کار قابل بازگشت نیست.",
+    "deleteLanguage": "حذف نسخه {language}",
+    "confirmDeleteLanguage": "نسخه {language} این مقاله حذف شود؟",
+    "confirmDeleteCategory": "دسته «{name}» حذف شود؟ مقاله‌ها می‌مانند اما این دسته را از دست می‌دهند.",
+    "confirmDeleteAuthor": "نویسنده «{name}» حذف شود؟",
+    "status": {
+      "draft": "پیش‌نویس",
+      "published": "منتشرشده",
+      "archived": "بایگانی",
+      "scheduled": "زمان‌بندی‌شده",
+      "new": "هنوز ذخیره نشده"
+    },
+    "toast": {
+      "created": "مقاله ایجاد شد.",
+      "saved": "ذخیره شد.",
+      "published": "منتشر شد.",
+      "unpublished": "انتشار لغو شد.",
+      "deleted": "حذف شد.",
+      "languageDeleted": "زبان حذف شد.",
+      "failed": "مشکلی پیش آمد. دوباره تلاش کنید.",
+      "notReady": "مقاله آمادهٔ انتشار نیست. زبانهٔ «آمادگی» را ببینید.",
+      "revisionLoaded": "نسخه بارگذاری شد. برای نگه‌داشتن، ذخیره کنید."
+    },
+    "side": {
+      "settings": "تنظیمات",
+      "seo": "سئو",
+      "readiness": "آمادگی",
+      "history": "تاریخچه"
+    },
+    "settings": {
+      "slug": "نام نشانی",
+      "slugHint": "حروف کوچک لاتین، عدد و خط تیره. در همه زبان‌ها یکسان است.",
+      "category": "دسته‌بندی",
+      "none": "هیچ",
+      "author": "نویسنده",
+      "medical": "توصیه سلامت (نیازمند بازبین)",
+      "reviewer": "بازبین پزشکی",
+      "lastReviewed": "آخرین بازبینی",
+      "featured": "مقاله ویژه",
+      "featuredImage": "تصویر شاخص",
+      "publishDate": "تاریخ انتشار",
+      "publishDateHint": "برای انتشار فوری خالی بگذارید. تاریخ آینده مقاله را زمان‌بندی می‌کند."
+    },
+    "seo": {
+      "title": "عنوان سئو",
+      "titleHint": "در نتایج جستجو نمایش داده می‌شود. پیش‌فرض همان عنوان است.",
+      "description": "توضیحات متا",
+      "descriptionHint": "{count} از ۱۷۰ نویسه پیشنهادی",
+      "ogImage": "تصویر شبکه‌های اجتماعی"
+    },
+    "readiness": {
+      "ok": "آمادهٔ انتشار است.",
+      "goToBlock": "رفتن به بلوک",
+      "severity": {
+        "error": "باید اصلاح شود",
+        "warning": "پیشنهاد"
+      },
+      "codes": {
+        "slug-invalid": "نام نشانی معتبر نیست.",
+        "title-missing": "عنوان را وارد کنید.",
+        "body-empty": "محتوایی اضافه کنید.",
+        "heading-empty": "یک تیتر خالی است.",
+        "richtext-empty": "یک بلوک متن خالی است.",
+        "image-missing-file": "یک بلوک تصویر فایل ندارد.",
+        "image-missing-alt": "تصویر به متن جایگزین نیاز دارد (یا آن را تزئینی علامت بزنید).",
+        "link-invalid": "یک پیوند معتبر نیست.",
+        "gallery-empty": "یک گالری تصویر ندارد.",
+        "video-missing-file": "یک بلوک ویدئو فایل ندارد.",
+        "video-missing-poster": "ویدئوی کتابخانه به تصویر پوستر نیاز دارد.",
+        "video-missing-embed": "بلوک ویدئو به پیوند معتبر یوتیوب، آپارات یا ویمیو نیاز دارد.",
+        "video-missing-title": "برای ویدئو عنوان بگذارید.",
+        "faq-empty": "یک بلوک پرسش‌های متداول پرسش و پاسخ کامل ندارد.",
+        "faq-incomplete-item": "برخی پرسش‌ها ناقص‌اند و نمایش داده نمی‌شوند.",
+        "callout-empty": "یک کادر یادداشت خالی است.",
+        "cta-missing-label": "دکمه به برچسب نیاز دارد.",
+        "cta-missing-link": "دکمه به پیوند نیاز دارد.",
+        "quote-empty": "یک نقل‌قول خالی است.",
+        "no-heading": "برای ساختار مقاله دست‌کم یک تیتر اضافه کنید.",
+        "no-featured-image": "تصویر شاخص اضافه کنید.",
+        "no-excerpt": "چکیده اضافه کنید.",
+        "seo-description-too-long": "توضیحات متا بیش از ۱۷۰ نویسه است.",
+        "no-seo-description": "چکیده یا توضیحات متا اضافه کنید.",
+        "medical-without-reviewer": "توصیه سلامت باید بازبین پزشکی داشته باشد."
+      }
+    },
+    "history": {
+      "loading": "در حال بارگذاری…",
+      "empty": "هنوز نسخه ذخیره‌شده‌ای نیست.",
+      "load": "بارگذاری",
+      "kind": {
+        "autosave": "ذخیره خودکار",
+        "save": "ذخیره",
+        "publish": "انتشار"
+      }
+    },
+    "blocks": {
+      "heading": "تیتر",
+      "richtext": "متن",
+      "image": "تصویر",
+      "gallery": "گالری",
+      "video": "ویدئو",
+      "faq": "پرسش‌های متداول",
+      "callout": "کادر یادداشت",
+      "cta": "دکمه",
+      "quote": "نقل‌قول",
+      "divider": "جداکننده",
+      "toc": "فهرست مطالب"
+    },
+    "heading": {
+      "level": "سطح",
+      "text": "متن تیتر"
+    },
+    "image": {
+      "file": "تصویر",
+      "alt": "متن جایگزین",
+      "altHint": "تصویر را برای کسانی که نمی‌بینند توصیف کنید.",
+      "decorativeHint": "تصویر تزئینی متن جایگزین ندارد.",
+      "decorative": "تصویر تزئینی",
+      "caption": "زیرنویس",
+      "size": "عرض",
+      "align": "چینش",
+      "link": "پیوند",
+      "linkHint": "اختیاری: https://… یا /مسیر",
+      "sizes": {
+        "content": "متن",
+        "wide": "عریض",
+        "full": "تمام‌عرض"
+      },
+      "aligns": {
+        "start": "ابتدا",
+        "center": "وسط",
+        "end": "انتها"
+      }
+    },
+    "gallery": {
+      "add": "افزودن تصویر",
+      "columns": "ستون‌ها"
+    },
+    "video": {
+      "source": "منبع",
+      "sources": {
+        "embed": "یوتیوب / آپارات / ویمیو",
+        "library": "کتابخانه رسانه"
+      },
+      "provider": "سرویس",
+      "providers": {
+        "youtube": "یوتیوب",
+        "aparat": "آپارات",
+        "vimeo": "ویمیو"
+      },
+      "url": "پیوند ویدئو",
+      "urlHint": "پیوند صفحه ویدئو را بچسبانید.",
+      "urlInvalid": "این پیوند ویدئو پشتیبانی نمی‌شود.",
+      "file": "فایل ویدئو",
+      "poster": "تصویر پوستر",
+      "title": "عنوان",
+      "caption": "زیرنویس"
+    },
+    "faq": {
+      "title": "عنوان بخش",
+      "titleHint": "اختیاری. پیش‌فرض «پرسش‌های متداول» است.",
+      "question": "پرسش",
+      "answer": "پاسخ",
+      "addItem": "افزودن پرسش"
+    },
+    "callout": {
+      "tone": "نوع",
+      "tones": {
+        "info": "اطلاعات",
+        "tip": "نکته",
+        "warning": "هشدار",
+        "medical": "یادداشت پزشکی"
+      },
+      "title": "عنوان"
+    },
+    "cta": {
+      "label": "متن دکمه",
+      "link": "پیوند",
+      "linkHint": "https://… ، /consulting ، mailto: یا tel:",
+      "style": "سبک",
+      "styles": {
+        "primary": "اصلی",
+        "secondary": "فرعی"
+      }
+    },
+    "quote": {
+      "text": "نقل‌قول",
+      "cite": "منبع"
+    },
+    "toc": {
+      "title": "عنوان",
+      "hint": "از تیترهای همین مقاله ساخته می‌شود."
+    },
+    "divider": {
+      "hint": "خطی افقی بین بخش‌ها."
+    },
+    "errors": {
+      "link": "از https://… ، مسیری مانند /consulting ، mailto: یا tel: استفاده کنید."
+    },
+    "media": {
+      "none": "فایلی انتخاب نشده",
+      "choose": "انتخاب",
+      "change": "تغییر",
+      "remove": "حذف فایل"
+    },
+    "rich": {
+      "bold": "پررنگ",
+      "italic": "مورب",
+      "underline": "زیرخط",
+      "strikethrough": "خط‌خورده",
+      "bulletList": "فهرست نقطه‌ای",
+      "numberedList": "فهرست شماره‌دار",
+      "quote": "نقل‌قول",
+      "link": "پیوند",
+      "removeLink": "حذف پیوند",
+      "undo": "واگرد",
+      "redo": "ازنو",
+      "linkUrl": "نشانی پیوند",
+      "linkApply": "اعمال",
+      "linkCancel": "انصراف",
+      "linkInvalid": "پیوند https://… ، مسیر /path ، mailto: یا tel: وارد کنید.",
+      "placeholder": "اینجا بنویسید…",
+      "editorLabel": "ویرایشگر متن"
+    },
+    "taxonomy": {
+      "categories": "دسته‌بندی‌ها",
+      "authors": "نویسندگان",
+      "addCategory": "افزودن دسته",
+      "addAuthor": "افزودن نویسنده",
+      "name": "نام",
+      "authorName": "نام",
+      "credentials": "سوابق",
+      "bio": "معرفی",
+      "avatar": "عکس",
+      "medicalReviewer": "می‌تواند محتوای پزشکی را بازبینی کند",
+      "reviewerBadge": "بازبین",
+      "noCategories": "هنوز دسته‌ای نیست.",
+      "noAuthors": "هنوز نویسنده‌ای نیست."
+    }
+  }
+}

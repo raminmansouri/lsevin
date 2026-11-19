@@ -86,6 +86,19 @@ async function loadAdminAccessMessages(locale: string): Promise<Messages> {
   }
 }
 
+/**
+ * Blog strings live in messages/blog/<locale>.json — namespaces Blog (public pages) and AdminBlog
+ * (the editor) — so the feature can evolve without churning the shared catalogs. A locale without
+ * a file, or a missing key, falls back to English through the merge.
+ */
+async function loadBlogMessages(locale: string): Promise<Messages> {
+  try {
+    return (await import(`../../messages/blog/${locale}.json`)).default as Messages;
+  } catch {
+    return {};
+  }
+}
+
 export default getRequestConfig(async ({ requestLocale }) => {
   // Typically corresponds to the `[locale]` segment. Can be undefined for
   // requests outside the [locale] tree (root layout, not-found, some server
@@ -98,7 +111,10 @@ export default getRequestConfig(async ({ requestLocale }) => {
 
   const en = mergeMessages(
     (await import(`../../messages/en.json`)).default as Messages,
-    mergeMessages(await loadTourMessages("en"), await loadAdminAccessMessages("en")),
+    mergeMessages(
+      mergeMessages(await loadTourMessages("en"), await loadAdminAccessMessages("en")),
+      await loadBlogMessages("en"),
+    ),
   );
 
   if (locale === "en") {
@@ -107,7 +123,10 @@ export default getRequestConfig(async ({ requestLocale }) => {
 
   const current = mergeMessages(
     (await import(`../../messages/${locale}.json`)).default as Messages,
-    mergeMessages(await loadTourMessages(locale), await loadAdminAccessMessages(locale)),
+    mergeMessages(
+      mergeMessages(await loadTourMessages(locale), await loadAdminAccessMessages(locale)),
+      await loadBlogMessages(locale),
+    ),
   );
 
   return {

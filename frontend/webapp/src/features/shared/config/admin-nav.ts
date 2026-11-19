@@ -44,6 +44,7 @@ import {
   MessageSquareQuote,
   MessageSquareText,
   MessagesSquare,
+  Newspaper,
   Package,
   PackageOpen,
   PackagePlus,
@@ -251,6 +252,7 @@ export const ADMIN_NAV: AdminNavEntry[] = [
     icon: LayoutTemplate,
     items: [
       { titleKey: "editorial", href: "/admin/editorial", icon: FileText },
+      { titleKey: "blog", href: "/admin/blog", icon: Newspaper },
       { titleKey: "homeSections", href: "/admin/home-sections", icon: LayoutTemplate },
       { titleKey: "enamad", href: "/admin/enamad", icon: ShieldCheck },
       { titleKey: "sponsoredSlider", href: "/admin/sponsored-slider", icon: GalleryHorizontal },

@@ -3,6 +3,7 @@ import "server-only";
 import { revalidateTag } from "next/cache";
 
 import sql from "@/config/database/db";
+import { localizedProviderAttributeValue } from "@/features/service-providers/server/provider-attribute-sql";
 import { getProviderPageDataTag } from "@/features/service-providers/db/cache";
 import { refreshReviewStats } from "@/features/service-providers/server/review-stats";
 import {
@@ -883,7 +884,7 @@ async function getProviderAttributes(
     select
       pa.id::text,
       common.get_translation_t(pad.name_translations, ${locale}, 'en-US') as name,
-      common.get_translation_t(pa.value_translations, ${locale}, 'en-US') as value,
+      ${localizedProviderAttributeValue(locale)} as value,
       nullif(common.get_translation_t(pad.description_translations, ${locale}, 'en-US'), '') as description
     from category.provider_attributes pa
     join category.provider_attribute_definitions pad on pad.id = pa.attribute_definition_id

@@ -66,10 +66,20 @@ export function LocaleSync() {
         // A stale <Link> navigated to the wrong-locale copy of the page.
         // Re-issue the current (locale-stripped) path under the chosen locale;
         // converges in one hop once urlLocale === cookieLocale.
-          router.replace(
-              `${pathname}${window.location.search}${window.location.hash}`,
-              { locale: cookieLocale }
-          );
+        //
+        // Strip the locale from the real URL ourselves: next-intl's usePathname
+        // only strips the locale it *thinks* is active, so when the rendered
+        // tree and the URL disagree (e.g. /fa/admin/... rendered as en) it
+        // returned "/fa/admin/..." and we navigated to /en/fa/admin/... (404).
+        const segments = window.location.pathname.split("/").filter(Boolean);
+        if ((routing.locales as readonly string[]).includes(segments[0] ?? "")) {
+          segments.shift();
+        }
+        const strippedPath = `/${segments.join("/")}`;
+        router.replace(
+          `${strippedPath}${window.location.search}${window.location.hash}`,
+          { locale: cookieLocale }
+        );
       } else if (activeLocale !== cookieLocale) {
         // URL locale is right but the rendered [locale] provider tree is a
         // reused/cached segment still on the pre-switch value. Re-fetch this

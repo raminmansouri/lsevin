@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { LexicalErrorBoundary } from "@lexical/react/LexicalErrorBoundary";
+import { CheckListPlugin } from "@lexical/react/LexicalCheckListPlugin";
 import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
+import { LinkPlugin } from "@lexical/react/LexicalLinkPlugin";
+import { ListPlugin } from "@lexical/react/LexicalListPlugin";
 import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
 
 import { ContentEditable } from "@/components/editor/editor-ui/content-editable";
@@ -19,6 +22,7 @@ import { HistoryToolbarPlugin } from "@/components/editor/plugins/toolbar/histor
 import { LinkToolbarPlugin } from "@/components/editor/plugins/toolbar/link-toolbar-plugin";
 import { ToolbarPlugin } from "@/components/editor/plugins/toolbar/toolbar-plugin";
 import { Separator } from "@/components/ui/separator";
+import { safeHref } from "@/lib/safe-href";
 
 export function Plugins({ direction = "ltr" }: { direction?: "ltr" | "rtl" }) {
   const [_isLinkEditMode, setIsLinkEditMode] = useState(false);
@@ -66,6 +70,9 @@ export function Plugins({ direction = "ltr" }: { direction?: "ltr" | "rtl" }) {
           ErrorBoundary={LexicalErrorBoundary}
         />
         <HistoryPlugin />
+        <ListPlugin />
+        <CheckListPlugin />
+        <LinkPlugin validateUrl={(url) => Boolean(safeHref(url))} />
         <DirectionPlugin direction={direction} />
         {/* editor plugins */}
       </div>
