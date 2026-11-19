@@ -84,16 +84,9 @@ export function CurrencySelect({ id }: { id?: string }) {
 export function DisplaySettingsPanel() {
   const t = useTranslations("TourApp.prefs");
   const prefs = useToursPrefs();
-  const langId = useId();
   const curId = useId();
   return (
     <div className="space-y-5">
-      <div className="space-y-1.5">
-        <label htmlFor={langId} className="text-sm font-semibold text-slate-800">
-          {t("language")}
-        </label>
-        <LanguageSelect id={langId} />
-      </div>
       <div className="space-y-1.5">
         <span className="text-sm font-semibold text-slate-800">{t("calendar")}</span>
         <CalendarSwitcher value={prefs.calendar} onChange={(c) => void prefs.setCalendar(c)} compact />
@@ -110,7 +103,7 @@ export function DisplaySettingsPanel() {
   );
 }
 
-export function DisplaySettingsButton() {
+export function DisplaySettingsButton({ variant = "plain" }: { variant?: "plain" | "glass" }) {
   const t = useTranslations("TourApp");
   const locale = useLocale();
   const [open, setOpen] = useState(false);
@@ -121,7 +114,11 @@ export function DisplaySettingsButton() {
           type="button"
           aria-label={t("nav.settings")}
           data-testid="display-settings"
-          className="flex size-11 items-center justify-center rounded-full text-slate-700 hover:bg-slate-100 focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:outline-none"
+          className={
+            variant === "glass"
+              ? "flex size-11 items-center justify-center rounded-full border border-white/20 bg-white/10 text-[#f4ead0] backdrop-blur-md hover:bg-white/20 focus-visible:ring-2 focus-visible:ring-[#eacb7f] focus-visible:outline-none"
+              : "flex size-11 items-center justify-center rounded-full text-slate-700 hover:bg-slate-100 focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:outline-none"
+          }
         >
           <Settings2 className="size-5" aria-hidden="true" />
         </button>
