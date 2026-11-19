@@ -14870,7 +14870,9 @@ declare const messages: {
     "ge00Ls0000000000000000": "GE00 LS00 0000 0000 0000 00",
     "ref": "المرجع:",
     "metaDescription": "تسوّق المنتجات الطبية ومنتجات العافية والمعدات والمستلزمات مع توصيل سريع.",
-    "categoryMetaDescription": "تصفّح {count} منتجًا في {name}."
+    "categoryMetaDescription": "تصفّح {count} منتجًا في {name}.",
+    "subcategories": "الفئات الفرعية",
+    "subcategoriesAll": "الكل"
   },
   "ShopAdmin": {
     "nav": {

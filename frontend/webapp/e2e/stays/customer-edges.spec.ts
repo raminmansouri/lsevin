@@ -68,7 +68,7 @@ test.describe("stays edge cases @regression", () => {
     expect(n).toBe(1);
   });
 
-  test("request to book: nothing charged, admin accepts, guest is asked to pay; persisted after refresh", async ({ page, context, browser }, testInfo) => {
+  test("request to book: nothing charged, admin accepts, the open page updates by itself and the guest is notified; persisted after refresh", async ({ page, context, browser }, testInfo) => {
     const world = await seedWorld([{ confirmationMode: "request" }]);
     await skipIntro(context);
     await signedInCustomer(context);
@@ -81,6 +81,9 @@ test.describe("stays edge cases @regression", () => {
     await expect(page.getByTestId("stay-booking-status")).toHaveAttribute("data-status", "requested");
     await expect(page.getByTestId("stay-payment-panel")).toHaveCount(0);
     const bookingId = page.url().match(/bookings\/([0-9a-f-]{36})/)![1];
+    // While waiting, the page offers notifications on this device.
+    await expect(page.getByTestId("stay-notify-me")).toBeVisible();
+    await expect(page.getByTestId("stay-status-changed")).toHaveCount(0);
     await evidence(page, testInfo, "stays__request__01-sent");
 
     const adminCtx = await browser.newContext({ viewport: { width: 1366, height: 900 } });
@@ -93,10 +96,22 @@ test.describe("stays edge cases @regression", () => {
     } finally {
       await adminCtx.close();
     }
+    // No refresh: the guest's open page notices the answer within a few seconds (regression).
+    await expect(page.getByTestId("stay-status-changed")).toHaveAttribute("data-status", "pending_payment", { timeout: 20_000 });
+    await expect(page.getByTestId("stay-booking-status")).toHaveAttribute("data-status", "pending_payment");
+    await expect(page.getByTestId("stay-payment-panel")).toBeVisible();
+    await evidence(page, testInfo, "stays__request__02-accepted-live");
+    // The answer went out on every channel (in-app now; email, SMS and push queued for the dispatcher).
+    const deliveries = await db()<{ channel: string; payload: any }[]>`
+      select d.channel::text as channel, n.payload from notify.notification_deliveries d join notify.notifications n on n.id = d.notification_id
+       where n.entity_id = ${bookingId}::uuid and n.payload->>'kind' = 'accepted'`;
+    expect(deliveries.map((d) => d.channel).sort()).toEqual(["email", "in_app", "push", "sms"]);
+    expect(deliveries[0].payload.channelContent.sms.body).toContain(`/fa/stays/bookings/${bookingId}`);
     await page.reload();
     await expect(page.getByTestId("stay-booking-status")).toHaveAttribute("data-status", "pending_payment");
     await expect(page.getByTestId("stay-payment-panel")).toBeVisible();
-    await evidence(page, testInfo, "stays__request__02-accepted-pay");
+    await expect(page.getByTestId("stay-notify-me")).toBeVisible();
+    await evidence(page, testInfo, "stays__request__03-accepted-pay");
     expect((await bookingRow(bookingId)).status).toBe("pending_payment");
   });
 
@@ -121,7 +136,8 @@ test.describe("stays edge cases @regression", () => {
       await signedInAdmin(adminCtx);
       const admin = await adminCtx.newPage();
       await admin.goto("/fa/admin/stays/reviews?status=pending");
-      const row = admin.getByTestId("stays-admin-review").filter({ hasText: "حیاط زیبا" });
+      // This stay's review only: earlier runs may have left reviews with the same text pending.
+      const row = admin.getByTestId("stays-admin-review").filter({ hasText: "حیاط زیبا" }).filter({ hasText: stay.name["fa-IR"] });
       await row.getByTestId("stays-admin-review-publish").click();
       // Published reviews leave the "pending" list.
       await expect(row).toHaveCount(0);

@@ -132,6 +132,8 @@ export function StaysShell({ children }: { children: ReactNode }) {
           <div className="mx-auto flex h-14 max-w-6xl items-center gap-2 px-3 sm:px-6">
             <Link
               href={back ?? PARENT_APP_PATH}
+              // The main site home is a heavy page (~0.8 MB of data): fetch it only when tapped.
+              prefetch={back ? undefined : false}
               className="flex min-h-11 items-center gap-1.5 rounded-full px-2 text-sm font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:outline-none"
               data-testid={back ? "stays-back" : "stays-back-to-lsevin"}
             >

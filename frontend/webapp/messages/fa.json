@@ -4871,6 +4871,7 @@
       "toursPlatformSettings": "۱. تنظیمات تورها",
       "toursPlatformTaxonomy": "۲. دسته‌ها و برچسب‌ها",
       "editorial": "محتوای سایت",
+      "blog": "وبلاگ",
       "assistant": "دستیار هوشمند",
       "shopApprovals": "تأیید تحویل فروشنده‌ها",
       "accessControl": "مدیریت دسترسی‌ها",
@@ -15771,7 +15772,10 @@
           "push": "ارسال نوتیفیکیشن به مرورگرهایی که مشترک شده‌اند.",
           "whatsapp": "ارسال پیام واتس‌اپ از طریق WhatsiPlus.",
           "bale": "ارسال پیام از طریق ربات بله؛ گیرنده باید پیش‌تر حساب خود را متصل کرده باشد."
-        }
+        },
+        "generatePushKeys": "ساخت کلیدهای پوش",
+        "generatePushKeysHint": "کلیدها روی سرور ساخته و ذخیره می‌شوند؛ کلید خصوصی هرگز نمایش داده نمی‌شود. سپس کانال را روشن کنید.",
+        "pushKeysCreated": "کلیدهای پوش ساخته و ذخیره شد."
       }
     },
     "paymentMethods": {
@@ -16573,7 +16577,9 @@
         "completed": "تحویل گرفته شد",
         "cancelled": "لغو شده"
       }
-    }
+    },
+    "subcategories": "زیرمجموعه‌ها",
+    "subcategoriesAll": "همه"
   },
   "ShopAdmin": {
     "apiTokens": {

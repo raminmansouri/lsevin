@@ -15,7 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import useAction from "@/hooks/use-action";
 import { Link, useRouter } from "@/i18n/navigation";
-import { saveNotificationChannelAction } from "@/features/notification/admin/actions";
+import { generatePushKeysAction, saveNotificationChannelAction } from "@/features/notification/admin/actions";
 import { SaveNotificationChannelSchema } from "@/features/notification/admin/actions/save-notification-channel/schema";
 import type { InputType } from "@/features/notification/admin/actions/save-notification-channel/types";
 import type { NotificationChannelConfig } from "@/features/notification/server/channel.repository";
@@ -57,6 +57,18 @@ export function NotificationChannelForm({ channel }: { channel: NotificationChan
     startTransition,
     onSuccess: () => {
       toast.success(t("toastSaved"));
+      router.refresh();
+    },
+    onError: (error) => {
+      toast.error(error?.detail || error?.title || t("toastError"));
+    },
+  });
+
+  const generateKeys = useAction(generatePushKeysAction, {
+    startTransition,
+    onSuccess: (data) => {
+      if (data?.publicKey) form.setValue("settings.vapidPublicKey", data.publicKey);
+      toast.success(t("pushKeysCreated"));
       router.refresh();
     },
     onError: (error) => {
@@ -171,6 +183,14 @@ export function NotificationChannelForm({ channel }: { channel: NotificationChan
                 <CardDescription>{t("pushCredentialsDescription")}</CardDescription>
               </CardHeader>
               <CardContent className="grid gap-6 md:grid-cols-2">
+                {!channel.settings.vapidPrivateKey ? (
+                  <div className="flex flex-wrap items-center gap-3 rounded-lg border border-dashed p-4 md:col-span-2" data-testid="push-generate-keys">
+                    <Button type="button" variant="outline" onClick={() => generateKeys.execute({ replace: false })} disabled={isPending}>
+                      {t("generatePushKeys")}
+                    </Button>
+                    <p className="text-muted-foreground text-sm">{t("generatePushKeysHint")}</p>
+                  </div>
+                ) : null}
                 <FormField control={form.control} name="settings.vapidPublicKey" render={({ field }) => (
                   <FormItem className="md:col-span-2"><FormLabel>{t("vapidPublicKeyLabel")}</FormLabel><FormControl><Input {...field} value={field.value || ""} dir="ltr" disabled={isPending} /></FormControl><FormMessage /></FormItem>
                 )} />

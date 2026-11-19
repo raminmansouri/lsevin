@@ -137,4 +137,48 @@ test.describe("stays search @regression", () => {
     expect(res2?.status()).toBe(404);
     await expect(page.getByTestId("stays-not-found")).toBeVisible();
   });
+
+  test("home: 'browse by type' comes first, as photo tiles with counts; empty types are 'coming soon', not dead links", async ({ page, context }, testInfo) => {
+    await seedWorld([{}]);
+    await skipIntro(context);
+    await page.goto("/fa/stays");
+    const types = page.getByTestId("stays-types");
+    await expect(types).toBeVisible();
+    // First section after the search, before recently viewed and the cities.
+    const order = await page.evaluate(() => {
+      const at = (id: string) => {
+        const el = document.querySelector(`[data-testid="${id}"]`);
+        return el ? el.getBoundingClientRect().top + window.scrollY : null;
+      };
+      return { types: at("stays-types"), recent: at("stays-recent"), cities: at("stays-home-cities") };
+    });
+    expect(order.types).not.toBeNull();
+    if (order.recent != null) expect(order.types!).toBeLessThan(order.recent);
+    expect(order.types!).toBeLessThan(order.cities!);
+
+    const tiles = types.locator("li > *");
+    await expect(tiles).toHaveCount(6);
+    const kinds: { kind: string; link: boolean }[] = [];
+    for (let i = 0; i < 6; i += 1) {
+      const tile = tiles.nth(i);
+      const img = tile.locator("img");
+      await expect(img).toHaveAttribute("alt", /\S/);
+      kinds.push({ kind: (await tile.getAttribute("data-testid"))!.replace("stays-type-", ""), link: (await tile.evaluate((el) => el.tagName)) === "A" });
+    }
+    // Types with stays come first; once a type is 'coming soon', every later one is too.
+    const firstSoon = kinds.findIndex((k) => !k.link);
+    if (firstSoon >= 0) expect(kinds.slice(firstSoon).every((k) => !k.link)).toBe(true);
+    expect(kinds[0].link).toBe(true);
+    for (const k of kinds.filter((x) => !x.link)) await expect(page.getByTestId(`stays-type-${k.kind}`)).toContainText("به‌زودی");
+    // The photos are real images that load (served resized through next/image), not icons.
+    await types.scrollIntoViewIfNeeded();
+    await expect.poll(() => tiles.first().locator("img").evaluate((i: HTMLImageElement) => i.complete && i.naturalWidth > 0)).toBe(true);
+    expect(await tiles.first().locator("img").getAttribute("src")).toContain("/_next/image");
+    await expect(page.getByTestId("stays-types-credits")).toContainText("CC");
+    expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(1);
+    await evidence(page, testInfo, "stays__home__types-first");
+    // A tile opens the explore page filtered by that type.
+    await tiles.first().click();
+    await expect(page).toHaveURL(new RegExp(`/fa/stays/explore\\?type=${kinds[0].kind}`));
+  });
 });

@@ -82,6 +82,13 @@ const SUITES = {
     // which the spec's navigation retries cover.
     warmup: [{ path: '/en/sign-in', signedIn: false }],
   },
+  // Blog: block editor, publishing, per-language public pages (migration 0120).
+  blog: {
+    unit: ['src/features/blog', 'src/components/editor'],
+    integration: ['src/features/blog/server/blog.int.test.ts'],
+    e2e: 'playwright.blog.config.ts',
+    warmup: [{ path: '/fa', signedIn: false }, { path: '/fa/blog', signedIn: false }],
+  },
   'site-chrome': {
     unit: [],
     integration: [],

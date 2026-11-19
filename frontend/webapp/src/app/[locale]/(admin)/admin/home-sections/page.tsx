@@ -4,6 +4,7 @@ import type { Metadata } from 'next';
 import { PageHeader } from '@/components/page/page-header';
 import { getAdminHomeSections } from '@/features/home-admin/api/server/get-home-sections-admin';
 import { HomeSectionsTable } from '@/features/home-admin/components/home-sections-table';
+import { Link } from '@/i18n/navigation';
 import type { PageProps } from '@/types/next';
 
 export const metadata: Metadata = {
@@ -19,7 +20,12 @@ export default async function AdminHomeSectionsPage({ params }: PageProps) {
 
   return (
     <div className="space-y-6">
-      <div><PageHeader title="Home sections" /><p className="mt-1 text-sm text-muted-foreground">{t("controlTheContentDisplayedOnTheMobileBooking")}</p></div>
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div><PageHeader title="Home sections" /><p className="mt-1 text-sm text-muted-foreground">{t("controlTheContentDisplayedOnTheMobileBooking")}</p></div>
+        <Link href="/admin/home-sections/hero" className="rounded-lg border px-4 py-2 text-sm font-semibold hover:bg-muted">
+          عکس‌های هیرو
+        </Link>
+      </div>
       <HomeSectionsTable sections={sections} />
     </div>
   );

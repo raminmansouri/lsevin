@@ -43,6 +43,7 @@ import { AmenityIcon } from "./amenity-icon";
 import { StayLocation } from "./location";
 import { ReviewsSection } from "./reviews";
 import { RoomsSection } from "./rooms";
+import { listSeparator } from "../../domain/locales";
 
 type ReviewStats = { histogram: number[]; recommendPercent: number | null };
 const SECTIONS = ["rooms", "amenities", "location", "policies", "reviews"] as const;
@@ -81,6 +82,7 @@ export function PropertyView({
   preview?: boolean;
 }) {
   const t = useTranslations("StayApp.detail");
+  const locale = useLocale();
   const tKinds = useTranslations("StayApp.kinds");
   const tSearch = useTranslations("StayApp.search");
   const router = useRouter();
@@ -153,7 +155,7 @@ export function PropertyView({
               <MapPin className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
               <span>
                 {property.city.name}
-                {property.address && property.location && !property.location.approximate ? `، ${property.address.value}` : ""}
+                {property.address && property.location && !property.location.approximate ? `${listSeparator(locale)}${property.address.value}` : ""}
               </span>
             </p>
             <Highlights property={property} />

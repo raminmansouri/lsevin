@@ -21,6 +21,7 @@ import {
   seedStay,
   seedStayCity,
   seedLegacyHotelProvider,
+  seedStayBooking,
   seedStayProvider,
   seedUser,
   type SeedStayOptions,
@@ -30,11 +31,12 @@ import {
 const URL_ = process.env.STAYS_TEST_DATABASE_URL;
 const suite = URL_ ? describe : describe.skip;
 
-const notifyMock = vi.hoisted(() => ({ fail: false, calls: 0 }));
+const notifyMock = vi.hoisted(() => ({ fail: false, calls: 0, inputs: [] as any[] }));
 vi.mock("@/app/[locale]/n/app/mobile/notifications/notification-service", async (importOriginal) => ({
   ...(await importOriginal<Record<string, unknown>>()),
-  createNotification: vi.fn(async () => {
+  createNotification: vi.fn(async (input: unknown) => {
     notifyMock.calls += 1;
+    notifyMock.inputs.push(input);
     if (notifyMock.fail) throw new Error("ECONNREFUSED notification service down");
     return "00000000-0000-0000-0000-000000000000";
   }),
@@ -509,8 +511,10 @@ suite("stays (real database)", () => {
       expect(bb.metadata).toMatchObject({ kind: "stay", checkIn: ci, checkOut: co, rooms: 2 });
       expect(await inventory(stay.roomTypeId, ci, co)).toMatchObject([{ sold: 2, held: 0 }, { sold: 2, held: 0 }]);
       const mine = await booking.getMyStayBooking(u.id, r.bookingId, "fa-IR");
-      // The address is withheld until the stay is confirmed.
-      expect(mine.address).toBeNull();
+      // A hotel's address is public (it is on the hotel page), so the booking shows it at once.
+      expect(mine.privateHome).toBe(false);
+      expect(mine.address).toContain("ارم");
+      expect(mine.location).not.toBeNull();
       expect(mine.childAges).toEqual([7]);
     });
 
@@ -654,6 +658,70 @@ suite("stays (real database)", () => {
       await booking.sweepStayDeadlines();
       const [bb] = await sql<any[]>`select status from stay.bookings where booking_id = ${b.bookingId}::uuid`;
       expect(bb.status).toBe("expired");
+    });
+  });
+
+  describe("languages", () => {
+    it("a language without its own text falls back to English, never to Persian (regression)", async () => {
+      const { stay } = await world();
+      const persianWifi = (await catalog.getPropertyDetail({ slug: stay.slug }, "fa-IR"))?.amenities.find((a) => a.code === "wifi")?.label;
+      for (const locale of ["de-DE", "tr-TR", "ru-RU", "zh-CN", "ku-KU", "tg-TJ"]) {
+        const p = await catalog.getPropertyDetail({ slug: stay.slug }, locale);
+        expect(p?.name?.value, locale).toBe(stay.name["en-US"]);
+        const amenity = p?.amenities.find((a) => a.code === "wifi");
+        // Kurdish is written in Arabic script: it must be Kurdish, not the Persian label.
+        if (locale === "ku-KU") expect(amenity?.label, locale).not.toBe(persianWifi);
+        else expect(amenity?.label, locale).not.toMatch(/[؀-ۿ]/);
+      }
+      expect((await catalog.getPropertyDetail({ slug: stay.slug }, "fa-IR"))?.name?.value).toBe(stay.name["fa-IR"]);
+    });
+
+    it("review room names follow the reader's language", async () => {
+      const { stay } = await world();
+      const u = await seedUser(sql as never);
+      const { bookingId } = await seedStayBooking(sql as never, stay, u.id, { checkIn: isoInDays(-6), checkOut: isoInDays(-4), status: "completed" });
+      await sql`insert into stay.reviews (booking_id, property_id, user_id, rating, status, locale) values (${bookingId}::uuid, ${stay.id}::uuid, ${u.id}::uuid, 5, 'published', 'fa-IR')`;
+      await sql`update stay.room_types set name = name || '{"de-DE":"Doppelzimmer"}'::jsonb where id = ${stay.roomTypeId}::uuid`;
+      const [r] = await catalog.listReviews(stay.id, { locale: "de-DE" });
+      expect(r.roomName).toBe("Doppelzimmer");
+    });
+  });
+
+  describe("booking page v4: address, notifications", () => {
+    it("a private home keeps its exact address and phone until the stay is confirmed (H09)", async () => {
+      const { stay } = await world({ approximate: true });
+      const u = await seedUser(sql as never);
+      const r = await book(stay, u.id, isoInDays(150), isoInDays(151));
+      const before = await booking.getMyStayBooking(u.id, r.bookingId, "fa-IR");
+      expect(before).toMatchObject({ status: "pending_payment", privateHome: true, address: null, location: null, contactPhone: null });
+      await sql`update stay.bookings set status = 'confirmed', confirmed_at = now() where booking_id = ${r.bookingId}::uuid`;
+      const after = await booking.getMyStayBooking(u.id, r.bookingId, "fa-IR");
+      expect(after.address).toContain("ارم");
+      expect(after.location).not.toBeNull();
+    });
+
+    it("an accepted request notifies in-app, push, email and SMS with a link to the booking", async () => {
+      const { stay, owner } = await world({ confirmationMode: "request" });
+      const u = await seedUser(sql as never);
+      const r = await book(stay, u.id, isoInDays(152), isoInDays(153));
+      expect(r.status).toBe("requested");
+      notifyMock.inputs.length = 0;
+      expect(await booking.decideStayRequest(adminActor(owner.id), r.bookingId, "accept")).toBe("pending_payment");
+      const accepted = notifyMock.inputs.find((i) => i?.data?.kind === "accepted" && i.entityId === r.bookingId);
+      expect(accepted).toBeTruthy();
+      expect(accepted.recipientUserId).toBe(u.id);
+      expect([...accepted.channels].sort()).toEqual(["email", "in_app", "push", "sms"]);
+      expect(accepted.emailTo).toBe(u.email);
+      expect(accepted.phoneTo).toMatch(/^09\d{9}$/);
+      const link = `/fa/stays/bookings/${r.bookingId}`;
+      expect(accepted.data.channelContent.sms.body).toContain(link);
+      expect(accepted.data.channelContent.email.body).toContain(link);
+      expect(accepted.data.channelContent.push.url).toContain(link);
+      expect(accepted.title).toBe("درخواست پذیرفته شد");
+      // Once per event: a second notify for the same booking and kind sends nothing.
+      const n = notifyMock.calls;
+      await booking.notifyStayEvent(r.bookingId, "accepted");
+      expect(notifyMock.calls).toBe(n);
     });
   });
 

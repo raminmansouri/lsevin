@@ -14,6 +14,7 @@ import { useToolbarContext } from "@/components/editor/context/toolbar-context";
 import { useUpdateToolbarHandler } from "@/components/editor/editor-hooks/use-update-toolbar";
 import { getSelectedNode } from "@/components/editor/utils/get-selected-node";
 import { sanitizeUrl } from "@/components/editor/utils/url";
+import { safeHref } from "@/lib/safe-href";
 import { Toggle } from "@/components/ui/toggle";
 
 export function LinkToolbarPlugin({
@@ -65,11 +66,12 @@ export function LinkToolbarPlugin({
 
   const insertLink = useCallback(() => {
     if (!isLink) {
-      setIsLinkEditMode(true);
-      activeEditor.dispatchCommand(
-        TOGGLE_LINK_COMMAND,
-        sanitizeUrl("https://")
-      );
+      // Ask for the address: inserting the bare "https://" placeholder produced useless links.
+      const answer = window.prompt("URL (https://…, /path, mailto:, tel:)", "https://");
+      const target = safeHref(answer ?? "");
+      if (!target) return;
+      setIsLinkEditMode(false);
+      activeEditor.dispatchCommand(TOGGLE_LINK_COMMAND, sanitizeUrl(target.href));
     } else {
       setIsLinkEditMode(false);
       activeEditor.dispatchCommand(TOGGLE_LINK_COMMAND, null);

@@ -67,6 +67,7 @@ frontend/webapp/.pwa-auth*.json
 !frontend/webapp/AGENTS.md
 !frontend/webapp/CLAUDE.md
 !frontend/webapp/src/lib/admin/access/README.md
+!docs/blog-cms/BLOG-SUBSYSTEM-DESIGN.md
 !deployments/docker/DEV.md
 !deployments/DUAL-SITE-ARCHITECTURE.md
 !deployments/symmetricds/README.md

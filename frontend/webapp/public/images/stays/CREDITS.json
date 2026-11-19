@@ -26,5 +26,47 @@
     "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
     "source": "https://commons.wikimedia.org/wiki/File:One_of_the_iwan_ceilings_of_Fatima_Masumeh_Shrine_in_atabki_sahn,_Qom,_Iran.jpg",
     "modified": "Cropped to 16:10, resized and converted to WebP"
+  },
+  "type-hotel": {
+    "author": "A.Davey",
+    "license": "CC BY 2.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Hotel_Gardens,_Abbasi_Hotel,_Esfahan,_Iran-4945470747.jpg",
+    "modified": "Cropped to 4:3, resized to 800x600 and converted to WebP"
+  },
+  "type-traditional": {
+    "author": "s1ingshot from Berlin, Germany",
+    "license": "CC BY 2.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Traditional_hotel_Yazd.jpg",
+    "modified": "Cropped to 4:3, resized to 800x600 and converted to WebP"
+  },
+  "type-hotel-apartment": {
+    "author": "Paikan06",
+    "license": "CC0",
+    "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "source": "https://commons.wikimedia.org/wiki/File:Apartment_hotel_Nice.jpg",
+    "modified": "Cropped to 4:3, resized to 800x600 and converted to WebP"
+  },
+  "type-villa": {
+    "author": "Arc.Hossein Mahmoudi",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Maneli_Villa.jpg",
+    "modified": "Cropped to 4:3 from the 444 px Commons thumbnail and converted to WebP"
+  },
+  "type-cottage": {
+    "author": "Nahid V from Göteborg, Sweden",
+    "license": "CC BY 2.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+    "source": "https://commons.wikimedia.org/wiki/File:A_Cottage_in_Ramsar_(14364271432).jpg",
+    "modified": "Cropped to 4:3, resized to 800x600 and converted to WebP"
+  },
+  "type-ecolodge": {
+    "author": "Mgparsa",
+    "license": "CC BY 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:اقامتگاه_بومگردی_ترلان_روستای_ترخین‌آباد_اسدآباد_استان_همدان.jpg",
+    "modified": "Cropped to 4:3, resized to 800x600 and converted to WebP"
   }
 }

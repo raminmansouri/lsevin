@@ -111,6 +111,8 @@ export const SEGMENT_NAMESPACES = {
     "Admin",
     // admin → Editorial: page/FAQ forms and the delete button are client components.
     "AdminEditorial",
+    // admin → Content → Blog: the block editor is a client component.
+    "AdminBlog",
     // admin → Content → Enamad (per-domain trust seals).
     "AdminEnamad",
     // admin → Platform → Access control (roles, permission matrix, members).

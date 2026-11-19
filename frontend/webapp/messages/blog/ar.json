@@ -1,0 +1,26 @@
+{
+  "Blog": {
+    "home": "الرئيسية",
+    "blog": "المدونة",
+    "blogDescription": "مقالات وأدلة وإجابات من إل سوين.",
+    "categories": "التصنيفات",
+    "allCategories": "الكل",
+    "readMore": "اقرأ",
+    "minRead": "{count} دقيقة قراءة",
+    "updated": "آخر تحديث",
+    "by": "بقلم {name}",
+    "reviewedBy": "مراجعة طبية: {name}",
+    "aboutAuthor": "عن الكاتب",
+    "noPosts": "لم تُنشر مقالات بهذه اللغة بعد.",
+    "previous": "السابق",
+    "next": "التالي",
+    "pagination": "الصفحات",
+    "pageOf": "الصفحة {page} من {pages}",
+    "tocTitle": "في هذا المقال",
+    "faqTitle": "الأسئلة الشائعة",
+    "relatedTitle": "مزيد من القراءة",
+    "video": "فيديو",
+    "fallbackNotice": "هذا المقال غير متوفر بلغتك بعد، وتقرأ نسخة بلغة أخرى.",
+    "previewBanner": "معاينة للمسودة المحفوظة. هذه الصفحة غير عامة."
+  }
+}

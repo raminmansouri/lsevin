@@ -19,12 +19,12 @@ const TourMap = dynamic(() => import("@/features/tours/ui/shared/tour-map").then
   loading: () => <div className="h-72 animate-pulse rounded-2xl bg-slate-100" />,
 });
 
-/** One static picture instead of a live map: no map script, fonts or tiles until asked for. */
+/** One static picture instead of a live map: no map script, fonts or tiles until asked for (400×200 @2x ≈ 90 KB). */
 function staticMapUrl(lat: number, lng: number, approximate: boolean): string | null {
   if (!MAPBOX_TOKEN) return null;
   const style = MAPBOX_STYLE.replace(/^mapbox:\/\/styles\//, "");
   const overlay = approximate ? "" : `pin-l+047857(${lng.toFixed(5)},${lat.toFixed(5)})/`;
-  return `https://api.mapbox.com/styles/v1/${style}/static/${overlay}${lng.toFixed(5)},${lat.toFixed(5)},${approximate ? 13 : 15},0/640x320@2x?access_token=${MAPBOX_TOKEN}&language=fa&logo=false`;
+  return `https://api.mapbox.com/styles/v1/${style}/static/${overlay}${lng.toFixed(5)},${lat.toFixed(5)},${approximate ? 13 : 15},0/400x200@2x?access_token=${MAPBOX_TOKEN}&language=fa&logo=false`;
 }
 
 export function directionsLinks(lat: number, lng: number) {

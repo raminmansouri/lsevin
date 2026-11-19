@@ -1,10 +1,11 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { z } from "zod";
 
 import { requireAdmin } from "@/features/tours/server/platform/access";
 
+import { STAYS_CATALOG_TAG } from "../cache";
 import { cancelStayByAdmin, decideStayRequest } from "../booking";
 import {
   type CityInput,
@@ -67,6 +68,7 @@ function parse<T>(schema: z.ZodType<T>, input: unknown): T {
 }
 
 function touchCustomerPages() {
+  revalidateTag(STAYS_CATALOG_TAG);
   revalidatePath("/[locale]/stays", "layout");
   revalidatePath("/sitemap.xml");
 }

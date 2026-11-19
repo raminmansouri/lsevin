@@ -4,7 +4,8 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { contentLocaleFor } from "@/features/tours/domain/content";
 import { currentActor, ownerKey } from "@/features/tours/server/platform/access";
 import { DEFAULT_SEARCH } from "@/features/stays/domain/search";
-import { listCities, listRecentViews, searchProperties, wishlistIds } from "@/features/stays/server/catalog";
+import { listRecentViews, wishlistIds } from "@/features/stays/server/catalog";
+import { cachedCities, cachedKindCounts, catalogSearch } from "@/features/stays/server/cache";
 import { STAY_INDEXABLE_LOCALES } from "@/features/stays/server/seo";
 import { isStaysIntroCompleted } from "@/features/stays/server/state";
 import { StaysHome } from "@/features/stays/ui/home/stays-home";
@@ -31,11 +32,12 @@ export default async function StaysHomePage({ params }: { params: Promise<{ loca
   }
   const content = contentLocaleFor(locale);
   const owner = await ownerKey(actor);
-  const [cities, featured, recent, saved] = await Promise.all([
-    listCities(content),
-    searchProperties({ ...DEFAULT_SEARCH, adults: 1 }, content, { pageSize: 8 }),
+  const [cities, featured, recent, saved, kinds] = await Promise.all([
+    cachedCities(content),
+    catalogSearch({ ...DEFAULT_SEARCH, adults: 1 }, content, { pageSize: 8 }),
     owner ? listRecentViews(owner, content, 10) : Promise.resolve([]),
     actor.userId ? wishlistIds(actor.userId) : Promise.resolve([] as string[]),
+    cachedKindCounts().catch(() => ({}) as Record<string, number>),
   ]);
   return (
     <>
@@ -45,6 +47,7 @@ export default async function StaysHomePage({ params }: { params: Promise<{ loca
         featured={featured.items}
         recent={recent}
         savedIds={saved}
+        kindCounts={kinds}
       />
       <PageFaq target={{ scope: "app", entityKey: "stays" }} locale={locale} />
     </>

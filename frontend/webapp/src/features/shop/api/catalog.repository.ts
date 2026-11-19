@@ -141,7 +141,14 @@ export async function getShopBrands(
     ${
       categorySlug
         ? sql`join shop.product_categories pc on pc.product_id = p.id
-               join shop.categories c on c.id = pc.category_id and c.slug = ${categorySlug}`
+               and pc.category_id in (
+                 with recursive tree as (
+                   select id from shop.categories where slug = ${categorySlug} and deleted_at is null
+                   union all
+                   select c.id from shop.categories c join tree on c.parent_id = tree.id where c.deleted_at is null
+                 )
+                 select id from tree
+               )`
         : sql``
     }
     where b.deleted_at is null and b.is_active = true
@@ -166,7 +173,14 @@ export async function searchProducts(
 
   const conditions = [sql`p.deleted_at is null`, sql`p.status = 'active'`];
   if (filters.category)
-    conditions.push(sql`exists (select 1 from shop.product_categories pc join shop.categories c on c.id = pc.category_id where pc.product_id = p.id and c.slug = ${filters.category})`);
+    conditions.push(sql`exists (
+      with recursive tree as (
+        select id from shop.categories where slug = ${filters.category} and deleted_at is null
+        union all
+        select c.id from shop.categories c join tree on c.parent_id = tree.id where c.deleted_at is null
+      )
+      select 1 from shop.product_categories pc where pc.product_id = p.id and pc.category_id in (select id from tree)
+    )`);
   if (filters.brand)
     conditions.push(sql`exists (select 1 from shop.brands b where b.id = p.brand_id and b.slug = ${filters.brand})`);
   if (filters.featuredOnly) conditions.push(sql`p.is_featured = true`);

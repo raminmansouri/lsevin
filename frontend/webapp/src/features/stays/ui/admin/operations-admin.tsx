@@ -13,6 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { LocalizedTextInput, MediaUrlInput, formatPrice, useAdminDates } from "@/features/tours/ui/admin/inputs";
 import { Field, NativeSelect, ReasonAction, SaveBar, Section, StatusBadge, useUnsavedChanges } from "@/features/tours/ui/admin/primitives";
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
+import { intlLocale } from "@/features/tours/ui/shared/format";
 
 import {
   adminCancelBookingAction,
@@ -27,15 +28,18 @@ import {
 import type { StaySettings } from "../../server/settings";
 
 import { FieldError, STAYS_ADMIN_BASE, useStayAdminAction } from "./shared";
+import { STAY_CONTENT_LOCALES } from "../../domain/locales";
+import { listSeparator } from "../../domain/locales";
 
-const LOCALES = ["fa-IR", "en-US", "ar-SA"] as const;
+// Every platform language; Persian (the source) first.
+const LOCALES = STAY_CONTENT_LOCALES;
 
 // Dashboard ---------------------------------------------------------------------------
 
 export function StaysDashboard({ counts }: { counts: Record<string, number> }) {
   const t = useTranslations("StayAdmin.dashboard");
   const locale = useLocale();
-  const n = new Intl.NumberFormat(locale);
+  const n = new Intl.NumberFormat(intlLocale(locale));
   const cards: { key: string; href?: string }[] = [
     { key: "requests", href: `${STAYS_ADMIN_BASE}/bookings?status=requested` },
     { key: "unpaid", href: `${STAYS_ADMIN_BASE}/bookings?status=pending_payment` },
@@ -430,7 +434,7 @@ export function BookingAdminDetail({ booking: initial }: { booking: AdminBooking
             </dd>
             <dt className="text-muted-foreground">{t("guests")}</dt>
             <dd>
-              {b.adults} + {b.childAges.length} ({b.childAges.join("، ") || "—"}) · {b.rooms}
+              {b.adults} + {b.childAges.length} ({b.childAges.join(listSeparator(locale)) || "—"}) · {b.rooms}
             </dd>
             <dt className="text-muted-foreground">{t("created")}</dt>
             <dd>{dates.instant(b.createdAt)}</dd>

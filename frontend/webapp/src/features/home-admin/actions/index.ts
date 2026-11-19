@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache';
 
 import sql from '@/config/database/db';
+import { adminMay, getAdminContext } from '@/lib/auth/admin-guard';
 
 import { HomeSectionFormSchema, type HomeSectionFormInput } from './schema';
 
@@ -11,6 +12,8 @@ function translations(value: HomeSectionFormInput['title']) {
 }
 
 export async function upsertHomeSectionAction(input: HomeSectionFormInput) {
+  const adminCtx = await getAdminContext();
+  if (!adminMay(adminCtx, 'editorial')) throw new Error('Forbidden');
   const data = HomeSectionFormSchema.parse(input);
   const metadata = JSON.parse(data.metadata || '{}') as Record<string, unknown>;
 
@@ -41,7 +44,7 @@ export async function upsertHomeSectionAction(input: HomeSectionFormInput) {
       ${data.iconName || null},
       ${data.displayOrder},
       ${data.isActive},
-      ${sql.json(metadata)}::jsonb
+      ${sql.json(metadata as never)}::jsonb
     )
     on conflict (section_key) do update set
       badge_translations = excluded.badge_translations,

@@ -6,7 +6,8 @@ import { contentLocaleFor, directionOf } from "@/features/tours/domain/content";
 import { currentActor } from "@/features/tours/server/platform/access";
 import { LocalizedText } from "@/features/tours/ui/shared/localized-text";
 import { parseStaySearch } from "@/features/stays/domain/search";
-import { exploreSuggestions, getCity, listAmenities, listCities, listLandmarks, searchProperties, wishlistIds } from "@/features/stays/server/catalog";
+import { wishlistIds } from "@/features/stays/server/catalog";
+import { cachedAmenities, cachedCities, cachedCity, cachedLandmarks, catalogSearch, catalogSuggestions } from "@/features/stays/server/cache";
 import { logUnexpected } from "@/features/stays/server/errors";
 import { citySchema, STAY_INDEXABLE_LOCALES } from "@/features/stays/server/seo";
 import { StayImage } from "@/features/stays/ui/common";
@@ -23,7 +24,7 @@ type Props = {
 
 export async function generateMetadata({ params, searchParams }: Props): Promise<Metadata> {
   const { locale, slug } = await params;
-  const city = await getCity(slug, contentLocaleFor(locale)).catch(() => null);
+  const city = await cachedCity(slug, contentLocaleFor(locale)).catch(() => null);
   if (!city) return { robots: { index: false, follow: true } };
   const t = await getTranslations({ locale, namespace: "StayApp.meta" });
   const meta = await buildPublicMetadata({
@@ -44,24 +45,24 @@ export default async function StaysCityPage({ params, searchParams }: Props) {
   const { locale, slug } = await params;
   setRequestLocale(locale);
   const content = contentLocaleFor(locale);
-  const city = await getCity(slug, content);
+  const city = await cachedCity(slug, content);
   if (!city) notFound();
   const search = { ...parseStaySearch(await searchParams), city: slug };
   const t = await getTranslations({ locale, namespace: "StayApp" });
   const actor = await currentActor();
   const [cities, amenities, saved, result, landmarks] = await Promise.all([
-    listCities(content).catch(() => []),
-    listAmenities(content).catch(() => []),
+    cachedCities(content).catch(() => []),
+    cachedAmenities(content).catch(() => []),
     actor.userId ? wishlistIds(actor.userId).catch(() => [] as string[]) : Promise.resolve([] as string[]),
-    searchProperties(search, content).catch((e) => {
+    catalogSearch(search, content).catch((e) => {
       logUnexpected("stays.city", e);
       return null;
     }),
-    listLandmarks(slug, content).catch(() => []),
+    cachedLandmarks(slug, content).catch(() => []),
   ]);
   const suggestions =
     result && result.total === 0
-      ? await exploreSuggestions(search, content).catch((e) => {
+      ? await catalogSuggestions(search, content).catch((e) => {
           logUnexpected("stays.city.suggestions", e);
           return null;
         })

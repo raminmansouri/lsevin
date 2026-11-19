@@ -13912,7 +13912,9 @@ declare const messages: {
       "productsLabel": "PRODUCTS",
       "warrantyTitle": "Seller's guarantee"
     },
-    "sellers": "{count} sellers"
+    "sellers": "{count} sellers",
+    "subcategories": "Sous-catégories",
+    "subcategoriesAll": "Tout"
   },
   "ShopMedia": {
     "hint": "La première image est l’image principale. Enregistrez pour appliquer les modifications.",

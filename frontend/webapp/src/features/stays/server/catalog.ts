@@ -25,6 +25,7 @@ import type {
   Text,
 } from "../types";
 
+import { STAY_CONTENT_FALLBACKS } from "../domain/locales";
 import { getStaySettings } from "./settings";
 
 /**
@@ -35,7 +36,7 @@ import { getStaySettings } from "./settings";
  */
 
 type Tr = Record<string, string> | null;
-const FALLBACKS = ["fa-IR", "en-US"];
+const FALLBACKS = STAY_CONTENT_FALLBACKS;
 
 export function pick(tr: unknown, locale: string): Text {
   return pickTranslation((tr ?? null) as Tr, locale, FALLBACKS);
@@ -711,7 +712,7 @@ export async function getRoomOffers(
 
 // Reviews --------------------------------------------------------------------
 
-export async function listReviews(propertyId: string, opts: { limit?: number; offset?: number; roomTypeId?: string | null } = {}): Promise<ReviewItem[]> {
+export async function listReviews(propertyId: string, opts: { limit?: number; offset?: number; roomTypeId?: string | null; locale?: string } = {}): Promise<ReviewItem[]> {
   const rows = await db<any[]>`
     select r.id::text, r.rating, r.cleanliness, r.location, r.staff, r.value, r.body, r.locale, r.author_name, r.created_at, r.provider_reply,
            to_char(b.check_in, 'YYYY-MM') as stay_month, b.nights, b.room_type_id::text as room_type_id, rt.name as room_name
@@ -735,7 +736,7 @@ export async function listReviews(propertyId: string, opts: { limit?: number; of
     stayMonth: r.stay_month,
     nights: r.nights == null ? null : Number(r.nights),
     roomTypeId: r.room_type_id,
-    roomName: r.room_name ? pickStr(r.room_name, "fa-IR") : null,
+    roomName: r.room_name ? pickStr(r.room_name, opts.locale ?? "fa-IR") : null,
   }));
 }
 
@@ -784,6 +785,16 @@ export async function getPriceCalendar(
     locked = new Set(l.map((x) => x.d));
   }
   return { currency: rows[0].currency, days: rows.map((r) => ({ date: r.date, price: r.price == null || locked.has(r.date) ? null : Number(r.price) })) };
+}
+
+/** Published stays per property type (home page "browse by type"). */
+export async function kindCounts(): Promise<Record<string, number>> {
+  const rows = await db<{ kind: string; n: number }[]>`
+    select p.kind, count(*)::int as n
+      from stay.properties p join stay.cities c on c.id = p.city_id
+     where p.status = 'published' and c.is_published
+     group by p.kind`;
+  return Object.fromEntries(rows.map((r) => [r.kind, r.n]));
 }
 
 /** Other published stays of the same city, nearest first (or most popular without coordinates). */

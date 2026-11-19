@@ -216,6 +216,8 @@ export type MyStayBooking = {
   checkInTime: string;
   checkOutTime: string;
   timezone: string;
+  /** Approximate-location home: exact address and phone only once confirmed. */
+  privateHome: boolean;
   address: string | null;
   location: { latitude: number; longitude: number } | null;
   contactPhone: string | null;

@@ -6299,7 +6299,9 @@ declare const messages: {
     "categoryMetaDescription": "{name} kategorisindeki {count} ürüne göz atın.",
     "serviceRelatedProductsTitle": "İlgili ürünler",
     "bookingRelatedProductsTitle": "{service} ile ilgili ürünler",
-    "bookingRelatedProductsSubtitle": "Bu hizmet için önerilen ürünler"
+    "bookingRelatedProductsSubtitle": "Bu hizmet için önerilen ürünler",
+    "subcategories": "Alt kategoriler",
+    "subcategoriesAll": "Tümü"
   },
   "Categories": {
     "actions": {

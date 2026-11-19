@@ -14,7 +14,13 @@ export function intlLocale(locale: string): string {
   const base = String(locale || "en").toLowerCase().split("-")[0];
   if (base === "fa") return "fa-IR";
   if (base === "ar") return "ar-SA";
-  if (base === "ku") return "ckb-IQ";
+  // Sorani Kurdish and Tajik have no number/date data in many browsers (Chromium's reduced ICU,
+  // Android WebView) while Node has it, so "ckb"/"tg" formatted differently on the server and in
+  // the browser (hydration error #418, mixed digits). Use the closest locale every runtime has:
+  // Iraqi Arabic (Arabic-Indic digits, the month names used in Iraqi Kurdistan) and Russian
+  // (Tajik's digit grouping and Cyrillic month names).
+  if (base === "ku") return "ar-IQ";
+  if (base === "tg") return "ru-RU";
   return locale || "en";
 }
 

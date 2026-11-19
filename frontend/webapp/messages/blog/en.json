@@ -1,0 +1,316 @@
+{
+  "Blog": {
+    "home": "Home",
+    "blog": "Blog",
+    "blogDescription": "Articles, guides and answers from LSevin.",
+    "categories": "Categories",
+    "allCategories": "All",
+    "readMore": "Read",
+    "minRead": "{count} min read",
+    "updated": "Updated",
+    "by": "By {name}",
+    "reviewedBy": "Medically reviewed by {name}",
+    "aboutAuthor": "About the author",
+    "noPosts": "No articles have been published in this language yet.",
+    "previous": "Previous",
+    "next": "Next",
+    "pagination": "Pages",
+    "pageOf": "Page {page} of {pages}",
+    "tocTitle": "In this article",
+    "faqTitle": "Frequently asked questions",
+    "relatedTitle": "More to read",
+    "video": "Video",
+    "fallbackNotice": "This article is not available in your language yet. You are reading another language version.",
+    "previewBanner": "Preview of the saved draft. This page is not public."
+  },
+  "AdminBlog": {
+    "title": "Blog",
+    "intro": "Write articles from blocks: headings, text, images, videos and FAQs, in each language.",
+    "back": "All posts",
+    "newPost": "New post",
+    "create": "Create post",
+    "creating": "Creating…",
+    "cancel": "Cancel",
+    "save": "Save",
+    "saving": "Saving…",
+    "publish": "Publish",
+    "publishing": "Publishing…",
+    "update": "Update",
+    "unpublish": "Unpublish",
+    "preview": "Preview",
+    "viewPublic": "View",
+    "postTitle": "Title",
+    "postTitlePlaceholder": "Article title",
+    "excerpt": "Excerpt",
+    "excerptHint": "One or two sentences shown in lists and search results.",
+    "content": "Content",
+    "languages": "Languages",
+    "firstLanguage": "First language",
+    "sidePanel": "Post settings",
+    "search": "Search",
+    "filters": "Filters",
+    "statusFilter": "Status",
+    "all": "All",
+    "filter": "Filter",
+    "actions": "Actions",
+    "updated": "Updated",
+    "edit": "Edit",
+    "remove": "Remove",
+    "emptyList": "No posts yet. Create the first one.",
+    "unsaved": "Unsaved changes",
+    "allSaved": "All changes saved",
+    "autosaved": "Autosaved {time}",
+    "recoverBanner": "An unsaved copy from {time} was recovered.",
+    "recoverRestore": "Restore it",
+    "recoverDiscard": "Discard",
+    "newLanguage": "{language} has no content yet.",
+    "copyFrom": "Start from the structure of:",
+    "emptyBlocks": "This post has no blocks yet. Use the + button to add one.",
+    "addBlock": "Add block",
+    "searchBlocks": "Search blocks",
+    "moveUp": "Move up",
+    "moveDown": "Move down",
+    "duplicate": "Duplicate",
+    "drag": "Drag to reorder",
+    "deletePost": "Delete {title}",
+    "confirmDeletePost": "Delete “{title}” in every language? This cannot be undone.",
+    "deleteLanguage": "Delete the {language} version",
+    "confirmDeleteLanguage": "Delete the {language} version of this post?",
+    "confirmDeleteCategory": "Delete the category “{name}”? Posts stay but lose this category.",
+    "confirmDeleteAuthor": "Remove the author “{name}”?",
+    "status": {
+      "draft": "Draft",
+      "published": "Published",
+      "archived": "Archived",
+      "scheduled": "Scheduled",
+      "new": "Not saved yet"
+    },
+    "toast": {
+      "created": "Post created.",
+      "saved": "Saved.",
+      "published": "Published.",
+      "unpublished": "Unpublished.",
+      "deleted": "Deleted.",
+      "languageDeleted": "Language deleted.",
+      "failed": "Something went wrong. Please try again.",
+      "notReady": "The post is not ready to publish. See the Readiness tab.",
+      "revisionLoaded": "Revision loaded. Save to keep it."
+    },
+    "side": {
+      "settings": "Settings",
+      "seo": "SEO",
+      "readiness": "Readiness",
+      "history": "History"
+    },
+    "settings": {
+      "slug": "URL name",
+      "slugHint": "Lowercase letters, numbers and hyphens. Same in every language.",
+      "category": "Category",
+      "none": "None",
+      "author": "Author",
+      "medical": "Health advice (needs a reviewer)",
+      "reviewer": "Medical reviewer",
+      "lastReviewed": "Last reviewed",
+      "featured": "Featured post",
+      "featuredImage": "Featured image",
+      "publishDate": "Publish date",
+      "publishDateHint": "Leave empty to publish now. A future date schedules the post."
+    },
+    "seo": {
+      "title": "SEO title",
+      "titleHint": "Shown in search results. Defaults to the title.",
+      "description": "Meta description",
+      "descriptionHint": "{count}/170 characters recommended",
+      "ogImage": "Social image"
+    },
+    "readiness": {
+      "ok": "Ready to publish.",
+      "goToBlock": "Go to block",
+      "severity": {
+        "error": "Must fix",
+        "warning": "Advice"
+      },
+      "codes": {
+        "slug-invalid": "The URL name is not valid.",
+        "title-missing": "Add a title.",
+        "body-empty": "Add some content.",
+        "heading-empty": "A heading is empty.",
+        "richtext-empty": "A text block is empty.",
+        "image-missing-file": "An image block has no file.",
+        "image-missing-alt": "An image needs alt text (or mark it decorative).",
+        "link-invalid": "A link is not valid.",
+        "gallery-empty": "A gallery has no images.",
+        "video-missing-file": "A video block has no file.",
+        "video-missing-poster": "A video from the library needs a poster image.",
+        "video-missing-embed": "A video block needs a valid YouTube, Aparat or Vimeo link.",
+        "video-missing-title": "Give the video a title.",
+        "faq-empty": "An FAQ block has no complete question and answer.",
+        "faq-incomplete-item": "Some FAQ items are incomplete and will not be shown.",
+        "callout-empty": "A callout is empty.",
+        "cta-missing-label": "A button needs a label.",
+        "cta-missing-link": "A button needs a link.",
+        "quote-empty": "A quote is empty.",
+        "no-heading": "Add at least one heading to structure the article.",
+        "no-featured-image": "Add a featured image.",
+        "no-excerpt": "Add an excerpt.",
+        "seo-description-too-long": "The meta description is longer than 170 characters.",
+        "no-seo-description": "Add an excerpt or meta description.",
+        "medical-without-reviewer": "Health advice should name a medical reviewer."
+      }
+    },
+    "history": {
+      "loading": "Loading…",
+      "empty": "No saved versions yet.",
+      "load": "Load",
+      "kind": {
+        "autosave": "Autosave",
+        "save": "Saved",
+        "publish": "Published"
+      }
+    },
+    "blocks": {
+      "heading": "Heading",
+      "richtext": "Text",
+      "image": "Image",
+      "gallery": "Gallery",
+      "video": "Video",
+      "faq": "FAQ",
+      "callout": "Callout",
+      "cta": "Button",
+      "quote": "Quote",
+      "divider": "Divider",
+      "toc": "Table of contents"
+    },
+    "heading": {
+      "level": "Level",
+      "text": "Heading text"
+    },
+    "image": {
+      "file": "Image",
+      "alt": "Alt text",
+      "altHint": "Describe the image for people who cannot see it.",
+      "decorativeHint": "Decorative images have no alt text.",
+      "decorative": "Decorative image",
+      "caption": "Caption",
+      "size": "Width",
+      "align": "Alignment",
+      "link": "Link",
+      "linkHint": "Optional: https://…, /path",
+      "sizes": {
+        "content": "Content",
+        "wide": "Wide",
+        "full": "Full width"
+      },
+      "aligns": {
+        "start": "Start",
+        "center": "Center",
+        "end": "End"
+      }
+    },
+    "gallery": {
+      "add": "Add images",
+      "columns": "Columns"
+    },
+    "video": {
+      "source": "Source",
+      "sources": {
+        "embed": "YouTube / Aparat / Vimeo",
+        "library": "Media library"
+      },
+      "provider": "Provider",
+      "providers": {
+        "youtube": "YouTube",
+        "aparat": "Aparat",
+        "vimeo": "Vimeo"
+      },
+      "url": "Video link",
+      "urlHint": "Paste the video page link.",
+      "urlInvalid": "This is not a supported video link.",
+      "file": "Video file",
+      "poster": "Poster image",
+      "title": "Title",
+      "caption": "Caption"
+    },
+    "faq": {
+      "title": "Section title",
+      "titleHint": "Optional. Defaults to “Frequently asked questions”.",
+      "question": "Question",
+      "answer": "Answer",
+      "addItem": "Add question"
+    },
+    "callout": {
+      "tone": "Type",
+      "tones": {
+        "info": "Info",
+        "tip": "Tip",
+        "warning": "Warning",
+        "medical": "Medical note"
+      },
+      "title": "Title"
+    },
+    "cta": {
+      "label": "Button text",
+      "link": "Link",
+      "linkHint": "https://…, /consulting, mailto: or tel:",
+      "style": "Style",
+      "styles": {
+        "primary": "Primary",
+        "secondary": "Secondary"
+      }
+    },
+    "quote": {
+      "text": "Quote",
+      "cite": "Source"
+    },
+    "toc": {
+      "title": "Title",
+      "hint": "Built from the headings of this article."
+    },
+    "divider": {
+      "hint": "A horizontal line between sections."
+    },
+    "errors": {
+      "link": "Use https://…, a path like /consulting, mailto: or tel:."
+    },
+    "media": {
+      "none": "No file chosen",
+      "choose": "Choose",
+      "change": "Change",
+      "remove": "Remove file"
+    },
+    "rich": {
+      "bold": "Bold",
+      "italic": "Italic",
+      "underline": "Underline",
+      "strikethrough": "Strikethrough",
+      "bulletList": "Bulleted list",
+      "numberedList": "Numbered list",
+      "quote": "Quote",
+      "link": "Link",
+      "removeLink": "Remove link",
+      "undo": "Undo",
+      "redo": "Redo",
+      "linkUrl": "Link address",
+      "linkApply": "Apply",
+      "linkCancel": "Cancel",
+      "linkInvalid": "Enter an https:// link, a /path, mailto: or tel:.",
+      "placeholder": "Write here…",
+      "editorLabel": "Text editor"
+    },
+    "taxonomy": {
+      "categories": "Categories",
+      "authors": "Authors",
+      "addCategory": "Add category",
+      "addAuthor": "Add author",
+      "name": "Name",
+      "authorName": "Name",
+      "credentials": "Credentials",
+      "bio": "Bio",
+      "avatar": "Photo",
+      "medicalReviewer": "Can review medical content",
+      "reviewerBadge": "Reviewer",
+      "noCategories": "No categories yet.",
+      "noAuthors": "No authors yet."
+    }
+  }
+}

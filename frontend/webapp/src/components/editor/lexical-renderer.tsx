@@ -1,6 +1,8 @@
 import React from "react";
 import { SerializedEditorState, SerializedLexicalNode } from "lexical";
 
+import { safeHref } from "@/lib/safe-href";
+
 // Helper function to check if Lexical content has actual text
 function hasTextContent(node: SerializedLexicalNode): boolean {
   if (!node) return false;
@@ -233,6 +235,29 @@ function renderNode(node: SerializedLexicalNode, key: number): React.ReactNode {
     }
 
     return <li key={key}>{children}</li>;
+  }
+
+  // Line break (Shift+Enter)
+  if (node.type === "linebreak") {
+    return <br key={key} />;
+  }
+
+  // Link: only safe URLs become anchors; anything else keeps its text without the link.
+  if (node.type === "link" || node.type === "autolink") {
+    const linkNode = node as unknown as { url?: string; children?: SerializedLexicalNode[] };
+    const children = linkNode.children?.map((child, idx) => renderNode(child, idx));
+    const target = safeHref(linkNode.url);
+    if (!target) return <React.Fragment key={key}>{children}</React.Fragment>;
+    return (
+      <a
+        key={key}
+        href={target.href}
+        {...(target.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+        className="text-blue-700 underline underline-offset-2 hover:no-underline"
+      >
+        {children}
+      </a>
+    );
   }
 
   return null;

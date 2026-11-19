@@ -60,4 +60,38 @@ describe("LexicalRenderer", () => {
       error.mockRestore();
     }
   });
+
+  // Regression (2026-11-18): the admin editor's link button did nothing and the public renderer
+  // dropped link nodes, so authored links never reached a page.
+  describe("links", () => {
+    const link = (url: string, label: string) => ({ type: "link", url, children: [text(label)] });
+
+    it("renders a safe external link with noopener", () => {
+      const html = render(editorState({ type: "paragraph", children: [link("https://example.com/a", "site")] }));
+      expect(html).toMatch(/<a [^>]*href="https:\/\/example\.com\/a"[^>]*>site<\/a>/);
+      expect(html).toContain('rel="noopener noreferrer"');
+      expect(html).toContain('target="_blank"');
+    });
+
+    it("renders a site-relative link without target", () => {
+      const html = render(editorState({ type: "paragraph", children: [link("/consulting", "book")] }));
+      expect(html).toMatch(/<a [^>]*href="\/consulting"[^>]*>book<\/a>/);
+      expect(html).not.toContain("target=");
+    });
+
+    it.each(["javascript:alert(1)", "JaVaScRiPt:alert(1)", "data:text/html,x", "//evil.example"])(
+      "keeps the text but drops an unsafe link: %s",
+      (url) => {
+        const html = render(editorState({ type: "paragraph", children: [link(url, "click me")] }));
+        expect(html).toContain("click me");
+        expect(html).not.toContain("<a ");
+        expect(html).not.toContain("href");
+      },
+    );
+
+    it("renders line breaks", () => {
+      const html = render(editorState({ type: "paragraph", children: [text("a"), { type: "linebreak" }, text("b")] }));
+      expect(html).toContain("a<br/>b");
+    });
+  });
 });

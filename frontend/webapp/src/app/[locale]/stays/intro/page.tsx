@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { contentLocaleFor } from "@/features/tours/domain/content";
-import { listCities } from "@/features/stays/server/catalog";
+import { cachedCities } from "@/features/stays/server/cache";
 import { STAY_INDEXABLE_LOCALES } from "@/features/stays/server/seo";
 import { StaysIntro } from "@/features/stays/ui/intro/intro-screen";
 import { PageFaq } from "@/features/site-content/components/faq-section";
@@ -34,7 +34,7 @@ export default async function StaysIntroPage({ params, searchParams }: { params:
   setRequestLocale(locale);
   const { next } = await searchParams;
   const safeNext = typeof next === "string" && /^\/stays(\/[A-Za-z0-9/_?=&%.,-]*)?$/.test(next) ? next : "/stays";
-  const cities = await listCities(contentLocaleFor(locale)).catch(() => []);
+  const cities = await cachedCities(contentLocaleFor(locale)).catch(() => []);
   const [stays, ti] = await Promise.all([
     getTranslations({ locale, namespace: "StayApp.nav" }).then((t) => t("stays")),
     getTranslations({ locale, namespace: "StayApp.intro" }),

@@ -6,7 +6,8 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { contentLocaleFor } from "@/features/tours/domain/content";
 import { currentActor } from "@/features/tours/server/platform/access";
 import { parseStaySearch } from "@/features/stays/domain/search";
-import { getPropertyDetail, getRoomOffers, listAmenities, listLandmarks, listReviews, reviewStats, similarStays, wishlistIds } from "@/features/stays/server/catalog";
+import { getRoomOffers, wishlistIds } from "@/features/stays/server/catalog";
+import { cachedPropertyDetail, cachedPropertyExtras } from "@/features/stays/server/cache";
 import { propertyLocales, propertySchema } from "@/features/stays/server/seo";
 import { PropertyView } from "@/features/stays/ui/detail/property-view";
 import { JsonLd } from "@/lib/seo/json-ld";
@@ -17,8 +18,8 @@ type Props = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
-/** One database read per request, shared by generateMetadata and the page. */
-const loadProperty = cache((slug: string, content: string) => getPropertyDetail({ slug }, content));
+/** Shared by generateMetadata and the page; the catalogue part is cached across visitors. */
+const loadProperty = cache((slug: string, content: string) => cachedPropertyDetail(slug, content));
 
 const GUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -58,15 +59,12 @@ export default async function StayPropertyPage({ params, searchParams }: Props) 
     getTranslations({ locale, namespace: "StayApp.nav" }),
     getTranslations({ locale, namespace: "LocaleLayout" }),
   ]);
-  const [offers, reviews, stats, saved, similar, landmarks, amenities] = await Promise.all([
+  const [offers, extras, saved] = await Promise.all([
     getRoomOffers(property.id, { checkIn: search.checkIn, checkOut: search.checkOut, occupancy }, content),
-    listReviews(property.id, { limit: 30 }),
-    reviewStats(property.id).catch(() => ({ histogram: [0, 0, 0, 0, 0], recommendPercent: null })),
+    cachedPropertyExtras({ id: property.id, city: property.city, location: property.location }, content),
     actor.userId ? wishlistIds(actor.userId).catch(() => [] as string[]) : Promise.resolve([] as string[]),
-    similarStays(property, content).catch(() => []),
-    listLandmarks(property.city.slug, content).catch(() => []),
-    listAmenities(content).catch(() => []),
   ]);
+  const { reviews, stats, similar, landmarks, amenities } = extras;
   return (
     <>
       <JsonLd data={propertySchema(property, locale, { stays: t("stays"), home: home("title"), amenities: property.amenities.map((a) => a.label) })} />
