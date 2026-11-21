@@ -166,11 +166,23 @@ test('@critical app-only URLs expose noindex,follow while public aliases stay in
     expect(response?.status()).toBe(200);
     await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', /noindex.*follow/);
   }
-  for (const path of ['/fa', '/fa/explore', '/fa/shop']) {
+  for (const path of ['/fa', '/fa/explore', '/fa/categories', '/fa/offers', '/fa/featured', '/fa/packages', '/fa/providers', '/fa/shop']) {
     const response = await page.goto(path);
     expect(response?.status()).toBe(200);
     const robots = await page.locator('meta[name="robots"]').getAttribute('content');
     expect(robots).not.toMatch(/noindex/);
+  }
+});
+
+test('@critical moved app URLs redirect while their public rewrites remain indexable', async ({ page, request }) => {
+  for (const section of ['explore', 'categories', 'offers', 'featured', 'packages', 'providers', 'shop']) {
+    const oldUrl = `/fa/n/app/mobile/${section}`;
+    const publicUrl = `/fa/${section}`;
+    const redirect = await request.get(oldUrl, { maxRedirects: 0 });
+    expect([301, 308]).toContain(redirect.status());
+    expect(new URL(redirect.headers().location, origin).pathname).toBe(publicUrl);
+    await page.goto(publicUrl);
+    expect((await page.locator('meta[name="robots"]').getAttribute('content')) || '').not.toContain('noindex');
   }
 });
 

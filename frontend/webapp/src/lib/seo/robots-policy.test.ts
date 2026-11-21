@@ -1,4 +1,4 @@
-import { readFileSync, existsSync } from "node:fs";
+import { readFileSync, existsSync, readdirSync } from "node:fs";
 import { resolve, dirname } from "node:path";
 import { describe, expect, it } from "vitest";
 
@@ -6,7 +6,6 @@ import { appOnlyMetadata, privateMetadata, searchMetadata } from "./robots-polic
 import { facetHeaders } from "./facet-headers";
 import { routing } from "@/i18n/routing";
 import robots from "@/app/robots";
-import { metadata as appMetadata } from "@/app/[locale]/n/app/layout";
 
 const app = resolve(process.cwd(), "src/app");
 // Resolve the actual server layout chain: this catches accidental broad noindex
@@ -28,6 +27,31 @@ function policies(route: string) {
 }
 
 describe("server robots boundaries", () => {
+  it("does not attach app-only noindex to the shared source tree of public rewrites", () => {
+    expect(existsSync(resolve(app, "[locale]/n/app/layout.tsx"))).toBe(false);
+  });
+
+  it("accounts for every app route without inheriting noindex into public pages", () => {
+    const root = resolve(app, "[locale]/n/app");
+    const pages: string[] = [];
+    function visit(directory: string) {
+      for (const entry of readdirSync(directory, { withFileTypes: true })) {
+        const path = resolve(directory, entry.name);
+        if (entry.isDirectory()) visit(path);
+        else if (entry.name === "page.tsx") pages.push(path);
+      }
+    }
+    visit(root);
+    for (const page of pages) {
+      const source = readFileSync(page, "utf8");
+      const route = page.slice(app.length + 1, -"/page.tsx".length).replaceAll("\\", "/");
+      const scoped = policies(route).length > 0;
+      const pageMetadata = /export (async function generateMetadata|const metadata)/.test(source);
+      const redirect = /redirectToPublicEntity|permanentRedirect\(/.test(source);
+      expect(scoped || pageMetadata || redirect, `Missing URL policy: ${route}`).toBe(true);
+    }
+  });
+
   it("lets crawlers read noindex on app-only URLs", () => {
     const rules = robots().rules;
     const disallow = (Array.isArray(rules) ? rules[0] : rules).disallow;
@@ -36,7 +60,6 @@ describe("server robots boundaries", () => {
     }
     const allow = (Array.isArray(rules) ? rules[0] : rules).allow;
     expect(allow).toContain("/*/n/app/");
-    expect(appMetadata.robots).toEqual({ index: false, follow: true });
   });
   // Product photos, og:image and Product.image go through /api/shop/img.
   it("lets crawlers fetch shop images while the rest of /api stays blocked", () => {
@@ -72,7 +95,7 @@ describe("server robots boundaries", () => {
     "[locale]/(admin)/admin", "[locale]/(auth)/sign-in", "[locale]/(auth)/sign-up",
     "[locale]/provider-panel", "[locale]/provider-portal", "[locale]/(main)/profile",
     "[locale]/n/app/admin", "(financial)/financial/sign-in", "(financial)/financial/(protected)",
-    ...["booking", "booking-v2", "bookings", "bug-reports", "care", "medical", "notifications", "profile/wallet", "support", "packages/[packageId]/checkout"].map(p => `[locale]/n/app/mobile/${p}`),
+    ...["assistant", "consultation", "consultation/sessions/[id]", "booking", "booking-v2", "bookings", "bug-reports", "care", "medical", "notifications", "profile/wallet", "support", "packages/[packageId]/checkout"].map(p => `[locale]/n/app/mobile/${p}`),
     ...["addresses", "cart", "checkout", "compare", "order", "orders", "wishlist"].map(p => `[locale]/n/app/mobile/shop/${p}`),
   ])("noindexes private route %s", (route) => {
     expect(policies(route)).toEqual([route.includes("/n/app/") ? "appOnlyMetadata" : "privateMetadata"]);
@@ -82,7 +105,7 @@ describe("server robots boundaries", () => {
     expect(policies(`[locale]/n/app/mobile/${route}`)).toEqual(["searchMetadata"]);
   });
 
-  it.each(["home", "provider/[id]", "service/[id]", "specialist/[id]", "shop", "shop/product/[slug]", "shop/category/[slug]", "categories", "explore"])("keeps public %s indexable", (route) => {
+  it.each(["home", "provider/[id]", "service/[id]", "specialist/[id]", "packages/[packageId]", "shop", "shop/seller/[slug]", "shop/product/[slug]", "shop/category/[slug]", "categories", "explore"])("keeps moved or public %s outside the app-only boundary", (route) => {
     expect(policies(`[locale]/n/app/mobile/${route}`)).toEqual([]);
   });
 
