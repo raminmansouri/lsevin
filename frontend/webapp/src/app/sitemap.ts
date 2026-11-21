@@ -111,6 +111,17 @@ const catalogEntries = unstable_cache(
       from shop.products p
       where p.deleted_at is null and p.status = 'active' and p.slug is not null and p.slug <> ''
       union all
+      select '/shop/seller/' || s.slug, null, true,
+             array_remove(array[s.logo_url], null)
+      from shop.sellers s
+      where s.deleted_at is null and s.is_active = true and s.shop_status = 'active'
+        and s.slug is not null and s.slug <> ''
+        and exists (
+          select 1 from shop.offers o join shop.products p on p.id = o.product_id
+          where o.seller_id = s.id and o.deleted_at is null and o.is_active
+            and o.admin_status = 'approved' and p.deleted_at is null and p.status = 'active'
+        )
+      union all
       select '/shop/' || c.slug, null, true, null::text[]
       from shop.categories c
       where c.deleted_at is null and c.is_active = true and c.slug is not null and c.slug <> ''
@@ -132,7 +143,7 @@ const catalogEntries = unstable_cache(
           : indexableLocalesFromKeys(row.keys),
     }));
   },
-  ["public-sitemap-catalog-v7"],
+  ["public-sitemap-catalog-v8"],
   { revalidate: 300, tags: ["sitemap-catalog"] }
 );
 

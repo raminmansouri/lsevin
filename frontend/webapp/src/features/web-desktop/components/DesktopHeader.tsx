@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { Link, usePathname } from "@/i18n/navigation";
+import { PrivateNavigationButton } from "@/components/navigation/private-navigation-button";
 
 import { Magnetic } from "./motion";
 
@@ -58,7 +59,7 @@ export function DesktopHeader({ actions }: { actions?: React.ReactNode }) {
 
   return (
     <div className="lsd hidden xl:block" style={{ background: "transparent" }}>
-      <header className="pointer-events-none fixed inset-x-0 top-0 z-50">
+      <header data-testid="desktop-primary-nav" className="pointer-events-none fixed inset-x-0 top-0 z-50">
         <div className="mx-auto max-w-[1480px] px-6 pt-4">
           <div
             data-scrolled={scrolled || !isHome ? "true" : "false"}
@@ -77,18 +78,17 @@ export function DesktopHeader({ actions }: { actions?: React.ReactNode }) {
               />
               {nav.map((item) => {
                 const active = pathname === item.href || (item.href !== HOME && pathname.startsWith(item.href));
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    aria-current={active ? "page" : undefined}
-                    onMouseEnter={(event) => moveTo(event.currentTarget)}
-                    className={`relative z-10 rounded-full px-5 py-2.5 text-[15px] transition-colors duration-300 ${
-                      active ? "font-semibold text-[#eacb7f]" : "text-[#dce7e2] hover:text-white"
-                    }`}
-                  >
-                    {item.label}
-                  </Link>
+                const props = {
+                  "aria-current": active ? ("page" as const) : undefined,
+                  onMouseEnter: (event: React.MouseEvent<HTMLElement>) => moveTo(event.currentTarget),
+                  className: `relative z-10 rounded-full px-5 py-2.5 text-[15px] transition-colors duration-300 ${
+                    active ? "font-semibold text-[#eacb7f]" : "text-[#dce7e2] hover:text-white"
+                  }`,
+                };
+                return item.href === "/n/app/mobile/bookings" ? (
+                  <PrivateNavigationButton key={item.href} path={item.href} {...props}>{item.label}</PrivateNavigationButton>
+                ) : (
+                  <Link key={item.href} href={item.href} {...props}>{item.label}</Link>
                 );
               })}
             </div>
@@ -103,10 +103,10 @@ export function DesktopHeader({ actions }: { actions?: React.ReactNode }) {
                 <Search size={19} />
               </Link>
               <Magnetic>
-                <Link href="/n/app/mobile/profile" className="lsd-btn lsd-btn-gold h-12 px-5 text-sm">
+                <PrivateNavigationButton path="/n/app/mobile/profile" className="lsd-btn lsd-btn-gold h-12 px-5 text-sm">
                   <UserRound size={16} />
                   {tTab("Profile")}
-                </Link>
+                </PrivateNavigationButton>
               </Magnetic>
             </div>
           </div>

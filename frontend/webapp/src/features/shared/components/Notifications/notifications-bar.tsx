@@ -2,7 +2,7 @@
 
 import { IconButton } from "@/app/[locale]/n/app/design-system/mobile-components";
 import { useNotificationCount } from "@/features/notification/api/client/get-notification-count";
-import { Link } from "@/i18n/navigation";
+import { PrivateNavigationButton } from "@/components/navigation/private-navigation-button";
 import { Bell } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 
@@ -20,8 +20,8 @@ export default function NotificationsBar({ variant = "default" }: Props) {
   const badge = unreadCount > 99 ? "99+" : unreadCount > 0 ? unreadCount : undefined;
 
   return (
-    <Link href="/n/app/mobile/notifications" aria-label={t("notifications")}>
+    <PrivateNavigationButton path="/n/app/mobile/notifications" aria-label={t("notifications")} data-testid="notification-button">
       <IconButton as="span" icon={<Bell size={20} aria-hidden="true" />} badge={badge} variant={variant} />
-    </Link>
+    </PrivateNavigationButton>
   );
 }

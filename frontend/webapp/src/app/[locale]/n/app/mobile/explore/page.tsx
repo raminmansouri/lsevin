@@ -27,6 +27,7 @@ export async function generateMetadata({
     title: t("header.title"),
     description: t("header.subtitle"),
     alternates: alternatesFor(locale, "/explore"),
+    robots: { index: true, follow: true },
   };
 }
 

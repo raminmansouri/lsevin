@@ -7,6 +7,7 @@ import { EnamadSeal } from "@/components/trust/enamad-seal";
 import type { DomainTrustSeal } from "@/features/trust-seal/enamad";
 import { Link } from "@/i18n/navigation";
 import { LanguageLinks } from "@/components/locale/language-links";
+import { PrivateNavigationButton } from "@/components/navigation/private-navigation-button";
 
 import { BackToTop, Reveal } from "./motion";
 
@@ -65,7 +66,7 @@ export function DesktopFooter({
   ];
 
   return (
-    <footer className="lsd lsd-aurora relative hidden overflow-hidden xl:block">
+    <footer data-testid="desktop-footer" className="lsd lsd-aurora relative hidden overflow-hidden xl:block">
       {/* Gold horizon with the mark as a seal */}
       <div className="relative flex items-center justify-center">
         <span className="absolute inset-x-0 top-1/2 h-px bg-gradient-to-r from-transparent via-[#eacb7f]/60 to-transparent" />
@@ -96,9 +97,15 @@ export function DesktopFooter({
             <h3 className="text-base font-bold text-[#eacb7f]">{column.title}</h3>
             <nav className="flex flex-col items-start gap-3.5">
               {column.links.map((link) => (
-                <Link key={link.href} href={link.href} className="lsd-footer-link text-base text-[#eef3f1]">
-                  {link.label}
-                </Link>
+                link.href === "/n/app/mobile/support" ? (
+                  <PrivateNavigationButton key={link.href} path={link.href} className="lsd-footer-link text-base text-[#eef3f1]">
+                    {link.label}
+                  </PrivateNavigationButton>
+                ) : (
+                  <Link key={link.href} href={link.href} className="lsd-footer-link text-base text-[#eef3f1]">
+                    {link.label}
+                  </Link>
+                )
               ))}
             </nav>
           </Reveal>

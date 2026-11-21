@@ -3,6 +3,7 @@ import {MessageCircle,  Home, Search, Calendar, User, ChevronLeft, Bell, Heart, 
 import { useLocalization } from '../contexts/LocalizationContext';
 import { Link, usePathname } from '@/i18n/navigation';
 import { useTranslations } from 'next-intl';
+import { PrivateNavigationButton } from '@/components/navigation/private-navigation-button';
 
 // Bottom Tab Bar
 export function BottomTabBar() {
@@ -21,25 +22,31 @@ export function BottomTabBar() {
   ];
   
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-2 safe-area-bottom z-50">
+    <div data-testid="mobile-bottom-nav" className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-2 safe-area-bottom z-50">
       <div className={`flex items-center justify-around max-w-md mx-auto ${isRTL ? 'flex-row-reverse' : ''}`}>
         {tabs.map(tab => {
           const isActive = [tab.path, ...(('also' in tab && tab.also) || [])].some((path) => (path === '/' ? pathname === '/' : pathname?.startsWith(path)));
           const Icon = tab.icon;
           
-          return (
-            <Link
+          const className = `flex flex-col items-center gap-1 py-2 px-3 transition ${
+            isActive ? 'text-[#083f30]' : 'text-gray-400'
+          }`;
+          const content = <>
+            <Icon size={24} strokeWidth={isActive ? 2.5 : 2} />
+            <span className={`text-xs ${isActive ? 'font-semibold' : 'font-medium'}`}>{tab.label}</span>
+          </>;
+          return tab.path.startsWith('/n/app/mobile/') ? (
+            <PrivateNavigationButton
               key={tab.path}
-              // to={tab.path}
-              href={tab.path}
-              className={`flex flex-col items-center gap-1 py-2 px-3 transition ${
-                isActive ? 'text-[#083f30]' : 'text-gray-400'
-              }`}
+              path={tab.path}
+              aria-current={isActive ? 'page' : undefined}
+              className={className}
             >
-              <Icon size={24} strokeWidth={isActive ? 2.5 : 2} />
-              <span className={`text-xs ${isActive ? 'font-semibold' : 'font-medium'}`}>
-                {tab.label}
-              </span>
+              {content}
+            </PrivateNavigationButton>
+          ) : (
+            <Link key={tab.path} href={tab.path} aria-current={isActive ? 'page' : undefined} className={className}>
+              {content}
             </Link>
           );
         })}

@@ -26,32 +26,10 @@ export default function robots(): MetadataRoute.Robots {
     "profile",
   ];
 
-  const privateMobileAreas = [
-    "profile",
-    "bookings",
-    "booking",
-    "booking-v2",
-    "notifications",
-    "support",
-    "bug-reports",
-    "shop/cart",
-    "shop/checkout",
-    "shop/orders",
-    "shop/order",
-    "shop/addresses",
-    "shop/wishlist",
-    "shop/compare",
-    "packages/*/checkout",
-  ];
-
   const disallow = [
     "/api/",
     "/*/api/",
     ...privateAreas.flatMap((area) => [`/${area}`, `/*/${area}`]),
-    ...privateMobileAreas.flatMap((area) => [
-      `/n/app/mobile/${area}`,
-      `/*/n/app/mobile/${area}`,
-    ]),
   ];
 
   return {
@@ -62,7 +40,9 @@ export default function robots(): MetadataRoute.Robots {
         // proxy (src/features/shop/lib/image.ts), and so are their og:image and
         // structured-data images: under the /api/ rule Google could index none
         // of them (found 2026-11-15). The longer, more specific allow wins.
-        allow: ["/", "/api/shop/img"],
+        // The longer app rule wins over broad /*/profile and /*/admin
+        // disallows, so crawlers can read each app page's noindex metadata.
+        allow: ["/", "/api/shop/img", "/n/app/", "/*/n/app/"],
         disallow,
       },
     ],

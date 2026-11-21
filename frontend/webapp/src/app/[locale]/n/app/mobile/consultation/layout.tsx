@@ -1,6 +1,10 @@
+// Preserve the existing consultation translation boundary.
+// eslint-disable-next-line boundaries/element-types
 import { RouteMessages } from "@/app/[locale]/n/route-messages";
+import { appOnlyMetadata } from "@/lib/seo/robots-policy";
 
-// Video consultation routes: indexing is left to each page, as before.
+export const metadata = appOnlyMetadata;
+
 export default async function Layout({
   children,
   params,
