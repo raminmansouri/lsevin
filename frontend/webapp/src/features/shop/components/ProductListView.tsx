@@ -39,6 +39,9 @@ export async function ProductListView({
   const q = fixed?.q ?? one(searchParams.q) ?? "";
   const inStockOnly = one(searchParams.inStockOnly) === "1";
   const discountedOnly = one(searchParams.onSale) === "1";
+  // "View all" from the Health picks / Best sellers rails on the shop home.
+  const featuredOnly = one(searchParams.featuredOnly) === "1";
+  const bestSellerOnly = one(searchParams.bestSellerOnly) === "1";
   const minRating = Number(one(searchParams.minRating) ?? "0") || 0;
   const brand = one(searchParams.brand) || undefined;
   const minPrice = Number(one(searchParams.minPrice) ?? "0") || 0;
@@ -56,6 +59,8 @@ export async function ProductListView({
       pageSize,
       inStockOnly,
       discountedOnly,
+      featuredOnly,
+      bestSellerOnly,
       minRating,
       minPrice,
       maxPrice,
@@ -70,6 +75,8 @@ export async function ProductListView({
   if (sort !== "popularity") state.sort = sort;
   if (inStockOnly) state.inStockOnly = "1";
   if (discountedOnly) state.onSale = "1";
+  if (featuredOnly) state.featuredOnly = "1";
+  if (bestSellerOnly) state.bestSellerOnly = "1";
   if (minRating) state.minRating = String(minRating);
   if (brand) state.brand = brand;
   if (minPrice) state.minPrice = String(minPrice);

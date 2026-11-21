@@ -13,6 +13,7 @@ export const productSearchSchema = z.object({
   minRating: z.coerce.number().min(0).max(5).default(0),
   inStockOnly: z.coerce.boolean().default(false),
   featuredOnly: z.coerce.boolean().default(false),
+  bestSellerOnly: z.coerce.boolean().default(false),
   discountedOnly: z.coerce.boolean().default(false),
   slugs: z.array(z.string().trim()).optional(),
   page: z.coerce.number().int().min(1).default(1),
