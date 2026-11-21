@@ -1,22 +1,21 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 
+import { isAssistantHome, useScrollTucked } from "../lib/launcher-visibility";
+
 const SEEN_KEY = "lsevin:assistant-nudge-seen";
 const FIRST_DELAY = 4000;
-const ROTATE_EVERY = 12000;
-const RETURN_AFTER_CLOSE = 1500;
-const RETURN_AFTER_DISMISS = 30000;
 
 function readSeen() {
   try {
     return localStorage.getItem(SEEN_KEY) === "1";
   } catch {
-    return false;
+    return true;
   }
 }
 
@@ -30,79 +29,32 @@ export function AssistantNudge() {
   const t = useTranslations("Assistant.nudge");
   const pathname = usePathname();
   const reduceMotion = useReducedMotion();
-  const rawTips = t.raw("tips");
-  const tips = Array.isArray(rawTips) ? (rawTips as string[]) : [];
-  const tipCount = tips.length;
-
+  const tucked = useScrollTucked();
+  const home = isAssistantHome(pathname);
   const [visible, setVisible] = useState(false);
-  const [welcome, setWelcome] = useState(true);
-  const [chatOpen, setChatOpen] = useState(false);
-  const [tipIndex, setTipIndex] = useState(0);
-  const returnTimer = useRef<number | undefined>(undefined);
-
-  const nextTip = useCallback(() => {
-    setTipIndex((current) => {
-      if (tipCount < 2) return 0;
-      let next = current;
-      while (next === current) next = Math.floor(Math.random() * tipCount);
-      return next;
-    });
-  }, [tipCount]);
-
-  const showLater = useCallback((delay: number) => {
-    window.clearTimeout(returnTimer.current);
-    returnTimer.current = window.setTimeout(() => setVisible(true), delay);
-  }, []);
 
   useEffect(() => {
-    const seen = readSeen();
-    setWelcome(!seen);
-    if (seen && tipCount) setTipIndex(Math.floor(Math.random() * tipCount));
-    showLater(FIRST_DELAY);
-    return () => window.clearTimeout(returnTimer.current);
-  }, [tipCount, showLater]);
+    if (!home || readSeen()) return;
+    const timer = window.setTimeout(() => setVisible(true), FIRST_DELAY);
+    return () => window.clearTimeout(timer);
+  }, [home]);
 
   useEffect(() => {
     const onOpened = () => {
       markSeen();
-      setWelcome(false);
-      setChatOpen(true);
       setVisible(false);
-      window.clearTimeout(returnTimer.current);
-    };
-    const onClosed = () => {
-      setChatOpen(false);
-      nextTip();
-      showLater(RETURN_AFTER_CLOSE);
     };
     window.addEventListener("lsevin:assistant-opened", onOpened);
     window.addEventListener("lsevin:assistant-open", onOpened);
-    window.addEventListener("lsevin:assistant-closed", onClosed);
     return () => {
       window.removeEventListener("lsevin:assistant-opened", onOpened);
       window.removeEventListener("lsevin:assistant-open", onOpened);
-      window.removeEventListener("lsevin:assistant-closed", onClosed);
     };
-  }, [nextTip, showLater]);
-
-  useEffect(() => {
-    if (welcome || !visible || chatOpen || tipCount < 2) return;
-    const timer = window.setInterval(nextTip, ROTATE_EVERY);
-    return () => window.clearInterval(timer);
-  }, [welcome, visible, chatOpen, tipCount, nextTip]);
-
-  if (pathname.includes("/n/app/mobile/assistant")) return null;
-
-  const body = welcome || !tipCount ? t("body") : tips[tipIndex] ?? t("body");
+  }, []);
 
   const dismiss = () => {
+    markSeen();
     setVisible(false);
-    if (welcome) {
-      markSeen();
-      setWelcome(false);
-    }
-    nextTip();
-    showLater(RETURN_AFTER_DISMISS);
   };
 
   const openAssistant = () => {
@@ -111,7 +63,7 @@ export function AssistantNudge() {
 
   return (
     <AnimatePresence>
-      {visible && !chatOpen ? (
+      {visible && home && !tucked ? (
         <motion.div
           key="assistant-nudge"
           initial={reduceMotion ? { opacity: 0 } : { opacity: 0, y: 8, scale: 0.96 }}
@@ -129,18 +81,7 @@ export function AssistantNudge() {
                 </span>
                 {t("title")}
               </span>
-              <AnimatePresence mode="wait" initial={false}>
-                <motion.span
-                  key={body}
-                  initial={reduceMotion ? { opacity: 0 } : { opacity: 0, y: 4 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={reduceMotion ? { opacity: 0 } : { opacity: 0, y: -4 }}
-                  transition={{ duration: reduceMotion ? 0 : 0.25 }}
-                  className="mt-0.5 block text-[13px] font-semibold leading-5 text-[#0e1a16]"
-                >
-                  {body}
-                </motion.span>
-              </AnimatePresence>
+              <span className="mt-0.5 block text-[13px] font-semibold leading-5 text-[#0e1a16]">{t("body")}</span>
             </button>
             <button
               type="button"

@@ -76,11 +76,11 @@ export function ShopPrice({
   }, [amount, currency, target]);
 
   if (unavailable) {
-    return <span className={cn("font-semibold text-muted-foreground", className)}>{unavailableLabel ?? "—"}</span>;
+    return <span className={cn("font-semibold text-muted-foreground", className, "font-sans")}>{unavailableLabel ?? "—"}</span>;
   }
 
   return (
-    <span className={cn("font-semibold tabular-nums", className)}>
+    <span className={cn("font-semibold", className, "font-sans")}>
       {formatShopMoney(display.amount, display.currency, locale)}
     </span>
   );

@@ -15,6 +15,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useAssistantChat } from "../hooks/use-assistant-chat";
 import { AssistantAvatar } from "./assistant-avatar";
 import { AssistantChat } from "./assistant-chat";
+import { isAssistantHidden, isAssistantRaised, useScrollTucked } from "../lib/launcher-visibility";
 
 function useIsDesktop(): boolean {
   const [isDesktop, setIsDesktop] = useState(false);
@@ -35,6 +36,7 @@ export function AssistantLauncher() {
   const pathname = usePathname();
   const isDesktop = useIsDesktop();
   const reduceMotion = useReducedMotion();
+  const tucked = useScrollTucked();
 
   const [open, setOpen] = useState(false);
   const [expanded, setExpanded] = useState(false);
@@ -99,8 +101,8 @@ export function AssistantLauncher() {
     };
   }, [open, isDesktop]);
 
-  // The chat page has its own full layout; no launcher there.
-  if (pathname.includes("/n/app/mobile/assistant")) return null;
+
+  if (pathname.includes("/n/app/mobile/assistant") || (!open && isAssistantHidden(pathname))) return null;
 
   const morph = reduceMotion
     ? { duration: 0 }
@@ -155,10 +157,12 @@ export function AssistantLauncher() {
           }}
           aria-label={t("open")}
           initial={reduceMotion ? false : { scale: 0.7, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
+          animate={{ scale: tucked ? 0.85 : 1, opacity: tucked ? 0.75 : 1, x: tucked ? 44 : 0 }}
           transition={morph}
           style={{ borderRadius: 28 }}
-          className="fixed bottom-24 right-4 z-[60] grid h-14 w-14 place-items-center bg-gradient-to-br from-[#083f30] to-[#0a5a44] shadow-xl shadow-[#083f30]/30 ring-2 ring-[#eacb7f]/60 md:bottom-6 md:right-6"
+          className={`fixed right-4 z-[60] grid h-14 w-14 place-items-center bg-gradient-to-br from-[#083f30] to-[#0a5a44] shadow-xl shadow-[#083f30]/30 ring-2 ring-[#eacb7f]/60 md:bottom-6 md:right-6 ${
+            isAssistantRaised(pathname) ? "bottom-[11.5rem]" : "bottom-24"
+          }`}
         >
           <AssistantAvatar className="h-9 w-9" />
         </motion.button>
