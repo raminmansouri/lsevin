@@ -492,6 +492,21 @@ export async function getTrendingHomeServices(input: HomeQueryInput, limit = 8):
   });
 }
 
+/**
+ * The "trusted providers" shelf (home page rail, desktop home and its /providers
+ * "see all" page) is only for clinics, hospitals, hotels and laboratories. Every
+ * other kind of provider (tours, doctors filed elsewhere, gyms, spas, villas...)
+ * stays out of it, as asked in BUG-20261121-DCEF69AF.
+ *
+ * Those kinds are nodes of the category tree (Health > Clinic / Hospital /
+ * Laboratory, Accommodation > Hotel), not provider types: the Accommodation
+ * provider type also holds villas and suites. There is no stable code column on
+ * category.categories, so the nodes are found by name in any language, and every
+ * active category beneath a matching node counts too (Clinic > Dental clinic).
+ * Postgres regex: \m and \M are word boundaries, so "lab" does not match "label".
+ */
+const TRUSTED_PROVIDER_CATEGORY_PATTERN = String.raw`(clinic|hospital|hotel|laborator|\mlabs?\M|کلینیک|درمانگاه|بیمارستان|هتل|آزمایشگاه|عيادة|مستشفى|فندق|مختبر)`;
+
 export async function getTrustedHomeProviders(input: HomeQueryInput, limit = 8): Promise<HomeTrustedProvider[]> {
   const locale = normalizeLocale(input.locale);
   const countryCode = normalizeFilter(input.countryCode);
@@ -511,6 +526,23 @@ export async function getTrustedHomeProviders(input: HomeQueryInput, limit = 8):
     verified: boolean | null;
     specialties: string[] | null;
   }[]>`
+    with recursive trusted_categories as (
+      -- The Clinic, Hospital, Hotel and Laboratory nodes (see the pattern above)...
+      select c.id
+      from category.categories c
+      where c.is_active = true
+        and exists (
+          select 1
+          from jsonb_each_text(case when jsonb_typeof(c.name_translations) = 'object' then c.name_translations else '{}'::jsonb end) n
+          where n.value ~* ${TRUSTED_PROVIDER_CATEGORY_PATTERN}
+        )
+      union
+      -- ...and every active category beneath them.
+      select child.id
+      from category.categories child
+      join trusted_categories parent on child.parent_id = parent.id
+      where child.is_active = true
+    )
     select
       sp.id::text as id,
       sp.slug,
@@ -536,6 +568,24 @@ export async function getTrustedHomeProviders(input: HomeQueryInput, limit = 8):
     left join media.media_library gm on gm.id::text = gallery.url
     left join media.media_library spm on spm.id::text = sp.image_url
     where sp.is_active = true and category.provider_type_is_public(sp.provider_type_id)
+      -- Only clinics, hospitals, hotels and laboratories. Same membership rule as the
+      -- category tree (providerInCategorySubtree): the admin-set category_id decides,
+      -- and a provider not filed yet falls back to where its services are catalogued.
+      and (
+        sp.category_id in (select id from trusted_categories)
+        or (
+          sp.category_id is null
+          and exists (
+            select 1
+            from category.provider_services ps
+            join category.service_definitions sd on sd.id = ps.service_definition_id
+            where ps.service_provider_id = sp.id
+              and ps.is_active = true
+              and sd.is_active = true
+              and sd.category_id in (select id from trusted_categories)
+          )
+        )
+      )
       -- Trim as well as fold case. upper(sp.country) = upper('IR') drops every
       -- provider whose stored code carries stray whitespace, which is why the
       -- listing showed only part of the providers for a country. This matches
