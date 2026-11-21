@@ -46,13 +46,13 @@ describe("indexable locales", () => {
       title: "عمل بینی",
       eligibleLocales: ["fa", "en"],
     });
-    expect(persian.robots).toBeUndefined();
+    expect(persian.robots).toEqual({ index: true, follow: true });
     expect(persian.alternates!.canonical).toBe("https://lsevincare.com/fa/n/app/mobile/service/s");
   });
 
   it("keeps pages indexable when no eligibility is supplied", async () => {
     const meta = await buildPublicMetadata({ locale: "tr", path: "/consulting", title: "Danışmanlık" });
-    expect(meta.robots).toBeUndefined();
+    expect(meta.robots).toEqual({ index: true, follow: true });
   });
 });
 

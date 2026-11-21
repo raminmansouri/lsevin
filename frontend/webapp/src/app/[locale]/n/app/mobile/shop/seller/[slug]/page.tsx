@@ -9,8 +9,32 @@ import { ShopHeader } from "@/features/shop/components/ShopHeader";
 import { getShopContext } from "@/features/shop/lib/context";
 import { resolveDisplayCurrency } from "@/features/shop/lib/pricing";
 import { DesktopSellerHeader } from "@/features/web-desktop/shop/DesktopSellerHeader";
+import { buildPublicMetadata } from "@/lib/seo/metadata";
+import { INDEXABLE_SHOP_LOCALES } from "@/lib/seo/locale-eligibility";
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string; slug: string }>;
+}) {
+  const { locale, slug } = await params;
+  const seller = await getShopSellerBySlug(slug, locale);
+  if (!seller) notFound();
+  const [brand, t] = await Promise.all([
+    getTranslations({ locale, namespace: "LocaleLayout" }),
+    getTranslations({ locale, namespace: "Shop.sellerPage" }),
+  ]);
+  return buildPublicMetadata({
+    locale,
+    path: `/shop/seller/${encodeURIComponent(seller.slug)}`,
+    title: `${seller.name} | ${brand("title")}`,
+    descriptions: [seller.description, seller.warranty, t("products", { count: seller.productCount })],
+    image: seller.logoUrl,
+    eligibleLocales: INDEXABLE_SHOP_LOCALES,
+  });
+}
 
 /** A seller's shop page: their profile, and every product they sell at their own price. */
 export default async function ShopSellerPage({
@@ -85,7 +109,7 @@ export default async function ShopSellerPage({
 
       <ProductListView
         locale={locale}
-        basePath={`/n/app/mobile/shop/seller/${slug}`}
+        basePath={`/shop/seller/${slug}`}
         searchParams={sp}
         fixed={{ seller: slug }}
       />

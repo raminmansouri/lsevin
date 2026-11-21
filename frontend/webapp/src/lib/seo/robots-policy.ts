@@ -6,6 +6,10 @@ export const privateMetadata = {
   robots: { index: false, follow: false },
 } satisfies Metadata;
 
+export const appOnlyMetadata = {
+  robots: { index: false, follow: true },
+} satisfies Metadata;
+
 export const searchMetadata = {
   robots: { index: false, follow: true },
 } satisfies Metadata;

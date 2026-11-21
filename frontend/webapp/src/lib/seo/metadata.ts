@@ -48,7 +48,7 @@ export async function buildPublicMetadata(
     title: { absolute: title },
     description,
     alternates,
-    ...(indexable ? {} : { robots: { index: false, follow: true } }),
+    robots: { index: indexable, follow: true },
     openGraph: {
       title,
       description,

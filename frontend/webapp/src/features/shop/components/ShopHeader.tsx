@@ -6,6 +6,7 @@ import { SearchBar } from "./SearchBar";
 import { CurrencySwitcher } from "./CurrencySwitcher";
 import { ShopCartCountBadge } from "./ShopCartCountBadge";
 import { Heart } from "lucide-react";
+import { PrivateNavigationButton } from "@/components/navigation/private-navigation-button";
 
 /**
  * Compact Shop top bar following the AliExpress reference (SHP-UX-011, §18):
@@ -30,7 +31,7 @@ export async function ShopHeader({
   const t = await getTranslations("Shop");
 
   return (
-    <header className="sticky top-0 z-30 overflow-x-clip bg-gradient-to-b from-[#083f30] to-[#0a5a44] px-2.5 pb-3 pt-[max(0.6rem,env(safe-area-inset-top))]">
+    <header data-testid="shop-header" className="sticky top-0 z-30 overflow-x-clip bg-gradient-to-b from-[#083f30] to-[#0a5a44] px-2.5 pb-3 pt-[max(0.6rem,env(safe-area-inset-top))]">
       <div className="flex min-w-0 items-center gap-1.5">
         {back ? (
           <Link href={back} aria-label={t("back")} className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-white/90">
@@ -48,12 +49,12 @@ export async function ShopHeader({
           <CurrencySwitcher />
         </div>
 
-        <Link href="/n/app/mobile/shop/wishlist" aria-label={t("wishlistTitle")} className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-white">
+        <PrivateNavigationButton path="/n/app/mobile/shop/wishlist" aria-label={t("wishlistTitle")} className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-white">
           <Heart size={20} strokeWidth={1.9} aria-hidden />
-        </Link>
+        </PrivateNavigationButton>
 
-        <Link
-          href="/n/app/mobile/shop/cart"
+        <PrivateNavigationButton
+          path="/n/app/mobile/shop/cart"
           aria-label={t("cart")}
           className="relative grid h-8 w-8 shrink-0 place-items-center rounded-full text-white"
         >
@@ -63,7 +64,7 @@ export async function ShopHeader({
             <circle cx="18" cy="21" r="1.6" fill="currentColor" />
           </svg>
           <ShopCartCountBadge initial={cartCount} />
-        </Link>
+        </PrivateNavigationButton>
       </div>
     </header>
   );

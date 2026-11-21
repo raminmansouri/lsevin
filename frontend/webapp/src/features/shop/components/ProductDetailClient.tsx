@@ -131,7 +131,7 @@ export function ProductDetailClient({
       {bestOffer ? (
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1 rounded-xl bg-neutral-50 px-3 py-2.5 text-xs text-neutral-600 ring-1 ring-neutral-100">
           <Link
-            href={`/n/app/mobile/shop/seller/${bestOffer.sellerSlug}`}
+            href={`/shop/seller/${bestOffer.sellerSlug}`}
             className="flex items-center gap-1.5 font-semibold text-neutral-900 hover:text-[#083f30] hover:underline"
           >
             <Store size={14} className="text-[#083f30]" />
@@ -228,7 +228,7 @@ export function ProductDetailClient({
                 </span>
                 <span className="min-w-0 flex-1">
                   <span className="flex items-center gap-2 text-sm font-semibold text-neutral-900">
-                    <Link href={`/n/app/mobile/shop/seller/${o.sellerSlug}`} className="hover:text-[#083f30] hover:underline">
+                    <Link href={`/shop/seller/${o.sellerSlug}`} className="hover:text-[#083f30] hover:underline">
                       {o.sellerName}
                     </Link>
                     {index === 0 ? (

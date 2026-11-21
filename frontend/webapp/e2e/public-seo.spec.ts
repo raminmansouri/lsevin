@@ -144,7 +144,7 @@ test("SEO sitemap and robots advertise the public domain", async ({
     expect(xml).toContain(`${origin}/fa/${route}</loc>`);
     expect(xml).not.toContain(`${origin}/en/${route}</loc>`);
   }
-  expect(await robots.text()).toContain("Disallow: /*/n/app/mobile/support");
+  expect(await robots.text()).not.toContain("Disallow: /*/n/app/mobile/support");
   expect(await robots.text()).not.toContain("Disallow: /*/n/app/mobile/search");
 });
 
@@ -157,7 +157,60 @@ test("public campaign pages have canonicals and private support is noindex", asy
     await expect(page.locator('meta[name="description"]')).toHaveAttribute("content", /\S+/);
   }
   await page.goto("/fa/n/app/mobile/support");
-  await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex.*nofollow/);
+  await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex.*follow/);
+});
+
+test('@critical app-only URLs expose noindex,follow while public aliases stay indexable', async ({ page }) => {
+  for (const path of ['/fa/n/app/mobile/support', '/fa/n/app/mobile/search']) {
+    const response = await page.goto(path);
+    expect(response?.status()).toBe(200);
+    await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', /noindex.*follow/);
+  }
+  for (const path of ['/fa', '/fa/explore', '/fa/shop']) {
+    const response = await page.goto(path);
+    expect(response?.status()).toBe(200);
+    const robots = await page.locator('meta[name="robots"]').getAttribute('content');
+    expect(robots).not.toMatch(/noindex/);
+  }
+});
+
+test('@critical seller storefront has a public title, canonical URL and direct legacy redirect', async ({ page, request }, testInfo) => {
+  const xml = await (await request.get('/sitemap.xml')).text();
+  const path = xml.match(/<loc>[^<]+(\/fa\/shop\/seller\/[a-z0-9-]+)<\/loc>/)?.[1];
+  expect(path, 'an active seller with approved products in the sitemap').toBeTruthy();
+  const response = await page.goto(path!);
+  expect(response?.status()).toBe(200);
+  await expect(page.locator(H1).first()).toBeVisible();
+  await expect(page.locator('title')).toContainText(/.+\|.+/);
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', `${origin}${path}`);
+  expect((await page.locator('meta[name="robots"]').getAttribute('content')) || '').not.toContain('noindex');
+  await attachShot(page, testInfo, 'seller-public-storefront');
+  const legacy = path!.replace('/shop/seller/', '/n/app/mobile/shop/seller/');
+  const redirect = await request.get(legacy, { maxRedirects: 0 });
+  expect([301, 308]).toContain(redirect.status());
+  expect(new URL(redirect.headers().location, origin).pathname).toBe(path);
+  await page.reload();
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', `${origin}${path}`);
+});
+
+test('@critical private header and footer destinations are buttons', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/fa/shop');
+  const desktop = page.getByTestId('desktop-primary-nav');
+  await expect(desktop.locator('a[href*="/bookings"], a[href*="/profile"]')).toHaveCount(0);
+  await expect(desktop.getByRole('button', { name: /رزرو|bookings/i })).toBeVisible();
+  await expect(desktop.getByRole('button', { name: /پروفایل|profile/i })).toBeVisible();
+  const shop = page.getByTestId('shop-header');
+  await expect(shop.locator('a[href*="/cart"], a[href*="/wishlist"]')).toHaveCount(0);
+  await expect(shop.getByRole('button', { name: /سبد|cart/i })).toBeVisible();
+  await expect(shop.getByRole('button', { name: /علاقه|wishlist/i })).toBeVisible();
+  const footer = page.getByTestId('desktop-footer');
+  await expect(footer.locator('a[href="/fa/n/app/mobile/support"]')).toHaveCount(0);
+  await desktop.getByRole('button', { name: /پروفایل|profile/i }).click();
+  await expect(page).toHaveURL(/\/(?:login|auth|n\/app\/mobile\/profile)(?:[/?]|$)/);
+  await page.goto('/fa/shop');
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(page.getByTestId('mobile-bottom-nav').locator('a[href*="/bookings"], a[href*="/profile"]')).toHaveCount(0);
 });
 
 test("an indexed package detail is canonical and its fallback locale is noindex", async ({ page, request }) => {
