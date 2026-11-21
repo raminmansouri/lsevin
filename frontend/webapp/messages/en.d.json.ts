@@ -6057,7 +6057,11 @@ declare const messages: {
       "buttons": {
         "save": "Save",
         "upload": "Upload",
-        "delete": "Delete"
+        "delete": "Delete",
+        "saveChanges": "Save changes",
+        "saving": "Saving…",
+        "pleaseWait": "Please wait…",
+        "cancel": "Cancel"
       },
       "Address": {
         "title": "Address"
@@ -6081,7 +6085,29 @@ declare const messages: {
         "Other": "Other"
       },
       "edit": {
-        "title": "Edit Profile"
+        "title": "Edit Profile",
+        "lockedTitle": "Your profile is confirmed",
+        "lockedDescription": "Your details are locked after confirmation. To change them, please contact support.",
+        "confirmCarefullyTitle": "Check your details carefully",
+        "confirmCarefullyDescription": "Enter your name and details exactly as they appear on your passport or ID. After you confirm, you can't change them here.",
+        "phoneLockedDescription": "Your phone number is used to sign in and can't be changed here.",
+        "gender": {
+          "select": "Select gender",
+          "female": "Female",
+          "male": "Male",
+          "other": "Other",
+          "preferNotToSay": "Prefer not to say"
+        },
+        "fields": {
+          "city": "City",
+          "country": "Country"
+        },
+        "profileConfirmed": "Profile confirmed",
+        "confirmDialog": {
+          "title": "Confirm your details?",
+          "description": "After you confirm, your profile is locked and you can't edit it here anymore. Please make sure everything is correct.",
+          "confirm": "Yes, confirm"
+        }
       },
       "profileImage": {
         "close": "Close",

@@ -5160,7 +5160,11 @@ declare const messages: {
       "buttons": {
         "save": "ذخیره",
         "upload": "آپلود",
-        "delete": "حذف"
+        "delete": "حذف",
+        "saveChanges": "ذخیره‌ی تغییرات",
+        "saving": "در حال ذخیره…",
+        "pleaseWait": "لطفاً صبر کنید…",
+        "cancel": "انصراف"
       },
       "Address": {
         "title": "آدرس"
@@ -5184,7 +5188,29 @@ declare const messages: {
         "Other": "سایر"
       },
       "edit": {
-        "title": "ویرایش پروفایل"
+        "title": "ویرایش پروفایل",
+        "lockedTitle": "پروفایل شما تأیید شده است",
+        "lockedDescription": "اطلاعات شما پس از تأیید قفل می‌شود. برای تغییر آن با پشتیبانی تماس بگیرید.",
+        "confirmCarefullyTitle": "اطلاعات خود را با دقت بررسی کنید",
+        "confirmCarefullyDescription": "نام و مشخصات خود را دقیقاً مطابق پاسپورت یا کارت شناسایی وارد کنید. پس از تأیید، امکان تغییر آن در این صفحه وجود ندارد.",
+        "phoneLockedDescription": "شماره موبایل برای ورود به حساب استفاده می‌شود و در این صفحه قابل تغییر نیست.",
+        "gender": {
+          "select": "انتخاب جنسیت",
+          "female": "زن",
+          "male": "مرد",
+          "other": "سایر",
+          "preferNotToSay": "ترجیح می‌دهم نگویم"
+        },
+        "fields": {
+          "city": "شهر",
+          "country": "کشور"
+        },
+        "profileConfirmed": "پروفایل تأیید شده",
+        "confirmDialog": {
+          "title": "اطلاعات خود را تأیید می‌کنید؟",
+          "description": "پس از تأیید، پروفایل شما قفل می‌شود و دیگر در این صفحه قابل ویرایش نیست. لطفاً از درستی همه‌ی اطلاعات مطمئن شوید.",
+          "confirm": "بله، تأیید می‌کنم"
+        }
       },
       "profileImage": {
         "close": "بستن",
