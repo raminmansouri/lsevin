@@ -184,6 +184,7 @@ export async function searchProducts(
   if (filters.brand)
     conditions.push(sql`exists (select 1 from shop.brands b where b.id = p.brand_id and b.slug = ${filters.brand})`);
   if (filters.featuredOnly) conditions.push(sql`p.is_featured = true`);
+  if (filters.bestSellerOnly) conditions.push(sql`p.is_best_seller = true`);
   if (filters.seller) conditions.push(sql`price_summary.min_price is not null`);
   if (filters.discountedOnly)
     conditions.push(sql`p.compare_at_price is not null and p.compare_at_price > coalesce(price_summary.min_price, p.base_price)`);

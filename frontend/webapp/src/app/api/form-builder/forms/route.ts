@@ -1,8 +1,14 @@
 import { NextResponse } from "next/server";
 import { listFormsAdmin, getFormForDesigner } from "@/features/form-builder/server/admin-repository";
 import { upsertFormDefinition } from "@/features/form-builder/server/repository";
+import { requireApiAdmin } from "@/lib/auth/api-guard";
 
+// Admin only: /api is outside the middleware matcher, so these handlers must check the
+// session themselves. Without this anyone could list and overwrite booking forms.
 export async function GET(request: Request) {
+  const auth = await requireApiAdmin();
+  if (auth instanceof NextResponse) return auth;
+
   const { searchParams } = new URL(request.url);
   const formId = searchParams.get("formId");
 
@@ -24,6 +30,9 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
+  const auth = await requireApiAdmin();
+  if (auth instanceof NextResponse) return auth;
+
   try {
     const body = await request.json();
     const result = await upsertFormDefinition(body);

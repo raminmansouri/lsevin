@@ -155,8 +155,12 @@ export async function getShopHome(opts?: {
           viewAllHref = "/n/app/mobile/shop/search?featuredOnly=1";
           break;
         case "best_seller":
+          // Only the products an admin ticked as "Best seller". Without this filter
+          // the rail listed every product by popularity, which put the same
+          // products here as in the "featured" (Health picks) rail.
+          filters.bestSellerOnly = true;
           filters.sort = "popularity";
-          viewAllHref = "/n/app/mobile/shop/search?sort=popularity";
+          viewAllHref = "/n/app/mobile/shop/search?bestSellerOnly=1";
           break;
         case "new_arrival":
           filters.sort = "newest";
