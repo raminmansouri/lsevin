@@ -16,6 +16,8 @@ import { EntryAttachments } from "./attachments";
 import { EntryForm } from "./entry-form";
 import { EntryWorkflowButtons } from "./workflow-buttons";
 
+import { DualDate } from "@/accounting/lib/dual-date";
+
 const STATUS_LABEL: Record<string, { text: string; className: string }> = {
   draft: { text: "پیش‌نویس", className: "bg-zinc-100 text-zinc-700" },
   temporary: { text: "موقت", className: "bg-amber-100 text-amber-800" },
@@ -124,7 +126,7 @@ export default async function EntriesPage() {
                         {entry.referenceNumber ?? "—"}
                       </td>
                       <td className="p-2" dir="ltr">
-                        {entry.entryDate}
+                        <DualDate value={entry.entryDate} />
                       </td>
                       <td className="p-2">{entry.description ?? "—"}</td>
                       <td className="p-2 text-xs">{TYPE_LABEL[entry.entryType] ?? entry.entryType}</td>

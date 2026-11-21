@@ -8,6 +8,8 @@ import { ExportButtons } from "@/accounting/components/export-buttons";
 import { PageHeader } from "@/components/page/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
+import { DualDate } from "@/accounting/lib/dual-date";
+
 export default async function JournalPage() {
   const locale = PANEL_LOCALE;
   const t = await getTranslations("Admin.accounting");
@@ -42,7 +44,7 @@ export default async function JournalPage() {
                   <td className="p-2 font-mono" dir="ltr">
                     {entry.entryNumber}
                   </td>
-                  <td className="p-2">{formatDateTime(entry.entryDate, locale)}</td>
+                  <td className="p-2"><DualDate value={entry.entryDate} /></td>
                   <td className="p-2">{entry.description ?? "—"}</td>
                   <td className="p-2">{entry.sourceType}</td>
                   <td className="p-2">{entry.lineCount}</td>
