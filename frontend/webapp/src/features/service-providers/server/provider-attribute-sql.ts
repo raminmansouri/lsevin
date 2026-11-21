@@ -83,3 +83,18 @@ export function localizedProviderAttributeValue(locale: string) {
     common.get_translation_t(pa.value_translations, ${locale}, ${FALLBACK_LOCALE})
   ) end`;
 }
+
+
+export function localizedServiceAttributeValue(locale: string) {
+  const savedValue = safeObject(sql`sav.value_translations`);
+  const savedIsAny = (words: string[]) => sql`exists (
+    select 1 from jsonb_each_text(${savedValue}) sv
+    where lower(btrim(sv.value)) = any(${words}::text[])
+  )`;
+
+  return sql`case
+    when ${savedIsAny(YES_WORDS)} then ${YES_MARK}::text
+    when ${savedIsAny(NO_WORDS)} then ${NO_MARK}::text
+    else common.get_translation_t(sav.value_translations, ${locale}, ${FALLBACK_LOCALE})
+  end`;
+}
