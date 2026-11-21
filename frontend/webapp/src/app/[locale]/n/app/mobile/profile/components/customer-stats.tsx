@@ -4,6 +4,7 @@ import { CalendarCheck2, Coins, PiggyBank } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 
 import sql from "@/config/database/db";
+import { getBookingSpendSummary } from "@/features/marketing-loyalty/server/earned-points";
 import { Link } from "@/i18n/navigation";
 
 type CustomerStatsRow = {
@@ -101,10 +102,13 @@ export async function getCustomerStatsByIdentityUser(
   `;
 
   const row = rows[0];
+  // Same source as the Rewards page. loyalty.accounts.points_balance is only set by
+  // manual admin entries, so it showed 0 while Rewards showed the earned points.
+  const { points } = await getBookingSpendSummary(identityUserId);
 
   return {
     bookingsCount: row?.bookings_count ?? 0,
-    pointsBalance: row?.points_balance ?? 0,
+    pointsBalance: points,
     savedAmount: Number(row?.saved_amount ?? 0),
     currencyCode: row?.currency_code ?? "USD",
   };

@@ -1,9 +1,6 @@
 import sql from "@/config/database/db";
 import { countQualifiedReferrals } from "@/features/marketing-loyalty/server/referral-commission.repository";
-import {
-  computeEarnedPoints,
-  getPointsEarnDivisor,
-} from "@/features/marketing-loyalty/server/loyalty-settings.repository";
+import { getBookingSpendSummary } from "@/features/marketing-loyalty/server/earned-points";
 import { getSession } from "@/lib/auth/session";
 import { unstable_noStore as noStore } from "next/cache";
 import {
@@ -299,27 +296,15 @@ const capabilities: RewardsCapabilities = {
   ),
 };
 
-  const spendingRows = userId
-    ? await sql<{ total_spent: number | null; bookings_count: number | null; last_booking_date: string | null }[]>`
-        select
-          coalesce(sum(ps.value), 0)::float as total_spent,
-          count(*)::int as bookings_count,
-          max(b.create_date)::text as last_booking_date
-        from booking.bookings b
-        join category.provider_services ps on ps.id = b.service_id
-        where b.user_id = ${userId}::uuid
-          and coalesce(b.booking_status, '') <> 'Cancelled'
-      `
-    : [{ total_spent: 0, bookings_count: 0, last_booking_date: null }];
-
-  const totalSpent = Number(spendingRows[0]?.total_spent ?? 0);
-  const bookingsCount = Number(spendingRows[0]?.bookings_count ?? 0);
+  // Shared with the profile tile so both pages always show the same points.
+  const spending = await getBookingSpendSummary(userId);
+  const bookingsCount = spending.bookingsCount;
   // Earn rate is admin-configurable (loyalty.settings, /admin/loyalty):
   // points = floor(spend_in_rial / divisor). Because the balance is derived
   // here at read time (never persisted per booking), changing the divisor
   // rescales displayed balances at the new rate without touching stored data.
-  const earnRateDivisor = await getPointsEarnDivisor();
-  const points = computeEarnedPoints(totalSpent, earnRateDivisor);
+  // (The formula lives in getBookingSpendSummary, the one source for points.)
+  const points = spending.points;
     const [qualifiedReferrals, referralMoney, referralCode] = await Promise.all([
         countQualifiedReferrals(userId ?? ""),
         getReferralEarnings(userId, currencyForLocale(locale)),
@@ -388,7 +373,7 @@ const capabilities: RewardsCapabilities = {
       description: `${bookingsCount} completed booking${bookingsCount > 1 ? "s" : ""}`,
       kind: "completedBookings",
       count: bookingsCount,
-      date: spendingRows[0]?.last_booking_date || new Date().toISOString(),
+      date: spending.lastBookingDate || new Date().toISOString(),
     });
   }
   if (coupons.length > 0) {
