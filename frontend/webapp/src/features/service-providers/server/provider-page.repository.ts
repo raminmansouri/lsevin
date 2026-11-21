@@ -3,7 +3,7 @@ import "server-only";
 import { revalidateTag } from "next/cache";
 
 import sql from "@/config/database/db";
-import { localizedProviderAttributeValue } from "@/features/service-providers/server/provider-attribute-sql";
+import { localizedProviderAttributeValue, localizedServiceAttributeValue } from "@/features/service-providers/server/provider-attribute-sql";
 import { getProviderPageDataTag } from "@/features/service-providers/db/cache";
 import { refreshReviewStats } from "@/features/service-providers/server/review-stats";
 import {
@@ -754,7 +754,7 @@ async function getServiceRows(
       select jsonb_agg(
         jsonb_build_object(
           'name', common.get_translation_t(sad.name_translations, ${locale}, 'en-US'),
-          'value', common.get_translation_t(sav.value_translations, ${locale}, 'en-US')
+          'value', ${localizedServiceAttributeValue(locale)}
         ) order by sad.display_order, common.get_translation_t(sad.name_translations, ${locale}, 'en-US')
       ) as attributes
       from category.service_attribute_values sav
