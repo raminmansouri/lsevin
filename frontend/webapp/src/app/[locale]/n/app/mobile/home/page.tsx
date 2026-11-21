@@ -43,7 +43,7 @@ import { EnamadSeal } from "@/components/trust/enamad-seal";
 import { listDomainTrustSeals } from "@/features/trust-seal/server/repository";
 import { absoluteUrl } from "@/lib/seo/alternates";
 import { FaqSection } from "@/features/site-content/components/faq-section";
-import { SiteLinks } from "@/features/site-content/components/site-links";
+
 
 // Static / ISR — the landing page shell no longer reads the visitor's location
 // or profile on the server; see `Home` below.
@@ -541,7 +541,7 @@ async function Home({ params }: PageProps) {
       <SponsoredMediaCarouselSection locale={locale} placement="home_bottom" />
 
 
-<SiteLinks locale={locale} />
+
 <div className="container" style={{  
   display:'flex',
   justifyContent:'center',
