@@ -88,6 +88,7 @@ type ProviderRow = {
   city: string;
   country: string;
   street: string | null;
+  addressDetail: string | null;
   latitude: number | null;
   longitude: number | null;
   email: string | null;
