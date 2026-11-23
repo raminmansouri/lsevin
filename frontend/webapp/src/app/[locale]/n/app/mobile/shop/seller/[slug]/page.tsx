@@ -10,6 +10,8 @@ import { getShopContext } from "@/features/shop/lib/context";
 import { resolveDisplayCurrency } from "@/features/shop/lib/pricing";
 import { DesktopSellerHeader } from "@/features/web-desktop/shop/DesktopSellerHeader";
 
+import { shopImageSrc } from "@/features/shop/lib/image";
+
 export const dynamic = "force-dynamic";
 
 /** A seller's shop page: their profile, and every product they sell at their own price. */
@@ -59,7 +61,7 @@ export default async function ShopSellerPage({
               <div className="grid h-full w-full place-items-center overflow-hidden rounded-full bg-gradient-to-b from-[#0f5a45] to-[#083f30]">
                 {seller.logoUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={seller.logoUrl} alt="" className="h-full w-full object-cover" />
+                  <img src={shopImageSrc(seller.logoUrl)} alt="" className="h-full w-full object-cover" />
                 ) : (
                   <Store size={22} className="text-[#eacb7f]" />
                 )}

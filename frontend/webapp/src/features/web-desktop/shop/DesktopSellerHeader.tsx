@@ -1,4 +1,5 @@
 import { Package, ShieldCheck, Store } from "lucide-react";
+import { shopImageSrc } from "@/features/shop/lib/image";
 
 /** Desktop seller page header (>= 1280px): one slim deep-green band with the seller's emblem, name and facts. */
 export function DesktopSellerHeader({
@@ -21,7 +22,7 @@ export function DesktopSellerHeader({
               <div className="grid h-full w-full place-items-center overflow-hidden rounded-full bg-gradient-to-b from-[#0f5a45] to-[#083f30]">
                 {seller.logoUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={seller.logoUrl} alt="" className="h-full w-full object-cover" />
+                  <img src={shopImageSrc(seller.logoUrl)} alt="" className="h-full w-full object-cover" />
                 ) : (
                   <Store size={30} className="text-[#eacb7f]" />
                 )}

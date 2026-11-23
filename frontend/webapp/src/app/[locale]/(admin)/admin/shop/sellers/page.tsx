@@ -5,6 +5,7 @@ import { listSellersAdmin } from "@/features/shop/api/admin.repository";
 import { deleteSellerAction } from "@/features/shop/actions/admin-catalog.actions";
 import { SellerForm } from "@/features/shop/components/admin/SellerForm";
 import { ShopDeleteButton } from "@/features/shop/components/admin/ShopDeleteButton";
+import { shopImageSrc } from "@/features/shop/lib/image";
 
 export const dynamic = "force-dynamic";
 
@@ -42,7 +43,7 @@ export default async function AdminSellersPage({ searchParams }: { searchParams:
                 <tr key={s.id} className={editing?.id === s.id ? "bg-[#083f30]/5" : ""}>
                   <td className="px-4 py-3">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    {s.logo_url ? <img src={s.logo_url} alt="" className="me-2 inline-block h-6 w-6 rounded object-cover align-middle" /> : null}
+                    {s.logo_url ? <img src={shopImageSrc(s.logo_url)} alt="" className="me-2 inline-block h-6 w-6 rounded object-cover align-middle" /> : null}
                     <Link href={`/admin/shop/sellers?edit=${s.id}`} className="font-medium text-[#083f30] hover:underline">{s.name}</Link>
                     {s.is_default ? <span className="ms-2 rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-semibold text-amber-800">{t("sellers.default")}</span> : null}
                     <div className="font-mono text-xs text-gray-400">{s.slug}</div>
