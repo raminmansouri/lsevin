@@ -27,6 +27,7 @@ import { calendarForCountry, formatBookingDateTime, isBookingTimeZone, sameBooki
 import { RichTextPreview } from '@/features/booking/components/rich-text-preview';
 import { ShareMedicalCaseStep } from './ShareMedicalCaseStep';
 import { formatCurrencyAmount } from '@/features/finance/lib/money';
+import SingleMediaPickerInput from '@/features/media-picker-addon/components/SingleMediaPickerInput';
 
 import { DesktopBookingHeader, DesktopBookingSummary } from "@/features/web-desktop/bookings/DesktopBookingChrome";
 
@@ -1571,14 +1572,14 @@ export function BookingWizard() {
                             return (<div key={item.id} className="rounded-3xl border border-slate-200 bg-slate-50 p-4">
                                 <div className="mb-2 text-sm font-bold text-slate-900">{item.title} {item.isRequired ? <span className="text-red-500">*</span> : null}</div>
                                 {item.description ? <RichTextPreview content={item.description} className="mb-3 text-xs text-slate-500"/> : null}
-                                <input type="text" value={existing?.fileUrl ?? existing?.mediaIds ?? ''} onChange={(e) => {
+                                <SingleMediaPickerInput name={`booking-document-${item.id}`} value={existing?.fileUrl ?? existing?.mediaIds ?? ''} onValueChange={(fileUrl) => {
                                     const nextFiles = [
                                         ...(draft.uploadFiles ?? []).filter((x) => x.requirementId !== item.id),
-                                        { requirementId: item.id, title: item.title, fileUrl: e.target.value, mediaIds: e.target.value },
+                                        ...(fileUrl ? [{ requirementId: item.id, title: item.title, fileUrl, mediaIds: fileUrl }] : []),
                                     ];
                                     const next = { ...draft, uploadFiles: nextFiles };
                                     setDraft(next);
-                                }} placeholder={tBooking("useRHFSingleMediaPickerFieldRHFMultiMediaPickerFieldHiddenValueHere")} className="h-12 w-full rounded-2xl border border-slate-200 bg-white px-4 outline-none focus:border-[#155e75]"/>
+                                }} mediaType="all" />
                             </div>);
                         })}
                     </div>

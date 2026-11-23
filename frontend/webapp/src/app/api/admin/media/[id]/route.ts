@@ -2,6 +2,7 @@ import { UpdateMediaInput } from "@/components/media";
 import { deleteMedia, getMediaById, updateMedia } from "@/components/media/server/repository";
 import { NextRequest, NextResponse } from "next/server";
 import { requireApiAdmin, requireApiUser } from "@/lib/auth/api-guard";
+import { can } from "@/lib/admin/access/policy";
 import { deleteStoredObject } from "@/components/media/server/storage-delete";
 import { getSession } from "@/lib/auth/session";
 
@@ -19,7 +20,7 @@ export async function GET(
     const { id } = await context.params;
     const data = await getMediaById(id);
 
-    if (!data) {
+    if (!data || (!can(auth.access, "media", "view") && data.createdBy !== auth.userId)) {
       return NextResponse.json({ error: "Media item not found." }, { status: 404 });
     }
 
@@ -83,7 +84,7 @@ export async function DELETE(
     // bytes that no longer exist — a visible break — whereas failing here changes nothing
     // and the caller can simply try again.
     const session = await getSession();
-    const outcome = await deleteStoredObject(existing.fileUrl, session?.user?.accessToken);
+    const outcome = await deleteStoredObject(existing.isPublic ? existing.fileUrl : existing.storageKey || existing.fileUrl, session?.user?.accessToken, id);
 
     if (outcome.error && !outcome.skipped) {
       return NextResponse.json(

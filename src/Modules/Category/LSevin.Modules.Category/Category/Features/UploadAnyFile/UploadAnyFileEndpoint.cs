@@ -1,6 +1,5 @@
 using BuildingBlocks.Core.ResultPattern;
 using BuildingBlocks.Core.Web.Constants;
-using BuildingBlocks.Security.Common;
 using BuildingBlocks.Web.Endpoints;
 using BuildingBlocks.Web.Extensions;
 using Humanizer;
@@ -19,7 +18,7 @@ internal sealed class UpdateCategoryEndpoint : EndpointResponseHandler, IEndpoin
     public void ConfigureEndpoints(IEndpointRouteBuilder app)
     {
         app.MapPut(Routes.Category.UploadAnyFile, Handle)
-            .RequireAuthorization(SecurityConstants.Role.Admin)
+            .RequireAuthorization()
             .DisableAntiforgery()
             .Accepts<UploadAnyFileRequest>(RequestHeaderConstValues.MultipartFormDataContent)
             .Produces<Guid>()

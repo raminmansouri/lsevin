@@ -165,10 +165,10 @@ export async function deleteMediaById(id: string): Promise<boolean> {
   return Boolean(payload?.success ?? true);
 }
 
-export const uploadViaStorageRoute: UploadWithProgress = async ({
+async function uploadToStorage({
   file,
   onProgress,
-}): Promise<UploadMediaResult> => {
+}: Parameters<UploadWithProgress>[0], scope?: string): Promise<UploadMediaResult> {
   // Bandwidth layer: convert raster images to WebP under budget before upload.
   // Non-images / already-optimized files are returned unchanged.
   const uploadFile = await compressImageToWebp(file);
@@ -178,7 +178,7 @@ export const uploadViaStorageRoute: UploadWithProgress = async ({
 
   return new Promise<UploadMediaResult>((resolve, reject) => {
     const xhr = new XMLHttpRequest();
-    xhr.open("POST", "/api/admin/media/storage");
+    xhr.open("POST", `/api/admin/media/storage${scope ? `?scope=${encodeURIComponent(scope)}` : ''}`);
 
     xhr.upload.addEventListener("progress", (event) => {
       if (!event.lengthComputable || !onProgress) return;
@@ -208,4 +208,7 @@ export const uploadViaStorageRoute: UploadWithProgress = async ({
     xhr.onerror = () => reject(new Error("Upload failed."));
     xhr.send(formData);
   });
-};
+}
+
+export const uploadViaStorageRoute: UploadWithProgress = (input) => uploadToStorage(input);
+export const uploadCustomerDocumentViaStorageRoute: UploadWithProgress = (input) => uploadToStorage(input, 'customer-documents');

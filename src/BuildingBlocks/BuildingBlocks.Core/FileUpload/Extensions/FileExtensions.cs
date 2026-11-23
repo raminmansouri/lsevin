@@ -7,8 +7,10 @@ using BuildingBlocks.Core.FileUpload.Options;
 using BuildingBlocks.Core.FileUpload.Services;
 using BuildingBlocks.Core.Web.Extensions;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using System.Security.Claims;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
@@ -108,12 +110,9 @@ public static class FileExtensions
                 }
 
                 var key = remainder.Value?.TrimStart('/') ?? string.Empty;
-                var isPublic = key.StartsWith("Categories/", StringComparison.Ordinal)
-                    || key.StartsWith("ServiceProviders/", StringComparison.Ordinal);
-
-                if (!isPublic)
+                var isPublic = IsPublicFile(key);
+                if (!isPublic && !await AuthorizePrivateFileAsync(context, key))
                 {
-                    context.Response.StatusCode = StatusCodes.Status403Forbidden;
                     return;
                 }
 
@@ -123,7 +122,9 @@ public static class FileExtensions
                     context.Response.StatusCode = StatusCodes.Status200OK;
                     context.Response.ContentType = response.Headers.ContentType ?? "application/octet-stream";
                     context.Response.ContentLength = response.ContentLength;
-                    context.Response.Headers[HeaderNames.CacheControl] = "public,max-age=31536000,immutable";
+                    context.Response.Headers[HeaderNames.CacheControl] = isPublic
+                        ? "public,max-age=31536000,immutable"
+                        : "private,no-store";
 
                     if (!HttpMethods.IsHead(context.Request.Method))
                     {
@@ -150,6 +151,18 @@ public static class FileExtensions
             Directory.CreateDirectory(uploadPath);
         }
 
+        app.Use(async (context, next) =>
+        {
+            if (!context.Request.Path.StartsWithSegments(FileConstants.FileRoute, out var remainder))
+            {
+                await next();
+                return;
+            }
+            var key = remainder.Value?.TrimStart('/') ?? string.Empty;
+            if (!IsPublicFile(key) && !await AuthorizePrivateFileAsync(context, key)) return;
+            await next();
+        });
+
         app.UseStaticFiles(
             new StaticFileOptions
             {
@@ -161,12 +174,50 @@ public static class FileExtensions
                 OnPrepareResponse = context =>
                 {
                     context.Context.Response.Headers[HeaderNames.CacheControl] =
-                        "public,max-age=31536000,immutable";
+                        IsPublicFile(context.Context.Request.Path.Value?.Replace("/files/", "", StringComparison.Ordinal) ?? "")
+                            ? "public,max-age=31536000,immutable"
+                            : "private,no-store";
                 },
             }
         );
 
         return app;
+    }
+
+    private static bool IsPublicFile(string key) =>
+        !key.Contains("..", StringComparison.Ordinal)
+        && !key.Contains('\\')
+        && (key.StartsWith("Categories/", StringComparison.Ordinal)
+            || key.StartsWith("ServiceProviders/", StringComparison.Ordinal));
+
+    private static async Task<bool> AuthorizePrivateFileAsync(HttpContext context, string key)
+    {
+        if (!key.StartsWith("CustomerDocument/", StringComparison.Ordinal)
+            || key.Contains("..", StringComparison.Ordinal))
+        {
+            context.Response.StatusCode = StatusCodes.Status403Forbidden;
+            return false;
+        }
+
+        // The file middleware runs before UseAuthentication in the host pipeline.
+        // Authenticate this request explicitly; never infer access from a URL alone.
+        var auth = await context.AuthenticateAsync();
+        if (!auth.Succeeded || auth.Principal is null)
+        {
+            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+            return false;
+        }
+        var principal = auth.Principal;
+        if (principal.IsInRole("admin") || principal.IsInRole("superadmin")) return true;
+
+        var segments = key.Split('/');
+        var owner = segments.Length >= 3 ? segments[1] : string.Empty;
+        var current = principal.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (Guid.TryParse(owner, out var ownerId) && Guid.TryParse(current, out var currentId)
+            && ownerId == currentId) return true;
+
+        context.Response.StatusCode = StatusCodes.Status403Forbidden;
+        return false;
     }
 
     private static IAmazonS3 CreateS3Client(S3StorageOptions s3)

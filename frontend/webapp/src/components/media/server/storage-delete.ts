@@ -21,7 +21,8 @@ export type StorageDeleteOutcome = {
 };
 
 /**
- * The prefixes the API's delete endpoint accepts.
+ * Public prefixes accepted without a library ID. Private CustomerDocument files
+ * require the ID, which the API checks against the stored path before deletion.
  *
  * Duplicated from the server rule on purpose. The server is the authority — it rejects
  * anything else with a 400 — but knowing the rule here lets a legacy row whose path the API
@@ -44,7 +45,8 @@ function toRelativePath(fileUrl: string): string | null {
 
 export async function deleteStoredObject(
   fileUrl: string | null | undefined,
-  token: string | undefined
+  token: string | undefined,
+  mediaId?: string
 ): Promise<StorageDeleteOutcome> {
   const path = toRelativePath(fileUrl ?? "");
 
@@ -52,7 +54,11 @@ export async function deleteStoredObject(
     return { path: "", deleted: false, skipped: true, error: "The media row has no usable path." };
   }
 
-  if (!DELETABLE_PREFIXES.some((prefix) => path.startsWith(prefix))) {
+  const privateDocument = path.startsWith('CustomerDocument/');
+  if (privateDocument && !mediaId) {
+    return { path, deleted: false, skipped: false, error: 'Private media deletion requires its library ID.' };
+  }
+  if (!privateDocument && !DELETABLE_PREFIXES.some((prefix) => path.startsWith(prefix))) {
     // Legacy shapes such as `uploads/bug-reports/...` live outside the media namespace the
     // API will delete under. Skipping rather than erroring keeps the row deletable.
     return {
@@ -64,7 +70,7 @@ export async function deleteStoredObject(
   }
 
   const { data, error } = await deleteData<undefined, boolean>(
-    `File/DeleteAnyFile?path=${encodeURIComponent(path)}`,
+    `File/DeleteAnyFile?path=${encodeURIComponent(path)}${privateDocument ? `&mediaId=${encodeURIComponent(mediaId!)}` : ''}`,
     undefined,
     { locale: "en", token }
   );
@@ -83,8 +89,8 @@ export async function deleteStoredObject(
 }
 
 export async function deleteStoredObjects(
-  fileUrls: Array<string | null | undefined>,
+  files: Array<{ id: string; fileUrl: string | null | undefined }>,
   token: string | undefined
 ): Promise<StorageDeleteOutcome[]> {
-  return Promise.all(fileUrls.map((fileUrl) => deleteStoredObject(fileUrl, token)));
+  return Promise.all(files.map((file) => deleteStoredObject(file.fileUrl, token, file.id)));
 }

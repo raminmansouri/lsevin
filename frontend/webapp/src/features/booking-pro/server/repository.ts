@@ -736,6 +736,16 @@ export async function saveDraftDocuments(userId: string, draftId: string, docume
                 for update
         `;
         if (!editableDraft) throw new Error('BOOKING_DRAFT_NOT_EDITABLE');
+        for (const doc of documents) {
+            const ref = String(doc.fileUrl ?? '');
+            const [owned] = await tx`
+                select id from media.media_library
+                where (('/api/media/private/' || id::text) = ${ref} or id::text = ${ref})
+                  and created_by = ${userId} and is_public = false
+                limit 1
+            `;
+            if (!owned) throw new Error('BOOKING_DOCUMENT_NOT_OWNED');
+        }
         await tx`delete from booking.booking_draft_documents where draft_id = ${draftId}`;
         for (const doc of documents) {
             await tx`
@@ -2063,6 +2073,22 @@ export async function checkoutDraft(
         // or remove its payments when the customer books an additional service.
         if (!['Draft', 'InProgress'].includes(String(lockedDraft.status))) {
             throw new Error("BOOKING_DRAFT_NOT_EDITABLE");
+        }
+
+        // Recheck against the database clock after locking the draft. A customer may
+        // leave checkout open while the provider-local slot passes.
+        if (draft.selectedDate && (draft.selectedTimeFrom || draft.selectedTime)) {
+            const [slotClock] = await tx<{ future: boolean }[]>`
+                select ((d.selected_date + coalesce(d.selected_time_from, d.selected_time))
+                           at time zone (case when sp.timezone_id in (select name from pg_timezone_names) then sp.timezone_id
+                                              when upper(sp.country) = 'IR' then 'Asia/Tehran'
+                                              when upper(sp.country) = 'IQ' then 'Asia/Baghdad'
+                                              else 'UTC' end)) > now() as future
+                from booking.booking_drafts d
+                join category.service_providers sp on sp.id = d.provider_id
+                where d.id = ${draft.id}
+            `;
+            if (!slotClock?.future) throw new Error('BOOKING_SLOT_PASSED');
         }
 
         const [booking] = await tx`

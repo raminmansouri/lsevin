@@ -2,7 +2,7 @@
 
 import { compressImageToWebp } from "@/lib/image/compress-image";
 
-import { createMediaRecord } from "../client/api";
+import { createMediaRecord, fetchMediaById } from "../client/api";
 import {
   extractClientMediaMetadata,
   getExtensionFromName,
@@ -91,6 +91,7 @@ export async function persistUploadedMedia(
     isPublic?: boolean;
   }
 ) {
+  if (uploadResult.id) return fetchMediaById(uploadResult.id);
   const extracted = await extractClientMediaMetadata(file);
 
   const payload: CreateMediaInput = {

@@ -120,6 +120,7 @@ export interface AvailabilityDate {
 }
 
 export interface AvailabilityTime {
+    providerTimeZone?: string;
   time: string;
   timeFrom: string;
   timeTo: string;

@@ -54,6 +54,7 @@ export default function MediaPreviewList({
                   width={50}
                   height={50}
                   src={mediaSrc(item.fileUrl)}
+                  unoptimized={!item.isPublic}
                   alt={item.originalName}
                   className="h-full w-full object-cover"
                 />

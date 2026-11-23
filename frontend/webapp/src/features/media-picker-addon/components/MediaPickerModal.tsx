@@ -73,6 +73,7 @@ function MediaThumb({ item }: { item: MediaItem }) {
       <ImageWithFallback
         fill
         src={mediaSrc(item.fileUrl)}
+        unoptimized={!item.isPublic}
         alt={item.originalName}
         className="h-full w-full object-cover"
       />

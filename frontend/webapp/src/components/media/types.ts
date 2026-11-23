@@ -151,6 +151,7 @@ export type UploadHandlerInput = {
 };
 
 export type UploadHandlerResult = {
+  id?: string;
   fileUrl: string;
   storedName?: string | null;
   storagePath?: string | null;

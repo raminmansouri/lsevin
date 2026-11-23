@@ -10,8 +10,8 @@ export async function POST(request: NextRequest) {
     const result = await checkoutDraft(userId, body);
     return NextResponse.json(result);
   } catch (error) {
-    if (error instanceof Error && error.message === 'BOOKING_DRAFT_NOT_EDITABLE') {
-      return NextResponse.json({ error: 'BOOKING_DRAFT_NOT_EDITABLE' }, { status: 409 });
+    if (error instanceof Error && ['BOOKING_DRAFT_NOT_EDITABLE', 'BOOKING_SLOT_PASSED'].includes(error.message)) {
+      return NextResponse.json({ error: error.message }, { status: 409 });
     }
     throw error;
   }

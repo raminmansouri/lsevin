@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { BOOKING_CALENDARS, bookingCalendarParts, bookingDateTimeInstant, formatBookingDate, normalizeBookingCalendar, parseBookingCalendarDate, toIsoDate } from './calendar';
+import { BOOKING_CALENDARS, bookingCalendarParts, bookingDateTimeInstant, bookingLocalIsoDate, formatBookingDate, normalizeBookingCalendar, parseBookingCalendarDate, toIsoDate } from './calendar';
 
 describe('booking calendars and timezones', () => {
   it('converts known Jalali and Umm al-Qura dates to Gregorian storage', () => {
@@ -28,6 +28,12 @@ describe('booking calendars and timezones', () => {
   });
   it('converts provider-local appointments into instants', () => {
     expect(bookingDateTimeInstant('2026-09-13', '12:00', 'Asia/Tehran').toISOString()).toBe('2026-09-13T08:30:00.000Z');
+  });
+  it('starts availability on the provider day across opposite timezone boundaries', () => {
+    const now = new Date('2026-11-22T01:00:00Z');
+    expect(bookingLocalIsoDate(now, 'Asia/Tehran')).toBe('2026-11-22');
+    expect(bookingLocalIsoDate(now, 'America/Los_Angeles')).toBe('2026-11-21');
+    expect(() => bookingLocalIsoDate(now, 'Invalid/Zone')).toThrow();
   });
   it('rejects nonexistent and ambiguous daylight-saving times', () => {
     expect(() => bookingDateTimeInstant('2026-03-08', '02:30', 'America/New_York')).toThrow();

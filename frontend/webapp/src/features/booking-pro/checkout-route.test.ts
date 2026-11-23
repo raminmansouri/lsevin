@@ -28,6 +28,13 @@ describe('booking checkout route', () => {
     expect(await response.json()).toEqual({ error: 'BOOKING_DRAFT_NOT_EDITABLE' });
   });
 
+  it('rejects a slot that passed while the customer was checking out', async () => {
+    checkoutDraft.mockRejectedValue(new Error('BOOKING_SLOT_PASSED'));
+    const response = await POST(request());
+    expect(response.status).toBe(409);
+    expect(await response.json()).toEqual({ error: 'BOOKING_SLOT_PASSED' });
+  });
+
   it('uses the authenticated customer for checkout', async () => {
     checkoutDraft.mockResolvedValue({ bookingId: 'booking-a' });
     const response = await POST(request());

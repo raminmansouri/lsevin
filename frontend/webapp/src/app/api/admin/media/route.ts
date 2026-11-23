@@ -10,6 +10,7 @@ import { deleteStoredObjects } from "@/components/media/server/storage-delete";
 import { getSession } from "@/lib/auth/session";
 import { CreateMediaInput, MediaListParams } from "@/components/media";
 import { requireApiAdmin, requireApiUser } from "@/lib/auth/api-guard";
+import { can } from "@/lib/admin/access/policy";
 
 
 function toNumber(value: string | null, fallback: number) {
@@ -34,7 +35,7 @@ export async function GET(request: NextRequest) {
       locale: searchParams.get("locale") ?? "fa",
     };
 
-    const data = await listMedia(params);
+    const data = await listMedia(params, undefined, can(auth.access, "media", "view") ? undefined : auth.userId);
     return NextResponse.json(data);
   } catch (error) {
     return NextResponse.json(
@@ -48,7 +49,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const auth = await requireApiUser();
+    const auth = await requireApiAdmin("media", "manage");
     if (auth instanceof NextResponse) return auth;
 
     const body = (await request.json()) as CreateMediaInput;
@@ -80,7 +81,7 @@ export async function DELETE(request: NextRequest) {
     const rows = await getMediaFileUrls(ids);
     const session = await getSession();
     const outcomes = await deleteStoredObjects(
-      rows.map((row) => row.fileUrl),
+      rows,
       session?.user?.accessToken
     );
 

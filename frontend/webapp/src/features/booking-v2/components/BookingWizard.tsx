@@ -1,6 +1,6 @@
 "use client";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { AlertCircle, ArrowLeft, BadgeCheck, Building2, Calendar, Car, Check, CheckCircle2, ChevronRight, Clock3, CreditCard, Hotel, Landmark, Loader2, Shield, Upload, UserRound, } from "lucide-react";
+import { AlertCircle, ArrowLeft, BadgeCheck, Building2, Calendar, Car, Check, CheckCircle2, ChevronRight, Clock3, CreditCard, Hotel, Landmark, Loader2, Shield, UserRound, } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { z } from "zod";
@@ -8,6 +8,8 @@ import { PendingDraftsPanel } from "./PendingDraftsPanel";
 import type { AvailabilityDate, AvailabilityTime, BookingAddon, BookingCatalogProvider, BookingCatalogService, BookingCatalogSpecialist, BookingDraftRecord, CheckoutResponse, PaymentMethod, SelectedAddon, UploadedDraftDocument, } from "@/features/booking-v2/lib/types";
 import { RichTextPreview } from "@/features/booking/components/rich-text-preview";
 import { useTranslations } from "next-intl";
+import { formatBookingDateTime } from "@/features/booking-pro/lib/calendar";
+import SingleMediaPickerInput from "@/features/media-picker-addon/components/SingleMediaPickerInput";
 const addonConfigSchema = z.record(z.any());
 const formSchema = z.object({
     draftId: z.string().uuid().optional(),
@@ -106,12 +108,21 @@ export function BookingWizard({ initialProviderId, initialServiceId, initialSpec
     const [addons, setAddons] = useState<BookingAddon[]>([]);
     const [dates, setDates] = useState<AvailabilityDate[]>([]);
     const [times, setTimes] = useState<AvailabilityTime[]>([]);
+    const [viewerTimeZone, setViewerTimeZone] = useState('UTC');
+    useEffect(() => {
+      setViewerTimeZone(Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC');
+    }, []);
     const [pendingDrafts, setPendingDrafts] = useState<any[]>([]);
     const [loading, setLoading] = useState({ catalog: true, addons: false, dates: false, times: false, submit: false });
     const [saveState, setSaveState] = useState<string>("");
     const [error, setError] = useState<string>("");
     const [checkoutResult, setCheckoutResult] = useState<CheckoutResponse | null>(null);
     const values = methods.watch();
+    const selectedSlot = times.find((item) => item.timeFrom === values.selectedTimeFrom);
+    const selectedLocalTime = values.selectedDate && values.selectedTimeFrom && selectedSlot
+      ? formatBookingDateTime(values.selectedDate, values.selectedTimeFrom,
+          { sourceTimeZone: selectedSlot.providerTimeZone || 'UTC', timeZone: viewerTimeZone, locale })
+      : null;
     const selectedProvider = useMemo(() => catalog.providers.find((item) => item.id === values.providerId), [catalog.providers, values.providerId]);
     const selectedService = useMemo(() => catalog.services.find((item) => item.id === values.serviceId), [catalog.services, values.serviceId]);
     const selectedSpecialist = useMemo(() => catalog.specialists.find((item) => item.id === values.specialistId), [catalog.specialists, values.specialistId]);
@@ -186,7 +197,7 @@ export function BookingWizard({ initialProviderId, initialServiceId, initialSpec
         try {
             const result = await fetchJson<{
                 dates: AvailabilityDate[];
-            }>(`/api/booking-v2/availability/dates?specialistId=${values.specialistId}`);
+            }>(`/api/booking-v2/availability/dates?specialistId=${values.specialistId}&providerId=${values.providerId}`);
             setDates(result.dates || []);
         }
         catch (err) {
@@ -195,7 +206,7 @@ export function BookingWizard({ initialProviderId, initialServiceId, initialSpec
         finally {
             setLoading((state) => ({ ...state, dates: false }));
         }
-    }, [values.specialistId]);
+    }, [values.specialistId, values.providerId]);
     const loadTimes = useCallback(async () => {
         if (!values.specialistId || !values.serviceId || !values.selectedDate) {
             setTimes([]);
@@ -357,19 +368,7 @@ export function BookingWizard({ initialProviderId, initialServiceId, initialSpec
             ? { ...item, config: { ...item.config, ...patch } }
             : item), { shouldDirty: true });
     };
-    const uploadDocument = async (file: File, title: string) => {
-        const formData = new FormData();
-        formData.set("file", file);
-        formData.set("title", title);
-        const response = await fetch("/api/booking-v2/uploads", {
-            method: "POST",
-            body: formData,
-        });
-        if (!response.ok) {
-            const body = await response.json().catch(() => ({}));
-            throw new Error(body.message || "Upload failed.");
-        }
-        const document = (await response.json()) as UploadedDraftDocument;
+    const uploadDocument = async (document: UploadedDraftDocument) => {
         const current = methods.getValues("documents") || [];
         methods.setValue("documents", [...current, document], { shouldDirty: true });
         await saveDraft(step);
@@ -510,7 +509,9 @@ export function BookingWizard({ initialProviderId, initialServiceId, initialSpec
                     methods.setValue("selectedTimeFrom", time.timeFrom, { shouldDirty: true });
                     methods.setValue("selectedTimeTo", time.timeTo, { shouldDirty: true });
                 }} className={`rounded-2xl border p-3 text-center ${values.selectedTime === time.time ? "border-slate-900 bg-slate-900 text-white" : time.available ? "border-slate-200 bg-white hover:border-slate-300" : "cursor-not-allowed border-slate-100 bg-slate-50 text-slate-400"}`}>
-                        <div className="text-sm font-bold">{time.time}</div>
+                        <div className="text-sm font-bold">{time.time} ({time.providerTimeZone || 'UTC'})</div>
+                        <div className="mt-1 text-xs">{values.selectedDate ? formatBookingDateTime(values.selectedDate, time.timeFrom,
+                          { sourceTimeZone: time.providerTimeZone || 'UTC', timeZone: viewerTimeZone, locale: 'en' }) : ''} ({viewerTimeZone})</div>
                         <div className="mt-1 text-xs">{time.timeFrom} - {time.timeTo}</div>
                       </button>))}
                   </div>
@@ -579,25 +580,15 @@ export function BookingWizard({ initialProviderId, initialServiceId, initialSpec
                   <p className="mt-1 text-sm text-slate-600">{tBooking("uploadMedicalFilesOrTravelDocumentsFilesAreAttached")}</p>
                 </div>
                 <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-5">
-                  <label className="flex cursor-pointer flex-col items-center justify-center gap-2 text-center">
-                    <Upload className="h-6 w-6 text-slate-500"/>
-                    <span className="text-sm font-medium text-slate-900">{tBooking("clickToUploadADocument")}</span>
-                    <span className="text-xs text-slate-500">{tBooking("pDFJPGPNG")}</span>
-                    <input type="file" className="hidden" onChange={async (event) => {
-                const file = event.target.files?.[0];
-                if (!file)
-                    return;
-                try {
-                    await uploadDocument(file, file.name);
-                }
-                catch (err) {
-                    setError(err instanceof Error ? err.message : "Upload failed.");
-                }
-                finally {
-                    event.currentTarget.value = "";
-                }
-            }}/>
-                  </label>
+                  <SingleMediaPickerInput name="booking-v2-document" label={tBooking("clickToUploadADocument")}
+                    onItemsChange={async (items) => {
+                      const item = items[0];
+                      if (!item) return;
+                      try {
+                        await uploadDocument({ title: item.originalName, fileName: item.originalName,
+                          fileUrl: item.fileUrl, mimeType: item.mimeType, sizeBytes: item.fileSize });
+                      } catch (err) { setError(err instanceof Error ? err.message : "Upload failed."); }
+                    }} />
                 </div>
                 <div className="space-y-3">
                   {(values.documents || []).map((document, index) => (<div key={`${document.fileUrl}-${index}`} className="flex items-center justify-between rounded-2xl border border-slate-200 bg-white p-4">
@@ -620,7 +611,7 @@ export function BookingWizard({ initialProviderId, initialServiceId, initialSpec
                   <InfoCard label="Provider" value={selectedProvider?.name || "-"}/>
                   <InfoCard label="Service" value={selectedService?.name || "-"}/>
                   <InfoCard label="Specialist" value={selectedSpecialist?.name || "-"}/>
-                  <InfoCard label="Schedule" value={values.selectedDate && values.selectedTime ? `${values.selectedDate} ${values.selectedTime}` : "-"}/>
+                  <InfoCard label="Schedule" value={selectedLocalTime ? `${selectedLocalTime} (${viewerTimeZone})` : "-"}/>
                 </div>
 
                 <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
@@ -653,7 +644,7 @@ export function BookingWizard({ initialProviderId, initialServiceId, initialSpec
               <SummaryRow icon={<BadgeCheck className="h-4 w-4"/>} label="Service" value={selectedService?.name || "Not selected"}/>
               <SummaryRow icon={<UserRound className="h-4 w-4"/>} label="Specialist" value={selectedSpecialist?.name || "Not selected"}/>
               <SummaryRow icon={<Calendar className="h-4 w-4"/>} label="Date" value={values.selectedDate || "Not selected"}/>
-              <SummaryRow icon={<Clock3 className="h-4 w-4"/>} label="Time" value={values.selectedTime || "Not selected"}/>
+              <SummaryRow icon={<Clock3 className="h-4 w-4"/>} label="Time" value={selectedLocalTime || values.selectedTime || "Not selected"}/>
             </div>
 
             <div className="mt-5 border-t border-slate-200 pt-4">

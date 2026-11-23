@@ -5,12 +5,13 @@ export async function GET(request: NextRequest) {
   try {
     const url = new URL(request.url);
     const specialistId = url.searchParams.get("specialistId");
+    const providerId = url.searchParams.get("providerId");
 
     if (!specialistId) {
       return NextResponse.json({ dates: [] });
     }
 
-    const dates = await getAvailableDates({ specialistId });
+    const dates = await getAvailableDates({ specialistId, providerId });
     return NextResponse.json({ dates });
   } catch (error) {
     return NextResponse.json(

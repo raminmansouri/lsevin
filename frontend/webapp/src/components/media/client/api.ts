@@ -46,6 +46,11 @@ export async function fetchMediaList(
   return parseJson<MediaListResponse>(response);
 }
 
+export async function fetchMediaById(id: string): Promise<MediaItem> {
+  const response = await fetch(`/api/admin/media/${encodeURIComponent(id)}`, { cache: 'no-store' });
+  return parseJson<MediaItem>(response);
+}
+
 export async function createMediaRecord(
   input: CreateMediaInput
 ): Promise<MediaItem> {

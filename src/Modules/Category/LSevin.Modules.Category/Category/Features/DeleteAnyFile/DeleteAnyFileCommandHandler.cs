@@ -1,8 +1,11 @@
 using System.Net;
 using Ardalis.GuardClauses;
 using BuildingBlocks.Core.FileUpload.Services;
+using BuildingBlocks.Core.Persistence.Connection;
+using BuildingBlocks.Core.ErrorHandling;
 using BuildingBlocks.Core.Messaging.Commands;
 using BuildingBlocks.Core.ResultPattern;
+using Dapper;
 
 namespace LSevin.Modules.Category.Category.Features.DeleteAnyFile;
 
@@ -21,7 +24,7 @@ namespace LSevin.Modules.Category.Category.Features.DeleteAnyFile;
 /// </para>
 /// </remarks>
 /// <param name="fileService">The file service.</param>
-internal sealed class DeleteAnyFileCommandHandler(IFileService fileService)
+internal sealed class DeleteAnyFileCommandHandler(IFileService fileService, IDbConnectionFactory dbConnectionFactory)
     : CommandHandler<DeleteAnyFileCommand, bool>
 {
     /// <inheritdoc />
@@ -31,6 +34,18 @@ internal sealed class DeleteAnyFileCommandHandler(IFileService fileService)
     )
     {
         Guard.Against.Null(command, nameof(command));
+
+        if (command.Path.StartsWith("CustomerDocument/", StringComparison.Ordinal))
+        {
+            if (command.MediaId is null)
+                return AppError.NotFoundErrorMessage("Media file");
+            await using var connection = await dbConnectionFactory.GetOrCreateConnectionAsync(cancellationToken);
+            var storedPath = await connection.QuerySingleOrDefaultAsync<string>(new CommandDefinition(
+                "select file_url from media.media_library where id = @MediaId and is_public = false",
+                new { command.MediaId }, cancellationToken: cancellationToken));
+            if (!string.Equals(storedPath, command.Path, StringComparison.Ordinal))
+                return AppError.NotFoundErrorMessage("Media file");
+        }
 
         var result = await fileService.DeleteFileAsync(command.Path, cancellationToken);
 

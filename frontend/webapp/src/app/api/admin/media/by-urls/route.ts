@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import sql from "@/config/database/db";
 import type { MediaItem } from "@/features/media-picker-addon";
 import { requireApiUser } from "@/lib/auth/api-guard";
+import { can } from "@/lib/admin/access/policy";
 
 type MediaRow = {
   id: string;
@@ -23,6 +24,7 @@ type MediaRow = {
   create_date: string | Date | null;
   last_modified_date: string | Date | null;
   is_public: boolean | null;
+  created_by: string | null;
 };
 
 function dateToString(value: string | Date | null) {
@@ -65,7 +67,7 @@ function toMediaItem(row: MediaRow): MediaItem {
     altTranslations: row.alt_translations ?? {},
     originalName: row.original_name,
     storedName: row.stored_name,
-    fileUrl: row.file_url,
+    fileUrl: row.is_public ? row.file_url : `/api/media/private/${row.id}`,
     storagePath: row.storage_path,
     mimeType: row.mime_type,
     extension: row.extension,
@@ -88,6 +90,9 @@ export async function POST(request: NextRequest) {
     const body = (await request.json()) as { fileUrls?: string[] };
     const references = Array.isArray(body.fileUrls) ? body.fileUrls : [];
     const candidates = Array.from(new Set(references.flatMap(expandReference)));
+    for (const candidate of [...candidates]) {
+      if (candidate.startsWith('/api/media/private/')) candidates.push(candidate.slice('/api/media/private/'.length));
+    }
 
     if (!candidates.length) {
       return NextResponse.json([]);
@@ -113,9 +118,10 @@ export async function POST(request: NextRequest) {
         create_date,
         last_modified_date,
         is_public
+        ,created_by
       from media.media_library
-      where id::text in ${sql(candidates)}
-         or file_url in ${sql(candidates)}
+      where (id::text in ${sql(candidates)} or file_url in ${sql(candidates)})
+        and (${can(auth.access, "media", "view")} or created_by = ${auth.userId})
       order by create_date desc
     `;
 

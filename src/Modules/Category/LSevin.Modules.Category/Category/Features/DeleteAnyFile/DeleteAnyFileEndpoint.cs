@@ -43,10 +43,11 @@ internal sealed class DeleteAnyFileEndpoint : EndpointResponseHandler, IEndpoint
 
     private static Task<Results<Ok<bool>, ProblemHttpResult>> Handle(
         [AsParameters] BaseEndpointServices<CategoryModule> services,
-        string path
+        string path,
+        Guid? mediaId
     ) =>
         Result
-            .Create(new DeleteAnyFileCommand(path))
+            .Create(new DeleteAnyFileCommand(path, mediaId))
             .Bind(command => services.Gateway.SendCommandAsync(command, services.CancellationToken))
             .Match<bool, Results<Ok<bool>, ProblemHttpResult>>(
                 onSuccess: result => EndpointSucceedOk(result),

@@ -9,9 +9,8 @@ namespace LSevin.Modules.Category.Category.Features.DeleteAnyFile;
 /// <remarks>
 /// Delete-by-path is a sharp tool, so the authority is bounded here rather than left to the
 /// storage layer. <c>IFileService</c> already refuses traversal, but "not traversal" is a much
-/// weaker property than "inside the media namespace": without a prefix rule an admin panel
-/// action could name <c>CustomerDocument/…</c> and destroy a customer's document. Those have
-/// their own owner-scoped delete feature and must not be reachable from here.
+/// weaker property than inside the media namespace. Private documents require a media
+/// library ID, and the handler checks that it owns the exact stored path.
 /// </remarks>
 public sealed class DeleteAnyFileCommandValidator : AbstractValidator<DeleteAnyFileCommand>
 {
@@ -33,9 +32,10 @@ public sealed class DeleteAnyFileCommandValidator : AbstractValidator<DeleteAnyF
             .WithMessage("The file path must not contain a relative segment.")
             .Must(path => !path.StartsWith('/') && !path.StartsWith('\\'))
             .WithMessage("The file path must be relative.")
-            .Must(BeInsideMediaNamespace)
+            .Must((command, path) => BeInsideMediaNamespace(path)
+                || (command.MediaId.HasValue && IsPrivateDocumentPath(path)))
             .WithMessage(
-                $"Only files under {string.Join(" or ", DeletablePrefixes)} can be deleted here."
+                "Only public media, or a registered private document with its media ID, can be deleted here."
             );
     }
 
@@ -53,4 +53,9 @@ public sealed class DeleteAnyFileCommandValidator : AbstractValidator<DeleteAnyF
 
         return DeletablePrefixes.Any(prefix => normalized.StartsWith(prefix, StringComparison.Ordinal));
     }
+
+    private static bool IsPrivateDocumentPath(string? path) =>
+        !string.IsNullOrWhiteSpace(path)
+        && path.StartsWith("CustomerDocument/", StringComparison.Ordinal)
+        && !path.Contains('\\');
 }

@@ -18,7 +18,7 @@ function mapRow(row: Record<string, any>): MediaItem {
     altTranslations: normalizeLocalizedFields(row.altTranslations),
     originalName: row.originalName,
     storedName: row.storedName,
-    fileUrl: row.fileUrl,
+    fileUrl: row.isPublic ? row.fileUrl : `/api/media/private/${row.id}`,
     storagePath: row.storagePath,
     storageKey: row.storageKey,
     mimeType: row.mimeType,
@@ -147,7 +147,8 @@ function joinClauses(sql: MediaSqlClient, clauses: any[]) {
 
 export async function listMedia(
   params: MediaListParams,
-  sql: MediaSqlClient = mediaSql
+  sql: MediaSqlClient = mediaSql,
+  viewerId?: string
 ): Promise<MediaListResponse> {
   const page = Math.max(1, Number(params.page ?? 1));
   const pageSize = Math.min(60, Math.max(1, Number(params.pageSize ?? 24)));
@@ -156,6 +157,7 @@ export async function listMedia(
   const sort = params.sort || "newest";
 
   const filters = buildFilters(sql, params);
+  if (viewerId) filters.push(sql`m.created_by = ${viewerId}`);
   const whereFragment = joinClauses(sql, filters);
   const orderFragment = getSortFragment(sql, sort, locale);
 
@@ -210,6 +212,9 @@ export async function getMediaById(
   id: string,
   sql: MediaSqlClient = mediaSql
 ): Promise<MediaItem | null> {
+  const lookup = id.startsWith('/api/media/private/') ? id.slice('/api/media/private/'.length) : id;
+  const byId = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(lookup);
+  const predicate = byId ? sql`id = ${lookup}::uuid` : sql`file_url = ${lookup}`;
   const rows = await sql`
     select
       id,
@@ -233,7 +238,7 @@ export async function getMediaById(
       create_date as "createDate",
       last_modified_date as "lastModifiedDate"
     from media.media_library
-    where id = ${id} or file_url=${id}
+    where ${predicate}
     limit 1
   `;
 

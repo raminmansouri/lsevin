@@ -14,6 +14,7 @@ import { LocalizedInput } from "@/features/shared/components/LocalizedInput";
 import type { AdminFieldConfig, AdminRelationOption } from "../types";
 import { getFieldKind, normalizeLocalizedValue } from "../lib/values";
 import { RHFMultiMediaPickerField, RHFSingleMediaPickerField } from "./media-picker-import";
+import { uploadCustomerDocumentViaStorageRoute } from "@/features/media-picker-addon/api";
 
 type LazyLookupSelectProps = {
   lookupType: string;
@@ -51,6 +52,7 @@ export function AdminFieldRenderer({ control, fieldConfig, disabled, relationOpt
         label={label}
         placeholder={fieldConfig.placeholder || "Pick file"}
         mediaType={fieldConfig.mediaType || "all"}
+        uploadWith={fieldConfig.name === 'document_url' ? uploadCustomerDocumentViaStorageRoute : undefined}
         helperText={fieldConfig.description || "Stores one media id in this column."}
         modalTitle={`Pick ${label}`}
         key={fieldConfig.name}

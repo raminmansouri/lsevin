@@ -1,7 +1,7 @@
 import "server-only";
 
 import sql from "@/config/database/db";
-import { formatBookingDate, normalizeBookingCalendar } from "@/features/booking-pro/lib/calendar";
+import { bookingLocalIsoDate, formatBookingDate, normalizeBookingCalendar } from "@/features/booking-pro/lib/calendar";
 
 const UUID_RE = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
 
@@ -110,7 +110,11 @@ async function resolveAvailabilityContext(input: { providerId?: Id; serviceId?: 
       order by ps.is_popular desc nulls last, ps.rating desc nulls last, ps.create_date desc
       limit 1
     ), selected_provider as (
-      select sp.id, sp.provider_type_id, sp.timezone_id
+      select sp.id, sp.provider_type_id,
+        case when sp.timezone_id in (select name from pg_timezone_names) then sp.timezone_id
+             when upper(sp.country) = 'IR' then 'Asia/Tehran'
+             when upper(sp.country) = 'IQ' then 'Asia/Baghdad'
+             else 'UTC' end as timezone_id
       from category.service_providers sp
       where sp.id = coalesce(${providerIdInput}::uuid, (select service_provider_id from selected_service))
         and sp.is_active = true
@@ -156,11 +160,11 @@ export async function getBookingAvailableDatesFromDb(input: {
 }): Promise<{ dates: AvailableDate[] }> {
   const locale = normalizeLocale(input.locale);
   const calendar = normalizeBookingCalendar(input.calendar, locale);
-  const startDate = toIsoDate(input.startDate) || new Date().toISOString().slice(0, 10);
-  const endDate = toIsoDate(input.endDate) || addDays(new Date(`${startDate}T00:00:00Z`), 60);
   const ctx = await resolveAvailabilityContext(input);
 
   if (!ctx?.providerId || !ctx.serviceId) return { dates: [] };
+  const startDate = toIsoDate(input.startDate) || bookingLocalIsoDate(new Date(), ctx.timezoneId);
+  const endDate = toIsoDate(input.endDate) || addDays(new Date(`${startDate}T00:00:00Z`), 60);
 
   const rows = await sql<{ date: string; available: boolean }[]>`
     with ctx as (
@@ -170,6 +174,7 @@ export async function getBookingAvailableDatesFromDb(input: {
         ${ctx.serviceDefinitionId}::uuid as service_definition_id,
         ${ctx.specialistId}::uuid as specialist_id,
         ${ctx.providerStaffId}::uuid as provider_staff_id,
+        ${ctx.timezoneId}::text as timezone_id,
         ${ctx.durationMinutes}::int as duration_minutes,
         ${ctx.slotIntervalMinutes}::int as slot_interval_minutes,
         greatest(${ctx.resourceCapacity}::int, 0) as resource_capacity
@@ -273,7 +278,9 @@ export async function getBookingAvailableDatesFromDb(input: {
       select s.*
       from generated_slots s
       join staff_rule_presence srp on srp.selected_date = s.selected_date
-      where not exists (
+      cross join ctx
+      where (s.slot_start at time zone ctx.timezone_id) > now()
+        and not exists (
           select 1 from generic_blocks gb
           where gb.selected_date = s.selected_date
             and (
@@ -369,6 +376,7 @@ export async function getBookingAvailableTimeSlotsFromDb(input: {
         ${ctx.serviceDefinitionId}::uuid as service_definition_id,
         ${ctx.specialistId}::uuid as specialist_id,
         ${ctx.providerStaffId}::uuid as provider_staff_id,
+        ${ctx.timezoneId}::text as timezone_id,
         ${ctx.durationMinutes}::int as duration_minutes,
         ${ctx.slotIntervalMinutes}::int as slot_interval_minutes,
         greatest(${ctx.resourceCapacity}::int, 0) as resource_capacity,
@@ -523,7 +531,8 @@ export async function getBookingAvailableTimeSlotsFromDb(input: {
     select
       to_char(slot_start, 'HH24:MI') as time,
       to_char(slot_end, 'HH24:MI') as "endTime",
-      (not_blocked and staff_available and booked_units < case when specialist_id is not null then 1 else capacity end) as available,
+      (not_blocked and staff_available and booked_units < case when specialist_id is not null then 1 else capacity end
+        and (slot_start at time zone (select timezone_id from ctx)) > now()) as available,
       greatest((case when specialist_id is not null then 1 else capacity end) - booked_units, 0)::int as "remainingCapacity"
     from assessed
     order by slot_start asc

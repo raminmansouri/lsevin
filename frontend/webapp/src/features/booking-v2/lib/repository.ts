@@ -271,9 +271,15 @@ export async function getAddons(params: {
 
 export async function getAvailableDates(params: {
   specialistId: string;
+  providerId?: string | null;
   days?: number;
 }) {
-  const { specialistId, days = 21 } = params;
+  const { specialistId, providerId, days = 21 } = params;
+  const [providerClock] = providerId ? await sql<{ today: string }[]>`
+    select to_char(now() at time zone (case when timezone_id in (select name from pg_timezone_names) then timezone_id
+      when upper(country) = 'IR' then 'Asia/Tehran' when upper(country) = 'IQ' then 'Asia/Baghdad' else 'UTC' end), 'YYYY-MM-DD') as today
+    from category.service_providers where id = ${providerId}::uuid limit 1
+  ` : [];
 
   const rows = await sql<{ day_of_week: number; specific_date: string | null }[]>`
     SELECT
@@ -287,7 +293,7 @@ export async function getAvailableDates(params: {
   const specificDateSet = new Set(rows.map((r) => r.specific_date).filter(Boolean) as string[]);
   const recurringDays = new Set(rows.filter((r) => !r.specific_date).map((r) => r.day_of_week));
 
-  const today = new Date();
+  const today = new Date(`${providerClock?.today || toDateKey(new Date())}T00:00:00Z`);
   const result: AvailabilityDate[] = [];
 
   for (let i = 0; i < days; i += 1) {
@@ -311,6 +317,14 @@ export async function getAvailableTimes(params: {
   selectedDate: string;
 }) {
   const { specialistId, serviceId, selectedDate } = params;
+
+  const [clock] = await sql<{ timezone_id: string }[]>`
+    select case when sp.timezone_id in (select name from pg_timezone_names) then sp.timezone_id
+      when upper(sp.country) = 'IR' then 'Asia/Tehran' when upper(sp.country) = 'IQ' then 'Asia/Baghdad' else 'UTC' end as timezone_id
+    from category.provider_services ps
+    join category.service_providers sp on sp.id = ps.service_provider_id
+    where ps.id = ${serviceId}::uuid limit 1
+  `;
 
   const [serviceRow] = await sql<{ slot_interval_minutes: number }[]>`
     SELECT slot_interval_minutes
@@ -356,8 +370,16 @@ export async function getAvailableTimes(params: {
 
   return allSlots.map((slot) => {
     const overlap = busyRanges.some((range) => !(slot.timeTo <= range.from || slot.timeFrom >= range.to));
-    return { ...slot, available: !overlap };
+    return { ...slot, providerTimeZone: clock?.timezone_id || 'UTC', available: !overlap && isFutureProviderSlot(selectedDate, slot.timeFrom, clock?.timezone_id || 'UTC') };
   });
+}
+
+export function isFutureProviderSlot(date: string, time: string, timezone: string, now = new Date()): boolean {
+  const parts = new Intl.DateTimeFormat('en-US', { timeZone: timezone, year: 'numeric', month: '2-digit',
+    day: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).formatToParts(now);
+  const value = Object.fromEntries(parts.map((part) => [part.type, part.value]));
+  const localNow = `${value.year}-${value.month}-${value.day}T${value.hour}:${value.minute}`;
+  return `${date}T${time}` > localNow;
 }
 
 async function calculateServiceSubtotal(serviceId: string | null | undefined) {
@@ -468,6 +490,14 @@ export async function saveDraft(userId: string | null, payload: BookingDraftPayl
     }
 
     if (documents.length > 0) {
+      for (const document of documents) {
+        const [owned] = await tx`
+          select id from media.media_library
+          where ('/api/media/private/' || id::text) = ${document.fileUrl}
+            and created_by = ${userId} and is_public = false limit 1
+        `;
+        if (!owned) throw new Error('BOOKING_DOCUMENT_NOT_OWNED');
+      }
       const documentValues = documents.map((document) => ({
         id: document.id ?? randomUUID(),
         draft_id: draftId,
@@ -655,6 +685,15 @@ export async function finalizeCheckout(userId: string | null, input: {
   const bookingStatus = input.paymentMethod === "pay_on_arrival" ? "Pending" : "Pending";
 
   await sql.begin(async (tx) => {
+    const [slotClock] = await tx<{ future: boolean }[]>`
+      select ((${draft.selectedDate}::date + ${draft.selectedTimeFrom}::time)
+        at time zone (case when sp.timezone_id in (select name from pg_timezone_names) then sp.timezone_id
+          when upper(sp.country) = 'IR' then 'Asia/Tehran' when upper(sp.country) = 'IQ' then 'Asia/Baghdad' else 'UTC' end)) > now() as future
+      from category.service_providers sp
+      where sp.id = ${draft.providerId}::uuid
+    `;
+    if (!slotClock?.future) throw new Error('BOOKING_SLOT_PASSED');
+
     await tx`
       INSERT INTO booking.bookings (
         provider_id,

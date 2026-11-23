@@ -4,6 +4,8 @@ import { rejectUnplayableVideo } from "@/components/media/video-constraints";
 import { putData } from "@/config/http/http-service.server";
 import { requireApiUser } from "@/lib/auth/api-guard";
 import { getSession } from "../../../../../lib/auth/session";
+import { createMedia } from "@/components/media/server/repository";
+import { can } from "@/lib/admin/access/policy";
 
 function resolveMediaType(mimeType?: string | null): "image" | "video" | "file" {
   if (mimeType?.startsWith("image/")) return "image";
@@ -64,12 +66,11 @@ export async function POST(request: NextRequest) {
     const session = await getSession();
     const user = session?.user;
 
-    if (!formData.has("path")) {
-      formData.append("path", "1");
-    }
+    const privateUpload = !can(auth.access, "media", "manage") || request.nextUrl.searchParams.get("scope") === "customer-documents";
+    formData.set("path", privateUpload ? "3" : "1");
 
     const { data, error } = await putData<FormData, any>(
-      "File/UploadAnyFile?path=1",
+      `File/UploadAnyFile?path=${privateUpload ? 3 : 1}`,
       formData,
       { locale: "en", token: user?.accessToken }
     );
@@ -77,7 +78,6 @@ export async function POST(request: NextRequest) {
     if (error) {
       console.error("[media/storage] backend upload failed:", {
         hasToken: Boolean(user?.accessToken),
-        fileName: file.name,
         fileSize: file.size,
         fileType: file.type,
         error,
@@ -101,8 +101,21 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    return NextResponse.json({
+    const created = await createMedia({
+      originalName: file.name,
+      storedName: file.name,
       fileUrl,
+      storageKey: fileUrl,
+      mimeType: file.type || "application/octet-stream",
+      mediaType: resolveMediaType(file.type),
+      fileSize: file.size,
+      extension: getExtension(file.name),
+      createdBy: auth.userId,
+      isPublic: !privateUpload,
+    });
+    return NextResponse.json({
+      id: created.id,
+      fileUrl: created.fileUrl,
       originalName: file.name,
       storedName: file.name,
       mimeType: file.type || "application/octet-stream",

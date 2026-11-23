@@ -5,6 +5,7 @@ import { getTranslations } from "next-intl/server";
 import { z, ZodError } from "zod/v4";
 
 import { getSession } from "@/lib/auth/session";
+import { getMediaById } from "@/components/media/server/repository";
 
 import { AddClinicalDocumentSchema, type AddClinicalDocumentInput } from "../documents-schemas";
 import type { ClinicalDocumentRow } from "../documents-types";
@@ -55,6 +56,12 @@ export async function uploadMyDocumentAction(
   }
   const owned = await requireOwnedLink(values.patientId);
   if (!owned) return { ok: false, error: t("errors.notFound") };
+  const media = values.mediaLibraryId
+    ? await getMediaById(values.mediaLibraryId)
+    : await getMediaById(values.fileUrl);
+  if (!media || media.createdBy !== owned.accountId || media.isPublic || media.fileUrl !== values.fileUrl) {
+    return { ok: false, error: t("errors.notFound") };
+  }
 
   if (values.requirementId) {
     if (!values.medicalCaseId) return { ok: false, error: t("errors.notFound") };

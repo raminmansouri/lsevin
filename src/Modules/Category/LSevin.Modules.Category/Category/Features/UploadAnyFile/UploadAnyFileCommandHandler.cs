@@ -15,13 +15,18 @@ using LSevin.Modules.Category.Resources;
 using LSevin.Modules.Category.ServiceProvider.Data.Repository;
 using LSevin.Modules.Category.ServiceProvider.Specifications;
 using LSevin.Modules.Category.ServiceProvider.ValueObjects;
+using BuildingBlocks.Security.Common;
+using BuildingBlocks.Security.Jwt.Services;
+using Microsoft.AspNetCore.Http;
 
 namespace LSevin.Modules.Category.ServiceProvider.Features.UpdateCategoryImage;
 
 internal sealed class UploadAnyFileCommandHandler(
     ICategoryRepository repository,
     IFileService fileService,
-    ISerializer serializer
+    ISerializer serializer,
+    IUserAccessor userAccessor,
+    IHttpContextAccessor httpContextAccessor
 ) : CommandHandler<UploadAnyFileCommand, string>
 {
     public override async Task<Result<string>> Handle(
@@ -31,9 +36,18 @@ internal sealed class UploadAnyFileCommandHandler(
     {
         Guard.Against.Null(command, nameof(command));
 
-        string path = "";
+        var userId = userAccessor.GetUserIdentity;
+        if (userId == Guid.Empty)
+            return AppError.ApplicationErrorMessage("An authenticated user is required to upload files.");
 
-        switch(command.path)
+        var principal = httpContextAccessor.HttpContext?.User;
+        var isAdmin = principal?.IsInRole(SecurityConstants.Role.Admin) == true
+            || principal?.IsInRole(SecurityConstants.Role.SuperAdmin) == true;
+        // Never trust the caller's `path` for a non-admin: otherwise a customer
+        // could write into publicly served Categories/* or ServiceProviders/*.
+        string path = isAdmin ? "" : $"CustomerDocument/{userId:D}";
+
+        if (isAdmin) switch(command.path)
         {
             case 1:
                 path = "services";
@@ -41,12 +55,15 @@ internal sealed class UploadAnyFileCommandHandler(
             case 2:
                 path = "staff";
                 break;
+            case 3:
+                path = "CustomerDocument/AdminUploads";
+                break;
         }
 
 
             var uploadResult = await fileService.UploadSingleFileAsync(
                 command.File,
-                directory: $"Categories/{path}",
+                directory: isAdmin && command.path != 3 ? $"Categories/{path}" : path,
                 cancellationToken
             );
 

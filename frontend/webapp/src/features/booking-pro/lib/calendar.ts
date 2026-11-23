@@ -91,6 +91,16 @@ export function bookingDateTimeInstant(date: string, time: string, sourceTimeZon
   return toZoned(parseDateTime(`${parseDate(date).toString()}T${time}`), sourceTimeZone, 'reject').toDate();
 }
 
+/** Calendar day at the provider, independent of the server or visitor timezone. */
+export function bookingLocalIsoDate(instant: Date, timeZone: string): string {
+  if (!isBookingTimeZone(timeZone) || Number.isNaN(instant.getTime())) throw new Error('Invalid booking timezone or instant');
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone, year: 'numeric', month: '2-digit', day: '2-digit',
+  }).formatToParts(instant);
+  const value = (type: string) => parts.find((part) => part.type === type)?.value;
+  return `${value('year')}-${value('month')}-${value('day')}`;
+}
+
 type FormatOptions = { locale?: string | null; calendar?: BookingCalendar | string | null; timeZone?: string | null; sourceTimeZone?: string | null; dateStyle?: Intl.DateTimeFormatOptions['dateStyle'] };
 export function formatBookingDate(isoDate?: string | null, options?: FormatOptions) {
   const iso = toIsoDate(String(isoDate || ''));
