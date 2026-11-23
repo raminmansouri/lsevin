@@ -19,10 +19,15 @@ export async function getBookings(locale = "fa-IR"): Promise<BookingListItem[]> 
       common.get_translation_t(sp.name_translations, ${locale}, 'fa-IR') as "providerName",
       coalesce(
         nullif(common.get_translation_t(ps.display_name_translations, ${locale}, 'fa-IR'), ''),
+        nullif(common.get_translation_t(sd.name_translations, ${locale}, 'fa-IR'), ''),
         (
-          select string_agg(distinct nullif(common.get_translation_t(ps2.display_name_translations, ${locale}, 'fa-IR'), ''), '، ')
+          select string_agg(distinct coalesce(
+            nullif(common.get_translation_t(ps2.display_name_translations, ${locale}, 'fa-IR'), ''),
+            nullif(common.get_translation_t(sd2.name_translations, ${locale}, 'fa-IR'), '')
+          ), '، ')
           from booking.booking_child_bookings cb
           left join category.provider_services ps2 on ps2.id = cb.service_id
+          left join category.service_definitions sd2 on sd2.id = ps2.service_definition_id
           where cb.parent_booking_id = b.id
         ),
         nullif(b.metadata->>'serviceName', '')
@@ -36,6 +41,7 @@ export async function getBookings(locale = "fa-IR"): Promise<BookingListItem[]> 
     from booking.bookings b
     left join category.service_providers sp on sp.id = b.provider_id
     left join category.provider_services ps on ps.id = b.service_id
+    left join category.service_definitions sd on sd.id = ps.service_definition_id
     left join category.staff st on st.id = b.specialist_id
     left join identity.asp_net_users u on u.id = b.user_id
     order by b.create_date desc

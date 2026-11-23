@@ -31,11 +31,7 @@ export const getBookingColumns = (
     header: tAdmin('service'),
     cell: ({ row }) => {
       const item = row.original;
-      if (item.serviceName) return item.serviceName;
-      if (item.bookingKind) {
-        return <span className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">{item.bookingKind}</span>;
-      }
-      return '—';
+      return item.serviceName || '—';
     },
   },
   { accessorKey: 'customerName', header: tAdmin('customer') },
