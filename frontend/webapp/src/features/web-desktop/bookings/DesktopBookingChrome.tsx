@@ -104,7 +104,7 @@ export function DesktopBookingSummary({
   return (
     <div className="sticky top-28 hidden overflow-hidden rounded-[28px] bg-white ring-1 ring-[#e7dcc4] xl:block">
       {/* The chosen service */}
-      <div className="relative h-40 bg-[#062a20]">
+      <div className="relative aspect-[16/10] bg-[#062a20]">
         {imageUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={imageUrl} alt="" className="h-full w-full object-cover" />

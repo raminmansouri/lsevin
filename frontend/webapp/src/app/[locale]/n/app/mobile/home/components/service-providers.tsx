@@ -138,7 +138,7 @@ function FeaturedServiceCard({
             src={mediaUrl}
             alt={service.displayName}
             sizes={styles.sizes}
-            className="object-contain transition duration-500 hover:scale-105"
+            className="object-cover transition duration-500 hover:scale-105"
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#083f30] to-[#0f6b56] text-sm font-semibold text-white/80">

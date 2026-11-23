@@ -83,7 +83,7 @@ function BookingCard({ booking, onOpen }: {
         </div>
 
         <div className="flex gap-4">
-          <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-xl bg-gray-100">
+          <div className="relative h-20 w-32 flex-shrink-0 overflow-hidden rounded-xl bg-gray-100">
             {imageSrc ? (<ImageWithFallback fill src={imageSrc} alt={booking.service} className="object-cover" sizes="80px" fallbackClassName="rounded-xl"/>) : (<div className="flex h-full w-full items-center justify-center text-lg font-bold text-gray-300">
                 {booking.service.slice(0, 1).toUpperCase()}
               </div>)}

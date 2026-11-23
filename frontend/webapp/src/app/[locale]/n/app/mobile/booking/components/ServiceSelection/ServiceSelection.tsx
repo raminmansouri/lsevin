@@ -450,7 +450,7 @@ export default function ServiceSelection() {
                         : "border-gray-200 hover:border-gray-300"}`}>
                   <div className="flex gap-4 p-4">
                     <div className="relative flex-shrink-0">
-                      <ImageOrPlaceholder src={service.image} alt={service.name} className="h-24 w-24 rounded-xl object-cover"/>
+                      <ImageOrPlaceholder src={service.image} alt={service.name} className="h-20 w-32 rounded-xl object-cover"/>
 
                       {service.popular && (<div className="absolute -right-2 -top-2 rounded-lg bg-gradient-to-r from-[#eacb7f] to-[#d4b76a] px-2 py-1 text-xs font-bold text-[#083f30] shadow-md">{tBooking("pOPULAR")}</div>)}
                     </div>
@@ -509,7 +509,7 @@ export default function ServiceSelection() {
                         : "border-gray-200 hover:border-gray-300"}`}>
                 <div className="flex gap-4 p-4">
                   <div className="relative flex-shrink-0">
-                    <ImageOrPlaceholder src={service.image} alt={service.name} className="h-24 w-24 rounded-xl object-cover"/>
+                    <ImageOrPlaceholder src={service.image} alt={service.name} className="h-20 w-32 rounded-xl object-cover"/>
 
                     {service.popular && (<div className="absolute -right-2 -top-2 rounded-lg bg-gradient-to-r from-[#eacb7f] to-[#d4b76a] px-2 py-1 text-xs font-bold text-[#083f30] shadow-md">{tBooking("pOPULAR")}</div>)}
                   </div>

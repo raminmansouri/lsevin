@@ -450,7 +450,7 @@ export function DesktopProviderView({ initialData }: { initialData?: ProviderPag
                   <Reveal key={service.id} delay={(index % 2) * 90}>
                     <Link href={entityPath("service", service)} className="group block h-full">
                       <Tilt className="flex h-full flex-col">
-                        <div className="relative h-52 overflow-hidden bg-[#0f5a45]">
+                        <div className="relative aspect-[16/10] overflow-hidden bg-[#0f5a45]">
                           {service.image ? (
                             // eslint-disable-next-line @next/next/no-img-element
                             <img src={resolveMediaUrl(service.image)} alt={service.name} className="lsd-zoom h-full w-full object-cover" />

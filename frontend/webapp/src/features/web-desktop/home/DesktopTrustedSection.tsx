@@ -43,7 +43,7 @@ export async function DesktopTrustedSection({ locale, providers }: { locale: str
                 <div className="lsd-flip-inner">
                   {/* Front: the certificate */}
                   <div className="lsd-face lsd-certificate flex flex-col items-center px-7 pb-8 pt-7 text-center">
-                    <div className="relative h-44 w-full overflow-hidden rounded-t-full rounded-b-2xl bg-[#0f5a45]">
+                    <div className="relative mx-auto aspect-square h-44 overflow-hidden rounded-3xl bg-[#0f5a45]">
                       {image ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img src={image} alt={provider.name} className="h-full w-full object-cover" />

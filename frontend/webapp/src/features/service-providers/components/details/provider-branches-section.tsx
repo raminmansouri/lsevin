@@ -56,7 +56,7 @@ export function ProviderBranchesSection({ branches, variant = "mobile", classNam
               href={branch.link}
               className="group flex items-stretch overflow-hidden rounded-2xl border border-[#dce4e0] bg-white transition-all hover:border-[#083f30] hover:shadow-lg"
             >
-              <span className="relative block w-28 shrink-0 overflow-hidden bg-gray-100 sm:w-32">
+              <span className="relative m-2 block aspect-square w-24 shrink-0 self-center overflow-hidden rounded-xl bg-gray-100 sm:w-28">
                 <ImageWithFallback
                   fill
                   src={image}
