@@ -8,6 +8,13 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 
 import { formatDepositAmount, getDepositSplit } from "../../lib/deposit-split";
 import type { BookingListItem } from "../../types";
+import { DualDate } from "@/accounting/lib/dual-date";
+
+const timeOf = (value: unknown) => {
+  if (!value) return 0;
+  const time = new Date(value as string).getTime();
+  return Number.isNaN(time) ? 0 : time;
+};
 
 type BookingColumnTranslator = (key: string) => string;
 
@@ -19,8 +26,31 @@ export const getBookingColumns = (
   onPaymentTerms: (item: BookingListItem) => void,
 ): ColumnDef<BookingListItem>[] => [
   { accessorKey: 'providerName', header: tAdmin('provider') },
-  { accessorKey: 'serviceName', header: tAdmin('service') },
+  {
+    accessorKey: 'serviceName',
+    header: tAdmin('service'),
+    cell: ({ row }) => {
+      const item = row.original;
+      if (item.serviceName) return item.serviceName;
+      if (item.bookingKind) {
+        return <span className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">{item.bookingKind}</span>;
+      }
+      return '—';
+    },
+  },
   { accessorKey: 'customerName', header: tAdmin('customer') },
+  {
+    accessorKey: 'appointmentDate',
+    header: tAdmin('bookingAppointmentDate'),
+    sortingFn: (a, b) => timeOf(a.original.appointmentDate) - timeOf(b.original.appointmentDate),
+    cell: ({ row }) => <DualDate value={row.original.appointmentDate} />,
+  },
+  {
+    accessorKey: 'createDate',
+    header: tAdmin('bookingCreatedAt'),
+    sortingFn: (a, b) => timeOf(a.original.createDate) - timeOf(b.original.createDate),
+    cell: ({ row }) => <DualDate value={row.original.createDate} />,
+  },
   { accessorKey: 'bookingStatus', header: tAdmin('bookingStatus') },
   {
     accessorKey: 'paymentStatus',

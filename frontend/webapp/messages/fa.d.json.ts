@@ -555,6 +555,8 @@ declare const messages: {
     }
   },
   "AdminGenerated": {
+    "bookingCreatedAt": "تاریخ ثبت",
+    "bookingAppointmentDate": "تاریخ نوبت",
     "bookingAdminAddBooking": "افزودن رزرو",
     "bookingAdminAddBookingDescription": "ایجاد رزرو برای هر مشتری، ارائه‌دهنده و زمانی. بررسی ظرفیت و قیمت انجام نمی‌شود.",
     "bookingAdminSectionParties": "مشتری و ارائه‌دهنده",
