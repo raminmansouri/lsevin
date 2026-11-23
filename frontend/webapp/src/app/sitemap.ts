@@ -115,6 +115,12 @@ const catalogEntries = unstable_cache(
       from shop.categories c
       where c.deleted_at is null and c.is_active = true and c.slug is not null and c.slug <> ''
       union all
+      select '/shop/seller/' || s.slug, null, true,
+             array_remove(array[s.logo_url], null)
+      from shop.sellers s
+      where s.deleted_at is null and s.is_active = true and s.shop_status = 'active'
+        and s.slug is not null and s.slug <> ''
+      union all
       select '/packages/' || p.slug, null, true, null::text[]
       from marketing.special_packages p
       where p.is_active = true and p.slug is not null
@@ -132,7 +138,7 @@ const catalogEntries = unstable_cache(
           : indexableLocalesFromKeys(row.keys),
     }));
   },
-  ["public-sitemap-catalog-v7"],
+  ["public-sitemap-catalog-v8"],
   { revalidate: 300, tags: ["sitemap-catalog"] }
 );
 

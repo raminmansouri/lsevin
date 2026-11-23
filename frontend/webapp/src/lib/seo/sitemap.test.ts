@@ -87,6 +87,16 @@ describe("public search domain and sitemap", () => {
     expect(result.find((x) => x.url === "https://lsevincare.com/fa/services/s")?.images).toBeUndefined();
   });
 
+  it("lists seller pages only at their public URL", async () => {
+    catalogRows.mockResolvedValue([
+      { path: "/shop/seller/donyamed", keys: null, persian_only: true, images: null },
+    ]);
+    const result = await sitemap();
+    expect(result.some((item) => item.url === "https://lsevincare.com/fa/shop/seller/donyamed")).toBe(true);
+    expect(result.some((item) => item.url.includes("/n/app/"))).toBe(false);
+    expect(catalogSql()).toContain("'/shop/seller/' || s.slug");
+  });
+
   it("lists each entity only in the locales whose text exists", async () => {
     catalogRows.mockResolvedValue([
       { path: "/providers/p", keys: ["fa-IR", "en-US", "ar-SA"], persian_only: false },
