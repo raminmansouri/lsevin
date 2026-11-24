@@ -15,6 +15,8 @@ import { ENTIRE_PLACE_KINDS, PROPERTY_KINDS, type PropertyKind } from "../../dom
 import { STAY_CONTENT_LOCALES } from "../../domain/locales";
 import { createPropertyAction } from "../../server/actions/admin";
 
+import type { Amenity } from "../../types";
+import { AmenityFields } from "./amenity-fields";
 import { ProviderPicker } from "./properties-list";
 import { FieldError, STAYS_ADMIN_BASE, useStayAdminAction } from "./shared";
 
@@ -48,12 +50,13 @@ export function slugFromName(name: Record<string, string>): string {
  * none chosen the server creates a provider from these details — and Create goes
  * straight to the full editor for rooms, photos and prices.
  */
-export function PropertyCreate({ cities }: { cities: CityOpt[] }) {
+export function PropertyCreate({ cities, amenities }: { cities: CityOpt[]; amenities: Amenity[] }) {
   const t = useTranslations("StayAdmin");
   const tc = useTranslations("StayAdmin.properties.create");
   const tKinds = useTranslations("StayApp.kinds");
   const router = useRouter();
   const { run, pending, fieldErrors } = useStayAdminAction();
+  const [amenityCodes, setAmenityCodes] = useState<string[]>([]);
   const [name, setName] = useState<Record<string, string>>({});
   const [cityId, setCityId] = useState(cities[0]?.id ?? "");
   const [slug, setSlug] = useState("");
@@ -92,7 +95,7 @@ export function PropertyCreate({ cities }: { cities: CityOpt[] }) {
           locationPrivacy: model === "entire_place" ? "approximate" : "exact",
           checkInTime: "14:00",
           checkOutTime: "12:00",
-          amenityCodes: [],
+          amenityCodes,
           nearby: [],
           stepFreeAccess: false,
           accessibleBathroom: false,
@@ -177,6 +180,9 @@ export function PropertyCreate({ cities }: { cities: CityOpt[] }) {
                 </option>
               ))}
             </NativeSelect>
+          </Field>
+          <Field label={t("editor.amenities")}>
+            <AmenityFields amenities={amenities} values={amenityCodes} onChange={setAmenityCodes} testId="stays-new-amenities" />
           </Field>
           <Field label={t("properties.inventoryModel")} htmlFor="new-model">
             <NativeSelect id="new-model" value={model} onChange={(e) => setModel(e.target.value as "rooms" | "entire_place")} data-testid="stays-admin-new-model">

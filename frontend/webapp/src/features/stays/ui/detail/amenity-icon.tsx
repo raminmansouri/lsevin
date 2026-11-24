@@ -166,7 +166,7 @@ const ICONS: Record<string, LucideIcon> = {
 export const amenityIcons = Object.keys(ICONS).sort();
 
 export function AmenityIcon({ name, className, imageUrl }: { imageUrl?: string | null; name: string | null | undefined; className?: string }) {
-  const Icon = name && Object.hasOwn(ICONS, name) ? ICONS[name] : Check;
+  const Icon = name && Object.prototype.hasOwnProperty.call(ICONS, name) ? ICONS[name] : Check;
   if (imageUrl) return <img alt="" aria-hidden="true" src={resolveMediaUrl(imageUrl)} loading="lazy" className={className} />;
   return <Icon className={className} aria-hidden="true" />;
 }

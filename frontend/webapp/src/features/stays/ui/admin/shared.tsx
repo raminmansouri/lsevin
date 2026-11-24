@@ -13,6 +13,7 @@ const SECTIONS = [
   { key: "dashboard", href: STAYS_ADMIN_BASE },
   { key: "settings", href: `${STAYS_ADMIN_BASE}/settings` },
   { key: "cities", href: `${STAYS_ADMIN_BASE}/cities` },
+  { key: "amenities", href: `${STAYS_ADMIN_BASE}/amenities` },
   { key: "properties", href: `${STAYS_ADMIN_BASE}/properties` },
   { key: "bookings", href: `${STAYS_ADMIN_BASE}/bookings` },
   { key: "reviews", href: `${STAYS_ADMIN_BASE}/reviews` },
@@ -26,7 +27,6 @@ export function StaysAdminNav() {
   return (
     <nav aria-label={t("label")} className="-mx-1 overflow-x-auto" data-testid="stays-admin-nav">
       <ul className="flex min-w-max gap-1 px-1 pb-1">
-        <li><Link className="inline-flex min-h-10 items-center px-3" href="/admin/stays/amenities">{labels("amenities")}</Link></li>
         {SECTIONS.map((s) => {
           const active = s.href === STAYS_ADMIN_BASE ? pathname === s.href : pathname === s.href || pathname.startsWith(`${s.href}/`);
           return (
@@ -36,7 +36,7 @@ export function StaysAdminNav() {
                 aria-current={active ? "page" : undefined}
                 className={cn("inline-flex min-h-10 items-center rounded-md px-3 text-sm font-medium", active ? "bg-primary text-primary-foreground" : "hover:bg-muted")}
               >
-                {t(s.key)}
+                {s.key === "amenities" ? labels("amenities") : t(s.key)}
               </Link>
             </li>
           );
