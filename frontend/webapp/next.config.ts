@@ -29,6 +29,11 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       ...facetHeaders(routing.locales),
+      // The response header also covers leaf pages that replace layout metadata.
+      {
+        source: "/:locale/n/app/:path*",
+        headers: [{ key: "X-Robots-Tag", value: "noindex, follow" }],
+      },
       // <html lang> in the server HTML is always the default locale (see
       // src/app/layout.tsx); this tells crawlers the page's real language.
       ...routing.locales.map((locale) => ({

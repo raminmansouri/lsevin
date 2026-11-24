@@ -272,7 +272,7 @@ export function DesktopExploreView({
               <Reveal key={provider.id} delay={(index % 4) * 80}>
                 <Link href={entityPath("provider", provider)} className="group block h-full">
                   <Tilt className="flex h-full flex-col">
-                    <div className="relative h-48 overflow-hidden bg-[#0f5a45]">
+                    <div className="relative aspect-square overflow-hidden bg-[#0f5a45]">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src={mediaUrl(provider.image)} alt={provider.name} className="lsd-zoom h-full w-full object-cover" />
                       {provider.badge ? (
@@ -363,7 +363,7 @@ export function DesktopExploreView({
               <Reveal key={service.id} delay={(index % 4) * 80}>
                 <Link href={entityPath("service", service)} className="group block h-full">
                   <Tilt className="flex h-full flex-col">
-                    <div className="relative h-48 overflow-hidden bg-[#0f5a45]">
+                    <div className="relative aspect-[16/10] overflow-hidden bg-[#0f5a45]">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src={mediaUrl(service.image)} alt={service.name} className="lsd-zoom h-full w-full object-cover" />
                       {service.growth ? (

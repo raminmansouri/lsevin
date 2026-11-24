@@ -4,6 +4,8 @@ import { formatAmount } from "@/accounting/lib/format";
 import type { MonthlyVolumeRow, PendingDocumentRow } from "@/accounting/server/analytics.queries";
 import type { EntryListRow } from "@/accounting/server/manual-entry.queries";
 
+import { DualDate } from "@/accounting/lib/dual-date";
+
 /**
  * The dashboard, laid out to match the prototype: four headline metrics, a
  * six-month volume chart, then the most recent documents.
@@ -182,7 +184,7 @@ export function DashboardView({
                     {e.entryNumber}
                   </td>
                   <td className="p-2.5 text-center" dir="ltr">
-                    {e.entryDate}
+                    <DualDate value={e.entryDate} />
                   </td>
                   <td className="p-2.5 text-center">{e.description ?? "—"}</td>
                   <td className="p-2.5 text-center" dir="ltr">

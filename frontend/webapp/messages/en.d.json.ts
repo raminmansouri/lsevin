@@ -1452,6 +1452,8 @@ declare const messages: {
     }
   },
   "AdminGenerated": {
+    "bookingCreatedAt": "Created",
+    "bookingAppointmentDate": "Appointment date",
     "bookingAdminAddBooking": "Add booking",
     "bookingAdminAddBookingDescription": "Create a booking for any customer, provider and time. Availability and price checks are skipped.",
     "bookingAdminSectionParties": "Customer and provider",

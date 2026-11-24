@@ -32,7 +32,7 @@ export const ReviewPay = () => {
             </div>
 
             <div className="flex gap-4 p-3 bg-gray-50 rounded-xl">
-              <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg bg-gray-100">
+              <div className="relative h-16 w-[102px] flex-shrink-0 overflow-hidden rounded-lg bg-gray-100">
                 {service?.image ? (<ImageWithFallback fill src={resolveHomeMediaUrl(service.image)} alt={service?.name || "Service"} sizes="64px" className="object-cover" fallbackClassName="rounded-lg"/>) : null}
               </div>
               <div className="flex-1">

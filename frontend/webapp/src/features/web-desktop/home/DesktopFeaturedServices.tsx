@@ -100,7 +100,7 @@ export async function DesktopFeaturedServices({
                 <Reveal key={service.id} delay={index * 90}>
                   <Link href={href(service)} className="group block">
                     <Tilt className="flex h-40 items-center gap-5 p-4">
-                      <div className="relative h-full w-36 shrink-0 overflow-hidden rounded-2xl bg-[#0f5a45]">
+                      <div className="relative aspect-[16/10] w-48 shrink-0 self-center overflow-hidden rounded-2xl bg-[#0f5a45]">
                         {image ? (
                           // eslint-disable-next-line @next/next/no-img-element
                           <img src={image} alt={service.displayName} className="lsd-zoom h-full w-full object-cover" />

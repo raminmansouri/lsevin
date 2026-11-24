@@ -153,7 +153,7 @@ export function DesktopOffersView({ tabs, offers, featuredOffer, filters }: Prop
           <Reveal>
             <Link href={serviceHref(featuredOffer.providerServiceId, featuredOffer.providerServiceSlug)} className="group block">
               <div className="lsd-certificate relative grid grid-cols-[260px_1fr_200px] items-center gap-10 rounded-[30px] p-10">
-                <div className="h-[300px] overflow-hidden rounded-t-full rounded-b-[22px] bg-[#efe6d2]">
+                <div className="aspect-[16/10] overflow-hidden rounded-[22px] bg-[#efe6d2]">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={offerImageUrl(featuredOffer.image)} alt="" className="h-full w-full object-cover transition-transform duration-[1.4s] group-hover:scale-105" />
                 </div>
@@ -207,7 +207,7 @@ export function DesktopOffersView({ tabs, offers, featuredOffer, filters }: Prop
                   <div className="lsd-ticket-shadow group">
                     <div className="lsd-ticket grid grid-cols-[78fr_22fr] overflow-hidden rounded-[24px] bg-white" style={{ ["--notch" as string]: "22%" }}>
                       <Link href={serviceHref(offer.providerServiceId, offer.providerServiceSlug)} className="flex items-center gap-6 p-5">
-                        <span className="h-24 w-24 shrink-0 overflow-hidden rounded-2xl bg-[#efe6d2]">
+                        <span className="aspect-[16/10] h-24 shrink-0 overflow-hidden rounded-2xl bg-[#efe6d2]">
                           {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img src={offerImageUrl(offer.image)} alt="" className="h-full w-full object-cover transition-transform duration-[1.2s] group-hover:scale-110" />
                         </span>

@@ -17,7 +17,23 @@ export async function getBookings(locale = "fa-IR"): Promise<BookingListItem[]> 
       coalesce(b.display_total_amount, b.total_amount, b.source_total_amount)::text as "payableTotal",
       coalesce(nullif(b.display_currency_code, ''), b.currency_code) as "payableCurrency",
       common.get_translation_t(sp.name_translations, ${locale}, 'fa-IR') as "providerName",
-      common.get_translation_t(ps.display_name_translations, ${locale}, 'fa-IR') as "serviceName",
+      coalesce(
+        nullif(common.get_translation_t(ps.display_name_translations, ${locale}, 'fa-IR'), ''),
+        nullif(common.get_translation_t(sd.name_translations, ${locale}, 'fa-IR'), ''),
+        (
+          select string_agg(distinct coalesce(
+            nullif(common.get_translation_t(ps2.display_name_translations, ${locale}, 'fa-IR'), ''),
+            nullif(common.get_translation_t(sd2.name_translations, ${locale}, 'fa-IR'), '')
+          ), '، ')
+          from booking.booking_child_bookings cb
+          left join category.provider_services ps2 on ps2.id = cb.service_id
+          left join category.service_definitions sd2 on sd2.id = ps2.service_definition_id
+          where cb.parent_booking_id = b.id
+        ),
+        nullif(b.metadata->>'serviceName', '')
+      ) as "serviceName",
+      b.booking_ui_mode as "bookingKind",
+      coalesce(nullif(b.metadata->>'selectedDateFrom', ''), b.selected_date::text) as "appointmentDate",
       common.get_translation_t(st.name_translations, ${locale}, 'fa-IR') as "specialistName",
       trim(concat(coalesce(u.first_name, ''), ' ', coalesce(u.last_name, ''))) as "customerName",
       u.email as "customerEmail",
@@ -25,6 +41,7 @@ export async function getBookings(locale = "fa-IR"): Promise<BookingListItem[]> 
     from booking.bookings b
     left join category.service_providers sp on sp.id = b.provider_id
     left join category.provider_services ps on ps.id = b.service_id
+    left join category.service_definitions sd on sd.id = ps.service_definition_id
     left join category.staff st on st.id = b.specialist_id
     left join identity.asp_net_users u on u.id = b.user_id
     order by b.create_date desc
@@ -65,7 +82,10 @@ export async function getBookingById(bookingId: string, locale = "fa-IR"): Promi
       b.rooms,
       b.metadata,
       common.get_translation_t(sp.name_translations, ${locale}, 'fa-IR') as "providerName",
-      common.get_translation_t(ps.display_name_translations, ${locale}, 'fa-IR') as "serviceName",
+      coalesce(
+        nullif(common.get_translation_t(ps.display_name_translations, ${locale}, 'fa-IR'), ''),
+        nullif(common.get_translation_t(sd.name_translations, ${locale}, 'fa-IR'), '')
+      ) as "serviceName",
       common.get_translation_t(st.name_translations, ${locale}, 'fa-IR') as "specialistName",
       trim(concat(coalesce(u.first_name, ''), ' ', coalesce(u.last_name, ''))) as "customerName",
       u.email as "customerEmail",
@@ -137,7 +157,10 @@ export async function getBookingById(bookingId: string, locale = "fa-IR"): Promi
           'status', cb.status,
           'metadata', cb.metadata,
           'providerName', common.get_translation_t(sp2.name_translations, ${locale}, 'fa-IR'),
-          'serviceName', common.get_translation_t(ps2.display_name_translations, ${locale}, 'fa-IR'),
+          'serviceName', coalesce(
+            nullif(common.get_translation_t(ps2.display_name_translations, ${locale}, 'fa-IR'), ''),
+            nullif(common.get_translation_t(sd2.name_translations, ${locale}, 'fa-IR'), '')
+          ),
           'specialistName', common.get_translation_t(st2.name_translations, ${locale}, 'fa-IR'),
           'adminNote', coalesce(cb.metadata->>'adminNote', ''),
           'reviewedAt', cb.metadata->>'reviewedAt'
@@ -145,12 +168,14 @@ export async function getBookingById(bookingId: string, locale = "fa-IR"): Promi
         from booking.booking_child_bookings cb
         left join category.service_providers sp2 on sp2.id = cb.provider_id
         left join category.provider_services ps2 on ps2.id = cb.service_id
+        left join category.service_definitions sd2 on sd2.id = ps2.service_definition_id
         left join category.staff st2 on st2.id = cb.specialist_id
         where cb.parent_booking_id = b.id
       ), '[]'::jsonb) as "childBookings"
     from booking.bookings b
     left join category.service_providers sp on sp.id = b.provider_id
     left join category.provider_services ps on ps.id = b.service_id
+    left join category.service_definitions sd on sd.id = ps.service_definition_id
     left join category.staff st on st.id = b.specialist_id
     left join identity.asp_net_users u on u.id = b.user_id
     where b.id = ${bookingId}

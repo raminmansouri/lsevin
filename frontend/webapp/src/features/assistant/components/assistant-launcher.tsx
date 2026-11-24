@@ -15,7 +15,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useAssistantChat } from "../hooks/use-assistant-chat";
 import { AssistantAvatar } from "./assistant-avatar";
 import { AssistantChat } from "./assistant-chat";
-import { isAssistantHidden, isAssistantRaised, useScrollTucked } from "../lib/launcher-visibility";
+import { isAssistantHidden, isAssistantHome, isAssistantRaised, useScrollTucked } from "../lib/launcher-visibility";
 
 function useIsDesktop(): boolean {
   const [isDesktop, setIsDesktop] = useState(false);
@@ -104,6 +104,8 @@ export function AssistantLauncher() {
 
   if (pathname.includes("/n/app/mobile/assistant") || (!open && isAssistantHidden(pathname))) return null;
 
+  const sideTucked = !isDesktop && (!isAssistantHome(pathname) || tucked);
+
   const morph = reduceMotion
     ? { duration: 0 }
     : { type: "spring" as const, stiffness: 340, damping: 34 };
@@ -157,7 +159,7 @@ export function AssistantLauncher() {
           }}
           aria-label={t("open")}
           initial={reduceMotion ? false : { scale: 0.7, opacity: 0 }}
-          animate={{ scale: tucked ? 0.85 : 1, opacity: tucked ? 0.75 : 1, x: tucked ? 44 : 0 }}
+          animate={{ scale: sideTucked ? 0.85 : 1, opacity: sideTucked ? 0.75 : 1, x: sideTucked ? 44 : 0 }}
           transition={morph}
           style={{ borderRadius: 28 }}
           className={`fixed right-4 z-[60] grid h-14 w-14 place-items-center bg-gradient-to-br from-[#083f30] to-[#0a5a44] shadow-xl shadow-[#083f30]/30 ring-2 ring-[#eacb7f]/60 md:bottom-6 md:right-6 ${

@@ -1,7 +1,7 @@
 import { RouteMessages } from "@/app/[locale]/n/route-messages";
-import { privateMetadata } from "@/lib/seo/robots-policy";
+import { searchMetadata } from "@/lib/seo/robots-policy";
 
-export const metadata = privateMetadata;
+export const metadata = searchMetadata;
 
 export default async function Layout({
   children,

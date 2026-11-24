@@ -60,7 +60,7 @@ export default function RecommendationsSection({
       className="group min-w-[280px] overflow-hidden rounded-2xl border border-gray-200 bg-white text-left transition-all hover:border-[#083f30] hover:shadow-xl sm:min-w-0"
       type="button"
     >
-      <div className="relative h-40 overflow-hidden bg-gray-100">
+      <div className="relative aspect-square overflow-hidden bg-gray-100">
         <ImageWithFallback fill src={mediaUrl(provider.image)} alt={provider.title} sizes="280px" className="object-cover transition-transform duration-300 group-hover:scale-105" fallbackClassName="h-full w-full" />
         {provider.verified ? (
           <span className="absolute left-3 top-3 flex items-center gap-1 rounded-full bg-[#083f30] px-2.5 py-1 text-xs font-bold text-white">

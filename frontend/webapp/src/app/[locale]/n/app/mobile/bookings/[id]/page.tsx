@@ -445,7 +445,7 @@ function BookingDetailContent({
       </div>
 
       <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
-        <div className="relative h-48 bg-gray-100">
+        <div className="relative aspect-[16/10] bg-gray-100">
           {imageSrc ? (
             <ImageWithFallback
               fill

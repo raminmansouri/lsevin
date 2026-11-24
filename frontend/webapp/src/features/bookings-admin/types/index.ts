@@ -18,6 +18,8 @@ export interface BookingListItem {
   customerName: string | null;
   customerEmail: string | null;
   createDate: string;
+  bookingKind?: string | null;
+  appointmentDate?: string | null;
 }
 
 export interface BookingDetail extends BookingListItem {

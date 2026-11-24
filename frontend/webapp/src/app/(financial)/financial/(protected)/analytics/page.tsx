@@ -9,6 +9,8 @@ import {
 } from "@/accounting/server/analytics.queries";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
+import { DualDate } from "@/accounting/lib/dual-date";
+
 const STATUS_LABEL: Record<string, string> = {
   draft: "پیش‌نویس",
   temporary: "موقت",
@@ -106,7 +108,7 @@ export default async function AnalyticsPage() {
                       {row.entryNumber}
                     </td>
                     <td className="p-2" dir="ltr">
-                      {row.entryDate}
+                      <DualDate value={row.entryDate} />
                     </td>
                     <td className="p-2">{row.description ?? "—"}</td>
                     <td className="p-2 text-xs">{STATUS_LABEL[row.status] ?? row.status}</td>

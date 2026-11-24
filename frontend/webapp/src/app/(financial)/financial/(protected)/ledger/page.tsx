@@ -9,6 +9,8 @@ import { listAccounts } from "@/accounting/server/accounts-admin";
 import { PageHeader } from "@/components/page/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
+import { DualDate } from "@/accounting/lib/dual-date";
+
 function pickName(name: Record<string, string> | null, locale: string): string {
   if (!name) return "—";
   return name[locale.startsWith("fa") ? "fa-IR" : "en-US"] ?? Object.values(name)[0] ?? "—";
@@ -127,7 +129,7 @@ export default async function LedgerPage({
               {lines.map((line, index) => (
                 <tr key={`${line.entryNumber}-${line.accountCode}-${index}`} className="border-b last:border-0">
                   <td className="p-2 font-mono text-xs" dir="ltr">{line.entryNumber}</td>
-                  <td className="p-2 text-xs">{formatDateTime(line.entryDate, locale)}</td>
+                  <td className="p-2 text-xs"><DualDate value={line.entryDate} /></td>
                   <td className="p-2 font-mono text-xs" dir="ltr">{line.accountCode}</td>
                   <td className="p-2">{pickName(line.accountName, locale)}</td>
                   <td className="p-2 text-xs">{line.memo ?? line.description ?? "—"}</td>

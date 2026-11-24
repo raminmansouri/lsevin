@@ -53,7 +53,7 @@ export const ServiceProviderCard = ({ provider }: ServiceProviderCardProps) => {
         <div className="flex h-full flex-row items-center md:flex-col md:items-stretch">
           {/* Service Provider Image */}
           <div className="p-2 md:w-full md:p-0">
-            <div className="relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-xl md:h-48 md:w-full md:rounded-none">
+            <div className="relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-xl md:aspect-square md:h-auto md:w-full md:rounded-none">
               <ImageWithFallback
                 src={resolveMediaUrl(provider.thumbnailUrl)}
                 alt={provider.name}
