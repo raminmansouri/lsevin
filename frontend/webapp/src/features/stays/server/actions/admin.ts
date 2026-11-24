@@ -1,12 +1,14 @@
 "use server";
 
 import { revalidatePath, revalidateTag } from "next/cache";
+import db from "@/config/database/db";
+import { STAY_CONTENT_LOCALES } from "../../domain/locales";
 import { z } from "zod";
 
 import { requireAdmin } from "@/features/tours/server/platform/access";
 
 import { STAYS_CATALOG_TAG } from "../cache";
-import { cancelStayByAdmin, decideStayRequest } from "../booking";
+import { audit, cancelStayByAdmin, decideStayRequest } from "../booking";
 import {
   type CityInput,
   deleteCity,
@@ -67,6 +69,17 @@ function parse<T>(schema: z.ZodType<T>, input: unknown): T {
   return r.data;
 }
 
+async function validateAmenityCodes(codes: string[]) {
+  if (!codes.length) return;
+  const entries = await db<{ code: string; parent_code: string | null }[]>`
+    select code, parent_code from stay.amenities where code = any(${codes}::text[])`;
+  const parents = entries.flatMap(row => row.parent_code ? [row.parent_code] : []);
+  if (entries.length !== codes.length || parents.some(parent => !codes.includes(parent)) ||
+      new Set(parents).size !== parents.length) {
+    throw fail.validation("invalid_value", { fields: { amenityCodes: "invalid" } });
+  }
+}
+
 function touchCustomerPages() {
   revalidateTag(STAYS_CATALOG_TAG);
   revalidatePath("/[locale]/stays", "layout");
@@ -91,7 +104,7 @@ const propertySchema = z
     locationPrivacy: z.enum(["exact", "approximate"]),
     checkInTime: time,
     checkOutTime: time,
-    amenityCodes: z.array(z.string().regex(/^[a-z][a-z0-9_]{1,40}$/)).max(60),
+    amenityCodes: z.array(z.string().regex(/^[a-z][a-z0-9_]{1,40}$/)).max(300),
     nearby: z.array(z.object({ kind: z.enum(["hospital", "clinic", "airport", "station", "attraction", "shrine", "beach", "shopping", "other"]), name: tr, distanceM: z.number().int().min(0).max(200000) }).strict()).max(20),
     stepFreeAccess: z.boolean(),
     accessibleBathroom: z.boolean(),
@@ -115,7 +128,9 @@ const propertySchema = z
 export async function createPropertyAction(input: unknown) {
   return runStayAction("admin.createProperty", async () => {
     const actor = await requireAdmin();
-    const id = await createProperty(actor, parse(propertySchema, input) as PropertyInput);
+    const data = parse(propertySchema, input) as PropertyInput;
+    await validateAmenityCodes(data.amenityCodes);
+    const id = await createProperty(actor, data);
     return { id };
   });
 }
@@ -124,7 +139,9 @@ export async function updatePropertyAction(input: { id: string; data: unknown; e
   return runStayAction("admin.updateProperty", async () => {
     const actor = await requireAdmin();
     const id = parse(uuid, input?.id);
-    const r = await updateProperty(actor, id, parse(propertySchema, input?.data) as PropertyInput, input?.expectedUpdatedAt ?? null);
+    const data = parse(propertySchema, input?.data) as PropertyInput;
+    await validateAmenityCodes(data.amenityCodes);
+    const r = await updateProperty(actor, id, data, input?.expectedUpdatedAt ?? null);
     touchCustomerPages();
     return r;
   });
@@ -172,7 +189,7 @@ const roomSchema = z
     sizeM2: z.number().int().min(1).max(5000).nullable(),
     bedrooms: z.number().int().min(0).max(50).nullable(),
     bathrooms: z.number().int().min(0).max(50).nullable(),
-    amenityCodes: z.array(z.string().regex(/^[a-z][a-z0-9_]{1,40}$/)).max(60),
+    amenityCodes: z.array(z.string().regex(/^[a-z][a-z0-9_]{1,40}$/)).max(300),
     sortOrder: z.number().int().min(0).max(1000),
     isActive: z.boolean(),
   })
@@ -181,7 +198,9 @@ const roomSchema = z
 export async function saveRoomTypeAction(input: { propertyId: string; roomId: string | null; data: unknown }) {
   return runStayAction("admin.saveRoom", async () => {
     const actor = await requireAdmin();
-    const id = await saveRoomType(actor, parse(uuid, input?.propertyId), input?.roomId ? parse(uuid, input.roomId) : null, parse(roomSchema, input?.data) as RoomTypeInput);
+    const data = parse(roomSchema, input?.data) as RoomTypeInput;
+    await validateAmenityCodes(data.amenityCodes);
+    const id = await saveRoomType(actor, parse(uuid, input?.propertyId), input?.roomId ? parse(uuid, input.roomId) : null, data);
     touchCustomerPages();
     return { id };
   });
@@ -467,5 +486,31 @@ export async function saveSettingsAction(input: unknown) {
       input,
     );
     return saveStaySettings(actor, d);
+  });
+}
+export async function saveAmenityAction(input: unknown) {
+  return runStayAction("admin.saveAmenity", async () => {
+    const actor = await requireAdmin();
+    const data = parse(z.object({
+      code: z.string().regex(/^[a-z][a-z0-9_]{1,40}$/),
+      imageId: uuid.nullable(),
+      revision: z.number().int().positive(),
+      label: z.record(z.string().refine(key => STAY_CONTENT_LOCALES.some(locale => locale === key)), z.string().trim().max(200)),
+      icon: z.string().regex(/^[a-z][a-z0-9-]{0,45}$/),
+    }).strict(), input);
+    if (!Object.values(data.label).some(Boolean)) throw fail.validation("invalid_value");
+    await db.begin(async tx => {
+      if (data.imageId) {
+        const images = await tx`select id from media.media_library where id = ${data.imageId}::uuid and is_public and mime_type like 'image/%' for share`;
+        if (!images.length) throw fail.validation("invalid_value");
+      }
+      const changed = await tx`update stay.amenities set label = ${db.json(data.label)}, icon = ${data.icon}, image_id = ${data.imageId}::uuid,
+        revision = revision + 1 where code = ${data.code} and revision = ${data.revision} returning code`;
+      if (!changed.length) throw fail.conflict("stale_update");
+      await audit(tx as unknown as typeof db, actor, null, "amenity", null, "updated", { code: data.code, revision: data.revision + 1 });
+    });
+    touchCustomerPages();
+    revalidatePath("/[locale]/admin/stays", "layout");
+    return { code: data.code };
   });
 }

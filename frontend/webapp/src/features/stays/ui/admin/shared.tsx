@@ -21,10 +21,12 @@ const SECTIONS = [
 /** Section tabs in data-entry order: settings → destinations → stays, then daily operations. */
 export function StaysAdminNav() {
   const t = useTranslations("StayAdmin.nav");
+  const labels = useTranslations("StayAdmin.editor");
   const pathname = usePathname();
   return (
     <nav aria-label={t("label")} className="-mx-1 overflow-x-auto" data-testid="stays-admin-nav">
       <ul className="flex min-w-max gap-1 px-1 pb-1">
+        <li><Link className="inline-flex min-h-10 items-center px-3" href="/admin/stays/amenities">{labels("amenities")}</Link></li>
         {SECTIONS.map((s) => {
           const active = s.href === STAYS_ADMIN_BASE ? pathname === s.href : pathname === s.href || pathname.startsWith(`${s.href}/`);
           return (

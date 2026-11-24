@@ -85,7 +85,7 @@ export function RoomsSection({
   hasDates: boolean;
   preview: boolean;
   pending: boolean;
-  amenityLabels: Record<string, { label: string; icon: string | null }>;
+  amenityLabels: Record<string, { label: string; icon: string | null; imageUrl?: string | null }>;
   focusRoomId: string | null;
   onPickDates: (roomTypeId: string | null) => void;
   onPickGuests: () => void;
@@ -481,7 +481,7 @@ function RoomSheet({
   hasDates: boolean;
   preview: boolean;
   reviews: ReviewItem[];
-  amenityLabels: Record<string, { label: string; icon: string | null }>;
+  amenityLabels: Record<string, { label: string; icon: string | null; imageUrl?: string | null }>;
   onClose: () => void;
   onPickDates: (roomTypeId: string) => void;
   onPickGuests: () => void;
@@ -527,7 +527,7 @@ function RoomSheet({
                   <ul className="mt-2 grid grid-cols-2 gap-2 text-sm text-slate-700">
                     {room.amenities.map((code) => (
                       <li key={code} className="flex items-center gap-2">
-                        <AmenityIcon name={amenityLabels[code]?.icon} className="size-4 text-emerald-700" />
+                        <AmenityIcon imageUrl={amenityLabels[code]?.imageUrl} name={amenityLabels[code]?.icon} className="size-4 text-emerald-700" />
                         {amenityLabels[code]?.label ?? code}
                       </li>
                     ))}
