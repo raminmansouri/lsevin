@@ -78,7 +78,7 @@ export default async function AdminMerchandisingPage({
             </table>
           </div>
 
-          <HomeSectionForm section={openSection ?? undefined} />
+          <HomeSectionForm key={openSection?.id ?? "new"} section={openSection ?? undefined} />
           {openSection ? (
             <Link href="/admin/shop/merchandising" className="inline-block text-xs font-medium text-[#083f30]">
               + {t("merchandising.newEditSection")}

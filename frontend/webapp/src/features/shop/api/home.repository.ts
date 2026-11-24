@@ -41,7 +41,7 @@ type SectionRow = {
   query_config: Record<string, unknown>;
 };
 
-const RAIL_LIMIT = 10;
+const RAIL_LIMIT = 12;
 
 export async function getShopHome(opts?: {
   locale?: string;
@@ -155,12 +155,9 @@ export async function getShopHome(opts?: {
           viewAllHref = "/n/app/mobile/shop/search?featuredOnly=1";
           break;
         case "best_seller":
-          // Only the products an admin ticked as "Best seller". Without this filter
-          // the rail listed every product by popularity, which put the same
-          // products here as in the "featured" (Health picks) rail.
-          filters.bestSellerOnly = true;
-          filters.sort = "popularity";
-          viewAllHref = "/n/app/mobile/shop/search?bestSellerOnly=1";
+          filters.inStockOnly = true;
+          filters.sort = "low_stock";
+          viewAllHref = "/n/app/mobile/shop/search?sort=low_stock&inStockOnly=1";
           break;
         case "new_arrival":
           filters.sort = "newest";
