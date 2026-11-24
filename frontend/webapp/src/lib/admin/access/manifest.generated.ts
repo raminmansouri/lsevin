@@ -200,6 +200,7 @@ export const ADMIN_PAGE_ROUTES: readonly string[] = [
   "/admin/stays/properties",
   "/admin/stays/properties/[id]",
   "/admin/stays/properties/[id]/preview",
+  "/admin/stays/properties/new",
   "/admin/stays/reviews",
   "/admin/stays/settings",
   "/admin/support",
