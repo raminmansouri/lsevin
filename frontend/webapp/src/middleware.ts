@@ -42,6 +42,17 @@ export default async function middleware(request: NextRequest) {
     return new NextResponse(null, { status: 404 });
   }
 
+  // Move legacy app seller pages before rendering; a page-level redirect can
+  // become a streamed meta refresh and leave the old URL returning HTTP 200.
+  const legacySeller = request.nextUrl.pathname.match(
+    /^\/([^/]+)\/n\/app\/mobile\/shop\/seller\/([^/]+)\/?$/
+  );
+  if (legacySeller && routing.locales.includes(legacySeller[1] as Locale)) {
+    const target = publicAppUrl(request, `/${legacySeller[1]}/shop/seller/${legacySeller[2]}`);
+    target.search = request.nextUrl.search;
+    return NextResponse.redirect(target, 308);
+  }
+
   const intlResponse = intlMiddleware(request);
 
   if (intlResponse && !intlResponse.ok) {

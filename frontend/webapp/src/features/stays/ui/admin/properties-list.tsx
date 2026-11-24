@@ -5,19 +5,17 @@ import { Download, Plus } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Field, NativeSelect, StatusBadge } from "@/features/tours/ui/admin/primitives";
-import { LocalizedTextInput, OptionSelect, formatPrice, type Option } from "@/features/tours/ui/admin/inputs";
+import { OptionSelect, formatPrice, type Option } from "@/features/tours/ui/admin/inputs";
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
 
-import { ENTIRE_PLACE_KINDS, PROPERTY_KINDS, type PropertyKind } from "../../domain/search";
-import { createPropertyAction, importProviderAction, importableProvidersAction, searchProvidersAction } from "../../server/actions/admin";
+import { importProviderAction, importableProvidersAction, searchProvidersAction } from "../../server/actions/admin";
 import type { AdminPropertyRow } from "../../server/admin/properties";
 
-import { FieldError, STAYS_ADMIN_BASE, useStayAdminAction } from "./shared";
-import { STAY_CONTENT_LOCALES } from "../../domain/locales";
+import { STAYS_ADMIN_BASE, useStayAdminAction } from "./shared";
 
 type CityOpt = { id: string; label: string };
 
@@ -27,7 +25,6 @@ export function PropertiesList({ rows, cities, filters }: { rows: AdminPropertyR
   const router = useRouter();
   const pathname = usePathname();
   const [q, setQ] = useState(filters.q);
-  const [createOpen, setCreateOpen] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
 
   function apply(patch: Partial<typeof filters>) {
@@ -45,9 +42,11 @@ export function PropertiesList({ rows, cities, filters }: { rows: AdminPropertyR
             <Download className="size-4" aria-hidden="true" />
             {t("properties.import")}
           </Button>
-          <Button type="button" onClick={() => setCreateOpen(true)} data-testid="stays-admin-new">
-            <Plus className="size-4" aria-hidden="true" />
-            {t("properties.new")}
+          <Button asChild data-testid="stays-admin-new">
+            <Link href={`${STAYS_ADMIN_BASE}/properties/new`}>
+              <Plus className="size-4" aria-hidden="true" />
+              {t("properties.new")}
+            </Link>
           </Button>
         </div>
       </div>
@@ -123,13 +122,13 @@ export function PropertiesList({ rows, cities, filters }: { rows: AdminPropertyR
           </Table>
         </div>
       )}
-      <CreateDialog open={createOpen} onOpenChange={setCreateOpen} cities={cities} />
       <ImportDialog open={importOpen} onOpenChange={setImportOpen} cities={cities} />
     </div>
   );
 }
 
-function ProviderPicker({ value, onChange, testId }: { value: Option | null; onChange: (o: Option | null) => void; testId?: string }) {
+/** Search-as-you-type picker for an existing provider (owner). */
+export function ProviderPicker({ value, onChange, testId }: { value: Option | null; onChange: (o: Option | null) => void; testId?: string }) {
   const t = useTranslations("StayAdmin.properties");
   const locale = useLocale();
   const [q, setQ] = useState("");
@@ -147,131 +146,6 @@ function ProviderPicker({ value, onChange, testId }: { value: Option | null; onC
       <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder={t("providerSearch")} data-testid={testId ? `${testId}-search` : undefined} />
       <OptionSelect value={value?.value ?? ""} onChange={(v) => onChange(options.find((o) => o.value === v) ?? null)} options={options} testId={testId} />
     </div>
-  );
-}
-
-function CreateDialog({ open, onOpenChange, cities }: { open: boolean; onOpenChange: (v: boolean) => void; cities: CityOpt[] }) {
-  const t = useTranslations("StayAdmin");
-  const tKinds = useTranslations("StayApp.kinds");
-  const router = useRouter();
-  const { run, pending, fieldErrors } = useStayAdminAction();
-  const [provider, setProvider] = useState<Option | null>(null);
-  const [cityId, setCityId] = useState(cities[0]?.id ?? "");
-  const [slug, setSlug] = useState("");
-  const [kind, setKind] = useState<PropertyKind>("hotel");
-  const [model, setModel] = useState<"rooms" | "entire_place">("rooms");
-  const [name, setName] = useState<Record<string, string>>({});
-
-  async function create() {
-    const data = await run(
-      () =>
-        createPropertyAction({
-          serviceProviderId: provider?.value ?? "",
-          cityId,
-          slug: slug.trim(),
-          kind,
-          inventoryModel: model,
-          starRating: null,
-          name,
-          summary: {},
-          description: {},
-          houseRules: {},
-          address: {},
-          latitude: null,
-          longitude: null,
-          locationPrivacy: model === "entire_place" ? "approximate" : "exact",
-          checkInTime: "14:00",
-          checkOutTime: "12:00",
-          amenityCodes: [],
-          nearby: [],
-          stepFreeAccess: false,
-          accessibleBathroom: false,
-          medicalFriendly: false,
-          petsAllowed: false,
-          smokingAllowed: false,
-          partiesAllowed: false,
-          familiesOnly: false,
-          idRequired: true,
-          childFreeUnderAge: 5,
-          confirmationMode: "instant",
-          requestTimeoutHours: 24,
-          currencyCode: "IRR",
-          taxPercent: 0,
-          timezone: "Asia/Tehran",
-          contactPhone: null,
-          isFeatured: false,
-        }),
-      { refresh: false },
-    );
-    if (data) {
-      onOpenChange(false);
-      router.push(`${STAYS_ADMIN_BASE}/properties/${data.id}`);
-    }
-  }
-
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[92dvh] overflow-y-auto sm:max-w-lg" data-testid="stays-admin-create-dialog">
-        <DialogHeader>
-          <DialogTitle>{t("properties.new")}</DialogTitle>
-          <DialogDescription>{t("cities.description")}</DialogDescription>
-        </DialogHeader>
-        <div className="space-y-3">
-          <Field label={`${t("properties.provider")} *`}>
-            <ProviderPicker value={provider} onChange={setProvider} testId="stays-admin-provider" />
-            <FieldError error={fieldErrors.serviceProviderId} />
-          </Field>
-          <Field label={`${t("properties.filterCity")} *`} htmlFor="new-city">
-            <NativeSelect id="new-city" value={cityId} onChange={(e) => setCityId(e.target.value)} data-testid="stays-admin-new-city">
-              {cities.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.label}
-                </option>
-              ))}
-            </NativeSelect>
-          </Field>
-          <Field label={`${t("editor.slug")} *`} htmlFor="new-slug" hint={t("editor.slugHint")}>
-            <Input id="new-slug" dir="ltr" value={slug} onChange={(e) => setSlug(e.target.value.toLowerCase())} aria-invalid={Boolean(fieldErrors.slug)} data-testid="stays-admin-new-slug" />
-            <FieldError error={fieldErrors.slug} />
-          </Field>
-          <div className="grid gap-3 sm:grid-cols-2">
-            <Field label={t("properties.kind")} htmlFor="new-kind">
-              <NativeSelect
-                id="new-kind"
-                value={kind}
-                onChange={(e) => {
-                  const k = e.target.value as PropertyKind;
-                  setKind(k);
-                  setModel(ENTIRE_PLACE_KINDS.includes(k) ? "entire_place" : "rooms");
-                }}
-                data-testid="stays-admin-new-kind"
-              >
-                {PROPERTY_KINDS.map((k) => (
-                  <option key={k} value={k}>
-                    {tKinds(k)}
-                  </option>
-                ))}
-              </NativeSelect>
-            </Field>
-            <Field label={t("properties.inventoryModel")} htmlFor="new-model">
-              <NativeSelect id="new-model" value={model} onChange={(e) => setModel(e.target.value as "rooms" | "entire_place")}>
-                <option value="rooms">{t("properties.inventoryRooms")}</option>
-                <option value="entire_place">{t("properties.inventoryEntire")}</option>
-              </NativeSelect>
-            </Field>
-          </div>
-          <LocalizedTextInput label={`${t("editor.name")} *`} locales={STAY_CONTENT_LOCALES} value={name} onChange={setName} error={fieldErrors.name ? t("common.required") : undefined} />
-        </div>
-        <DialogFooter>
-          <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-            {t("common.cancel")}
-          </Button>
-          <Button type="button" disabled={pending || !provider || !cityId} onClick={create} data-testid="stays-admin-create">
-            {t("common.create")}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
   );
 }
 

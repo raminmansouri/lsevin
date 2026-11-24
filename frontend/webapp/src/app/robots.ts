@@ -1,6 +1,7 @@
 import { MetadataRoute } from "next";
 
 import { seoOrigin } from "@/lib/seo/origin";
+import { routing } from "@/i18n/routing";
 
 /**
  * Every private area of the app lives behind a locale prefix (/fa/admin, /en/admin,
@@ -23,34 +24,14 @@ export default function robots(): MetadataRoute.Robots {
     "forgot-password",
     "reset-password",
     "on-boarding",
-    "profile",
-  ];
-
-  const privateMobileAreas = [
-    "profile",
-    "bookings",
-    "booking",
-    "booking-v2",
-    "notifications",
-    "support",
-    "bug-reports",
-    "shop/cart",
-    "shop/checkout",
-    "shop/orders",
-    "shop/order",
-    "shop/addresses",
-    "shop/wishlist",
-    "shop/compare",
-    "packages/*/checkout",
   ];
 
   const disallow = [
     "/api/",
     "/*/api/",
-    ...privateAreas.flatMap((area) => [`/${area}`, `/*/${area}`]),
-    ...privateMobileAreas.flatMap((area) => [
-      `/n/app/mobile/${area}`,
-      `/*/n/app/mobile/${area}`,
+    ...privateAreas.flatMap((area) => [
+      `/${area}`,
+      ...routing.locales.map((locale) => `/${locale}/${area}`),
     ]),
   ];
 

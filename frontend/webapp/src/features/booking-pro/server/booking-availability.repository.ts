@@ -1,7 +1,7 @@
 import "server-only";
 
 import sql from "@/config/database/db";
-import { formatBookingDate, normalizeBookingCalendar } from "@/features/booking-pro/lib/calendar";
+import { formatBookingDate, isBookingTimeZone, normalizeBookingCalendar } from "@/features/booking-pro/lib/calendar";
 
 const UUID_RE = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
 
@@ -74,6 +74,15 @@ function formatTimeLabel(time: string, locale: string) {
     hour12: false,
     timeZone: "UTC",
   }).format(date);
+}
+
+/**
+ * The zone slot times are stored in: the provider's own zone. Slots are wall-clock times on
+ * `selected_date`, so "now" must be read on the same clock to tell which ones have passed.
+ */
+function slotTimeZone(timezoneId?: string | null) {
+  const zone = String(timezoneId || "").trim();
+  return zone && isBookingTimeZone(zone) ? zone : "UTC";
 }
 
 async function resolveAvailabilityContext(input: { providerId?: Id; serviceId?: Id; specialistId?: Id }) {
@@ -172,7 +181,8 @@ export async function getBookingAvailableDatesFromDb(input: {
         ${ctx.providerStaffId}::uuid as provider_staff_id,
         ${ctx.durationMinutes}::int as duration_minutes,
         ${ctx.slotIntervalMinutes}::int as slot_interval_minutes,
-        greatest(${ctx.resourceCapacity}::int, 0) as resource_capacity
+        greatest(${ctx.resourceCapacity}::int, 0) as resource_capacity,
+        (now() at time zone ${slotTimeZone(ctx.timezoneId)})::timestamp as now_local
     ), days as (
       select generate_series(${startDate}::date, ${endDate}::date, interval '1 day')::date as selected_date
     ), generic_positive as (
@@ -240,6 +250,9 @@ export async function getBookingAvailableDatesFromDb(input: {
         bw.selected_date + bw.ends_at - make_interval(mins => ctx.duration_minutes),
         make_interval(mins => greatest(bw.slot_interval_minutes, 1))
       ) gs
+      -- A slot that has already started (on the provider's clock) can't be booked, so a
+      -- day whose slots have all passed (e.g. today, late evening) isn't offered either.
+      where gs > ctx.now_local
     ), generic_blocks as (
       select d.selected_date, r.starts_at, r.ends_at
       from days d
@@ -372,7 +385,8 @@ export async function getBookingAvailableTimeSlotsFromDb(input: {
         ${ctx.durationMinutes}::int as duration_minutes,
         ${ctx.slotIntervalMinutes}::int as slot_interval_minutes,
         greatest(${ctx.resourceCapacity}::int, 0) as resource_capacity,
-        ${selectedDate}::date as selected_date
+        ${selectedDate}::date as selected_date,
+        (now() at time zone ${slotTimeZone(ctx.timezoneId)})::timestamp as now_local
     ), generic_positive as (
       select
         r.starts_at,
@@ -429,6 +443,9 @@ export async function getBookingAvailableTimeSlotsFromDb(input: {
         ctx.selected_date + bw.ends_at - make_interval(mins => ctx.duration_minutes),
         make_interval(mins => greatest(bw.slot_interval_minutes, 1))
       ) gs
+      -- Slots that have already started on the provider's clock are not offered at all; the
+      -- checkout check below reuses this list, so a past slot is rejected there too.
+      where gs > ctx.now_local
     ), grouped_slots as (
       select selected_date, slot_start, slot_end, max(capacity)::int as capacity, provider_id, service_id, specialist_id, provider_staff_id
       from generated_slots

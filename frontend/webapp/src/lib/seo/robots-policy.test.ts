@@ -30,10 +30,12 @@ describe("server robots boundaries", () => {
   it("blocks private mobile URLs without blocking crawlable search", () => {
     const rules = robots().rules;
     const disallow = (Array.isArray(rules) ? rules[0] : rules).disallow;
-    expect(disallow).toContain("/*/n/app/mobile/support");
-    expect(disallow).toContain("/*/n/app/mobile/shop/checkout");
-    expect(disallow).toContain("/*/n/app/mobile/bookings");
-    expect(disallow).toContain("/*/n/app/mobile/packages/*/checkout");
+    expect(disallow).not.toContain("/*/n/app/mobile/support");
+    expect(disallow).not.toContain("/*/n/app/mobile/shop/checkout");
+    expect(disallow).not.toContain("/*/n/app/mobile/bookings");
+    expect(disallow).not.toContain("/*/n/app/mobile/packages/*/checkout");
+    expect(disallow).not.toContain("/*/admin");
+    expect(disallow).toContain("/fa/admin");
     expect(disallow).not.toContain("/*/n/app/mobile/search");
     expect(disallow).not.toContain("/*/n/app/mobile/home");
   });
@@ -69,19 +71,17 @@ describe("server robots boundaries", () => {
   it.each([
     "[locale]/(admin)/admin", "[locale]/(auth)/sign-in", "[locale]/(auth)/sign-up",
     "[locale]/provider-panel", "[locale]/provider-portal", "[locale]/(main)/profile",
-    "[locale]/n/app/admin", "(financial)/financial/sign-in", "(financial)/financial/(protected)",
-    ...["booking", "booking-v2", "bookings", "bug-reports", "care", "medical", "notifications", "profile/wallet", "support", "packages/[packageId]/checkout"].map(p => `[locale]/n/app/mobile/${p}`),
-    ...["addresses", "cart", "checkout", "compare", "order", "orders", "wishlist"].map(p => `[locale]/n/app/mobile/shop/${p}`),
+    "(financial)/financial/sign-in", "(financial)/financial/(protected)",
   ])("noindexes private route %s", (route) => {
     expect(policies(route)).toEqual(["privateMetadata"]);
   });
 
-  it.each(["search", "search-results", "map-discovery", "shop/search"])("allows link discovery from %s", (route) => {
+  it.each(["home", "provider/[id]", "service/[id]", "specialist/[id]", "shop", "shop/product/[slug]", "shop/category/[slug]", "categories", "explore", "consultation/doctors", "shop/seller/[slug]"])("noindexes app-only %s while allowing links", (route) => {
     expect(policies(`[locale]/n/app/mobile/${route}`)).toEqual(["searchMetadata"]);
   });
 
-  it.each(["home", "provider/[id]", "service/[id]", "specialist/[id]", "shop", "shop/product/[slug]", "shop/category/[slug]", "categories", "explore"])("keeps public %s indexable", (route) => {
-    expect(policies(`[locale]/n/app/mobile/${route}`)).toEqual([]);
+  it("keeps the public seller URL outside the app-only robots boundary", () => {
+    expect(policies("[locale]/(site)/shop/seller/[slug]")).toEqual([]);
   });
 
   it("keeps marketing routes outside the private boundary", () => {
