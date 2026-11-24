@@ -188,14 +188,15 @@ export function LocalizedInput({
         value={activeLocale}
         onValueChange={(v) => setActiveLocale(v as LocaleHeaderTypes)}
       >
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex min-w-0 flex-col gap-2">
           <Label className="shrink-0">{label}</Label>
-          {/* contain:inline-size on phones: the strip fills the row and scrolls, instead of its full
-              width (every language name) becoming the form's minimum width. */}
-          <div className="w-full overflow-x-auto max-sm:[contain:inline-size] sm:w-auto">
-            <TabsList className="inline-flex w-max">
+          {/* With 11+ languages the strip is wider than a form column, and as one unbreakable row it
+              became the form's minimum width: in RTL dialogs the overflow pushed the fields off the
+              left edge. The tabs now wrap onto more lines at every width, so nothing overflows. */}
+          <div className="w-full min-w-0">
+            <TabsList className="flex h-auto w-full flex-wrap justify-start gap-1">
               {supportedLocales.map((locale) => (
-                <TabsTrigger key={locale} value={locale}>
+                <TabsTrigger key={locale} value={locale} className="h-8 flex-none">
                   {getLocaleDisplayName(locale)}
                   {hasContent(translations[locale]) && (
                     <span className="ml-1 text-green-500">●</span>

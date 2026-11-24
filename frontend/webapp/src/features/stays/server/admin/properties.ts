@@ -1,5 +1,7 @@
 import "server-only";
 
+import { randomUUID } from "node:crypto";
+
 import db from "@/config/database/db";
 import type { Actor } from "@/features/tours/server/platform/access";
 
@@ -242,11 +244,103 @@ function validateProperty(input: PropertyInput) {
   if (Object.keys(errors).length) throw fail.validation("invalid_property", { fields: errors });
 }
 
-export async function createProperty(actor: Actor, input: PropertyInput): Promise<string> {
-  validateProperty(input);
+/** Owner account for the provider panel: a registered Lsevin user, found by email or mobile number. */
+async function findOwnerUser(tx: Tx, login: string): Promise<string | null> {
+  const v = login.trim();
+  if (!v) return null;
+  if (v.includes("@")) {
+    const [u] = await tx<{ id: string }[]>`select id::text from identity.asp_net_users where normalized_email = ${v.toUpperCase()} limit 1`;
+    return u?.id ?? null;
+  }
+  const digits = v.replace(/\D/g, "").replace(/^0+/, "").slice(-10);
+  if (digits.length < 7) return null;
+  const [u] = await tx<{ id: string }[]>`
+    select id::text from identity.asp_net_users
+     where right(regexp_replace(coalesce(phone_number, ''), '\D', '', 'g'), 10) = ${digits}
+     order by phone_number_confirmed desc limit 1`;
+  return u?.id ?? null;
+}
+
+/**
+ * Every stay hangs off a category.service_providers row (bookings, payouts and the
+ * hidden booking service all go through it). When the admin adds a hotel without
+ * choosing an existing owner, this creates that provider from the hotel itself, in
+ * the same transaction: same name, city and phone, the provider type and category
+ * the other stays use, and the columns the .NET Category module requires (city and
+ * country max 15 chars, phone country code max 3, phone max 15). The public slug is
+ * named by the category.fill_public_slug() trigger. With an owner account, the user
+ * becomes the provider's owner in provider_portal.provider_members (same as an
+ * approved provider-panel application), so the hotel shows in their provider panel.
+ */
+async function createProviderForStay(tx: Tx, input: PropertyInput, ownerUserId: string | null): Promise<string> {
+  const [city] = await tx<{ slug: string }[]>`select slug from stay.cities where id = ${input.cityId}::uuid`;
+  if (!city) throw fail.validation("invalid_property", { fields: { cityId: "not_found" } });
+  // The provider type and category most stays already use; else the accommodation type by name.
+  let [kind] = await tx<{ typeId: string; categoryId: string | null }[]>`
+    select sp.provider_type_id::text as "typeId", sp.category_id::text as "categoryId"
+      from stay.properties p join category.service_providers sp on sp.id = p.service_provider_id
+     group by sp.provider_type_id, sp.category_id
+     order by count(*) desc limit 1`;
+  if (!kind) {
+    [kind] = await tx<{ typeId: string; categoryId: string | null }[]>`
+      select pt.id::text as "typeId",
+             (select (value #>> '{}') from stay.settings where key = 'accommodation_category_id') as "categoryId"
+        from category.provider_types pt
+       where exists (select 1 from jsonb_each_text(case when jsonb_typeof(pt.name_translations) = 'object' then pt.name_translations else '{}'::jsonb end) t
+                      where t.value ilike '%accommodation%' or t.value ilike '%hotel%' or t.value like '%اقامتگاه%' or t.value like '%هتل%')
+       order by pt.create_date nulls last limit 1`;
+  }
+  if (!kind) throw fail.validation("no_accommodation_provider_type");
+  const name = cleanTr(input.name);
+  const phoneDigits = (input.contactPhone ?? "").replace(/\D/g, "");
+  const phone = phoneDigits.startsWith("98") ? phoneDigits.slice(2) : phoneDigits.replace(/^0+/, "");
+  const searchText = Object.values(name).join(" ");
+  const providerId = randomUUID();
+  await tx`
+    insert into category.service_providers (
+      id, name_translations, description_translations, provider_type_id, category_id, email,
+      phone_number_country_code, phone_number, country, city, timezone_id, is_active, added_by,
+      search_vector, create_date, last_modified_date
+    ) values (
+      ${providerId}::uuid, ${db.json(name as never)}::jsonb, ${db.json(cleanTr(input.summary) as never)}::jsonb,
+      ${kind.typeId}::uuid, ${kind.categoryId}::uuid, ${`stay-${input.slug}@lsevin.ir`.slice(0, 250)},
+      '+98', ${phone.slice(-15)}, 'IR', ${city.slug.toUpperCase().slice(0, 15)}, ${input.timezone}, true, 'Stays admin (auto)',
+      to_tsvector('simple', ${searchText}), now(), now()
+    )`;
+  if (ownerUserId) {
+    await tx`
+      insert into provider_portal.provider_members (service_provider_id, user_id, role, is_default)
+      values (${providerId}::uuid, ${ownerUserId}::uuid, 'owner', true)
+      on conflict do nothing`;
+  }
+  return providerId;
+}
+
+/**
+ * Creates a stay. `serviceProviderId` links it to an existing provider; when it is
+ * null a provider is created from the hotel's details (createProviderForStay), and
+ * `ownerLogin` (email or mobile of a registered user) optionally makes that user its
+ * owner in the provider panel.
+ */
+export async function createProperty(
+  actor: Actor,
+  input: Omit<PropertyInput, "serviceProviderId"> & { serviceProviderId: string | null },
+  ownerLogin: string | null = null,
+): Promise<string> {
+  validateProperty(input as PropertyInput);
   return db.begin(async (tx) => {
-    const [provider] = await tx<{ ok: boolean }[]>`select true as ok from category.service_providers where id = ${input.serviceProviderId}::uuid`;
-    if (!provider) throw fail.validation("invalid_property", { fields: { serviceProviderId: "not_found" } });
+    const [taken] = await tx<{ ok: boolean }[]>`select true as ok from stay.properties where slug = ${input.slug}`;
+    if (taken) throw fail.validation("invalid_property", { fields: { slug: "taken" } });
+    let providerId = input.serviceProviderId;
+    if (providerId) {
+      const [provider] = await tx<{ ok: boolean }[]>`select true as ok from category.service_providers where id = ${providerId}::uuid`;
+      if (!provider) throw fail.validation("invalid_property", { fields: { serviceProviderId: "not_found" } });
+    } else {
+      const ownerUserId = ownerLogin?.trim() ? await findOwnerUser(tx as unknown as Tx, ownerLogin) : null;
+      if (ownerLogin?.trim() && !ownerUserId) throw fail.validation("invalid_property", { fields: { ownerLogin: "not_found" } });
+      providerId = await createProviderForStay(tx as unknown as Tx, { ...input, serviceProviderId: "" }, ownerUserId);
+    }
+    input = { ...input, serviceProviderId: providerId };
     const [r] = await tx<{ id: string }[]>`
       insert into stay.properties (
         service_provider_id, city_id, slug, kind, inventory_model, star_rating, name, summary, description, house_rules, address,

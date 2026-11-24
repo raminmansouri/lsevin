@@ -112,10 +112,18 @@ const propertySchema = z
   })
   .strict();
 
+// New stays: the owner is optional. Without one, createProperty makes a provider from
+// the hotel's details; ownerLogin (email or mobile) then links a provider-panel account.
+const createPropertySchema = propertySchema.extend({
+  serviceProviderId: uuid.nullable(),
+  ownerLogin: z.string().trim().max(120).nullable().optional(),
+});
+
 export async function createPropertyAction(input: unknown) {
   return runStayAction("admin.createProperty", async () => {
     const actor = await requireAdmin();
-    const id = await createProperty(actor, parse(propertySchema, input) as PropertyInput);
+    const { ownerLogin, ...data } = parse(createPropertySchema, input);
+    const id = await createProperty(actor, data as Omit<PropertyInput, "serviceProviderId"> & { serviceProviderId: string | null }, ownerLogin ?? null);
     return { id };
   });
 }

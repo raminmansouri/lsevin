@@ -100,7 +100,27 @@
       "kind": "Tür",
       "inventoryModel": "Satış şekli",
       "inventoryRooms": "Oda bazında (otel: her tipten birden fazla oda)",
-      "inventoryEntire": "Tüm mekan olarak (tek birim: villa, süit, daire)"
+      "inventoryEntire": "Tüm mekan olarak (tek birim: villa, süit, daire)",
+      "create": {
+        "intro": "Enter just the essentials. After creating it you go to the full editor to add rooms, photos and prices.",
+        "basics": "Basics",
+        "phone": "Phone",
+        "phoneHint": "Optional. Shown on the stay page and used for the provider.",
+        "slugHint": "Made from the name; you can change it. Public page address: /stays/<address>",
+        "slugTaken": "Another stay already uses this address. Choose a different one.",
+        "ownerTitle": "Provider (owner)",
+        "ownerIntro": "Every stay belongs to a provider; bookings and payouts go through it. You don't need to create one first.",
+        "ownerAuto": "Create a provider automatically (recommended)",
+        "ownerAutoHint": "A provider with the same name, city and phone is created.",
+        "ownerExisting": "Link to an existing provider",
+        "ownerExistingHint": "When this hotel belongs to a provider that is already registered.",
+        "ownerLogin": "Owner account for the provider panel (optional)",
+        "ownerLoginHint": "Email or mobile number of a registered Lsevin user. If given, this hotel shows in their provider panel. You can leave it empty.",
+        "ownerLoginNotFound": "No user with this email or number. They must sign up on Lsevin first, or leave this empty.",
+        "submit": "Create stay",
+        "creating": "Creating…",
+        "created": "Stay created. Now add rooms, photos and prices."
+      }
     },
     "editor": {
       "back": "Tüm konaklamalar",
@@ -364,7 +384,8 @@
       "reason_too_short": "Bir gerekçe yazın (en az 5 karakter).",
       "not_requested": "Bu rezervasyon artık yanıt beklemiyor.",
       "not_cancellable": "Bu rezervasyon artık iptal edilemez.",
-      "duplicate": "Bu adres (slug) veya kod zaten kullanılıyor."
+      "duplicate": "Bu adres (slug) veya kod zaten kullanılıyor.",
+      "no_accommodation_provider_type": "No accommodation provider type exists. Add one under Provider types first."
     }
   }
 }

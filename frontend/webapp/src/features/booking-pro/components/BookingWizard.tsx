@@ -23,7 +23,7 @@ import { DecisionStack } from './step-service/DecisionStack';
 import { autoSelectId, canContinueService, type SlotKey } from '../lib/decision-stack';
 import { cascadeFor } from '../lib/cascade';
 import { BookingDatePicker } from './BookingDatePicker';
-import { calendarForCountry, formatBookingDateTime, isBookingTimeZone, sameBookingClock, BOOKING_CALENDARS, bookingCalendarLabel, type BookingCalendar, formatBookingDate, isReasonableBookingIsoDate, normalizeBookingCalendar, toIsoDate } from '../lib/calendar';
+import { bookingDateTimeInstant, calendarForCountry, formatBookingDateTime, isBookingTimeZone, sameBookingClock, BOOKING_CALENDARS, bookingCalendarLabel, type BookingCalendar, formatBookingDate, isReasonableBookingIsoDate, normalizeBookingCalendar, toIsoDate } from '../lib/calendar';
 import { RichTextPreview } from '@/features/booking/components/rich-text-preview';
 import { ShareMedicalCaseStep } from './ShareMedicalCaseStep';
 import { formatCurrencyAmount } from '@/features/finance/lib/money';
@@ -463,6 +463,21 @@ export function BookingWizard() {
         return [...new Set(['UTC', viewerTimeZone, providerTimeZone, ...supported])];
     }, [viewerTimeZone, providerTimeZone]);
     const viewerSharesProviderClock = sameBookingClock(draft?.selectedDate, viewerTimeZone, providerTimeZone);
+    // The server already leaves out slots that have started, but the page can stay open for a
+    // while: re-check every minute so a slot disappears once its start time passes.
+    const [nowMs, setNowMs] = useState(() => Date.now());
+    useEffect(() => {
+        const id = window.setInterval(() => setNowMs(Date.now()), 60_000);
+        return () => window.clearInterval(id);
+    }, []);
+    const upcomingTimeSlots = useMemo(() => {
+        const date = draft?.selectedDate;
+        if (!date) return timeSlots;
+        return timeSlots.filter((slot) => {
+            try { return bookingDateTimeInstant(date, String(slot.time).slice(0, 5), providerTimeZone).getTime() > nowMs; }
+            catch { return true; }
+        });
+    }, [timeSlots, draft?.selectedDate, providerTimeZone, nowMs]);
     function selectCalendar(value: BookingCalendar) {
         pickedByCustomer.current.calendar = true;
         setCalendar(value);
@@ -1408,7 +1423,7 @@ export function BookingWizard() {
                                 </div>
                             )}
                             {(() => {
-                                const renderSlot = (slot: (typeof timeSlots)[number]) => {
+                                const renderSlot = (slot: (typeof upcomingTimeSlots)[number]) => {
                                     const selected = draft.selectedTimeFrom === slot.time && draft.selectedTimeTo === slot.endTime;
                                     let localStart = slot.label;
                                     let localEnd = slot.endLabel;
@@ -1439,7 +1454,7 @@ export function BookingWizard() {
 
                                 // Day-part groups use the provider's clock, so only group when the viewer shares it.
                                 if (!viewerSharesProviderClock) {
-                                    return <div className={gridClass(timeSlots.length)}>{timeSlots.map(renderSlot)}</div>;
+                                    return <div className={gridClass(upcomingTimeSlots.length)}>{upcomingTimeSlots.map(renderSlot)}</div>;
                                 }
 
                                 const hourOf = (time: string) => Number(time.slice(0, 2));
@@ -1449,9 +1464,9 @@ export function BookingWizard() {
                                     evening: tBooking("dayParts.evening"),
                                 };
                                 const groups = [
-                                    { key: "morning" as const, slots: timeSlots.filter((s) => hourOf(s.time) < 12) },
-                                    { key: "afternoon" as const, slots: timeSlots.filter((s) => hourOf(s.time) >= 12 && hourOf(s.time) < 17) },
-                                    { key: "evening" as const, slots: timeSlots.filter((s) => hourOf(s.time) >= 17) },
+                                    { key: "morning" as const, slots: upcomingTimeSlots.filter((s) => hourOf(s.time) < 12) },
+                                    { key: "afternoon" as const, slots: upcomingTimeSlots.filter((s) => hourOf(s.time) >= 12 && hourOf(s.time) < 17) },
+                                    { key: "evening" as const, slots: upcomingTimeSlots.filter((s) => hourOf(s.time) >= 17) },
                                 ].filter((group) => group.slots.length > 0);
 
                                 return (<div className="space-y-4">
