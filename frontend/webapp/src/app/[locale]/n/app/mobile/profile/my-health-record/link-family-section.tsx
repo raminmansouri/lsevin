@@ -1,81 +1,57 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { UsersRound } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 import DatePicker from "@/components/form/date-picker";
 import type { AccountLinkRequestRow } from "@/features/patients/link-request-types";
-import {
-  PATIENT_IDENTIFIER_TYPES,
-  PATIENT_RELATIONSHIP_TYPES,
-} from "@/features/patients/schemas";
+import { PATIENT_IDENTIFIER_TYPES, PATIENT_RELATIONSHIP_TYPES } from "@/features/patients/schemas";
 import { submitAccountLinkRequestAction } from "@/features/patients/server/customer-link-request-actions";
 import { useRouter } from "@/i18n/navigation";
 import type { TranslationType } from "@/types/next";
 
-const FAMILY_RELATIONSHIP_TYPES = PATIENT_RELATIONSHIP_TYPES.filter(
-  (type) => type !== "self"
-);
+import { Choice, Field, inputClass } from "./questionnaire/ui";
 
-type Mode = "self" | "family" | null;
+const FAMILY_RELATIONSHIP_TYPES = PATIENT_RELATIONSHIP_TYPES.filter((type) => type !== "self");
 
 /**
- * "MobileProfile" is the only namespace this route's client bundle ships
- * (src/i18n/client-messages.ts), same reasoning as my-sharing/
- * share-case-section -- every label here is self-contained under
- * MobileProfile.myHealthRecord.linkRequest.*, reusing relationshipTypes
- * from the same namespace's existing entry rather than a third copy.
- *
- * Two distinct entry points, not one generic "request access" form: "self"
- * (completing your own record for the first time) and "family" (asking to
- * connect someone else's) are different enough in both meaning and
- * consequence that collapsing them into one form with a relationship
- * dropdown read as the same confusing "request" either way. "self" is now
- * approved + auto-provisioned immediately when no existing verified
- * identity matches (customer-link-request-actions.ts); "family" (and a
- * "self" that DOES match an existing record) still goes through admin
- * review exactly as before -- see 0060's migration header for why that
- * review gate exists and stays in place for every case it actually
- * protects.
+ * Linking a family member's existing record. Your own record no longer goes
+ * through here (start-record-form.tsx creates it directly, with no ID). A
+ * family link still asks for an ID document and is reviewed by the team,
+ * because it grants access to someone else's medical information -- see
+ * 0060's migration header for why that review gate exists.
  */
-export function LinkFamilySection({
-  requests,
-}: {
-  requests: AccountLinkRequestRow[];
-}) {
+export function LinkFamilySection({ requests }: { requests: AccountLinkRequestRow[] }) {
   const t = useTranslations("MobileProfile.myHealthRecord") as TranslationType;
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
-  const [mode, setMode] = useState<Mode>(null);
-  const [relationshipType, setRelationshipType] =
-    useState<(typeof FAMILY_RELATIONSHIP_TYPES)[number]>("parent");
-  const [identifierType, setIdentifierType] =
-    useState<(typeof PATIENT_IDENTIFIER_TYPES)[number]>("ir_national_id");
+  const [open, setOpen] = useState(false);
+  const [relationshipType, setRelationshipType] = useState<(typeof FAMILY_RELATIONSHIP_TYPES)[number] | undefined>("child");
+  const [identifierType, setIdentifierType] = useState<(typeof PATIENT_IDENTIFIER_TYPES)[number]>("ir_national_id");
   const [identifierValue, setIdentifierValue] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [birthDate, setBirthDate] = useState("");
 
+  const familyRequests = requests.filter((request) => request.relationshipType !== "self");
+
   const reset = () => {
-    setMode(null);
+    setOpen(false);
     setIdentifierValue("");
     setFirstName("");
     setLastName("");
     setBirthDate("");
   };
 
+  const canSubmit = Boolean(relationshipType && identifierValue.trim() && firstName.trim() && lastName.trim());
+
   const submit = () => {
-    if (
-      !mode ||
-      !identifierValue.trim() ||
-      !firstName.trim() ||
-      !lastName.trim()
-    )
-      return;
+    if (!canSubmit || !relationshipType) return;
     startTransition(async () => {
       const result = await submitAccountLinkRequestAction({
-        relationshipType: mode === "self" ? "self" : relationshipType,
+        relationshipType,
         identifierType,
         identifierValue: identifierValue.trim(),
         firstName: firstName.trim(),
@@ -83,11 +59,7 @@ export function LinkFamilySection({
         birthDate: birthDate || undefined,
       });
       if (result.ok) {
-        toast.success(
-          mode === "self" && result.data?.requestStatus === "approved"
-            ? t("linkRequest.selfConnected")
-            : t("linkRequest.submitted")
-        );
+        toast.success(t("linkRequest.submitted"));
         reset();
         router.refresh();
         return;
@@ -97,132 +69,66 @@ export function LinkFamilySection({
   };
 
   return (
-    <div className="rounded-2xl bg-white p-4">
-      <p className="text-sm font-medium text-gray-900">{t("linkRequest.title")}</p>
-      <p className="mt-1 text-xs text-gray-400">{t("linkRequest.subtitle")}</p>
+    <div>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-start gap-3">
+          <span className="grid size-10 shrink-0 place-items-center rounded-full bg-[#f6f1e6] text-[#0f5a45]">
+            <UsersRound size={18} />
+          </span>
+          <div>
+            <p className="text-base font-bold text-[#0e1a16]">{t("intake.family.title")}</p>
+            <p className="mt-0.5 text-sm leading-6 text-[#6b6150]">{t("intake.family.body")}</p>
+          </div>
+        </div>
+        {!open && (
+          <button
+            type="button"
+            onClick={() => setOpen(true)}
+            className="h-11 shrink-0 rounded-full px-5 text-sm font-bold text-[#0f5a45] ring-1 ring-[#c9a55a] hover:bg-[#faf6ee]"
+          >
+            {t("intake.family.cta")}
+          </button>
+        )}
+      </div>
 
-      {requests.length > 0 && (
-        <div className="mt-3 space-y-2 border-t border-gray-100 pt-3">
-          {requests.map((request) => (
-            <div
-              key={request.id}
-              className="flex items-center justify-between text-sm"
-            >
-              <span className="text-gray-800">
-                {request.firstName} {request.lastName} —{" "}
-                {t(`relationshipTypes.${request.relationshipType}`)}
+      {familyRequests.length > 0 && (
+        <ul className="mt-4 space-y-2">
+          {familyRequests.map((request) => (
+            <li key={request.id} className="flex items-center justify-between gap-3 rounded-2xl bg-[#faf6ee] px-4 py-3 text-sm">
+              <span className="text-[#0e1a16]">
+                {request.firstName} {request.lastName} · {t(`relationshipTypes.${request.relationshipType}`)}
               </span>
-              <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-600">
+              <span className="rounded-full bg-white px-2.5 py-0.5 text-xs font-semibold text-[#6b6150] ring-1 ring-[#e7dcc4]">
                 {t(`linkRequest.statuses.${request.requestStatus}`)}
               </span>
-            </div>
+            </li>
           ))}
-        </div>
+        </ul>
       )}
 
-      {!mode && (
-        <div className="mt-3 grid grid-cols-1 gap-2">
-          <button
-            type="button"
-            onClick={() => setMode("self")}
-            className="rounded-xl border border-blue-200 bg-blue-50 p-3 text-start"
-          >
-            <span className="block text-sm font-medium text-blue-700">
-              {t("linkRequest.selfCta")}
-            </span>
-            <span className="block text-xs text-blue-600/80">
-              {t("linkRequest.selfCtaHint")}
-            </span>
-          </button>
-          <button
-            type="button"
-            onClick={() => setMode("family")}
-            className="rounded-xl border border-gray-200 p-3 text-start"
-          >
-            <span className="block text-sm font-medium text-gray-800">
-              {t("linkRequest.familyCta")}
-            </span>
-            <span className="block text-xs text-gray-500">
-              {t("linkRequest.familyCtaHint")}
-            </span>
-          </button>
-        </div>
-      )}
-
-      {mode && (
-        <div className="mt-3 space-y-3 rounded-xl bg-gray-50 p-3">
-          <div className="flex items-center justify-between">
-            <p className="text-xs font-medium text-gray-600">
-              {mode === "self"
-                ? t("linkRequest.selfCta")
-                : t("linkRequest.familyCta")}
-            </p>
-            <button
-              type="button"
-              onClick={reset}
-              className="text-xs font-medium text-blue-600"
-            >
-              {t("linkRequest.cancel")}
-            </button>
+      {open && (
+        <div className="mt-5 space-y-4 rounded-[22px] bg-[#f6f1e6] p-4 sm:p-5">
+          <Field label={t("linkRequest.relationship")}>
+            <Choice
+              value={relationshipType}
+              onChange={setRelationshipType}
+              options={FAMILY_RELATIONSHIP_TYPES.map((type) => ({ value: type, label: t(`relationshipTypes.${type}`) }))}
+            />
+          </Field>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Field label={t("linkRequest.firstName")}>
+              <input className={inputClass} value={firstName} onChange={(e) => setFirstName(e.target.value)} />
+            </Field>
+            <Field label={t("linkRequest.lastName")}>
+              <input className={inputClass} value={lastName} onChange={(e) => setLastName(e.target.value)} />
+            </Field>
           </div>
-
-          <div className="grid grid-cols-2 gap-2">
-            <div>
-              <label className="text-xs text-gray-500">
-                {t("linkRequest.firstName")}
-              </label>
-              <input
-                value={firstName}
-                onChange={(event) => setFirstName(event.target.value)}
-                className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-2 py-1.5 text-sm"
-              />
-            </div>
-            <div>
-              <label className="text-xs text-gray-500">
-                {t("linkRequest.lastName")}
-              </label>
-              <input
-                value={lastName}
-                onChange={(event) => setLastName(event.target.value)}
-                className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-2 py-1.5 text-sm"
-              />
-            </div>
-          </div>
-
-          {mode === "family" && (
-            <div>
-              <label className="text-xs text-gray-500">
-                {t("linkRequest.relationship")}
-              </label>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Field label={t("linkRequest.identifierType")}>
               <select
-                value={relationshipType}
-                onChange={(event) =>
-                  setRelationshipType(
-                    event.target.value as typeof relationshipType
-                  )
-                }
-                className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-2 py-1.5 text-sm"
-              >
-                {FAMILY_RELATIONSHIP_TYPES.map((type) => (
-                  <option key={type} value={type}>
-                    {t(`relationshipTypes.${type}`)}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
-
-          <div className="grid grid-cols-2 gap-2">
-            <div>
-              <label className="text-xs text-gray-500">
-                {t("linkRequest.identifierType")}
-              </label>
-              <select
+                className={inputClass}
                 value={identifierType}
-                onChange={(event) =>
-                  setIdentifierType(event.target.value as typeof identifierType)
-                }
-                className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-2 py-1.5 text-sm"
+                onChange={(e) => setIdentifierType(e.target.value as typeof identifierType)}
               >
                 {PATIENT_IDENTIFIER_TYPES.map((type) => (
                   <option key={type} value={type}>
@@ -230,53 +136,28 @@ export function LinkFamilySection({
                   </option>
                 ))}
               </select>
-            </div>
-            <div>
-              <label className="text-xs text-gray-500">
-                {t("linkRequest.identifierValue")}
-              </label>
-              <input
-                dir="ltr"
-                value={identifierValue}
-                onChange={(event) => setIdentifierValue(event.target.value)}
-                className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-2 py-1.5 text-sm"
-              />
-            </div>
+            </Field>
+            <Field label={t("intake.family.idNumber")} hint={t("intake.family.idHint")}>
+              <input className={inputClass} dir="ltr" value={identifierValue} onChange={(e) => setIdentifierValue(e.target.value)} />
+            </Field>
           </div>
-
-          <div>
-            <label className="text-xs text-gray-500">
-              {t("linkRequest.birthDate")}
-            </label>
-            <DatePicker
-              value={birthDate || undefined}
-              onChange={(value) => setBirthDate(value)}
-              disableFuture
-              className="mt-1"
-            />
+          <Field label={t("linkRequest.birthDate")}>
+            <DatePicker value={birthDate || undefined} onChange={setBirthDate} disableFuture enableMonthYearSelect placeholder={t("intake.pickDate")} />
+          </Field>
+          <p className="text-xs leading-5 text-[#8a806d]">{t("linkRequest.reviewNotice")}</p>
+          <div className="flex justify-end gap-2">
+            <button type="button" onClick={reset} className="rounded-full px-4 py-2 text-sm font-semibold text-[#6b6150]">
+              {t("linkRequest.cancel")}
+            </button>
+            <button
+              type="button"
+              onClick={submit}
+              disabled={isPending || !canSubmit}
+              className="rounded-full bg-[#083f30] px-6 py-2.5 text-sm font-bold text-white disabled:opacity-50"
+            >
+              {t("linkRequest.submit")}
+            </button>
           </div>
-
-          <p className="text-xs text-gray-400">
-            {mode === "self"
-              ? t("linkRequest.selfNotice")
-              : t("linkRequest.reviewNotice")}
-          </p>
-
-          <button
-            type="button"
-            onClick={submit}
-            disabled={
-              isPending ||
-              !identifierValue.trim() ||
-              !firstName.trim() ||
-              !lastName.trim()
-            }
-            className="w-full rounded-lg bg-blue-600 py-2 text-sm font-medium text-white disabled:opacity-50"
-          >
-            {mode === "self"
-              ? t("linkRequest.selfSubmit")
-              : t("linkRequest.submit")}
-          </button>
         </div>
       )}
     </div>

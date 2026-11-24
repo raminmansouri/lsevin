@@ -135,6 +135,10 @@ function buildFilters(
     clauses.push(sql`m.mime_type ilike ${params.mimeType.trim()}`);
   }
 
+  if (params.ownerUserId) {
+    clauses.push(sql`m.created_by = ${params.ownerUserId}::uuid`);
+  }
+
   return clauses;
 }
 

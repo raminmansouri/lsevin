@@ -37,6 +37,12 @@ export type MediaListParams = {
   mimeType?: string;
   sort?: MediaSort;
   locale?: string;
+  /**
+   * Only rows this user uploaded. Set server-side for anyone who is not media staff, so the
+   * picker never shows one customer another customer's files (medical documents included).
+   * Never read from the query string.
+   */
+  ownerUserId?: string;
 };
 
 export type MediaListResponse = {

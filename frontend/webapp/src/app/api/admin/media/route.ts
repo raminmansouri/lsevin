@@ -9,7 +9,8 @@ import {
 import { deleteStoredObjects } from "@/components/media/server/storage-delete";
 import { getSession } from "@/lib/auth/session";
 import { CreateMediaInput, MediaListParams } from "@/components/media";
-import { requireApiAdmin, requireApiUser } from "@/lib/auth/api-guard";
+import { isApiAdmin, requireApiAdmin, requireApiUser } from "@/lib/auth/api-guard";
+import { can } from "@/lib/admin/access/policy";
 
 
 function toNumber(value: string | null, fallback: number) {
@@ -32,6 +33,9 @@ export async function GET(request: NextRequest) {
       mimeType: searchParams.get("mimeType") ?? undefined,
       sort: (searchParams.get("sort") as MediaListParams["sort"]) ?? "newest",
       locale: searchParams.get("locale") ?? "fa",
+      // The whole library is staff-only. Everyone else (customers uploading medical
+      // documents, avatars, booking files) only ever sees what they uploaded themselves.
+      ownerUserId: isApiAdmin(auth) || can(auth.access, "media", "view") ? undefined : auth.userId,
     };
 
     const data = await listMedia(params);
@@ -52,7 +56,8 @@ export async function POST(request: NextRequest) {
     if (auth instanceof NextResponse) return auth;
 
     const body = (await request.json()) as CreateMediaInput;
-    const created = await createMedia(body);
+    // Ownership comes from the session, never the body: it is what scopes the list above.
+    const created = await createMedia({ ...body, createdBy: auth.userId });
     return NextResponse.json(created, { status: 201 });
   } catch (error) {
     return NextResponse.json(

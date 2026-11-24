@@ -8760,7 +8760,7 @@ declare const messages: {
     },
     "myHealthRecord": {
       "title": "My Health Record",
-      "subtitle": "A read-only summary shared by your care team.",
+      "subtitle": "A private place for your medical information. Fill it in once, and your doctors can see it before your visit.",
       "empty": "No health record is linked to your account yet.",
       "onboarding": {
         "title": "Start your health record",
@@ -8885,6 +8885,303 @@ declare const messages: {
           "stopped": "Stopped",
           "unknown": "Unknown"
         }
+      },
+      "intake": {
+        "stepOf": "Step {current} of {total}",
+        "forPerson": "Filling in for {name}",
+        "backToRecord": "Back to my health record",
+        "finished": "Your health record is saved.",
+        "errors": {
+          "generic": "Something went wrong. Please try again.",
+          "nameRequired": "Please enter a first and last name."
+        },
+        "nav": {
+          "back": "Back",
+          "next": "Save and continue",
+          "skip": "Skip for now",
+          "finish": "Finish",
+          "saving": "Saving…"
+        },
+        "answers": {
+          "yes": "Yes",
+          "no": "No",
+          "unsure": "Not sure"
+        },
+        "steps": {
+          "about": {
+            "short": "About you",
+            "title": "About you",
+            "hint": "The basics your doctor needs. Only you and your care team can see this."
+          },
+          "concern": {
+            "short": "Why you're here",
+            "title": "What brings you here?",
+            "hint": "Describe it in your own words. There are no wrong answers."
+          },
+          "conditions": {
+            "short": "Conditions",
+            "title": "Health conditions",
+            "hint": "Have you ever been told you have any of these? Choose \"Not sure\" if you don't know."
+          },
+          "surgeries": {
+            "short": "Surgeries",
+            "title": "Surgeries and hospital stays",
+            "hint": "Any operation or hospital stay you've had, even a long time ago."
+          },
+          "medicines": {
+            "short": "Medicines & allergies",
+            "title": "Medicines and allergies",
+            "hint": "What you take now, and anything you react badly to."
+          },
+          "lifestyle": {
+            "short": "Lifestyle",
+            "title": "Lifestyle",
+            "hint": "A few quick questions that help doctors plan safe treatment."
+          },
+          "documents": {
+            "short": "Documents",
+            "title": "Your medical documents",
+            "hint": "Add test results, scans or prescriptions you already have. You can add more later."
+          },
+          "review": {
+            "short": "Review",
+            "title": "Check and finish",
+            "hint": "Make sure everything looks right. You can change any section later."
+          }
+        },
+        "about": {
+          "firstName": "First name",
+          "lastName": "Last name",
+          "birthDate": "Date of birth",
+          "sex": "Sex",
+          "sexes": {
+            "male": "Male",
+            "female": "Female",
+            "other": "Other"
+          },
+          "height": "Height (cm)",
+          "heightHint": "An estimate is fine.",
+          "weight": "Weight (kg)",
+          "weightHint": "An estimate is fine.",
+          "bloodType": "Blood type",
+          "bloodTypeHint": "Skip it if you don't know.",
+          "bloodTypeUnknown": "I don't know"
+        },
+        "concern": {
+          "main": "What is the problem or what would you like to treat?",
+          "mainHint": "For example: pain, a symptom, or a treatment you're considering.",
+          "mainPlaceholder": "e.g. My right knee hurts when I climb stairs",
+          "bodyArea": "Where in the body?",
+          "bodyAreaPlaceholder": "e.g. right knee, lower back, skin of the face",
+          "duration": "How long has it been going on?",
+          "durations": {
+            "days": "Days",
+            "weeks": "Weeks",
+            "months": "Months",
+            "years": "Years"
+          },
+          "severity": "How much does it bother you?",
+          "severityHint": "0 means not at all, 10 means the worst you can imagine.",
+          "severityLow": "Not at all",
+          "severityHigh": "Very much",
+          "desiredTreatment": "What treatment or service are you looking for?",
+          "desiredTreatmentHint": "Optional. Leave it empty if you'd like a doctor to advise you."
+        },
+        "conditions": {
+          "items": {
+            "diabetes": "Diabetes (high blood sugar)",
+            "high_blood_pressure": "High blood pressure",
+            "heart_disease": "Heart problems",
+            "asthma_lung": "Asthma or lung disease",
+            "thyroid": "Thyroid problems",
+            "kidney": "Kidney disease",
+            "liver": "Liver disease",
+            "epilepsy": "Epilepsy or seizures",
+            "cancer": "Cancer (now or in the past)",
+            "bleeding_clotting": "Bleeding or blood clot problems",
+            "infectious": "Hepatitis, HIV or another long-term infection",
+            "mental_health": "Depression, anxiety or another mental health condition"
+          },
+          "examples": {
+            "diabetes": "Type 1, type 2 or diabetes during pregnancy",
+            "high_blood_pressure": "Including if it is controlled with medicine",
+            "heart_disease": "Heart attack, heart failure, irregular heartbeat, valve problems",
+            "asthma_lung": "Asthma, COPD, sleep apnea",
+            "thyroid": "Underactive or overactive thyroid",
+            "kidney": "Reduced kidney function, dialysis, kidney stones",
+            "liver": "Fatty liver, cirrhosis",
+            "epilepsy": "Any seizure, even once",
+            "cancer": "Any type, including treated cancer",
+            "bleeding_clotting": "You bleed or bruise easily, or have had a blood clot",
+            "infectious": "Hepatitis B or C, HIV, tuberculosis",
+            "mental_health": "Including if you take medicine for it"
+          },
+          "detailsPlaceholder": "Optional: type, since when, how it's treated",
+          "pregnancy": "Are you pregnant or breastfeeding?",
+          "pregnancyHint": "Many medicines and treatments are different during pregnancy.",
+          "pregnancyStatuses": {
+            "pregnant": "Pregnant",
+            "breastfeeding": "Breastfeeding",
+            "trying": "Trying to get pregnant",
+            "none": "No",
+            "unsure": "Not sure"
+          }
+        },
+        "surgeries": {
+          "listTitle": "Your surgeries and hospital stays",
+          "empty": "None added yet. If you've never had surgery, just continue.",
+          "add": "Add a surgery or hospital stay",
+          "name": "What was it?",
+          "namePlaceholder": "e.g. appendix removal, C-section, knee surgery",
+          "date": "When?",
+          "dateHint": "If you don't remember the exact day, pick the right month and year.",
+          "notes": "Anything else?",
+          "notesPlaceholder": "Optional: hospital, complications",
+          "anesthesia": "Have you ever had a problem with anesthesia?",
+          "anesthesiaHint": "For example a bad reaction, waking up very slowly, or severe nausea.",
+          "anesthesiaDetails": "What happened?"
+        },
+        "medicines": {
+          "listTitle": "Medicines you take now",
+          "listHint": "Include pills, injections, inhalers, vitamins and herbal supplements.",
+          "empty": "No medicines added. If you don't take any, just continue.",
+          "add": "Add a medicine",
+          "name": "Medicine name",
+          "namePlaceholder": "e.g. Metformin",
+          "dose": "Dose",
+          "dosePlaceholder": "e.g. 500 mg",
+          "frequency": "How often?",
+          "frequencyPlaceholder": "e.g. twice a day",
+          "bloodThinners": "Do you take blood thinners or aspirin?",
+          "bloodThinnersHint": "For example warfarin, aspirin, clopidogrel. This matters before any procedure.",
+          "allergiesTitle": "Allergies",
+          "allergiesHint": "Medicines, foods, latex, or anything else you react to.",
+          "allergiesEmpty": "No allergies added yet.",
+          "addAllergy": "Add an allergy",
+          "iHaveNoAllergies": "I have no known allergies",
+          "noKnownAllergies": "No known allergies",
+          "allergyName": "Allergic to",
+          "allergyNamePlaceholder": "e.g. penicillin, peanuts, latex",
+          "allergyCategory": "Type",
+          "allergyCategories": {
+            "medication": "Medicine",
+            "food": "Food",
+            "environmental": "Environment (pollen, latex…)",
+            "biologic": "Biologic",
+            "other": "Other",
+            "no_known_allergies": "No known allergies"
+          },
+          "allergyReaction": "What happens?",
+          "allergyReactionPlaceholder": "e.g. rash, swelling, trouble breathing"
+        },
+        "lifestyle": {
+          "smoking": "Smoking:",
+          "smokingOptions": {
+            "never": "Never",
+            "former": "I used to",
+            "current": "I smoke now"
+          },
+          "alcohol": "Alcohol:",
+          "alcoholOptions": {
+            "never": "Never",
+            "occasional": "Sometimes",
+            "regular": "Regularly"
+          },
+          "activity": "Physical activity:",
+          "activityOptions": {
+            "low": "Little",
+            "moderate": "Moderate",
+            "high": "A lot"
+          },
+          "privacy": "Your answers are confidential and only help your doctors plan safe treatment."
+        },
+        "documents": {
+          "listTitle": "Documents in your record",
+          "empty": "No documents yet.",
+          "addTitle": "Add a document",
+          "type": "What kind of document is it?",
+          "types": {
+            "lab_report": "Blood or lab test",
+            "imaging_report": "Imaging report",
+            "mri_image": "MRI",
+            "ct_image": "CT scan",
+            "x_ray": "X-ray",
+            "ultrasound": "Ultrasound",
+            "prescription": "Prescription",
+            "discharge_summary": "Hospital discharge letter",
+            "pathology": "Pathology / biopsy",
+            "doctor_note": "Doctor's letter",
+            "other": "Other"
+          },
+          "title": "Name (optional)",
+          "titleHint": "Helps you find it later.",
+          "titlePlaceholder": "e.g. Blood test, March",
+          "choose": "Choose a file",
+          "uploaded": "Document added.",
+          "untitled": "Document",
+          "privacy": "Documents are private. Only you and the care team you share them with can open them."
+        },
+        "review": {
+          "edit": "Edit",
+          "notAnswered": "Not answered yet",
+          "height": "Height: {value} cm",
+          "weight": "Weight: {value} kg",
+          "bloodType": "Blood type: {value}",
+          "severity": "Severity: {value} out of 10",
+          "noConditions": "None of the listed conditions",
+          "allergy": "Allergy",
+          "selfReportedNotice": "This information is entered by you and shown to doctors as self-reported until a clinician confirms it."
+        },
+        "start": {
+          "title": "Create your health record",
+          "body": "A short questionnaire about your health, in plain questions. It takes about 5 minutes and you can stop and continue any time.",
+          "steps": {
+            "one": {
+              "title": "Tell us about you",
+              "body": "Name, age, height and weight."
+            },
+            "two": {
+              "title": "Answer simple questions",
+              "body": "Your concern, conditions, surgeries, medicines and allergies."
+            },
+            "three": {
+              "title": "Add your documents",
+              "body": "Test results and scans, all in one private place."
+            }
+          },
+          "submit": "Start the questionnaire",
+          "notice": "Your record is created right away. No ID number is needed."
+        },
+        "summary": {
+          "yourRecord": "Your health record",
+          "completeness": "Completed",
+          "edit": "Edit",
+          "notAnswered": "Not answered yet",
+          "allergyAlert": "Allergies",
+          "startTitle": "Your record is empty",
+          "continueTitle": "Your record isn't finished yet",
+          "continueBody": "A complete record helps doctors give you better and safer advice.",
+          "startCta": "Start the questionnaire",
+          "continueCta": "Continue",
+          "wants": "Looking for",
+          "anesthesiaProblem": "Problem with anesthesia",
+          "bloodThinners": "Takes blood thinners or aspirin",
+          "addDocument": "Add"
+        },
+        "family": {
+          "title": "Family members",
+          "body": "Manage the health record of your child, parent or someone you care for.",
+          "cta": "Add a family member",
+          "idNumber": "Their ID number",
+          "idHint": "Used only to find their existing record safely."
+        },
+        "lists": {
+          "add": "Add",
+          "cancel": "Cancel",
+          "remove": "Remove",
+          "fromCareTeam": "Added by your care team"
+        },
+        "pickDate": "Pick a date"
       }
     },
     "myCases": {
@@ -18107,6 +18404,29 @@ declare const messages: {
           "full": "Full",
           "limited": "Limited",
           "view_only": "View only"
+        }
+      },
+      "healthIntake": {
+        "title": "Patient's health questionnaire",
+        "notStarted": "The patient hasn't filled in the questionnaire yet.",
+        "selfReported": "Self-reported",
+        "fields": {
+          "height": "Height (cm)",
+          "weight": "Weight (kg)",
+          "bloodType": "Blood type",
+          "mainConcern": "Main concern",
+          "bodyArea": "Body area",
+          "duration": "Duration",
+          "severity": "Severity",
+          "desiredTreatment": "Looking for",
+          "conditions": "Screening answers",
+          "pregnancy": "Pregnancy",
+          "anesthesia": "Anesthesia problems",
+          "bloodThinners": "Blood thinners",
+          "smoking": "Smoking",
+          "alcohol": "Alcohol",
+          "activity": "Activity",
+          "updated": "Last updated"
         }
       }
     },

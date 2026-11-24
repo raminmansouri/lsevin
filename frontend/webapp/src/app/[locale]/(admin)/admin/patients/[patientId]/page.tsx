@@ -45,6 +45,7 @@ import {
 } from "@/features/patients/server/ai-repository";
 import { getHealthTimelineIntelligence } from "@/features/patients/server/analytics-repository";
 import { PATIENTS_TRANSLATION_KEY } from "@/features/patients/types";
+import { getHealthIntake } from "@/features/patients/server/intake-repository";
 import { assertAdmin } from "@/lib/auth/admin-guard";
 import type { LocaleParams } from "@/types/next";
 
@@ -117,6 +118,7 @@ async function SuspenseBoundary({ params }: { params: Props["params"] }) {
     classificationsToReview,
     pendingExtractionCandidates,
     currentAiSummary,
+    healthIntake,
   ] = await Promise.all([
     listIdentifiersForPatient(patientId),
     listContactsForPatient(patientId),
@@ -147,6 +149,7 @@ async function SuspenseBoundary({ params }: { params: Props["params"] }) {
     listClassificationsRequiringReview(patientId),
     listExtractionCandidatesForPatient(patientId, "pending"),
     getCurrentSummary(patientId),
+    getHealthIntake(patientId),
   ]);
 
   const candidatesWithOther = await Promise.all(
@@ -196,6 +199,7 @@ async function SuspenseBoundary({ params }: { params: Props["params"] }) {
       classificationsToReview={classificationsToReview}
       pendingExtractionCandidates={pendingExtractionCandidates}
       currentAiSummary={currentAiSummary}
+      healthIntake={healthIntake}
     />
   );
 }

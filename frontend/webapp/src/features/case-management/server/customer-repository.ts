@@ -14,6 +14,15 @@ export type CustomerJourney = {
   plannedStartAt: string | null;
 };
 
+/**
+ * Root of the medical branch of the category tree (/categories/health-treatment-and-beauty:
+ * clinic, hospital, laboratory, home nursing). "My cases" is the patient's medical folder,
+ * so a booking only shows there when its service or its provider sits under this root;
+ * stays, transfers, gyms, tours and the rest still get a case (ensure_case_for_booking is
+ * unchanged), they are just not listed here.
+ */
+const MEDICAL_ROOT_CATEGORY_SLUG = "health-treatment-and-beauty";
+
 export async function listCustomerJourneys(userId: string, locale: string): Promise<CustomerJourney[]> {
   await db`
     select case_management.ensure_case_for_booking(b.id)
@@ -56,6 +65,19 @@ export async function listCustomerJourneys(userId: string, locale: string): Prom
     ) current_step on true
     left join case_management.case_steps steps on steps.case_id = c.id and steps.customer_visible
     where c.customer_user_id = ${userId}::uuid
+      and exists (
+        with recursive chain as (
+          select cat.id, cat.parent_id, cat.slug, 0 as depth
+          from category.categories cat
+          where cat.id in (c.category_id, p.category_id)
+          union all
+          select parent.id, parent.parent_id, parent.slug, chain.depth + 1
+          from category.categories parent
+          join chain on chain.parent_id = parent.id
+          where chain.depth < 20
+        )
+        select 1 from chain where chain.slug = ${MEDICAL_ROOT_CATEGORY_SLUG}
+      )
     group by c.id, p.id, ps.id, current_step.title
     order by case c.status when 'active' then 0 when 'scheduled' then 1 else 2 end, c.last_modified_date desc
   `;

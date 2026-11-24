@@ -86,7 +86,8 @@ export type PatientAuditAction =
   | "case_provider_lab_order_fulfilled"
   | "account_link_request_submitted"
   | "account_link_request_approved"
-  | "account_link_request_rejected";
+  | "account_link_request_rejected"
+  | "health_intake_updated";
 
 /**
  * `purpose`/`result`/`ipAddress`/`userAgent` were added in V5.6

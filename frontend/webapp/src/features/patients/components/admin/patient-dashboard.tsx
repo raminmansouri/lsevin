@@ -50,6 +50,8 @@ import { AccessTab } from "./patient-access-tab";
 import { AiTab } from "./patient-ai-tab";
 import { CasesTab } from "./patient-cases-tab";
 import { ClinicalTab } from "./patient-clinical-tab";
+import { PatientIntakeCard } from "./patient-intake-card";
+import type { HealthIntakeRow } from "../../intake-schemas";
 import { DocumentsTab } from "./patient-documents-tab";
 import { IdentityTab } from "./patient-identity-tab";
 import { PassportTab } from "./patient-passport-tab";
@@ -110,6 +112,7 @@ export function PatientDashboard({
   classificationsToReview,
   pendingExtractionCandidates,
   currentAiSummary,
+  healthIntake,
 }: {
   patient: PatientRow;
   identifiers: PatientIdentifierRow[];
@@ -142,6 +145,7 @@ export function PatientDashboard({
   classificationsToReview: DocumentClassificationRow[];
   pendingExtractionCandidates: AiExtractionCandidateRow[];
   currentAiSummary: AiSummaryRow | null;
+  healthIntake: HealthIntakeRow | null;
 }) {
   const t = useTranslations(PATIENTS_TRANSLATION_KEY);
 
@@ -223,7 +227,8 @@ export function PatientDashboard({
           <CasesTab patientId={patient.id} cases={cases} />
         </TabsContent>
 
-        <TabsContent value="clinical" className="pt-4">
+        <TabsContent value="clinical" className="space-y-4 pt-4">
+          <PatientIntakeCard intake={healthIntake} />
           <ClinicalTab
             patientId={patient.id}
             summary={clinicalSummary}
