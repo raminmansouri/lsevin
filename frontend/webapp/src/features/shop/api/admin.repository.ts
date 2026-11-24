@@ -70,6 +70,47 @@ export async function listAdminProducts(q?: string) {
   `;
 }
 
+export async function listAdminProductsPage(q?: string, page = 1, pageSize = 50) {
+  await assertShopAdmin();
+  const like = q ? `%${q}%` : null;
+  const offset = (Math.max(1, page) - 1) * pageSize;
+  const rows = await sql<any[]>`
+    select
+      p.id::text as id,
+      coalesce(
+        nullif(common.get_translation_t(p.name_translations, 'fa', 'en'), ''),
+        p.slug
+      ) as name,
+      p.slug, p.status, p.base_price::float as base_price, p.base_currency as currency,
+      p.is_featured, p.is_best_seller, p.is_new_arrival,
+      p.published_at::text as published_at,
+      (
+        coalesce((select sum(greatest(i.on_hand - i.reserved, 0))::int from shop.inventory i where i.product_id = p.id), 0)
+        + coalesce((
+            select sum(o.stock_quantity)::int
+            from shop.offers o join shop.sellers s on s.id = o.seller_id
+            where o.product_id = p.id and o.deleted_at is null and o.is_active and o.stock_quantity is not null
+              and s.is_active and s.deleted_at is null
+          ), 0)
+      ) as available,
+      count(*) over()::int as total_count
+    from shop.products p
+    where p.deleted_at is null
+      and (
+        ${like}::text is null
+        or p.slug ilike ${like}
+        or exists (
+          select 1
+          from jsonb_each_text(case when jsonb_typeof(p.name_translations) = 'object' then p.name_translations else '{}'::jsonb end) t
+          where t.value ilike ${like}
+        )
+      )
+    order by p.create_date desc
+    limit ${pageSize} offset ${offset}
+  `;
+  return { rows, total: (rows[0]?.total_count as number | undefined) ?? 0 };
+}
+
 export type AdminOrderFilters = {
   q?: string;
   status?: string;
