@@ -3,6 +3,8 @@ import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { searchProducts } from "../api/catalog.repository";
 import { ProductGrid } from "./home-sections";
+import { LoadMoreProducts } from "./LoadMoreProducts";
+import { ShopPagination } from "./ShopPagination";
 
 type SearchParams = Record<string, string | string[] | undefined>;
 
@@ -186,18 +188,34 @@ export async function ProductListView({
       {items.length ? (
         <div className="px-4">
           <ProductGrid products={items} locale={locale} />
-          <div className="mt-4 flex items-center justify-center gap-3">
-            {page > 1 ? (
-              <Link href={qs({ page: page - 1 })} className="rounded-full bg-white px-4 py-2 text-xs font-semibold text-[#083f30] ring-1 ring-black/[0.06]">
-                ‹
-              </Link>
-            ) : null}
-            {page * pageSize < total ? (
-              <Link href={qs({ page: page + 1 })} className="rounded-full bg-[#083f30] px-5 py-2 text-xs font-semibold text-white">
-                {t("loadMore")}
-              </Link>
-            ) : null}
+          <div className="mt-8 hidden xl:block">
+            <ShopPagination
+              page={page}
+              totalPages={Math.ceil(total / pageSize)}
+              locale={locale}
+              hrefFor={(p) => qs({ page: p === 1 ? undefined : p })}
+            />
           </div>
+          <LoadMoreProducts
+            locale={locale}
+            startPage={page}
+            total={total}
+            pageSize={pageSize}
+            filters={{
+              q,
+              category: fixed?.category,
+              seller: fixed?.seller,
+              brand,
+              sort,
+              inStockOnly,
+              discountedOnly,
+              featuredOnly,
+              bestSellerOnly,
+              minRating,
+              minPrice,
+              maxPrice,
+            }}
+          />
         </div>
       ) : (
         <div className="mx-4 rounded-2xl bg-white p-10 text-center">

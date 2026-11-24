@@ -3,12 +3,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { Loader2 } from "lucide-react";
 
 import { useRouter } from "@/i18n/navigation";
 
 import { searchShopProductsAction } from "../actions/catalog.actions";
 import type { ProductCard as ProductCardModel } from "../types/domain";
 import { ProductCard, shopCardLabels } from "./ProductCard";
+import { ShopPagination } from "./ShopPagination";
 
 const SORTS = ["popularity", "newest", "price_asc", "price_desc", "rating"] as const;
 type Sort = (typeof SORTS)[number];
@@ -70,6 +72,8 @@ export function ProductListViewClient({
   const [items, setItems] = useState(initialItems);
   const [total, setTotal] = useState(initialTotal);
   const [pending, startTransition] = useTransition();
+  const [loadingMore, startMore] = useTransition();
+  const [loadedPage, setLoadedPage] = useState(filters.page);
   const firstRender = useRef(true);
 
   const sortLabel: Record<Sort, string> = {
@@ -130,11 +134,33 @@ export function ProductListViewClient({
       });
       setItems(res.items);
       setTotal(res.total);
+      setLoadedPage(filters.page);
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters]);
 
   const patch = (p: Partial<Filters>) => setFilters((f) => ({ ...f, page: 1, ...p }));
+
+  const loadMore = () => {
+    startMore(async () => {
+      const res = await searchShopProductsAction({
+        locale,
+        category: fixed?.category,
+        q: fixed?.q,
+        brand: filters.brand,
+        sort: filters.sort,
+        page: loadedPage + 1,
+        pageSize: PAGE_SIZE,
+        inStockOnly: filters.inStockOnly,
+        discountedOnly: filters.discountedOnly,
+        minRating: filters.minRating,
+        minPrice: filters.minPrice,
+        maxPrice: filters.maxPrice,
+      });
+      setItems((current) => [...current, ...res.items]);
+      setLoadedPage(loadedPage + 1);
+    });
+  };
 
   const chip = (active: boolean) =>
     `shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold ${
@@ -236,26 +262,30 @@ export function ProductListViewClient({
       {items.length ? (
         <div className="px-4">
           {grid}
-          <div className="mt-4 flex items-center justify-center gap-3">
-            {filters.page > 1 ? (
+          <div className="mt-8 hidden xl:block">
+            <ShopPagination
+              page={filters.page}
+              totalPages={Math.ceil(total / PAGE_SIZE)}
+              locale={locale}
+              onSelect={(p) => {
+                setFilters((f) => ({ ...f, page: p }));
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              }}
+            />
+          </div>
+          {loadedPage * PAGE_SIZE < total ? (
+            <div className="mt-4 flex justify-center xl:hidden">
               <button
                 type="button"
-                onClick={() => setFilters((f) => ({ ...f, page: f.page - 1 }))}
-                className="rounded-full bg-white px-4 py-2 text-xs font-semibold text-[#083f30] ring-1 ring-black/[0.06]"
+                onClick={loadMore}
+                disabled={loadingMore}
+                className="inline-flex min-h-11 items-center gap-2 rounded-full bg-[#083f30] px-6 text-sm font-semibold text-white disabled:opacity-70"
               >
-                ‹
-              </button>
-            ) : null}
-            {filters.page * PAGE_SIZE < total ? (
-              <button
-                type="button"
-                onClick={() => setFilters((f) => ({ ...f, page: f.page + 1 }))}
-                className="rounded-full bg-[#083f30] px-5 py-2 text-xs font-semibold text-white"
-              >
+                {loadingMore ? <Loader2 className="size-4 animate-spin" aria-hidden="true" /> : null}
                 {t("loadMore")}
               </button>
-            ) : null}
-          </div>
+            </div>
+          ) : null}
         </div>
       ) : (
         <div className="mx-4 rounded-2xl bg-white p-10 text-center">

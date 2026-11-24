@@ -12,6 +12,7 @@ import { shopImageSrc } from "@/features/shop/lib/image";
 import type { ProductCard as ProductCardModel } from "@/features/shop/types/domain";
 import { Link } from "@/i18n/navigation";
 
+import { AutoScrollRail } from "../components/AutoScrollRail";
 import { PointerParallax, Reveal } from "../components/motion";
 import { DesktopSponsoredSection } from "../home/DesktopSponsoredSection";
 import { DesktopProductCard } from "./DesktopProductCard";
@@ -39,26 +40,16 @@ function Heading({ title, subtitle, href, viewAll }: { title: string; subtitle?:
   );
 }
 
-function ProductRail({ products, horizontal, locale, labels }: { products: ProductCardModel[]; horizontal: boolean; locale: string; labels: Labels }) {
-  if (horizontal) {
-    return (
-      <div className="lsd-snap hide-scrollbar -mx-2 flex gap-5 overflow-x-auto px-2 pb-2">
-        {products.map((product) => (
-          <div key={product.id} className="w-[180px] shrink-0">
-            <DesktopProductCard product={product} locale={locale} labels={labels} />
-          </div>
-        ))}
-      </div>
-    );
-  }
+
+function ProductRail({ products, locale, labels }: { products: ProductCardModel[]; locale: string; labels: Labels }) {
   return (
-    <div className="grid grid-cols-6 gap-5">
-      {products.slice(0, 12).map((product, index) => (
-        <Reveal key={product.id} delay={(index % 6) * 50}>
+    <AutoScrollRail className="-mx-2 px-2">
+      {products.slice(0, 12).map((product) => (
+        <div key={product.id} className="w-[180px] shrink-0">
           <DesktopProductCard product={product} locale={locale} labels={labels} />
-        </Reveal>
+        </div>
       ))}
-    </div>
+    </AutoScrollRail>
   );
 }
 
@@ -76,7 +67,7 @@ export async function DesktopShopHome({
   const labels = shopCardLabels(t);
 
   const windowImages = feed.filter((product) => product.imageUrl).slice(0, 3).map((product) => shopImageSrc(product.imageUrl!));
-  let railIndex = 0;
+
 
   return (
     <div className="lsd lsd-shop-bg hidden pb-16 xl:block">
@@ -200,12 +191,11 @@ export async function DesktopShopHome({
 
         if (section.type === "product_rail") {
           if (!section.products.length) return null;
-          const horizontal = railIndex++ % 2 === 1;
           return (
             <section key={section.key} className="lsd-container mt-14">
               <div className="lsd-salon rounded-[36px] px-10 py-10">
                 <Heading title={section.title} subtitle={section.subtitle} href={section.viewAllHref} viewAll={t("viewAll")} />
-                <ProductRail products={section.products} horizontal={horizontal} locale={locale} labels={labels} />
+                <ProductRail products={section.products} locale={locale} labels={labels} />
               </div>
             </section>
           );
@@ -227,7 +217,7 @@ export async function DesktopShopHome({
         <div className="lsd-salon rounded-[36px] px-10 py-10">
           <Heading title={t("featured")} href="/n/app/mobile/shop/search" viewAll={t("viewAll")} />
           {feed.length ? (
-            <ProductRail products={feed} horizontal={false} locale={locale} labels={labels} />
+            <ProductRail products={feed} locale={locale} labels={labels} />
           ) : (
             <p className="p-8 text-center text-sm text-[#56675f]">{t("noResults")}</p>
           )}
