@@ -2,6 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import { ImagePlus } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { getMediaByReferences } from "../api";
 import MediaPickerModal from "./MediaPickerModal";
@@ -23,7 +24,7 @@ export interface SingleMediaPickerInputProps extends BaseMediaPickerInputProps {
 export default function SingleMediaPickerInput({
   name,
   label,
-  placeholder = "Pick file",
+  placeholder,
   disabled,
   required,
   mediaType = "all",
@@ -37,6 +38,7 @@ export default function SingleMediaPickerInput({
   onItemsChange,
   valueField = "fileUrl",
 }: SingleMediaPickerInputProps) {
+  const t = useTranslations("ShopMedia");
   const [open, setOpen] = useState(false);
   const [internalValue, setInternalValue] = useState(defaultValue ?? "");
   const [selectedItem, setSelectedItem] = useState<MediaItem | null>(null);
@@ -94,7 +96,7 @@ export default function SingleMediaPickerInput({
           className="inline-flex h-11 items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 text-sm font-medium text-slate-900 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
         >
           <ImagePlus className="h-4 w-4" />
-          {selectedItem ? "Change selection" : placeholder}
+          {selectedItem ? t("replace") : (placeholder ?? t("pickFiles"))}
         </button>
 
         <MediaPreviewList

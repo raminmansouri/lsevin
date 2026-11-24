@@ -32,6 +32,7 @@ export default function MediaPreviewList({
   compact?: boolean;
 }) {
   const t = useTranslations("AdminGenerated");
+  const mediaText = useTranslations("ShopMedia");
   if (!items.length) {
     return (
       <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-5 text-sm text-slate-500">
@@ -75,6 +76,7 @@ export default function MediaPreviewList({
           {onRemove && (
             <button
               type="button"
+              aria-label={mediaText("remove")}
               onClick={() => onRemove(item.id)}
               className="rounded-xl p-2 text-slate-500 transition hover:bg-slate-100 hover:text-red-600"
             >
