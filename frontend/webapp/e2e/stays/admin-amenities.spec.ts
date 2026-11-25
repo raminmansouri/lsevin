@@ -77,26 +77,37 @@ test("catalog changes preserve other translations and persist the chosen icon", 
   const code = "qa_" + crypto.randomUUID().replaceAll("-", "");
   await db()`insert into stay.amenities(code,grp,label,icon) values
     (${code},'room','{"fa-IR":"QA FA","en-US":"QA EN"}'::jsonb,'check')`;
+  const filename = code.slice(-8);
+  const imagePath = "/images/stays/yazd-traditional-courtyard.webp?qa=" + code;
+  const [image] = await db()`insert into media.media_library(original_name,stored_name,file_url,mime_type,media_type,is_public)
+    values (${filename},${filename},${imagePath},'image/webp','image',true) returning id`;
   try {
     await signedInAdmin(context);
     await page.goto("/en/admin/stays/amenities");
     await page.getByRole("combobox", { name: "Amenities" }).selectOption(code);
     await page.locator('input[lang="en-US"]').fill("Edited test amenity");
     await page.getByRole("combobox", { name: "Icon" }).selectOption("coffee");
+    await page.getByRole("button", { name: "Pick media" }).click();
+    const library = page.getByRole("dialog");
+    await library.getByPlaceholder("Search files").fill(filename);
+    await library.getByText(filename, { exact: true }).click();
+    await expect(library).toBeHidden();
     await page.getByRole("button", { name: "Save", exact: true }).click();
     await expect
       .poll(async () => {
         const [row] =
-          await db()`select label,icon,revision from stay.amenities where code=${code}`;
-        return [row.label["en-US"], row.label["fa-IR"], row.icon, row.revision];
+          await db()`select label,icon,revision,image_id from stay.amenities where code=${code}`;
+        return [row.label["en-US"], row.label["fa-IR"], row.icon, row.revision, row.image_id];
       })
-      .toEqual(["Edited test amenity", "QA FA", "coffee", 2]);
+      .toEqual(["Edited test amenity", "QA FA", "coffee", 2, image.id]);
     await page.reload();
     await page.getByRole("combobox", { name: "Amenities" }).selectOption(code);
+    await expect(page.locator('input[name="amenity-image"]')).toHaveValue(image.id);
     await expect(page.locator('input[lang="en-US"]')).toHaveValue(
       "Edited test amenity",
     );
   } finally {
     await db()`delete from stay.amenities where code=${code}`;
+    await db()`delete from media.media_library where id=${image.id}`;
   }
 });
