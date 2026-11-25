@@ -49,6 +49,9 @@ export function MapScreen({
       filters={filters}
       mapCenter={data.mapCenter}
       expandedBeyondFilters={data.expandedBeyondFilters}
+      availableLanguages={data.availableLanguages}
+      availableSpecialties={data.availableSpecialties}
+      availableCurrencies={data.availableCurrencies}
     />
     {/* A category or provider-type filter shows that FAQ (exact), else the map FAQ. */}
     <PageFaq

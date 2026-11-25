@@ -16,7 +16,6 @@ import { useRouter } from "@/i18n/navigation";
 import { entityPath } from "@/lib/routes/public-paths";
 import { isCategoryProvidersPath, mapHref, slugLookup, type ListingSlugs } from "@/lib/routes/filter-paths";
 import { useTranslations } from "next-intl";
-import { useForm } from "react-hook-form";
 import {
   ChevronLeft,
   MapPin,
@@ -26,9 +25,6 @@ import {
   List,
   Navigation,
   X,
-  Check,
-  Award,
-  Globe,
   Loader2,
   LocateFixed,
 } from "lucide-react";
@@ -37,13 +33,7 @@ import { toast } from "sonner";
 import { rememberUserLocation } from "@/features/shared/types/coordinates";
 
 import NearbyMap from "./NearbyMap";
-import { SpecialtyMultiSelect } from "./SpecialtyMultiSelect";
 import { resolveMapProvider } from "@/components/map/map-provider";
-import { AsyncSearchableSingleSelect } from "@/components/admin/forms/extensions/async-searchable-single-select";
-import {
-  loadMapDiscoveryLocationByValue,
-  loadMapDiscoveryLocationOptions,
-} from "./location-options.actions";
 import type {
   NearbyCategory,
   NearbyCurrencyOption,
@@ -51,30 +41,15 @@ import type {
   NearbyProvider,
 } from "./nearby.data";
 import FavoriteButton from "../explore/FavoriteButton";
-import PriceRangeFilter from "../explore/PriceRangeFilter";
+import NearbyFilterPanel, { type NearbyFilterValues } from "./NearbyFilterPanel";
+import {
+  DEFAULT_DISTANCE_KM,
+  isUnlimitedDistance,
+} from "./nearby-filters";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { resolveHomeMediaUrl } from "@/features/home/components/home-media";
 
-// Distance filter bounds (km). The slider runs from MIN to MAX; the far end (MAX)
-// means "unlimited" — see UNLIMITED_DISTANCE_KM on the server, which drops the
-// radius cap at that value. Keep these aligned with nearby.data.ts.
-const MIN_DISTANCE_KM = 1;
-const MAX_DISTANCE_KM = 100;
-const DEFAULT_DISTANCE_KM = 20;
-const isUnlimitedDistance = (km: number) => km >= MAX_DISTANCE_KM;
 
-type FilterFormValues = {
-  countryCode: string | null;
-  cityCode: string | null;
-  minPrice: number;
-  maxPrice: number;
-  currencyCode: string | null;
-  distanceKm: number;
-  minRating: number;
-  verifiedOnly: boolean;
-  languages: string[];
-  specialties: string[];
-};
 
 type UiFilters = {
   categoryId: string;
@@ -161,20 +136,6 @@ export function mediaUrl(value?: string | null, fallback = "/placeholder-provide
   return resolveHomeMediaUrl(raw) || fallback;
 }
 
-function languageLabel(value: string, locale: string): string {
-  const normalized = value.trim();
-  if (!normalized) return value;
-
-  try {
-    const displayNames = new Intl.DisplayNames([locale], { type: "language" });
-    return (
-      displayNames.of(normalized.split("-")[0].toLowerCase()) ||
-      normalized.toUpperCase()
-    );
-  } catch {
-    return normalized.toUpperCase();
-  }
-}
 
 // High-accuracy device GPS. enableHighAccuracy asks for the GPS chip (not just
 // WiFi/cell triangulation); maximumAge:0 forbids a stale cached fix; a generous
@@ -293,6 +254,7 @@ export default function NearbyClient({
     providers[0]?.id ?? null,
   );
   const [showFilters, setShowFilters] = useState(false);
+  const closeFilters = useCallback(() => setShowFilters(false), []);
 
   // Switching view is instant client state — the providers are already loaded,
   // so routing through the server just to re-render the same data would add a
@@ -433,38 +395,6 @@ export default function NearbyClient({
     }
   }, [providers, selectedProviderId]);
 
-  const form = useForm<FilterFormValues>({
-    defaultValues: {
-      countryCode: initialUiFilters.countryCode,
-      cityCode: initialUiFilters.cityCode,
-      minPrice: initialUiFilters.minPrice,
-      maxPrice: initialUiFilters.maxPrice,
-      currencyCode: initialUiFilters.currencyCode,
-      distanceKm: initialUiFilters.distanceKm,
-      minRating: initialUiFilters.minRating,
-      verifiedOnly: initialUiFilters.verifiedOnly,
-      languages: initialUiFilters.languages,
-      specialties: initialUiFilters.specialties,
-    },
-  });
-
-  useEffect(() => {
-    form.reset({
-      countryCode: initialUiFilters.countryCode,
-      cityCode: initialUiFilters.cityCode,
-      minPrice: initialUiFilters.minPrice,
-      maxPrice: initialUiFilters.maxPrice,
-      currencyCode: initialUiFilters.currencyCode,
-      distanceKm: initialUiFilters.distanceKm,
-      minRating: initialUiFilters.minRating,
-      verifiedOnly: initialUiFilters.verifiedOnly,
-      languages: initialUiFilters.languages,
-      specialties: initialUiFilters.specialties,
-    });
-  }, [form, initialUiFilters]);
-
-  const watched = form.watch();
-  const selectedCountryCode = watched.countryCode ?? null;
   const selectedProvider =
     providers.find((provider) => provider.id === selectedProviderId) ?? null;
 
@@ -478,48 +408,6 @@ export default function NearbyClient({
       (uiFilters.providerTypeId && uiFilters.providerTypeId !== "all"),
   );
 
-
-  const loadCountryOptions = useCallback(
-    (args: { search: string; page: number; pageSize: number }) =>
-      loadMapDiscoveryLocationOptions({
-        kind: "country",
-        locale,
-        search: args.search,
-        page: args.page,
-        pageSize: args.pageSize,
-      }),
-    [locale],
-  );
-
-  const loadCountryByValue = useCallback(
-    (value: string) =>
-      loadMapDiscoveryLocationByValue({ kind: "country", locale, value }),
-    [locale],
-  );
-
-  const loadCityOptions = useCallback(
-    (args: { search: string; page: number; pageSize: number }) =>
-      loadMapDiscoveryLocationOptions({
-        kind: "city",
-        locale,
-        countryCode: selectedCountryCode,
-        search: args.search,
-        page: args.page,
-        pageSize: args.pageSize,
-      }),
-    [locale, selectedCountryCode],
-  );
-
-  const loadCityByValue = useCallback(
-    (value: string) =>
-      loadMapDiscoveryLocationByValue({
-        kind: "city",
-        locale,
-        value,
-        countryCode: selectedCountryCode,
-      }),
-    [locale, selectedCountryCode],
-  );
 
   const applyCategory = (categoryId: string) => {
     const nextCategoryId = categoryId === "all" ? "all" : categoryId;
@@ -546,7 +434,7 @@ export default function NearbyClient({
     );
   };
 
-  const applyFilters = form.handleSubmit((values) => {
+  const applyFilters = (values: NearbyFilterValues) => {
     const nextUi: UiFilters = {
       categoryId: uiFilters.categoryId,
       providerTypeId: uiFilters.providerTypeId,
@@ -562,7 +450,6 @@ export default function NearbyClient({
       specialties: values.specialties,
     };
     setUiFilters(nextUi);
-    setShowFilters(false);
     navigateSmooth(
       startTransition,
       router,
@@ -582,7 +469,7 @@ export default function NearbyClient({
         specialties: nextUi.specialties,
       }, viewMode),
     );
-  });
+  };
 
   const clearFilters = () => {
     const cleared: UiFilters = {
@@ -599,18 +486,6 @@ export default function NearbyClient({
       languages: [],
       specialties: [],
     };
-    form.reset({
-      countryCode: null,
-      cityCode: null,
-      minPrice: 0,
-      maxPrice: 0,
-      currencyCode: null,
-      distanceKm: DEFAULT_DISTANCE_KM,
-      minRating: 0,
-      verifiedOnly: false,
-      languages: [],
-      specialties: [],
-    });
     setUiFilters(cleared);
     navigateSmooth(
       startTransition,
@@ -690,19 +565,6 @@ export default function NearbyClient({
       },
       GEO_OPTIONS,
     );
-  };
-
-  const activeFilters = {
-    countryCode: watched.countryCode ?? null,
-    cityCode: watched.cityCode ?? null,
-    minPrice: watched.minPrice ?? 0,
-    maxPrice: watched.maxPrice ?? 0,
-    currencyCode: watched.currencyCode ?? null,
-    distanceKm: watched.distanceKm ?? DEFAULT_DISTANCE_KM,
-    minRating: watched.minRating ?? 0,
-    verifiedOnly: watched.verifiedOnly ?? false,
-    languages: watched.languages ?? [],
-    specialties: watched.specialties ?? [],
   };
 
   const hasActiveFilters =
@@ -1057,293 +919,18 @@ export default function NearbyClient({
         </div>
       )}
 
-      {showFilters && (
-        <div className="fixed inset-0 z-[80] bg-black/50 flex items-end animate-in fade-in duration-200">
-          <form
-            onSubmit={applyFilters}
-            className="w-full bg-white rounded-t-3xl max-h-[85vh] overflow-y-auto animate-in slide-in-from-bottom duration-300"
-          >
-            <div className="sticky top-0 bg-white border-b border-gray-200 px-5 py-4 z-10">
-              <div className="flex items-center justify-between mb-2">
-                <h2 className="text-xl font-bold text-gray-900">
-                  {t("advancedFilters")}
-                </h2>
-                <button
-                  type="button"
-                  onClick={() => setShowFilters(false)}
-                  className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors"
-                >
-                  <X size={20} className="text-gray-600" />
-                </button>
-              </div>
-              <p className="text-sm text-gray-600">
-                {t("refineSearchResults")}
-              </p>
-            </div>
-
-            <div className="px-5 py-6 space-y-6">
-              <div>
-                <div className="flex items-center gap-2 mb-3">
-                  <Globe size={20} className="text-[#083f30]" />
-                  <h3 className="font-bold text-gray-900">
-                    {t("filters.location")}
-                  </h3>
-                </div>
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <AsyncSearchableSingleSelect
-                    label={t("filters.country")}
-                    value={activeFilters.countryCode}
-                    placeholder={t("filters.selectCountry")}
-                    searchPlaceholder={t("filters.searchCountries")}
-                    emptyText={t("filters.noCountriesFound")}
-                    loadOptions={loadCountryOptions}
-                    loadByValue={loadCountryByValue}
-                    onChange={(value) => {
-                      form.setValue("countryCode", value, {
-                        shouldDirty: true,
-                      });
-                      form.setValue("cityCode", null, { shouldDirty: true });
-                    }}
-                  />
-
-                  <AsyncSearchableSingleSelect
-                    label={t("filters.city")}
-                    value={activeFilters.cityCode}
-                    disabled={!activeFilters.countryCode}
-                    placeholder={
-                      activeFilters.countryCode
-                        ? t("filters.selectCity")
-                        : t("filters.selectCountryFirst")
-                    }
-                    searchPlaceholder={t("filters.searchCities")}
-                    emptyText={
-                      activeFilters.countryCode
-                        ? t("filters.noCitiesFound")
-                        : t("filters.selectCountryFirst")
-                    }
-                    loadOptions={loadCityOptions}
-                    loadByValue={loadCityByValue}
-                    onChange={(value) =>
-                      form.setValue("cityCode", value, { shouldDirty: true })
-                    }
-                  />
-                </div>
-              </div>
-
-              <PriceRangeFilter
-                currencies={availableCurrencies}
-                value={{
-                  currencyCode: activeFilters.currencyCode,
-                  minPrice: activeFilters.minPrice,
-                  maxPrice: activeFilters.maxPrice,
-                }}
-                onChange={(next) => {
-                  form.setValue("currencyCode", next.currencyCode, { shouldDirty: true });
-                  form.setValue("minPrice", next.minPrice, { shouldDirty: true });
-                  form.setValue("maxPrice", next.maxPrice, { shouldDirty: true });
-                }}
-                locale={locale}
-                labels={{
-                  title: t("filters.priceRange"),
-                  currency: t("filters.currency"),
-                  min: tExplore("filters.minPrice"),
-                  max: tExplore("filters.maxPrice"),
-                }}
-              />
-
-              <div>
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    <MapPin size={20} className="text-[#083f30]" />
-                    <h3 className="font-bold text-gray-900">
-                      {t("filters.distance")}
-                    </h3>
-                  </div>
-                  <span className="text-sm font-semibold text-[#083f30]">
-                    {isUnlimitedDistance(activeFilters.distanceKm)
-                      ? t("filters.unlimited")
-                      : `${activeFilters.distanceKm} km`}
-                  </span>
-                </div>
-                {/* Follows the page direction like the price slider: in Persian
-                    1 km is on the right and "unlimited" on the left, and the
-                    filled part grows from the right with the thumb. */}
-                <div className="space-y-2">
-                  <div className="relative h-6">
-                    <div className="absolute inset-x-0 top-1/2 h-2 -translate-y-1/2 rounded-full bg-gray-200" />
-                    <div
-                      className="absolute top-1/2 h-2 -translate-y-1/2 rounded-full bg-[#083f30]"
-                      style={{
-                        insetInlineStart: 0,
-                        insetInlineEnd: `${100 - ((activeFilters.distanceKm - MIN_DISTANCE_KM) / (MAX_DISTANCE_KM - MIN_DISTANCE_KM)) * 100}%`,
-                      }}
-                    />
-                    <input
-                      type="range"
-                      aria-label={t("filters.distance")}
-                      min={MIN_DISTANCE_KM}
-                      max={MAX_DISTANCE_KM}
-                      value={activeFilters.distanceKm}
-                      onChange={(e) =>
-                        form.setValue("distanceKm", Number(e.target.value), {
-                          shouldDirty: true,
-                        })
-                      }
-                      className="absolute inset-x-0 top-0 h-6 w-full cursor-pointer appearance-none bg-transparent [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-white [&::-webkit-slider-thumb]:bg-[#083f30] [&::-webkit-slider-thumb]:shadow [&::-moz-range-thumb]:h-5 [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-white [&::-moz-range-thumb]:bg-[#083f30]"
-                    />
-                  </div>
-                  <div className="flex justify-between text-xs text-gray-500">
-                    <span>{t("filters.oneKm")}</span>
-                    <span>{t("filters.unlimited")}</span>
-                  </div>
-                </div>
-                <p className="mt-2 text-xs text-gray-500">
-                  {t("filters.distanceCaption")}
-                </p>
-              </div>
-
-              <div>
-                <div className="flex items-center gap-2 mb-3">
-                  <Star size={20} className="text-[#083f30]" />
-                  <h3 className="font-bold text-gray-900">
-                    {t("filters.minimumRating")}
-                  </h3>
-                </div>
-                <div className="grid grid-cols-5 gap-2">
-                  {[0, 3.0, 3.5, 4.0, 4.5].map((rating) => (
-                    <button
-                      type="button"
-                      key={rating}
-                      onClick={() =>
-                        form.setValue("minRating", rating, {
-                          shouldDirty: true,
-                        })
-                      }
-                      className={`h-12 rounded-xl flex flex-col items-center justify-center font-semibold transition-all ${activeFilters.minRating === rating ? "bg-[#083f30] text-white shadow-md" : "bg-gray-100 text-gray-700 hover:bg-gray-200"}`}
-                    >
-                      <span className="text-sm">
-                        {rating === 0 ? t("filters.any") : `${rating}+`}
-                      </span>
-                      {rating > 0 && (
-                        <Star size={12} className="fill-current" />
-                      )}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <button
-                  type="button"
-                  onClick={() =>
-                    form.setValue("verifiedOnly", !activeFilters.verifiedOnly, {
-                      shouldDirty: true,
-                    })
-                  }
-                  className={`w-full p-4 rounded-2xl border-2 transition-all flex items-center justify-between ${activeFilters.verifiedOnly ? "bg-green-50 border-green-200" : "bg-white border-gray-200 hover:border-gray-300"}`}
-                >
-                  <div className="flex items-center gap-3">
-                    <div
-                      className={`w-12 h-12 rounded-xl flex items-center justify-center ${activeFilters.verifiedOnly ? "bg-green-600" : "bg-gray-100"}`}
-                    >
-                      <BadgeCheck
-                        size={24}
-                        className={
-                          activeFilters.verifiedOnly
-                            ? "text-white"
-                            : "text-gray-400"
-                        }
-                      />
-                    </div>
-                    <div className="text-left">
-                      <h3 className="font-bold text-gray-900">
-                        {t("filters.verifiedProvidersOnly")}
-                      </h3>
-                      <p className="text-sm text-gray-600">
-                        {t("filters.showOnlyAccreditedProviders")}
-                      </p>
-                    </div>
-                  </div>
-                  <div
-                    className={`w-6 h-6 rounded-full flex items-center justify-center transition-colors ${activeFilters.verifiedOnly ? "bg-green-600" : "bg-gray-200"}`}
-                  >
-                    {activeFilters.verifiedOnly && (
-                      <Check size={16} className="text-white" />
-                    )}
-                  </div>
-                </button>
-              </div>
-
-              <div>
-                <div className="flex items-center gap-2 mb-3">
-                  <Globe size={20} className="text-[#083f30]" />
-                  <h3 className="font-bold text-gray-900">
-                    {t("filters.languagesSpoken")}
-                  </h3>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {availableLanguages.map((lang) => (
-                    <button
-                      type="button"
-                      key={lang}
-                      onClick={() => {
-                        const current = activeFilters.languages;
-                        const next = current.includes(lang)
-                          ? current.filter((item) => item !== lang)
-                          : [...current, lang];
-                        form.setValue("languages", next, { shouldDirty: true });
-                      }}
-                      className={`px-4 py-2 rounded-xl font-medium transition-all ${activeFilters.languages.includes(lang) ? "bg-[#083f30] text-white shadow-md" : "bg-gray-100 text-gray-700 hover:bg-gray-200"}`}
-                    >
-                      {languageLabel(lang, locale)}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <div className="flex items-center gap-2 mb-3">
-                  <Award size={20} className="text-[#083f30]" />
-                  <h3 className="font-bold text-gray-900">
-                    {t("filters.specialties")}
-                  </h3>
-                </div>
-                <SpecialtyMultiSelect
-                  values={activeFilters.specialties}
-                  options={availableSpecialties}
-                  onChange={(next) =>
-                    form.setValue("specialties", next, { shouldDirty: true })
-                  }
-                  placeholder={t("filters.selectSpecialties")}
-                  searchPlaceholder={t("filters.searchSpecialties")}
-                  emptyText={t("filters.noSpecialtiesFound")}
-                  selectedCountLabel={(count) =>
-                    t("filters.specialtiesSelected", { count })
-                  }
-                />
-              </div>
-            </div>
-
-            <div className="sticky bottom-0 bg-white border-t border-gray-200 px-5 pt-4 pb-[calc(env(safe-area-inset-bottom)+5rem)]">
-              <div className="flex gap-3">
-                <button
-                  type="button"
-                  onClick={clearFilters}
-                  className="flex-1 h-12 rounded-xl bg-gray-100 text-gray-900 font-bold hover:bg-gray-200 transition-colors"
-                >
-                  {t("clearAll")}
-                </button>
-                <button
-                  type="submit"
-                  className="flex-1 h-12 rounded-xl bg-gradient-to-r from-[#083f30] to-[#0a5a44] text-white font-bold hover:shadow-lg transition-all"
-                >
-                  {t("applyFilters")}
-                </button>
-              </div>
-            </div>
-          </form>
-        </div>
-      )}
+      <NearbyFilterPanel
+        open={showFilters}
+        onClose={closeFilters}
+        variant="sheet"
+        filters={initialFilters}
+        locale={locale}
+        availableLanguages={availableLanguages}
+        availableSpecialties={availableSpecialties}
+        availableCurrencies={availableCurrencies}
+        onApply={applyFilters}
+        onClear={clearFilters}
+      />
     </div>
   );
 }

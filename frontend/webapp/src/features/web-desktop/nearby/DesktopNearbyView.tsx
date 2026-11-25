@@ -1,8 +1,8 @@
 "use client";
 
-import { BadgeCheck, LocateFixed, MapPin, Search, Star } from "lucide-react";
+import { BadgeCheck, LocateFixed, MapPin, Search, SlidersHorizontal, Star } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useEffect, useMemo, useRef, useState, useTransition } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
 
 import { toast } from "sonner";
 import { rememberUserLocation } from "@/features/shared/types/coordinates";
@@ -18,8 +18,13 @@ import {
   PendingOverlay,
   providerHref,
 } from "@/app/[locale]/n/app/mobile/map-discovery/NearbyClient";
+import NearbyFilterPanel, {
+  countNearbyFilterValues,
+  nearbyFilterValuesFrom,
+} from "@/app/[locale]/n/app/mobile/map-discovery/NearbyFilterPanel";
 import type {
   NearbyCategory,
+  NearbyCurrencyOption,
   NearbyFiltersInput,
   NearbyProvider,
 } from "@/app/[locale]/n/app/mobile/map-discovery/nearby.data";
@@ -28,8 +33,6 @@ import { Reveal } from "../components/motion";
 
 // The translation namespace NearbyClient uses (see its useTranslations call).
 const NAMESPACE = "MapDiscovery";
-const DISTANCES = [1, 5, 10, 25, 50];
-const RATINGS = [0, 3, 4, 4.5];
 const GEO_OPTIONS: PositionOptions = { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 };
 
 type Props = {
@@ -43,10 +46,25 @@ type Props = {
   initialView: "map" | "list";
   /** The URL slug of the provider type this request filters by, if any. */
   providerTypeSlug?: string | null;
+  availableLanguages: string[];
+  availableSpecialties: string[];
+  availableCurrencies: NearbyCurrencyOption[];
 };
 
 /** Desktop map discovery: a full-height map beside the list, kept in sync both ways. */
-export function DesktopNearbyView({ locale, categories, providers, filters, mapCenter, expandedBeyondFilters, initialView, providerTypeSlug = null }: Props) {
+export function DesktopNearbyView({
+  locale,
+  categories,
+  providers,
+  filters,
+  mapCenter,
+  expandedBeyondFilters,
+  initialView,
+  providerTypeSlug = null,
+  availableLanguages,
+  availableSpecialties,
+  availableCurrencies,
+}: Props) {
   const slugs = useMemo<ListingSlugs>(
     () => ({
       category: slugLookup(categories.filter((category) => category.id !== "all")),
@@ -68,6 +86,11 @@ export function DesktopNearbyView({ locale, categories, providers, filters, mapC
   const [query, setQuery] = useState(filters.q);
   const [view, setView] = useState<"map" | "list">(initialView);
   const cardRefs = useRef(new Map<string, HTMLElement>());
+  // The same "advanced filters" panel as the phone screen: location, price,
+  // distance, rating, verified, languages, specialties.
+  const [showFilters, setShowFilters] = useState(false);
+  const closeFilters = useCallback(() => setShowFilters(false), []);
+  const activeFilterCount = countNearbyFilterValues(nearbyFilterValuesFrom(filters));
 
   useEffect(() => setCenter(mapCenter), [mapCenter]);
 
@@ -109,7 +132,13 @@ export function DesktopNearbyView({ locale, categories, providers, filters, mapC
   };
 
   const hasCustomFilters =
-    Boolean(filters.q || filters.categoryId || filters.countryCode || filters.cityCode) || filters.verifiedOnly || filters.minRating > 0;
+    Boolean(filters.q || filters.categoryId || filters.countryCode || filters.cityCode || filters.currencyCode) ||
+    filters.verifiedOnly ||
+    filters.minRating > 0 ||
+    filters.minPrice > 0 ||
+    (filters.maxPrice > 0 && filters.maxPrice !== 5000) ||
+    filters.languages.length > 0 ||
+    filters.specialties.length > 0;
   const chips = categories.some((category) => category.id === "all") ? categories : [{ id: "all", label: t("filters.any") }, ...categories];
 
   return (
@@ -179,52 +208,31 @@ export function DesktopNearbyView({ locale, categories, providers, filters, mapC
               })}
             </div>
 
-            {/* Quick filters */}
-            <div className="flex flex-wrap items-center gap-2 text-sm">
-              <span className="text-[#56675f]">{t("filters.distance")}</span>
-              {DISTANCES.map((distance) => (
-                <button
-                  key={distance}
-                  type="button"
-                  onClick={() => apply({ distanceKm: distance })}
-                  className={`rounded-full px-3 py-1.5 font-bold transition ${
-                    filters.distanceKm === distance ? "bg-[#eacb7f] text-[#062a20]" : "bg-white text-[#56675f] ring-1 ring-[#dce4e0]"
-                  }`}
-                >
-                  {km(distance)}
-                </button>
-              ))}
-            </div>
-            <div className="flex flex-wrap items-center gap-2 text-sm">
-              <span className="text-[#56675f]">{t("filters.minimumRating")}</span>
-              {RATINGS.map((rating) => (
-                <button
-                  key={rating}
-                  type="button"
-                  onClick={() => apply({ minRating: rating })}
-                  className={`flex items-center gap-1 rounded-full px-3 py-1.5 font-bold transition ${
-                    filters.minRating === rating ? "bg-[#eacb7f] text-[#062a20]" : "bg-white text-[#56675f] ring-1 ring-[#dce4e0]"
-                  }`}
-                >
-                  {rating === 0 ? t("filters.any") : (
-                    <>
-                      <Star size={13} className="fill-current" />
-                      {number(rating, 1)}+
-                    </>
-                  )}
-                </button>
-              ))}
-              <button
-                type="button"
-                onClick={() => apply({ verifiedOnly: !filters.verifiedOnly })}
-                className={`ms-auto flex items-center gap-1.5 rounded-full px-3 py-1.5 font-bold transition ${
-                  filters.verifiedOnly ? "bg-[#083f30] text-[#eacb7f]" : "bg-white text-[#56675f] ring-1 ring-[#dce4e0]"
-                }`}
-              >
-                <BadgeCheck size={14} />
-                {t("filters.verifiedProvidersOnly")}
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={() => setShowFilters(true)}
+              className="inline-flex h-11 items-center justify-center gap-2 rounded-full bg-[#083f30] px-6 text-sm font-bold text-[#eacb7f] transition hover:bg-[#0f5a45]"
+            >
+              <SlidersHorizontal size={17} />
+              {t("advancedFilters")}
+              {activeFilterCount > 0 ? (
+                <span className="inline-flex min-h-5 min-w-5 items-center justify-center rounded-full bg-[#eacb7f] px-1.5 text-[11px] font-black text-[#062a20]">
+                  {number(activeFilterCount)}
+                </span>
+              ) : null}
+            </button>
+            <NearbyFilterPanel
+              open={showFilters}
+              onClose={closeFilters}
+              variant="dialog"
+              filters={filters}
+              locale={locale}
+              availableLanguages={availableLanguages}
+              availableSpecialties={availableSpecialties}
+              availableCurrencies={availableCurrencies}
+              onApply={(values) => apply(values)}
+              onClear={() => apply(nearbyFilterValuesFrom(null))}
+            />
 
             {hasCustomFilters ? (
               <Link href="/map" className="inline-block text-sm font-semibold text-[#8c6b2c] hover:text-[#083f30]">
