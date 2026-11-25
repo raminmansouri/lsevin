@@ -12,6 +12,7 @@ import { Link, useRouter } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 
 import { ENTIRE_PLACE_KINDS, PROPERTY_KINDS, type PropertyKind } from "../../domain/search";
+import persianSlugCharacters from "../../domain/persian-slug-characters.json";
 import { STAY_CONTENT_LOCALES } from "../../domain/locales";
 import { createPropertyAction } from "../../server/actions/admin";
 
@@ -22,18 +23,11 @@ import { FieldError, STAYS_ADMIN_BASE, useStayAdminAction } from "./shared";
 
 type CityOpt = { id: string; label: string };
 
-const FA_LATIN: Record<string, string> = {
-  آ: "a", ا: "a", أ: "a", إ: "e", ب: "b", پ: "p", ت: "t", ث: "s", ج: "j", چ: "ch", ح: "h", خ: "kh", د: "d", ذ: "z", ر: "r", ز: "z", ژ: "zh",
-  س: "s", ش: "sh", ص: "s", ض: "z", ط: "t", ظ: "z", ع: "", غ: "gh", ف: "f", ق: "gh", ک: "k", ك: "k", گ: "g", ل: "l", م: "m", ن: "n",
-  و: "v", ه: "h", ة: "h", ی: "i", ي: "i", ئ: "i", ء: "", "‌": "-",
-};
-const DIGITS = "۰۱۲۳۴۵۶۷۸۹";
-
 /** Address slug from the hotel name: the English name when given, else a plain transliteration of the Persian one. */
 export function slugFromName(name: Record<string, string>): string {
   const source = name["en-US"]?.trim() || name["fa-IR"]?.trim() || Object.values(name).find((v) => v?.trim()) || "";
   const latin = [...source.toLowerCase()]
-    .map((ch) => (DIGITS.includes(ch) ? String(DIGITS.indexOf(ch)) : (FA_LATIN[ch] ?? ch)))
+    .map((ch) => (persianSlugCharacters[ch as keyof typeof persianSlugCharacters] ?? ch))
     .join("");
   return latin
     .normalize("NFKD")
@@ -191,7 +185,7 @@ export function PropertyCreate({ cities, amenities }: { cities: CityOpt[]; ameni
             </NativeSelect>
           </Field>
         </div>
-        <Field label={t("editor.slug")} htmlFor="new-slug" hint={tc("slugHint")}>
+        <Field label={t("editor.slug")} htmlFor="new-slug" hint={tc("slugHint", { path: "/stays/" + (effectiveSlug || "…") })}>
           <Input
             id="new-slug"
             dir="ltr"
@@ -200,7 +194,6 @@ export function PropertyCreate({ cities, amenities }: { cities: CityOpt[]; ameni
               setSlugEdited(true);
               setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""));
             }}
-            placeholder="hotel-name"
             aria-invalid={Boolean(fieldErrors.slug)}
             data-testid="stays-admin-new-slug"
           />
@@ -253,7 +246,6 @@ export function PropertyCreate({ cities, amenities }: { cities: CityOpt[]; ameni
               dir="ltr"
               value={ownerLogin}
               onChange={(e) => setOwnerLogin(e.target.value)}
-              placeholder="0912… / name@example.com"
               aria-invalid={Boolean(fieldErrors.ownerLogin)}
               data-testid="stays-admin-new-owner-login"
             />

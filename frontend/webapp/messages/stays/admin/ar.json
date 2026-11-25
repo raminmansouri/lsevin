@@ -106,7 +106,7 @@
         "basics": "Basics",
         "phone": "Phone",
         "phoneHint": "Optional. Shown on the stay page and used for the provider.",
-        "slugHint": "Made from the name; you can change it. Public page address: /stays/<address>",
+        "slugHint": "يُنشأ العنوان من الاسم ويمكنك تعديله. الصفحة العامة: {path}",
         "slugTaken": "Another stay already uses this address. Choose a different one.",
         "ownerTitle": "Provider (owner)",
         "ownerIntro": "Every stay belongs to a provider; bookings and payouts go through it. You don't need to create one first.",
