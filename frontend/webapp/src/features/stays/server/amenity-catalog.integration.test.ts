@@ -1,7 +1,7 @@
-﻿import { randomUUID } from "node:crypto";
+import { randomUUID } from "node:crypto";
 import postgres from "postgres";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
-import { assertLocalDatabase, seedUser } from "../testing/fixtures";
+import { assertLocalDatabase, seedStay, seedStayCity, seedStayProvider, seedUser } from "../testing/fixtures";
 
 const identity = vi.hoisted(() => ({ userId: null as string | null, isAdmin: false }));
 vi.mock("@/lib/auth/session", () => ({
@@ -54,6 +54,31 @@ describe.skipIf(!url)("amenity catalog server action with PostgreSQL", () => {
       expect(await save({ ...payload, ...invalid })).toMatchObject({ ok: false, error: { kind: "validation" } });
     }
     expect(await save({ ...payload, code: code + "x" })).toMatchObject({ ok: false, error: { kind: "not_found" } });
+  });
+
+  it("validates room choices and keeps them independent of the hotel", async () => {
+    identity.userId = admin;
+    identity.isAdmin = true;
+    const { id: providerId } = await seedStayProvider(sql as never, admin);
+    const city = await seedStayCity(sql as never);
+    const stay = await seedStay(sql as never, { providerId, cityId: city.id });
+    const { getPropertyAdmin } = await import("./admin/properties");
+    const { saveRoomTypeAction } = await import("./actions/admin");
+    const original = await getPropertyAdmin(stay.id);
+    const { id: roomId, ...room } = original.rooms[0];
+    const update = (amenityCodes: string[]) => saveRoomTypeAction({
+      propertyId: stay.id, roomId, data: { ...room, amenityCodes },
+    });
+    for (const codes of [["no_such_amenity"], ["door_lock_type_v2"], ["door_lock_type", "door_lock_type"], ["door_lock_type", "door_lock_type_v1", "door_lock_type_v2"]]) {
+      expect(await update(codes)).toMatchObject({ ok: false, error: { kind: "validation", details: { fields: { amenityCodes: "invalid" } } } });
+    }
+    const selected = ["door_lock_type", "door_lock_type_v2"];
+    expect(await update(selected)).toMatchObject({ ok: true });
+    const edited = await getPropertyAdmin(stay.id);
+    expect(edited.rooms[0].amenityCodes).toEqual(selected);
+    expect(edited.property.amenityCodes).toEqual(original.property.amenityCodes);
+    expect(await update([])).toMatchObject({ ok: true });
+    expect((await getPropertyAdmin(stay.id)).rooms[0].amenityCodes).toEqual([]);
   });
 
   it("accepts one concurrent edit, retains other languages, and records one audit event", async () => {
