@@ -27,7 +27,6 @@ import {
   Navigation,
   X,
   Check,
-  DollarSign,
   Award,
   Globe,
   Loader2,
@@ -52,6 +51,7 @@ import type {
   NearbyProvider,
 } from "./nearby.data";
 import FavoriteButton from "../explore/FavoriteButton";
+import PriceRangeFilter from "../explore/PriceRangeFilter";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { resolveHomeMediaUrl } from "@/features/home/components/home-media";
 
@@ -66,6 +66,7 @@ const isUnlimitedDistance = (km: number) => km >= MAX_DISTANCE_KM;
 type FilterFormValues = {
   countryCode: string | null;
   cityCode: string | null;
+  minPrice: number;
   maxPrice: number;
   currencyCode: string | null;
   distanceKm: number;
@@ -80,6 +81,7 @@ type UiFilters = {
   providerTypeId: string;
   countryCode: string | null;
   cityCode: string | null;
+  minPrice: number;
   maxPrice: number;
   currencyCode: string | null;
   distanceKm: number;
@@ -172,10 +174,6 @@ function languageLabel(value: string, locale: string): string {
   } catch {
     return normalized.toUpperCase();
   }
-}
-
-function fallbackCurrencyOption(): NearbyCurrencyOption {
-  return { code: "USD", label: "US Dollar", symbol: "$", count: 0 };
 }
 
 // High-accuracy device GPS. enableHighAccuracy asks for the GPS chip (not just
@@ -287,6 +285,7 @@ export default function NearbyClient({
     buildNearbyQuery(next, view, slugs);
   const t = useTranslations("MapDiscovery");
   const tLocation = useTranslations("LocationAccess");
+  const tExplore = useTranslations("Explore");
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [viewMode, setViewMode] = useState<"map" | "list">(initialView);
@@ -413,7 +412,9 @@ export default function NearbyClient({
       providerTypeId: initialFilters.providerTypeId ?? "all",
       countryCode: initialFilters.countryCode,
       cityCode: initialFilters.cityCode,
-      maxPrice: initialFilters.maxPrice || 5000,
+      minPrice: initialFilters.minPrice || 0,
+      // 0 = no upper limit (5000 was the old slider's "no limit" value).
+      maxPrice: initialFilters.maxPrice === 5000 ? 0 : initialFilters.maxPrice || 0,
       currencyCode: initialFilters.currencyCode,
       distanceKm: initialFilters.distanceKm || DEFAULT_DISTANCE_KM,
       minRating: initialFilters.minRating || 0,
@@ -436,6 +437,7 @@ export default function NearbyClient({
     defaultValues: {
       countryCode: initialUiFilters.countryCode,
       cityCode: initialUiFilters.cityCode,
+      minPrice: initialUiFilters.minPrice,
       maxPrice: initialUiFilters.maxPrice,
       currencyCode: initialUiFilters.currencyCode,
       distanceKm: initialUiFilters.distanceKm,
@@ -450,6 +452,7 @@ export default function NearbyClient({
     form.reset({
       countryCode: initialUiFilters.countryCode,
       cityCode: initialUiFilters.cityCode,
+      minPrice: initialUiFilters.minPrice,
       maxPrice: initialUiFilters.maxPrice,
       currencyCode: initialUiFilters.currencyCode,
       distanceKm: initialUiFilters.distanceKm,
@@ -475,14 +478,6 @@ export default function NearbyClient({
       (uiFilters.providerTypeId && uiFilters.providerTypeId !== "all"),
   );
 
-  const selectedCurrency = useMemo(() => {
-    const selected = availableCurrencies.find(
-      (currency) => currency.code === (watched.currencyCode ?? null),
-    );
-    return selected ?? availableCurrencies[0] ?? fallbackCurrencyOption();
-  }, [availableCurrencies, watched.currencyCode]);
-
-  const pricePrefix = watched.currencyCode ? selectedCurrency.symbol : "";
 
   const loadCountryOptions = useCallback(
     (args: { search: string; page: number; pageSize: number }) =>
@@ -539,7 +534,7 @@ export default function NearbyClient({
         providerTypeId: uiFilters.providerTypeId === "all" ? null : uiFilters.providerTypeId,
         countryCode: uiFilters.countryCode,
         cityCode: uiFilters.cityCode,
-        minPrice: 0,
+        minPrice: uiFilters.minPrice,
         maxPrice: uiFilters.maxPrice,
         currencyCode: uiFilters.currencyCode,
         distanceKm: uiFilters.distanceKm,
@@ -557,6 +552,7 @@ export default function NearbyClient({
       providerTypeId: uiFilters.providerTypeId,
       countryCode: values.countryCode,
       cityCode: values.cityCode,
+      minPrice: values.minPrice,
       maxPrice: values.maxPrice,
       currencyCode: values.currencyCode,
       distanceKm: values.distanceKm,
@@ -576,7 +572,7 @@ export default function NearbyClient({
         providerTypeId: nextUi.providerTypeId === "all" ? null : nextUi.providerTypeId,
         countryCode: nextUi.countryCode,
         cityCode: nextUi.cityCode,
-        minPrice: 0,
+        minPrice: nextUi.minPrice,
         maxPrice: nextUi.maxPrice,
         currencyCode: nextUi.currencyCode,
         distanceKm: nextUi.distanceKm,
@@ -594,7 +590,8 @@ export default function NearbyClient({
       providerTypeId: "all",
       countryCode: null,
       cityCode: null,
-      maxPrice: 5000,
+      minPrice: 0,
+      maxPrice: 0,
       currencyCode: null,
       distanceKm: DEFAULT_DISTANCE_KM,
       minRating: 0,
@@ -605,7 +602,8 @@ export default function NearbyClient({
     form.reset({
       countryCode: null,
       cityCode: null,
-      maxPrice: 5000,
+      minPrice: 0,
+      maxPrice: 0,
       currencyCode: null,
       distanceKm: DEFAULT_DISTANCE_KM,
       minRating: 0,
@@ -624,7 +622,7 @@ export default function NearbyClient({
         countryCode: null,
         cityCode: null,
         minPrice: 0,
-        maxPrice: 5000,
+        maxPrice: 0,
         currencyCode: null,
         distanceKm: DEFAULT_DISTANCE_KM,
         minRating: 0,
@@ -670,7 +668,7 @@ export default function NearbyClient({
             providerTypeId: uiFilters.providerTypeId === "all" ? null : uiFilters.providerTypeId,
             countryCode: uiFilters.countryCode,
             cityCode: uiFilters.cityCode,
-            minPrice: 0,
+            minPrice: uiFilters.minPrice,
             maxPrice: uiFilters.maxPrice,
             currencyCode: uiFilters.currencyCode,
             distanceKm: uiFilters.distanceKm,
@@ -697,7 +695,8 @@ export default function NearbyClient({
   const activeFilters = {
     countryCode: watched.countryCode ?? null,
     cityCode: watched.cityCode ?? null,
-    priceRange: [0, watched.maxPrice ?? 5000] as [number, number],
+    minPrice: watched.minPrice ?? 0,
+    maxPrice: watched.maxPrice ?? 0,
     currencyCode: watched.currencyCode ?? null,
     distanceKm: watched.distanceKm ?? DEFAULT_DISTANCE_KM,
     minRating: watched.minRating ?? 0,
@@ -716,7 +715,8 @@ export default function NearbyClient({
     uiFilters.minRating > 0 ||
     uiFilters.languages.length > 0 ||
     uiFilters.specialties.length > 0 ||
-    uiFilters.maxPrice !== 5000 ||
+    uiFilters.minPrice > 0 ||
+    uiFilters.maxPrice > 0 ||
     uiFilters.distanceKm !== DEFAULT_DISTANCE_KM;
 
   // The currently-applied display radius, shown in the hint below the filter
@@ -1130,70 +1130,26 @@ export default function NearbyClient({
                 </div>
               </div>
 
-              <div>
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    <DollarSign size={20} className="text-[#083f30]" />
-                    <h3 className="font-bold text-gray-900">
-                      {t("filters.priceRange")}
-                    </h3>
-                  </div>
-                  <span className="text-sm font-semibold text-[#083f30]">
-                    {pricePrefix}0 - {pricePrefix}
-                    {activeFilters.priceRange[1].toLocaleString("en")}
-                  </span>
-                </div>
-
-                <div className="mb-4">
-                  <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-gray-500">
-                    {t("filters.currency")}
-                  </label>
-                  <select
-                    value={activeFilters.currencyCode ?? ""}
-                    onChange={(event) =>
-                      form.setValue(
-                        "currencyCode",
-                        event.target.value || null,
-                        { shouldDirty: true },
-                      )
-                    }
-                    className="h-12 w-full rounded-2xl border border-gray-200 bg-white px-4 text-sm font-semibold text-gray-900 outline-none transition focus:border-[#083f30] focus:ring-2 focus:ring-[#083f30]/10"
-                  >
-                    <option value="">{t("filters.allCurrencies")}</option>
-                    {availableCurrencies.map((currency) => (
-                      <option key={currency.code} value={currency.code}>
-                        {currency.symbol} {currency.code} — {currency.label} (
-                        {currency.count})
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="space-y-2">
-                  <input
-                    dir="ltr"
-                    type="range"
-                    min="0"
-                    max="10000"
-                    step="100"
-                    value={activeFilters.priceRange[1]}
-                    onChange={(e) =>
-                      form.setValue("maxPrice", Number(e.target.value), {
-                        shouldDirty: true,
-                      })
-                    }
-                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-                    style={{
-                      direction: "ltr",
-                      background: `linear-gradient(to right, #083f30 0%, #083f30 ${(activeFilters.priceRange[1] / 10000) * 100}%, #e5e7eb ${(activeFilters.priceRange[1] / 10000) * 100}%, #e5e7eb 100%)`,
-                    }}
-                  />
-                  <div className="flex justify-between text-xs text-gray-500">
-                    <span>{pricePrefix}0</span>
-                    <span>{pricePrefix}10,000+</span>
-                  </div>
-                </div>
-              </div>
+              <PriceRangeFilter
+                currencies={availableCurrencies}
+                value={{
+                  currencyCode: activeFilters.currencyCode,
+                  minPrice: activeFilters.minPrice,
+                  maxPrice: activeFilters.maxPrice,
+                }}
+                onChange={(next) => {
+                  form.setValue("currencyCode", next.currencyCode, { shouldDirty: true });
+                  form.setValue("minPrice", next.minPrice, { shouldDirty: true });
+                  form.setValue("maxPrice", next.maxPrice, { shouldDirty: true });
+                }}
+                locale={locale}
+                labels={{
+                  title: t("filters.priceRange"),
+                  currency: t("filters.currency"),
+                  min: tExplore("filters.minPrice"),
+                  max: tExplore("filters.maxPrice"),
+                }}
+              />
 
               <div>
                 <div className="flex items-center justify-between mb-3">
@@ -1209,28 +1165,33 @@ export default function NearbyClient({
                       : `${activeFilters.distanceKm} km`}
                   </span>
                 </div>
-                {/* Force LTR on the track + labels so the thumb, the filled
-                    gradient and the min/max captions stay aligned on RTL locales.
-                    Without this the labels flip and the slider feels reversed —
-                    dragging toward the "near" end appeared to reveal providers. */}
-                <div dir="ltr" className="space-y-2">
-                  <input
-                    dir="ltr"
-                    type="range"
-                    min={MIN_DISTANCE_KM}
-                    max={MAX_DISTANCE_KM}
-                    value={activeFilters.distanceKm}
-                    onChange={(e) =>
-                      form.setValue("distanceKm", Number(e.target.value), {
-                        shouldDirty: true,
-                      })
-                    }
-                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-                    style={{
-                      direction: "ltr",
-                      background: `linear-gradient(to right, #083f30 0%, #083f30 ${(activeFilters.distanceKm / MAX_DISTANCE_KM) * 100}%, #e5e7eb ${(activeFilters.distanceKm / MAX_DISTANCE_KM) * 100}%, #e5e7eb 100%)`,
-                    }}
-                  />
+                {/* Follows the page direction like the price slider: in Persian
+                    1 km is on the right and "unlimited" on the left, and the
+                    filled part grows from the right with the thumb. */}
+                <div className="space-y-2">
+                  <div className="relative h-6">
+                    <div className="absolute inset-x-0 top-1/2 h-2 -translate-y-1/2 rounded-full bg-gray-200" />
+                    <div
+                      className="absolute top-1/2 h-2 -translate-y-1/2 rounded-full bg-[#083f30]"
+                      style={{
+                        insetInlineStart: 0,
+                        insetInlineEnd: `${100 - ((activeFilters.distanceKm - MIN_DISTANCE_KM) / (MAX_DISTANCE_KM - MIN_DISTANCE_KM)) * 100}%`,
+                      }}
+                    />
+                    <input
+                      type="range"
+                      aria-label={t("filters.distance")}
+                      min={MIN_DISTANCE_KM}
+                      max={MAX_DISTANCE_KM}
+                      value={activeFilters.distanceKm}
+                      onChange={(e) =>
+                        form.setValue("distanceKm", Number(e.target.value), {
+                          shouldDirty: true,
+                        })
+                      }
+                      className="absolute inset-x-0 top-0 h-6 w-full cursor-pointer appearance-none bg-transparent [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-white [&::-webkit-slider-thumb]:bg-[#083f30] [&::-webkit-slider-thumb]:shadow [&::-moz-range-thumb]:h-5 [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-white [&::-moz-range-thumb]:bg-[#083f30]"
+                    />
+                  </div>
                   <div className="flex justify-between text-xs text-gray-500">
                     <span>{t("filters.oneKm")}</span>
                     <span>{t("filters.unlimited")}</span>

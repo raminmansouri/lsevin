@@ -62,6 +62,9 @@ export type NearbyCurrencyOption = {
   label: string;
   symbol: string;
   count: number;
+  /** Cheapest and dearest active service priced in this currency (0 when none). */
+  minPrice: number;
+  maxPrice: number;
 };
 
 export type NearbyProvider = {
@@ -382,8 +385,8 @@ function buildContentConditions(filters: NearbyFiltersInput, lang: string) {
       from category.provider_services psp
       where psp.service_provider_id = sp.id
         and psp.is_active = true
-        and (${filters.minPrice} = 0 or psp.value >= ${filters.minPrice})
-        and (${filters.maxPrice} = 0 or psp.value <= ${filters.maxPrice})
+        and (${filters.minPrice}::numeric = 0 or psp.value >= ${filters.minPrice}::numeric)
+        and (${filters.maxPrice}::numeric = 0 or psp.value <= ${filters.maxPrice}::numeric)
         and (${currencyCode} = '' or upper(coalesce(psp.currency, '')) = ${currencyCode})
     )`);
   }
@@ -810,10 +813,14 @@ export async function getNearbyPageData({
     .map((value) => value.charAt(0).toUpperCase() + value.slice(1));
 
   const currencyRows = await sql<
-    { code: string; label: string; symbol: string; count: number }[]
+    { code: string; label: string; symbol: string; count: number; min_price: number | null; max_price: number | null }[]
   >`
     with service_currency_counts as (
-      select upper(coalesce(nullif(btrim(ps.currency), ''), 'USD')) as code, count(*)::int as count
+      select
+        upper(coalesce(nullif(btrim(ps.currency), ''), 'USD')) as code,
+        count(*)::int as count,
+        min(ps.value) filter (where ps.value > 0)::float as min_price,
+        max(ps.value)::float as max_price
       from category.provider_services ps
       join category.service_providers sp on sp.id = ps.service_provider_id
       where ps.is_active = true
@@ -824,7 +831,9 @@ export async function getNearbyPageData({
       coalesce(fc.code, service_currency_counts.code) as code,
       coalesce(fc.name, service_currency_counts.code) as label,
       coalesce(nullif(btrim(fc.symbol), ''), service_currency_counts.code) as symbol,
-      coalesce(service_currency_counts.count, 0)::int as count
+      coalesce(service_currency_counts.count, 0)::int as count,
+      service_currency_counts.min_price,
+      service_currency_counts.max_price
     from finance.currencies fc
     full join service_currency_counts on service_currency_counts.code = fc.code
     where fc.deleted_at is null
@@ -841,6 +850,8 @@ export async function getNearbyPageData({
       label: row.label || row.code,
       symbol: row.symbol || row.code,
       count: Number(row.count ?? 0),
+      minPrice: Number(row.min_price ?? 0),
+      maxPrice: Number(row.max_price ?? 0),
     }),
   );
 

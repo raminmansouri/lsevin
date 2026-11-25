@@ -113,6 +113,9 @@ export type ExploreCurrencyOption = {
   label: string;
   symbol: string;
   count: number;
+  /** Cheapest and dearest active service priced in this currency (0 when none). */
+  minPrice: number;
+  maxPrice: number;
 };
 
 export type ExplorePageData = {
@@ -399,6 +402,57 @@ function buildServiceSpecialistSearchSql(term: string, lang: string) {
   )`;
 }
 
+// The sort the filter panel offers. Each returns leading "order by" terms (with
+// a trailing comma) placed ahead of the default ranking, which breaks ties.
+// Prices are compared in toman (value_toman) unless one currency is chosen,
+// so a dollar price and a toman price are not compared as raw numbers.
+function priceSql(alias: "ps" | "ps_sort", filters: ExploreFiltersInput) {
+  if (alias === "ps_sort") {
+    return filters.currencyCode ? sql`ps_sort.value` : sql`coalesce(ps_sort.value_toman, ps_sort.value)`;
+  }
+  return filters.currencyCode ? sql`ps.value` : sql`coalesce(ps.value_toman, ps.value)`;
+}
+
+function buildFeaturedProvidersOrderSql(filters: ExploreFiltersInput) {
+  const currencyCode = normalizeCurrencyCode(filters.currencyCode);
+  const providerPrice = (aggregate: "min" | "max") => sql`(
+    select ${aggregate === "min" ? sql`min(${priceSql("ps_sort", filters)})` : sql`max(${priceSql("ps_sort", filters)})`}
+    from category.provider_services ps_sort
+    where ps_sort.service_provider_id = sp.id
+      and ps_sort.is_active = true
+      and coalesce(ps_sort.value, 0) > 0
+      and (${currencyCode} = '' or upper(coalesce(ps_sort.currency, '')) = ${currencyCode})
+  )`;
+
+  switch (filters.sort) {
+    case "rating":
+      return sql`coalesce(sp.rating, 0) desc, coalesce(sp.review_count, 0) desc,`;
+    case "newest":
+      return sql`sp.create_date desc,`;
+    case "price_low":
+      return sql`${providerPrice("min")} asc nulls last,`;
+    case "price_high":
+      return sql`${providerPrice("max")} desc nulls last,`;
+    default:
+      return sql``;
+  }
+}
+
+function buildTrendingServicesOrderSql(filters: ExploreFiltersInput) {
+  switch (filters.sort) {
+    case "rating":
+      return sql`coalesce(ps.rating, 0) desc, coalesce(ps.review_count, 0) desc,`;
+    case "newest":
+      return sql`ps.create_date desc,`;
+    case "price_low":
+      return sql`${priceSql("ps", filters)} asc nulls last,`;
+    case "price_high":
+      return sql`${priceSql("ps", filters)} desc nulls last,`;
+    default:
+      return sql``;
+  }
+}
+
 function buildFeaturedProvidersWhere(filters: ExploreFiltersInput, lang: string) {
   const conditions = [sql`sp.is_active = true and category.provider_type_is_public(sp.provider_type_id)`];
 
@@ -474,8 +528,8 @@ function buildFeaturedProvidersWhere(filters: ExploreFiltersInput, lang: string)
         from category.provider_services ps_price
         where ps_price.service_provider_id = sp.id
           and ps_price.is_active = true
-          and (${filters.minPrice} = 0 or ps_price.value >= ${filters.minPrice})
-          and (${filters.maxPrice} = 0 or ps_price.value <= ${filters.maxPrice})
+          and (${filters.minPrice}::numeric = 0 or ps_price.value >= ${filters.minPrice}::numeric)
+          and (${filters.maxPrice}::numeric = 0 or ps_price.value <= ${filters.maxPrice}::numeric)
           and (${currencyCode} = '' or upper(coalesce(ps_price.currency, '')) = ${currencyCode})
       )
     `);
@@ -516,11 +570,11 @@ function buildTrendingServicesWhere(filters: ExploreFiltersInput, lang: string) 
   }
 
   if (filters.minPrice > 0) {
-    conditions.push(sql`ps.value >= ${filters.minPrice}`);
+    conditions.push(sql`ps.value >= ${filters.minPrice}::numeric`);
   }
 
   if (filters.maxPrice > 0) {
-    conditions.push(sql`ps.value <= ${filters.maxPrice}`);
+    conditions.push(sql`ps.value <= ${filters.maxPrice}::numeric`);
   }
 
   if (filters.currencyCode) {
@@ -817,6 +871,7 @@ async function getExploreCatalogCached(
     on sp_media.id::text = nullif(btrim(split_part(sp.image_url, ',', 1)), '')
   ${featuredWhereSql}
   order by
+    ${buildFeaturedProvidersOrderSql(filters)}
     coalesce(sp.featured_score, 0) desc,
     coalesce(sp.rating, 0) desc,
     coalesce(sp.review_count, 0) desc,
@@ -932,6 +987,7 @@ async function getExploreCatalogCached(
   ) offer on true
   ${trendingWhereSql}
   order by
+    ${buildTrendingServicesOrderSql(filters)}
     coalesce(ps.trending_score, 0) desc,
     coalesce(ps.review_count, 0) desc,
     ps.create_date desc
@@ -975,8 +1031,8 @@ async function getExploreCatalogCached(
           ${filters.categoryId === null}
           or sd.category_id = ${filters.categoryId ?? null}::uuid
         )
-        and (${filters.minPrice} = 0 or ps.value >= ${filters.minPrice})
-        and (${filters.maxPrice} = 0 or ps.value <= ${filters.maxPrice})
+        and (${filters.minPrice}::numeric = 0 or ps.value >= ${filters.minPrice}::numeric)
+        and (${filters.maxPrice}::numeric = 0 or ps.value <= ${filters.maxPrice}::numeric)
         and (${sponsoredCurrencyCode} = '' or upper(coalesce(ps.currency, '')) = ${sponsoredCurrencyCode})
       order by coalesce(ps.is_popular, false) desc,
                coalesce(ps.rating, 0) desc,
@@ -1019,9 +1075,13 @@ async function getExploreCatalogCached(
       group by lower(replace(language, '_', '-'))
       order by count(distinct service_provider_id) desc, language asc
     `,
-    sql<{ code: string; label: string; symbol: string; count: number }[]>`
+    sql<{ code: string; label: string; symbol: string; count: number; min_price: number | null; max_price: number | null }[]>`
       with service_currency_counts as (
-        select upper(coalesce(nullif(btrim(ps.currency), ''), 'USD')) as code, count(*)::int as count
+        select
+          upper(coalesce(nullif(btrim(ps.currency), ''), 'USD')) as code,
+          count(*)::int as count,
+          min(ps.value) filter (where ps.value > 0)::float as min_price,
+          max(ps.value)::float as max_price
         from category.provider_services ps
         join category.service_providers sp on sp.id = ps.service_provider_id
         where ps.is_active = true
@@ -1032,7 +1092,9 @@ async function getExploreCatalogCached(
         coalesce(fc.code, service_currency_counts.code) as code,
         coalesce(fc.name, service_currency_counts.code) as label,
         coalesce(nullif(btrim(fc.symbol), ''), service_currency_counts.code) as symbol,
-        coalesce(service_currency_counts.count, 0)::int as count
+        coalesce(service_currency_counts.count, 0)::int as count,
+        service_currency_counts.min_price,
+        service_currency_counts.max_price
       from finance.currencies fc
       full join service_currency_counts on service_currency_counts.code = fc.code
       where fc.deleted_at is null
@@ -1127,6 +1189,8 @@ async function getExploreCatalogCached(
     label: row.label || row.code,
     symbol: row.symbol || row.code,
     count: Number(row.count ?? 0),
+    minPrice: Number(row.min_price ?? 0),
+    maxPrice: Number(row.max_price ?? 0),
   }));
 
   return {

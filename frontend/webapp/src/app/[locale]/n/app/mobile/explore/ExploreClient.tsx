@@ -6,7 +6,6 @@ import { ViewerPrice } from "@/features/finance/components/viewer-price";
 import { directoryHref, mapHref, setListingParams, slugLookup, type ListingSlugs } from "@/lib/routes/filter-paths";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { useForm } from "react-hook-form";
 import { hasLexicalContent, LexicalRenderer } from "@/components/editor/lexical-renderer";
 import { formatMoney } from "@/features/finance/lib/money";
 import {
@@ -20,22 +19,12 @@ import {
   Award,
   Users,
   Clock,
-  X,
-  Check,
-  DollarSign,
-  Globe,
 } from "lucide-react";
 
 
 import { FavoriteButton } from "@/features/favorites/components/favorite-button";
 import { getFavoriteStatusAction } from "@/features/favorites/actions/favorite-actions";
-import LazySearchableSelect from "./LazySearchableSelect";
-import {
-  getExploreCityOptionAction,
-  getExploreCountryOptionAction,
-  searchExploreCityOptionsAction,
-  searchExploreCountryOptionsAction,
-} from "./explore-location.actions";
+import ExploreFilterPanel, { type ExploreFilterValues } from "./ExploreFilterPanel";
 import type {
   ExploreCategory,
   ExploreCurrencyOption,
@@ -49,22 +38,12 @@ import type {
 import { resolveHomeMediaUrl } from "@/features/home/components/home-media";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 
-type FilterFormValues = {
-  countryCode: string | null;
-  cityCode: string | null;
-  maxPrice: number;
-  currencyCode: string | null;
-  minRating: number;
-  verifiedOnly: boolean;
-  responseTime: "any" | "fast" | "instant";
-  languages: string[];
-};
-
 type OptimisticUiFilters = {
   categoryId: string;
   providerTypeId: string;
   countryCode: string | null;
   cityCode: string | null;
+  minPrice: number;
   maxPrice: number;
   currencyCode: string | null;
   minRating: number;
@@ -306,9 +285,9 @@ export default function ExploreClient({
   );
   const t = useTranslations("Explore");
   const tMap = useTranslations("MapDiscovery");
-  const tBooking = useTranslations("Booking");
   const [isPending, startTransition] = useTransition();
   const [showFilters, setShowFilters] = useState(false);
+  const closeFilters = useCallback(() => setShowFilters(false), []);
   const [showAllProviderTypes, setShowAllProviderTypes] = useState(false);
 
   const initialUiFilters = useMemo<OptimisticUiFilters>(
@@ -317,6 +296,7 @@ export default function ExploreClient({
       providerTypeId: initialFilters.providerTypeId ?? "all",
       countryCode: initialFilters.countryCode,
       cityCode: initialFilters.cityCode,
+      minPrice: initialFilters.minPrice || 0,
       maxPrice: initialFilters.maxPrice || 5000,
       currencyCode: initialFilters.currencyCode,
       minRating: initialFilters.minRating || 0,
@@ -333,89 +313,6 @@ export default function ExploreClient({
     setUiFilters(initialUiFilters);
   }, [initialUiFilters]);
 
-  const form = useForm<FilterFormValues>({
-    defaultValues: {
-      countryCode: initialUiFilters.countryCode,
-      cityCode: initialUiFilters.cityCode,
-      maxPrice: initialUiFilters.maxPrice,
-      currencyCode: initialUiFilters.currencyCode,
-      minRating: initialUiFilters.minRating,
-      verifiedOnly: initialUiFilters.verifiedOnly,
-      languages: initialUiFilters.languages,
-      responseTime: initialUiFilters.responseTime,
-    },
-  });
-
-  useEffect(() => {
-    form.reset({
-      countryCode: initialUiFilters.countryCode,
-      cityCode: initialUiFilters.cityCode,
-      maxPrice: initialUiFilters.maxPrice,
-      currencyCode: initialUiFilters.currencyCode,
-      minRating: initialUiFilters.minRating,
-      verifiedOnly: initialUiFilters.verifiedOnly,
-      languages: initialUiFilters.languages,
-      responseTime: initialUiFilters.responseTime,
-    });
-  }, [form, initialUiFilters]);
-
-  const watched = form.watch();
-
-  const modalFilters = useMemo(
-    () => ({
-      countryCode: watched.countryCode ?? null,
-      cityCode: watched.cityCode ?? null,
-      priceRange: [0, watched.maxPrice ?? 5000] as [number, number],
-      currencyCode: watched.currencyCode ?? null,
-      minRating: watched.minRating ?? 0,
-      verifiedOnly: watched.verifiedOnly ?? false,
-      languages: watched.languages ?? [],
-      responseTime: watched.responseTime ?? "any",
-    }),
-    [watched],
-  );
-
-  const selectedCountryCode = watched.countryCode ?? null;
-
-  const selectedCurrency = useMemo(() => {
-    const selected = availableCurrencies.find((currency) => currency.code === modalFilters.currencyCode);
-    return selected ?? availableCurrencies[0] ?? { code: "USD", label: t("currencies.usDollar"), symbol: "$", count: 0 };
-  }, [availableCurrencies, modalFilters.currencyCode, t]);
-
-  const languageLabelByValue = useMemo(() => {
-    return new Map(availableLanguages.map((language) => [language.value, language.label]));
-  }, [availableLanguages]);
-
-  const selectedLanguageLabels = modalFilters.languages.map((value) => ({
-    value,
-    label: languageLabelByValue.get(value) ?? value,
-  }));
-
-  const pricePrefix = modalFilters.currencyCode ? selectedCurrency.symbol : "";
-
-  const loadCountryOptions = useCallback(
-    (args: { search: string; page: number; pageSize: number }) =>
-      searchExploreCountryOptionsAction({ locale, ...args }),
-    [locale],
-  );
-
-  const loadSelectedCountry = useCallback(
-    (value: string) => getExploreCountryOptionAction({ locale, value }),
-    [locale],
-  );
-
-  const loadCityOptions = useCallback(
-    (args: { search: string; page: number; pageSize: number }) =>
-      searchExploreCityOptionsAction({ locale, countryCode: selectedCountryCode, ...args }),
-    [locale, selectedCountryCode],
-  );
-
-  const loadSelectedCity = useCallback(
-    (value: string) =>
-      getExploreCityOptionAction({ locale, countryCode: selectedCountryCode, value }),
-    [locale, selectedCountryCode],
-  );
-
   const activeUiFilters = uiFilters;
 
   const hasActiveFilters =
@@ -428,7 +325,9 @@ export default function ExploreClient({
     Boolean(activeUiFilters.countryCode) ||
     Boolean(activeUiFilters.cityCode) ||
     Boolean(activeUiFilters.currencyCode) ||
-    activeUiFilters.maxPrice !== 5000;
+    activeUiFilters.minPrice > 0 ||
+    activeUiFilters.maxPrice !== 5000 ||
+    initialFilters.sort !== "recommended";
 
   // Where a category chip or a provider-type card leads. They are real links
   // (crawlable, open in a new tab); a plain click filters in place instead.
@@ -440,7 +339,7 @@ export default function ExploreClient({
           activeUiFilters.providerTypeId === "all" ? null : activeUiFilters.providerTypeId,
         countryCode: activeUiFilters.countryCode,
         cityCode: activeUiFilters.cityCode,
-        minPrice: 0,
+        minPrice: activeUiFilters.minPrice,
         maxPrice: activeUiFilters.maxPrice,
         currencyCode: activeUiFilters.currencyCode,
         minRating: activeUiFilters.minRating,
@@ -455,7 +354,7 @@ export default function ExploreClient({
         providerTypeId: providerTypeId === "all" ? null : providerTypeId,
         countryCode: activeUiFilters.countryCode,
         cityCode: activeUiFilters.cityCode,
-        minPrice: 0,
+        minPrice: activeUiFilters.minPrice,
         maxPrice: activeUiFilters.maxPrice,
         currencyCode: activeUiFilters.currencyCode,
         minRating: activeUiFilters.minRating,
@@ -494,14 +393,15 @@ export default function ExploreClient({
     );
   };
 
-  const applyFilters = form.handleSubmit((values) => {
+  const applyFilters = (values: ExploreFilterValues) => {
     const nextUiFilters: OptimisticUiFilters = {
       categoryId: activeUiFilters.categoryId,
       providerTypeId: activeUiFilters.providerTypeId,
-      countryCode: values.countryCode ?? null,
-      cityCode: values.cityCode ?? null,
-      maxPrice: values.maxPrice,
-      currencyCode: values.currencyCode ?? null,
+      countryCode: values.countryCode,
+      cityCode: values.cityCode,
+      minPrice: values.minPrice,
+      maxPrice: values.maxPrice || 5000,
+      currencyCode: values.currencyCode,
       minRating: values.minRating,
       verifiedOnly: values.verifiedOnly,
       languages: values.languages,
@@ -509,28 +409,19 @@ export default function ExploreClient({
     };
 
     setUiFilters(nextUiFilters);
-    setShowFilters(false);
 
     navigateSmooth(
       startTransition,
       router,
       buildExploreQuery(slugs, {
         ...initialFilters,
+        ...values,
         categoryId: nextUiFilters.categoryId === "all" ? null : nextUiFilters.categoryId,
         providerTypeId:
           nextUiFilters.providerTypeId === "all" ? null : nextUiFilters.providerTypeId,
-        countryCode: nextUiFilters.countryCode,
-        cityCode: nextUiFilters.cityCode,
-        minPrice: 0,
-        maxPrice: nextUiFilters.maxPrice,
-        currencyCode: nextUiFilters.currencyCode,
-        minRating: nextUiFilters.minRating,
-        verifiedOnly: nextUiFilters.verifiedOnly,
-        languages: nextUiFilters.languages,
-        responseTime: nextUiFilters.responseTime,
       }),
     );
-  });
+  };
 
   const clearFilters = () => {
     const cleared: OptimisticUiFilters = {
@@ -538,6 +429,7 @@ export default function ExploreClient({
       providerTypeId: "all",
       countryCode: null,
       cityCode: null,
+      minPrice: 0,
       maxPrice: 5000,
       currencyCode: null,
       minRating: 0,
@@ -545,17 +437,6 @@ export default function ExploreClient({
       languages: [],
       responseTime: "any",
     };
-
-    form.reset({
-      countryCode: null,
-      cityCode: null,
-      maxPrice: 5000,
-      currencyCode: null,
-      minRating: 0,
-      verifiedOnly: false,
-      languages: [],
-      responseTime: "any",
-    });
 
     setUiFilters(cleared);
 
@@ -564,17 +445,18 @@ export default function ExploreClient({
       router,
       buildExploreQuery(slugs, {
         ...initialFilters,
-        categoryId: cleared.categoryId === "all" ? null : cleared.categoryId,
-        providerTypeId: cleared.providerTypeId === "all" ? null : cleared.providerTypeId,
-        countryCode: cleared.countryCode,
-        cityCode: cleared.cityCode,
+        categoryId: null,
+        providerTypeId: null,
+        countryCode: null,
+        cityCode: null,
         minPrice: 0,
-        maxPrice: 5000,
+        maxPrice: 0,
         currencyCode: null,
         minRating: 0,
         verifiedOnly: false,
         languages: [],
         responseTime: "any",
+        sort: "recommended",
       }),
     );
   };
@@ -587,7 +469,7 @@ export default function ExploreClient({
         activeUiFilters.providerTypeId === "all" ? null : activeUiFilters.providerTypeId,
       countryCode: activeUiFilters.countryCode,
       cityCode: activeUiFilters.cityCode,
-      minPrice: 0,
+      minPrice: activeUiFilters.minPrice,
       maxPrice: activeUiFilters.maxPrice,
       currencyCode: activeUiFilters.currencyCode,
       minRating: activeUiFilters.minRating,
@@ -1034,279 +916,17 @@ export default function ExploreClient({
       </div>
       */}
 
-      {showFilters && (
-        <div className="fixed inset-0 z-[80] bg-black/50 flex items-end animate-in fade-in duration-200">
-          <form
-            onSubmit={applyFilters}
-            className="w-full bg-white rounded-t-3xl max-h-[85vh] overflow-y-auto animate-in slide-in-from-bottom duration-300"
-          >
-            <div className="sticky top-0 bg-white border-b border-gray-200 px-5 py-4 z-10">
-              <div className="flex items-center justify-between mb-2">
-                <h2 className="text-xl font-bold text-gray-900">{t("filters.title")}</h2>
-                <button
-                  type="button"
-                  onClick={() => setShowFilters(false)}
-                  aria-label={tBooking("close")}
-                  className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors"
-                >
-                  <X size={20} className="text-gray-600" aria-hidden="true" />
-                </button>
-              </div>
-              <p className="text-sm text-gray-600">{t("filters.subtitle")}</p>
-            </div>
-
-            <div className="px-5 py-6 space-y-6">
-              <div>
-                <div className="mb-3 flex items-center gap-2">
-                  <MapPin size={20} className="text-[#083f30]" />
-                  <h3 className="font-sans font-bold text-gray-900">{t("filters.location")}</h3>
-                </div>
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                  <LazySearchableSelect
-                    label={t("filters.country")}
-                    value={modalFilters.countryCode}
-                    placeholder={t("filters.selectCountry")}
-                    searchPlaceholder={t("filters.searchCountries")}
-                    emptyText={t("filters.noCountries")}
-                    loadOptions={loadCountryOptions}
-                    loadByValue={loadSelectedCountry}
-                    onChange={(value) => {
-                      form.setValue("countryCode", value, { shouldDirty: true });
-                      form.setValue("cityCode", null, { shouldDirty: true });
-                    }}
-                  />
-                  <LazySearchableSelect
-                    key={modalFilters.countryCode ?? "no-country"}
-                    label={t("filters.city")}
-                    value={modalFilters.cityCode}
-                    disabled={!modalFilters.countryCode}
-                    placeholder={modalFilters.countryCode ? t("filters.selectCity") : t("filters.selectCountryFirst")}
-                    searchPlaceholder={t("filters.searchCities")}
-                    emptyText={t("filters.noCitiesForCountry")}
-                    loadOptions={loadCityOptions}
-                    loadByValue={loadSelectedCity}
-                    onChange={(value) => form.setValue("cityCode", value, { shouldDirty: true })}
-                  />
-                </div>
-              </div>
-
-              <div>
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    <DollarSign size={20} className="text-[#083f30]" />
-                    <h3 className="font-sans font-bold text-gray-900">{t("filters.priceRange")}</h3>
-                  </div>
-                  <span className="text-sm font-semibold text-[#083f30]">
-                    {pricePrefix}0 - {pricePrefix}
-                    {modalFilters.priceRange[1].toLocaleString(locale)}
-                  </span>
-                </div>
-
-                <div className="mb-4">
-                  <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-gray-500">
-                    {t("filters.currency")}
-                  </label>
-                  <select
-                    value={modalFilters.currencyCode ?? ""}
-                    onChange={(event) => {
-                      form.setValue("currencyCode", event.target.value || null, { shouldDirty: true });
-                    }}
-                    className="h-12 w-full rounded-2xl border border-gray-200 bg-white px-4 text-sm font-semibold text-gray-900 outline-none transition focus:border-[#083f30] focus:ring-2 focus:ring-[#083f30]/10"
-                  >
-                    <option value="">{t("filters.allCurrencies")}</option>
-                    {availableCurrencies.map((currency) => (
-                      <option key={currency.code} value={currency.code}>
-                        {currency.symbol} {currency.code} — {currency.label} ({currency.count.toLocaleString(locale)})
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="space-y-2">
-                  <input
-                    type="range"
-                    dir="ltr"
-                    min="0"
-                    max="10000"
-                    step="100"
-                    value={modalFilters.priceRange[1]}
-                    onChange={(e) => form.setValue("maxPrice", Number(e.target.value), { shouldDirty: true })}
-                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-                    style={{
-                      direction: "ltr",
-                      background: `linear-gradient(to right, #083f30 0%, #083f30 ${(modalFilters.priceRange[1] / 10000) * 100}%, #e5e7eb ${(modalFilters.priceRange[1] / 10000) * 100}%, #e5e7eb 100%)`,
-                    }}
-                  />
-                  <div className="flex justify-between text-xs text-gray-500">
-                    <span>{pricePrefix}0</span>
-                    <span>{pricePrefix}10,000+</span>
-                  </div>
-                </div>
-              </div>
-
-              <div>
-                <div className="flex items-center gap-2 mb-3">
-                  <Star size={20} className="text-[#083f30]" />
-                  <h3 className="font-sans font-bold text-gray-900">{t("filters.minimumRating")}</h3>
-                </div>
-                <div className="grid grid-cols-5 gap-2">
-                  {[0, 3.0, 3.5, 4.0, 4.5].map((rating) => (
-                    <button
-                      type="button"
-                      key={rating}
-                      onClick={() => form.setValue("minRating", rating)}
-                      className={`h-12 rounded-xl flex flex-col items-center justify-center font-semibold transition-all ${
-                        modalFilters.minRating === rating
-                          ? "bg-[#083f30] text-white shadow-md"
-                          : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                      }`}
-                    >
-                      <span className="text-sm">{rating === 0 ? t("filters.any") : `${rating}+`}</span>
-                      {rating > 0 && <Star size={12} className="fill-current" />}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <div className="flex items-center gap-2 mb-3">
-                  <Clock size={20} className="text-[#083f30]" />
-                  <h3 className="font-sans font-bold text-gray-900">{t("filters.responseTime")}</h3>
-                </div>
-                <div className="grid grid-cols-3 gap-2">
-                  {[
-                    { value: "any", label: t("filters.response.any") },
-                    { value: "fast", label: t("filters.response.fast") },
-                    { value: "instant", label: t("filters.response.instant") },
-                  ].map((option) => (
-                    <button
-                      type="button"
-                      key={option.value}
-                      onClick={() =>
-                        form.setValue(
-                          "responseTime",
-                          option.value as FilterFormValues["responseTime"],
-                        )
-                      }
-                      className={`h-12 rounded-xl font-semibold transition-all ${
-                        modalFilters.responseTime === option.value
-                          ? "bg-[#083f30] text-white shadow-md"
-                          : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                      }`}
-                    >
-                      {option.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <button
-                  type="button"
-                  onClick={() => form.setValue("verifiedOnly", !modalFilters.verifiedOnly)}
-                  className={`w-full p-4 rounded-2xl border-2 transition-all flex items-center justify-between ${
-                    modalFilters.verifiedOnly
-                      ? "bg-green-50 border-green-200"
-                      : "bg-white border-gray-200 hover:border-gray-300"
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <div
-                      className={`w-12 h-12 rounded-xl flex items-center justify-center ${
-                        modalFilters.verifiedOnly ? "bg-green-600" : "bg-gray-100"
-                      }`}
-                    >
-                      <BadgeCheck
-                        size={24}
-                        className={modalFilters.verifiedOnly ? "text-white" : "text-gray-400"}
-                      />
-                    </div>
-                    <div className="text-left">
-                      <h3 className="font-sans font-bold text-gray-900">{t("filters.verifiedOnly")}</h3>
-                      <p className="text-sm text-gray-600">{t("filters.verifiedOnlyDescription")}</p>
-                    </div>
-                  </div>
-                  <div
-                    className={`w-6 h-6 rounded-full flex items-center justify-center transition-colors ${
-                      modalFilters.verifiedOnly ? "bg-green-600" : "bg-gray-200"
-                    }`}
-                  >
-                    {modalFilters.verifiedOnly && <Check size={16} className="text-white" />}
-                  </div>
-                </button>
-              </div>
-
-              <div>
-                <div className="flex items-center gap-2 mb-3">
-                  <Globe size={20} className="text-[#083f30]" />
-                  <h3 className="font-sans font-bold text-gray-900">{t("filters.languagesSpoken")}</h3>
-                </div>
-
-                <select
-                  value=""
-                  onChange={(event) => {
-                    const value = event.target.value;
-                    if (!value) return;
-
-                    const current = modalFilters.languages;
-                    if (!current.includes(value)) {
-                      form.setValue("languages", [...current, value], { shouldDirty: true });
-                    }
-                  }}
-                  className="h-12 w-full rounded-2xl border border-gray-200 bg-white px-4 text-sm font-semibold text-gray-900 outline-none transition focus:border-[#083f30] focus:ring-2 focus:ring-[#083f30]/10"
-                >
-                  <option value="">{t("filters.selectLanguage")}</option>
-                  {availableLanguages.map((language) => (
-                    <option key={language.value} value={language.value}>
-                      {language.label} ({language.count.toLocaleString(locale)})
-                    </option>
-                  ))}
-                </select>
-
-                {selectedLanguageLabels.length > 0 && (
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {selectedLanguageLabels.map((language) => (
-                      <button
-                        key={language.value}
-                        type="button"
-                        onClick={() => {
-                          form.setValue(
-                            "languages",
-                            modalFilters.languages.filter((item) => item !== language.value),
-                            { shouldDirty: true },
-                          );
-                        }}
-                        className="inline-flex items-center gap-2 rounded-xl bg-[#083f30] px-3 py-2 text-sm font-semibold text-white shadow-sm"
-                      >
-                        {language.label}
-                        <X size={14} />
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <div className="sticky bottom-0 z-20 bg-white border-t border-gray-200 px-5 pb-[calc(env(safe-area-inset-bottom)+5.75rem)] pt-4 sm:pb-4">
-              <div className="flex gap-3">
-                <button
-                  type="button"
-                  onClick={clearFilters}
-                  className="flex-1 h-12 rounded-xl bg-gray-100 text-gray-900 font-bold hover:bg-gray-200 transition-colors"
-                >
-                  {t("actions.clearAll")}
-                </button>
-                <button
-                  type="submit"
-                  className="flex-1 h-12 rounded-xl bg-gradient-to-r from-[#083f30] to-[#0a5a44] text-white font-bold hover:shadow-lg transition-all"
-                >
-                  {t("actions.applyFilters")}
-                </button>
-              </div>
-            </div>
-          </form>
-        </div>
-      )}
+      <ExploreFilterPanel
+        open={showFilters}
+        onClose={closeFilters}
+        variant="sheet"
+        filters={initialFilters}
+        availableLanguages={availableLanguages}
+        availableCurrencies={availableCurrencies}
+        locale={locale}
+        onApply={applyFilters}
+        onClear={clearFilters}
+      />
     </div>
   );
 }

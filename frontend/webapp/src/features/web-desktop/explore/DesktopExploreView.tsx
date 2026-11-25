@@ -80,6 +80,7 @@ export function DesktopExploreView({
   trendingServices,
   sponsoredProviders,
   availableLanguages,
+  availableCurrencies,
   locale,
   filters,
 }: Props) {
@@ -119,6 +120,83 @@ export function DesktopExploreView({
     filters.minRating > 0 ||
     filters.languages.length > 0 ||
     filters.responseTime !== "any";
+
+  // Filters from the advanced panel (not the category / type chips). When one
+  // is on, the filtered providers move up under the toolbar, so applying a
+  // filter visibly changes what is on screen instead of only a list far below
+  // the provider-type grid, and an empty result says so.
+  const hasRefineFilters =
+    Boolean(filters.q || filters.countryCode || filters.cityCode || filters.currencyCode) ||
+    filters.minPrice > 0 ||
+    filters.maxPrice > 0 ||
+    filters.verifiedOnly ||
+    filters.minRating > 0 ||
+    filters.languages.length > 0 ||
+    filters.responseTime !== "any";
+
+  const featuredSection = featuredProviders.length ? (
+        <section className="lsd-container mt-20">
+          <SectionTitle title={t("featured.title")} subtitle={t("featured.subtitle")} />
+          <div className="grid grid-cols-4 gap-6">
+            {featuredProviders.map((provider, index) => (
+              <Reveal key={provider.id} delay={(index % 4) * 80}>
+                <Link href={entityPath("provider", provider)} className="group block h-full">
+                  <Tilt className="flex h-full flex-col">
+                    <div className="relative aspect-square overflow-hidden bg-[#0f5a45]">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={mediaUrl(provider.image)} alt={provider.name} className="lsd-zoom h-full w-full object-cover" />
+                      {provider.badge ? (
+                        <span className="absolute start-4 top-4 rounded-full bg-[#eacb7f] px-3 py-1 text-xs font-black text-[#062a20]">{provider.badge}</span>
+                      ) : null}
+                      <div className="absolute end-4 top-4">
+                        <FavoriteButton
+                          entityId={provider.id}
+                          entityType="provider"
+                          initialIsFavorite={provider.isFavorited}
+                          className="!h-10 !w-10 bg-white/90 text-gray-700 shadow-sm"
+                          iconClassName="h-[18px] w-[18px]"
+                        />
+                      </div>
+                    </div>
+                    <div className="flex flex-1 flex-col gap-2 p-5">
+                      <h3 className="flex items-center gap-1.5 text-lg font-black leading-snug text-[#0e1a16]">
+                        <span className="line-clamp-1">{provider.name}</span>
+                        {provider.verified ? <BadgeCheck size={17} className="shrink-0 text-[#0f5a45]" /> : null}
+                      </h3>
+                      {provider.location ? (
+                        <p className="flex items-center gap-1.5 text-sm text-[#56675f]">
+                          <MapPin size={14} className="text-[#c9a55a]" />
+                          <span className="truncate">{provider.location}</span>
+                        </p>
+                      ) : null}
+                      <div className="mt-auto flex items-center justify-between gap-3 pt-3 text-sm">
+                        <span className="flex items-center gap-1.5">
+                          <Star size={15} className="fill-[#c9a55a] text-[#c9a55a]" />
+                          <span className="font-bold text-[#0e1a16]">{number(provider.rating || 0, 1)}</span>
+                          {provider.reviews ? <span className="text-[#8fa79d]">({number(provider.reviews)})</span> : null}
+                        </span>
+                        {provider.responseTime ? (
+                          <span className="flex items-center gap-1 text-xs text-[#56675f]">
+                            <Clock size={13} />
+                            {provider.responseTime}
+                          </span>
+                        ) : null}
+                      </div>
+                    </div>
+                  </Tilt>
+                </Link>
+              </Reveal>
+            ))}
+          </div>
+        </section>
+      ) : hasRefineFilters ? (
+    <section className="lsd-container mt-20">
+      <SectionTitle title={t("featured.title")} />
+      <p className="rounded-[28px] bg-white px-8 py-10 text-center text-lg text-[#56675f] ring-1 ring-[#dce4e0]">
+        {t("lazySelect.empty")}
+      </p>
+    </section>
+  ) : null;
 
   return (
     <div className="lsd hidden pb-16 xl:block">
@@ -206,11 +284,21 @@ export function DesktopExploreView({
                   {t("actions.clearAll")}
                 </Link>
               ) : null}
-              <ExploreFilters filters={filters} availableLanguages={availableLanguages} />
+              <ExploreFilters
+                filters={filters}
+                availableLanguages={availableLanguages}
+                availableCurrencies={availableCurrencies}
+                locale={locale}
+                slugs={slugs}
+                onNavigate={(href) => navigateSmooth(startTransition, router, href)}
+              />
             </div>
           </div>
         </div>
       </div>
+
+      {/* Filtered providers first while advanced filters are on */}
+      {hasRefineFilters ? featuredSection : null}
 
       {/* Provider types as a bento grid */}
       {providerTypes.length ? (
@@ -263,63 +351,7 @@ export function DesktopExploreView({
         <p className="lsd-container mt-16 text-[#56675f]">{t("providerTypes.empty")}</p>
       )}
 
-      {/* Featured providers */}
-      {featuredProviders.length ? (
-        <section className="lsd-container mt-20">
-          <SectionTitle title={t("featured.title")} subtitle={t("featured.subtitle")} />
-          <div className="grid grid-cols-4 gap-6">
-            {featuredProviders.map((provider, index) => (
-              <Reveal key={provider.id} delay={(index % 4) * 80}>
-                <Link href={entityPath("provider", provider)} className="group block h-full">
-                  <Tilt className="flex h-full flex-col">
-                    <div className="relative aspect-square overflow-hidden bg-[#0f5a45]">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={mediaUrl(provider.image)} alt={provider.name} className="lsd-zoom h-full w-full object-cover" />
-                      {provider.badge ? (
-                        <span className="absolute start-4 top-4 rounded-full bg-[#eacb7f] px-3 py-1 text-xs font-black text-[#062a20]">{provider.badge}</span>
-                      ) : null}
-                      <div className="absolute end-4 top-4">
-                        <FavoriteButton
-                          entityId={provider.id}
-                          entityType="provider"
-                          initialIsFavorite={provider.isFavorited}
-                          className="!h-10 !w-10 bg-white/90 text-gray-700 shadow-sm"
-                          iconClassName="h-[18px] w-[18px]"
-                        />
-                      </div>
-                    </div>
-                    <div className="flex flex-1 flex-col gap-2 p-5">
-                      <h3 className="flex items-center gap-1.5 text-lg font-black leading-snug text-[#0e1a16]">
-                        <span className="line-clamp-1">{provider.name}</span>
-                        {provider.verified ? <BadgeCheck size={17} className="shrink-0 text-[#0f5a45]" /> : null}
-                      </h3>
-                      {provider.location ? (
-                        <p className="flex items-center gap-1.5 text-sm text-[#56675f]">
-                          <MapPin size={14} className="text-[#c9a55a]" />
-                          <span className="truncate">{provider.location}</span>
-                        </p>
-                      ) : null}
-                      <div className="mt-auto flex items-center justify-between gap-3 pt-3 text-sm">
-                        <span className="flex items-center gap-1.5">
-                          <Star size={15} className="fill-[#c9a55a] text-[#c9a55a]" />
-                          <span className="font-bold text-[#0e1a16]">{number(provider.rating || 0, 1)}</span>
-                          {provider.reviews ? <span className="text-[#8fa79d]">({number(provider.reviews)})</span> : null}
-                        </span>
-                        {provider.responseTime ? (
-                          <span className="flex items-center gap-1 text-xs text-[#56675f]">
-                            <Clock size={13} />
-                            {provider.responseTime}
-                          </span>
-                        ) : null}
-                      </div>
-                    </div>
-                  </Tilt>
-                </Link>
-              </Reveal>
-            ))}
-          </div>
-        </section>
-      ) : null}
+      {hasRefineFilters ? null : featuredSection}
 
       {/* Sponsored provider */}
       {sponsoredProviders[0] ? (
