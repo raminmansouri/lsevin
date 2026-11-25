@@ -511,9 +511,13 @@ export async function saveAmenityAction(input: unknown) {
         const images = await tx`select id from media.media_library where id = ${data.imageId}::uuid and is_public and mime_type like 'image/%' for share`;
         if (!images.length) throw fail.validation("invalid_value");
       }
-      const changed = await tx`update stay.amenities set label = ${db.json(data.label)}, icon = ${data.icon}, image_id = ${data.imageId}::uuid,
+      const changed = await tx`update stay.amenities set label = label || ${db.json(data.label)}::jsonb, icon = ${data.icon}, image_id = ${data.imageId}::uuid,
         revision = revision + 1 where code = ${data.code} and revision = ${data.revision} returning code`;
-      if (!changed.length) throw fail.conflict("stale_update");
+      if (!changed.length) {
+        const existing = await tx`select code from stay.amenities where code = ${data.code}`;
+        if (!existing.length) throw fail.notFound();
+        throw fail.conflict("stale_update");
+      }
       await audit(tx as unknown as typeof db, actor, null, "amenity", null, "updated", { code: data.code, revision: data.revision + 1 });
     });
     touchCustomerPages();
