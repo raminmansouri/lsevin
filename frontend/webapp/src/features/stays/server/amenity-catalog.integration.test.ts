@@ -81,6 +81,31 @@ describe.skipIf(!url)("amenity catalog server action with PostgreSQL", () => {
     expect((await getPropertyAdmin(stay.id)).rooms[0].amenityCodes).toEqual([]);
   });
 
+  it("exposes a public image and restores the default icon when that file is removed", async () => {
+    identity.userId = admin;
+    identity.isAdmin = true;
+    const imageCode = "qa_" + randomUUID().replaceAll("-", "");
+    const path = "/images/" + imageCode + ".webp";
+    const [image] = await sql`insert into media.media_library(original_name,stored_name,file_url,mime_type,media_type,is_public)
+      values (${imageCode},${imageCode},${path},'image/webp','image',false) returning id`;
+    try {
+      await sql`insert into stay.amenities(code,grp,label,icon) values
+        (${imageCode},'room','{"en-US":"Photo"}'::jsonb,'coffee')`;
+      const input = { ...payload, code: imageCode, imageId: image.id };
+      expect(await save(input)).toMatchObject({ ok: false, error: { kind: "validation" } });
+      await sql`update media.media_library set is_public=true where id=${image.id}`;
+      expect(await save(input)).toMatchObject({ ok: true });
+      const { listAmenities } = await import("./catalog");
+      const read = async () => (await listAmenities("en-US")).find(row => row.code === imageCode);
+      expect(await read()).toMatchObject({ imageUrl: path, icon: "coffee" });
+      await sql`delete from media.media_library where id=${image.id}`;
+      expect(await read()).toMatchObject({ imageUrl: null, icon: "coffee" });
+    } finally {
+      await sql`delete from stay.amenities where code=${imageCode}`;
+      await sql`delete from media.media_library where id=${image.id}`;
+    }
+  });
+
   it("accepts one concurrent edit, retains other languages, and records one audit event", async () => {
     identity.userId = admin;
     identity.isAdmin = true;
