@@ -478,7 +478,7 @@ function RoomsTab({ data, amenities }: { data: PropertyAdminData; amenities: Ame
                     </p>
                   </div>
                   <div className="flex gap-2">
-                    <Button type="button" size="sm" variant="outline" onClick={() => setEditRoom({ id: r.id, value: r })} data-testid="stays-admin-room-edit">
+                    <Button type="button" size="sm" variant="outline" onClick={() => setEditRoom(editableRow(r))} data-testid="stays-admin-room-edit">
                       {t("common.edit")}
                     </Button>
                     <Button
@@ -504,7 +504,7 @@ function RoomsTab({ data, amenities }: { data: PropertyAdminData; amenities: Ame
                         · {tMeals(pl.mealPlan as never)} · {pl.refundable ? tRoom("refundable") : tRoom("nonRefundable")} · {formatPrice(pl.basePrice, p.currencyCode, locale)}
                       </span>
                       <span className="flex gap-1">
-                        <Button type="button" size="sm" variant="outline" onClick={() => setEditPlan({ id: pl.id, value: pl })} data-testid="stays-admin-plan-edit">
+                        <Button type="button" size="sm" variant="outline" onClick={() => setEditPlan(editableRow(pl))} data-testid="stays-admin-plan-edit">
                           {t("common.edit")}
                         </Button>
                         <Button
@@ -548,6 +548,11 @@ function RoomsTab({ data, amenities }: { data: PropertyAdminData; amenities: Ame
       {editPlan ? <PlanDialog propertyId={p.id} currency={p.currencyCode} rooms={data.rooms} state={editPlan} onClose={() => setEditPlan(null)} /> : null}
     </div>
   );
+}
+
+function editableRow<T extends { id: string }>(row: T) {
+  const { id, ...value } = row;
+  return { id, value };
 }
 
 function RoomDialog({ propertyId, state, amenities, onClose }: { propertyId: string; state: { id: string | null; value: Omit<Room, "id"> }; amenities: Amenity[]; onClose: () => void }) {
