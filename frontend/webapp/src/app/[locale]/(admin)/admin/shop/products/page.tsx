@@ -1,26 +1,43 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 
-import { listAdminProducts } from "@/features/shop/api/admin.repository";
+import { listAdminProductsPage } from "@/features/shop/api/admin.repository";
+import { ShopPagination } from "@/features/shop/components/ShopPagination";
 import { setProductPublishedForm } from "@/features/shop/actions/admin.actions";
 
 export const dynamic = "force-dynamic";
 
+const PAGE_SIZE = 50;
+
 export default async function AdminProductsPage({
+  params,
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string }>;
+  params: Promise<{ locale: string }>;
+  searchParams: Promise<{ q?: string; page?: string }>;
 }) {
   const t = await getTranslations("ShopAdmin");
-  const { q } = await searchParams;
-  const rows = await listAdminProducts(q);
+  const { locale } = await params;
+  const { q, page: pageRaw } = await searchParams;
+  const page = Math.max(1, Number(pageRaw) || 1);
+  const { rows, total } = await listAdminProductsPage(q, page, PAGE_SIZE);
+  const pageHref = (p: number) => {
+    const sp = new URLSearchParams();
+    if (q) sp.set("q", q);
+    if (p > 1) sp.set("page", String(p));
+    const s = sp.toString();
+    return s ? `/admin/shop/products?${s}` : "/admin/shop/products";
+  };
 
   const productStatus = (v: string) => (t.has(`enum.productStatus.${v}` as never) ? t(`enum.productStatus.${v}` as never) : v);
 
   return (
     <div className="min-h-screen bg-gray-50 px-6 py-6">
       <div className="mb-4 flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">{t("products.title")}</h1>
+        <h1 className="text-2xl font-bold text-gray-900">
+          {t("products.title")}
+          <span className="ms-2 text-base font-medium text-gray-400">({new Intl.NumberFormat(locale).format(total)})</span>
+        </h1>
         <div className="flex items-center gap-3">
           <Link href="/admin/shop/products/new" className="rounded-lg bg-[#083f30] px-3 py-1.5 text-sm font-semibold text-white">{t("products.new")}</Link>
           <Link href="/admin/shop" className="text-sm font-medium text-[#083f30]">{t("nav.backToDashboard")}</Link>
@@ -85,6 +102,9 @@ export default async function AdminProductsPage({
             ))}
           </tbody>
         </table>
+      </div>
+      <div className="mt-6">
+        <ShopPagination page={page} totalPages={Math.ceil(total / PAGE_SIZE)} locale={locale} hrefFor={pageHref} />
       </div>
       <p className="mt-3 text-xs text-gray-400">{t("products.footnote")}</p>
     </div>
