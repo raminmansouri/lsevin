@@ -242,6 +242,8 @@ export const ROUTE_NAMESPACES = {
   "n/app/mobile/bookings": ["Booking", "Consultation"],
   // sessions/[id] pays through booking-pro's PaymentMethodsPanel (Booking.*).
   "n/app/mobile/consultation": ["Booking", "Consultation"],
+  // The same consultation screens at their public address (/consultation/doctors...).
+  "(site)/consultation": ["Booking", "Consultation"],
   "n/app/mobile/profile": ["Consultation", "MobileProfile"],
 } as const satisfies Record<string, readonly string[]>;
 
