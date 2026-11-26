@@ -1,5 +1,6 @@
 import { getLocale, getTranslations } from "next-intl/server";
 
+import { listAmenities } from "@/features/stays/server/catalog";
 import { listCitiesAdmin } from "@/features/stays/server/admin/operations";
 import { PropertyCreate } from "@/features/stays/ui/admin/property-create";
 import { contentLocaleFor } from "@/features/tours/domain/content";
@@ -13,6 +14,7 @@ export async function generateMetadata() {
 /** Add a stay on its own page (was a popup). The owner provider is optional: see createProperty. */
 export default async function StaysAdminNewPropertyPage() {
   await adminPageActor();
-  const cities = await listCitiesAdmin(contentLocaleFor(await getLocale()));
-  return <PropertyCreate cities={cities.map((c) => ({ id: c.id, label: c.label }))} />;
+  const locale = contentLocaleFor(await getLocale());
+  const [cities, amenities] = await Promise.all([listCitiesAdmin(locale), listAmenities(locale)]);
+  return <PropertyCreate amenities={amenities} cities={cities.map((c) => ({ id: c.id, label: c.label }))} />;
 }

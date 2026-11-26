@@ -84,7 +84,7 @@ export type SearchResult = {
   anchor: SearchAnchor | null;
 };
 
-export type Amenity = { code: string; group: string; label: string; icon: string | null };
+export type Amenity = { imageUrl?: string | null; parentCode?: string | null; code: string; group: string; label: string; icon: string | null };
 
 export type MediaItem = { id: string; url: string; alt: string; credit: string | null; roomTypeId: string | null };
 

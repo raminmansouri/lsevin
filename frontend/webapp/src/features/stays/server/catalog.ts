@@ -107,8 +107,8 @@ export async function getCity(slug: string, locale: string): Promise<CityDetail 
 // Amenities -------------------------------------------------------------------
 
 export async function listAmenities(locale: string): Promise<Amenity[]> {
-  const rows = await db<any[]>`select code, grp, label, icon from stay.amenities where is_active order by sort_order, code`;
-  return rows.map((r) => ({ code: r.code, group: r.grp, label: pickStr(r.label, locale) || r.code, icon: r.icon }));
+  const rows = await db<any[]>`select a.code, a.grp, a.label, a.icon, a.parent_code, m.file_url from stay.amenities a left join media.media_library m on m.id = a.image_id and m.is_public where a.is_active order by a.sort_order, a.code`;
+  return rows.map((r) => ({ code: r.code, group: r.grp, imageUrl: r.file_url, parentCode: r.parent_code, label: pickStr(r.label, locale) || r.code, icon: r.icon }));
 }
 
 // Availability candidates ----------------------------------------------------

@@ -164,12 +164,15 @@ test.describe("stays admin @critical", () => {
     await expect(create.getByTestId("stays-admin-new-slug")).toHaveValue(`sample-hotel-${s}`);
     await create.getByTestId("stays-admin-new-city").selectOption({ label: world.city.name });
     await create.getByTestId("stays-admin-new-phone").fill("+98 21 1234 5678");
+    await create.getByTestId("stays-new-amenities").click();
+    await page.getByRole("option", { name: "آب", exact: true }).click();
+    await page.keyboard.press("Escape");
     await create.getByTestId("stays-admin-new-owner-login").fill(owner.email);
     await create.getByTestId("stays-admin-create").click();
     await expect(page).toHaveURL(/\/admin\/stays\/properties\/[0-9a-f-]{36}$/);
     const id = page.url().split("/").pop();
-    const [row] = await db()<{ name: Record<string, string>; city: string; phone: string; active: boolean; owner: string | null }[]>`
-      select sp.name_translations as name, sp.city, sp.phone_number as phone, sp.is_active as active,
+    const [row] = await db()<{ name: Record<string, string>; city: string; phone: string; active: boolean; owner: string | null; amenity_codes: string[] }[]>`
+      select p.amenity_codes, sp.name_translations as name, sp.city, sp.phone_number as phone, sp.is_active as active,
              (select pm.user_id::text from provider_portal.provider_members pm where pm.service_provider_id = sp.id and pm.role = 'owner') as owner
         from stay.properties p join category.service_providers sp on sp.id = p.service_provider_id
        where p.id = ${id}::uuid`;
@@ -177,6 +180,7 @@ test.describe("stays admin @critical", () => {
     expect(row.city).toBe(world.city.slug.toUpperCase().slice(0, 15));
     expect(row.phone).toBe("2112345678");
     expect(row.active).toBe(true);
+    expect(row.amenity_codes).toContain("water_supply");
     expect(row.owner).toBe(owner.id);
 
     // An unknown owner account is refused and nothing is created.
