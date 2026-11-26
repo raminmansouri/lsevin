@@ -10,6 +10,7 @@ import { Link } from "@/i18n/navigation";
 import { entityPath } from "@/lib/routes/public-paths";
 
 import { AnimatedWords, Magnetic, Reveal, ScrollParallax } from "../components/motion";
+import { responsiveImg } from "@/lib/media/responsive-img";
 
 /** Desktop "feature" banner: same content and priority as the mobile hero card (admin section, then offer, then defaults). */
 export async function DesktopFeatureBanner({
@@ -79,7 +80,7 @@ export async function DesktopFeatureBanner({
               {mediaUrl ? (
                 <ScrollParallax className="absolute inset-0">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={mediaUrl} alt={title} className="h-full w-full object-cover" />
+                  <img {...responsiveImg(mediaUrl, "50vw")} loading="lazy" decoding="async" alt={title} className="h-full w-full object-cover" />
                 </ScrollParallax>
               ) : (
                 <div className="grid h-full w-full place-items-center">

@@ -712,7 +712,7 @@ export function ProviderDetailView({ initialData }: { initialData?: ProviderPage
                 <h3 className="mb-3 text-lg font-bold text-gray-900">{t("sections.gallery")}</h3>
                 <div className="flex gap-3 overflow-x-auto pb-1 lg:grid lg:grid-cols-4 lg:overflow-visible">
                   {images.map((image, index) => (
-                    <button key={`${image}-${index}`} type="button" onClick={() => setCurrentImageIndex(index)} className="relative h-24 w-28 flex-shrink-0 overflow-hidden rounded-xl border border-gray-200 lg:h-36 lg:w-full lg:flex-shrink lg:rounded-2xl">
+                    <button key={`${image}-${index}`} type="button" onClick={() => setCurrentImageIndex(index)} aria-label={t("gallery.imageAlt", { name: provider.name, number: index + 1 })} className="relative h-24 w-28 flex-shrink-0 overflow-hidden rounded-xl border border-gray-200 lg:h-36 lg:w-full lg:flex-shrink lg:rounded-2xl">
                       <ImageWithFallback fill src={mediaUrl(image)} alt={t("gallery.imageAlt", { name: provider.name, number: index + 1 })} sizes="(min-width: 1024px) 25vw, 112px" className="object-cover" fallbackClassName="h-full w-full" />
                     </button>
                   ))}

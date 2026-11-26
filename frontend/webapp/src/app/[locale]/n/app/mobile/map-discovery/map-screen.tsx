@@ -3,6 +3,7 @@ import type { getNearbyPageData, NearbyFiltersInput } from "./nearby.data";
 
 import { DesktopNearbyView } from "@/features/web-desktop/nearby/DesktopNearbyView";
 import { PageFaq } from "@/features/site-content/components/faq-section";
+import { DESKTOP_MEDIA, ViewportOnly } from "@/components/viewport-only";
 
 /** The map / provider list screen, shared by /map and /categories/<slug>/providers. */
 export function MapScreen({
@@ -40,19 +41,21 @@ export function MapScreen({
       providerTypeSlug={providerTypeSlug}
     />
     </div>
-    <DesktopNearbyView
-      initialView={initialView}
-      locale={locale}
-      providerTypeSlug={providerTypeSlug}
-      categories={data.categories}
-      providers={data.providers}
-      filters={filters}
-      mapCenter={data.mapCenter}
-      expandedBeyondFilters={data.expandedBeyondFilters}
-      availableLanguages={data.availableLanguages}
-      availableSpecialties={data.availableSpecialties}
-      availableCurrencies={data.availableCurrencies}
-    />
+    <ViewportOnly media={DESKTOP_MEDIA}>
+      <DesktopNearbyView
+        initialView={initialView}
+        locale={locale}
+        providerTypeSlug={providerTypeSlug}
+        categories={data.categories}
+        providers={data.providers}
+        filters={filters}
+        mapCenter={data.mapCenter}
+        expandedBeyondFilters={data.expandedBeyondFilters}
+        availableLanguages={data.availableLanguages}
+        availableSpecialties={data.availableSpecialties}
+        availableCurrencies={data.availableCurrencies}
+      />
+    </ViewportOnly>
     {/* A category or provider-type filter shows that FAQ (exact), else the map FAQ. */}
     <PageFaq
       target={[

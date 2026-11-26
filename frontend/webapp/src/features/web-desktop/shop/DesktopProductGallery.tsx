@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { DesktopOnlyImg } from "@/features/web-desktop/components/DesktopOnlyImg";
+import { responsiveImg } from "@/lib/media/responsive-img";
 
 /** Main image with a hover magnifier, and a vertical strip of thumbnails. */
 export function DesktopProductGallery({ images, name }: { images: { id: string; src: string; alt: string }[]; name: string }) {
@@ -26,15 +28,14 @@ export function DesktopProductGallery({ images, name }: { images: { id: string; 
               }`}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={image.src} alt="" className="h-full w-full object-cover" />
+              <img {...responsiveImg(image.src, "120px")} loading="lazy" decoding="async" alt="" className="h-full w-full object-cover" />
             </button>
           ))}
         </div>
       ) : null}
 
       <div className="relative aspect-square flex-1 overflow-hidden rounded-[28px] bg-[#f4efe4]">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img key={current.id} src={current.src} alt={current.alt || name} className="h-full w-full object-cover" />
+        <DesktopOnlyImg key={current.id} src={current.src} sizes="(min-width: 1536px) 720px, 50vw" priority alt={current.alt || name} className="h-full w-full object-cover" />
       </div>
     </div>
   );

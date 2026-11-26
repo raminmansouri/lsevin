@@ -37,6 +37,7 @@ import { AnimatedWords, Magnetic, Reveal } from "../components/motion";
 
 import { useFetchProviderPageData } from "@/features/service-providers/api/client/fetch-provider-page-data";
 import { BeforeAfterGallery } from "@/features/service-providers/components/before-after-gallery";
+import { responsiveImg } from "@/lib/media/responsive-img";
 
 
 type ReviewSort = "newest" | "buyers" | "helpful";
@@ -328,7 +329,7 @@ export function DesktopServiceView({ data, serviceId, locale }: { data: GetServi
               <span className="h-11 w-11 overflow-hidden rounded-full bg-[#0f5a45]">
                 {service.providerProfile.image ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={resolveMediaUrl(service.providerProfile.image)} alt="" className="h-full w-full object-cover" />
+                  <img {...responsiveImg(resolveMediaUrl(service.providerProfile.image), "160px")} loading="lazy" decoding="async" alt="" className="h-full w-full object-cover" />
                 ) : null}
               </span>
               <span>

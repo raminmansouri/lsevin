@@ -24,6 +24,7 @@ import { ConsultationCtaButton } from "@/features/consultation/components/consul
 import { ProductSpecs } from "@/features/shop/components/ProductSpecs";
 
 import { DesktopProductPage } from "@/features/web-desktop/shop/DesktopProductPage";
+import { DESKTOP_MEDIA, ViewportOnly } from "@/components/viewport-only";
 
 
 // Customer currency is resolved per request; product data remains cached.
@@ -247,7 +248,9 @@ export default async function ProductDetailPage({
         </Link>
       </div>
     </div>
-    <DesktopProductPage product={product} locale={locale} />
+    <ViewportOnly media={DESKTOP_MEDIA}>
+      <DesktopProductPage product={product} locale={locale} />
+    </ViewportOnly>
     </>
   );
 }

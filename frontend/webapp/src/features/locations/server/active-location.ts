@@ -397,13 +397,9 @@ async function resolveLocationFromTextInternal({
         )
         and (
           upper(city.code) = upper(${cityValue}::text)
-          or exists (
-            select 1
-            from jsonb_each_text(
-              case when jsonb_typeof(city.value_translations) = 'object' then city.value_translations else '{}'::jsonb end
-            ) as translations(key, value)
-            where lower(translations.value) = lower(${cityValue}::text)
-          )
+          -- Any of the city's names (ix_locations_city_name_keys, migration 0126):
+          -- expanding every city's translations here took 4.3 s per lookup.
+          or category.location_name_keys(city.value_translations) @> array[lower(btrim(${cityValue}::text))]
         )
       order by coalesce(city.display_order, 0), city.create_date desc
       limit 1

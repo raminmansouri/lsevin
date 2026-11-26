@@ -66,6 +66,7 @@ export default defineConfig({
       "src/features/notification/server/*.test.ts",
       "src/payment/**/*.test.ts",
       "src/lib/seo/**/*.test.ts",
+      "src/lib/media/**/*.test.ts",
       "src/lib/http/**/*.test.ts",
       "src/lib/market/**/*.test.ts",
       "src/features/locations/**/*.test.ts",

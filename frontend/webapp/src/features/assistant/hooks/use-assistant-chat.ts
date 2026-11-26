@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Chat } from "@ai-sdk/react";
 import { DefaultChatTransport, type UIMessage } from "ai";
 import { v4 as uuidv4 } from "uuid";
@@ -35,9 +35,16 @@ export function useAssistantChat(locale: string) {
     }
   }, []);
 
+  // The chat is created for the first locale above; a new one only when the
+  // language changes. (Recreating it on mount dropped a prompt sent by the page
+  // that opened the assistant, now that the panel mounts on first open.)
+  const chatLocale = useRef(locale);
   useEffect(() => {
     let cancelled = false;
-    setChat(createChat(locale));
+    if (chatLocale.current !== locale) {
+      chatLocale.current = locale;
+      setChat(createChat(locale));
+    }
 
     fetch("/api/assistant/history", { cache: "no-store" })
       .then((response) => (response.ok ? response.json() : null))

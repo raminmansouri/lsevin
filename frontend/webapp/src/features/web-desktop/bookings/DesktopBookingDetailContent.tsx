@@ -27,6 +27,7 @@ import {
 } from "@/app/[locale]/n/app/mobile/bookings/[id]/page";
 
 import { Reveal } from "../components/motion";
+import { responsiveImg } from "@/lib/media/responsive-img";
 
 function Panel({ title, children }: { title?: string; children: ReactNode }) {
   return (
@@ -96,7 +97,7 @@ export function DesktopBookingDetailContent({
                 <div className="relative h-[220px] w-[170px] shrink-0 overflow-hidden rounded-b-[22px] rounded-t-full bg-[#0f5a45]">
                   {image ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={image} alt="" className="h-full w-full object-cover" />
+                    <img {...responsiveImg(image, "320px")} loading="lazy" decoding="async" alt="" className="h-full w-full object-cover" />
                   ) : (
                     <div className="grid h-full w-full place-items-center">
                       <Image src="/brand/lsevin-mark-reversed.png" alt="" width={44} height={62} className="opacity-50" />
@@ -172,7 +173,7 @@ export function DesktopBookingDetailContent({
                   <span className="relative h-16 w-16 overflow-hidden rounded-full bg-[#f2f5f3] ring-2 ring-[#eacb7f]/50">
                     {agentImage ? (
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img src={agentImage} alt={booking.agent.name} className="h-full w-full object-cover" />
+                      <img {...responsiveImg(agentImage, "96px")} loading="lazy" decoding="async" alt={booking.agent.name} className="h-full w-full object-cover" />
                     ) : (
                       <span className="grid h-full w-full place-items-center text-[#8fa79d]">
                         <UserRound size={26} />

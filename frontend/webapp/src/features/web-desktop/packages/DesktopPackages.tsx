@@ -8,6 +8,7 @@ import { Link } from "@/i18n/navigation";
 import { entityPath } from "@/lib/routes/public-paths";
 
 import { Reveal } from "../components/motion";
+import { responsiveImg } from "@/lib/media/responsive-img";
 
 const savedPercent = (pkg: SpecialPackagePublicItem) =>
   pkg.priceAmount != null && pkg.originalPriceAmount != null && pkg.originalPriceAmount > pkg.priceAmount
@@ -59,7 +60,7 @@ function PackageCard({ pkg, index, locale }: { pkg: SpecialPackagePublicItem; in
       <article className="lsd-noir-card aspect-[4/3] bg-[#0a2a20] transition duration-700 group-hover:-translate-y-1">
         {image ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={image} alt="" className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1.6s] group-hover:scale-105" />
+          <img {...responsiveImg(image, "400px")} loading="lazy" decoding="async" alt="" className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1.6s] group-hover:scale-105" />
         ) : (
           <div className="absolute inset-0" aria-hidden="true" />
         )}
@@ -171,7 +172,7 @@ export async function DesktopPackageDetail({ pkg, locale }: { pkg: SpecialPackag
           <div className="lsd-noir-card h-[540px] bg-[#0a2a20]">
             {image ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={image} alt={pkg.title} className="lsd-kenburns absolute inset-0 h-full w-full object-cover" />
+              <img {...responsiveImg(image, "100vw")} loading="lazy" decoding="async" alt={pkg.title} className="lsd-kenburns absolute inset-0 h-full w-full object-cover" />
             ) : (
               <div className="absolute inset-0" aria-hidden="true" />
             )}

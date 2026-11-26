@@ -24,6 +24,8 @@ import {
 import { Link, useRouter } from "@/i18n/navigation";
 
 import { Reveal, Tilt } from "../components/motion";
+import { DesktopOnlyImg } from "@/features/web-desktop/components/DesktopOnlyImg";
+import { responsiveImg } from "@/lib/media/responsive-img";
 
 const BROWSER_PATH = "/categories";
 
@@ -80,7 +82,7 @@ function Room({
             {image ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
-                src={image}
+                {...responsiveImg(image, "400px")} loading="lazy" decoding="async"
                 alt=""
                 className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1.6s] group-hover:scale-110"
               />
@@ -253,12 +255,7 @@ export function DesktopCategoryBrowser({
         <div className="lsd-hero-bg relative flex min-h-[440px] items-end overflow-hidden rounded-[40px] text-white">
           {heroImage ? (
             <div className="absolute inset-0">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={heroImage}
-                alt=""
-                className="lsd-kenburns h-full w-full object-cover"
-              />
+              <DesktopOnlyImg src={heroImage} sizes="100vw" priority alt="" className="lsd-kenburns h-full w-full object-cover" />
               <div className="absolute inset-0 bg-gradient-to-t from-[#062a20] via-[#062a20]/55 to-[#062a20]/10" />
             </div>
           ) : (

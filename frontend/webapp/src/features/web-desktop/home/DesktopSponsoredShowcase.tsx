@@ -10,6 +10,7 @@ import { resolveHomeMediaUrl } from "@/features/home/components/home-media";
 import { Link } from "@/i18n/navigation";
 
 import { AnimatedWords, Magnetic } from "../components/motion";
+import { responsiveImg } from "@/lib/media/responsive-img";
 
 type Labels = { sponsored: string; button: string; previous: string; next: string };
 
@@ -185,7 +186,7 @@ export function DesktopSponsoredShowcase({
                 ) : (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
-                    src={src}
+                    {...responsiveImg(src, "60vw")} loading="lazy" decoding="async"
                     alt={item.ariaLabel || item.title || ""}
                     className={`h-full w-full object-cover ${isActive ? "lsd-kenburns" : ""}`}
                   />

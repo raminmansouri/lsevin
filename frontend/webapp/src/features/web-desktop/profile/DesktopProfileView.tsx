@@ -33,6 +33,7 @@ import type { ProfileOverviewData } from "@/features/profile/components/profile-
 import { Link } from "@/i18n/navigation";
 
 import { Reveal } from "../components/motion";
+import { responsiveImg } from "@/lib/media/responsive-img";
 
 const ICONS: Record<string, LucideIcon> = {
   Bell,
@@ -99,7 +100,7 @@ export function DesktopProfileView({
             <span className="block h-36 w-36 overflow-hidden rounded-full bg-[#0a2a20] ring-4 ring-[#04130e]">
               {image && !imageFailed ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={image} alt={fullName} className="h-full w-full object-cover" onError={() => setImageFailed(true)} />
+                <img {...responsiveImg(image, "160px")} loading="lazy" decoding="async" alt={fullName} className="h-full w-full object-cover" onError={() => setImageFailed(true)} />
               ) : (
                 <span className="grid h-full w-full place-items-center text-[#eacb7f]">
                   <UserRound size={52} strokeWidth={1.4} />

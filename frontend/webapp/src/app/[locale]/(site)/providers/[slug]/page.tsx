@@ -18,6 +18,7 @@ import { ProviderDetailView } from "./provider-detail-view";
 import { DesktopSponsoredSection } from "@/features/web-desktop/home/DesktopSponsoredSection";
 import { DesktopProviderView } from "@/features/web-desktop/provider/DesktopProviderView";
 import { PageFaq } from "@/features/site-content/components/faq-section";
+import { DESKTOP_MEDIA, ViewportOnly } from "@/components/viewport-only";
 
 type RouteParams = { locale: string; slug: string };
 type PageProps = {
@@ -96,7 +97,9 @@ export default async function ProviderDetailPage({ params }: PageProps) {
       <div className="xl:hidden">
         <ProviderDetailView initialData={result.data} />
       </div>
-      <DesktopProviderView initialData={result.data} />
+      <ViewportOnly media={DESKTOP_MEDIA}>
+        <DesktopProviderView initialData={result.data} />
+      </ViewportOnly>
       <div className="pb-36 xl:hidden">
       <JsonLd
         data={graph(

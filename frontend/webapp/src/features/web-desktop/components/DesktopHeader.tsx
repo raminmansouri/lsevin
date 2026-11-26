@@ -81,6 +81,8 @@ export function DesktopHeader({ actions }: { actions?: React.ReactNode }) {
                   <Link
                     key={item.href}
                     href={item.href}
+                    // Signed-in screens redirect a visitor to sign-in: not prefetched.
+                    prefetch={item.href.startsWith("/account") ? false : undefined}
                     aria-current={active ? "page" : undefined}
                     onMouseEnter={(event) => moveTo(event.currentTarget)}
                     className={`relative z-10 rounded-full px-5 py-2.5 text-[15px] transition-colors duration-300 ${
@@ -103,7 +105,7 @@ export function DesktopHeader({ actions }: { actions?: React.ReactNode }) {
                 <Search size={19} />
               </Link>
               <Magnetic>
-                <Link href="/account" className="lsd-btn lsd-btn-gold h-12 px-5 text-sm">
+                <Link href="/account" prefetch={false} className="lsd-btn lsd-btn-gold h-12 px-5 text-sm">
                   <UserRound size={16} />
                   {tTab("Profile")}
                 </Link>

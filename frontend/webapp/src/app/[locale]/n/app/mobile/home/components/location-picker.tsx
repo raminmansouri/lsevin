@@ -6,7 +6,7 @@ import { Check, ChevronRight, Loader2, LocateFixed, MapPin, X } from 'lucide-rea
 import { useTranslations } from 'next-intl';
 
 import { ImageWithFallback } from '@/components/ui/image-with-fallback';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 
 import { PlaceSearch } from '@/features/locations/components/place-search';
@@ -361,7 +361,7 @@ async function lookupIpGeoWithoutGps(): Promise<DetectedIpGeoLocation | null> {
 
 export default function LocationPicker({ locale = 'fa-IR' }: Props) {
   const t = useTranslations('Home.location');
-  const router = useRouter();
+
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const localeForQueries = normalizeLocale(locale);
@@ -468,10 +468,15 @@ export default function LocationPicker({ locale = 'fa-IR' }: Props) {
 
       if (nextUrl === currentUrl) return;
 
-      if (navigation === 'replace') router.replace(nextUrl);
-      else router.push(nextUrl);
+      // The home page is static and location-agnostic on the server: a router
+      // navigation here only re-downloaded the same page (~120 KB) and swapped
+      // the content in again, which was most of the home page's layout shift and
+      // a second render on every first visit (2026-11-26). The History API
+      // updates the address and useSearchParams without a server round trip.
+      if (navigation === 'replace') window.history.replaceState(window.history.state, '', nextUrl);
+      else window.history.pushState(window.history.state, '', nextUrl);
     },
-    [form, pathname, router, searchParams]
+    [form, pathname, searchParams]
   );
 
   const detectFromAccountPhoneOrIp = useCallback(

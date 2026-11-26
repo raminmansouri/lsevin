@@ -18,6 +18,7 @@ import { absoluteUrl } from "@/lib/seo/alternates";
 import { breadcrumbList, graph } from "@/lib/seo/entity-schema";
 import { JsonLd } from "@/lib/seo/json-ld";
 import { seoOrigin } from "@/lib/seo/origin";
+import { DESKTOP_MEDIA, ViewportOnly } from "@/components/viewport-only";
 
 export type CategoryBrowserData = {
   groups: CategoryBrowserGroup[];
@@ -131,14 +132,16 @@ export async function CategoryBrowserScreen({
         />
         <SponsoredPlacementSlot locale={locale} placement="categories" />
       </div>
-      <DesktopCategoryBrowser
-        categoryGroups={data.groups}
-        totalCategories={data.totalCategories}
-        totalProviders={data.totalProviders}
-        tourismCategoryId={tourismCategoryId}
-        staysCategoryId={staysCategoryId}
-        parentId={parent?.id ?? null}
-      />
+      <ViewportOnly media={DESKTOP_MEDIA}>
+        <DesktopCategoryBrowser
+          categoryGroups={data.groups}
+          totalCategories={data.totalCategories}
+          totalProviders={data.totalProviders}
+          tourismCategoryId={tourismCategoryId}
+          staysCategoryId={staysCategoryId}
+          parentId={parent?.id ?? null}
+        />
+      </ViewportOnly>
       <div className="lsd hidden pb-14 xl:block">
         <DesktopSponsoredSection locale={locale} placement="categories" />
       </div>

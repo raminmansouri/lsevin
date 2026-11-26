@@ -32,6 +32,7 @@ import type {
 } from "@/app/[locale]/n/app/mobile/explore/explore.data";
 
 import { AnimatedWords, Magnetic, Reveal, Tilt } from "../components/motion";
+import { responsiveImg } from "@/lib/media/responsive-img";
 
 type Props = {
   customerId: string | null;
@@ -144,7 +145,7 @@ export function DesktopExploreView({
                   <Tilt className="flex h-full flex-col">
                     <div className="relative aspect-square overflow-hidden bg-[#0f5a45]">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={mediaUrl(provider.image)} alt={provider.name} className="lsd-zoom h-full w-full object-cover" />
+                      <img {...responsiveImg(mediaUrl(provider.image), "400px")} loading="lazy" decoding="async" alt={provider.name} className="lsd-zoom h-full w-full object-cover" />
                       {provider.badge ? (
                         <span className="absolute start-4 top-4 rounded-full bg-[#eacb7f] px-3 py-1 text-xs font-black text-[#062a20]">{provider.badge}</span>
                       ) : null}
@@ -324,7 +325,7 @@ export function DesktopExploreView({
                   >
                     {type.image ? (
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img src={mediaUrl(type.image)} alt={type.label} className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1.4s] group-hover:scale-110" />
+                      <img {...responsiveImg(mediaUrl(type.image), "400px")} loading="lazy" decoding="async" alt={type.label} className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1.4s] group-hover:scale-110" />
                     ) : null}
                     <div className="absolute inset-0 bg-gradient-to-t from-[#062a20] via-[#062a20]/35 to-transparent" />
                     <div className="absolute inset-x-6 bottom-5 text-white">
@@ -376,7 +377,7 @@ export function DesktopExploreView({
               <div className="relative h-full min-h-[300px] overflow-hidden">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src={mediaUrl(sponsoredProviders[0].image)}
+                  {...responsiveImg(mediaUrl(sponsoredProviders[0].image), "50vw")} loading="lazy" decoding="async"
                   alt={t("sponsored.alt")}
                   className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1.4s] group-hover:scale-105"
                 />
@@ -397,7 +398,7 @@ export function DesktopExploreView({
                   <Tilt className="flex h-full flex-col">
                     <div className="relative aspect-[16/10] overflow-hidden bg-[#0f5a45]">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={mediaUrl(service.image)} alt={service.name} className="lsd-zoom h-full w-full object-cover" />
+                      <img {...responsiveImg(mediaUrl(service.image), "400px")} loading="lazy" decoding="async" alt={service.name} className="lsd-zoom h-full w-full object-cover" />
                       {service.growth ? (
                         <span className="absolute start-4 top-4 inline-flex items-center gap-1 rounded-full bg-white/90 px-2.5 py-1 text-xs font-bold text-[#0f5a45]">
                           <TrendingUp size={13} />

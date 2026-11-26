@@ -18,6 +18,7 @@ import {
 import type { OfferCard, OffersFiltersInput, OfferTab } from "@/app/[locale]/n/app/mobile/offers/offers.data";
 
 import { Reveal } from "../components/motion";
+import { responsiveImg } from "@/lib/media/responsive-img";
 
 type Props = {
   tabs: OfferTab[];
@@ -155,7 +156,7 @@ export function DesktopOffersView({ tabs, offers, featuredOffer, filters }: Prop
               <div className="lsd-certificate relative grid grid-cols-[260px_1fr_200px] items-center gap-10 rounded-[30px] p-10">
                 <div className="aspect-[16/10] overflow-hidden rounded-[22px] bg-[#efe6d2]">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={offerImageUrl(featuredOffer.image)} alt="" className="h-full w-full object-cover transition-transform duration-[1.4s] group-hover:scale-105" />
+                  <img {...responsiveImg(offerImageUrl(featuredOffer.image), "50vw")} loading="lazy" decoding="async" alt="" className="h-full w-full object-cover transition-transform duration-[1.4s] group-hover:scale-105" />
                 </div>
                 <div className="min-w-0 space-y-4">
                   <span className="text-[11px] font-bold tracking-[0.35em] text-[#c9a55a]">{t("featured.badge")}</span>
@@ -209,7 +210,7 @@ export function DesktopOffersView({ tabs, offers, featuredOffer, filters }: Prop
                       <Link href={serviceHref(offer.providerServiceId, offer.providerServiceSlug)} className="flex items-center gap-6 p-5">
                         <span className="aspect-[16/10] h-24 shrink-0 overflow-hidden rounded-2xl bg-[#efe6d2]">
                           {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img src={offerImageUrl(offer.image)} alt="" className="h-full w-full object-cover transition-transform duration-[1.2s] group-hover:scale-110" />
+                          <img {...responsiveImg(offerImageUrl(offer.image), "160px")} loading="lazy" decoding="async" alt="" className="h-full w-full object-cover transition-transform duration-[1.2s] group-hover:scale-110" />
                         </span>
                         <span className="min-w-0 flex-1 space-y-1.5">
                           {offer.categoryLabel ? (

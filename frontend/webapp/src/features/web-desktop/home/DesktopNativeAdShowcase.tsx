@@ -8,6 +8,7 @@ import { resolveHomeMediaUrl } from "@/features/home/components/home-media";
 import { Link } from "@/i18n/navigation";
 
 import { AnimatedWords, Magnetic } from "../components/motion";
+import { responsiveImg } from "@/lib/media/responsive-img";
 
 type Labels = { sponsored: string; button: string; previous: string; next: string };
 
@@ -173,7 +174,7 @@ export function DesktopNativeAdShowcase({ slides, labels }: { slides: SponsoredS
                   />
                 ) : (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={src} alt={item.ariaLabel || item.title || ""} className="h-full w-full object-cover" />
+                  <img {...responsiveImg(src, "50vw")} loading="lazy" decoding="async" alt={item.ariaLabel || item.title || ""} className="h-full w-full object-cover" />
                 )}
                 <div className="pointer-events-none absolute inset-0 rounded-[34px] ring-1 ring-inset ring-[#eacb7f]/50" />
               </div>
