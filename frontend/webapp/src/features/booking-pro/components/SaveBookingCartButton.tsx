@@ -15,7 +15,7 @@ export function SaveBookingCartButton({ draftId, disabled }: { draftId: string; 
       startTransition(async () => {
         try {
           await changeBookingCart({ action: 'save', draftId });
-          router.push('/n/app/mobile/shop/cart');
+          router.push('/shop/cart');
         } catch { setError(true); }
       });
     }}>{pending ? t('saving') : t('save')}</button>

@@ -8,6 +8,7 @@ import { listPortalDoctors, type PortalDoctor } from "./portal-packages";
 
 type DoctorRow = {
   id: string;
+  slug: string | null;
   name_fa: string;
   name_en: string | null;
   bio_fa: string | null;
@@ -38,6 +39,8 @@ async function selectDoctors(activeOnly: boolean): Promise<DoctorRow[]> {
   return db<DoctorRow[]>`
     select
       vd.id::text as id,
+      -- Read through to_jsonb so the list keeps working before 0123 adds the column.
+      nullif(to_jsonb(vd) ->> 'slug', '') as slug,
       vd.name_fa, vd.name_en, vd.bio_fa, vd.bio_en,
       vd.medical_council_number, vd.experience_years, vd.image_media_id,
       coalesce(m.file_url, nullif(vd.image_media_id, '')) as image_url,
@@ -52,6 +55,26 @@ async function selectDoctors(activeOnly: boolean): Promise<DoctorRow[]> {
     where (${!activeOnly} or vd.is_active = true)
     order by vd.sort_order asc, vd.created_at asc
   `;
+}
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/**
+ * An active doctor by the slug or the id in a booking URL, with both, or null.
+ * The slug column is read through to_jsonb so this works before migration 0123.
+ */
+export async function findPublicVideoDoctorRef(
+  slugOrId: string
+): Promise<{ id: string; slug: string | null } | null> {
+  const isId = UUID_RE.test(slugOrId);
+  const rows = await db<{ id: string; slug: string | null }[]>`
+    select vd.id::text as id, nullif(to_jsonb(vd) ->> 'slug', '') as slug
+    from consultation.video_doctors vd
+    where vd.is_active = true
+      and ${isId ? db`vd.id = ${slugOrId}::uuid` : db`to_jsonb(vd) ->> 'slug' = ${slugOrId.toLowerCase()}`}
+    limit 1
+  `;
+  return rows[0] ?? null;
 }
 
 export async function videoDoctorsTableExists(): Promise<boolean> {
@@ -75,6 +98,7 @@ export async function listPublicVideoDoctors(locale: string): Promise<VideoDocto
   const rows = await selectDoctors(true);
   return rows.map((row) => ({
     id: row.id,
+    slug: row.slug,
     name: (persian ? row.name_fa : row.name_en || row.name_fa) || "—",
     bio: (persian ? row.bio_fa : row.bio_en || row.bio_fa) || null,
     medicalCouncilNumber: row.medical_council_number,

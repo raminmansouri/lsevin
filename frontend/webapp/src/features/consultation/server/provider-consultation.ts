@@ -3,6 +3,7 @@
 import { getLocale } from "next-intl/server";
 import { z } from "zod/v4";
 
+import { consultationBookHref, consultationDoctorsHref } from "../lib/paths";
 import type { BookingSource } from "../patient-booking-types";
 import type { ConsultationActionResult, ConsultationPackageOption } from "../types";
 import { loadOfferContext, providerDoctors, staffDoctors, summarizePackages } from "./doctor-offers";
@@ -62,11 +63,11 @@ export async function getProviderVideoOfferAction(input: {
     if (serviceId) query.set("service", serviceId);
     let href: string;
     if (doctors.length === 1) {
-      href = `/n/app/mobile/consultation/doctors/${doctors[0].id}/book?${query}`;
+      href = consultationBookHref(doctors[0], query);
     } else {
       query.set("provider", providerId);
       if (staffId) query.set("staff", staffId);
-      href = `/n/app/mobile/consultation/doctors?${query}`;
+      href = consultationDoctorsHref(query);
     }
     return { ok: true, data: { href, packages: summarizePackages(ctx, doctors) } };
   } catch (error) {

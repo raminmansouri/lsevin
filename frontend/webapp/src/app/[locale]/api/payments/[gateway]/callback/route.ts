@@ -28,8 +28,8 @@ export async function GET(
   // Back to the customer's reservations (that booking's page when known), on the public
   // origin: request.nextUrl.origin is the internal 0.0.0.0:3000 behind the proxy.
   const bookingPath = result.bookingId
-    ? `/${locale}/n/app/mobile/bookings/${result.bookingId}`
-    : `/${locale}/n/app/mobile/bookings`;
+    ? `/${locale}/account/bookings/${result.bookingId}`
+    : `/${locale}/account/bookings`;
   const url = new URL(bookingPath, await gatewayReturnOrigin(gateway));
   url.searchParams.set('payment', result.status);
   if (result.referenceId) url.searchParams.set('ref', String(result.referenceId));

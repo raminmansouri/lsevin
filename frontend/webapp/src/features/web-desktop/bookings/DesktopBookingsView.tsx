@@ -51,7 +51,7 @@ function Ticket({ booking, featured = false }: { booking: Booking; featured?: bo
   const depositPaid = normalize(booking.paymentStatus) === "deposit_paid";
 
   return (
-    <Link href={`/n/app/mobile/bookings/${booking.id}`} className="lsd-ticket-shadow group block">
+    <Link href={`/account/bookings/${booking.id}`} className="lsd-ticket-shadow group block">
       <div className={`lsd-ticket grid grid-cols-[74fr_26fr] overflow-hidden rounded-[28px] bg-white ${featured ? "min-h-[260px]" : "min-h-[190px]"}`}>
         {/* Body */}
         <div className="flex gap-6 p-7">

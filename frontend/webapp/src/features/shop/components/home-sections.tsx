@@ -57,7 +57,7 @@ function PromoCards({ section }: { section: Extract<HomeSection, { type: "promo_
       {section.promos.map((p) => (
         <Link
           key={p.id}
-          href={p.linkUrl ?? "/n/app/mobile/shop/search"}
+          href={p.linkUrl ?? "/shop/search"}
           className="relative flex aspect-[16/10] flex-col justify-end overflow-hidden rounded-2xl p-3 text-white shadow-sm"
         >
           {p.imageUrl ? (

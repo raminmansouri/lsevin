@@ -27,7 +27,7 @@ export default async function HealthQuestionnairePage({
   const { patient: requestedPatientId, step: requestedStep } = await searchParams;
   const locale = await getLocale();
   const accountId = await requireAuthenticatedUserId();
-  if (!accountId) redirect({ href: "/n/app/mobile/profile/my-health-record", locale });
+  if (!accountId) redirect({ href: "/account/my-health-record", locale });
 
   const links = (await listPatientAccessForAccount(accountId)).filter((link) => link.accessRole !== "limited");
   const link = requestedPatientId
@@ -35,7 +35,7 @@ export default async function HealthQuestionnairePage({
     : (links.find((entry) => entry.relationshipType === "self") ?? links[0]);
   if (!link) {
     if (requestedPatientId) notFound();
-    redirect({ href: "/n/app/mobile/profile/my-health-record", locale });
+    redirect({ href: "/account/my-health-record", locale });
     return null;
   }
 

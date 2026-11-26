@@ -9,6 +9,8 @@
  */
 export const protectedSegments: string[] = [
   "profile",
+  // The customer account (/account/..., the profile and bookings screens).
+  "account",
   "bookings",
   "booking",
   "checkout",
@@ -29,6 +31,8 @@ export const protectedPrefixes: string[] = [
   "/provider-portal",
   // Booking a GP (the doctors list itself stays public) and the patient's sessions.
   "/n/app/mobile/consultation/doctors/",
+  // The same booking pages at their public address (/consultation/doctors/<slug>/book).
+  "/consultation/doctors/",
   "/n/app/mobile/consultation/sessions",
 ];
 

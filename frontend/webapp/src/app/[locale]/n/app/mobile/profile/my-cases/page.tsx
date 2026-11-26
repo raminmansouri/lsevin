@@ -138,7 +138,7 @@ export default async function MyCasesPage() {
 function JourneyCard({ journey, locale, t }: { journey: CustomerJourney; locale: string; t: TranslationType }) {
   const progress = journey.totalSteps ? Math.round(journey.completedSteps * 100 / journey.totalSteps) : 0;
   const statusKey = journey.status === "on_hold" ? "onHold" : journey.status;
-  return <Link href={`/n/app/mobile/bookings/${journey.bookingId}`} className="block rounded-2xl bg-white p-4 shadow-sm transition hover:shadow-md">
+  return <Link href={`/account/bookings/${journey.bookingId}`} className="block rounded-2xl bg-white p-4 shadow-sm transition hover:shadow-md">
     <div className="flex items-start justify-between gap-3">
       <div><p className="font-semibold text-gray-900">{journey.serviceName}</p><p className="text-sm text-gray-500">{journey.providerName}</p></div>
       <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700">{t(statusKey)}</span>

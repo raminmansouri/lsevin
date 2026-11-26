@@ -75,7 +75,7 @@ export async function DesktopLoyaltySection({ locale, section }: { locale: strin
 
           <div className="mt-2">
             <Magnetic>
-              <Link href={section.buttonHref || "/n/app/mobile/profile/rewards"} className="lsd-btn lsd-btn-green h-14 px-8">
+              <Link href={section.buttonHref || "/account/rewards"} className="lsd-btn lsd-btn-green h-14 px-8">
                 {section.buttonLabel || t("loyaltyClub.button")}
                 <ArrowLeft size={18} className="ltr:rotate-180" />
               </Link>

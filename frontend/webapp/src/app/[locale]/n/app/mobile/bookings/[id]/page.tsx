@@ -762,7 +762,7 @@ function BookingDetailContent({
 
         <button
           type="button"
-          onClick={() => navigate(`/n/app/mobile/bookings/${booking.id}/invoice?print=1`)}
+          onClick={() => navigate(`/account/bookings/${booking.id}/invoice?print=1`)}
           className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-gray-900 font-semibold text-white transition-colors hover:bg-black"
         >
           <Download size={20} />
@@ -817,7 +817,7 @@ export default function BookingDetail() {
       setShowCancelModal(false);
       setCancelReason("");
       refetch();
-      navigate("/n/app/mobile/bookings");
+      navigate("/account/bookings");
     },
     onError: (actionError) => {
       toast.error(

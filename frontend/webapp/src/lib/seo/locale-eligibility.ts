@@ -27,6 +27,8 @@ export type IndexableEntity = "provider" | "service" | "specialist";
 // their main content is translated and reviewed.
 export const INDEXABLE_CATEGORY_LOCALES: readonly SeoLocale[] = ["fa", "en"];
 export const INDEXABLE_SHOP_LOCALES: readonly SeoLocale[] = ["fa"];
+// Video consultation doctors have Persian and English names and bios.
+export const INDEXABLE_CONSULTATION_LOCALES: readonly SeoLocale[] = ["fa", "en"];
 
 export const MIN_TRANSLATED_CHARS = 40;
 

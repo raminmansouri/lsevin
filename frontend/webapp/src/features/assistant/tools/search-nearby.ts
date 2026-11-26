@@ -4,6 +4,8 @@ import { z } from "zod";
 
 import sql from "@/config/database/db";
 
+import { entityPath } from "@/lib/routes/public-paths";
+
 import { geocodePlace } from "../server/geocode";
 
 export const SEARCH_NEARBY_DESCRIPTION =
@@ -47,9 +49,10 @@ export async function searchNearby(input: SearchNearbyInput, storedLocale: strin
   )`;
 
   const rows = await sql<
-    { id: string; name: string; city: string | null; distanceKm: number; rating: number | null }[]
+    { id: string; slug: string | null; name: string; city: string | null; distanceKm: number; rating: number | null }[]
   >`
     select sp.id::text as id,
+      sp.slug,
       common.get_translation_t(sp.name_translations, ${storedLocale}, 'en-US') as name,
       sp.city,
       round(${distance}::numeric, 1)::float8 as "distanceKm",
@@ -80,7 +83,7 @@ export async function searchNearby(input: SearchNearbyInput, storedLocale: strin
       city: row.city,
       distanceKm: row.distanceKm,
       rating: row.rating,
-      url: `/n/app/mobile/provider/${row.id}`,
+      url: entityPath("provider", row),
     })),
   };
 }

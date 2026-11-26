@@ -150,7 +150,7 @@ export function PatientSessionPage({
       <div className="sticky top-0 z-40 border-b border-gray-100 bg-white">
         <div className="flex items-center gap-3 px-5 pt-3 pb-4">
           <Link
-            href="/n/app/mobile/bookings"
+            href="/account/bookings"
             aria-label={t("back")}
             className="flex h-10 w-10 items-center justify-center rounded-full hover:bg-gray-100"
           >

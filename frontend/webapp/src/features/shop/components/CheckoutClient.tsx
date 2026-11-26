@@ -251,7 +251,7 @@ export function CheckoutClient({
       return;
     }
     if (issue.target === "orderSummary") {
-      router.push("/n/app/mobile/shop/cart");
+      router.push("/shop/cart");
       return;
     }
     setTouched((old) => ({ ...old, [issue.target]: true }));
@@ -279,7 +279,7 @@ export function CheckoutClient({
       return;
     }
     router.push(
-      `/n/app/mobile/shop/order/${order.orderNumber}?email=${encodeURIComponent(email.trim())}`
+      `/account/orders/${order.orderNumber}?email=${encodeURIComponent(email.trim())}`
     );
   }
 
@@ -377,7 +377,7 @@ export function CheckoutClient({
           </div>
         </div>
         <button
-          onClick={() => router.push(`/n/app/mobile/shop/orders`)}
+          onClick={() => router.push(`/account/orders`)}
           className="w-full rounded-full bg-[#083f30] px-6 py-3 text-sm font-bold text-white"
         >
           {t("myOrders")}
@@ -531,7 +531,7 @@ export function CheckoutClient({
         >
           {needsAddress && isAuthenticated ? (
             <a
-              href="/n/app/mobile/shop/addresses"
+              href="/account/addresses"
               className="mb-2 inline-block text-xs font-semibold text-[#083f30]"
             >
               {t("savedAddresses")} ›

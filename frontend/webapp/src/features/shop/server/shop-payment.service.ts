@@ -115,7 +115,7 @@ export async function startOrderPayment(input: {
     const email = order.email ? `&email=${encodeURIComponent(order.email)}` : "";
     return {
       mode: "redirect",
-      redirectUrl: `/${locale}/n/app/mobile/shop/order/${order.orderNumber}?payment=paid${email}`,
+      redirectUrl: `/${locale}/account/orders/${order.orderNumber}?payment=paid${email}`,
       transactionId: txnId,
       provider: TEST_PAYMENT_PROVIDER,
     };

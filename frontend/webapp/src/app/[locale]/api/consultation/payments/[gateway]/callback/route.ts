@@ -26,7 +26,7 @@ async function handle(req: NextRequest, gateway: string, locale: string) {
   // Public origin, not url.origin (the internal 0.0.0.0:3000 behind the proxy).
   const target = result.sessionId
     ? `/${safeLocale}/n/app/mobile/consultation/sessions/${result.sessionId}?payment=${result.outcome}`
-    : `/${safeLocale}/n/app/mobile/bookings?payment=failed`;
+    : `/${safeLocale}/account/bookings?payment=failed`;
   const origin = gateway === "zibal" ? await gatewayReturnOrigin(gateway) : seoOrigin();
   return NextResponse.redirect(new URL(target, origin));
 }

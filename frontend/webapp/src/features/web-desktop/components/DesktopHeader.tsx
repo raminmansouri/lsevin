@@ -25,7 +25,7 @@ export function DesktopHeader({ actions }: { actions?: React.ReactNode }) {
     { href: HOME, label: tTab("Home") },
     { href: "/explore", label: tTab("Explore") },
     { href: "/shop", label: tTab("Shop") },
-    { href: "/n/app/mobile/bookings", label: tTab("Bookings") },
+    { href: "/account/bookings", label: tTab("Bookings") },
   ];
 
   const moveTo = useCallback((element: Element | null) => {
@@ -103,7 +103,7 @@ export function DesktopHeader({ actions }: { actions?: React.ReactNode }) {
                 <Search size={19} />
               </Link>
               <Magnetic>
-                <Link href="/n/app/mobile/profile" className="lsd-btn lsd-btn-gold h-12 px-5 text-sm">
+                <Link href="/account" className="lsd-btn lsd-btn-gold h-12 px-5 text-sm">
                   <UserRound size={16} />
                   {tTab("Profile")}
                 </Link>

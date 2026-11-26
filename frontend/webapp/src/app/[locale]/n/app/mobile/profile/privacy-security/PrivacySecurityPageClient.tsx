@@ -219,7 +219,7 @@ export default function PrivacySecurityPageClient({ initialData }: Props) {
     <div className="min-h-screen bg-gray-50 pb-24 xl:hidden">
       <div className="sticky top-0 z-40 border-b border-gray-200 bg-white/95 backdrop-blur">
         <div className="flex items-center gap-4 px-6 py-4">
-          <a href="/n/app/mobile/profile/settings" className="flex h-10 w-10 items-center justify-center rounded-full text-gray-600 transition hover:bg-gray-100">
+          <a href="/account/settings" className="flex h-10 w-10 items-center justify-center rounded-full text-gray-600 transition hover:bg-gray-100">
             <ChevronLeft size={22} />
           </a>
           <h1 className="text-xl font-bold text-gray-900">{t("title")}</h1>

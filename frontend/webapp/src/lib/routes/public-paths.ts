@@ -16,7 +16,22 @@ const RULES: [RegExp, string][] = [
   [/^\/packages\/([^/?#]+)(?=$|[?#])/, '/packages/$1'],
   [/^\/shop\/product\/([^/?#]+)(?=$|[?#])/, '/products/$1'],
   [/^\/shop\/category\/([^/?#]+)(?=$|[?#])/, '/shop/$1'],
+  // The shop's private screens (noindex): cart and checkout stay under /shop,
+  // the customer's own records move to /account.
+  [/^\/shop\/(cart|checkout|compare|search)(?=$|[?#])/, '/shop/$1'],
+  [/^\/shop\/orders?\/([^/?#]+)(?=$|[?#])/, '/account/orders/$1'],
+  [/^\/shop\/(orders|addresses|wishlist)(?=$|[?#])/, '/account/$1'],
+  // The customer account (T12): bookings and the profile screens.
+  [/^\/bookings(?=$|[/?#])/, '/account/bookings'],
+  [/^\/profile\/EditProfile(?=$|[?#])/, '/account/edit'],
+  [/^\/profile\/(?:my-)?wallet(?=$|[/?#])/, '/account/wallet'],
+  [/^\/profile(?=$|[/?#])/, '/account'],
+  [/^\/shop\/seller\/([^/?#]+)(?=$|[?#])/, '/shop/seller/$1'],
   [/^\/map-discovery(?=$|[?#])/, '/map'],
+  // Video consultation (src/features/consultation/lib/paths.ts); the booking
+  // page then moves an id to the doctor's slug.
+  [/^\/consultation\/doctors\/([^/?#]+)\/book(?=$|[?#])/, '/consultation/doctors/$1/book'],
+  [/^\/consultation\/doctors(?=$|[?#])/, '/consultation/doctors'],
   [/^\/medical\/clinics(?=$|[?#])/, '/clinics'],
   // Home is the locale root: /fa/n/app/mobile/home -> /fa.
   [/^\/home(?=$|[?#])/, ''],

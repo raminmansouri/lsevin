@@ -345,7 +345,7 @@ export default function WalletPageClient({
           </div>
 
           <button
-            onClick={() => navigate("/n/app/mobile/profile/my-wallet/history")}
+            onClick={() => navigate("/account/wallet/history")}
             className="h-10 px-4 text-sm font-semibold text-[#083f30] hover:underline"
           >
             {t("viewAll")}
@@ -507,7 +507,7 @@ export default function WalletPageClient({
           {transactions.map((transaction) => (
             <button
               key={transaction.id}
-              onClick={() => navigate(`/n/app/mobile/profile/my-wallet/transaction/${transaction.id}`)}
+              onClick={() => navigate(`/account/wallet/transaction/${transaction.id}`)}
               className="w-full bg-white rounded-2xl p-4 border border-gray-200 hover:border-[#083f30] hover:shadow-md transition-all"
             >
               <div className="flex items-start gap-4">
@@ -596,13 +596,13 @@ export default function WalletPageClient({
         onSelectCurrency={setSelectedCurrency}
         onTopUp={() => setShowTopUpModal(true)}
         onApplyCoupon={() => navigate("/app/coupon")}
-        onViewAll={() => navigate("/n/app/mobile/profile/my-wallet/history")}
+        onViewAll={() => navigate("/account/wallet/history")}
         topUpResult={topUpResult}
         onDismissResult={() => setTopUpResult(null)}
         transactions={transactions}
         filterMode={filterMode}
         onFilter={setFilterMode}
-        onOpenTransaction={(id) => navigate(`/n/app/mobile/profile/my-wallet/transaction/${id}`)}
+        onOpenTransaction={(id) => navigate(`/account/wallet/transaction/${id}`)}
         formatMoney={(amount, currency) => `${currencySymbol(currency)}${formatAmount(amount, locale)}`}
         formatWhen={(date) => formatDate(date, locale, t)}
         renderStatus={(status) => <TransactionStatus status={status as WalletTransactionRow["status"]} t={t} />}

@@ -327,7 +327,7 @@ async function offlineNavigation(request) {
   const isReadingPage =
     pathname === "/" ||
     (LOCALES.has(segments[1]) &&
-      /^\/(?:service-providers\/[a-zA-Z0-9-]+|type\/[a-zA-Z0-9-]+|n\/app\/mobile\/(?:home|providers|explore|categories|featured|search|search-results|profile|provider\/[a-zA-Z0-9-]+|specialist\/[a-zA-Z0-9-]+|service\/[a-zA-Z0-9-]+))?\/?$/.test(
+      /^\/(?:account|service-providers\/[a-zA-Z0-9-]+|type\/[a-zA-Z0-9-]+|n\/app\/mobile\/(?:home|providers|explore|categories|featured|search|search-results|profile|provider\/[a-zA-Z0-9-]+|specialist\/[a-zA-Z0-9-]+|service\/[a-zA-Z0-9-]+))?\/?$/.test(
         "/" + segments.slice(2).join("/")
       ));
   const controller = new AbortController();
@@ -359,7 +359,7 @@ async function offlineNavigation(request) {
         )
           return saved;
         if (
-          /^\/(?:en|fa|tr|es|ar|ku|de|fr|ru|tg|zh)\/n\/app\/mobile\/profile\/?$/.test(
+          /^\/(?:en|fa|tr|es|ar|ku|de|fr|ru|tg|zh)\/(?:account|n\/app\/mobile\/profile)\/?$/.test(
             pathname
           )
         ) {

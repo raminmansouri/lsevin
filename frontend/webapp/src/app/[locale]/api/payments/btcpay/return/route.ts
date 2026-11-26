@@ -21,7 +21,7 @@ export async function GET(
   // Back to the customer's reservations (that booking's page when known), on the public
   // origin (NEXT_PUBLIC_URL): request.nextUrl.origin is the internal 0.0.0.0:3000 behind the proxy.
   const bookingsUrl = (bookingId?: string | null) =>
-    new URL(bookingId ? `/${locale}/n/app/mobile/bookings/${bookingId}` : `/${locale}/n/app/mobile/bookings`, seoOrigin());
+    new URL(bookingId ? `/${locale}/account/bookings/${bookingId}` : `/${locale}/account/bookings`, seoOrigin());
 
   // A video consultation paid with BTCPay comes back here too: settle it and show its page.
   const consultation = paymentId ? await findVideoBtcPayInvoice(paymentId) : null;

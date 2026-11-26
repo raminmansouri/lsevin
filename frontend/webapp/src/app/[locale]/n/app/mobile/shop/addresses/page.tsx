@@ -21,7 +21,7 @@ export default async function ShopAddressesPage({ params }: { params: Promise<{ 
 
   return (
     <div className="min-h-screen bg-neutral-50">
-      <ShopHeader cartCount={cart.itemCount} back="/n/app/mobile/shop/checkout" />
+      <ShopHeader cartCount={cart.itemCount} back="/shop/checkout" />
       <h1 className="px-4 pt-3 text-lg font-extrabold text-neutral-900">{t("savedAddresses")}</h1>
       <AddressBookClient initial={addresses} locale={locale} />
     </div>

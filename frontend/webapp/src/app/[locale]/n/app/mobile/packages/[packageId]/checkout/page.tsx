@@ -97,7 +97,7 @@ export default function PackageCheckoutPage() {
 
             // Wallet (and any other instantly-settled method) returns no redirect —
             // the booking is already paid, so go straight to its invoice.
-            router.push(`/n/app/mobile/bookings/${bookingId}/invoice`);
+            router.push(`/account/bookings/${bookingId}/invoice`);
         } catch {
             setError('پرداخت با خطا مواجه شد.');
             setStep('choosing');

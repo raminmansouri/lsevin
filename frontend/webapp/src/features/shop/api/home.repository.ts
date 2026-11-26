@@ -147,21 +147,21 @@ export async function getShopHome(opts?: {
       // product_rail / service_related_rail
       const cfg = row.query_config || {};
       const filters: Record<string, unknown> = { page: 1, pageSize: RAIL_LIMIT };
-      let viewAllHref: string | null = "/n/app/mobile/shop/search";
+      let viewAllHref: string | null = "/shop/search";
       switch (row.query_source) {
         case "featured":
           filters.featuredOnly = true;
           filters.sort = "popularity";
-          viewAllHref = "/n/app/mobile/shop/search?featuredOnly=1";
+          viewAllHref = "/shop/search?featuredOnly=1";
           break;
         case "best_seller":
           filters.inStockOnly = true;
           filters.sort = "low_stock";
-          viewAllHref = "/n/app/mobile/shop/search?sort=low_stock&inStockOnly=1";
+          viewAllHref = "/shop/search?sort=low_stock&inStockOnly=1";
           break;
         case "new_arrival":
           filters.sort = "newest";
-          viewAllHref = "/n/app/mobile/shop/search?sort=newest";
+          viewAllHref = "/shop/search?sort=newest";
           break;
         case "discounted":
           filters.sort = "popularity";

@@ -374,7 +374,7 @@ export function BookingWizard() {
             toast.success(tBooking('paymentVerifiedSuccessfully'));
             const returnedBookingId = searchParams.get('bookingId');
             if (returnedBookingId) {
-                router.push(`/n/app/mobile/bookings/${returnedBookingId}/invoice`);
+                router.push(`/account/bookings/${returnedBookingId}/invoice`);
             }
         } else if (status === 'pending') {
             toast.info(tBooking('paymentPendingConfirmation'), { duration: 10000 });
@@ -1199,7 +1199,7 @@ export function BookingWizard() {
         } else if (PAYMENT_DONE_STATUSES.has(String((result as any)?.status || '').toLowerCase())) {
             // No further redirect needed (wallet/pay_on_delivery/bank_receipt all
             // settle inline) -- the invoice is the natural "you're done" landing spot.
-            router.push(`/${locale}/n/app/mobile/bookings/${bookingId}/invoice`);
+            router.push(`/${locale}/account/bookings/${bookingId}/invoice`);
         }
         return result;
     }
@@ -1228,7 +1228,7 @@ export function BookingWizard() {
             } else if ((result as any)?.bookingId) {
                 // Nothing left to pay (a fully comped/free booking) -- checkout is
                 // already the finished state, so go straight to the invoice.
-                router.push(`/${locale}/n/app/mobile/bookings/${(result as any).bookingId}/invoice`);
+                router.push(`/${locale}/account/bookings/${(result as any).bookingId}/invoice`);
             }
         }
         catch (e: any) {

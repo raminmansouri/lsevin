@@ -20,6 +20,7 @@ import { publicMediaUrl } from "@/lib/seo/media-url";
 import { shopImageSrc } from "@/features/shop/lib/image";
 import {
   INDEXABLE_CATEGORY_LOCALES,
+  INDEXABLE_CONSULTATION_LOCALES,
   INDEXABLE_SHOP_LOCALES,
   indexableLocalesFromKeys,
   translatedKeys,
@@ -60,6 +61,7 @@ const STATIC_PATHS: CatalogEntry[] = [
   { path: "/featured", locales: PERSIAN_ONLY },
   { path: "/packages", locales: PERSIAN_ONLY },
   { path: "/providers", locales: ALL_LOCALES },
+  { path: "/consultation/doctors", locales: INDEXABLE_CONSULTATION_LOCALES },
   { path: "/consulting", locales: ALL_LOCALES },
   { path: "/privacy-policy", locales: ALL_LOCALES },
 ];

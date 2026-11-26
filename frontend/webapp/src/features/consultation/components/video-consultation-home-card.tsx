@@ -6,6 +6,7 @@ import { useLocale, useTranslations } from "next-intl";
 
 import { Link } from "@/i18n/navigation";
 
+import { CONSULTATION_DOCTORS_PATH } from "../lib/paths";
 import { getVideoConsultationOfferAction } from "../server/video-offer";
 import type { VideoConsultationOffer } from "../types";
 import { formatDurations } from "./package-format";
@@ -40,7 +41,7 @@ export function VideoConsultationHomeCard() {
   return (
     <div className="px-5 pb-5">
       <Link
-        href="/n/app/mobile/consultation/doctors"
+        href={CONSULTATION_DOCTORS_PATH}
         className="flex w-full items-center gap-3 rounded-2xl bg-white p-3.5 text-start shadow-[0_4px_14px_rgba(0,0,0,0.05)] ring-1 ring-[#083f30]/8 transition active:scale-[0.99]"
       >
         <span className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-[#083f30] text-[#eacb7f]">

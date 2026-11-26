@@ -8,5 +8,5 @@ export default async function LegacyOrderDetailRedirect({
   params: Promise<{ locale: string; orderNumber: string }>;
 }) {
   const { locale, orderNumber } = await params;
-  redirect({ href: `/n/app/mobile/shop/order/${orderNumber}`, locale });
+  redirect({ href: `/account/orders/${orderNumber}`, locale });
 }

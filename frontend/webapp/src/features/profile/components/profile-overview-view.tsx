@@ -109,7 +109,7 @@ export function ProfileOverviewView({
             <p className="text-sm text-gray-500">{data.email}</p>
             <button
               data-pwa-online-required
-              onClick={() => navigate?.("/n/app/mobile/profile/EditProfile")}
+              onClick={() => navigate?.("/account/edit")}
               className="mt-2 text-sm font-semibold text-[#083f30] hover:underline"
             >
               {data.editLabel}

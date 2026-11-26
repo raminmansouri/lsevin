@@ -93,7 +93,7 @@ const fallbackSections: HomeManagedSections = {
     subtitle: '',
     description: '',
     buttonLabel: '',
-    buttonHref: '/n/app/mobile/profile/rewards',
+    buttonHref: '/account/rewards',
     imageUrl: null,
     iconName: 'Gift',
     metadata: {},

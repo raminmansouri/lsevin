@@ -76,7 +76,7 @@ export default function FavoritesPageClient({
       <div className="bg-white border-b border-gray-200 sticky top-0 z-10">
         <div className="px-6 py-4 flex items-center gap-4">
           <button
-            onClick={() => navigate("/n/app/mobile/profile")}
+            onClick={() => navigate("/account")}
             className="w-10 h-10 -ml-2 flex items-center justify-center text-gray-600"
           >
             <ChevronLeft size={24} />

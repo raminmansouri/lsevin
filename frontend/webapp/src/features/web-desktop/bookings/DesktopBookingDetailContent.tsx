@@ -77,7 +77,7 @@ export function DesktopBookingDetailContent({
       <div className="lsd-container pt-6">
         {/* Back + status */}
         <div className="flex items-center justify-between gap-6">
-          <Link href="/n/app/mobile/bookings" className="group inline-flex items-center gap-2 text-sm font-bold text-[#083f30] hover:text-[#8c6b2c]">
+          <Link href="/account/bookings" className="group inline-flex items-center gap-2 text-sm font-bold text-[#083f30] hover:text-[#8c6b2c]">
             <ArrowLeft size={16} className="rotate-180 transition-transform group-hover:translate-x-1 ltr:rotate-0" />
             {tBooking("myBookings")}
           </Link>
@@ -285,7 +285,7 @@ export function DesktopBookingDetailContent({
                     </button>
                   ) : null}
                   <Link
-                    href={`/n/app/mobile/bookings/${booking.id}/invoice?print=1`}
+                    href={`/account/bookings/${booking.id}/invoice?print=1`}
                     className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-white/10 text-sm font-bold transition hover:bg-white/20"
                   >
                     <Download size={17} />

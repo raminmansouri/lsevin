@@ -9,6 +9,8 @@ import type { ConsultationPackageOption } from "./types";
 
 export type VideoDoctor = {
   id: string;
+  /** The doctor's public URL slug (migration 0123); null until it has one. */
+  slug: string | null;
   name: string;
   /** The clinic the doctor consults for, when a clinic added them in the provider portal. */
   clinicName: string | null;

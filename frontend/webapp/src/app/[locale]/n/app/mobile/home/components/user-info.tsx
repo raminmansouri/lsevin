@@ -117,7 +117,7 @@ export default function UserInfoSubBar({ profile }: Props) {
       </div>
 
       <Link
-        href="/n/app/mobile/profile"
+        href="/account"
         className="size-11 shrink-0 overflow-hidden rounded-full ring-2 ring-[#eacb7f]/60 ring-offset-2 ring-offset-[#083f30]"
       >
         {resolvedImageUrl ? (

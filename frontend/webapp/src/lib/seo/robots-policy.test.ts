@@ -84,6 +84,10 @@ describe("server robots boundaries", () => {
     expect(policies("[locale]/(site)/shop/seller/[slug]")).toEqual([]);
   });
 
+  it("keeps the public consultation doctors URL outside the app-only robots boundary", () => {
+    expect(policies("[locale]/(site)/consultation/doctors")).toEqual([]);
+  });
+
   it("keeps marketing routes outside the private boundary", () => {
     expect(policies("[locale]/(main)/type")).toEqual([]);
   });

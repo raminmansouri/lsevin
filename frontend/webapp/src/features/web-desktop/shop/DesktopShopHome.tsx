@@ -87,13 +87,13 @@ export async function DesktopShopHome({
               <div className="flex items-center gap-2">
                 <CurrencySwitcher />
                 <Link
-                  href="/n/app/mobile/shop/wishlist"
+                  href="/account/wishlist"
                   aria-label={t("wishlistTitle")}
                   className="grid h-10 w-10 place-items-center rounded-full bg-white/10 ring-1 ring-white/15 transition hover:bg-white/20"
                 >
                   <Heart size={18} />
                 </Link>
-                <Link href="/n/app/mobile/shop/cart" aria-label={t("cart")} className="lsd-btn lsd-btn-gold relative h-10 w-10 !px-0">
+                <Link href="/shop/cart" aria-label={t("cart")} className="lsd-btn lsd-btn-gold relative h-10 w-10 !px-0">
                   <ShoppingBag size={18} />
                   <ShopCartCountBadge initial={0} />
                 </Link>
@@ -161,7 +161,7 @@ export async function DesktopShopHome({
                 {section.promos.map((promo, index) => (
                   <Reveal key={promo.id} delay={index * 80}>
                     <Link
-                      href={promo.linkUrl ?? "/n/app/mobile/shop/search"}
+                      href={promo.linkUrl ?? "/shop/search"}
                       className="group relative block aspect-[16/8] overflow-hidden rounded-[26px] bg-[#062a20] ring-1 ring-[#c9a55a]/40"
                     >
                       {promo.imageUrl ? (
@@ -215,7 +215,7 @@ export async function DesktopShopHome({
       {/* Featured feed */}
       <section className="lsd-container mt-12">
         <div className="lsd-salon rounded-[36px] px-10 py-10">
-          <Heading title={t("featured")} href="/n/app/mobile/shop/search" viewAll={t("viewAll")} />
+          <Heading title={t("featured")} href="/shop/search" viewAll={t("viewAll")} />
           {feed.length ? (
             <ProductRail products={feed} locale={locale} labels={labels} />
           ) : (

@@ -8,6 +8,7 @@ import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { resolveHomeMediaUrl } from "@/features/home/components/home-media";
 import { Link, useRouter } from "@/i18n/navigation";
 
+import { consultationBookHref } from "../lib/paths";
 import { getVideoDoctorsPageAction } from "../server/video-doctors";
 import type { VideoDoctor, VideoDoctorsPageData } from "../video-doctors-types";
 import { formatDurations } from "./package-format";
@@ -194,7 +195,7 @@ function DoctorCard({ doctor, bookQuery }: { doctor: VideoDoctor; bookQuery?: st
       )}
 
       <Link
-        href={`/n/app/mobile/consultation/doctors/${doctor.id}/book${bookQuery ? `?${bookQuery}` : ""}`}
+        href={consultationBookHref(doctor, bookQuery)}
         className="mt-3 block rounded-xl bg-[#083f30] py-2.5 text-center text-sm font-bold text-white"
       >
         {t("book")}

@@ -75,7 +75,8 @@ export function parseProfileProjection(
     )
       return null;
     const validPath = (path: string) =>
-      /^\/n\/app\/mobile\/[a-zA-Z0-9/-]+$/.test(path);
+      // /account/... since the T12 move; /n/app/mobile/... in projections saved before it.
+      /^\/(?:account|n\/app\/mobile)(?:\/[a-zA-Z0-9/-]+)?$/.test(path) && path !== "/n/app/mobile";
     if (
       !data.stats.every(
         (item) =>

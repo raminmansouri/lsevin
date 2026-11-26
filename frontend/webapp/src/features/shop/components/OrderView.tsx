@@ -44,7 +44,7 @@ export async function OrderRow({ order, locale }: { order: OrderSummary; locale:
   const t = await getTranslations("Shop");
   return (
     <Link
-      href={`/n/app/mobile/shop/order/${order.orderNumber}`}
+      href={`/account/orders/${order.orderNumber}`}
       className="block rounded-2xl bg-white p-4 shadow-sm ring-1 ring-black/[0.04]"
     >
       <div className="flex items-center justify-between">
@@ -295,7 +295,7 @@ export async function OrderDetailView({
 
       {order.paymentStatus !== "captured" && order.status === "awaiting_payment" ? (
         <Link
-          href={`/n/app/mobile/shop/orders`}
+          href={`/account/orders`}
           className="block rounded-full bg-[#083f30] px-6 py-3 text-center text-sm font-bold text-white"
         >
           {t("myOrders")}

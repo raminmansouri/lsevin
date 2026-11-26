@@ -5,6 +5,7 @@ import { ChevronLeft, Sparkles, Video } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { ConsultationPackageChips } from "@/features/consultation/components/consultation-package-chips";
+import { CONSULTATION_DOCTORS_PATH } from "@/features/consultation/lib/paths";
 import { Link } from "@/i18n/navigation";
 
 /** Opens the floating assistant, optionally with a first question. */
@@ -59,7 +60,7 @@ export function HomeConsultationTeaser() {
   return (
     <section className="px-5 pb-8 lg:px-8">
       <Link
-        href="/n/app/mobile/consultation/doctors"
+        href={CONSULTATION_DOCTORS_PATH}
         className="flex items-center gap-3 rounded-3xl border border-[#eacb7f] bg-gradient-to-br from-[#fbf3de] via-[#f6e7c1] to-[#eed8a4] p-4 shadow-[0_18px_40px_-26px_rgba(140,107,44,0.6)] active:scale-[0.99]"
       >
         <span className="relative grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-[#083f30] text-[#eacb7f]">

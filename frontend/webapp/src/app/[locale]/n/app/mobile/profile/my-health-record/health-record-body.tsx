@@ -22,7 +22,7 @@ import type { HealthRecordEntry } from "./page";
 import { LinkFamilySection } from "./link-family-section";
 import { StartRecordForm } from "./start-record-form";
 
-const QUESTIONNAIRE_PATH = "/n/app/mobile/profile/my-health-record/questionnaire";
+const QUESTIONNAIRE_PATH = "/account/my-health-record/questionnaire";
 
 function formatDate(value: string | null | undefined, locale: string): string | null {
   if (!value) return null;

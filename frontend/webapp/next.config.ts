@@ -207,7 +207,32 @@ const nextConfig: NextConfig = {
       ['map-discovery', 'map'],
       ['shop/category/:slug', 'shop/:slug'],
       ['shop/product/:slug', 'products/:slug'],
+      // Also answered in src/middleware.ts; listed here so the locale-less form
+      // (/n/app/mobile/shop/seller/x) reaches /fa/shop/seller/x in one hop.
+      ['shop/seller/:slug', 'shop/seller/:slug'],
       ['medical/clinics', 'clinics'],
+      // The booking page (doctors/<id>/book) redirects in its old route, which
+      // looks up the doctor's slug so the move is one hop.
+      ['consultation/doctors', 'consultation/doctors'],
+      // The shop's private screens (noindex; see seoRewrites in rewrites()).
+      ['shop/cart', 'shop/cart'],
+      ['shop/checkout', 'shop/checkout'],
+      ['shop/compare', 'shop/compare'],
+      ['shop/search', 'shop/search'],
+      ['shop/orders', 'account/orders'],
+      ['shop/orders/:orderNumber', 'account/orders/:orderNumber'],
+      ['shop/order/:orderNumber', 'account/orders/:orderNumber'],
+      ['shop/addresses', 'account/addresses'],
+      ['shop/wishlist', 'account/wishlist'],
+      // The customer's account (T12): bookings and the profile screens.
+      ['bookings', 'account/bookings'],
+      ['bookings/:id', 'account/bookings/:id'],
+      ['bookings/:id/invoice', 'account/bookings/:id/invoice'],
+      ['profile/EditProfile', 'account/edit'],
+      ['profile/wallet', 'account/wallet'],
+      ['profile/my-wallet/:path+', 'account/wallet/:path+'],
+      ['profile', 'account'],
+      ['profile/:path+', 'account/:path+'],
     ] as const;
     return [
       // The home page's address is the locale root (/fa); its file still lives at
@@ -286,7 +311,29 @@ const nextConfig: NextConfig = {
       ['providers', 'providers'],
       ['shop', 'shop'],
       ['map', 'map-discovery'],
+      // The shop's private screens, before the category rule so /shop/cart is
+      // not read as a category. Orders, addresses and the wishlist are the
+      // customer's own records: /account/... (docs/seo/lsevin-url-tasks.md T12).
+      // Their pages stay noindex (their layouts under n/app/mobile/shop).
+      ['shop/cart', 'shop/cart'],
+      ['shop/checkout', 'shop/checkout'],
+      ['shop/compare', 'shop/compare'],
+      ['shop/search', 'shop/search'],
+      ['account/orders', 'shop/orders'],
+      ['account/orders/:orderNumber', 'shop/order/:orderNumber'],
+      ['account/addresses', 'shop/addresses'],
+      ['account/wishlist', 'shop/wishlist'],
       ['shop/:slug', 'shop/category/:slug'],
+      // The rest of /account (T12): bookings, then the profile screens. After
+      // the account/orders... rules above, since account/:path+ takes the rest.
+      ['account/bookings', 'bookings'],
+      ['account/bookings/:id', 'bookings/:id'],
+      ['account/bookings/:id/invoice', 'bookings/:id/invoice'],
+      ['account', 'profile'],
+      ['account/edit', 'profile/EditProfile'],
+      ['account/wallet', 'profile/wallet'],
+      ['account/wallet/:path+', 'profile/my-wallet/:path+'],
+      ['account/:path+', 'profile/:path+'],
       ['products/:slug', 'shop/product/:slug'],
       // Sample data for now: noindex (medical/layout.tsx) and not in the sitemap.
       ['clinics', 'medical/clinics'],

@@ -16,8 +16,8 @@ export function BottomTabBar() {
     { icon: Home, label: t('Home'), path: '/' },
     { icon: Search, label: t('Explore'), path: '/explore' },
     { icon: ShoppingBag, label: t('Shop'), path: '/shop', also: ['/products', '/n/app/mobile/shop'] },
-    { icon: Calendar, label: t('Bookings'), path: '/n/app/mobile/bookings' },
-    { icon: User, label: t('Profile'), path: '/n/app/mobile/profile' },
+    { icon: Calendar, label: t('Bookings'), path: '/account/bookings' },
+    { icon: User, label: t('Profile'), path: '/account' },
   ];
   
   return (

@@ -187,7 +187,7 @@ function MobileBookings() {
           {[1, 2, 3].map((item) => (<div key={item} className="h-44 animate-pulse rounded-2xl border border-gray-100 bg-white shadow-sm"/>))}
         </div>) : bookings.length + tabConsultations.length > 0 ? (<div className="space-y-3 px-5 py-4">
           {tabConsultations.map((session) => (<VideoSessionBookingCard key={session.id} session={session}/>))}
-          {bookings.map((booking) => (<BookingCard key={booking.id} booking={booking} onOpen={() => navigate(`/n/app/mobile/bookings/${booking.id}`)}/>))}
+          {bookings.map((booking) => (<BookingCard key={booking.id} booking={booking} onOpen={() => navigate(`/account/bookings/${booking.id}`)}/>))}
         </div>) : (<div className="px-5 py-16 text-center">
           <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-gray-100">
             <CalendarX size={32} className="text-gray-400"/>

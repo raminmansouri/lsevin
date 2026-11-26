@@ -87,7 +87,7 @@ export async function BlogIndexView({
             publisher: { "@id": organizationId() },
           },
           breadcrumbList([
-            { name: t("home"), url: absoluteUrl(locale, "/n/app/mobile/home") },
+            { name: t("home"), url: absoluteUrl(locale) },
             { name: t("blog"), url: absoluteUrl(locale, "/blog") },
             ...(activeCategory ? [{ name: activeCategory.name, url }] : []),
           ]),
@@ -97,7 +97,7 @@ export async function BlogIndexView({
         <nav aria-label="breadcrumb" className="mb-4 text-sm text-neutral-500">
           <ol className="flex flex-wrap items-center gap-1.5">
             <li>
-              <Link href="/n/app/mobile/home" className="hover:underline">
+              <Link href="/" className="hover:underline">
                 {t("home")}
               </Link>
             </li>
@@ -218,7 +218,7 @@ export async function BlogPostView({
       websiteId: `${seoOrigin()}/#website`,
     }),
     breadcrumbList([
-      { name: t("home"), url: absoluteUrl(locale, "/n/app/mobile/home") },
+      { name: t("home"), url: absoluteUrl(locale) },
       { name: t("blog"), url: absoluteUrl(locale, "/blog") },
       ...(post.categorySlug && post.categoryName ? [{ name: post.categoryName, url: absoluteUrl(locale, `/blog/category/${post.categorySlug}`) }] : []),
       { name: post.title, url },
@@ -240,7 +240,7 @@ export async function BlogPostView({
         <nav aria-label="breadcrumb" className="mb-4 text-sm text-neutral-500">
           <ol className="flex flex-wrap items-center gap-1.5">
             <li>
-              <Link href="/n/app/mobile/home" className="hover:underline">
+              <Link href="/" className="hover:underline">
                 {t("home")}
               </Link>
             </li>

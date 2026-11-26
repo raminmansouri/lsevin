@@ -35,7 +35,7 @@ export default async function ShopSearchPage({
         selectableCurrencies={selectable.map((s) => ({ code: s.code, symbol: s.symbol, name: s.name }))}
         back="/shop"
       />
-      <ProductListView locale={locale} basePath="/n/app/mobile/shop/search" searchParams={sp} brands={brands} />
+      <ProductListView locale={locale} basePath="/shop/search" searchParams={sp} brands={brands} />
     </div>
   );
 }

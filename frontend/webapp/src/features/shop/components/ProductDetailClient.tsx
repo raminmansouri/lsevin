@@ -92,7 +92,7 @@ export function ProductDetailClient({
           offerId: offerId ?? bestOffer?.id ?? null,
           quantity: qty,
         });
-        if (then === "cart") router.push("/n/app/mobile/shop/cart");
+        if (then === "cart") router.push("/shop/cart");
         else setMsg(t("added"));
       } catch (e) {
         setMsg(e instanceof Error ? e.message : t("somethingWrong"));

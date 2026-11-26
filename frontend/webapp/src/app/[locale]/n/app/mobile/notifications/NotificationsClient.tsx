@@ -38,8 +38,8 @@ function hrefForNotification(item: NotificationItem): string {
   switch (item.type) {
     case "booking":
       return item.entityType === "booking" && item.entityId
-        ? `/n/app/mobile/bookings/${item.entityId}`
-        : "/n/app/mobile/bookings";
+        ? `/account/bookings/${item.entityId}`
+        : "/account/bookings";
     case "offer":
       if (item.entityType === "service" && item.entityId) {
         return `/services/${item.entityId}`;
@@ -181,7 +181,7 @@ export default function NotificationsClient({
         <div className="px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <button
-              onClick={() => router.push("/n/app/mobile/profile")}
+              onClick={() => router.push("/account")}
               className="w-10 h-10 -ms-2 flex items-center justify-center text-gray-600"
             >
               <ChevronLeft size={24} className="rtl:rotate-180" />

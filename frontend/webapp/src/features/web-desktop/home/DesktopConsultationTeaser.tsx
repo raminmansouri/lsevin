@@ -4,11 +4,12 @@ import { Check, Video } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { ConsultationPackageChips } from "@/features/consultation/components/consultation-package-chips";
+import { CONSULTATION_DOCTORS_PATH } from "@/features/consultation/lib/paths";
 import { Link } from "@/i18n/navigation";
 
 import { Magnetic, Reveal } from "../components/motion";
 
-const CONSULTATION_HREF = "/n/app/mobile/consultation/doctors";
+const CONSULTATION_HREF = CONSULTATION_DOCTORS_PATH;
 
 /** A champagne strip under the assistant teaser, introducing video consultations with a doctor. */
 export function DesktopConsultationTeaser() {

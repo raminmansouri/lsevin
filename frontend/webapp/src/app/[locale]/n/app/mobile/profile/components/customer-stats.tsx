@@ -135,7 +135,7 @@ export async function CustomerStats({
       label: t("bookings"),
       value: formatNumber(stats.bookingsCount, locale),
       icon: CalendarCheck2,
-      href: "/n/app/mobile/bookings",
+      href: "/account/bookings",
     },
     {
       label: t("points"),

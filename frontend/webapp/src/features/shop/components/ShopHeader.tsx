@@ -48,12 +48,12 @@ export async function ShopHeader({
           <CurrencySwitcher />
         </div>
 
-        <Link href="/n/app/mobile/shop/wishlist" aria-label={t("wishlistTitle")} className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-white">
+        <Link href="/account/wishlist" aria-label={t("wishlistTitle")} className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-white">
           <Heart size={20} strokeWidth={1.9} aria-hidden />
         </Link>
 
         <Link
-          href="/n/app/mobile/shop/cart"
+          href="/shop/cart"
           aria-label={t("cart")}
           className="relative grid h-8 w-8 shrink-0 place-items-center rounded-full text-white"
         >

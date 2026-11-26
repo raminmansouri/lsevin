@@ -43,7 +43,7 @@ export type QuestionnaireDocument = { id: string; title: string; documentType: s
 
 type ConditionDraft = Partial<Record<IntakeConditionKey, { answer?: (typeof YES_NO_UNSURE)[number]; details?: string }>>;
 
-const HEALTH_RECORD_PATH = "/n/app/mobile/profile/my-health-record";
+const HEALTH_RECORD_PATH = "/account/my-health-record";
 
 function numberOrUndefined(value: string): number | undefined {
   const normalized = value.replace(/[۰-۹]/g, (d) => String("۰۱۲۳۴۵۶۷۸۹".indexOf(d))).replace(/[٠-٩]/g, (d) => String("٠١٢٣٤٥٦٧٨٩".indexOf(d)));

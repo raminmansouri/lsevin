@@ -112,7 +112,7 @@ export function DesktopProfileView({
             <h1 className="truncate text-[44px] font-black leading-tight text-white">{fullName || data.email}</h1>
             {data.email ? <p className="truncate text-base text-white/55">{data.email}</p> : null}
             <Link
-              href="/n/app/mobile/profile/EditProfile"
+              href="/account/edit"
               className="lsd-champagne-bg inline-flex items-center gap-2 rounded-full border border-[#eacb7f] px-5 py-2.5 text-sm font-bold text-[#0e1a16] shadow-[0_14px_34px_-16px_rgba(234,203,127,0.6)] transition hover:-translate-y-0.5"            >
               <PencilLine size={15} />
               {data.editLabel}

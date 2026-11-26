@@ -80,11 +80,11 @@ export default function SettingsPageClient({ initialData }: Props) {
   }
 
   const quickLinks = [
-    { label: t("quickLinks.privacySecurity"), href: "/n/app/mobile/profile/privacy-security", icon: Shield, subtitle: t("quickLinks.privacySecuritySubtitle") },
+    { label: t("quickLinks.privacySecurity"), href: "/account/privacy-security", icon: Shield, subtitle: t("quickLinks.privacySecuritySubtitle") },
     { label: t("quickLinks.notifications"), href: "/n/app/mobile/notifications", icon: Bell, subtitle: t("quickLinks.notificationsSubtitle", { count: initialData.summary.unreadNotifications }) },
-    { label: t("quickLinks.wallet"), href: "/n/app/mobile/profile/wallet", icon: Wallet, subtitle: walletLabel },
-    { label: t("quickLinks.rewards"), href: "/n/app/mobile/profile/rewards", icon: Gift, subtitle: initialData.summary.referralCode ? t("quickLinks.referralCode", { code: initialData.summary.referralCode }) : t("quickLinks.noReferralCode") },
-    { label: t("quickLinks.savedFavorites"), href: "/n/app/mobile/profile/favorites", icon: Heart, subtitle: t("quickLinks.savedItems", { count: initialData.summary.favoritesCount }) },
+    { label: t("quickLinks.wallet"), href: "/account/wallet", icon: Wallet, subtitle: walletLabel },
+    { label: t("quickLinks.rewards"), href: "/account/rewards", icon: Gift, subtitle: initialData.summary.referralCode ? t("quickLinks.referralCode", { code: initialData.summary.referralCode }) : t("quickLinks.noReferralCode") },
+    { label: t("quickLinks.savedFavorites"), href: "/account/favorites", icon: Heart, subtitle: t("quickLinks.savedItems", { count: initialData.summary.favoritesCount }) },
   ];
 
   return (

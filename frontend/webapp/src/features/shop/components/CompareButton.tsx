@@ -65,7 +65,7 @@ export function CompareButton({
         {inList ? t("removeFromCompare") : t("addToCompare")}
       </button>
       {count > 0 ? (
-        <Link href="/n/app/mobile/shop/compare" className="text-xs font-semibold text-[#083f30]">
+        <Link href="/shop/compare" className="text-xs font-semibold text-[#083f30]">
           {t("compareTitle")} ({count})
         </Link>
       ) : null}

@@ -17,7 +17,7 @@ export function SearchBar({ defaultValue = "", className }: { defaultValue?: str
       onSubmit={(e) => {
         e.preventDefault();
         const q = value.trim();
-        router.push(q ? `/n/app/mobile/shop/search?q=${encodeURIComponent(q)}` : "/n/app/mobile/shop/search");
+        router.push(q ? `/shop/search?q=${encodeURIComponent(q)}` : "/shop/search");
       }}
       className={cn(
         // min-w-0 so this flex item can actually shrink below its content on

@@ -324,7 +324,7 @@ export function CartClient({
                   cart.totals.hasUnavailablePrice ||
                   active.some((i) => !i.hasStock)
                 }
-                onClick={() => router.push("/n/app/mobile/shop/checkout")}
+                onClick={() => router.push("/shop/checkout")}
                 className={cn(
                   "ms-auto shrink-0 rounded-full bg-[#083f30] px-8 py-3 text-sm font-bold text-white disabled:opacity-50"
                 )}

@@ -110,7 +110,7 @@ export async function DesktopMyCases({
               return (
                 <Reveal key={journey.id} delay={(index % 2) * 80}>
                   <Link
-                    href={`/n/app/mobile/bookings/${journey.bookingId}`}
+                    href={`/account/bookings/${journey.bookingId}`}
                     className="block rounded-[24px] bg-white p-6 ring-1 ring-[#e7dcc4] transition duration-500 hover:-translate-y-1 hover:shadow-[0_24px_50px_-30px_rgba(6,42,32,0.4)] hover:ring-[#c9a55a]"
                   >
                     <div className="flex items-start justify-between gap-4">

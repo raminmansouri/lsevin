@@ -28,8 +28,8 @@ export async function GET(request: NextRequest, context: RouteContext) {
   if (result.nextActionUrl) return NextResponse.redirect(result.nextActionUrl);
 
   const bookingPath = result.bookingId
-    ? `/${locale}/n/app/mobile/bookings/${result.bookingId}`
-    : `/${locale}/n/app/mobile/bookings`;
+    ? `/${locale}/account/bookings/${result.bookingId}`
+    : `/${locale}/account/bookings`;
 
   // Public site origin (NEXT_PUBLIC_URL), not request.url: behind the proxy the server
   // listens on 0.0.0.0:3000, so request.url would send the customer there after paying.

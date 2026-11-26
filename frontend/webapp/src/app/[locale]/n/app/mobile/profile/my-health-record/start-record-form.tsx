@@ -43,7 +43,7 @@ export function StartRecordForm({ defaultFirstName, defaultLastName }: { default
         toast.error(result.error || t("errors.generic"));
         return;
       }
-      router.push(`/n/app/mobile/profile/my-health-record/questionnaire?patient=${result.data.patientId}&step=about`);
+      router.push(`/account/my-health-record/questionnaire?patient=${result.data.patientId}&step=about`);
     });
   };
 

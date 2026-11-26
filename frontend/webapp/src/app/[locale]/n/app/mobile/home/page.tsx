@@ -877,7 +877,7 @@ function LoyaltyClubSection({
           </div>
 
           <Link
-            href={section.buttonHref || '/n/app/mobile/profile/rewards'}
+            href={section.buttonHref || '/account/rewards'}
             className="flex w-full items-center justify-center gap-1.5 rounded-2xl bg-[#eacb7f] px-6 py-3.5 text-sm font-bold text-[#083f30] shadow-lg transition-all hover:bg-[#f0d18f] active:scale-[0.98]"
           >
             {section.buttonLabel || labels.button}

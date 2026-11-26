@@ -75,7 +75,7 @@ export function ServiceWorkerRegister() {
         await caches.open(APPLICATION_CACHE)
       ).match(url.pathname);
       const profile =
-        /^\/(?:en|fa|tr|es|ar|ku|de|fr|ru|tg|zh)\/n\/app\/mobile\/profile\/?$/.test(
+        /^\/(?:en|fa|tr|es|ar|ku|de|fr|ru|tg|zh)\/(?:account|n\/app\/mobile\/profile)\/?$/.test(
           url.pathname
         ) &&
         ((await globalThis.LsevinViewStore?.read(

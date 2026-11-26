@@ -279,7 +279,7 @@ function InvoiceContent({ booking }: { booking: BookingRecord }) {
   const autoPrinted = useRef(false);
 
   useEffect(() => {
-    setBookingUrl(`${window.location.origin}/${locale}/n/app/mobile/bookings/${booking.id}`);
+    setBookingUrl(`${window.location.origin}/${locale}/account/bookings/${booking.id}`);
   }, [locale, booking.id]);
 
   // The app shell (header, bottom nav) must not end up on paper, so a copy of the
@@ -346,7 +346,7 @@ export default function BookingInvoicePage() {
           <h3 className="mb-2 font-bold text-gray-900">{tBooking("bookingCouldNotBeLoaded")}</h3>
           <button
             type="button"
-            onClick={() => router.push(`/n/app/mobile/bookings/${id}`)}
+            onClick={() => router.push(`/account/bookings/${id}`)}
             className="rounded-xl px-6 py-3 font-semibold text-white transition-colors hover:opacity-90"
             style={{ backgroundColor: BRAND }}
           >

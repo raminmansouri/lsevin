@@ -19,7 +19,7 @@ export default async function CheckoutPage({ params }: { params: Promise<{ local
   const cart = await getCartView();
   const active = cart.items.filter((i) => !i.savedForLater);
   if (!cart.id || !active.length) {
-    redirect("/n/app/mobile/shop/cart");
+    redirect(`/${locale}/shop/cart`);
   }
 
   const ctx = await getShopContext();
@@ -42,7 +42,7 @@ export default async function CheckoutPage({ params }: { params: Promise<{ local
 
   return (
     <div className="min-h-screen bg-neutral-50">
-      <ShopHeader cartCount={cart.itemCount} currency={cart.currency} back="/n/app/mobile/shop/cart" />
+      <ShopHeader cartCount={cart.itemCount} currency={cart.currency} back="/shop/cart" />
       <h1 className="px-4 pt-3 text-lg font-extrabold text-neutral-900">{t("checkout")}</h1>
       <CheckoutClient
         locale={locale}

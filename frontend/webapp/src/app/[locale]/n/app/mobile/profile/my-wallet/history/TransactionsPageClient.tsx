@@ -61,7 +61,7 @@ export default function TransactionsPageClient({ initialData }: TransactionsPage
   ).length;
 
   // The detail page lives under my-wallet (the old /app/wallet path no longer exists).
-  const openTransaction = (id: string) => navigate(`/n/app/mobile/profile/my-wallet/transaction/${id}`);
+  const openTransaction = (id: string) => navigate(`/account/wallet/transaction/${id}`);
 
   const summaryCurrency = initialData.defaultCurrency || "USD";
   const summaryNet = transactionNetAmount(filteredTransactions, summaryCurrency);

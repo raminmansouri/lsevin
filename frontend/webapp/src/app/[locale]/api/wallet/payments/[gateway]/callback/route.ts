@@ -39,7 +39,7 @@ export async function GET(
   const result = await verifyWalletTopUpPayment({ gateway, authority, status });
 
   const url = new URL(
-    `/${locale || "fa"}/n/app/mobile/profile/wallet`,
+    `/${locale || "fa"}/account/wallet`,
     gateway === "zibal" ? await gatewayReturnOrigin(gateway) : getAppBaseUrl()
   );
   url.searchParams.set("walletPaymentStatus", result.status);

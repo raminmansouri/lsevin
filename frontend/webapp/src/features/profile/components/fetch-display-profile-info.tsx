@@ -60,7 +60,7 @@ export default function FetchDisplayProfileInfo({profile}:{profile:EditProfileIn
             <p className="text-sm text-gray-500">{profile.email}</p>
            
             <button 
-              onClick={() => navigate('/n/app/mobile/profile/EditProfile')}
+              onClick={() => navigate('/account/edit')}
               className="mt-2 text-sm font-semibold text-[#083f30] hover:underline"
             >
               {t("edit.title")}
