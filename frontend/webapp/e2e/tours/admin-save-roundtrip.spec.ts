@@ -122,7 +122,7 @@ test("a destination's cover picked from the media library is saved and shown aft
   }).toPass({ timeout: 60_000 });
   await evidence(page, testInfo, "destination-cover", "01-loaded");
 
-  await page.locator("#dst-cover").getByRole("button", { name: /Pick file|Choose|Change selection/ }).click();
+  await page.locator("#dst-cover").getByRole("button", { name: /Pick media|Pick file|Choose|Change selection/ }).click();
   await page.getByRole("button", { name: new RegExp(`^${fileName}`) }).click();
   // The picked image shows in the form before saving.
   await expect(page.locator("#dst-cover img").first()).toBeVisible();
