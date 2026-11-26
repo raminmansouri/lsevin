@@ -1,17 +1,26 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
-import { ChevronLeft, Clock, CreditCard, Globe, Loader2, Stethoscope, User } from "lucide-react";
+import { Check, ChevronLeft, Clock, CreditCard, Globe, HeartPulse, Loader2, Stethoscope, User } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { resolveHomeMediaUrl } from "@/features/home/components/home-media";
 import MultiMediaPickerInput from "@/features/media-picker-addon/components/MultiMediaPickerInput";
+import { uploadPrivateViaStorageRoute } from "@/features/media-picker-addon/api";
 import { Link, useRouter } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 
-import type { BookingOptions, BookingSource, OpenUnpaidBooking } from "../patient-booking-types";
+import {
+  DEFAULT_RECORD_SHARE,
+  RECORD_SHARE_DAYS,
+  RECORD_SHARE_PARTS,
+  type BookingOptions,
+  type BookingSource,
+  type OpenUnpaidBooking,
+  type RecordSharePart,
+} from "../patient-booking-types";
 import { createVideoSessionAction, getBookingOptionsAction } from "../server/patient-booking";
 import {
   formatSessionDate,
@@ -50,6 +59,8 @@ export function VideoBookingPage({
   const [gender, setGender] = useState<Gender | null>(null);
   const [note, setNote] = useState("");
   const [files, setFiles] = useState<string[]>([]);
+  // Parts of the health record the doctor may see; the safety basics are ticked by default.
+  const [share, setShare] = useState<RecordSharePart[]>(DEFAULT_RECORD_SHARE);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
   const [isPending, startTransition] = useTransition();
   // The patient's own unpaid request still inside its hold; booking another waits for it.
@@ -123,6 +134,7 @@ export function VideoBookingPage({
           patientGender: gender,
           patientNote: note,
           attachmentMediaIds: files,
+          recordShareScope: share,
         });
         if (result.ok && result.data) {
           router.replace(`/n/app/mobile/consultation/sessions/${result.data.id}`);
@@ -328,11 +340,14 @@ export function VideoBookingPage({
               <MultiMediaPickerInput
                 name="consultation-files"
                 mediaType="all"
+                uploadWith={uploadPrivateViaStorageRoute}
                 placeholder={t("addFiles")}
                 onItemsChange={(items) => setFiles(items.map((item) => item.id).slice(0, 10))}
               />
             </Field>
           </section>
+
+          <RecordShareSection value={share} onChange={setShare} />
 
           {/* In the page flow, not fixed: the app's bottom tabs sit fixed at the
               bottom of the screen and would cover a fixed button. */}
@@ -358,6 +373,67 @@ export function VideoBookingPage({
       )}
 
     </div>
+  );
+}
+
+/**
+ * Which parts of the patient's health record this consultation's doctor may see. Nothing is
+ * shared unless ticked; access ends RECORD_SHARE_DAYS after the call or when the patient stops it.
+ */
+function RecordShareSection({
+  value,
+  onChange,
+}: {
+  value: RecordSharePart[];
+  onChange: (next: RecordSharePart[]) => void;
+}) {
+  const t = useTranslations("Consultation.booking.recordShare");
+  const toggle = (part: RecordSharePart) =>
+    onChange(value.includes(part) ? value.filter((p) => p !== part) : [...value, part]);
+  return (
+    <section className="space-y-3 rounded-2xl bg-white p-4 shadow-sm">
+      <div className="flex items-start gap-3">
+        <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-[#083f30] text-[#eacb7f]">
+          <HeartPulse className="h-4 w-4" aria-hidden />
+        </span>
+        <div className="min-w-0">
+          <h2 className="font-bold text-gray-900">{t("title")}</h2>
+          <p className="mt-1 text-xs leading-5 text-gray-500">{t("body", { days: RECORD_SHARE_DAYS })}</p>
+        </div>
+      </div>
+      <div className="grid grid-cols-2 gap-2">
+        {RECORD_SHARE_PARTS.map((part) => {
+          const on = value.includes(part);
+          return (
+            <button
+              key={part}
+              type="button"
+              role="checkbox"
+              aria-checked={on}
+              onClick={() => toggle(part)}
+              className={cn(
+                "flex items-center gap-2 rounded-xl border px-3 py-2.5 text-start text-sm",
+                on ? "border-[#083f30] bg-[#083f30]/5 text-[#083f30]" : "border-gray-200 text-gray-700"
+              )}
+            >
+              <span
+                className={cn(
+                  "grid size-4 shrink-0 place-items-center rounded border",
+                  on ? "border-[#083f30] bg-[#083f30] text-white" : "border-gray-300"
+                )}
+              >
+                {on && <Check className="h-3 w-3" aria-hidden />}
+              </span>
+              {t(`parts.${part}`)}
+            </button>
+          );
+        })}
+      </div>
+      {value.length === 0 && <p className="text-xs text-gray-500">{t("noneTicked")}</p>}
+      <Link href="/n/app/mobile/profile/my-health-record" className="inline-block text-xs font-medium text-[#083f30] underline">
+        {t("addMore")}
+      </Link>
+    </section>
   );
 }
 

@@ -36,11 +36,11 @@ export type PortalDoctor = {
 };
 
 const CACHE_MS = 60_000;
-let schemaCache: { at: number; portal: boolean; snapshot: boolean; providerSource: boolean } | null = null;
+let schemaCache: { at: number; portal: boolean; snapshot: boolean; providerSource: boolean; recordShare: boolean } | null = null;
 
 async function readSchema() {
   if (schemaCache && Date.now() - schemaCache.at < CACHE_MS) return schemaCache;
-  const rows = await db<{ portal: boolean; snapshot: boolean; provider_source: boolean }[]>`
+  const rows = await db<{ portal: boolean; snapshot: boolean; provider_source: boolean; record_share: boolean }[]>`
     select
       (to_regclass('provider_consultations.doctors') is not null
         and to_regclass('provider_consultations.package_prices') is not null) as portal,
@@ -53,13 +53,19 @@ async function readSchema() {
         select 1 from pg_constraint
         where conname = 'ck_video_sessions_source'
           and pg_get_constraintdef(oid) like '%provider%'
-      ) as provider_source
+      ) as provider_source,
+      exists (
+        select 1 from information_schema.columns
+        where table_schema = 'consultation' and table_name = 'video_sessions'
+          and column_name = 'record_share_scope'
+      ) as record_share
   `;
   schemaCache = {
     at: Date.now(),
     portal: Boolean(rows[0]?.portal),
     snapshot: Boolean(rows[0]?.snapshot),
     providerSource: Boolean(rows[0]?.provider_source),
+    recordShare: Boolean(rows[0]?.record_share),
   };
   return schemaCache;
 }
@@ -72,6 +78,11 @@ export async function providerSourceReady(): Promise<boolean> {
 /** Whether the portal's consultation tables exist in this database. */
 export async function portalPackagesReady(): Promise<boolean> {
   return (await readSchema()).portal;
+}
+
+/** Whether migration 0124 (sharing the health record with the doctor) is applied. */
+export async function recordShareReady(): Promise<boolean> {
+  return (await readSchema()).recordShare;
 }
 
 /** Whether migration 0085 (what a session was bought with) is applied. */

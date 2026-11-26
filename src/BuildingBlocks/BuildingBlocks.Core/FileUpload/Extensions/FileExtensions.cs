@@ -110,8 +110,11 @@ public static class FileExtensions
                 var key = remainder.Value?.TrimStart('/') ?? string.Empty;
                 var isPublic = key.StartsWith("Categories/", StringComparison.Ordinal)
                     || key.StartsWith("ServiceProviders/", StringComparison.Ordinal);
+                var isSignedPrivate = PrivateFileLink.IsPrivateKey(key)
+                    && !key.Contains("..", StringComparison.Ordinal)
+                    && PrivateFileLink.IsValid(key, context.Request.Query, options.PrivateLinkSecret, DateTimeOffset.UtcNow);
 
-                if (!isPublic)
+                if (!isPublic && !isSignedPrivate)
                 {
                     context.Response.StatusCode = StatusCodes.Status403Forbidden;
                     return;
@@ -123,7 +126,10 @@ public static class FileExtensions
                     context.Response.StatusCode = StatusCodes.Status200OK;
                     context.Response.ContentType = response.Headers.ContentType ?? "application/octet-stream";
                     context.Response.ContentLength = response.ContentLength;
-                    context.Response.Headers[HeaderNames.CacheControl] = "public,max-age=31536000,immutable";
+                    // A private file must never sit in a browser or CDN cache.
+                    context.Response.Headers[HeaderNames.CacheControl] = isSignedPrivate
+                        ? "private,no-store"
+                        : "public,max-age=31536000,immutable";
 
                     if (!HttpMethods.IsHead(context.Request.Method))
                     {
@@ -150,6 +156,27 @@ public static class FileExtensions
             Directory.CreateDirectory(uploadPath);
         }
 
+        // Filesystem backend (local development): same rule for Private/ as above, checked
+        // before the static file handler, which would otherwise serve anything on disk.
+        app.Use(async (context, next) =>
+        {
+            if (context.Request.Path.StartsWithSegments(FileConstants.FileRoute, out var rest))
+            {
+                var key = rest.Value?.TrimStart('/') ?? string.Empty;
+                if (PrivateFileLink.IsPrivateKey(key))
+                {
+                    if (key.Contains("..", StringComparison.Ordinal)
+                        || !PrivateFileLink.IsValid(key, context.Request.Query, options.PrivateLinkSecret, DateTimeOffset.UtcNow))
+                    {
+                        context.Response.StatusCode = StatusCodes.Status403Forbidden;
+                        return;
+                    }
+                }
+            }
+
+            await next();
+        });
+
         app.UseStaticFiles(
             new StaticFileOptions
             {
@@ -160,8 +187,12 @@ public static class FileExtensions
                 // can be cached aggressively and immutably by browsers/CDNs.
                 OnPrepareResponse = context =>
                 {
-                    context.Context.Response.Headers[HeaderNames.CacheControl] =
-                        "public,max-age=31536000,immutable";
+                    var isPrivate = context.Context.Request.Path.StartsWithSegments(
+                        $"{FileConstants.FileRoute}/{PrivateFileLink.Prefix.TrimEnd('/')}"
+                    );
+                    context.Context.Response.Headers[HeaderNames.CacheControl] = isPrivate
+                        ? "private,no-store"
+                        : "public,max-age=31536000,immutable";
                 },
             }
         );

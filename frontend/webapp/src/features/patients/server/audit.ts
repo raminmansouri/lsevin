@@ -87,7 +87,12 @@ export type PatientAuditAction =
   | "account_link_request_submitted"
   | "account_link_request_approved"
   | "account_link_request_rejected"
-  | "health_intake_updated";
+  | "health_intake_updated"
+  | "consultation_record_shared"
+  | "consultation_record_share_revoked"
+  | "consultation_record_viewed"
+  | "consultation_record_document_opened"
+  | "consultation_summary_recorded";
 
 /**
  * `purpose`/`result`/`ipAddress`/`userAgent` were added in V5.6

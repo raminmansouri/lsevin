@@ -59,6 +59,8 @@ x-lsevin-webapp: &lsevin-webapp
     NEXT_PUBLIC_SEO_URL: ${NEXT_PUBLIC_SEO_URL:-https://lsevincare.com}
     NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
     NEXT_PUBLIC_FILES_URL: ${NEXT_PUBLIC_FILES_URL}
+    # Signs short-lived links to private (medical) files; must equal the API's FileUploadOptions__PrivateLinkSecret.
+    FILES_PRIVATE_LINK_SECRET: ${FILES_PRIVATE_LINK_SECRET:-}
     NEXT_PUBLIC_SOCKET_URL: ${NEXT_PUBLIC_SOCKET_URL}
     NEXT_PUBLIC_NESHAN_MAP_KEY: ${NEXT_PUBLIC_NESHAN_MAP_KEY}
     NEXT_PUBLIC_MAPBOX_TOKEN: ${NEXT_PUBLIC_MAPBOX_TOKEN}
@@ -187,6 +189,9 @@ services:
       # A scoped service account, never the MinIO root user.
       FileUploadOptions__S3__AccessKey: ${MINIO_API_ACCESS_KEY}
       FileUploadOptions__S3__SecretKey: ${MINIO_API_SECRET_KEY}
+      # Verifies signed links to Private/ files (patients' medical documents). Same value as
+      # FILES_PRIVATE_LINK_SECRET in the webapp and the provider portal. Empty = never served.
+      FileUploadOptions__PrivateLinkSecret: ${FILES_PRIVATE_LINK_SECRET:-}
     expose:
       - "8080"
     # No uploads volume: media lives only in MinIO now. FILE_STORAGE_BACKEND=Minio makes

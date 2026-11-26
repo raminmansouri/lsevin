@@ -7,6 +7,7 @@ import { toast } from "sonner";
 
 import DatePicker from "@/components/form/date-picker";
 import SingleMediaPickerInput from "@/features/media-picker-addon/components/SingleMediaPickerInput";
+import { uploadPrivateViaStorageRoute } from "@/features/media-picker-addon/api";
 import type { MediaItem } from "@/features/media-picker-addon/types";
 import {
   addMyAllergyAction,
@@ -453,6 +454,7 @@ export function DocumentsStep({ patientId, documents }: { patientId: string; doc
             key={pickerKey}
             name="health-document"
             mediaType="all"
+            uploadWith={uploadPrivateViaStorageRoute}
             valueField="id"
             placeholder={t("documents.choose")}
             onItemsChange={(items) => {

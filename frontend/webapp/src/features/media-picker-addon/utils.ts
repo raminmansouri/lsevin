@@ -53,3 +53,20 @@ export function isImage(item: Pick<MediaItem, "mediaType" | "mimeType">) {
 export function isVideo(item: Pick<MediaItem, "mediaType" | "mimeType">) {
   return item.mediaType === "video" || item.mimeType?.startsWith("video/");
 }
+
+/** Files under Private/ (medical files) never load from the public files host. */
+const PRIVATE_PREFIX = "Private/";
+
+/**
+ * Where the browser loads a picked file from. Private files go through
+ * /api/media/private-file, which checks the signed-in user may see the file.
+ */
+export function mediaSrcFor(fileUrl: string, filesBaseUrl: string | undefined): string {
+  const src = String(fileUrl || "").trim();
+  if (!src) return "";
+  if (/^(https?:)?\/\//i.test(src) || src.startsWith("blob:") || src.startsWith("data:")) return src;
+  const relative = src.replace(/\\/g, "/").replace(/^\/+/, "").replace(/^files\//, "");
+  if (relative.startsWith(PRIVATE_PREFIX)) return `/api/media/private-file?path=${encodeURIComponent(relative)}`;
+  if (src.startsWith("/")) return src;
+  return `${String(filesBaseUrl || "").replace(/\/+$/, "")}/${relative}`;
+}

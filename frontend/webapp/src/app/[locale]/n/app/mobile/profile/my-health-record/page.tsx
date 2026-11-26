@@ -6,6 +6,8 @@ import { listPatientAccessForAccount } from "@/features/patients/server/reposito
 import { listRequestsForAccount } from "@/features/patients/server/link-request-repository";
 import { getSession } from "@/lib/auth/session";
 import { DesktopHealthRecord } from "@/features/web-desktop/health/DesktopHealthRecord";
+import { recordShareReady } from "@/features/consultation/server/portal-packages";
+import { listConsultationVisits, type ConsultationVisit } from "@/features/consultation/server/record-share";
 
 import { HealthRecordBody } from "./health-record-body";
 
@@ -15,6 +17,8 @@ export type HealthRecordEntry = Awaited<ReturnType<typeof listPatientAccessForAc
   intake: Awaited<ReturnType<typeof getHealthIntake>>;
   lists: Awaited<ReturnType<typeof listSelfEditableRecords>> | null;
   documents: Awaited<ReturnType<typeof listDocumentsForPatient>>;
+  /** Video consultations filed in this record, with the doctor's summary. */
+  visits: ConsultationVisit[];
 };
 
 export const dynamic = "force-dynamic";
@@ -33,16 +37,18 @@ export default async function MyHealthRecordPage() {
   const linkRequests = accountId ? await listRequestsForAccount(accountId) : [];
   const defaultName = { firstName: session?.user?.firstName ?? "", lastName: session?.user?.lastName ?? "" };
 
+  const visitsReady = await recordShareReady().catch(() => false);
   const records: HealthRecordEntry[] = await Promise.all(
     links.map(async (link) => {
       const showClinicalDetail = link.accessRole !== "limited";
-      if (!showClinicalDetail) return { ...link, showClinicalDetail, intake: null, lists: null, documents: [] };
-      const [intake, lists, documents] = await Promise.all([
+      if (!showClinicalDetail) return { ...link, showClinicalDetail, intake: null, lists: null, documents: [], visits: [] };
+      const [intake, lists, documents, visits] = await Promise.all([
         getHealthIntake(link.patient.id),
         listSelfEditableRecords(link.patient.id),
         listDocumentsForPatient(link.patient.id),
+        visitsReady ? listConsultationVisits(link.patient.id) : Promise.resolve([]),
       ]);
-      return { ...link, showClinicalDetail, intake, lists, documents };
+      return { ...link, showClinicalDetail, intake, lists, documents, visits };
     })
   );
 

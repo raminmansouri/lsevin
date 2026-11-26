@@ -10,6 +10,7 @@ import {
   CreditCard,
   FileText,
   FlaskConical,
+  HeartPulse,
   Loader2,
   Paperclip,
   Receipt,
@@ -34,6 +35,7 @@ import {
   payMyVideoSessionAction,
   resolveMyDoctorIssueAction,
   startForeignVideoPaymentAction,
+  stopSharingMyRecordAction,
   testPayMyVideoSessionAction,
 } from "../server/patient-booking";
 import { formatSessionDate, formatSessionTime } from "./doctor-panel/panel-format";
@@ -339,6 +341,8 @@ export function PatientSessionPage({
             )}
           </div>
 
+          {session.status !== "cancelled" && <RecordShareCard session={session} onChanged={load} />}
+
           {session.summary && (
             <div className="rounded-2xl bg-white p-4 shadow-sm">
               <div className="flex items-center gap-2">
@@ -388,6 +392,84 @@ export function PatientSessionPage({
           )}
         </div>
       )}
+    </div>
+  );
+}
+
+/** What of the health record this doctor can see, until when, and a way to stop it. */
+function RecordShareCard({ session, onChanged }: { session: PatientVideoSession; onChanged: () => void }) {
+  const t = useTranslations("Consultation.booking.recordShare");
+  const tBooking = useTranslations("Consultation.booking");
+  const locale = useLocale();
+  const [confirming, setConfirming] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
+  const share = session.recordShare;
+
+  const stop = async () => {
+    setBusy(true);
+    try {
+      const result = await stopSharingMyRecordAction(session.id);
+      setMessage(result.ok ? t("onSession.stopped") : t("onSession.stopFailed"));
+      if (result.ok) onChanged();
+    } catch {
+      setMessage(t("onSession.stopFailed"));
+    } finally {
+      setBusy(false);
+      setConfirming(false);
+    }
+  };
+
+  let text: string;
+  if (!share) text = t("onSession.notShared");
+  else if (share.revoked) text = t("onSession.revoked");
+  else if (!share.active && new Date(share.expiresAt).getTime() <= Date.now()) text = t("onSession.expired");
+  else
+    text = t("onSession.active", {
+      parts: share.scope.map((part) => t(`parts.${part}`)).join("، "),
+      date: formatSessionDate(locale, share.expiresAt),
+    });
+  const canStop = Boolean(share && !share.revoked && new Date(share.expiresAt).getTime() > Date.now());
+
+  return (
+    <div className="rounded-2xl bg-white p-4 shadow-sm">
+      <div className="flex items-center gap-2">
+        <HeartPulse className="h-4 w-4 text-[#083f30]" aria-hidden />
+        <p className="font-bold text-gray-900">{t("onSession.title")}</p>
+      </div>
+      <p className="mt-2 text-sm leading-6 text-gray-700">{text}</p>
+      {message && <p className="mt-2 text-xs text-gray-500">{message}</p>}
+      {canStop &&
+        (confirming ? (
+          <div className="mt-3 space-y-2">
+            <p className="text-xs text-gray-600">{t("onSession.stopConfirm")}</p>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={stop}
+                disabled={busy}
+                className="flex-1 rounded-xl bg-red-600 py-2 text-sm font-bold text-white disabled:opacity-60"
+              >
+                {busy ? <Loader2 className="mx-auto h-4 w-4 animate-spin" aria-hidden /> : t("onSession.stop")}
+              </button>
+              <button
+                type="button"
+                onClick={() => setConfirming(false)}
+                className="flex-1 rounded-xl border border-gray-200 py-2 text-sm text-gray-700"
+              >
+                {tBooking("back")}
+              </button>
+            </div>
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={() => setConfirming(true)}
+            className="mt-3 rounded-xl border border-red-200 px-3 py-2 text-xs font-bold text-red-700"
+          >
+            {t("onSession.stop")}
+          </button>
+        ))}
     </div>
   );
 }

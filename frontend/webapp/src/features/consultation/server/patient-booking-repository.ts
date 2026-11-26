@@ -97,6 +97,8 @@ type CreateArgs = {
   attachmentMediaIds: string[];
   /** What the session was bought with (migration 0085); left out until that migration is applied. */
   snapshot?: SessionSnapshot | null;
+  /** The patient record and the parts shared with the doctor (migration 0124); left out until it is applied. */
+  recordShare?: { patientId: string; scope: string[] } | null;
 };
 
 export type SessionSnapshot = {
@@ -196,6 +198,14 @@ export async function createVideoSessionIfFree(args: CreateArgs): Promise<Create
           platform_percent = ${snap.platformPercent},
           source = ${snap.source},
           service_id = ${snap.serviceId}::uuid
+        where id = ${id}::uuid
+      `;
+    }
+    if (args.recordShare) {
+      await tx`
+        update consultation.video_sessions set
+          record_patient_id = ${args.recordShare.patientId}::uuid,
+          record_share_scope = ${args.recordShare.scope}::text[]
         where id = ${id}::uuid
       `;
     }

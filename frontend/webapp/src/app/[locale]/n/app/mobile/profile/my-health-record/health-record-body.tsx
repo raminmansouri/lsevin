@@ -8,6 +8,7 @@ import {
   ShieldAlert,
   Stethoscope,
   UserRound,
+  Video,
   type LucideIcon,
 } from "lucide-react";
 import { getLocale, getTranslations } from "next-intl/server";
@@ -144,7 +145,7 @@ function Lines({ lines }: { lines: (string | null | undefined | false)[] }) {
 }
 
 function PatientSummary({ record, t, locale }: { record: HealthRecordEntry; t: TranslationType; locale: string }) {
-  const { patient, relationshipType, showClinicalDetail, intake, lists, documents } = record;
+  const { patient, relationshipType, showClinicalDetail, intake, lists, documents, visits } = record;
   const initials = `${patient.firstName?.[0] ?? ""}${patient.lastName?.[0] ?? ""}`;
   const percent = intakeCompletionPercent(intake);
   const editHref = (step: IntakeStep) => `${QUESTIONNAIRE_PATH}?patient=${patient.id}&step=${step}`;
@@ -365,6 +366,56 @@ function PatientSummary({ record, t, locale }: { record: HealthRecordEntry; t: T
                     </a>
                   </li>
                 ))}
+              </ul>
+            </SectionCard>
+
+            <SectionCard
+              icon={Video}
+              title={t("consultations.title")}
+              editLabel=""
+              emptyLabel={t("consultations.empty")}
+              empty={visits.length === 0}
+            >
+              <ul className="space-y-3">
+                {visits.map((visit) => {
+                  const doctorName = locale.startsWith("fa") ? visit.doctorNameFa : visit.doctorNameEn || visit.doctorNameFa;
+                  const notes: [string, string | null][] = [
+                    ["advice", visit.advice],
+                    ["nextSteps", visit.nextSteps],
+                    ["suggestion", visit.suggestion],
+                  ];
+                  const hasStructured = notes.some(([, value]) => value);
+                  return (
+                    <li key={visit.id} className="rounded-2xl bg-[#faf6ee] px-4 py-3">
+                      <p className="text-xs font-bold text-[#0f5a45]">
+                        {[formatDate(visit.startedAt, locale), doctorName ? t("consultations.doctor", { name: doctorName }) : null]
+                          .filter(Boolean)
+                          .join(" · ")}
+                      </p>
+                      {visit.reason && (
+                        <p className="mt-1 text-xs leading-5 text-[#6b6150]">
+                          {t("consultations.reason")}: {visit.reason}
+                        </p>
+                      )}
+                      {hasStructured ? (
+                        <dl className="mt-2 space-y-1.5">
+                          {notes.map(([key, value]) =>
+                            value ? (
+                              <div key={key}>
+                                <dt className="text-xs font-bold text-[#3d362a]">{t(`consultations.${key}`)}</dt>
+                                <dd className="whitespace-pre-wrap text-sm leading-6">{value}</dd>
+                              </div>
+                            ) : null
+                          )}
+                        </dl>
+                      ) : visit.summary ? (
+                        <p className="mt-2 whitespace-pre-wrap text-sm leading-6">{visit.summary}</p>
+                      ) : (
+                        <p className="mt-2 text-xs text-[#b5ab97]">{t("consultations.noSummary")}</p>
+                      )}
+                    </li>
+                  );
+                })}
               </ul>
             </SectionCard>
 

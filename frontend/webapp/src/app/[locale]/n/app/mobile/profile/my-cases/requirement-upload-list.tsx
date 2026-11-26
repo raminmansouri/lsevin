@@ -6,6 +6,7 @@ import { toast } from "sonner";
 
 import { useRouter } from "@/i18n/navigation";
 import SingleMediaPickerInput from "@/features/media-picker-addon/components/SingleMediaPickerInput";
+import { uploadPrivateViaStorageRoute } from "@/features/media-picker-addon/api";
 import type { MediaItem } from "@/features/media-picker-addon/types";
 import { uploadMyDocumentAction } from "@/features/patients/server/customer-documents-actions";
 import type { TranslationType } from "@/types/next";
@@ -95,6 +96,7 @@ export function RequirementUploadList({
                 <SingleMediaPickerInput
                   name={`requirement-${requirement.id}`}
                   mediaType="all"
+                  uploadWith={uploadPrivateViaStorageRoute}
                   valueField="id"
                   placeholder={t("uploadFile")}
                   onItemsChange={(items) => {

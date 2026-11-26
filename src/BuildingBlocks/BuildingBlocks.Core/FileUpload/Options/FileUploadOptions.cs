@@ -52,6 +52,17 @@ public sealed class FileUploadOptions
     /// an object store it never talks to.
     /// </remarks>
     public S3StorageOptions S3 { get; init; } = new();
+
+    /// <summary>
+    /// Gets the secret that signs short-lived links to private files (keys under
+    /// <c>Private/</c>, such as patients' medical documents).
+    /// </summary>
+    /// <remarks>
+    /// The web app and the provider portal hold the same value
+    /// (<c>FILES_PRIVATE_LINK_SECRET</c>) and sign links server-side after checking who may
+    /// see the file. Left empty, private files are never served at all, which fails closed.
+    /// </remarks>
+    public string PrivateLinkSecret { get; init; } = string.Empty;
 }
 
 /// <summary>

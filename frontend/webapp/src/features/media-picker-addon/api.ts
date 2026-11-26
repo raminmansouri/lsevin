@@ -6,6 +6,7 @@ import type {
   MediaType,
   UploadMediaResult,
   UploadWithProgress,
+  UploadWithProgressInput,
 } from "./types";
 import { isLikelyUuid } from "./utils";
 
@@ -165,16 +166,25 @@ export async function deleteMediaById(id: string): Promise<boolean> {
   return Boolean(payload?.success ?? true);
 }
 
-export const uploadViaStorageRoute: UploadWithProgress = async ({
-  file,
-  onProgress,
-}): Promise<UploadMediaResult> => {
+export const uploadViaStorageRoute: UploadWithProgress = (args) => uploadToStorage(args, false);
+
+/**
+ * For medical files (health record documents, consultation photos): stored under Private/,
+ * which only opens through a short-lived signed link after a permission check.
+ */
+export const uploadPrivateViaStorageRoute: UploadWithProgress = (args) => uploadToStorage(args, true);
+
+async function uploadToStorage(
+  { file, onProgress }: UploadWithProgressInput,
+  isPrivate: boolean
+): Promise<UploadMediaResult> {
   // Bandwidth layer: convert raster images to WebP under budget before upload.
   // Non-images / already-optimized files are returned unchanged.
   const uploadFile = await compressImageToWebp(file);
 
   const formData = new FormData();
   formData.append("file", uploadFile);
+  if (isPrivate) formData.append("visibility", "private");
 
   return new Promise<UploadMediaResult>((resolve, reject) => {
     const xhr = new XMLHttpRequest();
@@ -208,4 +218,4 @@ export const uploadViaStorageRoute: UploadWithProgress = async ({
     xhr.onerror = () => reject(new Error("Upload failed."));
     xhr.send(formData);
   });
-};
+}

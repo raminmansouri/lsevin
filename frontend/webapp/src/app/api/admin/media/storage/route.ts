@@ -64,12 +64,15 @@ export async function POST(request: NextRequest) {
     const session = await getSession();
     const user = session?.user;
 
-    if (!formData.has("path")) {
-      formData.append("path", "1");
-    }
+    // visibility=private: a patient's medical file. Stored under Private/, which the
+    // files host only serves through a short-lived signed link (lib/files/private-link.ts).
+    const isPrivate = formData.get("visibility") === "private";
+    formData.delete("visibility");
+    const storagePath = isPrivate ? "3" : "1";
+    formData.set("path", storagePath);
 
     const { data, error } = await putData<FormData, any>(
-      "File/UploadAnyFile?path=1",
+      `File/UploadAnyFile?path=${storagePath}`,
       formData,
       { locale: "en", token: user?.accessToken }
     );

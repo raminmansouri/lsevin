@@ -43,10 +43,15 @@ internal sealed class UploadAnyFileCommandHandler(
                 break;
         }
 
+        // path 3 = a patient's medical file. It goes under Private/, which the /files route
+        // never serves to the public: only a short-lived signed link opens it
+        // (see FileExtensions.UseFileUploadService and FileUploadOptions.PrivateLinkSecret).
+        var directory = command.path == 3 ? "Private/medical" : $"Categories/{path}";
+
 
             var uploadResult = await fileService.UploadSingleFileAsync(
                 command.File,
-                directory: $"Categories/{path}",
+                directory: directory,
                 cancellationToken
             );
 

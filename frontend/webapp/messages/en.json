@@ -9179,6 +9179,16 @@
           "fromCareTeam": "Added by your care team"
         },
         "pickDate": "Pick a date"
+      },
+      "consultations": {
+        "title": "My consultations",
+        "empty": "Your video consultations and the doctor's notes will appear here.",
+        "doctor": "Dr. {name}",
+        "reason": "Your question",
+        "advice": "Doctor's advice",
+        "nextSteps": "Next steps",
+        "suggestion": "Suggested treatment",
+        "noSummary": "The doctor hasn't written a summary yet."
       }
     },
     "myCases": {
@@ -15433,6 +15443,31 @@
         "minutesLeft": "The time is held for you for {minutes, plural, one {# more minute} other {# more minutes}}. After that you can book a new consultation.",
         "continue": "Continue to payment",
         "blockedButton": "Finish your open reservation first"
+      },
+      "recordShare": {
+        "title": "Share your health record with the doctor",
+        "body": "Tick what the doctor may see. They can open it from when you book until {days} days after the call, and you can stop sharing at any time.",
+        "parts": {
+          "allergies": "Allergies",
+          "medications": "Medicines",
+          "conditions": "Conditions and illnesses",
+          "labs": "Lab tests",
+          "imaging": "Scans and imaging",
+          "documents": "Other documents"
+        },
+        "noneTicked": "Nothing ticked: the doctor will only see what you write below.",
+        "addMore": "Add to your health record",
+        "onSession": {
+          "title": "Your health record",
+          "active": "The doctor can see: {parts}. Until {date}.",
+          "revoked": "You stopped sharing your health record with this doctor.",
+          "expired": "The doctor's access to your health record has ended.",
+          "notShared": "You didn't share your health record for this consultation.",
+          "stop": "Stop sharing",
+          "stopConfirm": "Stop this doctor seeing your health record?",
+          "stopped": "Sharing stopped.",
+          "stopFailed": "Couldn't stop sharing. Please try again."
+        }
       }
     },
     "call": {

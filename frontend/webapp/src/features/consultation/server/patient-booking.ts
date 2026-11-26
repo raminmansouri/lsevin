@@ -6,11 +6,13 @@ import { z } from "zod/v4";
 import { formatMoney } from "@/features/finance/lib/money";
 import { getUserPhoneCountryCode } from "@/features/finance/lib/server/currency-queries";
 import { getSession } from "@/lib/auth/session";
+import { isPrivateFilePath, toStoredRelativePath } from "@/lib/files/private-link";
 
 import {
   BOOKING_DAYS_AHEAD,
   BOOKING_SOURCES,
   CANCEL_REFUND_HOURS,
+  RECORD_SHARE_PARTS,
   type BookingError,
   type BookingOptions,
   type CreateVideoSessionInput,
@@ -34,7 +36,8 @@ import {
 } from "./patient-booking-repository";
 import { clinicOf, doctorPackages, listBookableDoctors, loadOfferContext } from "./doctor-offers";
 import { issueCallToken } from "./livekit";
-import { getPlatformPercent, providerSourceReady, sessionSnapshotReady } from "./portal-packages";
+import { getPlatformPercent, providerSourceReady, recordShareReady, sessionSnapshotReady } from "./portal-packages";
+import { ensureRecordForBooking, getRecordShareForSession, recordShareAudit, revokeRecordShare } from "./record-share";
 import { getProviderService, type ProviderService } from "./provider-consultation-repository";
 import {
   cancelSessionByPatient,
@@ -142,6 +145,7 @@ const CreateSchema = z.object({
   patientGender: z.enum(["male", "female", "other"]).nullable(),
   patientNote: z.string().trim().min(10).max(4000),
   attachmentMediaIds: z.array(z.string().trim().min(1).max(200)).max(10),
+  recordShareScope: z.array(z.enum(RECORD_SHARE_PARTS)).max(RECORD_SHARE_PARTS.length).optional(),
 });
 
 /**
@@ -202,6 +206,19 @@ export async function createVideoSessionAction(
         }
       : null;
 
+    // Every consultation is filed in the patient's own health record (a basic one is made
+    // from this form when the account has none), so the doctor's summary lands there.
+    const recordShare = (await recordShareReady())
+      ? {
+          patientId: await ensureRecordForBooking({
+            accountId: userId,
+            patientName: values.patientName,
+            patientGender: values.patientGender,
+          }),
+          scope: Array.from(new Set(values.recordShareScope ?? [])),
+        }
+      : null;
+
     const outcome = await createVideoSessionIfFree({
       doctorId: values.doctorId,
       patientUserId: userId,
@@ -215,9 +232,19 @@ export async function createVideoSessionAction(
       patientNote: values.patientNote,
       attachmentMediaIds: values.attachmentMediaIds,
       snapshot,
+      recordShare,
     });
     if (outcome.kind === "pendingPayment") return { ...fail("pendingPayment"), pending: outcome.pending };
     if (outcome.kind === "slotTaken") return fail("slotTaken");
+    if (recordShare?.scope.length) {
+      await recordShareAudit({
+        accountId: userId,
+        patientId: recordShare.patientId,
+        sessionId: outcome.id,
+        action: "consultation_record_shared",
+        scope: recordShare.scope,
+      });
+    }
     return { ok: true, data: { id: outcome.id } };
   } catch (error) {
     return fail("loadFailed", error);
@@ -281,13 +308,14 @@ export async function getMyVideoSessionAction(
   try {
     const row = await getPatientSession(userId, id.data);
     if (!row) return fail("notFound");
-    const [locale, files, testPayment, state, receiptInstructions] = await Promise.all([
+    const [locale, files, testPayment, state, receiptInstructions, recordShare] = await Promise.all([
       getLocale(),
       getMediaFiles(row.attachment_media_ids ?? []),
       testPaymentEnabled(),
       // Needs migration 0087; without it the page shows the session as before.
       receiptsReady().then((ready) => (ready ? getSessionChangeState(userId, id.data) : null)),
       receiptsReady().then((ready) => (ready ? getReceiptInstructions() : null)),
+      recordShareReady().then((ready) => (ready ? getRecordShareForSession(userId, id.data) : null)),
     ]);
     const persian = locale.toLowerCase().startsWith("fa");
     const item = toPatientListItem(row, persian);
@@ -331,9 +359,13 @@ export async function getMyVideoSessionAction(
         attachments: files.map((file) => ({
           id: file.id,
           name: file.original_name,
-          url: file.file_url,
+          // Consultation photos are private files: they open through the checked route.
+          url: isPrivateFilePath(file.file_url)
+            ? `/api/media/private-file?path=${encodeURIComponent(toStoredRelativePath(file.file_url) ?? "")}`
+            : file.file_url,
           mimeType: file.mime_type,
         })),
+        recordShare,
         summary: row.summary_written_at
           ? {
               advice: row.summary_advice,
@@ -573,6 +605,20 @@ export async function resolveMyDoctorIssueAction(
     });
     if ("error" in result) return fail(result.error);
     return { ok: true, data: undefined };
+  } catch (error) {
+    return fail("loadFailed", error);
+  }
+}
+
+/** Stops this consultation's doctor seeing the patient's health record. */
+export async function stopSharingMyRecordAction(sessionId: string): Promise<ConsultationActionResult<null>> {
+  const userId = await signedInUserId();
+  if (!userId) return fail("signIn");
+  const id = DoctorIdSchema.safeParse(sessionId);
+  if (!id.success || !(await recordShareReady())) return fail("notFound");
+  try {
+    const done = await revokeRecordShare(userId, id.data);
+    return done ? { ok: true, data: null } : fail("notFound");
   } catch (error) {
     return fail("loadFailed", error);
   }

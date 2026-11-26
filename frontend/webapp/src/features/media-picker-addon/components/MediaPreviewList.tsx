@@ -5,15 +5,12 @@ import React from "react";
 import { File, Film, ImageIcon, Trash2 } from "lucide-react";
 
 import type { MediaItem } from "../types";
-import { formatBytes, isImage, isVideo, truncateMiddle } from "../utils";
+import { formatBytes, isImage, isVideo, mediaSrcFor, truncateMiddle } from "../utils";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { env } from "@/config/env/client";
 
 function mediaSrc(fileUrl: string) {
-  const src = String(fileUrl || "").trim();
-  if (!src) return "";
-  if (/^(https?:)?\/\//i.test(src) || src.startsWith("/") || src.startsWith("blob:") || src.startsWith("data:")) return src;
-  return `${String(env.NEXT_PUBLIC_FILES_URL || "").replace(/\/+$/, "")}/${src.replace(/^\/+/, "")}`;
+  return mediaSrcFor(fileUrl, env.NEXT_PUBLIC_FILES_URL);
 }
 
 function MediaIcon({ item }: { item: MediaItem }) {

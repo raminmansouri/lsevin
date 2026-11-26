@@ -50,21 +50,12 @@ import type {
   UploadMediaResult,
   UploadWithProgress,
 } from "../types";
-import { formatBytes, isImage, isVideo, truncateMiddle } from "../utils";
+import { formatBytes, isImage, isVideo, mediaSrcFor, truncateMiddle } from "../utils";
 
 type FilterType = "all" | MediaType;
 
 function mediaSrc(fileUrl: string) {
-  const src = String(fileUrl || "").trim();
-  if (!src) return "";
-  if (
-    /^(https?:)?\/\//i.test(src) ||
-    src.startsWith("/") ||
-    src.startsWith("blob:") ||
-    src.startsWith("data:")
-  )
-    return src;
-  return `${String(env.NEXT_PUBLIC_FILES_URL || "").replace(/\/+$/, "")}/${src.replace(/^\/+/, "")}`;
+  return mediaSrcFor(fileUrl, env.NEXT_PUBLIC_FILES_URL);
 }
 
 function MediaThumb({ item }: { item: MediaItem }) {

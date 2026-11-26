@@ -18,6 +18,14 @@ export const RECEIPT_REVIEW_HOLD_HOURS = 24;
 export const BOOKING_SOURCES = ["home_card", "doctors_page", "provider", "service", "specialist", "booking"] as const;
 export type BookingSource = (typeof BOOKING_SOURCES)[number];
 
+/** Parts of the health record the patient can let the consultation's doctor see (migration 0124). */
+export const RECORD_SHARE_PARTS = ["allergies", "medications", "conditions", "labs", "imaging", "documents"] as const;
+export type RecordSharePart = (typeof RECORD_SHARE_PARTS)[number];
+/** Ticked by default: what a doctor most needs to treat safely. */
+export const DEFAULT_RECORD_SHARE: RecordSharePart[] = ["allergies", "medications", "conditions"];
+/** How long after the call the doctor can still open what was shared. */
+export const RECORD_SHARE_DAYS = 21;
+
 /** One package on the booking screen, with its own free times (a longer call needs a longer gap). */
 export type BookingPackage = {
   minutes: number;
@@ -71,6 +79,8 @@ export type CreateVideoSessionInput = {
   patientGender: "male" | "female" | "other" | null;
   patientNote: string;
   attachmentMediaIds: string[];
+  /** Parts of the health record the doctor may see; empty shares nothing. */
+  recordShareScope?: RecordSharePart[];
 };
 
 export type PatientVideoSessionListItem = {
@@ -113,6 +123,13 @@ export type PatientVideoSession = PatientVideoSessionListItem & {
    * new time. `canReschedule` is false when the doctor no longer takes bookings.
    */
   doctorIssue: { kind: "missed" | "cancelled"; canReschedule: boolean } | null;
+  /** What of the health record this consultation's doctor may see (null when nothing is shared). */
+  recordShare: {
+    scope: RecordSharePart[];
+    expiresAt: string;
+    revoked: boolean;
+    active: boolean;
+  } | null;
 };
 
 /** The patient's consultations split the way the bookings page tabs are. */
