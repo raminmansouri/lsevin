@@ -10582,7 +10582,8 @@
     },
     "consultationRequests": "Дархостҳои машварат",
     "nav": {
-      "editorial": "Мундариҷаи сомона"
+      "editorial": "Мундариҷаи сомона",
+      "amenities": "Шароитҳо"
     }
   },
   "AdminLazySelect": {

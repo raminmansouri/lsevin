@@ -7,7 +7,7 @@ import { currentActor } from "@/features/tours/server/platform/access";
 import { LocalizedText } from "@/features/tours/ui/shared/localized-text";
 import { parseStaySearch } from "@/features/stays/domain/search";
 import { wishlistIds } from "@/features/stays/server/catalog";
-import { cachedAmenities, cachedCities, cachedCity, cachedLandmarks, catalogSearch, catalogSuggestions } from "@/features/stays/server/cache";
+import { cachedAmenities, cachedCities, cachedUsedAmenityCodes, cachedCity, cachedLandmarks, catalogSearch, catalogSuggestions } from "@/features/stays/server/cache";
 import { logUnexpected } from "@/features/stays/server/errors";
 import { citySchema, STAY_INDEXABLE_LOCALES } from "@/features/stays/server/seo";
 import { StayImage } from "@/features/stays/ui/common";
@@ -50,7 +50,7 @@ export default async function StaysCityPage({ params, searchParams }: Props) {
   const search = { ...parseStaySearch(await searchParams), city: slug };
   const t = await getTranslations({ locale, namespace: "StayApp" });
   const actor = await currentActor();
-  const [cities, amenities, saved, result, landmarks] = await Promise.all([
+  const [cities, amenities, saved, result, landmarks, usedAmenities] = await Promise.all([
     cachedCities(content).catch(() => []),
     cachedAmenities(content).catch(() => []),
     actor.userId ? wishlistIds(actor.userId).catch(() => [] as string[]) : Promise.resolve([] as string[]),
@@ -59,6 +59,7 @@ export default async function StaysCityPage({ params, searchParams }: Props) {
       return null;
     }),
     cachedLandmarks(slug, content).catch(() => []),
+    cachedUsedAmenityCodes().catch(() => undefined),
   ]);
   const suggestions =
     result && result.total === 0
@@ -98,6 +99,7 @@ export default async function StaysCityPage({ params, searchParams }: Props) {
         cities={cities.map((c) => ({ slug: c.slug, name: c.name, region: c.region }))}
         cityCounts={cities.map((c) => ({ slug: c.slug, name: c.name, count: c.propertyCount }))}
         amenities={amenities}
+        filterableAmenityCodes={usedAmenities}
         landmarks={landmarks}
         suggestions={suggestions}
         savedIds={saved}

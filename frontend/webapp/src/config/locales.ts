@@ -114,7 +114,7 @@ export const LOCALE_DISPLAY_NAMES: Record<LocaleHeaderTypes, string> = {
   "tr-TR": "Türkçe",
   "es-ES": "Español",
   "ar-SA": "العربية",
-  "ku-KU": "Kurdish",
+  "ku-KU": "کوردی",
   "de-DE": "Deutsch",
   "fr-FR": "Français",
   "ru-RU": "Русский",

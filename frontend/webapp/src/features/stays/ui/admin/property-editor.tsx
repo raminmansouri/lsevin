@@ -625,7 +625,7 @@ function RoomDialog({ propertyId, state, amenities, onClose }: { propertyId: str
           </Button>
         </div>
         <Field label={t("rooms.amenities")}>
-          <AmenityFields testId="stays-room-amenities" amenities={amenities} values={r.amenityCodes} onChange={(v) => set("amenityCodes", v)} />
+          <AmenityFields testId="stays-room-amenities" scope="room" amenities={amenities} values={r.amenityCodes} onChange={(v) => set("amenityCodes", v)} />
         </Field>
         <DialogFooter>
           <Button type="button" variant="outline" onClick={onClose}>

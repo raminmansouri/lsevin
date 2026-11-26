@@ -111,10 +111,107 @@ describe.skipIf(!url)("amenity catalog server action with PostgreSQL", () => {
     identity.isAdmin = true;
     const results = await Promise.all([save(payload), save(payload)]);
     expect(results.filter(result => result.ok)).toHaveLength(1);
-    expect(results).toContainEqual(expect.objectContaining({ ok: false, error: expect.objectContaining({ code: "stale_update" }) }));
+    expect(results).toContainEqual(expect.objectContaining({ ok: false, error: expect.objectContaining({ code: "stale_edit" }) }));
     const [row] = await sql`select label,icon,revision from stay.amenities where code=${code}`;
     expect(row).toMatchObject({ label: { "fa-IR": "Persian label", "en-US": "Updated" }, icon: "coffee", revision: 2 });
     const events = await sql`select action from stay.audit_log where entity_type='amenity' and detail->>'code'=${code}`;
     expect(events).toHaveLength(1);
+  });
+});
+
+describe.skipIf(!url)("amenity catalogue: adding, options, sections and switching off (PostgreSQL)", () => {
+  let sql: postgres.Sql;
+  let admin: string;
+  let actions: typeof import("./actions/admin");
+  let catalog: typeof import("./catalog");
+  const created: string[] = [];
+  const tag = randomUUID().slice(0, 8);
+
+  beforeAll(async () => {
+    assertLocalDatabase(url!);
+    sql = postgres(url!, { max: 2 });
+    admin = (await seedUser(sql as never)).id;
+    actions = await import("./actions/admin");
+    catalog = await import("./catalog");
+    identity.userId = admin;
+    identity.isAdmin = true;
+  });
+
+  afterAll(async () => {
+    if (!sql) return;
+    await sql`update stay.properties set amenity_codes = array(select c from unnest(amenity_codes) c where not c = any(${created}::text[]))`;
+    await sql`delete from stay.amenities where parent_code = any(${created}::text[])`;
+    await sql`delete from stay.amenities where code = any(${created}::text[])`;
+    await sql.end();
+  });
+
+  const create = async (input: Record<string, unknown>) => {
+    const res = (await actions.createAmenityAction({ icon: "check", group: "general", parentCode: null, imageId: null, ...input })) as any;
+    if (res.ok) created.push(res.data.code);
+    return res;
+  };
+  const row = async (code: string) => (await sql<any[]>`select * from stay.amenities where code = ${code}`)[0];
+
+  it("adds an amenity with a readable unique code, at the end of its section; non-admins are refused", async () => {
+    identity.isAdmin = false;
+    expect(await create({ label: { "en-US": `Rooftop pool ${tag}` } })).toMatchObject({ ok: false, error: { kind: "authorization" } });
+    identity.isAdmin = true;
+    const first = await create({ label: { "en-US": `Rooftop pool ${tag}`, "fa-IR": "استخر روی بام" }, group: "wellness", icon: "waves-ladder" });
+    const second = await create({ label: { "en-US": `Rooftop pool ${tag}` }, group: "wellness" });
+    expect(first).toMatchObject({ ok: true, data: { code: `rooftop_pool_${tag}` } });
+    expect(second).toMatchObject({ ok: true, data: { code: `rooftop_pool_${tag}_2` } });
+    const r = await row(first.data.code);
+    expect(r).toMatchObject({ grp: "wellness", icon: "waves-ladder", parent_code: null, is_active: true });
+    expect(r.label).toEqual({ "en-US": `Rooftop pool ${tag}`, "fa-IR": "استخر روی بام" });
+    const [{ max }] = await sql<any[]>`select max(sort_order) as max from stay.amenities where grp = 'wellness' and code <> ${second.data.code}`;
+    expect((await row(second.data.code)).sort_order).toBeGreaterThan(Number(max) - 1);
+    // A Persian-only name still gets a valid code.
+    expect(await create({ label: { "fa-IR": "حوض سنتی" } })).toMatchObject({ ok: true, data: { code: expect.stringMatching(/^amenity(_\d+)?$/) } });
+  });
+
+  it("an option takes its parent's section; options cannot have options; an amenity with options cannot become one", async () => {
+    const parent = (await create({ label: { "en-US": `Pillow type ${tag}` }, group: "room" })).data.code;
+    const option = await create({ label: { "en-US": `Memory foam ${tag}` }, parentCode: parent, group: "wellness" });
+    expect(option.ok).toBe(true);
+    expect(await row(option.data.code)).toMatchObject({ parent_code: parent, grp: "room" });
+    expect(await create({ label: { "en-US": `Nested ${tag}` }, parentCode: option.data.code })).toMatchObject({ ok: false, error: { code: "invalid_parent" } });
+    const other = (await create({ label: { "en-US": `Other ${tag}` } })).data.code;
+    const p = await row(parent);
+    expect(await actions.saveAmenityAction({ code: parent, revision: p.revision, label: {}, icon: "bed-double", imageId: null, parentCode: other })).toMatchObject({ ok: false });
+    expect(await actions.saveAmenityAction({ code: parent, revision: p.revision, label: { "en-US": `Pillow type ${tag}` }, icon: "bed-double", imageId: null, parentCode: other })).toMatchObject({ ok: false, error: { code: "amenity_has_options" } });
+    // Moving the parent to another section moves its options too.
+    expect(await actions.saveAmenityAction({ code: parent, revision: p.revision, label: { "en-US": `Pillow type ${tag}` }, icon: "bed-double", imageId: null, group: "bathroom" })).toMatchObject({ ok: true });
+    expect((await row(option.data.code)).grp).toBe("bathroom");
+  });
+
+  it("switching an amenity off hides it everywhere but keeps the hotels' selection", async () => {
+    const code = (await create({ label: { "en-US": `Ice machine ${tag}` }, group: "general" })).data.code;
+    const owner = await seedUser(sql as never);
+    const provider = await seedStayProvider(sql as never, owner.id);
+    const city = await seedStayCity(sql as never);
+    const stay = await seedStay(sql as never, { providerId: provider.id, cityId: city.id });
+    await sql`update stay.properties set amenity_codes = amenity_codes || ${[code]}::text[] where id = ${stay.id}::uuid`;
+    expect((await catalog.listAmenities("en-US")).some((a) => a.code === code)).toBe(true);
+    expect(await catalog.usedAmenityCodes()).toContain(code);
+    const r = await row(code);
+    expect(await actions.saveAmenityAction({ code, revision: r.revision, label: r.label, icon: "check", imageId: null, isActive: false })).toMatchObject({ ok: true });
+    expect((await catalog.listAmenities("en-US")).some((a) => a.code === code)).toBe(false);
+    const p = await catalog.getPropertyDetail({ slug: stay.slug }, "en-US");
+    expect(p?.amenities.some((a) => a.code === code)).toBe(false);
+    const [{ amenity_codes }] = await sql<any[]>`select amenity_codes from stay.properties where id = ${stay.id}::uuid`;
+    expect(amenity_codes).toContain(code);
+  });
+
+  it("guests see a chosen option instead of its parent (no 'Door lock type' next to 'Key card')", async () => {
+    const owner = await seedUser(sql as never);
+    const provider = await seedStayProvider(sql as never, owner.id);
+    const city = await seedStayCity(sql as never);
+    const stay = await seedStay(sql as never, { providerId: provider.id, cityId: city.id });
+    await sql`update stay.properties set amenity_codes = '{wifi,door_lock_type,door_lock_type_v2}' where id = ${stay.id}::uuid`;
+    const p = await catalog.getPropertyDetail({ slug: stay.slug }, "en-US");
+    const codes = p?.amenities.map((a) => a.code) ?? [];
+    expect(codes).toContain("door_lock_type_v2");
+    expect(codes).not.toContain("door_lock_type");
+    expect(codes).toContain("wifi");
   });
 });

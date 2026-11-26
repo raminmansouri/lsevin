@@ -43,6 +43,7 @@ export function ExploreView({
   cities,
   cityCounts = [],
   amenities,
+  filterableAmenityCodes,
   landmarks = [],
   suggestions = null,
   savedIds,
@@ -56,6 +57,8 @@ export function ExploreView({
   /** Cities with bookable stays — offered when a search finds nothing. */
   cityCounts?: CityCount[];
   amenities: Amenity[];
+  /** Amenities some published stay has; the filter sheet offers only these (plus any already chosen). */
+  filterableAmenityCodes?: string[];
   /** Places of the searched city (shrine, bazaar, airport…) for "near …". */
   landmarks?: Landmark[];
   suggestions?: ExploreSuggestions | null;
@@ -284,7 +287,9 @@ export function ExploreView({
         open={filtersOpen}
         onOpenChange={setFiltersOpen}
         search={search}
-        amenities={amenities}
+        amenities={amenities.filter(
+          (a) => !a.parentCode && (!filterableAmenityCodes || filterableAmenityCodes.includes(a.code) || search.amenities.includes(a.code)),
+        )}
         side={directionOf(locale) === "rtl" ? "left" : "right"}
         onApply={(patch) => {
           setFiltersOpen(false);

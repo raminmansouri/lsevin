@@ -27,6 +27,7 @@ import type {
 
 import { STAY_CONTENT_FALLBACKS } from "../domain/locales";
 import { getStaySettings } from "./settings";
+import { withoutChosenParents } from "../domain/amenities";
 
 /**
  * Customer-facing reads (H01–H05, H13, H14, H17). Only published properties in
@@ -593,7 +594,8 @@ export async function getPropertyDetail(
         : { latitude: roundCoord(Number(p.latitude), approximate), longitude: roundCoord(Number(p.longitude), approximate), approximate, radiusM: approximate ? 1200 : 0 },
     checkInTime: String(p.cin).slice(0, 5),
     checkOutTime: String(p.cout).slice(0, 5),
-    amenities: amenities.filter((a) => amenitySet.has(a.code)),
+    // A chosen option ("Split AC") stands in for its parent ("Cooling system").
+    amenities: withoutChosenParents(amenities.filter((a) => amenitySet.has(a.code))),
     nearby: mergeNearby(
       ((p.nearby ?? []) as any[])
         .map((n) => ({ kind: String(n.kind ?? "other"), name: pickStr(n.name, locale), distanceM: Number(n.distanceM) }))
@@ -785,6 +787,18 @@ export async function getPriceCalendar(
     locked = new Set(l.map((x) => x.d));
   }
   return { currency: rows[0].currency, days: rows.map((r) => ({ date: r.date, price: r.price == null || locked.has(r.date) ? null : Number(r.price) })) };
+}
+
+/** Amenities at least one published stay (or one of its room types) has: the ones worth filtering by. */
+export async function usedAmenityCodes(): Promise<string[]> {
+  const rows = await db<{ code: string }[]>`
+    select distinct c as code from (
+      select unnest(p.amenity_codes) as c from stay.properties p join stay.cities ci on ci.id = p.city_id
+       where p.status = 'published' and ci.is_published
+      union
+      select unnest(rt.amenity_codes) from stay.room_types rt join stay.properties p on p.id = rt.property_id
+       where p.status = 'published' and rt.is_active) x`;
+  return rows.map((r) => r.code);
 }
 
 /** Published stays per property type (home page "browse by type"). */

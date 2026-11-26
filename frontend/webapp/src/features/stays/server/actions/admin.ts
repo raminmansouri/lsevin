@@ -45,6 +45,7 @@ import {
   verifyAccessibility,
 } from "../admin/properties";
 import { fail, runStayAction } from "../errors";
+import { AMENITY_GROUPS, amenityCodeFrom } from "../../domain/amenities";
 import { PROPERTY_KINDS, MEAL_PLANS } from "../../domain/search";
 
 /**
@@ -495,33 +496,123 @@ export async function saveSettingsAction(input: unknown) {
     return saveStaySettings(actor, d);
   });
 }
+const amenityLabel = z
+  .record(z.string().refine((key) => STAY_CONTENT_LOCALES.some((locale) => locale === key)), z.string().trim().max(200))
+  .refine((label) => Object.values(label).some(Boolean), { message: "label_required" });
+const amenityCode = z.string().regex(/^[a-z][a-z0-9_]{1,40}$/);
+const amenityIcon = z.string().regex(/^[a-z][a-z0-9-]{0,45}$/);
+
+/**
+ * Validates where an amenity sits: an option (child) needs an active top-level parent, cannot be
+ * its own parent, and an amenity that already has options cannot become an option itself
+ * (one level only). An option always takes its parent's section.
+ */
+async function amenityPlacement(tx: typeof db, code: string | null, parentCode: string | null, grp: string) {
+  if (!parentCode) return grp;
+  if (parentCode === code) throw fail.validation("invalid_parent");
+  const [parent] = await tx<{ grp: string; parent_code: string | null }[]>`
+    select grp, parent_code from stay.amenities where code = ${parentCode} and is_active`;
+  if (!parent || parent.parent_code) throw fail.validation("invalid_parent");
+  if (code) {
+    const [child] = await tx<{ n: number }[]>`select count(*)::int as n from stay.amenities where parent_code = ${code} and is_active`;
+    if (child.n > 0) throw fail.conflict("amenity_has_options");
+  }
+  return parent.grp;
+}
+
+async function checkAmenityImage(tx: typeof db, imageId: string | null) {
+  if (!imageId) return;
+  const images = await tx`select id from media.media_library where id = ${imageId}::uuid and is_public and mime_type like 'image/%' for share`;
+  if (!images.length) throw fail.validation("invalid_value");
+}
+
+/** Edits an amenity: name in every language, icon or image, section, option-of, order, on/off. */
 export async function saveAmenityAction(input: unknown) {
   return runStayAction("admin.saveAmenity", async () => {
     const actor = await requireAdmin();
-    const data = parse(z.object({
-      code: z.string().regex(/^[a-z][a-z0-9_]{1,40}$/),
-      imageId: uuid.nullable(),
-      revision: z.number().int().positive(),
-      label: z.record(z.string().refine(key => STAY_CONTENT_LOCALES.some(locale => locale === key)), z.string().trim().max(200)),
-      icon: z.string().regex(/^[a-z][a-z0-9-]{0,45}$/),
-    }).strict(), input);
-    if (!Object.values(data.label).some(Boolean)) throw fail.validation("invalid_value");
-    await db.begin(async tx => {
-      if (data.imageId) {
-        const images = await tx`select id from media.media_library where id = ${data.imageId}::uuid and is_public and mime_type like 'image/%' for share`;
-        if (!images.length) throw fail.validation("invalid_value");
-      }
-      const changed = await tx`update stay.amenities set label = label || ${db.json(data.label)}::jsonb, icon = ${data.icon}, image_id = ${data.imageId}::uuid,
-        revision = revision + 1 where code = ${data.code} and revision = ${data.revision} returning code`;
-      if (!changed.length) {
-        const existing = await tx`select code from stay.amenities where code = ${data.code}`;
-        if (!existing.length) throw fail.notFound();
-        throw fail.conflict("stale_update");
-      }
-      await audit(tx as unknown as typeof db, actor, null, "amenity", null, "updated", { code: data.code, revision: data.revision + 1 });
+    const data = parse(
+      z
+        .object({
+          code: amenityCode,
+          imageId: uuid.nullable(),
+          revision: z.number().int().positive(),
+          label: amenityLabel,
+          icon: amenityIcon,
+          group: z.enum(AMENITY_GROUPS).optional(),
+          parentCode: amenityCode.nullable().optional(),
+          sortOrder: z.number().int().min(0).max(1_000_000).optional(),
+          isActive: z.boolean().optional(),
+        })
+        .strict(),
+      input,
+    );
+    await db.begin(async (tx) => {
+      await checkAmenityImage(tx as unknown as typeof db, data.imageId);
+      const [current] = await tx<{ grp: string; parent_code: string | null; sort_order: number; is_active: boolean }[]>`
+        select grp, parent_code, sort_order, is_active from stay.amenities where code = ${data.code} for update`;
+      if (!current) throw fail.notFound();
+      const parentCode = data.parentCode === undefined ? current.parent_code : data.parentCode;
+      const grp = await amenityPlacement(tx as unknown as typeof db, data.code, parentCode, data.group ?? current.grp);
+      const changed = await tx`
+        update stay.amenities
+           set label = label || ${db.json(data.label)}::jsonb, icon = ${data.icon}, image_id = ${data.imageId}::uuid,
+               grp = ${grp}, parent_code = ${parentCode}, sort_order = ${data.sortOrder ?? current.sort_order},
+               is_active = ${data.isActive ?? current.is_active}, revision = revision + 1
+         where code = ${data.code} and revision = ${data.revision}
+        returning code`;
+      if (!changed.length) throw fail.conflict("stale_edit");
+      // Options follow their parent's section.
+      await tx`update stay.amenities set grp = ${grp} where parent_code = ${data.code} and grp <> ${grp}`;
+      await audit(tx as unknown as typeof db, actor, null, "amenity", null, "updated", {
+        code: data.code, revision: data.revision + 1, group: grp, parentCode, isActive: data.isActive ?? current.is_active,
+      });
     });
     touchCustomerPages();
     revalidatePath("/[locale]/admin/stays", "layout");
     return { code: data.code };
+  });
+}
+
+/**
+ * Adds an amenity to the catalogue (or an option of one). Its code is derived from the English
+ * (else any) name and made unique; it starts at the end of its section.
+ */
+export async function createAmenityAction(input: unknown) {
+  return runStayAction("admin.createAmenity", async () => {
+    const actor = await requireAdmin();
+    const data = parse(
+      z
+        .object({
+          label: amenityLabel,
+          icon: amenityIcon,
+          group: z.enum(AMENITY_GROUPS),
+          parentCode: amenityCode.nullable(),
+          imageId: uuid.nullable(),
+        })
+        .strict(),
+      input,
+    );
+    const code = await db.begin(async (tx) => {
+      await checkAmenityImage(tx as unknown as typeof db, data.imageId);
+      const grp = await amenityPlacement(tx as unknown as typeof db, null, data.parentCode, data.group);
+      const seed = amenityCodeFrom(data.label["en-US"] || Object.values(data.label).find(Boolean) || "amenity");
+      let candidate = seed;
+      for (let i = 2; ; i += 1) {
+        const [taken] = await tx<{ n: number }[]>`select count(*)::int as n from stay.amenities where code = ${candidate}`;
+        if (taken.n === 0) break;
+        candidate = `${seed.slice(0, 36)}_${i}`;
+      }
+      const [{ next }] = await tx<{ next: number }[]>`
+        select coalesce(max(sort_order), 0) + 10 as next from stay.amenities
+         where ${data.parentCode}::text is null and grp = ${grp} or parent_code = ${data.parentCode}`;
+      await tx`
+        insert into stay.amenities (code, grp, label, icon, sort_order, parent_code, image_id)
+        values (${candidate}, ${grp}, ${db.json(data.label)}::jsonb, ${data.icon}, ${next}, ${data.parentCode}, ${data.imageId}::uuid)`;
+      await audit(tx as unknown as typeof db, actor, null, "amenity", null, "created", { code: candidate, group: grp, parentCode: data.parentCode });
+      return candidate;
+    });
+    touchCustomerPages();
+    revalidatePath("/[locale]/admin/stays", "layout");
+    return { code };
   });
 }

@@ -164,9 +164,7 @@ test.describe("stays admin @critical", () => {
     await expect(create.getByTestId("stays-admin-new-slug")).toHaveValue(`sample-hotel-${s}`);
     await create.getByTestId("stays-admin-new-city").selectOption({ label: world.city.name });
     await create.getByTestId("stays-admin-new-phone").fill("+98 21 1234 5678");
-    await create.getByTestId("stays-new-amenities").click();
-    await page.getByRole("option", { name: "آب", exact: true }).click();
-    await page.keyboard.press("Escape");
+    await create.locator('[data-testid="stays-new-amenities"] input[data-amenity="water_supply"]').check();
     await create.getByTestId("stays-admin-new-owner-login").fill(owner.email);
     await create.getByTestId("stays-admin-create").click();
     await expect(page).toHaveURL(/\/admin\/stays\/properties\/[0-9a-f-]{36}$/);

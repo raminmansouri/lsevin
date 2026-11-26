@@ -74,7 +74,7 @@ export function PropertyView({
   reviewStats?: ReviewStats;
   similar?: PropertyCard[];
   landmarks?: Landmark[];
-  amenityLabels?: Record<string, { label: string; icon: string | null; imageUrl?: string | null }>;
+  amenityLabels?: Record<string, { label: string; icon: string | null; imageUrl?: string | null; parentCode?: string | null }>;
   search: StaySearch;
   dateError: string | null;
   saved: boolean;
