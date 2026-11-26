@@ -76,8 +76,17 @@ describe("server robots boundaries", () => {
     expect(policies(route)).toEqual(["privateMetadata"]);
   });
 
-  it.each(["home", "provider/[id]", "service/[id]", "specialist/[id]", "shop", "shop/product/[slug]", "shop/category/[slug]", "categories", "explore", "consultation/doctors", "shop/seller/[slug]"])("noindexes app-only %s while allowing links", (route) => {
-    expect(policies(`[locale]/n/app/mobile/${route}`)).toEqual(["searchMetadata"]);
+  // /fa, /fa/explore, /fa/shop, /fa/products/<slug>, ... are rewrites onto these
+  // routes: a layout policy above them noindexes the public page (2026-11-23..26).
+  it.each(["home", "provider/[id]", "service/[id]", "specialist/[id]", "shop", "shop/product/[slug]", "shop/category/[slug]", "categories", "explore", "offers", "providers", "packages", "featured"])("keeps public %s indexable", (route) => {
+    expect(policies(`[locale]/n/app/mobile/${route}`)).toEqual([]);
+  });
+
+  it("noindexes the direct app addresses by response header, which follows the requested URL", async () => {
+    const { default: config } = await import("../../../next.config");
+    const rules = (await config.headers?.()) ?? [];
+    const app = rules.find((rule) => rule.source === "/:locale/n/app/:path*");
+    expect(app?.headers).toEqual([{ key: "X-Robots-Tag", value: "noindex, follow" }]);
   });
 
   it("keeps the public seller URL outside the app-only robots boundary", () => {
