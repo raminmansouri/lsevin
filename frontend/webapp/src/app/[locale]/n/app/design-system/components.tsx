@@ -1,4 +1,4 @@
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import React from 'react';
 import { colors, radius, shadows, spacing } from './tokens';
 
@@ -196,6 +196,7 @@ interface RatingProps {
 }
 
 export function Rating({ rating, reviews, size = 'md' }: RatingProps) {
+  const activeLocale = useLocale(); // same digits on server and browser
   const sizes = {
     sm: 'text-xs',
     md: 'text-sm',
@@ -209,7 +210,7 @@ export function Rating({ rating, reviews, size = 'md' }: RatingProps) {
       </svg>
       <span className="font-semibold text-gray-900">{rating.toFixed(1)}</span>
       {reviews && (
-        <span className="text-gray-500">({reviews.toLocaleString()})</span>
+        <span className="text-gray-500">({reviews.toLocaleString(activeLocale)})</span>
       )}
     </div>
   );

@@ -361,7 +361,6 @@ async function lookupIpGeoWithoutGps(): Promise<DetectedIpGeoLocation | null> {
 
 export default function LocationPicker({ locale = 'fa-IR' }: Props) {
   const t = useTranslations('Home.location');
-
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const localeForQueries = normalizeLocale(locale);

@@ -121,9 +121,54 @@ test.describe("desktop", () => {
     expect(response?.status()).toBe(200);
     await settle(page);
     await expect(page.locator(".lsd:visible").first()).toBeVisible();
-    // Hydrated: a client-side link in the desktop header navigates without a reload.
-    await page.locator(".lsd:visible a[href$='/explore']").first().click();
+    // Hydrated: the desktop header's Explore link (client-side) navigates.
+    // A first visit opens the location sheet over the page; "not now" leads to
+    // the manual place search, which the visitor closes (Escape, X or backdrop).
+    const notNow = page.getByRole("button", { name: "انصراف", exact: true });
+    await notNow.waitFor({ state: "visible", timeout: 15_000 }).catch(() => {});
+    if (await notNow.isVisible()) {
+      await notNow.click();
+      await page.keyboard.press("Escape");
+      await expect(page.locator(".sheet-scrim")).toHaveCount(0);
+    }
+    // The home page animates continuously, so Playwright's "stable" check never passes.
+    await page.locator(".lsd").first().locator("a[href$='/explore']").first().click({ force: true });
     await page.waitForURL(/\/fa\/explore/);
     expect(errors).toEqual([]);
   });
 });
+
+/**
+ * Persian digits come from the font (src/app/fonts.css "LS Digits FA"), not from
+ * rewriting the DOM after hydration: the rewrite made React find server/client
+ * text differences (error #418) and re-render whole sections (2026-11-26).
+ */
+for (const [label, viewport] of [["phone", PHONE], ["desktop", DESKTOP]] as const) {
+  test.describe(`Persian digits (${label})`, () => {
+    test.use({ viewport, serviceWorkers: "block" });
+
+    test("pages hydrate without errors and render digits through the digit font", async ({ page }) => {
+      const paths = ["/fa", "/fa/explore", "/fa/map", ...(PROVIDER ? [`/fa/providers/${PROVIDER}`] : [])];
+      for (const path of paths) {
+        const errors: string[] = [];
+        page.on("pageerror", (error) => errors.push(error.message));
+        const response = await page.goto(`${BASE}${path}`, { waitUntil: "load" });
+        expect(response?.status(), path).toBe(200);
+        await settle(page);
+        expect(errors.filter((message) => /#418|#423|#425|hydrat/i.test(message)), path).toEqual([]);
+        page.removeAllListeners("pageerror");
+      }
+      // The text keeps the server's digits; the font draws them as Persian digits.
+      const body = await page.evaluate(() => getComputedStyle(document.body).fontFamily);
+      expect(body).toMatch(/^"?LS Digits FA"?,/);
+      const input = await page.evaluate(() => {
+        const element = document.createElement("input");
+        document.body.append(element);
+        const family = getComputedStyle(element).fontFamily;
+        element.remove();
+        return family;
+      });
+      expect(input).not.toContain("LS Digits FA");
+    });
+  });
+}

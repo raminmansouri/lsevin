@@ -129,10 +129,16 @@ test.describe("listing links", () => {
     await leafLink.click();
     await page.waitForURL(new RegExp(`/fa/categories/${fixture.leaf.slug}/providers(\\?.*)?$`));
     await settle(page);
-    // The map screen opens on the list; providers link by slug.
-    await expect(page.locator('a[href*="/providers/"]:visible, [href*="/providers/"]').first()).toBeAttached();
+    // The map screen opens on the list; a provider opens at its slug address.
+    // (On phones the hidden desktop list is not rendered after a client-side
+    // navigation, so this follows the card a visitor taps, not a hidden link.)
     expect(page.url()).not.toMatch(ID_QUERY);
     expect(page.url()).not.toMatch(UUID);
+    await page.getByRole("heading", { level: 3 }).first().click();
+    await page.waitForURL(/\/fa\/providers\/[a-z0-9]+(?:-[a-z0-9]+)*$/);
+    expect(page.url()).not.toMatch(UUID);
+    await page.goBack();
+    await page.waitForURL(new RegExp(`/fa/categories/${fixture.leaf.slug}/providers`));
 
     await page.goBack();
     await page.waitForURL(new RegExp(`/fa/categories/${fixture.parent.slug}$`));

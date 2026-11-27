@@ -12,7 +12,7 @@ import {
   X,
 } from "lucide-react";
 import { useSearchParams } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { env } from "@/config/env/client";
@@ -39,6 +39,9 @@ function resolveMediaUrl(value?: string | null) {
 
 export function SearchResultsView() {
   const t = useTranslations("SearchResults");
+  // Format with the page's locale: a bare toLocaleString() used the server's
+  // default (Latin digits) and the browser's (Persian), so hydration failed.
+  const activeLocale = useLocale();
   const navigate = useNavigate();
   const searchParams = useSearchParams();
   const query = searchParams.get("q") || "";
@@ -269,15 +272,15 @@ export function SearchResultsView() {
                   <div className="flex items-center gap-2">
                     {result.originalPrice && (
                       <span className="text-xs text-gray-400 line-through">
-                        ${result.originalPrice.toLocaleString()}
+                        ${result.originalPrice.toLocaleString(activeLocale)}
                       </span>
                     )}
                     <span className="font-bold text-[#083f30]">
-                      ${result.price.toLocaleString()}
+                      ${result.price.toLocaleString(activeLocale)}
                     </span>
                     {result.originalPrice && (
                       <span className="rounded-full bg-green-50 px-2 py-0.5 text-xs font-bold text-green-600">
-                        {t("saveAmount", { amount: (result.originalPrice - result.price).toLocaleString() })}
+                        {t("saveAmount", { amount: (result.originalPrice - result.price).toLocaleString(activeLocale) })}
                       </span>
                     )}
                   </div>

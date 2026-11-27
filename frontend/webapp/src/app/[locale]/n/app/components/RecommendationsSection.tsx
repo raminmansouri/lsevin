@@ -1,7 +1,7 @@
 "use client";
 
 import { BadgeCheck, ChevronRight, MapPin, Star, TrendingUp } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
 import { PriceTextClient } from "@/features/finance/components/price-text-client";
 import type { Recommendation } from "@/features/service-providers/types/provider-page-types";
@@ -40,6 +40,9 @@ export default function RecommendationsSection({
   locale,
 }: RecommendationsSectionProps) {
   const t = useTranslations("ProviderPage.recommendations");
+  // Format with the page's locale: a bare toLocaleString() used the server's
+  // default (Latin digits) and the browser's (Persian), so hydration failed.
+  const activeLocale = useLocale();
   const navigate = useNavigate();
   void _currentProviderId;
   void _type;
@@ -81,7 +84,7 @@ export default function RecommendationsSection({
           <div className="flex items-center gap-1">
             <Star size={16} className="fill-[#eacb7f] text-[#eacb7f]" />
             <span className="font-bold text-gray-900">{provider.rating.toFixed(1)}</span>
-            <span className="text-sm text-gray-500">({provider.reviewCount.toLocaleString()})</span>
+            <span className="text-sm text-gray-500">({provider.reviewCount.toLocaleString(activeLocale)})</span>
           </div>
 
           {provider.priceFrom && provider.currency ? (
