@@ -39,6 +39,14 @@ test.describe("phone", () => {
 
   test("home: no re-render after location detection, no desktop downloads, no private prefetch", async ({ page }) => {
     const requests = track(page);
+    await page.addInitScript(() => {
+      (window as unknown as { __cls: number }).__cls = 0;
+      new PerformanceObserver((list) => {
+        for (const entry of list.getEntries() as unknown as { value: number; hadRecentInput: boolean }[]) {
+          if (!entry.hadRecentInput) (window as unknown as { __cls: number }).__cls += entry.value;
+        }
+      }).observe({ type: "layout-shift", buffered: true });
+    });
     const response = await page.goto(`${BASE}/fa`, { waitUntil: "domcontentloaded" });
     expect(response?.status()).toBe(200);
     await settle(page);
@@ -59,13 +67,18 @@ test.describe("phone", () => {
     // React preloads only what the phone shows above the fold.
     const imagePreloads = await page.locator('link[rel="preload"][as="image"]').count();
     expect(imagePreloads).toBeLessThan(12);
+
+    // Google's "good" layout shift: the late consultation chips moved the page by 0.22.
+    const cls = await page.evaluate(() => (window as unknown as { __cls: number }).__cls);
+    expect(cls).toBeLessThan(0.1);
   });
 
-  test("map: the hidden desktop list downloads nothing", async ({ page }) => {
+  test("map: no stored originals (hidden desktop list, 48 px markers)", async ({ page }) => {
     const requests = track(page);
     const response = await page.goto(`${BASE}/fa/map`, { waitUntil: "domcontentloaded" });
     expect(response?.status()).toBe(200);
     await settle(page);
+    // The markers were ~100 originals (10.5 MB) shown at 48 px.
     expect(requests.filter(isOriginalFile).map((r) => r.url())).toEqual([]);
     expect(await page.locator('link[rel="preload"][as="image"]').count()).toBeLessThan(12);
   });
