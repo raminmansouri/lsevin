@@ -8,6 +8,7 @@ import { LexicalDescription } from "@/features/service-providers/components/lexi
 import { isFastBuild } from "@/lib/build-mode";
 import { publicSegmentsForIds, resolvePublicEntity } from "@/lib/seo/public-slugs";
 import { buildPublicMetadata } from "@/lib/seo/metadata";
+import { galleryMetadata } from "@/lib/seo/gallery-metadata";
 import { getIndexableLocales } from "@/lib/seo/locale-eligibility";
 import {
   getServicePageByIdFromDb,
@@ -61,14 +62,20 @@ export async function generateMetadata({ params }: Pick<ServiceGalleryPageProps,
   if (!ref) notFound();
   const id = ref.id;
   const t = await getTranslations({ locale, namespace: "ServiceGalleryPage" });
+  const data = await getServicePageByIdFromDb({ serviceId: id, locale }).catch(() => null);
+  const name = data?.service.name;
+  const title = name ? `${t("metadata.title")}: ${name}` : t("metadata.title");
 
-  return buildPublicMetadata({
+  // Built for the service page so the canonical (and og:url) is the service's
+  // own URL; galleryMetadata then makes the gallery noindex, follow.
+  const service = await buildPublicMetadata({
     locale,
-    path: `/services/${ref.slug ?? id}/gallery`,
-    title: t("metadata.title"),
+    path: `/services/${ref.slug ?? id}`,
+    title,
     descriptions: [t("metadata.description")],
     eligibleLocales: await getIndexableLocales('service', id),
   });
+  return galleryMetadata(service, title);
 }
 
 export default async function ServiceGalleryPage({ params }: ServiceGalleryPageProps) {
@@ -87,7 +94,8 @@ export default async function ServiceGalleryPage({ params }: ServiceGalleryPageP
   }
 
   const gallery = data.service.galleryItems || [];
-  const backHref = `/services/${ref.slug ?? id}`;
+  // next/link does not add the locale; without it the link would redirect.
+  const backHref = `/${locale}/services/${ref.slug ?? id}`;
   const BackIcon = isRtlLocale(locale) ? ArrowRight : ArrowLeft;
 
   return (
@@ -103,7 +111,11 @@ export default async function ServiceGalleryPage({ params }: ServiceGalleryPageP
           </Link>
           <div className="min-w-0">
             <h1 className="truncate text-xl font-bold text-gray-900">{t("header.title")}</h1>
-            <p className="truncate text-sm text-gray-600">{data.service.name}</p>
+            {/* A text link back to the service: the page is noindex, follow, so this
+                is the link that passes its signals to the canonical service page. */}
+            <Link href={backHref} className="block truncate text-sm text-gray-600 hover:underline">
+              {data.service.name}
+            </Link>
           </div>
         </div>
       </div>

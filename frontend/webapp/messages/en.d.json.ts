@@ -5785,7 +5785,8 @@ declare const messages: {
       "staysProperties": "3. Hotels and stays",
       "staysBookings": "Stay bookings",
       "staysReviews": "Stay reviews",
-      "enamad": "Enamad trust seal"
+      "enamad": "Enamad trust seal",
+      "amenities": "Amenities"
     }
   },
   "HomePage": {

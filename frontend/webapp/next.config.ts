@@ -34,6 +34,13 @@ const nextConfig: NextConfig = {
         source: "/:locale/n/app/:path*",
         headers: [{ key: "X-Robots-Tag", value: "noindex, follow" }],
       },
+      // A service's photo gallery is never indexable (its metadata also sets
+      // noindex and a canonical to the service page: src/lib/seo/gallery-metadata.ts).
+      // The header covers responses whose metadata did not render, e.g. a 404.
+      {
+        source: `/:locale(${routing.locales.join("|")})/services/:slug/gallery`,
+        headers: [{ key: "X-Robots-Tag", value: "noindex, follow" }],
+      },
       // <html lang> in the server HTML is always the default locale (see
       // src/app/layout.tsx); this tells crawlers the page's real language.
       ...routing.locales.map((locale) => ({

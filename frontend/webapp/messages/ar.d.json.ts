@@ -5004,7 +5004,8 @@ declare const messages: {
     "templates": "القوالب",
     "consultationRequests": "طلبات الاستشارة",
     "nav": {
-      "editorial": "محتوى الموقع"
+      "editorial": "محتوى الموقع",
+      "amenities": "المرافق"
     }
   },
   "HomePage": {

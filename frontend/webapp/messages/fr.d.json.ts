@@ -569,7 +569,8 @@ declare const messages: {
     },
     "consultationRequests": "Demandes de consultation",
     "nav": {
-      "editorial": "Contenu du site"
+      "editorial": "Contenu du site",
+      "amenities": "Équipements"
     }
   },
   "HomePage": {

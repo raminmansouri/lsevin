@@ -42,3 +42,15 @@ test("old seller URL redirects to the indexable public page", async ({ request }
   expect(html).not.toMatch(NOINDEX_META);
   expect(page.headers()["x-robots-tag"]).toBeUndefined();
 });
+
+test("service gallery is noindex, follow with the service page as canonical", async ({ request }) => {
+  const service = process.env.E2E_SERVICE_SLUG;
+  test.skip(!service, "set E2E_SERVICE_SLUG to a service with a gallery");
+  const response = await request.get(`${app}/fa/services/${service}/gallery`, { headers: primaryHost });
+  expect(response.status()).toBe(200);
+  expect(response.headers()["x-robots-tag"]).toBe("noindex, follow");
+  const html = await response.text();
+  expect(html).toMatch(/<meta[^>]+name="robots"[^>]+content="noindex, follow"/i);
+  expect(html).toContain(`rel="canonical" href="https://lsevincare.com/fa/services/${service}"`);
+  expect(html).not.toMatch(/rel="alternate"[^>]+hrefLang/i);
+});

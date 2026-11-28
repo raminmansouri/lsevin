@@ -4888,7 +4888,8 @@ declare const messages: {
       "staysProperties": "۳. هتل‌ها و اقامتگاه‌ها",
       "staysBookings": "رزروهای اقامت",
       "staysReviews": "نظرهای اقامت",
-      "enamad": "نماد اعتماد (اینماد)"
+      "enamad": "نماد اعتماد (اینماد)",
+      "amenities": "امکانات"
     }
   },
   "HomePage": {
