@@ -14,8 +14,8 @@ type SynonymRow = { term: string; canonical: string };
 
 async function load(): Promise<SearchContext> {
   const [places, synonyms] = await Promise.all([
-    sql<PlaceRow[]>`select kind, name, aliases, city_slug, lat, lng, radius_m from search.places`,
-    sql<SynonymRow[]>`select term, canonical from search.synonyms`,
+    sql<PlaceRow[]>`select kind, name, aliases, city_slug, lat, lng, radius_m from unified_search.places`,
+    sql<SynonymRow[]>`select term, canonical from unified_search.synonyms`,
   ]);
   return {
     places: places.map((row) => ({

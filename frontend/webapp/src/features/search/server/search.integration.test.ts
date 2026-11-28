@@ -10,7 +10,7 @@ import { suggest } from "./suggest";
 
 /**
  * Runs against a REAL Postgres (pgvector, pg_trgm) and the real embedding service. The test
- * database must end in "_it": the suite empties search.documents.
+ * database must end in "_it": the suite empties unified_search.documents.
  */
 const dbName = new URL(process.env.DATABASE_URL ?? "postgres://x/none").pathname.slice(1);
 const embeddingUp = await fetch(`${process.env.EMBEDDING_URL ?? "http://127.0.0.1:8089"}/health`)
@@ -23,7 +23,7 @@ const ids = (response: Awaited<ReturnType<typeof run>>) => response.results.map(
 describe.skipIf(!dbName.endsWith("_it"))("unified search (real database)", () => {
   beforeAll(async () => {
     await loadFixtures(sql, embeddingUp);
-    await sql`truncate search.query_log`;
+    await sql`truncate unified_search.query_log`;
     resetSearchContextCache();
     resetEmbeddingClient();
   });
@@ -91,18 +91,18 @@ describe.skipIf(!dbName.endsWith("_it"))("unified search (real database)", () =>
     });
 
     it("never fails on hostile input and never throws SQL errors", async () => {
-      for (const q of ["'; drop table search.documents; --", "a & b | !c", ":*", "\\", "%_%", "<script>alert(1)</script>", "😀😀😀"]) {
+      for (const q of ["'; drop table unified_search.documents; --", "a & b | !c", ":*", "\\", "%_%", "<script>alert(1)</script>", "😀😀😀"]) {
         const response = await run(q);
         expect(Array.isArray(response.results), q).toBe(true);
       }
-      expect((await sql`select count(*)::int as n from search.documents`)[0].n).toBeGreaterThan(0);
+      expect((await sql`select count(*)::int as n from unified_search.documents`)[0].n).toBeGreaterThan(0);
     });
 
     it("logs the query without any identity, and counts zero-result searches", async () => {
       await run("zzqqxx nonsense");
       await new Promise((resolve) => setTimeout(resolve, 200));
       const rows = await sql<{ normalized: string; results: number; session_hash: string | null }[]>`
-        select normalized, results, session_hash from search.query_log where normalized = 'zzqqxx nonsense'`;
+        select normalized, results, session_hash from unified_search.query_log where normalized = 'zzqqxx nonsense'`;
       expect(rows.length).toBe(1);
       expect(rows[0].results).toBe(0);
       expect(rows[0].session_hash).toBeNull();
@@ -135,7 +135,7 @@ describe.skipIf(!dbName.endsWith("_it"))("unified search (real database)", () =>
     it("falls back to keywords and place, quickly", async () => {
       const previous = process.env.EMBEDDING_URL;
       // A query vector already in the database cache needs no service; start from an empty cache.
-      await sql`truncate search.embedding_cache`;
+      await sql`truncate unified_search.embedding_cache`;
       // The client reads its URL at import time, so simulate an outage through a fresh module with a dead port.
       process.env.EMBEDDING_URL = "http://127.0.0.1:9";
       const { vi } = await import("vitest");

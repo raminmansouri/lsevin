@@ -89,7 +89,7 @@ async function lexicalHits(parsed: ParsedQuery, types: DocType[] | null, city: s
   return sql<Hit[]>`
     with q as (select to_tsquery('simple', ${resolved}) as a, to_tsquery('simple', ${typed}) as b)
     select d.doc_type, d.source_id
-      from search.documents d, q
+      from unified_search.documents d, q
      where d.is_public ${typeFilter(types)} ${cityFilter(city)}
        and (d.tsv @@ q.a or d.tsv @@ q.b or ${text} <% d.search_text)
      order by greatest(ts_rank_cd(d.tsv, q.a, 32), ts_rank_cd(d.tsv, q.b, 32)) desc,
@@ -103,7 +103,7 @@ async function vectorHits(vector: string, types: DocType[] | null, city: string 
     await tx`set local hnsw.ef_search = 100`;
     return tx<(Hit & { sim: number })[]>`
       select d.doc_type, d.source_id, 1 - (d.embedding <=> ${vector}::halfvec) as sim
-        from search.documents d
+        from unified_search.documents d
        where d.is_public and d.embedding is not null ${typeFilter(types)} ${cityFilter(city)}
        order by d.embedding <=> ${vector}::halfvec
        limit ${CANDIDATES}`;
@@ -116,7 +116,7 @@ async function vectorHits(vector: string, types: DocType[] | null, city: string 
 async function geoHits(point: { lat: number; lng: number }, types: DocType[] | null, city: string | null): Promise<Hit[]> {
   return sql<Hit[]>`
     select d.doc_type, d.source_id
-      from search.documents d
+      from unified_search.documents d
      where d.is_public and d.lat is not null and d.lng is not null ${typeFilter(types)} ${cityFilter(city)}
      order by point(d.lng, d.lat) <-> point(${point.lng}, ${point.lat})
      limit ${CANDIDATES}`;
@@ -127,7 +127,7 @@ async function loadDocs(hits: Hit[]): Promise<Map<string, DocRow>> {
   const rows = await sql<DocRow[]>`
     select d.doc_type, d.source_id, d.title, d.subtitle, d.url, d.image, d.city, d.lat, d.lng, d.price_toman,
            d.rating, d.review_count, d.quality
-      from search.documents d
+      from unified_search.documents d
       join unnest(${hits.map((h) => h.doc_type)}::text[], ${hits.map((h) => h.source_id)}::text[]) as k(t, i)
         on d.doc_type = k.t and d.source_id = k.i`;
   return new Map(rows.map((row) => [keyOf(row), row]));

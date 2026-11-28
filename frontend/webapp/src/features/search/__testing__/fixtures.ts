@@ -5,7 +5,7 @@ import type postgres from "postgres";
 /**
  * A small, production-shaped catalogue for relevance tests: Tehran clinics around the
  * neighbourhoods people actually name, other cities, tours, stays and articles. Coordinates
- * of the Tehran clinics match the (approximate) neighbourhood centres in search.places.
+ * of the Tehran clinics match the (approximate) neighbourhood centres in unified_search.places.
  */
 type Fixture = {
   id: string;
@@ -52,9 +52,9 @@ async function embedPassages(texts: string[]): Promise<number[][]> {
   return ((await response.json()) as { vectors: number[][] }).vectors;
 }
 
-/** Empties search.documents and loads the catalogue above, with real embeddings when the service is up. */
+/** Empties unified_search.documents and loads the catalogue above, with real embeddings when the service is up. */
 export async function loadFixtures(sql: postgres.Sql, withEmbeddings: boolean) {
-  await sql`truncate search.documents`;
+  await sql`truncate unified_search.documents`;
   const texts = FIXTURES.map((f) => [f.fa, f.en, f.sub, f.extra].filter(Boolean).join("\n"));
   const vectors = withEmbeddings ? await embedPassages(texts) : null;
   for (const [index, f] of FIXTURES.entries()) {
@@ -62,7 +62,7 @@ export async function loadFixtures(sql: postgres.Sql, withEmbeddings: boolean) {
     const searchText = fold([f.fa, f.en, f.sub, f.extra, f.city].filter(Boolean).join(" "));
     const vector = vectors ? `[${vectors[index].join(",")}]` : null;
     await sql`
-      insert into search.documents (doc_type, source_id, title, subtitle, url, city, lat, lng, price_toman, quality,
+      insert into unified_search.documents (doc_type, source_id, title, subtitle, url, city, lat, lng, price_toman, quality,
                                     search_text, content_hash, embedding, embedding_model)
       values (${f.type}, ${f.id}, ${sql.json(title)}, ${sql.json(f.sub ? { "fa-IR": f.sub } : {})}, ${f.url}, ${f.city ?? null},
               ${f.lat ?? null}, ${f.lng ?? null}, ${f.price ?? null}, ${f.quality ?? 0.5}, ${searchText},

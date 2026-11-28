@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Keeps the unified search index (search.documents) in step with the catalogue.
+ * Keeps the unified search index (unified_search.documents) in step with the catalogue.
  *
  *   pnpm search:index                  process the outbox once (changes since the last run)
  *   pnpm search:index --loop 30        keep processing every 30 s (worker mode)
@@ -8,7 +8,7 @@
  *   pnpm search:index --full --type tour    one data type only
  *   pnpm search:index --no-embed       keyword/geo index only (embedding service not needed)
  *
- * Only new or changed documents are embedded (content hash + search.embedding_cache), and
+ * Only new or changed documents are embedded (content hash + unified_search.embedding_cache), and
  * documents whose source is gone, unpublished or inactive are deleted.
  *
  * Environment: DATABASE_URL, EMBEDDING_URL (default http://127.0.0.1:8089),
@@ -60,7 +60,7 @@ async function upsertBatch(docType, docs) {
   const ids = docs.map((doc) => doc.sourceId);
   const existing = await sql`
     select source_id, content_hash, (embedding is not null and embedding_model = ${MODEL}) as has_embedding
-      from search.documents where doc_type = ${docType} and source_id = any(${ids})`;
+      from unified_search.documents where doc_type = ${docType} and source_id = any(${ids})`;
   const known = new Map(existing.map((row) => [row.source_id, row]));
 
   const prepared = docs.map((doc) => ({ doc, hash: documentHash(doc) }));
@@ -78,7 +78,7 @@ async function upsertBatch(docType, docs) {
       const vector = WITH_EMBEDDINGS ? vectors.get(embeddingText(doc)) ?? null : null;
       const keepOld = !WITH_EMBEDDINGS; // keyword-only run must not wipe an existing embedding
       await tx`
-        insert into search.documents
+        insert into unified_search.documents
           (doc_type, source_id, title, subtitle, url, image, city, country, lat, lng, price_toman, rating,
            review_count, quality, service_key, provider_id, attrs, search_text, is_public, content_hash,
            embedding, embedding_model, indexed_at)
@@ -94,8 +94,8 @@ async function upsertBatch(docType, docs) {
           quality = excluded.quality, service_key = excluded.service_key, provider_id = excluded.provider_id,
           attrs = excluded.attrs, search_text = excluded.search_text, is_public = true,
           content_hash = excluded.content_hash,
-          embedding = ${keepOld ? tx`search.documents.embedding` : tx`excluded.embedding`},
-          embedding_model = ${keepOld ? tx`search.documents.embedding_model` : tx`excluded.embedding_model`},
+          embedding = ${keepOld ? tx`unified_search.documents.embedding` : tx`excluded.embedding`},
+          embedding_model = ${keepOld ? tx`unified_search.documents.embedding_model` : tx`excluded.embedding_model`},
           indexed_at = now()`;
     }
   });
@@ -119,16 +119,16 @@ async function upsertSuggestions(docType, docs, seen) {
   }
   for (const part of chunk([...byTerm.values()], 500)) {
     await sql`
-      insert into search.suggestions ${sql(part, "term", "display", "doc_type", "weight")}
+      insert into unified_search.suggestions ${sql(part, "term", "display", "doc_type", "weight")}
       on conflict (term) do update set
-        weight = greatest(search.suggestions.weight, excluded.weight),
+        weight = greatest(unified_search.suggestions.weight, excluded.weight),
         display = excluded.display, doc_type = excluded.doc_type`;
   }
 }
 
 async function removeDocuments(docType, ids) {
   if (!ids.length) return 0;
-  const gone = await sql`delete from search.documents where doc_type = ${docType} and source_id = any(${ids}) returning 1`;
+  const gone = await sql`delete from unified_search.documents where doc_type = ${docType} and source_id = any(${ids}) returning 1`;
   return gone.length;
 }
 
@@ -163,12 +163,12 @@ async function syncIds(docType, ids, seenTerms) {
 }
 
 async function enabledTypes() {
-  const rows = await sql`select doc_type from search.sources where enabled`;
+  const rows = await sql`select doc_type from unified_search.sources where enabled`;
   return rows.map((row) => row.doc_type).filter((type) => adapters[type] && (!onlyType || type === onlyType));
 }
 
 async function runOutbox() {
-  const claimed = await sql`select source_type, source_id, enqueued_at::text as enqueued_at from search.outbox order by search.outbox.enqueued_at limit 2000`;
+  const claimed = await sql`select source_type, source_id, enqueued_at::text as enqueued_at from unified_search.outbox order by unified_search.outbox.enqueued_at limit 2000`;
   if (!claimed.length) return 0;
   const enabled = new Set(await enabledTypes());
   const byType = new Map();
@@ -184,7 +184,7 @@ async function runOutbox() {
   // Delete exactly what was claimed: a change that arrived mid-run has a newer enqueued_at and stays queued.
   // The timestamps travel as text: JS dates (and the driver) would cut the microseconds and the match would never hold.
   await sql`
-    delete from search.outbox o using (
+    delete from unified_search.outbox o using (
       select * from unnest(${claimed.map((r) => r.source_type)}::text[], ${claimed.map((r) => r.source_id)}::text[],
                            ${claimed.map((r) => r.enqueued_at)}::text[]) as c(t, i, at)
     ) c where o.source_type = c.t and o.source_id = c.i and o.enqueued_at <= c.at::timestamptz`;
@@ -198,16 +198,16 @@ async function runFull() {
     const ids = await adapters[type].listIds(sql);
     const totals = await syncIds(type, ids, seenTerms);
     // Anything indexed that the source no longer lists is stale.
-    const indexed = await sql`select source_id from search.documents where doc_type = ${type}`;
+    const indexed = await sql`select source_id from unified_search.documents where doc_type = ${type}`;
     const live = new Set(ids);
     const stale = indexed.map((row) => row.source_id).filter((id) => !live.has(id));
     totals.removed += await removeDocuments(type, stale);
-    await sql`update search.sources set last_full_sync = now() where doc_type = ${type}`;
+    await sql`update unified_search.sources set last_full_sync = now() where doc_type = ${type}`;
     console.log(`full ${type}: ${ids.length} in source, ${totals.written} written, ${totals.embedded} embedded, ${totals.removed} removed`);
   }
   if (!onlyType && seenTerms.size) {
     const stale = await sql`
-      delete from search.suggestions where term <> all(${[...seenTerms]}) returning 1`;
+      delete from unified_search.suggestions where term <> all(${[...seenTerms]}) returning 1`;
     console.log(`suggestions: ${seenTerms.size} kept, ${stale.length} stale removed`);
   }
   console.log(`full run finished in ${((Date.now() - started) / 1000).toFixed(1)}s (${WITH_EMBEDDINGS ? MODEL : "no embeddings"})`);

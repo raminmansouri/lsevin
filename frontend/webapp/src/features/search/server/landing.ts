@@ -57,18 +57,18 @@ type PageRow = {
 export async function getLanding(serviceSlug: string, citySlug: string, locale: string): Promise<LandingData | null> {
   if (!/^[a-z0-9-]{1,80}$/.test(serviceSlug) || !/^[a-z0-9-]{1,40}$/.test(citySlug)) return null;
   const [page] = await sql<PageRow[]>`
-    select * from search.landing_pages where service_slug = ${serviceSlug} and city_slug = ${citySlug}`;
+    select * from unified_search.landing_pages where service_slug = ${serviceSlug} and city_slug = ${citySlug}`;
   if (!page) return null;
 
   const [offers, sameService, sameCity] = await Promise.all([
     sql<{ source_id: string; title: Translations; subtitle: Translations; url: string; image: string | null; rating: string | null; review_count: number; price_toman: string | null }[]>`
       select source_id, title, subtitle, url, image, rating, review_count, price_toman
-        from search.documents
+        from unified_search.documents
        where doc_type = 'offer' and is_public and service_key = ${page.service_key} and city = ${citySlug}
        order by quality desc, rating desc nulls last, source_id
        limit 30`,
-    sql<PageRow[]>`select * from search.landing_pages where service_slug = ${serviceSlug} and city_slug <> ${citySlug} order by providers desc limit 8`,
-    sql<PageRow[]>`select * from search.landing_pages where city_slug = ${citySlug} and service_slug <> ${serviceSlug} order by providers desc limit 8`,
+    sql<PageRow[]>`select * from unified_search.landing_pages where service_slug = ${serviceSlug} and city_slug <> ${citySlug} order by providers desc limit 8`,
+    sql<PageRow[]>`select * from unified_search.landing_pages where city_slug = ${citySlug} and service_slug <> ${serviceSlug} order by providers desc limit 8`,
   ]);
 
   const link = (row: PageRow): LandingLink => ({
@@ -105,7 +105,7 @@ export async function getLanding(serviceSlug: string, citySlug: string, locale: 
 
 /** For the sitemap: every qualifying page, with the languages its names exist in. */
 export async function listLandingPages(): Promise<{ serviceSlug: string; citySlug: string; updatedAt: string; locales: string[] }[]> {
-  const rows = await sql<PageRow[]>`select * from search.landing_pages order by service_slug, city_slug`;
+  const rows = await sql<PageRow[]>`select * from unified_search.landing_pages order by service_slug, city_slug`;
   return rows.map((row) => ({
     serviceSlug: row.service_slug,
     citySlug: row.city_slug,

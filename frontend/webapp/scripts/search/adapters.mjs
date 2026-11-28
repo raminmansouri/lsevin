@@ -2,7 +2,7 @@
  * One adapter per searchable data type. To make new data searchable:
  *   1. add an adapter here (listIds + fetch),
  *   2. register it in `adapters` at the bottom,
- *   3. insert a row in search.sources and (optionally) a trigger that calls search.enqueue.
+ *   3. insert a row in unified_search.sources and (optionally) a trigger that calls unified_search.enqueue.
  * Nothing else changes: the schema, the API and the UI already handle any doc_type.
  *
  * fetch(sql, ids) returns one document per id that is still public. Ids that are missing

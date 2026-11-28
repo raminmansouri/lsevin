@@ -18,10 +18,10 @@
 
 create extension if not exists vector;
 create extension if not exists pg_trgm;
-create schema if not exists search;
+create schema if not exists unified_search;
 
 -- ---------------------------------------------------------------- documents
-create table if not exists search.documents (
+create table if not exists unified_search.documents (
   doc_type        text        not null,
   source_id       text        not null,
   -- Display fields keep every language: { "fa-IR": "...", "en-US": "..." }.
@@ -56,33 +56,33 @@ create table if not exists search.documents (
   primary key (doc_type, source_id)
 ) partition by list (doc_type);
 
-create table if not exists search.documents_provider partition of search.documents for values in ('provider');
-create table if not exists search.documents_offer    partition of search.documents for values in ('offer');
-create table if not exists search.documents_tour     partition of search.documents for values in ('tour');
-create table if not exists search.documents_stay     partition of search.documents for values in ('stay');
-create table if not exists search.documents_article  partition of search.documents for values in ('article');
-create table if not exists search.documents_other    partition of search.documents default;
+create table if not exists unified_search.documents_provider partition of unified_search.documents for values in ('provider');
+create table if not exists unified_search.documents_offer    partition of unified_search.documents for values in ('offer');
+create table if not exists unified_search.documents_tour     partition of unified_search.documents for values in ('tour');
+create table if not exists unified_search.documents_stay     partition of unified_search.documents for values in ('stay');
+create table if not exists unified_search.documents_article  partition of unified_search.documents for values in ('article');
+create table if not exists unified_search.documents_other    partition of unified_search.documents default;
 
 -- Keywords: typo-tolerant trigram match and exact-word full text.
 create index if not exists ix_search_documents_trgm
-  on search.documents using gin (search_text gin_trgm_ops);
+  on unified_search.documents using gin (search_text gin_trgm_ops);
 create index if not exists ix_search_documents_tsv
-  on search.documents using gin (tsv);
+  on unified_search.documents using gin (tsv);
 -- Meaning: nearest-neighbour search by cosine distance (one small index per partition).
 create index if not exists ix_search_documents_embedding
-  on search.documents using hnsw (embedding halfvec_cosine_ops) where embedding is not null;
+  on unified_search.documents using hnsw (embedding halfvec_cosine_ops) where embedding is not null;
 -- Place: point index for "closest to here" and bounding-box filters.
 create index if not exists ix_search_documents_geo
-  on search.documents using gist (point(lng, lat)) where lat is not null and lng is not null;
+  on unified_search.documents using gist (point(lng, lat)) where lat is not null and lng is not null;
 -- Filters and landing-page grouping.
 create index if not exists ix_search_documents_city
-  on search.documents (city) where is_public;
+  on unified_search.documents (city) where is_public;
 create index if not exists ix_search_documents_service
-  on search.documents (service_key, city) where is_public and service_key is not null;
+  on unified_search.documents (service_key, city) where is_public and service_key is not null;
 
 -- ------------------------------------------------------------ embedding cache
 -- Unchanged text is never embedded twice; also caches query embeddings.
-create table if not exists search.embedding_cache (
+create table if not exists unified_search.embedding_cache (
   model        text        not null,
   content_hash text        not null,
   embedding    halfvec(384) not null,
@@ -94,7 +94,7 @@ create table if not exists search.embedding_cache (
 -- --------------------------------------------------------------------- outbox
 -- "This item changed". The indexer claims rows older than its batch start and deletes
 -- exactly those, so a change that lands mid-batch is processed on the next run.
-create table if not exists search.outbox (
+create table if not exists unified_search.outbox (
   source_type text        not null,
   source_id   text        not null,
   enqueued_at timestamptz not null default clock_timestamp(),
@@ -102,14 +102,14 @@ create table if not exists search.outbox (
 );
 
 -- ------------------------------------------------------------ source registry
-create table if not exists search.sources (
+create table if not exists unified_search.sources (
   doc_type       text primary key,
   description    text    not null,
   enabled        boolean not null default true,
   last_full_sync timestamptz
 );
 
-insert into search.sources (doc_type, description) values
+insert into unified_search.sources (doc_type, description) values
   ('provider', 'Clinics, hospitals and other service providers'),
   ('offer',    'A treatment/service offered by a provider (provider_services)'),
   ('tour',     'Published tours'),
@@ -120,13 +120,13 @@ on conflict (doc_type) do nothing;
 -- ------------------------------------------------------------------- synonyms
 -- "هیر ترانسپلنت", "FUE", "hair transplant" all mean "کاشت مو". Editable by operators;
 -- the query is expanded with the canonical term before keyword and vector search.
-create table if not exists search.synonyms (
+create table if not exists unified_search.synonyms (
   term       text primary key,        -- folded form
   canonical  text not null,           -- folded form
   created_at timestamptz not null default now()
 );
 
-insert into search.synonyms (term, canonical) values
+insert into unified_search.synonyms (term, canonical) values
   ('هیر ترانسپلنت', 'کاشت مو'),
   ('هیرترانسپلنت',  'کاشت مو'),
   ('هیر ترنسپلنت',  'کاشت مو'),
@@ -151,7 +151,7 @@ on conflict (term) do nothing;
 -- --------------------------------------------------------------------- places
 -- Gazetteer for "قیطریه", "Zafaranieh"... Providers rarely mention the neighbourhood, so a
 -- place is turned into a point and results are ranked by distance to it.
-create table if not exists search.places (
+create table if not exists unified_search.places (
   id        serial primary key,
   kind      text not null check (kind in ('city', 'neighborhood')),
   name      text not null,                 -- folded Persian name
@@ -163,9 +163,9 @@ create table if not exists search.places (
   source    text not null default 'curated-approx',
   unique (kind, city_slug, name)
 );
-create index if not exists ix_search_places_aliases on search.places using gin (aliases);
+create index if not exists ix_search_places_aliases on unified_search.places using gin (aliases);
 
-insert into search.places (kind, name, aliases, city_slug, lat, lng, radius_m) values
+insert into unified_search.places (kind, name, aliases, city_slug, lat, lng, radius_m) values
   ('city', 'تهران',    '{tehran}',                         'tehran',     35.6892, 51.3890, 25000),
   ('city', 'مشهد',     '{mashhad}',                        'mashhad',    36.2605, 59.6168, 15000),
   ('city', 'شیراز',    '{shiraz}',                         'shiraz',     29.5918, 52.5837, 12000),
@@ -186,7 +186,7 @@ on conflict do nothing;
 
 -- Well-known Tehran neighbourhoods. Centres are APPROXIMATE (checked only to ~1 km):
 -- replace with OpenStreetMap data via scripts/search-import-places.mjs when available.
-insert into search.places (kind, name, aliases, city_slug, lat, lng, radius_m) values
+insert into unified_search.places (kind, name, aliases, city_slug, lat, lng, radius_m) values
   ('neighborhood', 'قیطریه',   '{gheytarieh,qeytarieh,gheitarieh}',        'tehran', 35.7950, 51.4430, 1800),
   ('neighborhood', 'الهیه',    '{elahieh,elahiyeh}',                       'tehran', 35.7930, 51.4220, 1500),
   ('neighborhood', 'زعفرانیه', '{zafaranieh,zaferanieh}',                  'tehran', 35.8060, 51.4130, 1800),
@@ -218,7 +218,7 @@ on conflict do nothing;
 -- ------------------------------------------------------------------ query log
 -- No user identity: only a salted session hash supplied by the app. Used to learn what
 -- visitors look for and which searches find nothing.
-create table if not exists search.query_log (
+create table if not exists unified_search.query_log (
   id           bigserial primary key,
   created_at   timestamptz not null default now(),
   query        text        not null,
@@ -229,51 +229,51 @@ create table if not exists search.query_log (
   used_vector  boolean     not null default false,
   session_hash text
 );
-create index if not exists ix_search_query_log_created on search.query_log (created_at);
-create index if not exists ix_search_query_log_zero on search.query_log (normalized) where results = 0;
+create index if not exists ix_search_query_log_created on unified_search.query_log (created_at);
+create index if not exists ix_search_query_log_zero on unified_search.query_log (normalized) where results = 0;
 
-create or replace function search.prune_query_log(keep interval default interval '180 days')
+create or replace function unified_search.prune_query_log(keep interval default interval '180 days')
 returns bigint language sql as $$
-  with gone as (delete from search.query_log where created_at < now() - keep returning 1)
+  with gone as (delete from unified_search.query_log where created_at < now() - keep returning 1)
   select count(*) from gone;
 $$;
 
-create or replace view search.v_zero_result_queries as
+create or replace view unified_search.v_zero_result_queries as
   select normalized, count(*) as times, max(created_at) as last_seen
-    from search.query_log
+    from unified_search.query_log
    where results = 0 and created_at > now() - interval '30 days'
    group by normalized
    order by times desc, last_seen desc;
 
-create or replace view search.v_top_queries as
+create or replace view unified_search.v_top_queries as
   select normalized, count(*) as times, round(avg(results), 1) as avg_results, round(avg(took_ms)) as avg_ms
-    from search.query_log
+    from unified_search.query_log
    where created_at > now() - interval '30 days'
    group by normalized
    order by times desc;
 
 -- ------------------------------------------------------------ autocomplete
 -- Prefix/trigram suggestions without any embedding call. Filled by the indexer.
-create table if not exists search.suggestions (
+create table if not exists unified_search.suggestions (
   term     text primary key,         -- folded
   display  text not null,
   doc_type text not null,
   weight   real not null default 0
 );
-create index if not exists ix_search_suggestions_prefix on search.suggestions (term text_pattern_ops);
-create index if not exists ix_search_suggestions_trgm on search.suggestions using gin (term gin_trgm_ops);
+create index if not exists ix_search_suggestions_prefix on unified_search.suggestions (term text_pattern_ops);
+create index if not exists ix_search_suggestions_trgm on unified_search.suggestions using gin (term gin_trgm_ops);
 
 -- ---------------------------------------------------------- landing candidates
 -- Combinations (treatment x city) with enough real, public providers to deserve an
 -- indexable page. Anything thinner would be a doorway page Google ignores or penalises.
-create or replace view search.landing_candidates as
+create or replace view unified_search.landing_candidates as
   select d.service_key,
          d.city,
          count(distinct d.provider_id)          as providers,
          min(d.price_toman)                     as min_price_toman,
          round(avg(d.rating) filter (where d.rating > 0), 2) as avg_rating,
          max(d.indexed_at)                      as updated_at
-    from search.documents d
+    from unified_search.documents d
    where d.doc_type = 'offer' and d.is_public
      and d.service_key is not null and d.city is not null and d.provider_id is not null
    group by d.service_key, d.city
@@ -282,10 +282,10 @@ create or replace view search.landing_candidates as
 -- ------------------------------------------------------------------- triggers
 -- Queue a change. Never raises: indexing must not be able to break a write to the
 -- catalogue tables.
-create or replace function search.enqueue(p_type text, p_id text) returns void
+create or replace function unified_search.enqueue(p_type text, p_id text) returns void
 language plpgsql as $$
 begin
-  insert into search.outbox (source_type, source_id) values (p_type, p_id)
+  insert into unified_search.outbox (source_type, source_id) values (p_type, p_id)
   on conflict (source_type, source_id) do update set enqueued_at = clock_timestamp();
 exception when others then
   null;
@@ -293,13 +293,13 @@ end;
 $$;
 
 -- tg args: 0 = source type, 1 = name of the id column
-create or replace function search.trg_enqueue() returns trigger
+create or replace function unified_search.trg_enqueue() returns trigger
 language plpgsql as $$
 declare
   rec jsonb;
 begin
   rec := to_jsonb(case when tg_op = 'DELETE' then old else new end);
-  perform search.enqueue(tg_argv[0], rec ->> tg_argv[1]);
+  perform unified_search.enqueue(tg_argv[0], rec ->> tg_argv[1]);
   return null;
 exception when others then
   return null;
@@ -307,14 +307,14 @@ end;
 $$;
 
 -- A provider change (name, city, coordinates, rating) changes all of its offers too.
-create or replace function search.trg_enqueue_provider() returns trigger
+create or replace function unified_search.trg_enqueue_provider() returns trigger
 language plpgsql as $$
 declare
   pid uuid;
 begin
   pid := case when tg_op = 'DELETE' then old.id else new.id end;
-  perform search.enqueue('provider', pid::text);
-  insert into search.outbox (source_type, source_id)
+  perform unified_search.enqueue('provider', pid::text);
+  insert into unified_search.outbox (source_type, source_id)
     select 'offer', ps.id::text from category.provider_services ps where ps.service_provider_id = pid
   on conflict (source_type, source_id) do update set enqueued_at = clock_timestamp();
   return null;
@@ -324,7 +324,7 @@ end;
 $$;
 
 -- A treatment rename changes the text of every offer of that treatment.
-create or replace function search.trg_enqueue_definition() returns trigger
+create or replace function unified_search.trg_enqueue_definition() returns trigger
 language plpgsql as $$
 begin
   if tg_op = 'UPDATE'
@@ -333,7 +333,7 @@ begin
      and old.is_active is not distinct from new.is_active then
     return null;
   end if;
-  insert into search.outbox (source_type, source_id)
+  insert into unified_search.outbox (source_type, source_id)
     select 'offer', ps.id::text from category.provider_services ps
      where ps.service_definition_id = (case when tg_op = 'DELETE' then old.id else new.id end)
   on conflict (source_type, source_id) do update set enqueued_at = clock_timestamp();
@@ -344,10 +344,10 @@ end;
 $$;
 
 -- Posts keep their text per language in content.post_translations; the document is the post.
-create or replace function search.trg_enqueue_post_translation() returns trigger
+create or replace function unified_search.trg_enqueue_post_translation() returns trigger
 language plpgsql as $$
 begin
-  perform search.enqueue('article', (case when tg_op = 'DELETE' then old.post_id else new.post_id end)::text);
+  perform unified_search.enqueue('article', (case when tg_op = 'DELETE' then old.post_id else new.post_id end)::text);
   return null;
 exception when others then
   return null;
@@ -359,32 +359,32 @@ begin
   if to_regclass('category.service_providers') is not null then
     drop trigger if exists trg_search_provider on category.service_providers;
     create trigger trg_search_provider after insert or update or delete on category.service_providers
-      for each row execute function search.trg_enqueue_provider();
+      for each row execute function unified_search.trg_enqueue_provider();
   end if;
   if to_regclass('category.provider_services') is not null then
     drop trigger if exists trg_search_offer on category.provider_services;
     create trigger trg_search_offer after insert or update or delete on category.provider_services
-      for each row execute function search.trg_enqueue('offer', 'id');
+      for each row execute function unified_search.trg_enqueue('offer', 'id');
   end if;
   if to_regclass('category.service_definitions') is not null then
     drop trigger if exists trg_search_definition on category.service_definitions;
     create trigger trg_search_definition after update or delete on category.service_definitions
-      for each row execute function search.trg_enqueue_definition();
+      for each row execute function unified_search.trg_enqueue_definition();
   end if;
   if to_regclass('tour.tours') is not null then
     drop trigger if exists trg_search_tour on tour.tours;
     create trigger trg_search_tour after insert or update or delete on tour.tours
-      for each row execute function search.trg_enqueue('tour', 'id');
+      for each row execute function unified_search.trg_enqueue('tour', 'id');
   end if;
   if to_regclass('stay.properties') is not null then
     drop trigger if exists trg_search_stay on stay.properties;
     create trigger trg_search_stay after insert or update or delete on stay.properties
-      for each row execute function search.trg_enqueue('stay', 'id');
+      for each row execute function unified_search.trg_enqueue('stay', 'id');
   end if;
   if to_regclass('content.post_translations') is not null then
     drop trigger if exists trg_search_article on content.post_translations;
     create trigger trg_search_article after insert or update or delete on content.post_translations
-      for each row execute function search.trg_enqueue_post_translation();
+      for each row execute function unified_search.trg_enqueue_post_translation();
   end if;
 end $$;
 

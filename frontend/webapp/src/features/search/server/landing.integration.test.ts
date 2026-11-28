@@ -8,7 +8,7 @@ import { getLanding, listLandingPages } from "./landing";
 import { loadLandingPage } from "./landing-page";
 
 /**
- * search.landing_pages and the page loader on a real database (name must end in "_it").
+ * unified_search.landing_pages and the page loader on a real database (name must end in "_it").
  * Qualifying rule: >= 3 distinct public providers for a treatment in a city LSevin can name,
  * with an unambiguous English slug for the treatment.
  */
@@ -29,7 +29,7 @@ async function addDefinition(definitionId: string, en: string, fa: string, activ
 async function addOffer(serviceKey: string, city: string, provider: string, opts: { price?: number; isPublic?: boolean; quality?: number } = {}) {
   docCounter += 1;
   await sql`
-    insert into search.documents (doc_type, source_id, title, subtitle, url, city, price_toman, rating, quality, service_key, provider_id, search_text, content_hash, is_public)
+    insert into unified_search.documents (doc_type, source_id, title, subtitle, url, city, price_toman, rating, quality, service_key, provider_id, search_text, content_hash, is_public)
     values ('offer', ${`lp-${docCounter}-${provider}`}, ${sql.json({ "fa-IR": "کاشت مو" })}, ${sql.json({ "fa-IR": `کلینیک ${provider}` })},
             ${`/services/lp-${docCounter}`}, ${city}, ${opts.price ?? 40_000_000}, 4.5, ${opts.quality ?? 0.5}, ${serviceKey}, ${provider},
             'x', 'h', ${opts.isPublic ?? true})`;
@@ -38,7 +38,7 @@ async function addOffer(serviceKey: string, city: string, provider: string, opts
 describe.skipIf(!dbName.endsWith("_it"))("landing pages (real database)", () => {
   beforeAll(async () => {
     categoryId = (await sql`select id::text as id from category.categories limit 1`)[0].id;
-    await sql`truncate search.documents`;
+    await sql`truncate unified_search.documents`;
     await addDefinition(def.hair, "Hair transplant", "کاشت مو");
     await addDefinition(def.hairTwin, "Hair Transplant", "کاشت موی دوقلو"); // same slug -> ambiguous
     await addDefinition(def.nose, "Rhinoplasty", "جراحی بینی");
@@ -66,14 +66,14 @@ describe.skipIf(!dbName.endsWith("_it"))("landing pages (real database)", () => 
 
   afterAll(async () => {
     delete process.env.SEARCH_LANDING_PAGES;
-    await sql`truncate search.documents`;
+    await sql`truncate unified_search.documents`;
     await sql`delete from category.service_definitions where id = any(${Object.values(def)})`;
     await sql.end({ timeout: 2 });
   });
 
   it("publishes only combinations with >= 3 distinct public providers, a nameable city and a unique slug", async () => {
     const rows = await sql<{ service_slug: string; city_slug: string; providers: string }[]>`
-      select service_slug, city_slug, providers from search.landing_pages order by service_slug, city_slug`;
+      select service_slug, city_slug, providers from unified_search.landing_pages order by service_slug, city_slug`;
     expect(rows.map((r) => `${r.service_slug}/${r.city_slug}:${r.providers}`)).toEqual(["rhinoplasty/shiraz:3", "rhinoplasty/tehran:3"]);
   });
 

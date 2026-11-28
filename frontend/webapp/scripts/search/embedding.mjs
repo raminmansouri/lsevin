@@ -30,7 +30,7 @@ async function callService(texts, kind) {
 const literal = (vector) => `[${vector.join(",")}]`;
 
 /**
- * Embeds passages, reusing search.embedding_cache. Returns Map<text, "[..]" literal>.
+ * Embeds passages, reusing unified_search.embedding_cache. Returns Map<text, "[..]" literal>.
  * Only texts missing from the cache reach the model.
  */
 export async function embedPassages(sql, texts) {
@@ -38,7 +38,7 @@ export async function embedPassages(sql, texts) {
   const keyOf = (text) => sha256(`passage:${text}`);
   const keys = unique.map(keyOf);
   const cached = await sql`
-    update search.embedding_cache set last_used_at = now()
+    update unified_search.embedding_cache set last_used_at = now()
      where model = ${MODEL} and content_hash = any(${keys})
  returning content_hash, embedding::text as embedding`;
   const byKey = new Map(cached.map((row) => [row.content_hash, row.embedding]));
@@ -51,7 +51,7 @@ export async function embedPassages(sql, texts) {
       const key = keyOf(text);
       const vector = literal(vectors[index]);
       await sql`
-        insert into search.embedding_cache (model, content_hash, embedding)
+        insert into unified_search.embedding_cache (model, content_hash, embedding)
         values (${MODEL}, ${key}, ${vector}::halfvec)
         on conflict (model, content_hash) do nothing`;
       byKey.set(key, vector);

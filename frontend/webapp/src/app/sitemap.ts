@@ -54,7 +54,7 @@ function sitemapImages(path: string, images: string[] | null): string[] {
 }
 
 // Treatment-in-city landing pages (/find/<treatment>/<city>): only combinations with enough real
-// providers (search.landing_pages), and only while SEARCH_LANDING_PAGES=1.
+// providers (unified_search.landing_pages), and only while SEARCH_LANDING_PAGES=1.
 const landingEntries = unstable_cache(
   async (): Promise<(CatalogEntry & { lastModified?: string })[]> => {
     if (!landingPagesEnabled()) return [];

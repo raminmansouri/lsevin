@@ -7,7 +7,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import sql from "@/config/database/db";
 
 /**
- * Catalogue write -> trigger -> outbox -> indexer -> search.documents, on a real database.
+ * Catalogue write -> trigger -> outbox -> indexer -> unified_search.documents, on a real database.
  * The test database must end in "_it". Everything created here is removed afterwards.
  */
 const dbName = new URL(process.env.DATABASE_URL ?? "postgres://x/none").pathname.slice(1);
@@ -29,14 +29,14 @@ let providerTypeId = "";
 async function docs(type: string, id: string) {
   return sql<
     { title: Record<string, string>; city: string | null; search_text: string; service_key: string | null; price_toman: string | null; lat: number | null; indexed_at: Date }[]
-  >`select title, city, search_text, service_key, price_toman, lat, indexed_at from search.documents where doc_type = ${type} and source_id = ${id}`;
+  >`select title, city, search_text, service_key, price_toman, lat, indexed_at from unified_search.documents where doc_type = ${type} and source_id = ${id}`;
 }
 
 describe.skipIf(!dbName.endsWith("_it"))("search indexer pipeline (real database)", () => {
   beforeAll(async () => {
     categoryId = (await sql`select id::text as id from category.categories limit 1`)[0].id;
     providerTypeId = (await sql`select id::text as id from category.provider_types limit 1`)[0].id;
-    await sql`truncate search.outbox`;
+    await sql`truncate unified_search.outbox`;
     await sql`
       insert into category.service_definitions (id, name_translations, description_translations, category_id, duration_minutes, pricing_model, is_active, currency, value)
       values (${ids.definition}, ${sql.json({ "fa-IR": "آزمونکاشت مو", "en-US": "Ittest hair transplant" })}, ${sql.json({})}, ${categoryId}, 60, 'Fixed', true, 'IRR', 1000)`;
@@ -50,8 +50,8 @@ describe.skipIf(!dbName.endsWith("_it"))("search indexer pipeline (real database
 
   afterAll(async () => {
     const all = Object.values(ids);
-    await sql`delete from search.documents where source_id = any(${all})`;
-    await sql`delete from search.outbox where source_id = any(${all})`;
+    await sql`delete from unified_search.documents where source_id = any(${all})`;
+    await sql`delete from unified_search.outbox where source_id = any(${all})`;
     await sql`delete from category.provider_services where service_provider_id = any(${[ids.provider, ids.inactive]})`;
     await sql`delete from category.service_providers where id = any(${[ids.provider, ids.inactive]})`;
     await sql`delete from category.service_definitions where id = ${ids.definition}`;
@@ -60,7 +60,7 @@ describe.skipIf(!dbName.endsWith("_it"))("search indexer pipeline (real database
 
   it("triggers queue the changed provider and its offer", async () => {
     const queued = await sql<{ source_type: string; source_id: string }[]>`
-      select source_type, source_id from search.outbox where source_id = any(${Object.values(ids)})`;
+      select source_type, source_id from unified_search.outbox where source_id = any(${Object.values(ids)})`;
     const keys = queued.map((row) => `${row.source_type}:${row.source_id}`);
     expect(keys).toContain(`provider:${ids.provider}`);
     expect(keys).toContain(`offer:${ids.offer}`);
@@ -77,7 +77,7 @@ describe.skipIf(!dbName.endsWith("_it"))("search indexer pipeline (real database
     expect(offer.search_text).toContain("آزمونکاشت مو");
     // The provider's name is searchable on its offers.
     expect(offer.search_text).toContain("کلینیک آزمون قیطریه");
-    const left = await sql`select 1 from search.outbox where source_id = any(${Object.values(ids)})`;
+    const left = await sql`select 1 from unified_search.outbox where source_id = any(${Object.values(ids)})`;
     expect(left.length).toBe(0);
   });
 
@@ -118,18 +118,18 @@ describe.skipIf(!dbName.endsWith("_it"))("search indexer pipeline (real database
   it("the full reconcile removes documents whose source no longer exists", async () => {
     const orphan = randomUUID();
     await sql`
-      insert into search.documents (doc_type, source_id, url, search_text, content_hash)
+      insert into unified_search.documents (doc_type, source_id, url, search_text, content_hash)
       values ('offer', ${orphan}, '/services/ghost', 'ghost', 'x')`;
     runIndexer("--full", "--type", "offer");
     expect((await docs("offer", orphan)).length).toBe(0);
   });
 
   it("a failing trigger cannot break a catalogue write", async () => {
-    await sql`alter table search.outbox rename to outbox_tmp`;
+    await sql`alter table unified_search.outbox rename to outbox_tmp`;
     try {
       await expect(sql`update category.service_providers set city = 'Tehran' where id = ${ids.provider}`).resolves.toBeDefined();
     } finally {
-      await sql`alter table search.outbox_tmp rename to outbox`;
+      await sql`alter table unified_search.outbox_tmp rename to outbox`;
     }
   });
 });

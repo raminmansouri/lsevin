@@ -37,7 +37,7 @@ function warn(message: string) {
 /**
  * The embedding of a search query as a pgvector literal, or null when it could not be had
  * within the time budget (search then uses keywords and place only).
- * Order: process memory -> search.embedding_cache -> the embedding service.
+ * Order: process memory -> unified_search.embedding_cache -> the embedding service.
  */
 export async function embedQuery(text: string): Promise<string | null> {
   const key = keyOf(text);
@@ -46,7 +46,7 @@ export async function embedQuery(text: string): Promise<string | null> {
 
   try {
     const rows = await sql<{ embedding: string }[]>`
-      update search.embedding_cache set last_used_at = now()
+      update unified_search.embedding_cache set last_used_at = now()
        where model = ${EMBEDDING_MODEL} and content_hash = ${key}
    returning embedding::text as embedding`;
     if (rows[0]) {
@@ -73,7 +73,7 @@ export async function embedQuery(text: string): Promise<string | null> {
     remember(key, vector);
     // Fire and forget: the next visitor with this query skips the model entirely.
     void sql`
-      insert into search.embedding_cache (model, content_hash, embedding)
+      insert into unified_search.embedding_cache (model, content_hash, embedding)
       values (${EMBEDDING_MODEL}, ${key}, ${vector}::halfvec)
       on conflict (model, content_hash) do nothing`.catch(() => undefined);
     return vector;

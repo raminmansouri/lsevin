@@ -27,13 +27,13 @@ test.beforeAll(async () => {
   ];
   for (const [city, provider, price] of offers) {
     await sql`
-      insert into search.documents (doc_type, source_id, title, subtitle, url, city, price_toman, rating, quality, service_key, provider_id, search_text, content_hash)
+      insert into unified_search.documents (doc_type, source_id, title, subtitle, url, city, price_toman, rating, quality, service_key, provider_id, search_text, content_hash)
       values ('offer', ${`e2e-${defId}-${city}-${provider}`}, ${sql.json({ "fa-IR": "جراحی بینی" })}, ${sql.json({ "fa-IR": `کلینیک ${provider}-${city}` })},
               ${`/services/e2e-${provider}-${city}`}, ${city}, ${price}, 4.4, 0.6, ${defId}, ${`${provider}-${city}`}, 'x', 'h')`;
   }
 });
 test.afterAll(async () => {
-  await sql`delete from search.documents where service_key = ${defId}`;
+  await sql`delete from unified_search.documents where service_key = ${defId}`;
   await sql`delete from category.service_definitions where id = ${defId}`;
   await sql.end({ timeout: 2 });
 });

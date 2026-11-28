@@ -85,7 +85,7 @@ describe("parseQuery", () => {
   it("is safe on hostile or huge input", () => {
     expect(() => parseQuery("a ".repeat(5000), context)).not.toThrow();
     expect(parseQuery("a ".repeat(5000), context).serviceTokens.length).toBeLessThanOrEqual(12);
-    expect(parseQuery("'; drop table search.documents; --", context).serviceTokens.join(" ")).not.toContain(";");
+    expect(parseQuery("'; drop table unified_search.documents; --", context).serviceTokens.join(" ")).not.toContain(";");
     expect(parseQuery("", context).serviceTokens).toEqual([]);
   });
 });

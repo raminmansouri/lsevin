@@ -20,7 +20,7 @@ export async function logQuery(entry: QueryLogEntry): Promise<void> {
   if (!entry.normalized) return;
   try {
     await sql`
-      insert into search.query_log (query, normalized, locale, results, took_ms, used_vector, session_hash)
+      insert into unified_search.query_log (query, normalized, locale, results, took_ms, used_vector, session_hash)
       values (${entry.query.slice(0, 160)}, ${entry.normalized.slice(0, 160)}, ${entry.locale}, ${entry.results},
               ${entry.tookMs}, ${entry.usedVector}, ${entry.sessionHash})`;
   } catch (error) {

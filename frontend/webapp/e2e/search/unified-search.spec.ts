@@ -17,9 +17,9 @@ test.beforeAll(async () => {
   if (!new URL(DB).pathname.endsWith("_it")) throw new Error("SEARCH_E2E_DATABASE_URL must be a throw-away database ending in _it");
   const embeddingUp = await fetch(`${process.env.EMBEDDING_URL ?? "http://127.0.0.1:8089"}/health`).then((r) => r.ok).catch(() => false);
   await loadFixtures(sql, embeddingUp);
-  await sql`delete from search.suggestions`;
+  await sql`delete from unified_search.suggestions`;
   await sql`
-    insert into search.suggestions (term, display, doc_type, weight) values
+    insert into unified_search.suggestions (term, display, doc_type, weight) values
       ('کاشت مو', 'کاشت مو', 'offer', 0.8), ('کاشت مو fue', 'کاشت موی FUE', 'offer', 0.7),
       ('تور یزد', 'تور تاریخی یزد', 'tour', 0.6), ('تور تخت جمشید', 'تور یک روزه تخت جمشید', 'tour', 0.6)`;
 });
@@ -129,12 +129,12 @@ test.describe("search page", () => {
   });
 
   test("hostile input is shown as text and never breaks the page", async ({ page }) => {
-    const evil = `<script>window.__pwned=1</script>'; drop table search.documents; --`;
+    const evil = `<script>window.__pwned=1</script>'; drop table unified_search.documents; --`;
     await page.goto(`/fa/search?q=${encodeURIComponent(evil)}`);
     await expect(page.getByTestId("search-page")).toBeVisible();
     expect(await page.evaluate(() => (window as unknown as { __pwned?: number }).__pwned)).toBeUndefined();
     await expect(box(page)).toHaveValue(evil.slice(0, 160));
-    const [{ n }] = await sql<{ n: number }[]>`select count(*)::int as n from search.documents`;
+    const [{ n }] = await sql<{ n: number }[]>`select count(*)::int as n from unified_search.documents`;
     expect(n).toBeGreaterThan(0);
   });
 
