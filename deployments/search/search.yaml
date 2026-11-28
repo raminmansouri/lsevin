@@ -1,0 +1,145 @@
+# Unified search: embedding service + index worker + nightly full reconcile.
+#
+# NOT applied automatically. Rollout steps, prerequisites and rollback: README.md in this folder.
+# Namespace and secret names follow the rest of the platform (namespace "lsevin").
+#
+# Required secret (create once per site; never commit it):
+#   kubectl -n lsevin create secret generic search-secrets \
+#     --from-literal=EMBEDDING_API_KEY="$(openssl rand -hex 32)"
+# The web app needs the same value as EMBEDDING_API_KEY, plus EMBEDDING_URL=http://embedding:8089.
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: embedding
+  namespace: lsevin
+  labels: { app: embedding, part-of: search }
+spec:
+  replicas: 1
+  # One pod: the model uses all cores for one request at a time, a second replica adds RAM, not speed.
+  strategy: { type: Recreate }
+  selector:
+    matchLabels: { app: embedding }
+  template:
+    metadata:
+      labels: { app: embedding, part-of: search }
+    spec:
+      containers:
+        - name: embedding
+          image: lsevin-embedding:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8089
+          env:
+            - name: EMBEDDING_API_KEY
+              valueFrom: { secretKeyRef: { name: search-secrets, key: EMBEDDING_API_KEY } }
+            - name: MAX_QUEUE
+              value: "64"
+          resources:
+            requests: { cpu: "250m", memory: "768Mi" }
+            # ~0.5 GB at rest; the limit leaves room for a burst of 64 texts without being OOM-killed.
+            limits: { cpu: "2", memory: "1536Mi" }
+          readinessProbe:
+            httpGet: { path: /health, port: 8089 }
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          livenessProbe:
+            httpGet: { path: /health, port: 8089 }
+            initialDelaySeconds: 30
+            periodSeconds: 15
+            failureThreshold: 4
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            capabilities: { drop: ["ALL"] }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: embedding
+  namespace: lsevin
+  labels: { app: embedding, part-of: search }
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8089
+      targetPort: 8089
+  selector: { app: embedding }
+---
+# Processes the change queue every 30 s: a catalogue edit is searchable within about a minute.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: search-indexer
+  namespace: lsevin
+  labels: { app: search-indexer, part-of: search }
+spec:
+  replicas: 1
+  strategy: { type: Recreate }
+  selector:
+    matchLabels: { app: search-indexer }
+  template:
+    metadata:
+      labels: { app: search-indexer, part-of: search }
+    spec:
+      containers:
+        - name: indexer
+          image: lsevin-search-indexer:latest
+          imagePullPolicy: IfNotPresent
+          args: ["--loop", "30"]
+          env:
+            - name: DATABASE_URL
+              valueFrom: { secretKeyRef: { name: webapp-secrets, key: DATABASE_URL } }
+            - name: EMBEDDING_URL
+              value: "http://embedding:8089"
+            - name: EMBEDDING_API_KEY
+              valueFrom: { secretKeyRef: { name: search-secrets, key: EMBEDDING_API_KEY } }
+          resources:
+            requests: { cpu: "50m", memory: "96Mi" }
+            limits: { cpu: "500m", memory: "256Mi" }
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            capabilities: { drop: ["ALL"] }
+---
+# Safety net: re-reads every source once a night, adds what the triggers missed (for example rows
+# applied by SymmetricDS replication, which may not fire triggers) and removes what no longer exists.
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: search-reconcile
+  namespace: lsevin
+  labels: { app: search-reconcile, part-of: search }
+spec:
+  schedule: "30 2 * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 2
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      activeDeadlineSeconds: 3600
+      template:
+        spec:
+          restartPolicy: Never
+          containers:
+            - name: reconcile
+              image: lsevin-search-indexer:latest
+              args: ["--full"]
+              env:
+                - name: DATABASE_URL
+                  valueFrom: { secretKeyRef: { name: webapp-secrets, key: DATABASE_URL } }
+                - name: EMBEDDING_URL
+                  value: "http://embedding:8089"
+                - name: EMBEDDING_API_KEY
+                  valueFrom: { secretKeyRef: { name: search-secrets, key: EMBEDDING_API_KEY } }
+              resources:
+                requests: { cpu: "50m", memory: "128Mi" }
+                limits: { cpu: "500m", memory: "384Mi" }
+              securityContext:
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: true
+                runAsNonRoot: true
+                capabilities: { drop: ["ALL"] }

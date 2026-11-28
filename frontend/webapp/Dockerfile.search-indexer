@@ -1,0 +1,12 @@
+# Search index worker: keeps unified_search.documents in step with the catalogue.
+#   docker build -f Dockerfile.search-indexer -t lsevin-search-indexer:latest .
+# Default command processes the change queue every 30 s; the nightly CronJob runs it with --full.
+# Needs DATABASE_URL and EMBEDDING_URL (the embedding service); nothing else.
+FROM node:24-alpine
+WORKDIR /app
+RUN npm install --no-audit --no-fund --omit=dev postgres@3.4.9
+COPY scripts/search-index.mjs ./scripts/
+COPY scripts/search/ ./scripts/search/
+USER node
+ENTRYPOINT ["node", "scripts/search-index.mjs"]
+CMD ["--loop", "30"]

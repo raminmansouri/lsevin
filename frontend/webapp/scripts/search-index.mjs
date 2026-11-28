@@ -39,7 +39,7 @@ if (!DATABASE_URL) {
   process.exit(1);
 }
 
-const sql = postgres(DATABASE_URL, { max: 4, onnotice: () => {} });
+const sql = postgres(DATABASE_URL, { max: 4, onnotice: () => {}, prepare: false }); // prepare: false keeps it safe behind a transaction-pooling PgBouncer
 const FETCH_BATCH = 200;
 const WITH_EMBEDDINGS = !flag("no-embed");
 const onlyType = option("type");

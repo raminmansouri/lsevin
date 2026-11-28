@@ -76,6 +76,8 @@ frontend/webapp/.pwa-auth*.json
 !deployments/dr/*.md
 !deployments/docker/SEAWEEDFS_MIGRATION.md
 !deployments/kubernetes/**/README.md
+!deployments/search/README.md
+!docs/search/*.md
 **/*.txt
 # A Next.js route folder (serves /llms.txt), not a text file.
 !frontend/webapp/src/app/llms.txt/
