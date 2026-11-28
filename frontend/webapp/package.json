@@ -37,8 +37,12 @@
     "test:local-env": "node scripts/test-env/local-env.mjs",
     "test:itinerary": "node scripts/test-env/local-env.mjs --suite itinerary",
     "test:pwa:safety": "node --test tests/pwa.test.mjs",
-
-    "financial:user": "node scripts/financial-user.mjs"
+    "financial:user": "node scripts/financial-user.mjs",
+    "search:index": "node scripts/search-index.mjs",
+    "search:worker": "node scripts/search-index.mjs --loop 30",
+    "search:rebuild": "node scripts/search-index.mjs --full",
+    "search:report": "node scripts/search-report.mjs",
+    "test:search": "vitest run src/features/search"
   },
   "dependencies": {
     "@ai-sdk/langchain": "^3.0.128",
@@ -186,7 +190,6 @@
     "eslint-plugin-react": "7.37.5",
     "eslint-plugin-react-compiler": "19.1.0-rc.2",
     "eslint-plugin-react-hooks": "5.2.0",
-
     "postcss": "8.5.6",
     "prettier": "3.6.2",
     "prettier-plugin-tailwindcss": "0.7.1",

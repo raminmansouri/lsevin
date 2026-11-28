@@ -1,0 +1,15 @@
+{
+  "name": "lsevin-embedding-service",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Self-hosted multilingual text embeddings (multilingual-e5-small) for LSevin search and the assistant.",
+  "scripts": {
+    "start": "node server.mjs",
+    "test": "node --test test/"
+  },
+  "engines": { "node": ">=22" },
+  "dependencies": {
+    "@huggingface/transformers": "^3.7.0"
+  }
+}
