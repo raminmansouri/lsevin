@@ -107,14 +107,14 @@ const nextConfig: NextConfig = {
   // raw bytes lets it pick the best encoding the browser offers.
   compress: false,
 
-  // Crawlers get blocking metadata: canonical, hreflang, robots and the redirect
-  // of an old product slug (migration 0110) are in <head>, never streamed into
-  // the body. Next's default list leaves out Googlebot (it renders JavaScript).
-  // The product route streams (loading boundaries), so that redirect is an
-  // instant meta refresh in <head>, which Google treats as permanent; a 308
-  // would need the slug history in the edge middleware. Next's defaults are kept.
-  htmlLimitedBots:
-    /[\w-]+-Google|Google-[\w-]+|Googlebot|Chrome-Lighthouse|Slurp|DuckDuckBot|baiduspider|yandex|sogou|bitlybot|tumblr|vkShare|quora link preview|redditbot|ia_archiver|Bingbot|BingPreview|applebot|facebookexternalhit|facebookcatalog|Twitterbot|LinkedInBot|Slackbot|Discordbot|WhatsApp|SkypeUriPreview|Yeti|googleweblight|GPTBot|OAI-SearchBot|ChatGPT-User|ClaudeBot|Claude-User|PerplexityBot|Amazonbot|PetalBot|YandexBot/i,
+  // EVERY user agent gets blocking metadata. Next streams metadata into the
+  // <body> (after the page shell) for user agents it does not recognise as
+  // bots; SEO crawlers such as Screaming Frog, Ahrefs or Semrush then saw
+  // title, canonical and robots at the end of a 300 KB product page instead of
+  // in <head>. Static/ISR pages already carry them in <head>; this makes the
+  // dynamic, streamed ones (products, seller pages) do the same, and turns the
+  // old-product-slug redirect in generateMetadata into a real 308.
+  htmlLimitedBots: /.*/,
 
   experimental: {
     authInterrupts: true,
@@ -169,6 +169,10 @@ const nextConfig: NextConfig = {
 
   images: {
     formats: ["image/avif", "image/webp"],
+    // Next's default ladder tops out at 3840 px. Crawlers request every srcset
+    // candidate, and a 3840 px AVIF re-encode takes ~3 s and CPU: thousands of
+    // them returned 500/timeouts. No layout on this site is wider than 1920.
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920],
     remotePatterns: [
       {
         protocol: filesUrl.protocol.slice(0, -1) as "http" | "https",

@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { LexicalRenderer } from "@/components/editor/lexical-renderer";
+import { EmailOff } from "@/components/email-off";
 import { Link } from "@/i18n/navigation";
 import { absoluteUrl } from "@/lib/seo/alternates";
 import { breadcrumbList, graph, organizationId } from "@/lib/seo/entity-schema";
@@ -81,6 +82,7 @@ export function SitePageView({
           </ol>
         </nav>
 
+        <EmailOff>
         <article className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-black/5 sm:p-8">
           <h1 className="mb-3 text-2xl font-extrabold leading-tight text-neutral-900 sm:text-3xl">{page.title}</h1>
           <p className="mb-6 text-xs text-neutral-500">
@@ -108,6 +110,7 @@ export function SitePageView({
             pageUrl={absoluteUrl(locale, `/${slug}`)}
           />
         </article>
+        </EmailOff>
 
         {related.length ? (
           <nav aria-label={moreLabel} className="mt-8">

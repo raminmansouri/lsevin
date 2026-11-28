@@ -1,14 +1,13 @@
-import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { ArrowLeft, ArrowRight, Image as ImageIcon, PlayCircle } from "lucide-react";
 
+import { Link } from "@/i18n/navigation";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { LexicalDescription } from "@/features/service-providers/components/lexical-description";
 import { isFastBuild } from "@/lib/build-mode";
 import { publicSegmentsForIds, resolvePublicEntity } from "@/lib/seo/public-slugs";
 import { buildPublicMetadata } from "@/lib/seo/metadata";
-import { getIndexableLocales } from "@/lib/seo/locale-eligibility";
 import {
   getServicePageByIdFromDb,
   listActiveServicePageIds,
@@ -62,13 +61,15 @@ export async function generateMetadata({ params }: Pick<ServiceGalleryPageProps,
   const id = ref.id;
   const t = await getTranslations({ locale, namespace: "ServiceGalleryPage" });
 
-  return buildPublicMetadata({
+  // A gallery is a thin duplicate of the service page: never index it, point
+  // the canonical at the service page, and keep its links followable.
+  const metadata = await buildPublicMetadata({
     locale,
-    path: `/services/${ref.slug ?? id}/gallery`,
+    path: `/services/${ref.slug ?? id}`,
     title: t("metadata.title"),
     descriptions: [t("metadata.description")],
-    eligibleLocales: await getIndexableLocales('service', id),
   });
+  return { ...metadata, robots: { index: false, follow: true } };
 }
 
 export default async function ServiceGalleryPage({ params }: ServiceGalleryPageProps) {

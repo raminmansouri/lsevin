@@ -16,7 +16,9 @@ export function resolveMediaUrl(value?: string | null): string {
   }
 
   const baseUrl = String(env.NEXT_PUBLIC_FILES_URL || "").replace(/\/+$/, "");
-  return baseUrl ? `${baseUrl}/${src.replace(/^\/+/, "")}` : src;
+  // Never hand back a bare relative path: on /fa/products/x it resolves to
+  // /fa/products/Categories/..., which is a 404.
+  return baseUrl ? `${baseUrl}/${src.replace(/^\/+/, "")}` : `/files/${src.replace(/^\/+/, "")}`;
 }
 
 export function isVideoMedia(mediaType?: string | null, url?: string | null): boolean {

@@ -48,6 +48,7 @@ import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { VideoGallery } from "@/components/media/video-gallery";
 import { ServiceProductsRail } from "@/features/shop/components/ServiceProductsRail";
 
+import { EmailOff } from "@/components/email-off";
 import { MapViewer } from "@/components/map/map-viewer";
 import { isProviderConfigured, resolveMapProvider } from "@/components/map/map-provider";
 
@@ -779,9 +780,11 @@ export function ProviderDetailView({ initialData }: { initialData?: ProviderPage
                   </a>
                 ) : null}
                 {provider.email ? (
+                  <EmailOff>
                   <a href={`mailto:${provider.email}`} className="flex items-center gap-3 text-sm text-gray-700 transition-colors hover:text-[#083f30]">
                     <Mail size={18} className="text-[#083f30]" /> <span>{provider.email}</span>
                   </a>
+                  </EmailOff>
                 ) : null}
                 {provider.street ? (
                   <div className="flex items-center gap-3 text-sm text-gray-700">

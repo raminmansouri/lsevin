@@ -569,7 +569,8 @@ declare const messages: {
     },
     "consultationRequests": "داواکارییەکانی ڕاوێژکاری",
     "nav": {
-      "editorial": "ناوەڕۆکی ماڵپەڕ"
+      "editorial": "ناوەڕۆکی ماڵپەڕ",
+      "amenities": "ئاسانکارییەکان"
     }
   },
   "HomePage": {

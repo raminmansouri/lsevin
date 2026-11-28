@@ -647,7 +647,8 @@ declare const messages: {
     },
     "consultationRequests": "Danışmanlık talepleri",
     "nav": {
-      "editorial": "Site içeriği"
+      "editorial": "Site içeriği",
+      "amenities": "Olanaklar"
     }
   },
   "HomePage": {

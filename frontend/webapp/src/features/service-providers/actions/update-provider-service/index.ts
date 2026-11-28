@@ -8,6 +8,10 @@ import {
 import { createAuthenticatedSafeAction } from "@/lib/safe-action";
 import { LocaleHeaderTypes } from "@/types/common";
 
+import {
+  duplicateServiceNameProblem,
+  findDuplicateServiceName,
+} from "../../lib/duplicate-service-name";
 import { revalidateServiceProviderCache } from "../../db/cache";
 import { UpdateProviderServiceSchema } from "./schema";
 import { InputType, OutputType, ReturnType } from "./types";
@@ -29,6 +33,22 @@ const handler = async (
     trendingScore,
     isActive,
   } = input;
+
+  // Only an active service competes for the public URL.
+  if (input.isActive !== false) {
+    const duplicate = await findDuplicateServiceName({
+      serviceProviderId,
+      name,
+      excludeServiceId: serviceId,
+    });
+    if (duplicate) {
+      return {
+        data: undefined,
+        error: duplicateServiceNameProblem(duplicate.id),
+        payload: input,
+      };
+    }
+  }
 
   const apiPayload = {
     name,

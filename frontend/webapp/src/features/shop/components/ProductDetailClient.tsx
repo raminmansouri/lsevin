@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 
 import { addToCartAction } from "../actions/cart.actions";
 import type { ProductDetail } from "../types/domain";
+import { shopImageSrc } from "../lib/image";
 import { ShopPrice } from "./ShopPrice";
 
 export function ProductDetailClient({
@@ -221,7 +222,7 @@ export function ProductDetailClient({
                 <span className="grid h-9 w-9 shrink-0 place-items-center overflow-hidden rounded-full bg-[#083f30]/5 text-sm font-bold text-[#083f30]">
                   {o.sellerLogoUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={o.sellerLogoUrl} alt="" className="h-full w-full object-cover" />
+                    <img src={shopImageSrc(o.sellerLogoUrl)} alt="" className="h-full w-full object-cover" />
                   ) : (
                     o.sellerName.charAt(0)
                   )}

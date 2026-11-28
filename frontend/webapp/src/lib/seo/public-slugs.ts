@@ -79,7 +79,20 @@ export const resolvePublicEntity = cache(async (kind: PublicEntityKind, value: s
         : await sql<PublicEntityRef[]>`select id::text as id, slug from category.categories where slug = ${value} and is_active = true limit 1`;
       break;
   }
-  if (rows[0] || byId) return rows[0] ?? null;
+  if (rows[0]) return rows[0];
+  // A duplicate service that was switched off redirects to the one it duplicates.
+  if (kind === 'service') {
+    const merged = await sql<PublicEntityRef[]>`
+      select t.id::text as id, t.slug
+        from category.provider_services s
+        join category.provider_services t on t.id = s.merged_into_service_id
+       where ${byId ? sql`s.id = ${value}::uuid` : sql`s.slug = ${value}`}
+         and s.is_active = false and t.is_active = true
+       limit 1
+    `;
+    if (merged[0]) return merged[0];
+  }
+  if (byId) return null;
   const previous = await sql<PublicEntityRef[]>`
     select t.id::text as id, t.slug
       from category.public_slug_history h
