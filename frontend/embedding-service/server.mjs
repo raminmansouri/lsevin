@@ -45,17 +45,56 @@ const loading = pipeline("feature-extraction", MODEL, { dtype: "q8" })
     console.error("model load failed:", error);
   });
 
-// One inference at a time: the model already uses every core, and a queue keeps memory flat.
-let waiting = 0;
-let chain = Promise.resolve();
-function enqueue(task) {
-  if (waiting >= MAX_QUEUE) return Promise.reject(Object.assign(new Error("busy"), { status: 503 }));
-  waiting += 1;
-  const run = chain.then(task);
-  chain = run.catch(() => {}).finally(() => {
-    waiting -= 1;
+// One inference at a time (the model already uses every core; a queue keeps memory flat), but
+// everything that is waiting when the model becomes free goes through it as ONE batch. Under
+// load, eight waiting search queries cost one pass instead of eight (measured: the single-queue
+// version made 35% of queries miss their 400 ms budget at 8 concurrent clients).
+const MAX_BATCH = Number(process.env.MAX_BATCH ?? 32);
+const pending = [];
+let running = false;
+
+function submit(texts, kind) {
+  if (pending.length >= MAX_QUEUE) return Promise.reject(Object.assign(new Error("busy"), { status: 503 }));
+  return new Promise((resolve, reject) => {
+    pending.push({ texts, kind, resolve, reject });
+    void pump();
   });
-  return run;
+}
+
+async function pump() {
+  if (running) return;
+  running = true;
+  try {
+    while (pending.length) {
+      // The first waiting request decides the kind (query/passage prefixes differ); take every
+      // waiting request of that kind that still fits in the batch.
+      const kind = pending[0].kind;
+      const batch = [];
+      let count = 0;
+      for (let i = 0; i < pending.length; ) {
+        const item = pending[i];
+        if (item.kind === kind && (count === 0 || count + item.texts.length <= MAX_BATCH)) {
+          batch.push(item);
+          count += item.texts.length;
+          pending.splice(i, 1);
+        } else {
+          i += 1;
+        }
+      }
+      try {
+        const vectors = await embed(batch.flatMap((item) => item.texts), kind);
+        let offset = 0;
+        for (const item of batch) {
+          item.resolve(vectors.slice(offset, offset + item.texts.length));
+          offset += item.texts.length;
+        }
+      } catch (error) {
+        for (const item of batch) item.reject(error);
+      }
+    }
+  } finally {
+    running = false;
+  }
 }
 
 async function embed(texts, kind) {
@@ -128,7 +167,7 @@ const server = createServer(async (request, response) => {
         return send(response, 400, { error: "every text must be a non-empty string" });
       }
       const clipped = texts.map((text) => text.slice(0, MAX_CHARS));
-      const vectors = await enqueue(() => embed(clipped, kind));
+      const vectors = await submit(clipped, kind);
       return send(response, 200, { model: MODEL, dims: DIMS, vectors });
     }
     return send(response, 404, { error: "not found" });

@@ -13,6 +13,11 @@ import { logQuery } from "./query-log";
 
 const MAX_QUERY_LENGTH = 160;
 const CANDIDATES = 60;
+/** Matches ranked by the full-text query (best quality first), and the size of the typo-tolerant fallback. */
+const LEXICAL_WINDOW = 1000;
+const FUZZY_WINDOW = 300;
+/** Trigram matching is tried only when exact matching finds fewer rows than this. */
+const FUZZY_WHEN_FEWER_THAN = 10;
 /** Cosine similarity of e5 vectors is compressed into ~0.75-0.90, so absolute cut-offs are tuned for this model. */
 const VECTOR_MIN_SIM = Number(process.env.SEARCH_VECTOR_MIN_SIM ?? 0.78);
 const VECTOR_BAND = 0.05; // keep vector hits within this distance of the best one
@@ -86,21 +91,47 @@ async function lexicalHits(parsed: ParsedQuery, types: DocType[] | null, city: s
   const resolved = tsQuery(parsed.serviceTokens);
   if (!resolved) return [];
   const typed = tsQuery(parsed.typedTokens) || resolved;
-  return sql<Hit[]>`
+
+  // 1) Exact words (full text). Ranking every match is O(matches): a common word matches thousands
+  //    of rows and ts_rank_cd cost ~30 us each (89 ms at 100k documents). So the best-quality
+  //    LEXICAL_WINDOW matches are ranked, which bounds the cost (21 ms) at any catalogue size.
+  const exact = await sql<Hit[]>`
     with q as (select to_tsquery('simple', ${resolved}) as a, to_tsquery('simple', ${typed}) as b)
-    select d.doc_type, d.source_id
-      from unified_search.documents d, q
-     where d.is_public ${typeFilter(types)} ${cityFilter(city)}
-       and (d.tsv @@ q.a or d.tsv @@ q.b or ${text} <% d.search_text)
-     order by greatest(ts_rank_cd(d.tsv, q.a, 32), ts_rank_cd(d.tsv, q.b, 32)) desc,
-              word_similarity(${text}, d.search_text) desc, d.quality desc
-     limit ${CANDIDATES}`;
+    select c.doc_type, c.source_id from (
+      select d.doc_type, d.source_id, d.tsv, d.quality
+        from unified_search.documents d, q
+       where d.is_public ${typeFilter(types)} ${cityFilter(city)} and (d.tsv @@ q.a or d.tsv @@ q.b)
+       order by d.quality desc
+       limit ${LEXICAL_WINDOW}
+    ) c, q
+    order by greatest(ts_rank_cd(c.tsv, q.a, 32), ts_rank_cd(c.tsv, q.b, 32)) desc, c.quality desc
+    limit ${CANDIDATES}`;
+  if (exact.length >= FUZZY_WHEN_FEWER_THAN || text.length < 4) return exact;
+
+  // 2) Typo tolerance (trigrams) only when exact matching found little. As an OR branch it forced a
+  //    bitmap recheck of up to every row (730 ms at 100k documents); as a bounded fallback it is 16 ms.
+  const fuzzy = await sql<Hit[]>`
+    select c.doc_type, c.source_id from (
+      select d.doc_type, d.source_id, d.search_text, d.quality
+        from unified_search.documents d
+       where d.is_public ${typeFilter(types)} ${cityFilter(city)} and ${text} <% d.search_text
+       limit ${FUZZY_WINDOW}
+    ) c
+    order by word_similarity(${text}, c.search_text) desc, c.quality desc
+    limit ${CANDIDATES}`;
+  const seen = new Set(exact.map(keyOf));
+  return [...exact, ...fuzzy.filter((hit) => !seen.has(keyOf(hit)))].slice(0, CANDIDATES);
 }
 
 async function vectorHits(vector: string, types: DocType[] | null, city: string | null): Promise<VectorHit[]> {
+  const filtered = Boolean(types || city);
   const rows = await sql.begin(async (tx) => {
     await tx`set local hnsw.iterative_scan = relaxed_order`;
-    await tx`set local hnsw.ef_search = 100`;
+    await tx`set local hnsw.ef_search = 64`;
+    // A selective filter makes the index keep scanning until enough rows qualify (86 ms at 100k
+    // documents, unbounded as the catalogue grows). Capping the scan bounds it (37 ms); when the
+    // capped scan comes back short, search() widens to an unfiltered pass.
+    if (filtered) await tx`set local hnsw.max_scan_tuples = 5000`;
     return tx<(Hit & { sim: number })[]>`
       select d.doc_type, d.source_id, 1 - (d.embedding <=> ${vector}::halfvec) as sim
         from unified_search.documents d

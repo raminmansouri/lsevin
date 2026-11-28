@@ -78,7 +78,7 @@ node scripts/search-benchmark.mjs --seed 100000   # load test (only *_it / *_tes
 
 Environment (web app and workers): `EMBEDDING_URL`, `EMBEDDING_API_KEY`, `EMBEDDING_MODEL`,
 `SEARCH_EMBED_TIMEOUT_MS`, `SEARCH_VECTOR_MIN_SIM`, `SEARCH_VECTOR_CONFIDENT_SIM`, `SEARCH_LOG_SALT`,
-`SEARCH_LANDING_PAGES`, `ASSISTANT_EMBEDDINGS` (`openai` default | `local`), `ASSISTANT_LOCAL_MIN_SCORE`.
+`SEARCH_RATE_LIMIT_PER_MIN` (60), `SEARCH_SUGGEST_RATE_LIMIT_PER_MIN` (180), `SEARCH_LANDING_PAGES`, `ASSISTANT_EMBEDDINGS` (`openai` default | `local`), `ASSISTANT_LOCAL_MIN_SCORE`.
 
 ## Changing the embedding model
 
@@ -95,3 +95,5 @@ migration if the dimension differs.
   Re-measure after indexing the full production content.
 * Short transliterations ("هیر ترانسپلنت") are weak for the model: that is what `synonyms` is for.
 * Result pages are rendered per request (never cached): the hot path is the embedding cache + three indexed queries.
+* Performance numbers (100k documents, dev rig) are in deployments/search/README.md; production hardware was not measured.
+* int8 quantization makes an embedding depend very slightly on batch padding (cosine >= 0.99 between alone/batched).

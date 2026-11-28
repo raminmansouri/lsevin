@@ -29,7 +29,7 @@ function sessionHash(request: Request): string {
 
 export async function GET(request: Request) {
   const key = clientKey(request.headers);
-  if (!allow(`search:${key}`, 60)) {
+  if (!allow(`search:${key}`, Number(process.env.SEARCH_RATE_LIMIT_PER_MIN ?? 60))) {
     return Response.json({ error: "rate_limited" }, { status: 429, headers: { ...NO_STORE, "retry-after": "30" } });
   }
 

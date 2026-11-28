@@ -6,7 +6,7 @@
   "description": "Self-hosted multilingual text embeddings (multilingual-e5-small) for LSevin search and the assistant.",
   "scripts": {
     "start": "node server.mjs",
-    "test": "node --test test/"
+    "test": "node --test test/*.test.mjs"
   },
   "engines": { "node": ">=22" },
   "dependencies": {

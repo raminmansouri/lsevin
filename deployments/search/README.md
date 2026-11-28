@@ -55,10 +55,26 @@ The existing `deployment_unavailable` rule (`lsevin_deploy_unavailable_replicas 
 and `search-indexer` deployments. A change-queue backlog is **not** alerted yet (it needs an exporter metric):
 `pnpm search:report` shows the queue age and warns above 15 minutes. Check it after the first release.
 
-## Cost / capacity (measured 2026-11-28 on a 6-core Windows PC; server B has 8 vCPU, 16 GB)
+## Capacity (measured 2026-11-28)
 
-* Embedding service: 28 ms per short query on this PC, ~0.5 GB RAM.
-* Index: 384-dim `halfvec` + HNSW; 100,000 documents are about 0.5 GB of table and indexes (see the benchmark in the
-  release notes of this change).
-* Server B had ~4 GB RAM available and 625 MB of swap in use: the embedding pod limit (1.5 GB) is the largest new
-  commitment. Do not run it on site A (about 1.7 GB available): use B's.
+Test rig: 6-core Windows PC, Docker Postgres limited to 1 GB, dev server (`next dev`), embedding service, Chrome and the
+test runner all sharing the same CPUs. **Server B (8 vCPU, 16 GB, `next start`) was not measured.**
+100,000 synthetic documents (60k offers, 15k tours, 10k stays, 10k articles, 5k providers; random 384-dim vectors, the
+hardest case for HNSW), every query distinct so each pays for a real embedding:
+
+| Clients | Throughput | p50 | p95 | p99 | Without vector (timeout) |
+|---|---|---|---|---|---|
+| 1 | 11 q/s | 82 ms | 159 ms | 252 ms | 0 / 300 |
+| 8 | 32 q/s | 231 ms | 479 ms | 665 ms | 0 / 300 |
+| 16 | 35 q/s | 432 ms | 751 ms | 848 ms | 0 / 300 |
+
+Database pieces alone at 100k documents: vector 10-16 ms (37 ms with a city filter), keyword 12-21 ms, place 4-18 ms,
+autocomplete under 2 ms. Embedding service: 15 ms per query, micro-batched under load. Index size: 274 MB for
+100k documents (HNSW is about 1.1 KB per vector), so about 2.7 GB per million.
+
+Found and fixed with this benchmark (before: after): keyword query 733 ms: 21 ms (trigram OR branch and unbounded
+ranking), filtered vector 86 ms: 37 ms (scan cap), 35% of queries missing the embedding budget at 8 clients: 0
+(micro-batching).
+
+* Embedding pod limit 1.5 GB is the largest new commitment. Server B had ~4 GB RAM available and 625 MB of swap in use.
+  Do not run the service on site A (about 1.7 GB available): use B's.
