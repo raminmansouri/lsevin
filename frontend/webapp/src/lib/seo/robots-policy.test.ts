@@ -39,6 +39,27 @@ describe("server robots boundaries", () => {
     expect(disallow).not.toContain("/*/n/app/mobile/search");
     expect(disallow).not.toContain("/*/n/app/mobile/home");
   });
+  it("blocks the account and booking flow per locale without over-matching", () => {
+    const rules = robots().rules;
+    const disallow = [(Array.isArray(rules) ? rules[0] : rules).disallow].flat() as string[];
+    for (const locale of routing.locales) {
+      expect(disallow).toContain(`/${locale}/account`);
+      expect(disallow).toContain(`/${locale}/n/app/mobile/booking`);
+    }
+    expect(disallow).toContain("/account");
+    expect(disallow).toContain("/n/app/mobile/booking");
+    // "*" spans slashes, so these would block public URLs containing "/account".
+    expect(disallow).not.toContain("/*/account");
+    expect(disallow).not.toContain("/*/n/app/mobile/booking");
+    // Prefix matching as crawlers do it (no wildcards in these rules).
+    const blocked = (path: string) => disallow.some((rule) => !rule.includes("*") && path.startsWith(rule));
+    expect(blocked("/fa/account")).toBe(true);
+    expect(blocked("/en/account/bookings/123")).toBe(true);
+    expect(blocked("/fa/n/app/mobile/booking?serviceId=x")).toBe(true);
+    expect(blocked("/fa/products/accounting-book")).toBe(false);
+    expect(blocked("/fa/blog/account-tips")).toBe(false);
+    expect(blocked("/fa/n/app/mobile/search")).toBe(false);
+  });
   // Product photos, og:image and Product.image go through /api/shop/img.
   it("lets crawlers fetch shop images while the rest of /api stays blocked", () => {
     const rules = robots().rules;

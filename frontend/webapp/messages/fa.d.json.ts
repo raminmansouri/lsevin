@@ -4808,6 +4808,7 @@ declare const messages: {
       "patients": "بیماران",
       "patientsOperations": "عملیات بیماران",
       "patientsLinkRequests": "درخواست‌های اتصال خانواده",
+      "doctorTimeBlocks": "مسدود کردن زمان پزشکان",
       "pickedLocations": "مکان‌ها",
       "marketing": "بازاریابی",
       "loyaltyOverview": "نمای کلی وفاداری",

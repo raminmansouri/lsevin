@@ -24,6 +24,14 @@ export default function robots(): MetadataRoute.Robots {
     "forgot-password",
     "reset-password",
     "on-boarding",
+    // The customer's account (/fa/account, /fa/account/bookings, …; served from
+    // n/app/mobile/profile by the rewrites in next.config.ts). Listed per locale,
+    // not as "/*/account": "*" also spans slashes, so that form would block any
+    // public URL with "/account" inside it, e.g. /fa/products/accounting-book.
+    "account",
+    // The booking flow (/fa/n/app/mobile/booking?serviceId=…). As a prefix this
+    // also covers booking-v2 and the old /n/app/mobile/bookings redirects.
+    "n/app/mobile/booking",
   ];
 
   const disallow = [

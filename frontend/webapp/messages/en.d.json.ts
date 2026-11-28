@@ -5705,6 +5705,7 @@ declare const messages: {
       "patients": "Patients",
       "patientsOperations": "Patient operations",
       "patientsLinkRequests": "Family link requests",
+      "doctorTimeBlocks": "Doctor time blocks",
       "pickedLocations": "Locations",
       "marketing": "Marketing",
       "loyaltyOverview": "Loyalty overview",

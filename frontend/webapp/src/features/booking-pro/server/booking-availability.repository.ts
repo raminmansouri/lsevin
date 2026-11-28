@@ -360,21 +360,36 @@ export async function getBookingAvailableDatesFromDb(input: {
   };
 }
 
-export async function getBookingAvailableTimeSlotsFromDb(input: {
+type AssessedSlotRow = {
+  time: string;
+  endTime: string;
+  available: boolean;
+  remainingCapacity: number;
+  /** Not covered by any block rule (`is_available = false`). */
+  notBlocked: boolean;
+  /** Inside the specialist's own working hours (always true when no specialist is chosen). */
+  staffAvailable: boolean;
+  bookedUnits: number;
+};
+
+/**
+ * Every generated slot of one provider/service/specialist on one day, with the reasons that
+ * decide whether it is bookable. The patient-facing list and the admin "doctor time blocks"
+ * grid both read this, so the admin sees exactly the slots a patient would.
+ */
+async function assessTimeSlots(input: {
   selectedDate?: string | null;
   providerId?: Id;
   serviceId?: Id;
   specialistId?: Id;
-  locale?: string | null;
-}): Promise<{ timeSlots: TimeSlot[] }> {
+}): Promise<AssessedSlotRow[]> {
   const selectedDate = toIsoDate(input.selectedDate);
-  if (!selectedDate) return { timeSlots: [] };
+  if (!selectedDate) return [];
 
-  const locale = normalizeLocale(input.locale);
   const ctx = await resolveAvailabilityContext(input);
-  if (!ctx?.providerId || !ctx.serviceId) return { timeSlots: [] };
+  if (!ctx?.providerId || !ctx.serviceId) return [];
 
-  const rows = await sql<{ time: string; endTime: string; available: boolean; remainingCapacity: number }[]>`
+  const rows = await sql<AssessedSlotRow[]>`
     with ctx as (
       select
         ${ctx.providerId}::uuid as provider_id,
@@ -541,10 +556,26 @@ export async function getBookingAvailableTimeSlotsFromDb(input: {
       to_char(slot_start, 'HH24:MI') as time,
       to_char(slot_end, 'HH24:MI') as "endTime",
       (not_blocked and staff_available and booked_units < case when specialist_id is not null then 1 else capacity end) as available,
-      greatest((case when specialist_id is not null then 1 else capacity end) - booked_units, 0)::int as "remainingCapacity"
+      greatest((case when specialist_id is not null then 1 else capacity end) - booked_units, 0)::int as "remainingCapacity",
+      not_blocked as "notBlocked",
+      staff_available as "staffAvailable",
+      booked_units::int as "bookedUnits"
     from assessed
     order by slot_start asc
   `;
+
+  return rows;
+}
+
+export async function getBookingAvailableTimeSlotsFromDb(input: {
+  selectedDate?: string | null;
+  providerId?: Id;
+  serviceId?: Id;
+  specialistId?: Id;
+  locale?: string | null;
+}): Promise<{ timeSlots: TimeSlot[] }> {
+  const locale = normalizeLocale(input.locale);
+  const rows = await assessTimeSlots(input);
 
   return {
     timeSlots: rows.map((row) => ({
@@ -556,6 +587,37 @@ export async function getBookingAvailableTimeSlotsFromDb(input: {
       remainingCapacity: Number(row.remainingCapacity ?? 0),
     })),
   };
+}
+
+export type SpecialistSlotState = "free" | "booked" | "blocked";
+
+export type SpecialistGridSlot = {
+  time: string;
+  endTime: string;
+  state: SpecialistSlotState;
+  /** A pending/confirmed booking overlaps the slot (it can be blocked too). */
+  hasBooking: boolean;
+};
+
+/**
+ * The specialist's own slots for one day as patients see them (their hours, cut by the
+ * service's duration and interval; past slots left out), each marked free, booked or blocked.
+ * Slots outside the specialist's working hours are left out.
+ */
+export async function getSpecialistSlotGridFromDb(input: {
+  selectedDate: string;
+  providerId: string;
+  serviceId: string;
+  specialistId: string;
+}): Promise<SpecialistGridSlot[]> {
+  const rows = await assessTimeSlots(input);
+  return rows
+    .filter((row) => row.staffAvailable)
+    .map((row) => {
+      const hasBooking = Number(row.bookedUnits ?? 0) > 0;
+      const state: SpecialistSlotState = !row.notBlocked ? "blocked" : hasBooking ? "booked" : "free";
+      return { time: row.time, endTime: row.endTime, state, hasBooking };
+    });
 }
 
 export async function getBookingDateRangeAvailabilityFromDb(input: {

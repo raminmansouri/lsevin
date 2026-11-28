@@ -296,7 +296,7 @@ test.describe("limited admin @critical", () => {
     const context = await signedIn(browser, ids.limited, ["admin"]);
     const page = await context.newPage();
     const errors = watchErrors(page);
-    for (const denied of ["/en/admin/bookings", "/en/admin/access-control", "/en/admin/identity-users", "/en/admin", "/en/admin/shop/orders", "/en/admin/bookings/add"]) {
+    for (const denied of ["/en/admin/bookings", "/en/admin/access-control", "/en/admin/identity-users", "/en/admin", "/en/admin/shop/orders", "/en/admin/bookings/add", "/en/admin/staff/time-blocks"]) {
       await open(page, denied);
       await expect(page, denied).toHaveURL(/\/en\/admin\/access-denied/);
       await expect(page.getByTestId("access-denied")).toBeVisible();
