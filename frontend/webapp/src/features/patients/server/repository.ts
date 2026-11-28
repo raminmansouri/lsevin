@@ -2,6 +2,8 @@ import "server-only";
 
 import db from "@/config/database/db";
 
+import { toDateOnly } from "../date-only";
+
 import {
   encryptIdentifierValue,
   hashIdentifierValue,
@@ -35,7 +37,7 @@ function mapPatientRow(row: any): PatientRow {
     middleName: row.middle_name,
     lastName: row.last_name,
     preferredName: row.preferred_name,
-    birthDate: row.birth_date,
+    birthDate: toDateOnly(row.birth_date),
     birthDatePrecision: row.birth_date_precision,
     sexAtBirth: row.sex_at_birth,
     gender: row.gender,

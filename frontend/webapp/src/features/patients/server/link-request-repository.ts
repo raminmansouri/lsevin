@@ -2,6 +2,8 @@ import "server-only";
 
 import db from "@/config/database/db";
 
+import { toDateOnly } from "../date-only";
+
 import type {
   AccountLinkRequestRow,
   AccountLinkRequestWithMatch,
@@ -21,7 +23,7 @@ function mapRequest(row: any): AccountLinkRequestRow {
     identifierValueMasked: row.identifier_value_masked,
     firstName: row.first_name,
     lastName: row.last_name,
-    birthDate: row.birth_date,
+    birthDate: toDateOnly(row.birth_date),
     matchedPatientId: row.matched_patient_id,
     requestStatus: row.request_status,
     reviewedBy: row.reviewed_by,

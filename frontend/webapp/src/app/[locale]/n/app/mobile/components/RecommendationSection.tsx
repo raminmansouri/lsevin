@@ -86,8 +86,8 @@ export default function RecommendationSection({
           <span className="text-gray-500">({card.reviewCount})</span>
         </div>
 
-        <div className="flex items-center justify-between gap-2">
-          <div className="flex items-center gap-1 text-xs text-gray-600">
+        <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1">
+          <div className="flex min-w-0 items-center gap-1 text-xs text-gray-600">
             <MapPin size={11} className="flex-shrink-0" />
             <span className="truncate">
               {card.city}, {card.country}
@@ -95,7 +95,7 @@ export default function RecommendationSection({
           </div>
 
           {card.price !== undefined && (
-            <div className="whitespace-nowrap text-sm font-bold text-[#083f30] ms-auto">
+            <div className="ms-auto shrink-0 whitespace-nowrap text-sm font-bold text-[#083f30]" data-testid="recommendation-price">
               {card.sourceAmount != null && card.sourceCurrencyCode ? (
                 <ViewerPrice amount={card.sourceAmount} sourceCurrencyCode={card.sourceCurrencyCode} providerId={card.providerId ?? null} locale={locale} />
               ) : (

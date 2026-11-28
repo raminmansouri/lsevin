@@ -14,6 +14,7 @@ import {
 import { getLocale, getTranslations } from "next-intl/server";
 import type { ReactNode } from "react";
 
+import { toDateOnly } from "@/features/patients/date-only";
 import type { AccountLinkRequestRow } from "@/features/patients/link-request-types";
 import { INTAKE_CONDITION_KEYS, intakeCompletionPercent, type IntakeStep } from "@/features/patients/intake-schemas";
 import { Link } from "@/i18n/navigation";
@@ -25,12 +26,14 @@ import { StartRecordForm } from "./start-record-form";
 
 const QUESTIONNAIRE_PATH = "/account/my-health-record/questionnaire";
 
-function formatDate(value: string | null | undefined, locale: string): string | null {
-  if (!value) return null;
+/** Always text or null: a Date object reaching JSX crashes the whole page (React #31). */
+function formatDate(value: string | Date | null | undefined, locale: string): string | null {
+  const day = toDateOnly(value);
+  if (!day) return null;
   try {
-    return new Intl.DateTimeFormat(locale, { dateStyle: "long" }).format(new Date(`${value.slice(0, 10)}T12:00:00`));
+    return new Intl.DateTimeFormat(locale, { dateStyle: "long" }).format(new Date(`${day}T12:00:00`));
   } catch {
-    return value;
+    return day;
   }
 }
 
