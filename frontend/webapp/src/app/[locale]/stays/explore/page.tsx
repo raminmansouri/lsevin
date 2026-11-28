@@ -5,7 +5,7 @@ import { contentLocaleFor } from "@/features/tours/domain/content";
 import { currentActor } from "@/features/tours/server/platform/access";
 import { parseStaySearch } from "@/features/stays/domain/search";
 import { wishlistIds } from "@/features/stays/server/catalog";
-import { cachedAmenities, cachedCities, cachedLandmarks, catalogSearch, catalogSuggestions } from "@/features/stays/server/cache";
+import { cachedAmenities, cachedCities, cachedUsedAmenityCodes, cachedLandmarks, catalogSearch, catalogSuggestions } from "@/features/stays/server/cache";
 import { logUnexpected } from "@/features/stays/server/errors";
 import { ExploreView } from "@/features/stays/ui/explore/explore-view";
 import { alternatesFor } from "@/lib/seo/alternates";
@@ -37,10 +37,11 @@ export default async function StaysExplorePage({
   const content = contentLocaleFor(locale);
   const t = await getTranslations({ locale, namespace: "StayApp.explore" });
   const actor = await currentActor();
-  const [cities, amenities, saved] = await Promise.all([
+  const [cities, amenities, saved, usedAmenities] = await Promise.all([
     cachedCities(content).catch(() => []),
     cachedAmenities(content).catch(() => []),
     actor.userId ? wishlistIds(actor.userId).catch(() => [] as string[]) : Promise.resolve([] as string[]),
+    cachedUsedAmenityCodes().catch(() => undefined),
   ]);
   // A failed search shows a retry state (not "no stays"), so an outage never looks like an empty catalog.
   const result = await catalogSearch(search, content).catch((e) => {
@@ -74,6 +75,7 @@ export default async function StaysExplorePage({
       cities={cities.map((c) => ({ slug: c.slug, name: c.name, region: c.region }))}
       cityCounts={cities.map((c) => ({ slug: c.slug, name: c.name, count: c.propertyCount }))}
       amenities={amenities}
+      filterableAmenityCodes={usedAmenities}
       landmarks={landmarks}
       suggestions={suggestions}
       savedIds={saved}

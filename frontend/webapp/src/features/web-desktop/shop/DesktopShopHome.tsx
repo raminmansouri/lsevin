@@ -16,6 +16,7 @@ import { AutoScrollRail } from "../components/AutoScrollRail";
 import { PointerParallax, Reveal } from "../components/motion";
 import { DesktopSponsoredSection } from "../home/DesktopSponsoredSection";
 import { DesktopProductCard } from "./DesktopProductCard";
+import { responsiveImg } from "@/lib/media/responsive-img";
 
 type Labels = ReturnType<typeof shopCardLabels>;
 
@@ -166,7 +167,7 @@ export async function DesktopShopHome({
                     >
                       {promo.imageUrl ? (
                         // eslint-disable-next-line @next/next/no-img-element
-                        <img src={shopImageSrc(promo.imageUrl)} alt="" aria-hidden="true" className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1.6s] group-hover:scale-105" />
+                        <img {...responsiveImg(shopImageSrc(promo.imageUrl), "50vw")} loading="lazy" decoding="async" alt="" aria-hidden="true" className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1.6s] group-hover:scale-105" />
                       ) : (
                         <div className="absolute inset-0" />
                       )}

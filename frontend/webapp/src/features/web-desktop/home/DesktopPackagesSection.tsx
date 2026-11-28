@@ -11,6 +11,7 @@ import { Link } from "@/i18n/navigation";
 import { entityPath } from "@/lib/routes/public-paths";
 
 import { CountUp, Magnetic, Reveal } from "../components/motion";
+import { responsiveImg } from "@/lib/media/responsive-img";
 
 // Floating gold confetti: fixed positions so server and client render the same.
 const CONFETTI = [
@@ -118,7 +119,7 @@ export async function DesktopPackagesSection({
                 <Link href={entityPath("package", item)} className="lsd-gift group relative block h-[480px] overflow-hidden rounded-[32px] bg-[#062a20] shadow-[0_40px_80px_-35px_rgba(0,0,0,0.7)] ring-1 ring-[#eacb7f]/25">
                   {image ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={image} alt={item.title} className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1.4s] group-hover:scale-110" />
+                    <img {...responsiveImg(image, "400px")} loading="lazy" decoding="async" alt={item.title} className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1.4s] group-hover:scale-110" />
                   ) : (
                     <div className="absolute inset-0 grid place-items-center">
                       <Image src="/brand/lsevin-mark-reversed.png" alt="" width={90} height={127} className="opacity-30" />

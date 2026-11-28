@@ -5,6 +5,7 @@ import { DesktopExploreView } from "@/features/web-desktop/explore/DesktopExplor
 import { DesktopSponsoredSection } from "@/features/web-desktop/home/DesktopSponsoredSection";
 import { PageFaq } from "@/features/site-content/components/faq-section";
 import { SponsoredPlacementSlot } from "@/features/sponsered-slider/components/sponsored-placement-slot";
+import { DESKTOP_MEDIA, ViewportOnly } from "@/components/viewport-only";
 
 /** The explore directory, shared by /explore and the /specialties/<slug> landings. */
 export function ExploreContent({
@@ -34,18 +35,20 @@ export function ExploreContent({
         filters={filters}
       />
       </div>
-      <DesktopExploreView
-        customerId={data.customerId}
-        categories={data.categories}
-        providerTypes={data.providerTypes}
-        featuredProviders={data.featuredProviders}
-        trendingServices={data.trendingServices}
-        sponsoredProviders={data.sponsoredProviders}
-        availableLanguages={data.availableLanguages}
-        availableCurrencies={data.availableCurrencies}
-        locale={locale}
-        filters={filters}
-      />
+      <ViewportOnly media={DESKTOP_MEDIA}>
+        <DesktopExploreView
+          customerId={data.customerId}
+          categories={data.categories}
+          providerTypes={data.providerTypes}
+          featuredProviders={data.featuredProviders}
+          trendingServices={data.trendingServices}
+          sponsoredProviders={data.sponsoredProviders}
+          availableLanguages={data.availableLanguages}
+          availableCurrencies={data.availableCurrencies}
+          locale={locale}
+          filters={filters}
+        />
+      </ViewportOnly>
       <div className="xl:hidden">
         <SponsoredPlacementSlot locale={locale} placement="explore" />
       </div>

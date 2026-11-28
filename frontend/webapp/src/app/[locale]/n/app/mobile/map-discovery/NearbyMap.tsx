@@ -14,6 +14,7 @@ import {
 } from "@/components/map/map-provider";
 import { useMapEngine } from "@/components/map/use-map-engine";
 import { resolveHomeMediaUrl } from "@/features/home/components/home-media";
+import { responsiveImg } from "@/lib/media/responsive-img";
 
 const BARE_UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -56,6 +57,18 @@ function MissingMap({ title, body }: { title: string; body: string }) {
       </div>
     </div>
   );
+}
+
+/**
+ * A 48 px marker photo through the image optimizer: the raw files were the
+ * stored originals (~100 KB each), 10.5 MB for the ~100 markers of /fa/map
+ * (2026-11-27 Lighthouse).
+ */
+function markerImageAttributes(url: string): string {
+  const image = responsiveImg(url, "48px");
+  const attributes = [`src="${escapeHtml(image.src ?? url)}"`];
+  if (image.srcSet) attributes.push(`srcset="${escapeHtml(image.srcSet)}"`, `sizes="${escapeHtml(image.sizes ?? "48px")}"`);
+  return attributes.join(" ");
 }
 
 function escapeHtml(value: string) {
@@ -111,7 +124,7 @@ function createProviderMarkerElement(
         ${pulse}
         <span class="relative block h-12 w-12 overflow-hidden rounded-full bg-[#083f30]" style="border:3px solid ${ringColor}">
           <span class="absolute inset-0 flex items-center justify-center text-sm font-bold text-white">${initial}</span>
-          <img src="${escapeHtml(imageUrl)}" alt="" class="absolute inset-0 h-full w-full object-cover" />
+          <img ${markerImageAttributes(imageUrl)} alt="" loading="lazy" decoding="async" class="absolute inset-0 h-full w-full object-cover" />
         </span>
       </span>
     `;

@@ -24,6 +24,7 @@ import { DesktopSponsoredSection } from '@/features/web-desktop/home/DesktopSpon
 
 import ServicePage from "./service-page";
 import { PageFaq } from "@/features/site-content/components/faq-section";
+import { DESKTOP_MEDIA, ViewportOnly } from "@/components/viewport-only";
 
 type ServiceRouteParams = {
   locale: string;
@@ -109,7 +110,9 @@ export default async function TreatmentDetailPage({
       <div className="xl:hidden">
         <ServicePage data={data} serviceId={id} locale={locale} />
       </div>
-      <DesktopServiceView data={data} serviceId={id} locale={locale} />
+      <ViewportOnly media={DESKTOP_MEDIA}>
+        <DesktopServiceView data={data} serviceId={id} locale={locale} />
+      </ViewportOnly>
       <div className="pb-36 xl:hidden">
       {service ? (
         <JsonLd

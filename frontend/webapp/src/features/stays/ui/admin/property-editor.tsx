@@ -14,7 +14,7 @@ import {
   LocalizedTextInput,
   MediaUrlInput,
   MoneyInput,
-  OptionMultiSelect,
+
   TimezoneSelect,
   formatPrice,
   pickLabel,
@@ -46,6 +46,7 @@ import {
 import type { CalendarDay, PropertyAdminData } from "../../server/admin/properties";
 import type { Amenity } from "../../types";
 
+import { AmenityFields } from "./amenity-fields";
 import { FieldError, STAYS_ADMIN_BASE, useStayAdminAction } from "./shared";
 import { STAY_CONTENT_LOCALES } from "../../domain/locales";
 
@@ -209,7 +210,7 @@ function DetailsTab({ data, cities, amenities }: { data: PropertyAdminData; citi
   const { run, pending, fieldErrors, lastError } = useStayAdminAction();
   const set = <K extends keyof DetailsForm>(k: K, v: DetailsForm[K]) => setF((x) => ({ ...x, [k]: v }));
   const num = (v: string) => (v.trim() === "" ? null : Number(v.replace(/[^\d.-]/g, "")));
-  const amenityOptions = amenities.map((a) => ({ value: a.code, label: a.label, hint: a.group }));
+
 
   useEffect(() => {
     setF(initial);
@@ -348,7 +349,7 @@ function DetailsTab({ data, cities, amenities }: { data: PropertyAdminData; citi
           {check("idRequired", t("editor.idRequired"))}
         </div>
         <Field label={t("editor.amenities")}>
-          <OptionMultiSelect values={f.amenityCodes} onChange={(v) => set("amenityCodes", v)} options={amenityOptions} testId="stays-admin-amenities" />
+          <AmenityFields amenities={amenities} values={f.amenityCodes} onChange={(v) => set("amenityCodes", v)} testId="stays-admin-amenities" />
         </Field>
       </Section>
 
@@ -477,7 +478,7 @@ function RoomsTab({ data, amenities }: { data: PropertyAdminData; amenities: Ame
                     </p>
                   </div>
                   <div className="flex gap-2">
-                    <Button type="button" size="sm" variant="outline" onClick={() => setEditRoom({ id: r.id, value: r })} data-testid="stays-admin-room-edit">
+                    <Button type="button" size="sm" variant="outline" onClick={() => setEditRoom(editableRow(r))} data-testid="stays-admin-room-edit">
                       {t("common.edit")}
                     </Button>
                     <Button
@@ -503,7 +504,7 @@ function RoomsTab({ data, amenities }: { data: PropertyAdminData; amenities: Ame
                         · {tMeals(pl.mealPlan as never)} · {pl.refundable ? tRoom("refundable") : tRoom("nonRefundable")} · {formatPrice(pl.basePrice, p.currencyCode, locale)}
                       </span>
                       <span className="flex gap-1">
-                        <Button type="button" size="sm" variant="outline" onClick={() => setEditPlan({ id: pl.id, value: pl })} data-testid="stays-admin-plan-edit">
+                        <Button type="button" size="sm" variant="outline" onClick={() => setEditPlan(editableRow(pl))} data-testid="stays-admin-plan-edit">
                           {t("common.edit")}
                         </Button>
                         <Button
@@ -547,6 +548,11 @@ function RoomsTab({ data, amenities }: { data: PropertyAdminData; amenities: Ame
       {editPlan ? <PlanDialog propertyId={p.id} currency={p.currencyCode} rooms={data.rooms} state={editPlan} onClose={() => setEditPlan(null)} /> : null}
     </div>
   );
+}
+
+function editableRow<T extends { id: string }>(row: T) {
+  const { id, ...value } = row;
+  return { id, value };
 }
 
 function RoomDialog({ propertyId, state, amenities, onClose }: { propertyId: string; state: { id: string | null; value: Omit<Room, "id"> }; amenities: Amenity[]; onClose: () => void }) {
@@ -619,7 +625,7 @@ function RoomDialog({ propertyId, state, amenities, onClose }: { propertyId: str
           </Button>
         </div>
         <Field label={t("rooms.amenities")}>
-          <OptionMultiSelect values={r.amenityCodes} onChange={(v) => set("amenityCodes", v)} options={amenities.filter((a) => ["room", "bathroom", "accessibility"].includes(a.group)).map((a) => ({ value: a.code, label: a.label }))} />
+          <AmenityFields testId="stays-room-amenities" scope="room" amenities={amenities} values={r.amenityCodes} onChange={(v) => set("amenityCodes", v)} />
         </Field>
         <DialogFooter>
           <Button type="button" variant="outline" onClick={onClose}>

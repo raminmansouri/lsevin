@@ -306,7 +306,8 @@
     },
     "consultationRequests": "Заявки на консультацию",
     "nav": {
-      "editorial": "Контент сайта"
+      "editorial": "Контент сайта",
+      "amenities": "Удобства"
     }
   },
   "AdminGenerated": {

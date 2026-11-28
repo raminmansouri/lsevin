@@ -10,6 +10,7 @@ import { entityPath } from "@/lib/routes/public-paths";
 
 import { Reveal, Tilt } from "../components/motion";
 import { DesktopSignatureCollection, type SignatureItem } from "./DesktopSignatureCollection";
+import { responsiveImg } from "@/lib/media/responsive-img";
 
 const SPOTLIGHT = 8;
 
@@ -103,7 +104,7 @@ export async function DesktopFeaturedServices({
                       <div className="relative aspect-[16/10] w-48 shrink-0 self-center overflow-hidden rounded-2xl bg-[#0f5a45]">
                         {image ? (
                           // eslint-disable-next-line @next/next/no-img-element
-                          <img src={image} alt={service.displayName} className="lsd-zoom h-full w-full object-cover" />
+                          <img {...responsiveImg(image, "400px")} loading="lazy" decoding="async" alt={service.displayName} className="lsd-zoom h-full w-full object-cover" />
                         ) : (
                           <div className="grid h-full w-full place-items-center">
                             <Image src="/brand/lsevin-mark-reversed.png" alt="" width={44} height={62} className="opacity-50" />

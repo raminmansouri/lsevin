@@ -13,6 +13,7 @@ import type { Booking } from "@/features/service-providers/types";
 import { Link } from "@/i18n/navigation";
 
 import { CountUp, Reveal } from "../components/motion";
+import { responsiveImg } from "@/lib/media/responsive-img";
 
 type Tab = "upcoming" | "past" | "cancelled";
 const TABS: Tab[] = ["upcoming", "past", "cancelled"];
@@ -58,7 +59,7 @@ function Ticket({ booking, featured = false }: { booking: Booking; featured?: bo
           <div className={`relative shrink-0 overflow-hidden rounded-t-full rounded-b-[20px] bg-[#0f5a45] ${featured ? "h-[200px] w-[150px]" : "h-[136px] w-[104px]"}`}>
             {image ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={image} alt="" className="h-full w-full object-cover transition-transform duration-[1.2s] group-hover:scale-110" />
+              <img {...responsiveImg(image, "320px")} loading="lazy" decoding="async" alt="" className="h-full w-full object-cover transition-transform duration-[1.2s] group-hover:scale-110" />
             ) : (
               <div className="grid h-full w-full place-items-center">
                 <Image src="/brand/lsevin-mark-reversed.png" alt="" width={34} height={48} className="opacity-50" />

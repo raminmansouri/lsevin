@@ -30,6 +30,7 @@ import type {
 } from "@/app/[locale]/n/app/mobile/map-discovery/nearby.data";
 
 import { Reveal } from "../components/motion";
+import { responsiveImg } from "@/lib/media/responsive-img";
 
 // The translation namespace NearbyClient uses (see its useTranslations call).
 const NAMESPACE = "MapDiscovery";
@@ -263,7 +264,7 @@ export function DesktopNearbyView({
                       <Link href={providerHref(provider)} className="absolute inset-0 z-0 rounded-[24px]" aria-label={provider.name} />
                       <div className="relative h-28 w-28 shrink-0 overflow-hidden rounded-2xl bg-[#0f5a45]">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={mediaUrl(provider.image)} alt="" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                        <img {...responsiveImg(mediaUrl(provider.image), "160px")} loading="lazy" decoding="async" alt="" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110" />
                       </div>
                       <div className="pointer-events-none relative min-w-0 flex-1 py-1">
                         <h3 className="flex items-center gap-1.5 font-black text-[#0e1a16]">

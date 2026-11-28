@@ -194,6 +194,7 @@ export const ADMIN_PAGE_ROUTES: readonly string[] = [
   "/admin/staff/add",
   "/admin/staff/time-blocks",
   "/admin/stays",
+  "/admin/stays/amenities",
   "/admin/stays/bookings",
   "/admin/stays/bookings/[id]",
   "/admin/stays/cities",

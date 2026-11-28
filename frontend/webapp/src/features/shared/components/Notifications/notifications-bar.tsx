@@ -20,7 +20,7 @@ export default function NotificationsBar({ variant = "default" }: Props) {
   const badge = unreadCount > 99 ? "99+" : unreadCount > 0 ? unreadCount : undefined;
 
   return (
-    <Link href="/n/app/mobile/notifications" aria-label={t("notifications")}>
+    <Link href="/n/app/mobile/notifications" prefetch={false} aria-label={t("notifications")}>
       <IconButton as="span" icon={<Bell size={20} aria-hidden="true" />} badge={badge} variant={variant} />
     </Link>
   );

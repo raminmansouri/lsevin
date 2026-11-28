@@ -27,6 +27,8 @@ import RecommendationsSection from "@/app/[locale]/n/app/components/Recommendati
 import ReviewForm, { type ReviewFormSubmitValue } from "@/app/[locale]/n/app/components/ReviewForm";
 import { useReviewEligibility } from "@/app/[locale]/n/app/components/useReviewEligibility";
 import { AnimatedWords, CountUp, Magnetic, Reveal, ScrollParallax, Tilt } from "../components/motion";
+import { DesktopOnlyImg } from "@/features/web-desktop/components/DesktopOnlyImg";
+import { responsiveImg } from "@/lib/media/responsive-img";
 
 type ReviewSort = "newest" | "buyers" | "helpful";
 const SECTIONS = ["about", "services", "beforeAfter", "specialists", "branches", "reviews"] as const;
@@ -248,8 +250,7 @@ export function DesktopProviderView({ initialData }: { initialData?: ProviderPag
           {images.map((src, index) => (
             <div key={src + index} className={`absolute inset-0 transition-opacity duration-[1200ms] ${index === heroIndex ? "opacity-100" : "opacity-0"}`}>
               <ScrollParallax className="absolute inset-0" strength={50}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={src} alt={provider.name} className={`h-full w-full object-cover ${index === heroIndex ? "lsd-kenburns" : ""}`} />
+                <DesktopOnlyImg src={src} sizes="100vw" priority={index === 0} alt={provider.name} className={`h-full w-full object-cover ${index === heroIndex ? "lsd-kenburns" : ""}`} />
               </ScrollParallax>
             </div>
           ))}
@@ -287,7 +288,7 @@ export function DesktopProviderView({ initialData }: { initialData?: ProviderPag
                   }`}
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={src} alt="" className="h-full w-full object-cover" />
+                  <img {...responsiveImg(src, "200px")} loading="lazy" decoding="async" alt="" className="h-full w-full object-cover" />
                 </button>
               ))}
             </div>
@@ -299,7 +300,7 @@ export function DesktopProviderView({ initialData }: { initialData?: ProviderPag
                 <span className="relative grid h-full w-full place-items-center overflow-hidden rounded-full bg-[#062a20]">
                   {logo ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={logo} alt="" className="h-full w-full object-cover" />
+                    <img {...responsiveImg(logo, "160px")} loading="lazy" decoding="async" alt="" className="h-full w-full object-cover" />
                   ) : (
                     <Image src="/brand/lsevin-mark-reversed.png" alt="" width={40} height={57} />
                   )}
@@ -453,7 +454,7 @@ export function DesktopProviderView({ initialData }: { initialData?: ProviderPag
                         <div className="relative aspect-[16/10] overflow-hidden bg-[#0f5a45]">
                           {service.image ? (
                             // eslint-disable-next-line @next/next/no-img-element
-                            <img src={resolveMediaUrl(service.image)} alt={service.name} className="lsd-zoom h-full w-full object-cover" />
+                            <img {...responsiveImg(resolveMediaUrl(service.image), "400px")} loading="lazy" decoding="async" alt={service.name} className="lsd-zoom h-full w-full object-cover" />
                           ) : null}
                           {service.popular ? (
                             <span className="absolute start-4 top-4 rounded-full bg-[#eacb7f] px-3 py-1 text-xs font-black text-[#062a20]">{t("services.popular")}</span>
@@ -524,7 +525,7 @@ export function DesktopProviderView({ initialData }: { initialData?: ProviderPag
                       <div className="relative mx-auto h-60 w-full overflow-hidden rounded-t-full rounded-b-[28px] bg-[#0f5a45]">
                         {doctor.image ? (
                           // eslint-disable-next-line @next/next/no-img-element
-                          <img src={resolveMediaUrl(doctor.image)} alt={doctor.name} className="h-full w-full object-cover transition-transform duration-[1.2s] group-hover:scale-105" />
+                          <img {...responsiveImg(resolveMediaUrl(doctor.image), "300px")} loading="lazy" decoding="async" alt={doctor.name} className="h-full w-full object-cover transition-transform duration-[1.2s] group-hover:scale-105" />
                         ) : null}
                         {doctor.verified ? (
                           <span className="absolute bottom-3 start-1/2 grid h-10 w-10 place-items-center rounded-full bg-[#eacb7f] text-[#062a20] rtl:translate-x-1/2 ltr:-translate-x-1/2">

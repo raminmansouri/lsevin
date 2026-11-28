@@ -95,6 +95,36 @@ html:is([lang="fa"], [lang="ar"], [lang="ku"]) {
   --ls-text: "LS Text FA", Tahoma, sans-serif;
 }
 
+/*
+ * Persian pages show Persian digits (۱۴۰۲) for the ASCII digits in their text
+ * through these digit-only faces (scripts/build-fa-digit-fonts.py), instead of
+ * rewriting the DOM after hydration. The text stays exactly what the server
+ * sent, so React never finds a mismatch (error #418 and a client re-render on
+ * provider, map and explore pages; 2026-11-26).
+ */
+@font-face {
+  font-family: "LS Digits FA";
+  src: url("./fonts/estedad-fa-digits-wght-normal.woff2") format("woff2-variations");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0030-0039;
+}
+@font-face {
+  font-family: "LS Title Digits FA";
+  src: url("./fonts/jomhuria-fa-digits-400-normal.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  size-adjust: 155%;
+  unicode-range: U+0030-0039;
+}
+
+html[lang="fa"] {
+  --ls-title: "LS Title Digits FA", "LS Title FA", "LS Text FA", Tahoma, sans-serif;
+  --ls-text: "LS Digits FA", "LS Text FA", Tahoma, sans-serif;
+}
+
 html:is([lang="ru"], [lang="tg"]) {
   --ls-title: Georgia, "Times New Roman", serif;
   --ls-text: Georgia, "Times New Roman", serif;
@@ -113,6 +143,15 @@ html[lang="zh"] {
   :is(h1, h2, h3, h4, [role="heading"]) {
     font-family: var(--ls-title);
     font-synthesis-weight: none;
+  }
+
+  /* Latin digits where they are values, not prose: form controls and buttons,
+     left-to-right runs (phone numbers, codes) and explicit opt-outs. */
+  html[lang="fa"] :is(input, textarea, select, option, button, [dir="ltr"], .ltr-nums, .latin-digits, [data-latin-digits], [contenteditable]) {
+    /* the variables too, so headings inside an opted-out section agree */
+    --ls-title: "LS Title FA", "LS Text FA", Tahoma, sans-serif;
+    --ls-text: "LS Text FA", Tahoma, sans-serif;
+    font-family: var(--ls-text);
   }
 }
 

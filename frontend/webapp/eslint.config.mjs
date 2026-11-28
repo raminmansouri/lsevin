@@ -131,6 +131,16 @@ export default defineConfig([
       "react-hooks/rules-of-hooks": "error",
       "react-hooks/exhaustive-deps": "warn",
       "react-compiler/react-compiler": "error",
+      // Without a locale these format with the server's default on the server and
+      // the visitor's on the client: Latin vs Persian digits, React error #418 and
+      // a client re-render of the page section (2026-11-26).
+      "no-restricted-syntax": [
+        "warn",
+        {
+          selector: "CallExpression[callee.property.name=/^toLocale(Date|Time)?String$/][arguments.length=0]",
+          message: "Pass the page locale (useLocale() / params.locale): the default differs between server and browser.",
+        },
+      ],
       "boundaries/no-unknown": ["error"],
       "boundaries/no-unknown-files": ["error"],
       "boundaries/element-types": [

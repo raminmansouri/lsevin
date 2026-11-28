@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import type { FavoriteCard, FavoriteTab, FavoritesTabId } from "@/app/[locale]/n/app/mobile/profile/favorites/types";
 
 import { Reveal } from "../components/motion";
+import { responsiveImg } from "@/lib/media/responsive-img";
 
 /** Desktop favourites (>= 1280px). State and actions come from FavoritesPageClient. */
 export function DesktopFavorites({
@@ -81,7 +82,7 @@ export function DesktopFavorites({
                 >
                   <div className="relative aspect-[4/3] overflow-hidden bg-[#f4efe4]">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={item.image} alt={item.name} className="h-full w-full object-cover transition-transform duration-[1.2s] group-hover:scale-105" />
+                    <img {...responsiveImg(item.image, "400px")} loading="lazy" decoding="async" alt={item.name} className="h-full w-full object-cover transition-transform duration-[1.2s] group-hover:scale-105" />
                     <button
                       type="button"
                       onClick={(event) => {

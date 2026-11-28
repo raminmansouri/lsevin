@@ -8,6 +8,7 @@ import { useState, type ReactNode } from "react";
 import { Link } from "@/i18n/navigation";
 
 import { Reveal } from "../components/motion";
+import { responsiveImg } from "@/lib/media/responsive-img";
 
 export type TrendingItem = {
   id: string;
@@ -60,7 +61,7 @@ export function DesktopTrendingChart({
               <div className="lsd-card relative h-[600px] bg-[#062a20]">
                 {top.imageSrc ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={top.imageSrc} alt={top.title} className="lsd-zoom absolute inset-0 h-full w-full object-cover" />
+                  <img {...responsiveImg(top.imageSrc, "50vw")} loading="lazy" decoding="async" alt={top.title} className="lsd-zoom absolute inset-0 h-full w-full object-cover" />
                 ) : (
                   <div className="absolute inset-0 grid place-items-center">
                     <Image src="/brand/lsevin-mark-reversed.png" alt="" width={120} height={170} className="opacity-30" />
@@ -99,7 +100,7 @@ export function DesktopTrendingChart({
                   <span className="relative h-16 w-16 overflow-hidden rounded-2xl bg-[#0f5a45]">
                     {item.imageSrc ? (
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img src={item.imageSrc} alt="" className="h-full w-full object-cover" />
+                      <img {...responsiveImg(item.imageSrc, "96px")} loading="lazy" decoding="async" alt="" className="h-full w-full object-cover" />
                     ) : null}
                   </span>
                   <span className="min-w-0">

@@ -15,7 +15,7 @@ import {
 import { useRouter } from "@/i18n/navigation";
 import { entityPath } from "@/lib/routes/public-paths";
 import { isCategoryProvidersPath, mapHref, slugLookup, type ListingSlugs } from "@/lib/routes/filter-paths";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import {
   ChevronLeft,
   MapPin,
@@ -247,6 +247,8 @@ export default function NearbyClient({
   const t = useTranslations("MapDiscovery");
   const tLocation = useTranslations("LocationAccess");
   const tExplore = useTranslations("Explore");
+  // The page's locale for numbers: a bare toLocaleString() differs between server and browser.
+  const activeLocale = useLocale();
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [viewMode, setViewMode] = useState<"map" | "list">(initialView);
@@ -808,7 +810,7 @@ export default function NearbyClient({
                         {selectedProvider.rating}
                       </span>
                       <span className="text-xs text-gray-500">
-                        ({selectedProvider.reviews.toLocaleString()})
+                        ({selectedProvider.reviews.toLocaleString(activeLocale)})
                       </span>
                     </div>
                     <div className="flex gap-1.5">

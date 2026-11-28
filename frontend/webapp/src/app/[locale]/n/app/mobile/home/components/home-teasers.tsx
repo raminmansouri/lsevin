@@ -75,12 +75,17 @@ export function HomeConsultationTeaser() {
             {t("live")}
           </span>
           <span className="block font-black text-[#0e1a16]">{t("title")}</span>
-          {/* The packages doctors offer (20, 45, 60 minutes) and their lowest prices; the subtitle until they load. */}
-          <ConsultationPackageChips
-            className="mt-1 flex-wrap text-[11px] font-bold text-[#0f5a45]"
-            chipClassName="bg-white/60 px-2 py-0.5 ring-1 ring-[#eadfc6]"
-            fallback={<span className="mt-0.5 block truncate text-xs text-[#6b6150]">{t("subtitle")}</span>}
-          />
+          {/* The packages doctors offer (20, 45, 60 minutes) and their lowest prices; the subtitle until they load.
+              They load after the page (prices depend on the visitor), so the box keeps the two rows the chips
+              take from the start: swapping a one-line subtitle for them moved everything below by 33 px,
+              most of the home page's layout shift (CLS 0.22, 2026-11-27). */}
+          <span className="mt-1 block min-h-[49px]">
+            <ConsultationPackageChips
+              className="flex-wrap text-[11px] font-bold text-[#0f5a45]"
+              chipClassName="bg-white/60 px-2 py-0.5 ring-1 ring-[#eadfc6]"
+              fallback={<span className="block truncate text-xs text-[#6b6150]">{t("subtitle")}</span>}
+            />
+          </span>
         </span>
         <span className="shrink-0 rounded-full bg-[#083f30] px-3.5 py-2 text-xs font-bold text-[#eacb7f]">{t("cta")}</span>
       </Link>

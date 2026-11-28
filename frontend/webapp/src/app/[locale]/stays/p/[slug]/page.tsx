@@ -75,7 +75,7 @@ export default async function StayPropertyPage({ params, searchParams }: Props) 
         reviewStats={stats}
         similar={similar.map((c) => ({ ...c, latitude: null, longitude: null, distanceM: property.location?.approximate ? null : c.distanceM }))}
         landmarks={landmarks}
-        amenityLabels={Object.fromEntries(amenities.map((a) => [a.code, { label: a.label, icon: a.icon }]))}
+        amenityLabels={Object.fromEntries(amenities.map((a) => [a.code, { label: a.label, icon: a.icon, imageUrl: a.imageUrl, parentCode: a.parentCode ?? null }]))}
         search={search}
         dateError={offers.dateError}
         saved={saved.includes(property.id)}

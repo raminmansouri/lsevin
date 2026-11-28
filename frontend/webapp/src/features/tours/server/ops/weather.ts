@@ -65,7 +65,21 @@ function req(v: unknown): number {
   return n;
 }
 
+/**
+ * The provider is unreachable from some networks (site A, in Iran, cannot reach
+ * api.open-meteo.com): every tour page there waited the full timeout, ~11 s
+ * (2026-11-26). After a network failure the provider is skipped for a few
+ * minutes, so one request pays the (short) timeout instead of every visitor.
+ */
+const PROVIDER_TIMEOUT_MS = 3_000;
+const PROVIDER_COOL_DOWN_MS = 5 * 60_000;
+let providerDownUntil = 0;
+export function resetWeatherCircuit() {
+  providerDownUntil = 0;
+}
+
 async function fetchOpenMeteo(lat: number, lng: number, timeZone: string, date: string, withCurrent: boolean): Promise<Payload> {
+  if (Date.now() < providerDownUntil) throw new ProviderError("network:cooling_down");
   const params = new URLSearchParams({
     latitude: String(lat), longitude: String(lng), timezone: timeZone, start_date: date, end_date: date,
     daily: "weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,wind_speed_10m_max",
@@ -73,8 +87,9 @@ async function fetchOpenMeteo(lat: number, lng: number, timeZone: string, date: 
   if (withCurrent) params.set("current", "temperature_2m,weather_code,wind_speed_10m,precipitation_probability");
   let res: Response;
   try {
-    res = await fetch(`https://api.open-meteo.com/v1/forecast?${params}`, { signal: AbortSignal.timeout(10_000), cache: "no-store" });
+    res = await fetch(`https://api.open-meteo.com/v1/forecast?${params}`, { signal: AbortSignal.timeout(PROVIDER_TIMEOUT_MS), cache: "no-store" });
   } catch (e) {
+    providerDownUntil = Date.now() + PROVIDER_COOL_DOWN_MS;
     throw new ProviderError(`network:${(e as Error)?.name ?? "error"}`);
   }
   if (!res.ok) throw new ProviderError(`http_${res.status}`);

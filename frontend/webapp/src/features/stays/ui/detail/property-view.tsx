@@ -74,7 +74,7 @@ export function PropertyView({
   reviewStats?: ReviewStats;
   similar?: PropertyCard[];
   landmarks?: Landmark[];
-  amenityLabels?: Record<string, { label: string; icon: string | null }>;
+  amenityLabels?: Record<string, { label: string; icon: string | null; imageUrl?: string | null; parentCode?: string | null }>;
   search: StaySearch;
   dateError: string | null;
   saved: boolean;
@@ -462,7 +462,7 @@ function Amenities({ property }: { property: PropertyDetail }) {
             {property.amenities.slice(0, 8).map((a) => (
               <li key={a.code} className="flex items-center gap-2.5 text-sm text-slate-700">
                 <span className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-emerald-50">
-                  <AmenityIcon name={a.icon} className="size-4 text-emerald-700" />
+                  <AmenityIcon imageUrl={a.imageUrl} name={a.icon} className="size-4 text-emerald-700" />
                 </span>
                 {a.label}
               </li>
@@ -486,7 +486,7 @@ function Amenities({ property }: { property: PropertyDetail }) {
                     <ul className="mt-2 grid grid-cols-2 gap-2">
                       {items.map((a) => (
                         <li key={a.code} className="flex items-center gap-2 text-sm text-slate-700">
-                          <AmenityIcon name={a.icon} className="size-4 text-emerald-700" />
+                          <AmenityIcon imageUrl={a.imageUrl} name={a.icon} className="size-4 text-emerald-700" />
                           {a.label}
                         </li>
                       ))}

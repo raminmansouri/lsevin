@@ -7,6 +7,7 @@ import { useCallback, useState, type ReactNode } from "react";
 import { Link } from "@/i18n/navigation";
 
 import { Reveal } from "../components/motion";
+import { responsiveImg } from "@/lib/media/responsive-img";
 
 export type SignatureItem = {
   id: string;
@@ -136,7 +137,7 @@ export function DesktopSignatureCollection({
               >
                 {item.imageSrc ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={item.imageSrc} alt={item.title} className="lsd-panel-img absolute inset-0 h-full w-full object-cover" />
+                  <img {...responsiveImg(item.imageSrc, "50vw")} loading="lazy" decoding="async" alt={item.title} className="lsd-panel-img absolute inset-0 h-full w-full object-cover" />
                 ) : null}
                 <div className="lsd-panel-shade absolute inset-0" />
                 <div className="lsd-panel-veil absolute inset-0" />

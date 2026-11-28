@@ -10,6 +10,7 @@ import { INDEXABLE_SHOP_LOCALES } from "@/lib/seo/locale-eligibility";
 import { permanentRedirect } from "next/navigation";
 import { setListingParams } from "@/lib/routes/filter-paths";
 import { otherFilters, resolveListingParams, resolvedSlugs } from "@/lib/seo/listing-params";
+import { DESKTOP_MEDIA, ViewportOnly } from "@/components/viewport-only";
 
 export const dynamic = "force-dynamic";
 
@@ -48,7 +49,9 @@ export default async function Page({ params, searchParams }: PageProps) {
         <OffersClient {...data} filters={filters} />
         <SponsoredPlacementSlot locale={locale} placement="offers" />
       </div>
-      <DesktopOffersView {...data} filters={filters} />
+      <ViewportOnly media={DESKTOP_MEDIA}>
+        <DesktopOffersView {...data} filters={filters} />
+      </ViewportOnly>
       <div className="lsd hidden pb-14 xl:block">
         <DesktopSponsoredSection locale={locale} placement="offers" />
       </div>

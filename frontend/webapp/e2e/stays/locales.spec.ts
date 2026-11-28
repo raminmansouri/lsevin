@@ -109,6 +109,7 @@ test.describe("stays in every language @regression", () => {
         ["/admin/stays/bookings", "admin bookings"],
         ["/admin/stays/reviews", "admin reviews"],
         ["/admin/stays/settings", "admin settings"],
+        ["/admin/stays/amenities", "admin amenities"],
       ] as const) {
         await page.goto(`/${locale}${path}`);
         await checkRegion(page, locale, '[data-testid="stays-admin-area"]', where, true);

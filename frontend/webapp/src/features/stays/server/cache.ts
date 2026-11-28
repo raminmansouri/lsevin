@@ -11,6 +11,7 @@ import {
   getPropertyDetail,
   kindCounts,
   listAmenities,
+  usedAmenityCodes,
   listCities,
   listLandmarks,
   listReviews,
@@ -91,6 +92,13 @@ async function cachedLandmarksStore(citySlug: string | null, locale: string) {
   return listLandmarks(citySlug, locale);
 }
 
+async function cachedUsedAmenityCodesStore() {
+  "use cache";
+  cacheTag(STAYS_CATALOG_TAG);
+  cacheLife(LIFE);
+  return usedAmenityCodes();
+}
+
 async function cachedKindCountsStore() {
   "use cache";
   cacheTag(STAYS_CATALOG_TAG);
@@ -130,3 +138,4 @@ export const cachedCity = (slug: string, locale: string) => (cacheOff() ? getCit
 export const cachedAmenities = (locale: string) => (cacheOff() ? listAmenities(locale) : cachedAmenitiesStore(locale));
 export const cachedLandmarks = (citySlug: string | null, locale: string) => (cacheOff() ? listLandmarks(citySlug, locale) : cachedLandmarksStore(citySlug, locale));
 export const cachedKindCounts = () => (cacheOff() ? kindCounts() : cachedKindCountsStore());
+export const cachedUsedAmenityCodes = () => (cacheOff() ? usedAmenityCodes() : cachedUsedAmenityCodesStore());

@@ -6,6 +6,7 @@ import { WishlistHeart } from "@/features/shop/components/WishlistHeart";
 import type { shopCardLabels } from "@/features/shop/components/ProductCard";
 import type { ProductCard as ProductCardModel } from "@/features/shop/types/domain";
 import { Link } from "@/i18n/navigation";
+import { responsiveImg } from "@/lib/media/responsive-img";
 
 type Labels = ReturnType<typeof shopCardLabels>;
 
@@ -36,7 +37,7 @@ export function DesktopProductCard({
           {product.imageUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
-              src={shopImageSrc(product.imageUrl)}
+              {...responsiveImg(shopImageSrc(product.imageUrl), "300px")} decoding="async"
               alt={product.name}
               loading={priority ? "eager" : "lazy"}
               className="h-full w-full object-cover transition-transform duration-[1.2s] group-hover:scale-[1.06]"

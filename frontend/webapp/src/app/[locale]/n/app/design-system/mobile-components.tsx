@@ -2,7 +2,7 @@
 import {MessageCircle,  Home, Search, Calendar, User, ChevronLeft, Bell, Heart, MapPin, Star, CheckCircle, Shield, ShoppingBag } from 'lucide-react';
 import { useLocalization } from '../contexts/LocalizationContext';
 import { Link, usePathname } from '@/i18n/navigation';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 
 // Bottom Tab Bar
 export function BottomTabBar() {
@@ -16,8 +16,10 @@ export function BottomTabBar() {
     { icon: Home, label: t('Home'), path: '/' },
     { icon: Search, label: t('Explore'), path: '/explore' },
     { icon: ShoppingBag, label: t('Shop'), path: '/shop', also: ['/products', '/n/app/mobile/shop'] },
-    { icon: Calendar, label: t('Bookings'), path: '/account/bookings' },
-    { icon: User, label: t('Profile'), path: '/account' },
+    // Signed-in screens: never prefetched. For a visitor they redirect to sign-in,
+    // so every page view downloaded the sign-in page three times (2026-11-26).
+    { icon: Calendar, label: t('Bookings'), path: '/account/bookings', private: true },
+    { icon: User, label: t('Profile'), path: '/account', private: true },
   ];
   
   return (
@@ -32,6 +34,7 @@ export function BottomTabBar() {
               key={tab.path}
               // to={tab.path}
               href={tab.path}
+              prefetch={'private' in tab && tab.private ? false : undefined}
               className={`flex flex-col items-center gap-1 py-2 px-3 transition ${
                 isActive ? 'text-[#083f30]' : 'text-gray-400'
               }`}
@@ -317,6 +320,7 @@ interface WalletCardProps {
 }
 
 export function WalletCard({ balance, currency, points }: WalletCardProps) {
+  const activeLocale = useLocale(); // same digits on server and browser
   const t = useTranslations("BottomTabBar");
   return (
     <div className="bg-gradient-to-br from-[#083f30] to-[#0a5a44] rounded-2xl p-6 text-white">
@@ -331,7 +335,7 @@ export function WalletCard({ balance, currency, points }: WalletCardProps) {
       {points !== undefined && (
         <div className="flex items-center justify-between pt-4 border-t border-white/20">
           <span className="text-sm text-white/70">{t("loyaltyPoints")}</span>
-          <span className="text-lg font-semibold text-[#eacb7f]">{points.toLocaleString()}</span>
+          <span className="text-lg font-semibold text-[#eacb7f]">{points.toLocaleString(activeLocale)}</span>
         </div>
       )}
     </div>

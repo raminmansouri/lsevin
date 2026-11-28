@@ -31,6 +31,7 @@ import { LinkPending, Money, StayImage, useNumber, useStayDate } from "../common
 
 import { AmenityIcon } from "./amenity-icon";
 import { ReviewCard } from "./reviews";
+import { withoutChosenParents } from "../../domain/amenities";
 
 export type RoomSort = "recommended" | "price_asc" | "price_desc" | "capacity";
 type RoomFilter = "breakfast" | "free_cancel" | "fits" | "available";
@@ -85,7 +86,7 @@ export function RoomsSection({
   hasDates: boolean;
   preview: boolean;
   pending: boolean;
-  amenityLabels: Record<string, { label: string; icon: string | null }>;
+  amenityLabels: Record<string, { label: string; icon: string | null; imageUrl?: string | null; parentCode?: string | null }>;
   focusRoomId: string | null;
   onPickDates: (roomTypeId: string | null) => void;
   onPickGuests: () => void;
@@ -481,7 +482,7 @@ function RoomSheet({
   hasDates: boolean;
   preview: boolean;
   reviews: ReviewItem[];
-  amenityLabels: Record<string, { label: string; icon: string | null }>;
+  amenityLabels: Record<string, { label: string; icon: string | null; imageUrl?: string | null; parentCode?: string | null }>;
   onClose: () => void;
   onPickDates: (roomTypeId: string) => void;
   onPickGuests: () => void;
@@ -494,6 +495,10 @@ function RoomSheet({
   const avg = roomReviews.length ? roomReviews.reduce((a, r) => a + r.rating, 0) / roomReviews.length : null;
   const ownPhotos = room?.media.length ? room.media : null;
   const media = ownPhotos ?? property.media.filter((m) => !m.roomTypeId).slice(0, 8);
+  // Only amenities still in the catalogue; a chosen option ("Key card") stands in for its parent.
+  const roomAmenities = withoutChosenParents(
+    (room?.amenities ?? []).filter((code) => amenityLabels[code]).map((code) => ({ code, parentCode: amenityLabels[code].parentCode ?? null })),
+  ).map((a) => a.code);
 
   return (
     <Sheet open={Boolean(room)} onOpenChange={(v) => !v && onClose()}>
@@ -521,14 +526,14 @@ function RoomSheet({
 
               {room.description ? <p className="text-sm leading-7 whitespace-pre-line text-slate-700">{room.description.value}</p> : null}
 
-              {room.amenities.length ? (
+              {roomAmenities.length ? (
                 <div>
                   <h3 className="text-sm font-bold">{tr("roomAmenities")}</h3>
                   <ul className="mt-2 grid grid-cols-2 gap-2 text-sm text-slate-700">
-                    {room.amenities.map((code) => (
+                    {roomAmenities.map((code) => (
                       <li key={code} className="flex items-center gap-2">
-                        <AmenityIcon name={amenityLabels[code]?.icon} className="size-4 text-emerald-700" />
-                        {amenityLabels[code]?.label ?? code}
+                        <AmenityIcon imageUrl={amenityLabels[code]?.imageUrl} name={amenityLabels[code]?.icon} className="size-4 text-emerald-700" />
+                        {amenityLabels[code].label}
                       </li>
                     ))}
                   </ul>

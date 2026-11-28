@@ -10,6 +10,7 @@ import { Link } from "@/i18n/navigation";
 import { entityPath } from "@/lib/routes/public-paths";
 
 import { Reveal } from "../components/motion";
+import { responsiveImg } from "@/lib/media/responsive-img";
 
 /** Trusted providers as a wall of certificate cards that flip to reveal details. */
 export async function DesktopTrustedSection({ locale, providers }: { locale: string; providers: HomeTrustedProvider[] }) {
@@ -46,7 +47,7 @@ export async function DesktopTrustedSection({ locale, providers }: { locale: str
                     <div className="relative mx-auto aspect-square h-44 overflow-hidden rounded-3xl bg-[#0f5a45]">
                       {image ? (
                         // eslint-disable-next-line @next/next/no-img-element
-                        <img src={image} alt={provider.name} className="h-full w-full object-cover" />
+                        <img {...responsiveImg(image, "200px")} loading="lazy" decoding="async" alt={provider.name} className="h-full w-full object-cover" />
                       ) : (
                         <div className="grid h-full w-full place-items-center">
                           <Image src="/brand/lsevin-mark-reversed.png" alt="" width={56} height={79} className="opacity-50" />

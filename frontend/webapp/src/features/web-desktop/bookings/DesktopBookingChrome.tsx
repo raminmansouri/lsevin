@@ -1,6 +1,7 @@
 "use client";
 
 import { ArrowLeft, Check, ChevronLeft, CreditCard, ImageOff } from "lucide-react";
+import { responsiveImg } from "@/lib/media/responsive-img";
 
 /** Desktop booking header (>= 1280px): green band with the title and a horizontal step path. */
 export function DesktopBookingHeader({
@@ -107,7 +108,7 @@ export function DesktopBookingSummary({
       <div className="relative aspect-[16/10] bg-[#062a20]">
         {imageUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={imageUrl} alt="" className="h-full w-full object-cover" />
+          <img {...responsiveImg(imageUrl, "160px")} loading="lazy" decoding="async" alt="" className="h-full w-full object-cover" />
         ) : (
           <div className="grid h-full w-full place-items-center text-[#eacb7f]/40">
             <ImageOff size={30} />

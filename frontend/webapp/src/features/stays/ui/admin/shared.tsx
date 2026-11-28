@@ -13,6 +13,7 @@ const SECTIONS = [
   { key: "dashboard", href: STAYS_ADMIN_BASE },
   { key: "settings", href: `${STAYS_ADMIN_BASE}/settings` },
   { key: "cities", href: `${STAYS_ADMIN_BASE}/cities` },
+  { key: "amenities", href: `${STAYS_ADMIN_BASE}/amenities` },
   { key: "properties", href: `${STAYS_ADMIN_BASE}/properties` },
   { key: "bookings", href: `${STAYS_ADMIN_BASE}/bookings` },
   { key: "reviews", href: `${STAYS_ADMIN_BASE}/reviews` },
@@ -21,6 +22,7 @@ const SECTIONS = [
 /** Section tabs in data-entry order: settings → destinations → stays, then daily operations. */
 export function StaysAdminNav() {
   const t = useTranslations("StayAdmin.nav");
+  const labels = useTranslations("StayAdmin.editor");
   const pathname = usePathname();
   return (
     <nav aria-label={t("label")} className="-mx-1 overflow-x-auto" data-testid="stays-admin-nav">
@@ -34,7 +36,7 @@ export function StaysAdminNav() {
                 aria-current={active ? "page" : undefined}
                 className={cn("inline-flex min-h-10 items-center rounded-md px-3 text-sm font-medium", active ? "bg-primary text-primary-foreground" : "hover:bg-muted")}
               >
-                {t(s.key)}
+                {s.key === "amenities" ? labels("amenities") : t(s.key)}
               </Link>
             </li>
           );

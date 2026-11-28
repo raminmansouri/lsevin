@@ -72,6 +72,9 @@ import {
   adminSetDepartureBlocked,
   adminSetTourVisibility,
   removeBlackout,
+  removeDeparture,
+  removePriceRule,
+  removeScheduleRule,
 } from "./operations";
 import { rebookBooking, rebookTargets } from "./rebook";
 import { saveSettings } from "./settings-admin";
@@ -151,6 +154,18 @@ export async function addBlackoutAction(tourId: string, input: { from: string; t
 
 export async function removeBlackoutAction(input: { blackoutId: string; reason: string }) {
   return runAction("admin.removeBlackout", async () => removeBlackout(await requireAdmin(), input));
+}
+
+export async function removeScheduleRuleAction(input: { ruleId: string; reason: string }) {
+  return runAction("admin.removeScheduleRule", async () => removeScheduleRule(await requireAdmin(), input));
+}
+
+export async function removeDepartureAction(input: { departureId: string; reason: string }) {
+  return runAction("admin.removeDeparture", async () => removeDeparture(await requireAdmin(), input));
+}
+
+export async function removePriceRuleAction(input: { priceRuleId: string; reason: string }) {
+  return runAction("admin.removePriceRule", async () => removePriceRule(await requireAdmin(), input));
 }
 
 export async function addPriceRuleAction(tourId: string, input: Parameters<typeof addPriceRule>[2]) {

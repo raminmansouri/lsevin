@@ -18,6 +18,7 @@ import { SponsoredPlacementSlot } from "@/features/sponsered-slider/components/s
 
 import { DesktopShopHome } from "@/features/web-desktop/shop/DesktopShopHome";
 import { PageFaq } from "@/features/site-content/components/faq-section";
+import { DESKTOP_MEDIA, ViewportOnly } from "@/components/viewport-only";
 
 /** Request-specific currency comes from the layout; catalog data remains cached. */
 export const dynamic = "force-dynamic";
@@ -134,7 +135,9 @@ export default async function ShopHomePage({ params }: { params: Promise<{ local
         )}
       </section>
     </div>
-    <DesktopShopHome locale={locale} sections={home.sections} feed={feed.items} />
+    <ViewportOnly media={DESKTOP_MEDIA}>
+      <DesktopShopHome locale={locale} sections={home.sections} feed={feed.items} />
+    </ViewportOnly>
     <PageFaq target={{ scope: "app", entityKey: "shop" }} locale={locale} pageUrl={shopUrl} />
     </>
   );

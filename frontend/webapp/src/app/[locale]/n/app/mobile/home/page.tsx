@@ -43,6 +43,7 @@ import { EnamadSeal } from "@/components/trust/enamad-seal";
 import { listDomainTrustSeals } from "@/features/trust-seal/server/repository";
 import { absoluteUrl } from "@/lib/seo/alternates";
 import { FaqSection } from "@/features/site-content/components/faq-section";
+import { DESKTOP_MEDIA, ViewportOnly } from "@/components/viewport-only";
 
 
 // Static / ISR — the landing page shell no longer reads the visitor's location
@@ -551,81 +552,83 @@ async function Home({ params }: PageProps) {
       <EnamadSeal seals={trustSeals} alt={labels.common.trustSeal} />
    </div>
     </div>
-    <DesktopHome
-      locale={locale}
-      categories={categories}
-      specialPackagesCount={specialPackagesCount}
-      heroOffer={heroOffer}
-      heroSection={homeSections.hero_featured}
-      featuredServices={featuredServices}
-      trendingServices={trendingServices}
-      nearbySection={homeSections.explore_nearby}
-      nearbyProviderCount={nearbyProviderCount}
-      cityCode={queryInput.cityCode}
-      trustedProviders={trustedProviders}
-      packagesSection={homeSections.premium_packages}
-      loyaltySection={homeSections.loyalty_club}
-      selectedCountryCode={queryInput.countryCode}
-      slots={{
-        sponsoredTop: <SponsoredMediaCarouselSection locale={locale} placement="home_top" />,
-        heroBanner: (
-          <HomeHeroBanner offer={heroOffer} section={homeSections.hero_featured} labels={labels.hero} noDescription={labels.common.noDescription} />
-        ),
-        featured: (
-          <HomeFeaturedServicesSuspenseBoundary
-            services={featuredServices}
-            locale={locale}
-            selectedCountryCode={queryInput.countryCode}
-            labels={{
-              emptyTitle: labels.featured.emptyTitle,
-              emptyDescription: labels.featured.emptyDescription,
-              discountOff: labels.featured.discountOff,
-              availableDestination: labels.featured.availableDestination,
-              noDescription: labels.common.noDescription,
-            }}
-          />
-        ),
-        nativeAd: <SponsoredMediaCarouselSection locale={locale} placement="home_native_ad" />,
-        trending: (
-          <HomeTrendingServicesSuspenseBoundary
-            services={trendingServices}
-            labels={{
-              emptyTitle: labels.trending.emptyTitle,
-              emptyDescription: labels.trending.emptyDescription,
-              bookings: labels.trending.bookings,
-            }}
-          />
-        ),
-        nearby: (
-          <ExploreNearbySection
-            section={homeSections.explore_nearby}
-            nearbyProviderCount={nearbyProviderCount}
-            countryCode={queryInput.countryCode}
-            cityCode={queryInput.cityCode}
-            latitude={nearbyLat}
-            longitude={nearbyLng}
-            locale={locale}
-            labels={labels.exploreNearby}
-          />
-        ),
-        trusted: (
-          <HomeTrustedProvidersSuspenseBoundary
-            providers={trustedProviders}
-            locale={locale}
-            labels={{
-              emptyTitle: labels.trusted.emptyTitle,
-              emptyDescription: labels.trusted.emptyDescription,
-              noDescription: labels.common.noDescription,
-            }}
-          />
-        ),
-        packages: (
-          <PremiumPackagesSection section={homeSections.premium_packages} labels={labels.premiumPackages} activePackagesCount={specialPackagesCount} />
-        ),
-        loyalty: <LoyaltyClubSection section={homeSections.loyalty_club} locale={locale} labels={labels.loyaltyClub} />,
-        sponsoredBottom: <SponsoredMediaCarouselSection locale={locale} placement="home_bottom" />,
-      }}
-    />
+    <ViewportOnly media={DESKTOP_MEDIA}>
+      <DesktopHome
+        locale={locale}
+        categories={categories}
+        specialPackagesCount={specialPackagesCount}
+        heroOffer={heroOffer}
+        heroSection={homeSections.hero_featured}
+        featuredServices={featuredServices}
+        trendingServices={trendingServices}
+        nearbySection={homeSections.explore_nearby}
+        nearbyProviderCount={nearbyProviderCount}
+        cityCode={queryInput.cityCode}
+        trustedProviders={trustedProviders}
+        packagesSection={homeSections.premium_packages}
+        loyaltySection={homeSections.loyalty_club}
+        selectedCountryCode={queryInput.countryCode}
+        slots={{
+          sponsoredTop: <SponsoredMediaCarouselSection locale={locale} placement="home_top" />,
+          heroBanner: (
+            <HomeHeroBanner offer={heroOffer} section={homeSections.hero_featured} labels={labels.hero} noDescription={labels.common.noDescription} />
+          ),
+          featured: (
+            <HomeFeaturedServicesSuspenseBoundary
+              services={featuredServices}
+              locale={locale}
+              selectedCountryCode={queryInput.countryCode}
+              labels={{
+                emptyTitle: labels.featured.emptyTitle,
+                emptyDescription: labels.featured.emptyDescription,
+                discountOff: labels.featured.discountOff,
+                availableDestination: labels.featured.availableDestination,
+                noDescription: labels.common.noDescription,
+              }}
+            />
+          ),
+          nativeAd: <SponsoredMediaCarouselSection locale={locale} placement="home_native_ad" />,
+          trending: (
+            <HomeTrendingServicesSuspenseBoundary
+              services={trendingServices}
+              labels={{
+                emptyTitle: labels.trending.emptyTitle,
+                emptyDescription: labels.trending.emptyDescription,
+                bookings: labels.trending.bookings,
+              }}
+            />
+          ),
+          nearby: (
+            <ExploreNearbySection
+              section={homeSections.explore_nearby}
+              nearbyProviderCount={nearbyProviderCount}
+              countryCode={queryInput.countryCode}
+              cityCode={queryInput.cityCode}
+              latitude={nearbyLat}
+              longitude={nearbyLng}
+              locale={locale}
+              labels={labels.exploreNearby}
+            />
+          ),
+          trusted: (
+            <HomeTrustedProvidersSuspenseBoundary
+              providers={trustedProviders}
+              locale={locale}
+              labels={{
+                emptyTitle: labels.trusted.emptyTitle,
+                emptyDescription: labels.trusted.emptyDescription,
+                noDescription: labels.common.noDescription,
+              }}
+            />
+          ),
+          packages: (
+            <PremiumPackagesSection section={homeSections.premium_packages} labels={labels.premiumPackages} activePackagesCount={specialPackagesCount} />
+          ),
+          loyalty: <LoyaltyClubSection section={homeSections.loyalty_club} locale={locale} labels={labels.loyaltyClub} />,
+          sponsoredBottom: <SponsoredMediaCarouselSection locale={locale} placement="home_bottom" />,
+        }}
+      />
+    </ViewportOnly>
     {/* One FAQ block for both layouts (a single FAQPage node per page). */}
     <div className="mx-auto max-w-3xl px-4 pb-10 xl:py-16">
       <FaqSection target={{ scope: "home" }} locale={locale} pageUrl={absoluteUrl(locale)} />

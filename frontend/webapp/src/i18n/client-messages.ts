@@ -220,6 +220,8 @@ export const SEGMENT_NAMESPACES = {
 
 export type MessageSegment = keyof typeof SEGMENT_NAMESPACES;
 
+const HEADER_HOME_KEYS = ["appBar"] as const;
+
 /** Large namespaces a segment needs only some keys of (see partial-namespaces.ts). */
 const SEGMENT_PARTIAL_NAMESPACES: Partial<Record<MessageSegment, Record<string, readonly string[]>>> = {
   mobileApp: {
@@ -227,6 +229,9 @@ const SEGMENT_PARTIAL_NAMESPACES: Partial<Record<MessageSegment, Record<string, 
     Booking: MOBILE_BOOKING_KEYS,
     Consultation: MOBILE_CONSULTATION_KEYS,
   },
+  // The notification bell in the tours and stays headers (NotificationsBar) reads Home.appBar.
+  tours: { Home: HEADER_HOME_KEYS },
+  stays: { Home: HEADER_HOME_KEYS },
 };
 
 /**
