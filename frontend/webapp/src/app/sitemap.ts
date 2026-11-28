@@ -14,6 +14,7 @@ import { propertyLocales, STAY_INDEXABLE_LOCALES } from "@/features/stays/domain
 import { allGuides, guideLocales, guidePath } from "@/features/guides/registry";
 import { getPublishedPostIndex } from "@/features/blog/server/repository";
 import { getPublishedSitePageIndex } from "@/features/site-content/server/repository";
+import { landingPagesEnabled, listLandingPages } from "@/features/search/server/landing";
 import { routing } from "@/i18n/routing";
 import { absoluteUrl, languageAlternates, type SeoLocale } from "@/lib/seo/alternates";
 import { publicMediaUrl } from "@/lib/seo/media-url";
@@ -51,6 +52,19 @@ function sitemapImages(path: string, images: string[] | null): string[] {
     .filter((url): url is string => Boolean(url));
   return [...new Set(urls)].slice(0, SITEMAP_IMAGES_PER_PAGE);
 }
+
+// Treatment-in-city landing pages (/find/<treatment>/<city>): only combinations with enough real
+// providers (search.landing_pages), and only while SEARCH_LANDING_PAGES=1.
+const landingEntries = unstable_cache(
+  async (): Promise<(CatalogEntry & { lastModified?: string })[]> => {
+    if (!landingPagesEnabled()) return [];
+    return (await listLandingPages())
+      .filter((page) => page.locales.length > 0)
+      .map((page) => ({ path: `/find/${page.serviceSlug}/${page.citySlug}`, locales: page.locales as SeoLocale[], lastModified: page.updatedAt }));
+  },
+  ["sitemap-landing-v1"],
+  { revalidate: 3600 },
+);
 
 const STATIC_PATHS: CatalogEntry[] = [
   { path: "", locales: ALL_LOCALES },
@@ -238,13 +252,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     console.error(`[seo] Sitemap ${part} unavailable; serving the rest.`);
     return [];
   };
-  const [entities, categories, tours, stays] = await Promise.all([
+  const [entities, categories, tours, stays, landing] = await Promise.all([
     catalogEntries().catch(unavailable("catalog")),
     categoryEntries().catch(unavailable("categories")),
     tourEntries().catch(unavailable("tours")),
     stayEntries().catch(unavailable("stays")),
+    landingEntries().catch(unavailable("landing pages")),
   ]);
-  const catalog = [...entities, ...categories, ...tours, ...stays];
+  const catalog = [...entities, ...categories, ...tours, ...stays, ...landing];
 
   // Editorial pages (admin → Editorial) list only their translated locales; first
   // so a published /privacy-policy replaces the built-in all-locale entry.
