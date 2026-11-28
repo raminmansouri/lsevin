@@ -63,7 +63,7 @@ const landingEntries = unstable_cache(
       .map((page) => ({ path: `/find/${page.serviceSlug}/${page.citySlug}`, locales: page.locales as SeoLocale[], lastModified: page.updatedAt }));
   },
   ["sitemap-landing-v1"],
-  { revalidate: 3600 },
+  { revalidate: Number(process.env.SEARCH_LANDING_SITEMAP_REVALIDATE ?? 3600) },
 );
 
 const STATIC_PATHS: CatalogEntry[] = [

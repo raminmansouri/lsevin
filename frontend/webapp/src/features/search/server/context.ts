@@ -9,12 +9,22 @@ const TTL_MS = 5 * 60_000;
 let cached: { at: number; value: SearchContext } | null = null;
 let inflight: Promise<SearchContext> | null = null;
 
-type PlaceRow = { kind: Place["kind"]; name: string; aliases: string[]; city_slug: string; lat: number; lng: number; radius_m: number };
+type PlaceRow = {
+  kind: Place["kind"];
+  name: string;
+  aliases: string[];
+  city_slug: string;
+  lat: number;
+  lng: number;
+  radius_m: number;
+};
 type SynonymRow = { term: string; canonical: string };
 
 async function load(): Promise<SearchContext> {
   const [places, synonyms] = await Promise.all([
-    sql<PlaceRow[]>`select kind, name, aliases, city_slug, lat, lng, radius_m from unified_search.places`,
+    sql<
+      PlaceRow[]
+    >`select kind, name, aliases, city_slug, lat, lng, radius_m from unified_search.places`,
     sql<SynonymRow[]>`select term, canonical from unified_search.synonyms`,
   ]);
   return {
@@ -27,7 +37,9 @@ async function load(): Promise<SearchContext> {
       lng: Number(row.lng),
       radiusM: row.radius_m,
     })),
-    synonyms: new Map(synonyms.map((row) => [fold(row.term), fold(row.canonical)])),
+    synonyms: new Map(
+      synonyms.map((row) => [fold(row.term), fold(row.canonical)])
+    ),
   };
 }
 

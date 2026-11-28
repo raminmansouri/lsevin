@@ -26,9 +26,16 @@ type Copy = {
   breadcrumbHome: string;
 };
 
-const num = (value: number, locale: string) => value.toLocaleString(locale === "fa" ? "fa-IR" : "en-US");
+const num = (value: number, locale: string) =>
+  value.toLocaleString(locale === "fa" ? "fa-IR" : "en-US");
 
-const range = (f: LandingFacts, locale: string, toman: string, from: string, to: string) =>
+const range = (
+  f: LandingFacts,
+  locale: string,
+  toman: string,
+  from: string,
+  to: string
+) =>
   f.minPriceToman && f.maxPriceToman
     ? f.minPriceToman === f.maxPriceToman
       ? ` ${num(f.minPriceToman, locale)} ${toman}`
@@ -36,7 +43,8 @@ const range = (f: LandingFacts, locale: string, toman: string, from: string, to:
     : "";
 
 const FA: Copy = {
-  title: (f) => `${f.service} در ${f.city}؛ مقایسه ${num(f.providers, "fa")} کلینیک و قیمت | السوین`,
+  title: (f) =>
+    `${f.service} در ${f.city}؛ مقایسه ${num(f.providers, "fa")} کلینیک و قیمت | السوین`,
   h1: (f) => `${f.service} در ${f.city}`,
   description: (f) => {
     const price = range(f, "fa", "تومان", "قیمت از", "تا");
@@ -44,7 +52,9 @@ const FA: Copy = {
   },
   intro: (f) => {
     const price = range(f, "fa", "تومان", "قیمت‌ها از", "تا");
-    const rating = f.avgRating ? ` میانگین امتیاز: ${num(Number(f.avgRating.toFixed(1)), "fa")} از ۵.` : "";
+    const rating = f.avgRating
+      ? ` میانگین امتیاز: ${num(Number(f.avgRating.toFixed(1)), "fa")} از ۵.`
+      : "";
     return `${num(f.providers, "fa")} مرکز درمانی ${f.service} را در ${f.city} از طریق السوین ارائه می‌دهند.${price ? `${price}.` : ""}${rating}`;
   },
   listHeading: "مراکز و قیمت‌ها",
@@ -58,7 +68,8 @@ const FA: Copy = {
 };
 
 const EN: Copy = {
-  title: (f) => `${f.service} in ${f.city}: compare ${f.providers} clinics and prices | LSevin`,
+  title: (f) =>
+    `${f.service} in ${f.city}: compare ${f.providers} clinics and prices | LSevin`,
   h1: (f) => `${f.service} in ${f.city}`,
   description: (f) => {
     const price = range(f, "en", "Toman", "prices from", "to");
@@ -66,7 +77,9 @@ const EN: Copy = {
   },
   intro: (f) => {
     const price = range(f, "en", "Toman", "Prices range from", "to");
-    const rating = f.avgRating ? ` Average rating: ${f.avgRating.toFixed(1)} out of 5.` : "";
+    const rating = f.avgRating
+      ? ` Average rating: ${f.avgRating.toFixed(1)} out of 5.`
+      : "";
     return `${f.providers} providers offer ${f.service} in ${f.city} through LSevin.${price ? `${price}.` : ""}${rating}`;
   },
   listHeading: "Providers and prices",
@@ -79,7 +92,8 @@ const EN: Copy = {
   breadcrumbHome: "Home",
 };
 
-export const landingCopy = (locale: string): Copy => (locale === "fa" ? FA : EN);
+export const landingCopy = (locale: string): Copy =>
+  locale === "fa" ? FA : EN;
 
 type JsonLdInput = {
   locale: string;
@@ -91,15 +105,31 @@ type JsonLdInput = {
 };
 
 /** BreadcrumbList + ItemList (the providers on the page). Plain data, validated by unit tests. */
-export function buildLandingJsonLd({ locale, facts, abs, pagePath, offers }: JsonLdInput) {
+export function buildLandingJsonLd({
+  locale,
+  facts,
+  abs,
+  pagePath,
+  offers,
+}: JsonLdInput) {
   const copy = landingCopy(locale);
   return [
     {
       "@context": "https://schema.org",
       "@type": "BreadcrumbList",
       itemListElement: [
-        { "@type": "ListItem", position: 1, name: copy.breadcrumbHome, item: abs("") },
-        { "@type": "ListItem", position: 2, name: copy.h1(facts), item: abs(pagePath) },
+        {
+          "@type": "ListItem",
+          position: 1,
+          name: copy.breadcrumbHome,
+          item: abs(""),
+        },
+        {
+          "@type": "ListItem",
+          position: 2,
+          name: copy.h1(facts),
+          item: abs(pagePath),
+        },
       ],
     },
     {
@@ -111,7 +141,9 @@ export function buildLandingJsonLd({ locale, facts, abs, pagePath, offers }: Jso
         "@type": "ListItem",
         position: index + 1,
         url: abs(offer.path),
-        name: offer.provider ? `${offer.title} — ${offer.provider}` : offer.title,
+        name: offer.provider
+          ? `${offer.title} — ${offer.provider}`
+          : offer.title,
       })),
     },
   ];

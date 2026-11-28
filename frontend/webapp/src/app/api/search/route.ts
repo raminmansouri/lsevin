@@ -1,11 +1,10 @@
 import { createHash } from "node:crypto";
-
 import { z } from "zod";
 
-import { routing } from "@/i18n/routing";
-import { DOC_TYPES } from "@/features/search/types";
 import { allow, clientKey } from "@/features/search/server/rate-limit";
 import { search } from "@/features/search/server/search";
+import { DOC_TYPES } from "@/features/search/types";
+import { routing } from "@/i18n/routing";
 
 export const dynamic = "force-dynamic";
 
@@ -23,19 +22,34 @@ const NO_STORE = { "cache-control": "no-store" };
 /** Salted, day-scoped hash: counts distinct visitors per day without being able to identify anyone. */
 function sessionHash(request: Request): string {
   const day = new Date().toISOString().slice(0, 10);
-  const material = [clientKey(request.headers), request.headers.get("user-agent") ?? "", day, process.env.SEARCH_LOG_SALT ?? "lsevin-search"].join("|");
+  const material = [
+    clientKey(request.headers),
+    request.headers.get("user-agent") ?? "",
+    day,
+    process.env.SEARCH_LOG_SALT ?? "lsevin-search",
+  ].join("|");
   return createHash("sha256").update(material).digest("hex").slice(0, 24);
 }
 
 export async function GET(request: Request) {
   const key = clientKey(request.headers);
-  if (!allow(`search:${key}`, Number(process.env.SEARCH_RATE_LIMIT_PER_MIN ?? 60))) {
-    return Response.json({ error: "rate_limited" }, { status: 429, headers: { ...NO_STORE, "retry-after": "30" } });
+  if (
+    !allow(`search:${key}`, Number(process.env.SEARCH_RATE_LIMIT_PER_MIN ?? 60))
+  ) {
+    return Response.json(
+      { error: "rate_limited" },
+      { status: 429, headers: { ...NO_STORE, "retry-after": "30" } }
+    );
   }
 
-  const parsed = querySchema.safeParse(Object.fromEntries(new URL(request.url).searchParams));
+  const parsed = querySchema.safeParse(
+    Object.fromEntries(new URL(request.url).searchParams)
+  );
   if (!parsed.success) {
-    return Response.json({ error: "invalid_query" }, { status: 400, headers: NO_STORE });
+    return Response.json(
+      { error: "invalid_query" },
+      { status: 400, headers: NO_STORE }
+    );
   }
   const { q, type, locale, limit, lat, lng } = parsed.data;
 
@@ -52,6 +66,9 @@ export async function GET(request: Request) {
   } catch (error) {
     // Infrastructure failure: say so, never present it as a bad query.
     console.error("[search] search failed:", (error as Error).message);
-    return Response.json({ error: "search_unavailable" }, { status: 503, headers: NO_STORE });
+    return Response.json(
+      { error: "search_unavailable" },
+      { status: 503, headers: NO_STORE }
+    );
   }
 }

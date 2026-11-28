@@ -1,7 +1,7 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useEffect, useId, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 
 import { stringsFor } from "./strings";
 
@@ -19,7 +19,12 @@ type Props = {
  * the suggestions, Enter opens the highlighted one (or searches what was typed), Escape closes
  * the list. Without JavaScript it is a plain GET form to /<locale>/search.
  */
-export function SearchBox({ locale, initialQuery = "", type = "all", autoFocus = false }: Props) {
+export function SearchBox({
+  locale,
+  initialQuery = "",
+  type = "all",
+  autoFocus = false,
+}: Props) {
   const strings = stringsFor(locale);
   const router = useRouter();
   const listId = useId();
@@ -39,7 +44,10 @@ export function SearchBox({ locale, initialQuery = "", type = "all", autoFocus =
       controller.current?.abort();
       controller.current = new AbortController();
       try {
-        const response = await fetch(`/api/search/suggest?q=${encodeURIComponent(term)}`, { signal: controller.current.signal });
+        const response = await fetch(
+          `/api/search/suggest?q=${encodeURIComponent(term)}`,
+          { signal: controller.current.signal }
+        );
         if (!response.ok) return setItems([]);
         const json = (await response.json()) as { suggestions?: Suggestion[] };
         setItems(json.suggestions ?? []);
@@ -81,10 +89,16 @@ export function SearchBox({ locale, initialQuery = "", type = "all", autoFocus =
   const expanded = open && items.length > 0;
 
   return (
-    <form action={`/${locale}/search`} method="get" role="search" className="relative w-full" onSubmit={(event) => {
-      event.preventDefault();
-      go(value);
-    }}>
+    <form
+      action={`/${locale}/search`}
+      method="get"
+      role="search"
+      className="relative w-full"
+      onSubmit={(event) => {
+        event.preventDefault();
+        go(value);
+      }}
+    >
       <div className="flex items-center gap-2 rounded-2xl border border-neutral-300 bg-white px-4 py-2 shadow-sm focus-within:border-teal-600 focus-within:ring-2 focus-within:ring-teal-600/30">
         <input
           // Not type="search": Chrome clears a search input on Escape, which would erase what
@@ -107,14 +121,21 @@ export function SearchBox({ locale, initialQuery = "", type = "all", autoFocus =
           aria-expanded={expanded}
           aria-controls={listId}
           aria-autocomplete="list"
-          aria-activedescendant={active >= 0 ? `${listId}-${active}` : undefined}
+          aria-activedescendant={
+            active >= 0 ? `${listId}-${active}` : undefined
+          }
           autoComplete="off"
           autoFocus={autoFocus}
           maxLength={160}
           className="min-w-0 flex-1 bg-transparent py-2 text-base outline-none"
         />
-        {type !== "all" ? <input type="hidden" name="type" value={type} /> : null}
-        <button type="submit" className="rounded-xl bg-teal-700 px-5 py-2 text-sm font-medium text-white hover:bg-teal-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700">
+        {type !== "all" ? (
+          <input type="hidden" name="type" value={type} />
+        ) : null}
+        <button
+          type="submit"
+          className="rounded-xl bg-teal-700 px-5 py-2 text-sm font-medium text-white hover:bg-teal-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
+        >
           {strings.submit}
         </button>
       </div>
@@ -139,7 +160,11 @@ export function SearchBox({ locale, initialQuery = "", type = "all", autoFocus =
             className={`flex cursor-pointer items-center justify-between gap-3 px-4 py-2 text-sm ${index === active ? "bg-teal-50" : ""}`}
           >
             <span>{item.text}</span>
-            <span className="text-xs text-neutral-500">{stringsFor(locale).types[item.type as keyof typeof strings.types] ?? ""}</span>
+            <span className="text-xs text-neutral-500">
+              {stringsFor(locale).types[
+                item.type as keyof typeof strings.types
+              ] ?? ""}
+            </span>
           </li>
         ))}
       </ul>

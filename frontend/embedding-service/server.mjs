@@ -54,7 +54,8 @@ const pending = [];
 let running = false;
 
 function submit(texts, kind) {
-  if (pending.length >= MAX_QUEUE) return Promise.reject(Object.assign(new Error("busy"), { status: 503 }));
+  if (pending.length >= MAX_QUEUE)
+    return Promise.reject(Object.assign(new Error("busy"), { status: 503 }));
   return new Promise((resolve, reject) => {
     pending.push({ texts, kind, resolve, reject });
     void pump();
@@ -73,7 +74,10 @@ async function pump() {
       let count = 0;
       for (let i = 0; i < pending.length; ) {
         const item = pending[i];
-        if (item.kind === kind && (count === 0 || count + item.texts.length <= MAX_BATCH)) {
+        if (
+          item.kind === kind &&
+          (count === 0 || count + item.texts.length <= MAX_BATCH)
+        ) {
           batch.push(item);
           count += item.texts.length;
           pending.splice(i, 1);
@@ -82,7 +86,10 @@ async function pump() {
         }
       }
       try {
-        const vectors = await embed(batch.flatMap((item) => item.texts), kind);
+        const vectors = await embed(
+          batch.flatMap((item) => item.texts),
+          kind,
+        );
         let offset = 0;
         for (const item of batch) {
           item.resolve(vectors.slice(offset, offset + item.texts.length));
@@ -105,21 +112,31 @@ async function embed(texts, kind) {
   );
   const vectors = [];
   for (let i = 0; i < texts.length; i += 1) {
-    vectors.push(Array.from(out.data.slice(i * DIMS, (i + 1) * DIMS), (v) => Math.round(v * 1e6) / 1e6));
+    vectors.push(
+      Array.from(
+        out.data.slice(i * DIMS, (i + 1) * DIMS),
+        (v) => Math.round(v * 1e6) / 1e6,
+      ),
+    );
   }
   return vectors;
 }
 
 function authorized(request) {
   if (!API_KEY) return true;
-  const given = Buffer.from(String(request.headers.authorization ?? "").replace(/^Bearer\s+/i, ""));
+  const given = Buffer.from(
+    String(request.headers.authorization ?? "").replace(/^Bearer\s+/i, ""),
+  );
   const wanted = Buffer.from(API_KEY);
   return given.length === wanted.length && timingSafeEqual(given, wanted);
 }
 
 function send(response, status, body) {
   const json = JSON.stringify(body);
-  response.writeHead(status, { "content-type": "application/json", "content-length": Buffer.byteLength(json) });
+  response.writeHead(status, {
+    "content-type": "application/json",
+    "content-length": Buffer.byteLength(json),
+  });
   response.end(json);
 }
 
@@ -144,27 +161,49 @@ function readBody(request) {
 const server = createServer(async (request, response) => {
   try {
     if (request.method === "GET" && request.url === "/health") {
-      if (loadError) return send(response, 503, { ok: false, error: "model failed to load" });
-      return send(response, extractor ? 200 : 503, { ok: Boolean(extractor), ready: Boolean(extractor), model: MODEL, dims: DIMS });
+      if (loadError)
+        return send(response, 503, {
+          ok: false,
+          error: "model failed to load",
+        });
+      return send(response, extractor ? 200 : 503, {
+        ok: Boolean(extractor),
+        ready: Boolean(extractor),
+        model: MODEL,
+        dims: DIMS,
+      });
     }
     if (request.method === "POST" && request.url === "/embed") {
-      if (!authorized(request)) return send(response, 401, { error: "unauthorized" });
+      if (!authorized(request))
+        return send(response, 401, { error: "unauthorized" });
       if (!extractor) return send(response, 503, { error: "model not ready" });
 
       let payload;
       try {
         payload = JSON.parse(await readBody(request));
       } catch (error) {
-        if (error?.status) return send(response, error.status, { error: error.message });
+        if (error?.status)
+          return send(response, error.status, { error: error.message });
         return send(response, 400, { error: "invalid JSON" });
       }
       const { texts, kind } = payload ?? {};
-      if (kind !== "query" && kind !== "passage") return send(response, 400, { error: 'kind must be "query" or "passage"' });
-      if (!Array.isArray(texts) || texts.length === 0 || texts.length > MAX_TEXTS) {
-        return send(response, 400, { error: `texts must be a non-empty array of at most ${MAX_TEXTS}` });
+      if (kind !== "query" && kind !== "passage")
+        return send(response, 400, {
+          error: 'kind must be "query" or "passage"',
+        });
+      if (
+        !Array.isArray(texts) ||
+        texts.length === 0 ||
+        texts.length > MAX_TEXTS
+      ) {
+        return send(response, 400, {
+          error: `texts must be a non-empty array of at most ${MAX_TEXTS}`,
+        });
       }
       if (texts.some((text) => typeof text !== "string" || !text.trim())) {
-        return send(response, 400, { error: "every text must be a non-empty string" });
+        return send(response, 400, {
+          error: "every text must be a non-empty string",
+        });
       }
       const clipped = texts.map((text) => text.slice(0, MAX_CHARS));
       const vectors = await submit(clipped, kind);
@@ -172,7 +211,8 @@ const server = createServer(async (request, response) => {
     }
     return send(response, 404, { error: "not found" });
   } catch (error) {
-    if (error?.status) return send(response, error.status, { error: error.message });
+    if (error?.status)
+      return send(response, error.status, { error: error.message });
     // Never echo internals (or the texts) back to the caller.
     console.error("embed failed:", error?.message);
     return send(response, 500, { error: "embedding failed" });
@@ -180,7 +220,11 @@ const server = createServer(async (request, response) => {
 });
 
 await loading;
-server.listen(PORT, HOST, () => console.log(`embedding service ready on ${HOST}:${PORT} (${MODEL}, ${DIMS} dims)`));
+server.listen(PORT, HOST, () =>
+  console.log(
+    `embedding service ready on ${HOST}:${PORT} (${MODEL}, ${DIMS} dims)`,
+  ),
+);
 
 for (const signal of ["SIGINT", "SIGTERM"]) {
   process.on(signal, () => server.close(() => process.exit(0)));

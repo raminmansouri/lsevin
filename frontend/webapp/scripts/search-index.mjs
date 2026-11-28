@@ -39,7 +39,11 @@ if (!DATABASE_URL) {
   process.exit(1);
 }
 
-const sql = postgres(DATABASE_URL, { max: 4, onnotice: () => {}, prepare: false }); // prepare: false keeps it safe behind a transaction-pooling PgBouncer
+const sql = postgres(DATABASE_URL, {
+  max: 4,
+  onnotice: () => {},
+  prepare: false,
+}); // prepare: false keeps it safe behind a transaction-pooling PgBouncer
 const FETCH_BATCH = 200;
 const WITH_EMBEDDINGS = !flag("no-embed");
 const onlyType = option("type");
@@ -47,10 +51,24 @@ const onlyType = option("type");
 function documentHash(doc) {
   return sha256(
     JSON.stringify([
-      doc.title, doc.subtitle, doc.url, doc.image, doc.city, doc.country, doc.lat, doc.lng, doc.priceToman,
-      doc.rating, doc.reviewCount, doc.quality, doc.serviceKey, doc.providerId, doc.attrs, doc.text,
+      doc.title,
+      doc.subtitle,
+      doc.url,
+      doc.image,
+      doc.city,
+      doc.country,
+      doc.lat,
+      doc.lng,
+      doc.priceToman,
+      doc.rating,
+      doc.reviewCount,
+      doc.quality,
+      doc.serviceKey,
+      doc.providerId,
+      doc.attrs,
+      doc.text,
       embeddingText(doc),
-    ]),
+    ])
   );
 }
 
@@ -66,16 +84,26 @@ async function upsertBatch(docType, docs) {
   const prepared = docs.map((doc) => ({ doc, hash: documentHash(doc) }));
   const changed = prepared.filter(({ doc, hash }) => {
     const row = known.get(doc.sourceId);
-    return !row || row.content_hash !== hash || (WITH_EMBEDDINGS && !row.has_embedding);
+    return (
+      !row ||
+      row.content_hash !== hash ||
+      (WITH_EMBEDDINGS && !row.has_embedding)
+    );
   });
   if (!changed.length) return { written: 0, embedded: 0 };
 
   let vectors = new Map();
-  if (WITH_EMBEDDINGS) vectors = await embedPassages(sql, changed.map(({ doc }) => embeddingText(doc)));
+  if (WITH_EMBEDDINGS)
+    vectors = await embedPassages(
+      sql,
+      changed.map(({ doc }) => embeddingText(doc))
+    );
 
   await sql.begin(async (tx) => {
     for (const { doc, hash } of changed) {
-      const vector = WITH_EMBEDDINGS ? vectors.get(embeddingText(doc)) ?? null : null;
+      const vector = WITH_EMBEDDINGS
+        ? (vectors.get(embeddingText(doc)) ?? null)
+        : null;
       const keepOld = !WITH_EMBEDDINGS; // keyword-only run must not wipe an existing embedding
       await tx`
         insert into unified_search.documents
@@ -99,7 +127,12 @@ async function upsertBatch(docType, docs) {
           indexed_at = now()`;
     }
   });
-  return { written: changed.length, embedded: WITH_EMBEDDINGS ? new Set(changed.map(({ doc }) => embeddingText(doc))).size : 0 };
+  return {
+    written: changed.length,
+    embedded: WITH_EMBEDDINGS
+      ? new Set(changed.map(({ doc }) => embeddingText(doc))).size
+      : 0,
+  };
 }
 
 /** Suggestions for autocomplete: every title, folded. */
@@ -113,7 +146,12 @@ async function upsertSuggestions(docType, docs, seen) {
       seen?.add(term);
       const previous = byTerm.get(term);
       if (!previous || previous.weight < doc.quality) {
-        byTerm.set(term, { term, display: String(display).slice(0, 120), doc_type: docType, weight: doc.quality });
+        byTerm.set(term, {
+          term,
+          display: String(display).slice(0, 120),
+          doc_type: docType,
+          weight: doc.quality,
+        });
       }
     }
   }
@@ -128,20 +166,30 @@ async function upsertSuggestions(docType, docs, seen) {
 
 async function removeDocuments(docType, ids) {
   if (!ids.length) return 0;
-  const gone = await sql`delete from unified_search.documents where doc_type = ${docType} and source_id = any(${ids}) returning 1`;
+  const gone =
+    await sql`delete from unified_search.documents where doc_type = ${docType} and source_id = any(${ids}) returning 1`;
   return gone.length;
 }
 
-const MEDIA_ID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const MEDIA_ID =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 /** Some image columns hold a media-library id instead of a path: swap in the file URL. */
 async function resolveImages(docs) {
-  const wanted = [...new Set(docs.map((doc) => doc.image).filter((value) => value && MEDIA_ID.test(value)))];
+  const wanted = [
+    ...new Set(
+      docs
+        .map((doc) => doc.image)
+        .filter((value) => value && MEDIA_ID.test(value))
+    ),
+  ];
   if (!wanted.length) return;
-  const rows = await sql`select id::text as id, file_url from media.media_library where id = any(${wanted}::uuid[])`;
+  const rows =
+    await sql`select id::text as id, file_url from media.media_library where id = any(${wanted}::uuid[])`;
   const byId = new Map(rows.map((row) => [row.id.toLowerCase(), row.file_url]));
   for (const doc of docs) {
-    if (doc.image && MEDIA_ID.test(doc.image)) doc.image = byId.get(doc.image.toLowerCase()) ?? null;
+    if (doc.image && MEDIA_ID.test(doc.image))
+      doc.image = byId.get(doc.image.toLowerCase()) ?? null;
   }
 }
 
@@ -157,18 +205,25 @@ async function syncIds(docType, ids, seenTerms) {
     await upsertSuggestions(docType, docs, seenTerms);
     totals.written += result.written;
     totals.embedded += result.embedded;
-    totals.removed += await removeDocuments(docType, part.filter((id) => !found.has(id)));
+    totals.removed += await removeDocuments(
+      docType,
+      part.filter((id) => !found.has(id))
+    );
   }
   return totals;
 }
 
 async function enabledTypes() {
-  const rows = await sql`select doc_type from unified_search.sources where enabled`;
-  return rows.map((row) => row.doc_type).filter((type) => adapters[type] && (!onlyType || type === onlyType));
+  const rows =
+    await sql`select doc_type from unified_search.sources where enabled`;
+  return rows
+    .map((row) => row.doc_type)
+    .filter((type) => adapters[type] && (!onlyType || type === onlyType));
 }
 
 async function runOutbox() {
-  const claimed = await sql`select source_type, source_id, enqueued_at::text as enqueued_at from unified_search.outbox order by unified_search.outbox.enqueued_at limit 2000`;
+  const claimed =
+    await sql`select source_type, source_id, enqueued_at::text as enqueued_at from unified_search.outbox order by unified_search.outbox.enqueued_at limit 2000`;
   if (!claimed.length) return 0;
   const enabled = new Set(await enabledTypes());
   const byType = new Map();
@@ -179,7 +234,9 @@ async function runOutbox() {
   }
   for (const [type, ids] of byType) {
     const totals = await syncIds(type, ids, null);
-    console.log(`outbox ${type}: ${ids.length} changed -> ${totals.written} written, ${totals.removed} removed`);
+    console.log(
+      `outbox ${type}: ${ids.length} changed -> ${totals.written} written, ${totals.removed} removed`
+    );
   }
   // Delete exactly what was claimed: a change that arrived mid-run has a newer enqueued_at and stays queued.
   // The timestamps travel as text: JS dates (and the driver) would cut the microseconds and the match would never hold.
@@ -198,19 +255,28 @@ async function runFull() {
     const ids = await adapters[type].listIds(sql);
     const totals = await syncIds(type, ids, seenTerms);
     // Anything indexed that the source no longer lists is stale.
-    const indexed = await sql`select source_id from unified_search.documents where doc_type = ${type}`;
+    const indexed =
+      await sql`select source_id from unified_search.documents where doc_type = ${type}`;
     const live = new Set(ids);
-    const stale = indexed.map((row) => row.source_id).filter((id) => !live.has(id));
+    const stale = indexed
+      .map((row) => row.source_id)
+      .filter((id) => !live.has(id));
     totals.removed += await removeDocuments(type, stale);
     await sql`update unified_search.sources set last_full_sync = now() where doc_type = ${type}`;
-    console.log(`full ${type}: ${ids.length} in source, ${totals.written} written, ${totals.embedded} embedded, ${totals.removed} removed`);
+    console.log(
+      `full ${type}: ${ids.length} in source, ${totals.written} written, ${totals.embedded} embedded, ${totals.removed} removed`
+    );
   }
   if (!onlyType && seenTerms.size) {
     const stale = await sql`
       delete from unified_search.suggestions where term <> all(${[...seenTerms]}) returning 1`;
-    console.log(`suggestions: ${seenTerms.size} kept, ${stale.length} stale removed`);
+    console.log(
+      `suggestions: ${seenTerms.size} kept, ${stale.length} stale removed`
+    );
   }
-  console.log(`full run finished in ${((Date.now() - started) / 1000).toFixed(1)}s (${WITH_EMBEDDINGS ? MODEL : "no embeddings"})`);
+  console.log(
+    `full run finished in ${((Date.now() - started) / 1000).toFixed(1)}s (${WITH_EMBEDDINGS ? MODEL : "no embeddings"})`
+  );
 }
 
 async function main() {

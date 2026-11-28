@@ -4,9 +4,12 @@ import { createHash } from "node:crypto";
 
 import sql from "@/config/database/db";
 
-const SERVICE_URL = (process.env.EMBEDDING_URL ?? "http://127.0.0.1:8089").replace(/\/$/, "");
+const SERVICE_URL = (
+  process.env.EMBEDDING_URL ?? "http://127.0.0.1:8089"
+).replace(/\/$/, "");
 const API_KEY = process.env.EMBEDDING_API_KEY ?? "";
-export const EMBEDDING_MODEL = process.env.EMBEDDING_MODEL ?? "Xenova/multilingual-e5-small";
+export const EMBEDDING_MODEL =
+  process.env.EMBEDDING_MODEL ?? "Xenova/multilingual-e5-small";
 /** A new query waits this long for its embedding, then search carries on without the vector part. */
 const TIMEOUT_MS = Number(process.env.SEARCH_EMBED_TIMEOUT_MS ?? 400);
 const MEMORY_ENTRIES = 1000;
@@ -18,11 +21,13 @@ const memory = new Map<string, { vector: string; at: number }>();
 let coolDownUntil = 0;
 let lastWarning = 0;
 
-const keyOf = (text: string) => createHash("sha256").update(`query:${text}`).digest("hex");
+const keyOf = (text: string) =>
+  createHash("sha256").update(`query:${text}`).digest("hex");
 const literal = (vector: number[]) => `[${vector.join(",")}]`;
 
 function remember(key: string, vector: string) {
-  if (memory.size >= MEMORY_ENTRIES) memory.delete(memory.keys().next().value as string);
+  if (memory.size >= MEMORY_ENTRIES)
+    memory.delete(memory.keys().next().value as string);
   memory.set(key, { vector, at: Date.now() });
 }
 
@@ -61,14 +66,23 @@ export async function embedQuery(text: string): Promise<string | null> {
   try {
     const response = await fetch(`${SERVICE_URL}/embed`, {
       method: "POST",
-      headers: { "content-type": "application/json", ...(API_KEY ? { authorization: `Bearer ${API_KEY}` } : {}) },
+      headers: {
+        "content-type": "application/json",
+        ...(API_KEY ? { authorization: `Bearer ${API_KEY}` } : {}),
+      },
       body: JSON.stringify({ texts: [text], kind: "query" }),
       signal: AbortSignal.timeout(TIMEOUT_MS),
       cache: "no-store",
     });
     if (!response.ok) throw new Error(`service answered ${response.status}`);
-    const json = (await response.json()) as { model: string; vectors: number[][] };
-    if (json.model !== EMBEDDING_MODEL) throw new Error(`service runs ${json.model}, expected ${EMBEDDING_MODEL}`);
+    const json = (await response.json()) as {
+      model: string;
+      vectors: number[][];
+    };
+    if (json.model !== EMBEDDING_MODEL)
+      throw new Error(
+        `service runs ${json.model}, expected ${EMBEDDING_MODEL}`
+      );
     const vector = literal(json.vectors[0]);
     remember(key, vector);
     // Fire and forget: the next visitor with this query skips the model entirely.
@@ -79,7 +93,9 @@ export async function embedQuery(text: string): Promise<string | null> {
     return vector;
   } catch (error) {
     coolDownUntil = Date.now() + COOL_DOWN_MS;
-    warn(`embedding service unavailable, searching without the vector part: ${(error as Error).message}`);
+    warn(
+      `embedding service unavailable, searching without the vector part: ${(error as Error).message}`
+    );
     return null;
   }
 }

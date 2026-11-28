@@ -1,4 +1,10 @@
-export const DOC_TYPES = ["provider", "offer", "tour", "stay", "article"] as const;
+export const DOC_TYPES = [
+  "provider",
+  "offer",
+  "tour",
+  "stay",
+  "article",
+] as const;
 export type DocType = (typeof DOC_TYPES)[number];
 
 export type Place = {

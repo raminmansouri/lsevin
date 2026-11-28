@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import { buildLandingJsonLd, landingCopy, type LandingFacts } from "./landing-copy";
+import {
+  buildLandingJsonLd,
+  landingCopy,
+  type LandingFacts,
+} from "./landing-copy";
 
 const facts: LandingFacts = {
   service: "کاشت مو",
@@ -10,7 +14,11 @@ const facts: LandingFacts = {
   maxPriceToman: 90_000_000,
   avgRating: 4.36,
 };
-const en: LandingFacts = { ...facts, service: "Hair transplant", city: "Tehran" };
+const en: LandingFacts = {
+  ...facts,
+  service: "Hair transplant",
+  city: "Tehran",
+};
 
 describe("landing copy", () => {
   it("Persian text carries the numbers in Persian digits and mentions service, city and price range", () => {
@@ -26,18 +34,36 @@ describe("landing copy", () => {
     for (const locale of ["en", "tr", "ar", "ru"]) {
       expect(landingCopy(locale).h1(en)).toBe("Hair transplant in Tehran");
     }
-    expect(landingCopy("en").description(en)).toMatch(/Compare 7 providers of Hair transplant in Tehran/);
+    expect(landingCopy("en").description(en)).toMatch(
+      /Compare 7 providers of Hair transplant in Tehran/
+    );
   });
 
   it("never prints undefined/NaN, even without prices or ratings", () => {
-    const bare: LandingFacts = { ...facts, minPriceToman: null, maxPriceToman: null, avgRating: null };
+    const bare: LandingFacts = {
+      ...facts,
+      minPriceToman: null,
+      maxPriceToman: null,
+      avgRating: null,
+    };
     for (const locale of ["fa", "en"]) {
       const copy = landingCopy(locale);
-      for (const text of [copy.title(bare), copy.h1(bare), copy.description(bare), copy.intro(bare)]) {
+      for (const text of [
+        copy.title(bare),
+        copy.h1(bare),
+        copy.description(bare),
+        copy.intro(bare),
+      ]) {
         expect(text).not.toMatch(/undefined|NaN|null/);
       }
     }
-    expect(landingCopy("en").description({ ...en, minPriceToman: 5, maxPriceToman: 5 })).toContain("5 Toman");
+    expect(
+      landingCopy("en").description({
+        ...en,
+        minPriceToman: 5,
+        maxPriceToman: 5,
+      })
+    ).toContain("5 Toman");
   });
 
   it("title stays within a sensible length for a result page", () => {
@@ -60,17 +86,29 @@ describe("landing JSON-LD", () => {
   });
 
   it("is a breadcrumb trail ending at this page", () => {
-    const crumbs = data[0] as { "@type": string; itemListElement: { position: number; item: string }[] };
+    const crumbs = data[0] as {
+      "@type": string;
+      itemListElement: { position: number; item: string }[];
+    };
     expect(crumbs["@type"]).toBe("BreadcrumbList");
     expect(crumbs.itemListElement.map((i) => i.position)).toEqual([1, 2]);
-    expect(crumbs.itemListElement[1].item).toBe("https://example.test/fa/find/hair-transplant/tehran");
+    expect(crumbs.itemListElement[1].item).toBe(
+      "https://example.test/fa/find/hair-transplant/tehran"
+    );
   });
 
   it("lists the providers with absolute URLs and consecutive positions", () => {
-    const list = data[1] as { "@type": string; numberOfItems: number; itemListElement: { position: number; url: string; name: string }[] };
+    const list = data[1] as {
+      "@type": string;
+      numberOfItems: number;
+      itemListElement: { position: number; url: string; name: string }[];
+    };
     expect(list["@type"]).toBe("ItemList");
     expect(list.numberOfItems).toBe(2);
-    expect(list.itemListElement.map((i) => i.url)).toEqual(["https://example.test/fa/services/a", "https://example.test/fa/services/b"]);
+    expect(list.itemListElement.map((i) => i.url)).toEqual([
+      "https://example.test/fa/services/a",
+      "https://example.test/fa/services/b",
+    ]);
     expect(list.itemListElement[0].name).toBe("کاشت مو — کلینیک آرتا");
     expect(list.itemListElement[1].name).toBe("کاشت مو");
   });

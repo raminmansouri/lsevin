@@ -21,7 +21,8 @@ export function fold(value) {
     .trim();
 }
 
-export const sha256 = (value) => createHash("sha256").update(value).digest("hex");
+export const sha256 = (value) =>
+  createHash("sha256").update(value).digest("hex");
 
 /** Rich-text fields may hold Lexical JSON; keep only the readable text. */
 export function plainText(value) {
@@ -39,7 +40,10 @@ export function plainText(value) {
       })
       .join(" ");
   }
-  return text.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+  return text
+    .replace(/<[^>]+>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 /** {"fa-IR": "..", "en-US": ".."} -> cleaned object with only non-empty plain strings. */
@@ -53,7 +57,8 @@ export function cleanTranslations(value) {
   return out;
 }
 
-export const allValues = (translations) => Object.values(translations ?? {}).filter(Boolean);
+export const allValues = (translations) =>
+  Object.values(translations ?? {}).filter(Boolean);
 
 export function num(value) {
   if (value === null || value === undefined || value === "") return null;
@@ -64,7 +69,13 @@ export function num(value) {
 export function coords(lat, lng) {
   const a = num(lat);
   const b = num(lng);
-  if (a === null || b === null || Math.abs(a) > 90 || Math.abs(b) > 180 || (a === 0 && b === 0)) {
+  if (
+    a === null ||
+    b === null ||
+    Math.abs(a) > 90 ||
+    Math.abs(b) > 180 ||
+    (a === 0 && b === 0)
+  ) {
     return { lat: null, lng: null };
   }
   return { lat: a, lng: b };
@@ -78,7 +89,14 @@ export function quality({ rating, reviews, featured, sponsored }) {
   const r = Math.max(0, Math.min(5, num(rating) ?? 0)) / 5;
   const n = Math.max(0, num(reviews) ?? 0);
   const reviewScore = Math.min(1, Math.log1p(n) / Math.log1p(200));
-  return Number((0.5 * r + 0.2 * reviewScore + (featured ? 0.2 : 0) + (sponsored ? 0.1 : 0)).toFixed(3));
+  return Number(
+    (
+      0.5 * r +
+      0.2 * reviewScore +
+      (featured ? 0.2 : 0) +
+      (sponsored ? 0.1 : 0)
+    ).toFixed(3)
+  );
 }
 
 /** Short text sent to the embedding model (kept small: titles + the start of the description). */
@@ -91,6 +109,7 @@ export function embeddingText(doc) {
 
 export const chunk = (items, size) => {
   const out = [];
-  for (let i = 0; i < items.length; i += size) out.push(items.slice(i, i + size));
+  for (let i = 0; i < items.length; i += size)
+    out.push(items.slice(i, i + size));
   return out;
 };

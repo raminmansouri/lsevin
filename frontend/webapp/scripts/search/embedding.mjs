@@ -1,8 +1,12 @@
 import { sha256 } from "./lib.mjs";
 
-const URL_BASE = (process.env.EMBEDDING_URL ?? "http://127.0.0.1:8089").replace(/\/$/, "");
+const URL_BASE = (process.env.EMBEDDING_URL ?? "http://127.0.0.1:8089").replace(
+  /\/$/,
+  ""
+);
 const API_KEY = process.env.EMBEDDING_API_KEY ?? "";
-export const MODEL = process.env.EMBEDDING_MODEL ?? "Xenova/multilingual-e5-small";
+export const MODEL =
+  process.env.EMBEDDING_MODEL ?? "Xenova/multilingual-e5-small";
 const BATCH = 16;
 
 async function callService(texts, kind) {
@@ -11,13 +15,19 @@ async function callService(texts, kind) {
     try {
       const response = await fetch(`${URL_BASE}/embed`, {
         method: "POST",
-        headers: { "content-type": "application/json", ...(API_KEY ? { authorization: `Bearer ${API_KEY}` } : {}) },
+        headers: {
+          "content-type": "application/json",
+          ...(API_KEY ? { authorization: `Bearer ${API_KEY}` } : {}),
+        },
         body: JSON.stringify({ texts, kind }),
         signal: AbortSignal.timeout(60_000),
       });
       if (!response.ok) throw new Error(`embedding service ${response.status}`);
       const json = await response.json();
-      if (json.model !== MODEL) throw new Error(`embedding service runs ${json.model}, expected ${MODEL}`);
+      if (json.model !== MODEL)
+        throw new Error(
+          `embedding service runs ${json.model}, expected ${MODEL}`
+        );
       return json.vectors;
     } catch (error) {
       lastError = error;

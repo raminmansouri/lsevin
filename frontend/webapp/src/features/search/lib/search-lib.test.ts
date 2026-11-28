@@ -1,14 +1,25 @@
 import { describe, expect, it } from "vitest";
 
 import { fold as foldIndex } from "../../../../scripts/search/lib.mjs";
+import type { Place, SearchContext } from "../types";
 import { fold } from "./fold";
 import { reciprocalRankFusion } from "./fusion";
 import { distanceKm, proximityBoost } from "./geo";
 import { parseQuery } from "./parse-query";
-import type { Place, SearchContext } from "../types";
 
-const place = (kind: Place["kind"], name: string, citySlug: string, aliases: string[] = []): Place => ({
-  kind, name: fold(name), aliases, citySlug, lat: 35.79, lng: 51.44, radiusM: 2000,
+const place = (
+  kind: Place["kind"],
+  name: string,
+  citySlug: string,
+  aliases: string[] = []
+): Place => ({
+  kind,
+  name: fold(name),
+  aliases,
+  citySlug,
+  lat: 35.79,
+  lng: 51.44,
+  radiusM: 2000,
 });
 
 const context: SearchContext = {
@@ -29,8 +40,17 @@ const context: SearchContext = {
 
 describe("fold", () => {
   const samples = [
-    "کاشت مو قیطریه تهران", "كاشت موي سر", "هیر‌ترانسپلنت", "۱۲۳ قیمت", "Hair-Transplant, ISTANBUL!", "  چند   فاصله ",
-    "سَلام", "کشیــــده", "«نقل قول»", "a_b/c+d", "٤٥٦",
+    "کاشت مو قیطریه تهران",
+    "كاشت موي سر",
+    "هیر‌ترانسپلنت",
+    "۱۲۳ قیمت",
+    "Hair-Transplant, ISTANBUL!",
+    "  چند   فاصله ",
+    "سَلام",
+    "کشیــــده",
+    "«نقل قول»",
+    "a_b/c+d",
+    "٤٥٦",
   ];
   it("is identical in the indexer and the query side", () => {
     for (const sample of samples) expect(fold(sample)).toBe(foldIndex(sample));
@@ -58,8 +78,13 @@ describe("parseQuery", () => {
     expect(parsed.city?.name).toBe("تهران");
   });
   it("accepts Latin spellings and Arabic letters", () => {
-    expect(parseQuery("hair transplant gheytarieh tehran", context).neighborhood?.name).toBe("قیطریه");
-    expect(parseQuery("كاشت مو قيطريه", context).neighborhood?.name).toBe("قیطریه");
+    expect(
+      parseQuery("hair transplant gheytarieh tehran", context).neighborhood
+        ?.name
+    ).toBe("قیطریه");
+    expect(parseQuery("كاشت مو قيطريه", context).neighborhood?.name).toBe(
+      "قیطریه"
+    );
   });
   it("matches multi-word places before single words", () => {
     const parsed = parseQuery("دندانپزشکی شهرک غرب", context);
@@ -73,7 +98,10 @@ describe("parseQuery", () => {
     expect(parseQuery("FUE", context).serviceTokens).toEqual(["کاشت", "مو"]);
   });
   it("drops stop words but never leaves the query empty of meaning", () => {
-    expect(parseQuery("بهترین کلینیک کاشت مو", context).serviceTokens).toEqual(["کاشت", "مو"]);
+    expect(parseQuery("بهترین کلینیک کاشت مو", context).serviceTokens).toEqual([
+      "کاشت",
+      "مو",
+    ]);
     expect(parseQuery("قیطریه", context).serviceTokens).toEqual([]);
   });
   it("treats a plain query without places as service words only", () => {
@@ -84,8 +112,15 @@ describe("parseQuery", () => {
   });
   it("is safe on hostile or huge input", () => {
     expect(() => parseQuery("a ".repeat(5000), context)).not.toThrow();
-    expect(parseQuery("a ".repeat(5000), context).serviceTokens.length).toBeLessThanOrEqual(12);
-    expect(parseQuery("'; drop table unified_search.documents; --", context).serviceTokens.join(" ")).not.toContain(";");
+    expect(
+      parseQuery("a ".repeat(5000), context).serviceTokens.length
+    ).toBeLessThanOrEqual(12);
+    expect(
+      parseQuery(
+        "'; drop table unified_search.documents; --",
+        context
+      ).serviceTokens.join(" ")
+    ).not.toContain(";");
     expect(parseQuery("", context).serviceTokens).toEqual([]);
   });
 });
@@ -96,7 +131,9 @@ describe("reciprocalRankFusion", () => {
       { name: "keyword", weight: 1, ids: ["a", "b", "c"] },
       { name: "meaning", weight: 1, ids: ["b", "a", "d"] },
     ]);
-    const order = [...fused.entries()].sort((x, y) => y[1].score - x[1].score).map(([id]) => id);
+    const order = [...fused.entries()]
+      .sort((x, y) => y[1].score - x[1].score)
+      .map(([id]) => id);
     expect(order.slice(0, 2).sort()).toEqual(["a", "b"]);
     expect(order.indexOf("c")).toBeLessThan(order.indexOf("d") + 1);
     expect(fused.get("a")?.lists.size).toBe(2);

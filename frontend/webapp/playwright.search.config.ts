@@ -24,9 +24,22 @@ export default defineConfig({
   timeout: 60_000,
   expect: { timeout: 15_000 },
   reporter: [["list"]],
-  use: { baseURL: BASE_URL, trace: "retain-on-failure", screenshot: "only-on-failure", channel },
+  use: {
+    baseURL: BASE_URL,
+    trace: "retain-on-failure",
+    screenshot: "only-on-failure",
+    channel,
+  },
   projects: [
     { name: "desktop", use: { ...devices["Desktop Chrome"], channel } },
-    { name: "phone-360", use: { ...devices["Pixel 7"], viewport: { width: 360, height: 740 }, channel }, grep: /@mobile/ },
+    {
+      name: "phone-360",
+      use: {
+        ...devices["Pixel 7"],
+        viewport: { width: 360, height: 740 },
+        channel,
+      },
+      grep: /@mobile/,
+    },
   ],
 });

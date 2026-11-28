@@ -2,7 +2,11 @@ import type { Metadata } from "next";
 import { setRequestLocale } from "next-intl/server";
 
 import { search } from "@/features/search/server/search";
-import { DOC_TYPES, type DocType, type SearchResponse } from "@/features/search/types";
+import {
+  DOC_TYPES,
+  type DocType,
+  type SearchResponse,
+} from "@/features/search/types";
 import { SearchResultsView } from "@/features/search/ui/results-view";
 import { stringsFor } from "@/features/search/ui/strings";
 
@@ -14,7 +18,8 @@ type Props = {
   searchParams: Promise<{ q?: string | string[]; type?: string | string[] }>;
 };
 
-const first = (value?: string | string[]) => (Array.isArray(value) ? value[0] : value) ?? "";
+const first = (value?: string | string[]) =>
+  (Array.isArray(value) ? value[0] : value) ?? "";
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
@@ -31,7 +36,11 @@ export default async function SearchPage({ params, searchParams }: Props) {
 
   const q = first(query.q).trim().slice(0, 160);
   const requestedType = first(query.type);
-  const type: DocType | "all" = (DOC_TYPES as readonly string[]).includes(requestedType) ? (requestedType as DocType) : "all";
+  const type: DocType | "all" = (DOC_TYPES as readonly string[]).includes(
+    requestedType
+  )
+    ? (requestedType as DocType)
+    : "all";
 
   let response: SearchResponse | null = null;
   let failed = false;
@@ -45,5 +54,13 @@ export default async function SearchPage({ params, searchParams }: Props) {
     }
   }
 
-  return <SearchResultsView locale={locale} query={q} type={type} response={response} failed={failed} />;
+  return (
+    <SearchResultsView
+      locale={locale}
+      query={q}
+      type={type}
+      response={response}
+      failed={failed}
+    />
+  );
 }

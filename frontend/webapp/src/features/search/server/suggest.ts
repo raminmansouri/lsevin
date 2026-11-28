@@ -27,6 +27,8 @@ export async function suggest(input: string, limit = 8): Promise<Suggestion[]> {
     limit ${limit}`;
   const seen = new Set<string>();
   return rows
-    .filter((row) => (seen.has(row.display) ? false : (seen.add(row.display), true)))
+    .filter((row) =>
+      seen.has(row.display) ? false : (seen.add(row.display), true)
+    )
     .map((row) => ({ text: row.display, type: row.doc_type }));
 }

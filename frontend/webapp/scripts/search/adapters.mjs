@@ -8,7 +8,15 @@
  * fetch(sql, ids) returns one document per id that is still public. Ids that are missing
  * from the result (deleted, unpublished, inactive) are removed from the index.
  */
-import { allValues, cleanTranslations, coords, fold, num, plainText, quality } from "./lib.mjs";
+import {
+  allValues,
+  cleanTranslations,
+  coords,
+  fold,
+  num,
+  plainText,
+  quality,
+} from "./lib.mjs";
 
 /** Prices are stored in the listing currency; search only shows/sorts Toman (1 toman = 10 rials). */
 function toToman(amount, currency) {
@@ -30,7 +38,8 @@ function searchText(parts) {
 const provider = {
   type: "provider",
   async listIds(sql) {
-    const rows = await sql`select id::text as id from category.service_providers where is_active and slug is not null`;
+    const rows =
+      await sql`select id::text as id from category.service_providers where is_active and slug is not null`;
     return rows.map((row) => row.id);
   },
   async fetch(sql, ids) {
@@ -65,16 +74,28 @@ const provider = {
         priceToman: null,
         rating: num(row.rating),
         reviewCount: row.review_count ?? 0,
-        quality: quality({ rating: row.rating, reviews: row.review_count, featured: num(row.featured_score) > 0, sponsored: row.is_sponsored }),
+        quality: quality({
+          rating: row.rating,
+          reviews: row.review_count,
+          featured: num(row.featured_score) > 0,
+          sponsored: row.is_sponsored,
+        }),
         serviceKey: null,
         providerId: row.id,
         attrs: {},
         text: searchText([
-          allValues(title), allValues(description), allValues(street), allValues(cleanTranslations(row.detail_translations)),
-          row.specialties ?? [], city, services.flatMap(allValues),
+          allValues(title),
+          allValues(description),
+          allValues(street),
+          allValues(cleanTranslations(row.detail_translations)),
+          row.specialties ?? [],
+          city,
+          services.flatMap(allValues),
         ]),
         embedExtra: [
-          ...services.slice(0, 12).map((names) => names["fa-IR"] ?? allValues(names)[0]),
+          ...services
+            .slice(0, 12)
+            .map((names) => names["fa-IR"] ?? allValues(names)[0]),
           Object.values(description)[0]?.slice(0, 300),
         ],
       };
@@ -108,10 +129,14 @@ const offer = {
     return rows.map((row) => {
       const definition = cleanTranslations(row.definition_names);
       const display = cleanTranslations(row.display_name_translations);
-      const title = Object.keys(display).length ? { ...definition, ...display } : definition;
+      const title = Object.keys(display).length
+        ? { ...definition, ...display }
+        : definition;
       const providerNames = cleanTranslations(row.provider_names);
       const description = cleanTranslations(row.description_translations);
-      const definitionDescription = cleanTranslations(row.definition_descriptions);
+      const definitionDescription = cleanTranslations(
+        row.definition_descriptions
+      );
       const street = cleanTranslations(row.street_translations);
       const geo = coords(row.latitude, row.longitude);
       const city = lower(row.city);
@@ -127,15 +152,29 @@ const offer = {
         priceToman: num(row.value_toman),
         rating: num(row.rating),
         reviewCount: row.review_count ?? 0,
-        quality: quality({ rating: row.rating, reviews: row.review_count, featured: row.is_featured || row.is_popular, sponsored: row.is_sponsored }),
+        quality: quality({
+          rating: row.rating,
+          reviews: row.review_count,
+          featured: row.is_featured || row.is_popular,
+          sponsored: row.is_sponsored,
+        }),
         serviceKey: row.service_key,
         providerId: row.provider_id,
         attrs: { tags: row.tags ?? [] },
         text: searchText([
-          allValues(title), allValues(definition), allValues(providerNames), allValues(description),
-          allValues(definitionDescription), allValues(street), row.tags ?? [], city,
+          allValues(title),
+          allValues(definition),
+          allValues(providerNames),
+          allValues(description),
+          allValues(definitionDescription),
+          allValues(street),
+          row.tags ?? [],
+          city,
         ]),
-        embedExtra: [Object.values(description)[0]?.slice(0, 300) ?? Object.values(definitionDescription)[0]?.slice(0, 300)],
+        embedExtra: [
+          Object.values(description)[0]?.slice(0, 300) ??
+            Object.values(definitionDescription)[0]?.slice(0, 300),
+        ],
       };
     });
   },
@@ -144,7 +183,8 @@ const offer = {
 const tour = {
   type: "tour",
   async listIds(sql) {
-    const rows = await sql`select id::text as id from tour.tours where status = 'published'`;
+    const rows =
+      await sql`select id::text as id from tour.tours where status = 'published'`;
     return rows.map((row) => row.id);
   },
   async fetch(sql, ids) {
@@ -165,35 +205,58 @@ const tour = {
         from tour.tours t
         left join tour.destinations d on d.id = t.destination_id
        where t.status = 'published' and t.id = any(${ids}::uuid[])`;
-    return rows.map((row) => {
-      const title = cleanTranslations(row.titles);
-      if (!Object.keys(title).length) return null; // untitled draft that slipped through
-      const summaries = cleanTranslations(row.summaries);
-      const destination = cleanTranslations(row.destination_names);
-      // Meeting points can be private: fall back to the destination's coordinates.
-      const exact = row.location_privacy === "exact" || row.location_privacy === "public";
-      const geo = exact ? coords(row.meeting_lat, row.meeting_lng) : coords(row.d_lat, row.d_lng);
-      const geoFallback = geo.lat === null ? coords(row.d_lat, row.d_lng) : geo;
-      return {
-        sourceId: row.id,
-        title,
-        subtitle: destination,
-        url: `/tours/${row.slug}`,
-        image: row.image || null,
-        city: lower(row.destination_slug),
-        country: lower(row.country_code),
-        ...geoFallback,
-        priceToman: toToman(row.from_price, row.currency_code),
-        rating: num(row.rating_avg),
-        reviewCount: row.review_count ?? 0,
-        quality: quality({ rating: row.rating_avg, reviews: row.review_count, featured: row.is_featured, sponsored: row.is_sponsored }),
-        serviceKey: null,
-        providerId: null,
-        attrs: { tags: row.tag_codes ?? [], categories: row.category_codes ?? [], currency: row.currency_code, fromPrice: num(row.from_price) },
-        text: searchText([allValues(title), allValues(summaries), allValues(destination), row.tag_codes ?? [], row.category_codes ?? [], row.search_text ?? ""]),
-        embedExtra: [Object.values(summaries)[0]?.slice(0, 300)],
-      };
-    }).filter(Boolean);
+    return rows
+      .map((row) => {
+        const title = cleanTranslations(row.titles);
+        if (!Object.keys(title).length) return null; // untitled draft that slipped through
+        const summaries = cleanTranslations(row.summaries);
+        const destination = cleanTranslations(row.destination_names);
+        // Meeting points can be private: fall back to the destination's coordinates.
+        const exact =
+          row.location_privacy === "exact" || row.location_privacy === "public";
+        const geo = exact
+          ? coords(row.meeting_lat, row.meeting_lng)
+          : coords(row.d_lat, row.d_lng);
+        const geoFallback =
+          geo.lat === null ? coords(row.d_lat, row.d_lng) : geo;
+        return {
+          sourceId: row.id,
+          title,
+          subtitle: destination,
+          url: `/tours/${row.slug}`,
+          image: row.image || null,
+          city: lower(row.destination_slug),
+          country: lower(row.country_code),
+          ...geoFallback,
+          priceToman: toToman(row.from_price, row.currency_code),
+          rating: num(row.rating_avg),
+          reviewCount: row.review_count ?? 0,
+          quality: quality({
+            rating: row.rating_avg,
+            reviews: row.review_count,
+            featured: row.is_featured,
+            sponsored: row.is_sponsored,
+          }),
+          serviceKey: null,
+          providerId: null,
+          attrs: {
+            tags: row.tag_codes ?? [],
+            categories: row.category_codes ?? [],
+            currency: row.currency_code,
+            fromPrice: num(row.from_price),
+          },
+          text: searchText([
+            allValues(title),
+            allValues(summaries),
+            allValues(destination),
+            row.tag_codes ?? [],
+            row.category_codes ?? [],
+            row.search_text ?? "",
+          ]),
+          embedExtra: [Object.values(summaries)[0]?.slice(0, 300)],
+        };
+      })
+      .filter(Boolean);
   },
 };
 
@@ -216,38 +279,59 @@ const stay = {
         from stay.properties p
         join stay.cities c on c.id = p.city_id and c.is_published
        where p.status = 'published' and p.id = any(${ids}::uuid[])`;
-    return rows.map((row) => {
-      const title = cleanTranslations(row.name);
-      if (!Object.keys(title).length) return null;
-      const summary = cleanTranslations(row.summary);
-      const description = cleanTranslations(row.description);
-      const address = cleanTranslations(row.address);
-      const cityNames = cleanTranslations(row.city_name);
-      const own = coords(row.latitude, row.longitude);
-      const geo = row.location_privacy === "approximate" || own.lat === null ? coords(row.c_lat, row.c_lng) : own;
-      return {
-        sourceId: row.id,
-        title,
-        subtitle: cityNames,
-        url: `/stays/${row.slug}`,
-        image: row.image || null,
-        city: lower(row.city_slug),
-        country: null,
-        ...geo,
-        priceToman: toToman(row.from_price, row.currency_code),
-        rating: num(row.rating_avg),
-        reviewCount: row.review_count ?? 0,
-        quality: quality({ rating: row.rating_avg, reviews: row.review_count, featured: row.is_featured }),
-        serviceKey: null,
-        providerId: null,
-        attrs: { kind: row.kind, stars: row.star_rating, currency: row.currency_code, fromPrice: num(row.from_price), amenities: row.amenity_codes ?? [] },
-        text: searchText([
-          allValues(title), allValues(summary), allValues(description), allValues(address), allValues(cityNames),
-          row.kind, row.amenity_codes ?? [], row.search_text ?? "",
-        ]),
-        embedExtra: [Object.values(summary)[0]?.slice(0, 300)],
-      };
-    }).filter(Boolean);
+    return rows
+      .map((row) => {
+        const title = cleanTranslations(row.name);
+        if (!Object.keys(title).length) return null;
+        const summary = cleanTranslations(row.summary);
+        const description = cleanTranslations(row.description);
+        const address = cleanTranslations(row.address);
+        const cityNames = cleanTranslations(row.city_name);
+        const own = coords(row.latitude, row.longitude);
+        const geo =
+          row.location_privacy === "approximate" || own.lat === null
+            ? coords(row.c_lat, row.c_lng)
+            : own;
+        return {
+          sourceId: row.id,
+          title,
+          subtitle: cityNames,
+          url: `/stays/${row.slug}`,
+          image: row.image || null,
+          city: lower(row.city_slug),
+          country: null,
+          ...geo,
+          priceToman: toToman(row.from_price, row.currency_code),
+          rating: num(row.rating_avg),
+          reviewCount: row.review_count ?? 0,
+          quality: quality({
+            rating: row.rating_avg,
+            reviews: row.review_count,
+            featured: row.is_featured,
+          }),
+          serviceKey: null,
+          providerId: null,
+          attrs: {
+            kind: row.kind,
+            stars: row.star_rating,
+            currency: row.currency_code,
+            fromPrice: num(row.from_price),
+            amenities: row.amenity_codes ?? [],
+          },
+          text: searchText([
+            allValues(title),
+            allValues(summary),
+            allValues(description),
+            allValues(address),
+            allValues(cityNames),
+            row.kind,
+            row.amenity_codes ?? [],
+            row.search_text ?? "",
+          ]),
+          embedExtra: [Object.values(summary)[0]?.slice(0, 300)],
+        };
+      })
+      .filter(Boolean);
   },
 };
 
@@ -269,31 +353,37 @@ const article = {
         join content.post_translations t on t.post_id = p.id and t.status = 'published'
        where p.id = any(${ids}::uuid[])
        group by p.id`;
-    return rows.map((row) => {
-      const title = cleanTranslations(row.titles);
-      if (!Object.keys(title).length) return null;
-      const excerpts = cleanTranslations(row.excerpts);
-      return {
-        sourceId: row.id,
-        title,
-        subtitle: excerpts,
-        url: `/blog/${row.slug}`,
-        image: row.featured_media || null,
-        city: null,
-        country: null,
-        lat: null,
-        lng: null,
-        priceToman: null,
-        rating: null,
-        reviewCount: 0,
-        quality: quality({ featured: row.is_featured }),
-        serviceKey: null,
-        providerId: null,
-        attrs: {},
-        text: searchText([allValues(title), allValues(excerpts), plainText(row.texts).slice(0, 20000)]),
-        embedExtra: [Object.values(excerpts)[0]?.slice(0, 300)],
-      };
-    }).filter(Boolean);
+    return rows
+      .map((row) => {
+        const title = cleanTranslations(row.titles);
+        if (!Object.keys(title).length) return null;
+        const excerpts = cleanTranslations(row.excerpts);
+        return {
+          sourceId: row.id,
+          title,
+          subtitle: excerpts,
+          url: `/blog/${row.slug}`,
+          image: row.featured_media || null,
+          city: null,
+          country: null,
+          lat: null,
+          lng: null,
+          priceToman: null,
+          rating: null,
+          reviewCount: 0,
+          quality: quality({ featured: row.is_featured }),
+          serviceKey: null,
+          providerId: null,
+          attrs: {},
+          text: searchText([
+            allValues(title),
+            allValues(excerpts),
+            plainText(row.texts).slice(0, 20000),
+          ]),
+          embedExtra: [Object.values(excerpts)[0]?.slice(0, 300)],
+        };
+      })
+      .filter(Boolean);
   },
 };
 

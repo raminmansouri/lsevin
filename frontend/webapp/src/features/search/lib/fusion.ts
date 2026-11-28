@@ -5,7 +5,10 @@ export type RankedList = { name: string; weight: number; ids: string[] };
  * Only the order inside each list matters, so keyword scores, cosine similarities and
  * distances (which cannot be compared) combine safely. k = 60 is the standard constant.
  */
-export function reciprocalRankFusion(lists: RankedList[], k = 60): Map<string, { score: number; lists: Set<string> }> {
+export function reciprocalRankFusion(
+  lists: RankedList[],
+  k = 60
+): Map<string, { score: number; lists: Set<string> }> {
   const fused = new Map<string, { score: number; lists: Set<string> }>();
   for (const list of lists) {
     list.ids.forEach((id, position) => {

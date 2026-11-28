@@ -18,7 +18,9 @@ type Props = {
 function Card({ result, locale }: { result: SearchResult; locale: string }) {
   const strings = stringsFor(locale);
   const image = responsiveImg(result.image, "(min-width: 768px) 160px, 96px");
-  const price = result.priceToman ? `${result.priceToman.toLocaleString(locale === "fa" ? "fa-IR" : "en-US")} ${strings.toman}` : null;
+  const price = result.priceToman
+    ? `${result.priceToman.toLocaleString(locale === "fa" ? "fa-IR" : "en-US")} ${strings.toman}`
+    : null;
   return (
     <li>
       <Link
@@ -30,22 +32,38 @@ function Card({ result, locale }: { result: SearchResult; locale: string }) {
         <div className="h-24 w-24 shrink-0 overflow-hidden rounded-xl bg-neutral-100 md:h-28 md:w-40">
           {image.src ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={image.src} srcSet={image.srcSet} sizes={image.sizes} alt="" loading="lazy" decoding="async" className="h-full w-full object-cover" />
+            <img
+              src={image.src}
+              srcSet={image.srcSet}
+              sizes={image.sizes}
+              alt=""
+              loading="lazy"
+              decoding="async"
+              className="h-full w-full object-cover"
+            />
           ) : null}
         </div>
         <div className="min-w-0 flex-1">
           <p className="text-xs text-teal-700">{strings.types[result.type]}</p>
           <h2 className="truncate text-base font-semibold">{result.title}</h2>
-          {result.subtitle ? <p className="truncate text-sm text-neutral-600">{result.subtitle}</p> : null}
+          {result.subtitle ? (
+            <p className="truncate text-sm text-neutral-600">
+              {result.subtitle}
+            </p>
+          ) : null}
           <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-neutral-600">
             {result.rating ? (
               <span>
                 ★ {result.rating.toFixed(1)}
-                {result.reviewCount ? ` · ${strings.reviews(result.reviewCount)}` : ""}
+                {result.reviewCount
+                  ? ` · ${strings.reviews(result.reviewCount)}`
+                  : ""}
               </span>
             ) : null}
             {price ? <span>{price}</span> : null}
-            {result.distanceKm !== null ? <span>{strings.distance(result.distanceKm)}</span> : null}
+            {result.distanceKm !== null ? (
+              <span>{strings.distance(result.distanceKm)}</span>
+            ) : null}
           </p>
         </div>
       </Link>
@@ -53,17 +71,34 @@ function Card({ result, locale }: { result: SearchResult; locale: string }) {
   );
 }
 
-export function SearchResultsView({ locale, query, type, response, failed }: Props) {
+export function SearchResultsView({
+  locale,
+  query,
+  type,
+  response,
+  failed,
+}: Props) {
   const strings = stringsFor(locale);
   const dir = isRtl(locale) ? "rtl" : "ltr";
-  const confident = response?.results.filter((result) => result.confident) ?? [];
-  const alternatives = response?.results.filter((result) => !result.confident) ?? [];
+  const confident =
+    response?.results.filter((result) => result.confident) ?? [];
+  const alternatives =
+    response?.results.filter((result) => !result.confident) ?? [];
 
   return (
-    <main dir={dir} className="mx-auto w-full max-w-3xl px-4 py-6" data-testid="search-page">
+    <main
+      dir={dir}
+      className="mx-auto w-full max-w-3xl px-4 py-6"
+      data-testid="search-page"
+    >
       <h1 className="mb-4 text-xl font-bold">{strings.title}</h1>
       {/* Keyed by the query: browser Back/Forward changes the URL without remounting the page, and the field must follow it. */}
-      <SearchBox key={`${query}|${type}`} locale={locale} initialQuery={query} type={type} />
+      <SearchBox
+        key={`${query}|${type}`}
+        locale={locale}
+        initialQuery={query}
+        type={type}
+      />
 
       <nav aria-label={strings.title} className="mt-4 flex flex-wrap gap-2">
         {(["all", ...DOC_TYPES] as const).map((value) => {
@@ -87,24 +122,39 @@ export function SearchResultsView({ locale, query, type, response, failed }: Pro
         {!query ? (
           <p className="text-neutral-600">{strings.intro}</p>
         ) : failed ? (
-          <div role="alert" className="rounded-2xl border border-amber-300 bg-amber-50 p-4">
+          <div
+            role="alert"
+            className="rounded-2xl border border-amber-300 bg-amber-50 p-4"
+          >
             <p className="font-medium">{strings.unavailable}</p>
             <p className="text-sm text-neutral-700">{strings.tryAgain}</p>
           </div>
         ) : response ? (
           <>
-            <p className="mb-3 text-sm text-neutral-600" data-testid="search-summary">
+            <p
+              className="mb-3 text-sm text-neutral-600"
+              data-testid="search-summary"
+            >
               {strings.resultsFor(confident.length, query)}
-              {response.place?.kind === "neighborhood" ? ` · ${strings.nearPlace(response.place.name)}` : ""}
+              {response.place?.kind === "neighborhood"
+                ? ` · ${strings.nearPlace(response.place.name)}`
+                : ""}
             </p>
             {confident.length ? (
               <ul className="grid gap-3" data-testid="search-confident">
                 {confident.map((result) => (
-                  <Card key={`${result.type}:${result.id}`} result={result} locale={locale} />
+                  <Card
+                    key={`${result.type}:${result.id}`}
+                    result={result}
+                    locale={locale}
+                  />
                 ))}
               </ul>
             ) : (
-              <div className="rounded-2xl border border-neutral-200 bg-white p-6 text-center" data-testid="search-empty">
+              <div
+                className="rounded-2xl border border-neutral-200 bg-white p-6 text-center"
+                data-testid="search-empty"
+              >
                 <p className="font-medium">{strings.empty}</p>
                 <p className="text-sm text-neutral-600">{strings.emptyHint}</p>
               </div>
@@ -112,10 +162,16 @@ export function SearchResultsView({ locale, query, type, response, failed }: Pro
             {alternatives.length ? (
               <div className="mt-8" data-testid="search-alternatives">
                 <h2 className="mb-1 font-semibold">{strings.closest}</h2>
-                <p className="mb-3 text-sm text-neutral-600">{strings.noExact}</p>
+                <p className="mb-3 text-sm text-neutral-600">
+                  {strings.noExact}
+                </p>
                 <ul className="grid gap-3">
                   {alternatives.map((result) => (
-                    <Card key={`${result.type}:${result.id}`} result={result} locale={locale} />
+                    <Card
+                      key={`${result.type}:${result.id}`}
+                      result={result}
+                      locale={locale}
+                    />
                   ))}
                 </ul>
               </div>
