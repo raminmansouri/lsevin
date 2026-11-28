@@ -70,6 +70,8 @@ function canBrowserPlay(src: string) {
 type NetworkInformation = {
   saveData?: boolean;
   effectiveType?: string;
+  /** Measured bandwidth in Mbps (Chrome caps it at 10). */
+  downlink?: number;
 };
 
 /**
@@ -96,8 +98,24 @@ function useAutoplayAllowed() {
     // Absent the API (Safari, Firefox) we stay conservative: a tap is cheap, a
     // wasted multi-megabyte download on a phone is not.
     if (connection?.effectiveType !== '4g') return;
+    // "4g" is reported for most mobile links, including ~1 Mbps ones where a
+    // 3.5 MB clip downloading in the background made every tap wait behind it
+    // (2026-11-28). Only a measured fast link autoplays; others get the play button.
+    if ((connection.downlink ?? 0) < 10) return;
 
-    setAllowed(true);
+    // Even on a fast link, not before the page itself has loaded: a 3.5 MB
+    // sponsored clip started during load competed with the page's own photo
+    // and scripts (Lighthouse, 2026-11-28).
+    let timer: number | undefined;
+    const allow = () => {
+      timer = window.setTimeout(() => setAllowed(true), 1500);
+    };
+    if (document.readyState === 'complete') allow();
+    else window.addEventListener('load', allow, { once: true });
+    return () => {
+      window.removeEventListener('load', allow);
+      window.clearTimeout(timer);
+    };
   }, []);
 
   return allowed;
@@ -230,10 +248,7 @@ export function SponsoredMediaCarousel({ slides, autoPlayMs = 6000 }: SponsoredM
           ended up 24px below the clipping edge, which is why the ad could not be
           tapped. Wider screens keep a wider frame; `lg:h-80` is unchanged.
         */}
-        <div
-  style={{ outline: '6px solid lime' }}
-  className="relative aspect-[6/5] w-full sm:aspect-[4/3] sm:max-h-[440px] lg:aspect-auto lg:h-96"
->
+        <div className="relative aspect-[6/5] w-full sm:aspect-[4/3] sm:max-h-[440px] lg:aspect-auto lg:h-96">
           {safeSlides.map((slide, index) => {
             const active = index === activeIndex;
             const mediaSrc = resolveHomeMediaUrl(slide.url);

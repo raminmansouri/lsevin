@@ -14,9 +14,10 @@ export interface MapEngine {
   error: string | null;
 }
 
-export function useMapEngine(provider: MapProvider): MapEngine {
-  const neshan = useNeshanSdk(provider === "neshan");
-  const mapbox = useMapboxSdk(provider === "mapbox");
+/** `enabled` false defers fetching either SDK (e.g. until the map is near the viewport). */
+export function useMapEngine(provider: MapProvider, enabled = true): MapEngine {
+  const neshan = useNeshanSdk(enabled && provider === "neshan");
+  const mapbox = useMapboxSdk(enabled && provider === "mapbox");
 
   if (provider === "mapbox") {
     return { sdk: mapbox.mapbox, isLoaded: mapbox.isLoaded, error: mapbox.error };

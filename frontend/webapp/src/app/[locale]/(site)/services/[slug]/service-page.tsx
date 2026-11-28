@@ -28,7 +28,6 @@ import type { ReactNode } from "react";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
-import { getFavoriteStatusAction } from "@/features/favorites/actions/favorite-actions";
 
 
 
@@ -131,7 +130,7 @@ function Chip({ children }: { children: ReactNode }) {
   return <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-700">{children}</span>;
 }
 
-export function MediaPreview({ item, alt, className, sizes = "100vw" }: { item?: ServiceGalleryItem; alt: string; className: string; sizes?: string }) {
+export function MediaPreview({ item, alt, className, sizes = "100vw", priority = false }: { item?: ServiceGalleryItem; alt: string; className: string; sizes?: string; priority?: boolean }) {
   const src = resolveMediaUrl(item?.url);
 
   if (!src) {
@@ -159,6 +158,7 @@ export function MediaPreview({ item, alt, className, sizes = "100vw" }: { item?:
       fill
       className={className}
       sizes={sizes}
+      priority={priority}
       fallbackClassName="bg-gray-100"
     />
   );
@@ -187,19 +187,11 @@ function ThumbImage({ src, alt, className }: { src?: string | null; alt: string;
 
 
 function TreatmentFavoriteButton({ entityId }: { entityId: string }) {
-  const [isFavorite, setIsFavorite] = useState(false);
-
-  useEffect(() => {
-    getFavoriteStatusAction({ entityType: "service", entityId })
-      .then((result) => setIsFavorite(result.isFavorite))
-      .catch(() => undefined);
-  }, [entityId]);
-
+  // FavoriteButton asks for its status itself, batched with the page's other hearts.
   return (
     <FavoriteButton
       entityId={entityId}
       entityType="service"
-      initialIsFavorite={isFavorite}
       className="absolute start-2 top-2 z-10 !h-8 !w-8 bg-white/95 text-gray-700 shadow-sm backdrop-blur-sm"
       iconClassName="h-3.5 w-3.5"
     />
@@ -563,13 +555,6 @@ export default function ServicePage({ data, serviceId, locale }: ServicePageProp
   const viewerOriginalPriceOptions = viewerPricing?.originalOptions ?? [];
   const [showReviewForm, setShowReviewForm] = useState(false);
 
-  const [realIsFavorite, setRealIsFavorite] = useState(service.isFavorite);
-
-  useEffect(() => {
-    getFavoriteStatusAction({ entityType: "service", entityId: service.providerServiceId })
-      .then((result) => setRealIsFavorite(result.isFavorite))
-      .catch(() => undefined);
-  }, [service.providerServiceId]);
 
   const [visibleReviews, setVisibleReviews] = useState<TopReview[]>(data.topReviews || []);
   const [reviewSort, setReviewSort] = useState<ReviewSort>("newest");
@@ -719,7 +704,8 @@ export default function ServicePage({ data, serviceId, locale }: ServicePageProp
     <div className="min-h-screen bg-white pb-56">
       <div className="relative lg:px-6 lg:pt-6">
         <div className="relative h-80 overflow-hidden bg-gray-100 lg:h-[460px] lg:rounded-[2rem] lg:shadow-xl">
-          <MediaPreview item={currentGalleryItem} alt={service.name} className="h-full w-full object-cover" sizes="(min-width: 1024px) 960px, 100vw" />
+          {/* The hero photo is the page's Largest Contentful Paint. */}
+          <MediaPreview item={currentGalleryItem} alt={service.name} className="h-full w-full object-cover" sizes="(min-width: 1024px) 960px, 100vw" priority />
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
 
           <div className="absolute left-0 right-0 top-0 flex items-center justify-between p-4">
@@ -733,7 +719,7 @@ export default function ServicePage({ data, serviceId, locale }: ServicePageProp
               <FavoriteButton
                 entityId={service.providerServiceId}
                 entityType="service"
-                initialIsFavorite={realIsFavorite}
+                initialIsFavorite={service.isFavorite}
                 className="flex h-10 w-10 items-center justify-center rounded-full bg-white/95 shadow-lg backdrop-blur-sm transition-transform hover:scale-105 active:scale-95"
                 iconClassName="h-[18px] w-[18px]"
                 ariaLabel={t("actions.saveService")}

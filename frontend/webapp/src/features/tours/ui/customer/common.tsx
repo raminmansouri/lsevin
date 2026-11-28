@@ -5,6 +5,7 @@ import { ImageOff } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 
 import { resolveMediaUrl } from "@/features/service-providers/lib/media-url";
+import { responsiveImg } from "@/lib/media/responsive-img";
 import { cn } from "@/lib/utils";
 
 import { calendarDisplayName, formatInstant, formatIsoDate, type CalendarId } from "../../domain/calendar";
@@ -126,12 +127,16 @@ export function TourImage({
   className,
   imgClassName,
   eager,
+  sizes = "(min-width: 1024px) 50vw, 100vw",
 }: {
   src: string | null | undefined;
   alt: string;
   className?: string;
   imgClassName?: string;
+  /** Above the fold: load at once and first (the page's Largest Contentful Paint). */
   eager?: boolean;
+  /** The rendered width, so the optimizer serves a right-sized copy. */
+  sizes?: string;
 }) {
   const t = useTranslations("TourApp.card");
   const [failed, setFailed] = useState(false);
@@ -155,9 +160,13 @@ export function TourImage({
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         ref={imgRef}
-        src={resolveMediaUrl(src)}
+        // Files on our host and the bundled photos come resized and in AVIF/WebP
+        // through the optimizer (originals were 100-220 KB, 1600 px, on every
+        // card); other hosts are left as they are.
+        {...responsiveImg(resolveMediaUrl(src), sizes)}
         alt={alt}
         loading={eager ? "eager" : "lazy"}
+        fetchPriority={eager ? "high" : undefined}
         decoding="async"
         onError={() => setFailed(true)}
         className={cn("h-full w-full object-cover", imgClassName)}

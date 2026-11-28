@@ -102,6 +102,9 @@ type UseFetchSearchResultsOptions = {
      * before. The query is always additionally gated on a non-empty term.
      */
     enabled?: boolean;
+    /** The server's answer for this term (the results page renders it on the
+     * server, so the first results paint without waiting for this hook). */
+    initialData?: SearchResultsResponse;
 };
 
 export const useFetchSearchResults = (
@@ -114,6 +117,7 @@ export const useFetchSearchResults = (
     const { data, error, isFetching, isPending, refetch } = useQuery({
         ...searchResultsQueryOptions(term, locale),
         enabled,
+        initialData: options?.initialData,
     });
 
     return {

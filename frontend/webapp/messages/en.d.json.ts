@@ -3513,6 +3513,7 @@ declare const messages: {
         "dismiss": "Not now",
         "enable": "Turn on",
         "why": "To show clinics, hotels and services near you, LSevin would like to use your location. It is only used on this device to find what is closest, and you can change it any time.",
+        "privacy": "Your location stays on this device.",
         "deniedTitle": "Location is turned off for this site",
         "deniedHelp": "No problem — we used your region instead. To use your exact location later, tap the lock icon next to the address bar, allow “Location”, and reload the page. Or just search for your city below."
       },
@@ -5784,7 +5785,8 @@ declare const messages: {
       "staysProperties": "3. Hotels and stays",
       "staysBookings": "Stay bookings",
       "staysReviews": "Stay reviews",
-      "enamad": "Enamad trust seal"
+      "enamad": "Enamad trust seal",
+      "amenities": "Amenities"
     }
   },
   "HomePage": {
@@ -9861,6 +9863,7 @@ declare const messages: {
     "locationPrompt": {
       "title": "Show what's near you?",
       "body": "With your location we can open the map right where you are and sort providers by distance. It stays on this device.",
+      "privacy": "Your location stays on this device.",
       "allow": "Use my location",
       "notNow": "Not now"
     }

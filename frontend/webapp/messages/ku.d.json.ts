@@ -569,7 +569,8 @@ declare const messages: {
     },
     "consultationRequests": "داواکارییەکانی ڕاوێژکاری",
     "nav": {
-      "editorial": "ناوەڕۆکی ماڵپەڕ"
+      "editorial": "ناوەڕۆکی ماڵپەڕ",
+      "amenities": "ئاسانکارییەکان"
     }
   },
   "HomePage": {
@@ -2903,7 +2904,8 @@ declare const messages: {
       "permission": {
         "title": "چالاککردنی شوێن",
         "dismiss": "ئێستا نا",
-        "enable": "چالاککردن"
+        "enable": "چالاککردن",
+        "privacy": "شوێنەکەت تەنها لەسەر ئەم ئامێرە دەمێنێتەوە."
       }
     },
     "appBar": {

@@ -18,6 +18,7 @@ import {
   resolveMapProvider,
 } from "./map-provider";
 import { useMapEngine } from "./use-map-engine";
+import { useNearViewport } from "./use-near-viewport";
 
 export interface MapComponentProps {
   coordinates?: Coordinates | null;
@@ -94,7 +95,10 @@ export function MapComponent({
   // Neshan for Iran, Mapbox for international. Provider only changes value when
   // the point crosses the Iran border, so the init effect re-runs rarely.
   const provider = resolveMapProvider({ countryCode, coordinates: coordinates ?? initialCoords });
-  const { sdk, isLoaded, error } = useMapEngine(provider);
+  // The container is rendered before the SDK, so the SDK can wait until the
+  // map is close to the screen (it is usually far down a detail page).
+  const near = useNearViewport(containerRef);
+  const { sdk, isLoaded, error } = useMapEngine(provider, near);
   const configured = isProviderConfigured(provider);
 
   useEffect(() => {

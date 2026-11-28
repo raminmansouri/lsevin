@@ -181,12 +181,17 @@ test.describe("home location picker", () => {
     const page = await context.newPage();
     await permissionPrompt(page);
     await page.goto("/tr", { waitUntil: "domcontentloaded" });
-    // No click needed: our own explanation comes first, not the browser prompt.
-    const dialog = page.getByRole("dialog");
-    await expect(dialog).toBeVisible({ timeout: 20_000 });
-    await expect(dialog).toContainText("Konumu aç");
-    await dialog.getByRole("button", { name: "Şimdi değil" }).click();
+    // No click needed: our own question comes first, not the browser prompt,
+    // and as a small card rather than a sheet over the page.
+    const ask = page.getByTestId("home-location-ask");
+    await expect(ask).toBeVisible({ timeout: 20_000 });
+    await expect(ask).toContainText("Konumu aç");
+    await expect(page.getByRole("dialog")).toHaveCount(0);
+    await ask.getByRole("button", { name: "Şimdi değil" }).click();
+    await expect(ask).toBeHidden();
 
+    // Choosing by hand is one tap on the destination.
+    await page.getByRole("button", { name: /Hedef/ }).click();
     const search = page.getByTestId("place-search-input");
     await expect(search).toBeVisible();
     // One box, not three dropdowns.
@@ -214,10 +219,10 @@ test.describe("home location picker", () => {
     const page = await context.newPage();
     await permissionPrompt(page);
     await page.goto("/fa", { waitUntil: "domcontentloaded" });
-    const dialog = page.getByRole("dialog");
-    await expect(dialog).toBeVisible({ timeout: 20_000 });
+    const ask = page.getByTestId("home-location-ask");
+    await expect(ask).toBeVisible({ timeout: 20_000 });
     // Playwright answers the browser prompt with "denied" when no permission is granted.
-    await dialog.getByRole("button", { name: "فعال‌سازی" }).click();
+    await ask.getByRole("button", { name: "فعال‌سازی" }).click();
     await expect(page.getByTestId("location-denied-help")).toBeVisible({ timeout: 20_000 });
     const search = page.getByTestId("place-search-input");
     await search.fill("استانبول");

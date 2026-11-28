@@ -154,7 +154,7 @@ export function Itinerary({ stops, timezone }: { stops: Stop[]; timezone: string
                             </a>
                           ) : null}
                         </div>
-                        {s.imageUrl ? <TourImage src={s.imageUrl} alt={s.title?.value ?? ""} className="size-20 shrink-0 rounded-xl" /> : null}
+                        {s.imageUrl ? <TourImage src={s.imageUrl} alt={s.title?.value ?? ""} className="size-20 shrink-0 rounded-xl" sizes="80px" /> : null}
                       </article>
                     </li>
                   );

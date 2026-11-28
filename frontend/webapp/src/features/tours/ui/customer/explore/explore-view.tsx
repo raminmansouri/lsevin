@@ -376,9 +376,9 @@ export function ExploreView({
           </div>
         ) : (
           <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" data-testid="results">
-            {items.map(({ card, km }) => (
+            {items.map(({ card, km }, index) => (
               <li key={card.id}>
-                <TourCard card={card} saved={saved.has(card.id)} distanceKm={km} />
+                <TourCard card={card} saved={saved.has(card.id)} distanceKm={km} eager={index === 0} />
               </li>
             ))}
           </ul>

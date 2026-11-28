@@ -1,4 +1,3 @@
-import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
@@ -124,17 +123,18 @@ export default async function ShopCategoryPage({
           ))}
         </nav>
       ) : null}
-      <Suspense fallback={null}>
-        <ProductListViewClient
-          locale={locale}
-          basePath={`/shop/${slug}`}
-          fixed={{ category: slug }}
-          heading={category.name}
-          brands={brands}
-          initialItems={feed.items}
-          initialTotal={feed.total}
-        />
-      </Suspense>
+      {/* In the first HTML: the page is dynamic, so useSearchParams() needs no
+          Suspense boundary, and one here streamed the product grid (the
+          phone's Largest Contentful Paint) into a block revealed after hydration. */}
+      <ProductListViewClient
+        locale={locale}
+        basePath={`/shop/${slug}`}
+        fixed={{ category: slug }}
+        heading={category.name}
+        brands={brands}
+        initialItems={feed.items}
+        initialTotal={feed.total}
+      />
     </div>
   );
 }

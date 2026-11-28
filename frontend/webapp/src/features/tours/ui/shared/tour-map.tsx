@@ -7,6 +7,7 @@ import { MapPinOff } from "lucide-react";
 
 import { MAPBOX_STYLE, MAPBOX_TOKEN } from "@/components/map/map-provider";
 import { useMapboxSdk } from "@/components/map/use-mapbox-sdk";
+import { useNearViewport } from "@/components/map/use-near-viewport";
 import { cn } from "@/lib/utils";
 
 export type MapPoint = {
@@ -70,8 +71,10 @@ export function TourMap({
 }) {
   const valid = points.filter((p) => Number.isFinite(p.lat) && Number.isFinite(p.lng));
   const configured = Boolean(MAPBOX_TOKEN) && valid.length > 0;
-  const { mapbox, error } = useMapboxSdk(configured);
   const containerRef = useRef<HTMLDivElement | null>(null);
+  // mapbox-gl only once the map is near the screen (it sits below the fold).
+  const near = useNearViewport(containerRef);
+  const { mapbox, error } = useMapboxSdk(configured && near);
   const [failed, setFailed] = useState(false);
   const key = JSON.stringify(valid.map((p) => [p.id, p.lat, p.lng, p.order, p.exact]));
 

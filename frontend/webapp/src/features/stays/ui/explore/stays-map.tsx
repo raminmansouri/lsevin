@@ -7,6 +7,7 @@ import { MapPinOff } from "lucide-react";
 
 import { MAPBOX_STYLE, MAPBOX_TOKEN } from "@/components/map/map-provider";
 import { useMapboxSdk } from "@/components/map/use-mapbox-sdk";
+import { useNearViewport } from "@/components/map/use-near-viewport";
 
 export type StayMapPoint = { id: string; lat: number; lng: number; name: string; price: string | null; href: string; approximate: boolean };
 
@@ -67,8 +68,10 @@ export function StaysMap({
   height?: number;
 }) {
   const configured = Boolean(MAPBOX_TOKEN);
-  const { mapbox, error } = useMapboxSdk(configured);
   const containerRef = useRef<HTMLDivElement | null>(null);
+  // mapbox-gl only once the map is near the screen.
+  const near = useNearViewport(containerRef);
+  const { mapbox, error } = useMapboxSdk(configured && near);
   const mapRef = useRef<any>(null);
   const pickedMarker = useRef<any>(null);
   const onPickRef = useRef(onPick);

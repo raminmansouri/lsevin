@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import { DesktopOnlyImg } from "./DesktopOnlyImg";
 import { Search, UserRound } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -65,8 +65,10 @@ export function DesktopHeader({ actions }: { actions?: React.ReactNode }) {
             className="lsd-capsule pointer-events-auto flex items-center gap-6 pe-2.5 ps-6"
           >
             <Link href={HOME} aria-label="LSevin" className="flex shrink-0 items-center gap-3">
-              <Image src="/brand/lsevin-mark-reversed.png" alt="" width={30} height={42} className="lsd-logo-mark" priority />
-              <Image src="/brand/lsevin-wordmark.png" alt="L SEVIN" width={96} height={27} priority />
+              {/* Desktop-only: phones (the header is hidden below xl) used to preload
+                  both logos ahead of the page's own content. */}
+              <DesktopOnlyImg src="/brand/lsevin-mark-reversed.png" sizes="30px" alt="" width={30} height={42} className="lsd-logo-mark" priority />
+              <DesktopOnlyImg src="/brand/lsevin-wordmark.png" sizes="96px" alt="L SEVIN" width={96} height={27} priority />
             </Link>
 
             <div ref={navRef} className="relative mx-auto flex items-center" onMouseLeave={moveToActive}>

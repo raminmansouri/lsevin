@@ -2901,7 +2901,8 @@
       "permission": {
         "title": "Activer la localisation",
         "dismiss": "Plus tard",
-        "enable": "Activer"
+        "enable": "Activer",
+        "privacy": "Votre position reste sur cet appareil."
       }
     },
     "appBar": {

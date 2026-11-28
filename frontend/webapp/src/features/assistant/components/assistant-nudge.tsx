@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { X } from "lucide-react";
-import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 
@@ -28,7 +27,6 @@ function markSeen() {
 export function AssistantNudge() {
   const t = useTranslations("Assistant.nudge");
   const pathname = usePathname();
-  const reduceMotion = useReducedMotion();
   const tucked = useScrollTucked();
   const home = isAssistantHome(pathname);
   const [visible, setVisible] = useState(false);
@@ -62,16 +60,10 @@ export function AssistantNudge() {
   };
 
   return (
-    <AnimatePresence>
+    // CSS entrance instead of framer-motion: this bubble is in every page's shell.
+    <>
       {visible && home && !tucked ? (
-        <motion.div
-          key="assistant-nudge"
-          initial={reduceMotion ? { opacity: 0 } : { opacity: 0, y: 8, scale: 0.96 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={reduceMotion ? { opacity: 0 } : { opacity: 0, y: 6, scale: 0.97 }}
-          transition={reduceMotion ? { duration: 0 } : { type: "spring", stiffness: 320, damping: 28 }}
-          className="fixed bottom-[6.6rem] right-[5.25rem] z-[60] md:bottom-[2.1rem] md:right-[5.75rem]"
-        >
+        <div className="fixed bottom-[6.6rem] right-[5.25rem] z-[60] duration-300 animate-in fade-in slide-in-from-bottom-2 zoom-in-95 motion-reduce:animate-none md:bottom-[2.1rem] md:right-[5.75rem]">
           <div className="relative flex w-[230px] items-center gap-2 rounded-2xl bg-white py-2.5 pe-2 ps-3.5 shadow-xl shadow-[#083f30]/15 ring-1 ring-[#083f30]/10 md:w-[260px]">
             <button type="button" onClick={openAssistant} className="min-w-0 flex-1 text-start">
               <span className="flex items-center gap-1.5 text-[11px] font-bold text-[#0a5a44]">
@@ -93,8 +85,8 @@ export function AssistantNudge() {
             </button>
             <span className="absolute -right-1 top-1/2 h-2.5 w-2.5 -translate-y-1/2 rotate-45 bg-white" />
           </div>
-        </motion.div>
+        </div>
       ) : null}
-    </AnimatePresence>
+    </>
   );
 }

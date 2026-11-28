@@ -4,6 +4,8 @@ export function facetHeaders(locales: readonly string[]) {
   const prefix = `/:locale(${locales.join("|")})`;
   const families = [
     { source: `${prefix}/shop/:slug`, keys: ["sort", "page", "brand", "inStockOnly", "onSale", "minRating", "minPrice", "maxPrice"] },
+    // The providers directory is paged (24 a page); page 1 is the indexed listing.
+    { source: `${prefix}/providers`, keys: ["page"] },
     // Specialty landings take the explore filters (explore.data parseExploreFilters).
     { source: `${prefix}/specialties/:slug`, keys: ["q", "category", "categoryId", "country", "countryCode", "city", "cityCode", "minPrice", "maxPrice", "currency", "minRating", "verifiedOnly", "languages", "responseTime", "sort"] },
     // A category's provider page takes the map filters (nearby.data parseNearbyFilters)

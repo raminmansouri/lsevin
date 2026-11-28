@@ -16,6 +16,7 @@ export const ImageWithFallback = ({
   fallbackClassName,
   className,
   alt,
+  fetchPriority,
   ...props
 }: ImageWithFallbackProps) => {
   const [hasError, setHasError] = useState(false);
@@ -36,6 +37,10 @@ export const ImageWithFallback = ({
   return (
     <Image
       {...props}
+      // Next 15.6 turned `priority` into preload + eager only; it no longer
+      // adds fetchpriority="high", so the page's main photo (usually its
+      // Largest Contentful Paint) queued behind scripts and small icons.
+      fetchPriority={fetchPriority ?? (props.priority || props.preload ? "high" : undefined)}
       alt={alt}
       className={className}
       onError={() => setHasError(true)}

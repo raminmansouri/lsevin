@@ -35,6 +35,18 @@ async function flush() {
   }
 }
 
+/**
+ * Waits for the page's own load before asking: the request otherwise competes
+ * with the page's images and scripts on a slow phone connection (2026-11-28).
+ */
+function flushAfterLoad() {
+  if (typeof document === "undefined" || document.readyState === "complete") {
+    void flush();
+    return;
+  }
+  window.addEventListener("load", () => setTimeout(() => void flush(), 0), { once: true });
+}
+
 /** Calls back with the item's favourite status; returns an unsubscribe function. */
 export function requestFavoriteStatus(
   entityType: FavoriteEntityType,
@@ -51,7 +63,7 @@ export function requestFavoriteStatus(
   if (!waiters.has(key)) waiters.set(key, new Set());
   waiters.get(key)!.add(callback);
   pending.set(key, { entityType, entityId });
-  if (!timer) timer = setTimeout(flush, 60);
+  if (!timer) timer = setTimeout(flushAfterLoad, 60);
 
   return () => waiters.get(key)?.delete(callback);
 }

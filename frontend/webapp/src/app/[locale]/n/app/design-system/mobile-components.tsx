@@ -2,7 +2,24 @@
 import {MessageCircle,  Home, Search, Calendar, User, ChevronLeft, Bell, Heart, MapPin, Star, CheckCircle, Shield, ShoppingBag } from 'lucide-react';
 import { useLocalization } from '../contexts/LocalizationContext';
 import { Link, usePathname } from '@/i18n/navigation';
+import { useLinkStatus } from 'next/link';
 import { useLocale, useTranslations } from 'next-intl';
+
+/** The tab icon; while the tapped tab's page is on its way it turns active at once. */
+function TabIcon({ icon: Icon, active }: { icon: typeof Home; active: boolean }) {
+  const { pending } = useLinkStatus();
+  return (
+    <span className={`relative ${pending ? 'text-[#083f30]' : ''}`}>
+      <Icon size={24} strokeWidth={active || pending ? 2.5 : 2} />
+      {pending ? (
+        <span
+          aria-hidden="true"
+          className="absolute -end-1 -top-1 size-2.5 animate-ping rounded-full bg-[#eacb7f]"
+        />
+      ) : null}
+    </span>
+  );
+}
 
 // Bottom Tab Bar
 export function BottomTabBar() {
@@ -32,14 +49,18 @@ export function BottomTabBar() {
           return (
             <Link
               key={tab.path}
-              // to={tab.path}
               href={tab.path}
-              prefetch={'private' in tab && tab.private ? false : undefined}
+              // Public tabs are fetched in full once the page has loaded, so a tap
+              // switches at once from the router cache (staleTimes.static, 3 min)
+              // like a native tab bar; the default only prefetched a loading
+              // shell of these dynamic pages, and a tap then waited for the server.
+              // Signed-in screens: never prefetched.
+              prefetch={'private' in tab && tab.private ? false : true}
               className={`flex flex-col items-center gap-1 py-2 px-3 transition ${
                 isActive ? 'text-[#083f30]' : 'text-gray-400'
               }`}
             >
-              <Icon size={24} strokeWidth={isActive ? 2.5 : 2} />
+              <TabIcon icon={Icon} active={isActive} />
               <span className={`text-xs ${isActive ? 'font-semibold' : 'font-medium'}`}>
                 {tab.label}
               </span>

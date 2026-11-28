@@ -4,7 +4,7 @@ import { getTranslations } from "next-intl/server";
 
 import { FavoriteButton } from "@/features/favorites/components/favorite-button";
 import type { HomeTrustedProvider } from "@/features/home/api/server/get-home-page";
-import { HomeLexicalDescription } from "@/features/home/components/home-lexical-description";
+import { toSeoPlainText } from "@/lib/seo/plain-text";
 import { resolveHomeMediaUrl } from "@/features/home/components/home-media";
 import { Link } from "@/i18n/navigation";
 import { entityPath } from "@/lib/routes/public-paths";
@@ -118,11 +118,9 @@ export async function DesktopTrustedSection({ locale, providers }: { locale: str
                         iconClassName="h-[18px] w-[18px]"
                       />
                     </div>
-                    <HomeLexicalDescription
-                      content={provider.description}
-                      className="relative mt-4 line-clamp-6 text-sm leading-7 text-white/75 [&_p]:text-white/75"
-                      fallback={t("common.noDescription")}
-                    />
+                    <p className="relative mt-4 line-clamp-6 text-sm leading-7 text-white/75">
+                      {toSeoPlainText(provider.description, 420) || t("common.noDescription")}
+                    </p>
                     {provider.specialties.length ? (
                       <div className="relative mt-4 flex flex-wrap gap-1.5">
                         {provider.specialties.slice(0, 5).map((specialty) => (

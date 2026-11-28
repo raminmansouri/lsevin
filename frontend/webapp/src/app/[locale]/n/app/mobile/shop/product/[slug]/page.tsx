@@ -17,6 +17,7 @@ import { WishlistHeart } from "@/features/shop/components/WishlistHeart";
 import { CompareButton } from "@/features/shop/components/CompareButton";
 import { ProductPersonalSections } from "@/features/shop/components/ProductPersonalSections";
 import { shopImageSrc } from "@/features/shop/lib/image";
+import { responsiveImg } from "@/lib/media/responsive-img";
 import { productJsonLd } from "@/features/shop/lib/product-json-ld";
 import { ConsultationCtaButton } from "@/features/consultation/components/consultation-cta-button";
 
@@ -119,10 +120,20 @@ export default async function ProductDetailPage({
                 </div>
               );
             }
-            return list.map((m) => (
+            // Only the first photo is on screen (and is the page's Largest
+            // Contentful Paint): it loads first; the rest wait until swiped to.
+            // Files from our own host come resized through the optimizer.
+            return list.map((m, index) => (
               <div key={m.id} className="aspect-square w-full shrink-0 snap-center bg-neutral-100">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={shopImageSrc(m.url)} alt={m.alt || product.name} className="h-full w-full object-cover" loading="eager" />
+                <img
+                  {...responsiveImg(shopImageSrc(m.url), "(min-width: 768px) 50vw, 100vw")}
+                  alt={m.alt || product.name}
+                  className="h-full w-full object-cover"
+                  loading={index === 0 ? "eager" : "lazy"}
+                  fetchPriority={index === 0 ? "high" : undefined}
+                  decoding="async"
+                />
               </div>
             ));
           })()}

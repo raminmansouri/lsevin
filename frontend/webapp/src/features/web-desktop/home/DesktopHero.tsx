@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { DesktopOnlyImg } from "../components/DesktopOnlyImg";
 import { ArrowLeft, BedDouble, Dumbbell, Flower2, Search, Stethoscope } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 
@@ -58,10 +59,11 @@ export async function DesktopHero({
   return (
     <PointerParallax depth={34} className="relative">
       <section className="lsd-hero-bg relative min-h-[880px] overflow-hidden text-white">
-        <Image
+        {/* Desktop-only: as a priority next/image it was preloaded on phones too. */}
+        <DesktopOnlyImg
           src="/brand/lsevin-mark-reversed.png"
           alt=""
-          aria-hidden="true"
+          sizes="640px"
           width={640}
           height={905}
           className="lsd-mark-bg -start-24 top-20 h-[900px] w-auto"

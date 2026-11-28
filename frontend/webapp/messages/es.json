@@ -2904,7 +2904,8 @@
       "permission": {
         "title": "Activar la ubicación",
         "dismiss": "Ahora no",
-        "enable": "Activar"
+        "enable": "Activar",
+        "privacy": "Tu ubicación se queda en este dispositivo."
       }
     },
     "appBar": {

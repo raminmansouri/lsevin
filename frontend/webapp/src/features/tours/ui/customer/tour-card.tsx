@@ -37,6 +37,7 @@ export function TourCard({
   rank,
   stat,
   categoryLabel,
+  eager = false,
 }: {
   card: TourCardData;
   saved?: boolean;
@@ -50,6 +51,8 @@ export function TourCard({
   stat?: ReactNode;
   /** Category name, shown with the duration. */
   categoryLabel?: string | null;
+  /** First card(s) of a list that opens on screen: its photo is the page's LCP. */
+  eager?: boolean;
 }) {
   const t = useTranslations("TourApp");
   const locale = useLocale();
@@ -68,7 +71,13 @@ export function TourCard({
       )}
     >
       <div className={cn("relative shrink-0", layout === "wide" ? "w-36 sm:w-44" : "aspect-[4/3] w-full")}>
-        <TourImage src={card.coverUrl} alt={card.coverAlt ?? title} className="h-full w-full" />
+        <TourImage
+          src={card.coverUrl}
+          alt={card.coverAlt ?? title}
+          className="h-full w-full"
+          eager={eager}
+          sizes={layout === "wide" ? "176px" : "(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"}
+        />
         <div className="absolute inset-x-2 top-2 flex items-start justify-between gap-2">
           <div className="flex flex-wrap gap-1">
             {card.badges.map((b) => (

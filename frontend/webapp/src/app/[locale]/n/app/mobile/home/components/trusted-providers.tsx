@@ -7,7 +7,7 @@ import { ImageWithFallback } from '@/components/ui/image-with-fallback';
 
 import type { HomeTrustedProvider } from '@/features/home/api/server/get-home-page';
 import { resolveHomeMediaUrl } from '@/features/home/components/home-media';
-import { HomeLexicalDescription } from '@/features/home/components/home-lexical-description';
+import { toSeoPlainText } from '@/lib/seo/plain-text';
 import { Link } from '@/i18n/navigation';
 import { entityPath } from '@/lib/routes/public-paths';
 
@@ -32,11 +32,14 @@ export default function HomeTrustedProvidersSuspenseBoundary({
   locale = 'fa-IR',
   labels = defaultLabels,
   variant = 'rail',
+  priorityCount = 0,
 }: {
   providers: HomeTrustedProvider[];
   locale?: string;
   labels?: HomeTrustedProviderLabels;
   variant?: HomeTrustedProviderVariant;
+  /** How many leading cards are above the fold (their photo is the page's LCP). */
+  priorityCount?: number;
 }) {
   if (!providers.length) {
     return (
@@ -49,8 +52,8 @@ export default function HomeTrustedProvidersSuspenseBoundary({
 
   return (
     <>
-      {providers.map((provider) => (
-        <TrustedProviderCard key={provider.id} provider={provider} locale={locale} labels={labels} variant={variant} />
+      {providers.map((provider, index) => (
+        <TrustedProviderCard key={provider.id} provider={provider} locale={locale} labels={labels} variant={variant} priority={index < priorityCount} />
       ))}
     </>
   );
@@ -61,11 +64,13 @@ function TrustedProviderCard({
   locale,
   labels,
   variant = 'rail',
+  priority = false,
 }: {
   provider: HomeTrustedProvider;
   locale: string;
   labels: HomeTrustedProviderLabels;
   variant?: HomeTrustedProviderVariant;
+  priority?: boolean;
 }) {
   const t = useTranslations("Common");
   const mediaUrl = resolveHomeMediaUrl(provider.imageUrl);
@@ -88,6 +93,7 @@ function TrustedProviderCard({
             src={mediaUrl}
             alt={provider.name}
             sizes={isGrid ? '(min-width: 640px) 240px, 45vw' : '176px'}
+            priority={priority}
             className="object-cover"
           />
         ) : (
@@ -121,15 +127,12 @@ function TrustedProviderCard({
           `line-clamp-2` alone does not hold a multi-paragraph description. In the
           grid the box is pinned to exactly two `text-xs` lines (h-8) and only the
           first block is shown, so every card reserves the same space. */}
-      <HomeLexicalDescription
-        content={provider.description}
-        className={
-          isGrid
-            ? 'mb-1 h-8 overflow-hidden text-xs text-gray-500 [&>*:first-child]:line-clamp-2 [&>*:not(:first-child)]:hidden [&_p]:line-clamp-2'
-            : 'mb-1 line-clamp-2 text-xs text-gray-500 [&_p]:line-clamp-2'
-        }
-        fallback={labels.noDescription}
-      />
+      <p className={isGrid ? 'mb-1 line-clamp-2 h-8 text-xs text-gray-500' : 'mb-1 line-clamp-2 text-xs text-gray-500'}>
+        {/* A two-line excerpt, flattened on the server. The card used to hand the
+            whole rich-text document to a client renderer: on /providers that was
+            ~half of a 1.5 MB page for two visible lines (2026-11-28). */}
+        {toSeoPlainText(provider.description, 140) || labels.noDescription}
+      </p>
       <p className="mb-2 line-clamp-1 text-xs text-gray-500">{provider.location}</p>
 
       {specialties.length ? (

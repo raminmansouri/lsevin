@@ -118,7 +118,12 @@ export default async function ShopHomePage({ params }: { params: Promise<{ local
 
       <div className="space-y-1 bg-white pb-2">
         {home.sections.map((section) => (
-          <HomeSectionView key={section.key} section={section} locale={locale} />
+          <HomeSectionView
+            key={section.key}
+            section={section}
+            locale={locale}
+            priority={section === home.sections.find((item) => item.type === "product_rail")}
+          />
         ))}
       </div>
 

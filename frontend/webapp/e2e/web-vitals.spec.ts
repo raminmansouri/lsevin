@@ -73,6 +73,72 @@ test.describe("phone", () => {
     expect(cls).toBeLessThan(0.1);
   });
 
+  test("first visit: the location question is a small card, not the page's LCP, and 'not now' sticks", async ({ page }) => {
+    // Headless Chrome answers "denied"; a real first visit is "prompt".
+    await page.addInitScript(() => {
+      const original = navigator.permissions?.query?.bind(navigator.permissions);
+      if (original)
+        navigator.permissions.query = ((descriptor: PermissionDescriptor) =>
+          descriptor?.name === "geolocation"
+            ? Promise.resolve({ state: "prompt", name: "geolocation", onchange: null, addEventListener() {}, removeEventListener() {}, dispatchEvent: () => true } as unknown as PermissionStatus)
+            : original(descriptor)) as typeof navigator.permissions.query;
+      (window as unknown as { __lcp: Element[] }).__lcp = [];
+      new PerformanceObserver((list) => {
+        for (const entry of list.getEntries() as unknown as { element: Element | null }[]) {
+          if (entry.element) (window as unknown as { __lcp: Element[] }).__lcp.push(entry.element);
+        }
+      }).observe({ type: "largest-contentful-paint", buffered: true });
+    });
+    for (const path of ["/fa", "/fa/map"]) {
+      await page.goto(`${BASE}${path}`, { waitUntil: "domcontentloaded" });
+      const ask = page.getByTestId(path === "/fa" ? "home-location-ask" : "map-location-ask");
+      await expect(ask).toBeVisible({ timeout: 20_000 });
+      // Not a modal over the page (an intrusive interstitial for Google).
+      await expect(page.locator(".sheet-scrim")).toHaveCount(0);
+      await expect(page.locator('[aria-modal="true"]')).toHaveCount(0);
+      await page.waitForTimeout(1500);
+      const lcpInsideCard = await page.evaluate(() => {
+        const list = (window as unknown as { __lcp: Element[] }).__lcp;
+        const last = list[list.length - 1];
+        return Boolean(last?.closest('[data-testid$="location-ask"]'));
+      });
+      expect(lcpInsideCard, `${path}: the card became the Largest Contentful Paint`).toBe(false);
+      await ask.getByRole("button", { name: path === "/fa" ? "انصراف" : "فعلاً نه", exact: true }).click();
+      await expect(ask).toBeHidden();
+      await page.reload({ waitUntil: "domcontentloaded" });
+      await settle(page);
+      await expect(ask).toHaveCount(0);
+    }
+  });
+
+  test("bottom tabs switch from the prefetched page, without a round trip", async ({ page }) => {
+    await page.addInitScript(() => {
+      try {
+        localStorage.setItem("lsevin.home.location-asked.v1", "1");
+      } catch {}
+    });
+    await page.goto(`${BASE}/fa`, { waitUntil: "domcontentloaded" });
+    await settle(page);
+    for (const target of ["/fa/explore", "/fa/shop"]) {
+      // The tab's page was fetched in full after load (prefetch), so a tap needs no request.
+      const navigations: string[] = [];
+      const onRequest = (r: Request) => {
+        const url = new URL(r.url());
+        if (url.pathname === target && r.headers()["rsc"] && !r.headers()["next-router-prefetch"]) navigations.push(r.url());
+      };
+      page.on("request", onRequest);
+      const started = Date.now();
+      await page.locator(`div.fixed.bottom-0 a[href="${target}"]`).first().click();
+      await page.waitForURL((url) => url.pathname === target);
+      await expect(page.locator("h1").first()).toBeAttached();
+      const elapsed = Date.now() - started;
+      page.off("request", onRequest);
+      expect(navigations, `${target} was fetched on tap instead of from the prefetch`).toEqual([]);
+      expect(elapsed, `${target} took ${elapsed} ms`).toBeLessThan(1500);
+      await settle(page);
+    }
+  });
+
   test("map: no stored originals (hidden desktop list, 48 px markers)", async ({ page }) => {
     const requests = track(page);
     const response = await page.goto(`${BASE}/fa/map`, { waitUntil: "domcontentloaded" });
@@ -135,14 +201,13 @@ test.describe("desktop", () => {
     await settle(page);
     await expect(page.locator(".lsd:visible").first()).toBeVisible();
     // Hydrated: the desktop header's Explore link (client-side) navigates.
-    // A first visit opens the location sheet over the page; "not now" leads to
-    // the manual place search, which the visitor closes (Escape, X or backdrop).
-    const notNow = page.getByRole("button", { name: "انصراف", exact: true });
-    await notNow.waitFor({ state: "visible", timeout: 15_000 }).catch(() => {});
-    if (await notNow.isVisible()) {
-      await notNow.click();
-      await page.keyboard.press("Escape");
-      await expect(page.locator(".sheet-scrim")).toHaveCount(0);
+    // A first visit asks for the location in a small card, never a modal sheet.
+    await expect(page.locator(".sheet-scrim")).toHaveCount(0);
+    const ask = page.getByTestId("home-location-ask");
+    await ask.waitFor({ state: "visible", timeout: 15_000 }).catch(() => {});
+    if (await ask.isVisible()) {
+      await ask.getByRole("button", { name: "انصراف", exact: true }).click();
+      await expect(ask).toBeHidden();
     }
     // The home page animates continuously, so Playwright's "stable" check never passes.
     await page.locator(".lsd").first().locator("a[href$='/explore']").first().click({ force: true });

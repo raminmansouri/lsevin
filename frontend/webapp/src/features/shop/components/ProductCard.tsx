@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import type { ProductCard as ProductCardModel } from "../types/domain";
 import { ShopPrice } from "./ShopPrice";
 import { shopImageSrc } from "../lib/image";
+import { responsiveImg } from "@/lib/media/responsive-img";
 import { WishlistHeart } from "./WishlistHeart";
 
 type Labels = {
@@ -36,6 +37,7 @@ export function ProductCard({
   locale = "en",
   labels,
   className,
+  imageSizes,
   priority = false,
   compact = false,
 }: {
@@ -43,6 +45,8 @@ export function ProductCard({
   locale?: string;
   labels: Labels;
   className?: string;
+  /** The image slot width when it is not a grid column (a 150 px rail card). */
+  imageSizes?: string;
   priority?: boolean;
   /** ~70% scale for rails embedded in other pages (service page, booking). Shop pages keep the default. */
   compact?: boolean;
@@ -66,9 +70,11 @@ export function ProductCard({
         {product.imageUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
-            src={shopImageSrc(product.imageUrl)}
+            {...responsiveImg(shopImageSrc(product.imageUrl), imageSizes ?? "(min-width: 1024px) 240px, (min-width: 640px) 33vw, 50vw")}
             alt={product.name}
             loading={priority ? "eager" : "lazy"}
+            fetchPriority={priority ? "high" : undefined}
+            decoding="async"
             className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
           />
         ) : (

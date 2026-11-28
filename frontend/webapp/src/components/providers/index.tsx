@@ -7,6 +7,7 @@ import useDirection from "@/hooks/use-direction";
 
 import { CrmAnalyticsIdentify } from "@/components/analytics/crm-analytics-identify";
 import { LocaleSync } from "@/components/locale/locale-sync";
+import { NavigationProgress } from "@/components/navigation-progress";
 
 import AuthProvider from "./auth-provider";
 import QueryProvider from "./react-query-provider";
@@ -23,6 +24,7 @@ export function Providers({ children }: ProvidersProps) {
       <NuqsAdapter>
         <ThemeProvider>
           <LocaleSync />
+          <NavigationProgress />
           <CrmAnalyticsIdentify />
           <QueryProvider>{children}</QueryProvider>
           <Toaster

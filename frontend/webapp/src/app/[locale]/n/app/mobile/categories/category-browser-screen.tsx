@@ -87,8 +87,13 @@ export async function CategoryBrowserScreen({
     .slice(0, 50);
   const trail = parent ? categoryTrail(parent, data.groups) : [];
 
+  // The grid is in the first HTML; only the slower extras (sponsored slots, the
+  // FAQ) stream in their own boundaries. One boundary around the whole screen
+  // held the ready grid back with them: React revealed it later with a script,
+  // after the page's JavaScript, which made the grid photo the phone's Largest
+  // Contentful Paint at ~5 s (2026-11-28).
   return (
-    <Suspense fallback={null}>
+    <>
       <JsonLd
         data={graph(
           {
@@ -130,7 +135,9 @@ export async function CategoryBrowserScreen({
           staysCategoryId={staysCategoryId}
           parentId={parent?.id ?? null}
         />
-        <SponsoredPlacementSlot locale={locale} placement="categories" />
+        <Suspense fallback={null}>
+          <SponsoredPlacementSlot locale={locale} placement="categories" />
+        </Suspense>
       </div>
       <ViewportOnly media={DESKTOP_MEDIA}>
         <DesktopCategoryBrowser
@@ -143,13 +150,17 @@ export async function CategoryBrowserScreen({
         />
       </ViewportOnly>
       <div className="lsd hidden pb-14 xl:block">
-        <DesktopSponsoredSection locale={locale} placement="categories" />
+        <Suspense fallback={null}>
+          <DesktopSponsoredSection locale={locale} placement="categories" />
+        </Suspense>
       </div>
-      <PageFaq
-        target={parent ? { scope: "category", entityId: parent.id } : { scope: "categories" }}
-        locale={locale}
-        pageUrl={pageUrl}
-      />
-    </Suspense>
+      <Suspense fallback={null}>
+        <PageFaq
+          target={parent ? { scope: "category", entityId: parent.id } : { scope: "categories" }}
+          locale={locale}
+          pageUrl={pageUrl}
+        />
+      </Suspense>
+    </>
   );
 }

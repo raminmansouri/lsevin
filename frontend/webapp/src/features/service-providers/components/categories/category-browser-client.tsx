@@ -58,7 +58,7 @@ function localizeDigits(text: string, locale: string) {
   return text.replace(/\d+/g, (digits) => [...digits].map((digit) => Number(digit).toLocaleString(locale)).join(""));
 }
 
-function CategoryMedia({ category, featured }: { category: CategoryBrowserCategory; featured: boolean }) {
+function CategoryMedia({ category, featured, priority = false }: { category: CategoryBrowserCategory; featured: boolean; priority?: boolean }) {
   const imageSrc = buildCategoryImageSrc(category.image ?? category.iconUrl);
 
   if (!imageSrc) {
@@ -84,6 +84,8 @@ function CategoryMedia({ category, featured }: { category: CategoryBrowserCatego
       alt={category.name}
       className="object-cover transition-transform duration-700 ease-out group-hover:scale-105 group-active:scale-105"
       sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+      // The first row is the page's Largest Contentful Paint on a phone.
+      priority={priority}
       fallbackClassName="h-full w-full"
     />
   );
@@ -93,10 +95,12 @@ function CategoryCardContent({
   category,
   hasChildren,
   featured,
+  priority = false,
 }: {
   category: CategoryBrowserCategory;
   hasChildren: boolean;
   featured: boolean;
+  priority?: boolean;
 }) {
   const locale = useLocale();
   const t = useTranslations("CategoryBrowser");
@@ -111,7 +115,7 @@ function CategoryCardContent({
 
   return (
     <>
-      <CategoryMedia category={category} featured={featured} />
+      <CategoryMedia category={category} featured={featured} priority={priority} />
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#03140f]/90 via-[#03140f]/25 to-transparent" />
       <div className="pointer-events-none absolute inset-0 rounded-[26px] ring-1 ring-inset ring-[#eacb7f]/25" />
 
@@ -147,11 +151,13 @@ function CategoryCard({
   featured,
   onOpenCategory,
   opensApp = null,
+  priority = false,
 }: {
   category: CategoryBrowserCategory;
   hasChildren: boolean;
   featured: boolean;
   onOpenCategory: () => void;
+  priority?: boolean;
   /** Tourism → /tours, Accommodation → /stays: the category's own app instead of a category screen. */
   opensApp?: string | null;
 }) {
@@ -162,7 +168,7 @@ function CategoryCard({
     "group relative block w-full overflow-hidden rounded-[26px] bg-[#062a20] shadow-[0_18px_40px_-22px_rgba(3,20,15,0.65)] transition-transform duration-300 active:scale-[0.97]",
     "aspect-square",
   ].join(" ");
-  const content = <CategoryCardContent category={category} hasChildren={hasChildren} featured={featured} />;
+  const content = <CategoryCardContent category={category} hasChildren={hasChildren} featured={featured} priority={priority} />;
 
   if (opensApp) {
     return (
@@ -410,7 +416,7 @@ export function CategoryBrowserClient({
           <EmptyState hasQuery={hasQuery} />
         ) : (
           <div className="space-y-9">
-            {filteredGroups.map((group) => {
+            {filteredGroups.map((group, groupIndex) => {
               const groupProviderCount = group.categories.reduce((sum, category) => sum + category.count, 0);
               return (
                 <section key={group.id}>
@@ -427,9 +433,10 @@ export function CategoryBrowserClient({
                   </div>
 
                   <div dir="rtl" className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-                    {group.categories.map((category) => (
+                    {group.categories.map((category, index) => (
                       <CategoryCard
                         key={category.id}
+                        priority={groupIndex === 0 && index < 2}
                         category={category}
                         hasChildren={(categoriesByParent.get(category.id)?.length ?? 0) > 0}
                         featured={atRoot && slugOf(category) === FEATURED_SLUG}

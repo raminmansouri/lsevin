@@ -14,6 +14,51 @@ async function batches<T>(
 }
 
 /** Fetch a guest document, including Next's bootstrap, rather than stripping its UI. */
+/** Width in CSS px of an <img sizes> list for this viewport (px, vw and calc-free values). */
+function slotWidth(sizes: string | null): number {
+  const viewport = window.innerWidth || 390;
+  if (!sizes) return viewport;
+  for (const entry of sizes.split(",")) {
+    const part = entry.trim();
+    const match = /^(\(.*\))\s+(.+)$/.exec(part);
+    const media = match?.[1];
+    const length = (match ? match[2] : part).trim();
+    if (media && !window.matchMedia(media).matches) continue;
+    const px = /^([\d.]+)px$/.exec(length);
+    if (px) return Number(px[1]);
+    const vw = /^([\d.]+)vw$/.exec(length);
+    if (vw) return (Number(vw[1]) / 100) * viewport;
+    return viewport;
+  }
+  return viewport;
+}
+
+/**
+ * The URL the browser would pick from an <img>'s srcset on this device (the
+ * smallest candidate covering the slot at this pixel ratio), else its src.
+ */
+export function chosenImageUrl(node: Element): string | null {
+  const src = node.getAttribute("src");
+  const candidates = (node.getAttribute("srcset") || "")
+    .split(",")
+    .map((entry) => entry.trim().split(/\s+/))
+    .filter(([url]) => Boolean(url))
+    .map(([url, descriptor = "1x"]) => ({
+      url,
+      w: descriptor.endsWith("w") ? Number(descriptor.slice(0, -1)) : null,
+      x: descriptor.endsWith("x") ? Number(descriptor.slice(0, -1)) : null,
+    }));
+  if (!candidates.length) return src;
+  const ratio = window.devicePixelRatio || 1;
+  const widths = candidates.filter((c) => c.w).sort((a, b) => a.w! - b.w!);
+  if (widths.length) {
+    const needed = slotWidth(node.getAttribute("sizes")) * ratio;
+    return (widths.find((c) => c.w! >= needed) ?? widths[widths.length - 1]).url;
+  }
+  const densities = candidates.filter((c) => c.x).sort((a, b) => a.x! - b.x!);
+  return (densities.find((c) => c.x! >= ratio) ?? densities[densities.length - 1] ?? { url: src }).url;
+}
+
 export async function saveApplicationPage(
   pathname: string,
   signal: AbortSignal
@@ -66,18 +111,12 @@ export async function saveApplicationPage(
   const imageCache = await caches.open("lsevin-pwa-images-v2");
   const images = new Set<string>();
   template.content.querySelectorAll("img[src]").forEach((node) => {
-    const src = node.getAttribute("src");
-    if (src) {
-      const url = new URL(src, location.origin);
-      if (/^https?:$/.test(url.protocol)) images.add(url.href);
-    }
-    for (const source of (node.getAttribute("srcset") || "").split(",")) {
-      const value = source.trim().split(/\s+/)[0];
-      if (value) {
-        const url = new URL(value, location.origin);
-        if (/^https?:$/.test(url.protocol)) images.add(url.href);
-      }
-    }
+    // Only the file this screen would show: every srcset width of every photo
+    // used to be downloaded (64 requests, 1.3 MB on the home page, 2026-11-28).
+    const chosen = chosenImageUrl(node);
+    if (!chosen) return;
+    const url = new URL(chosen, location.origin);
+    if (/^https?:$/.test(url.protocol)) images.add(url.href);
   });
   // Only image URLs present in the independently fetched guest document qualify.
   // Batches avoid saturating a mobile connection with a large provider listing.

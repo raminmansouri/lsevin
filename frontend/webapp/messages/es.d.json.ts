@@ -569,7 +569,8 @@ declare const messages: {
     },
     "consultationRequests": "Solicitudes de consulta",
     "nav": {
-      "editorial": "Contenido del sitio"
+      "editorial": "Contenido del sitio",
+      "amenities": "Servicios"
     }
   },
   "HomePage": {
@@ -2906,7 +2907,8 @@ declare const messages: {
       "permission": {
         "title": "Activar la ubicación",
         "dismiss": "Ahora no",
-        "enable": "Activar"
+        "enable": "Activar",
+        "privacy": "Tu ubicación se queda en este dispositivo."
       }
     },
     "appBar": {

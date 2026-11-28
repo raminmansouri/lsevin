@@ -187,7 +187,7 @@ export async function ProductListView({
 
       {items.length ? (
         <div className="px-4">
-          <ProductGrid products={items} locale={locale} />
+          <ProductGrid products={items} locale={locale} priorityCount={2} />
           <div className="mt-8 hidden xl:block">
             <ShopPagination
               page={page}

@@ -28,7 +28,6 @@ import { BeforeAfterGallery } from "@/features/service-providers/components/befo
 import { FavoriteButton } from "@/features/favorites/components/favorite-button";
 import { ViewerPrice } from "@/features/finance/components/viewer-price";
 import { useSectionScroll } from "@/hooks/use-section-scroll";
-import { getFavoriteStatusAction } from "@/features/favorites/actions/favorite-actions";
 import { ProviderActionBar } from "@/features/service-providers/components/details/provider-action-bar";
 import ReviewForm, { type ReviewFormSubmitValue } from "@/app/[locale]/n/app/components/ReviewForm";
 import { DigikalaReviewCard } from "@/app/[locale]/n/app/components/DigikalaReviewCard";
@@ -102,19 +101,11 @@ function LexicalDescription({ content, className }: { content?: string | null; c
 
 
 function ProviderFavoriteButton({ providerId }: { providerId: string }) {
-  const [isFavorite, setIsFavorite] = useState(false);
-
-  useEffect(() => {
-    getFavoriteStatusAction({ entityType: "provider", entityId: providerId })
-      .then((result) => setIsFavorite(result.isFavorite))
-      .catch(() => undefined);
-  }, [providerId]);
-
+  // FavoriteButton asks for its status itself, batched with the page's other hearts.
   return (
     <FavoriteButton
       entityId={providerId}
       entityType="provider"
-      initialIsFavorite={isFavorite}
       className="!h-10 !w-10 bg-white/95 shadow-lg backdrop-blur-sm"
       iconClassName="h-5 w-5"
     />
@@ -123,19 +114,11 @@ function ProviderFavoriteButton({ providerId }: { providerId: string }) {
 
 
 function TreatmentFavoriteButton({ entityId }: { entityId: string }) {
-  const [isFavorite, setIsFavorite] = useState(false);
-
-  useEffect(() => {
-    getFavoriteStatusAction({ entityType: "service", entityId })
-      .then((result) => setIsFavorite(result.isFavorite))
-      .catch(() => undefined);
-  }, [entityId]);
-
+  // FavoriteButton asks for its status itself, batched with the page's other hearts.
   return (
     <FavoriteButton
       entityId={entityId}
       entityType="service"
-      initialIsFavorite={isFavorite}
       className="!h-8 !w-8 flex-shrink-0 bg-gray-50 text-gray-700 shadow-sm"
       iconClassName="h-3.5 w-3.5"
     />

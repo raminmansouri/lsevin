@@ -167,6 +167,26 @@ function isPreciseLocationSource(source?: string | null): boolean {
 // Keeping map + home in agreement avoids a second, divergent IP lookup.
 const HOME_LOCATION_STORAGE_KEY = "lsevin.home.selected-location.v1";
 
+// "Not now" on the map's location card is remembered: the card used to come
+// back on every visit. The locate button on the map stays available.
+const MAP_ASK_DISMISSED_KEY = "lsevin.map.location-ask-dismissed.v1";
+
+function mapAskDismissed(): boolean {
+  try {
+    return window.localStorage.getItem(MAP_ASK_DISMISSED_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+function rememberMapAskDismissed() {
+  try {
+    window.localStorage.setItem(MAP_ASK_DISMISSED_KEY, "1");
+  } catch {
+    // Private mode: the card may ask again next time.
+  }
+}
+
 function readStoredHomeLocation(): {
   lat: number | null;
   lng: number | null;
@@ -361,7 +381,7 @@ export default function NearbyClient({
       }
       if (cancelled) return;
       if (state === "granted") requestCurrentLocation();
-      else if (state !== "denied") setAskForLocation(true);
+      else if (state !== "denied" && !mapAskDismissed()) setAskForLocation(true);
     })();
     return () => {
       cancelled = true;
@@ -604,11 +624,17 @@ export default function NearbyClient({
             <LocateFixed size={18} className="text-[#083f30]" aria-hidden />
             {t("locationPrompt.title")}
           </div>
-          <p className="mt-1.5 text-sm leading-6 text-gray-600">{t("locationPrompt.body")}</p>
+          {/* One short line. The longer explanation (locationPrompt.body) made
+              this late card the largest thing on screen, so it became the
+              page's Largest Contentful Paint at ~5 s on a phone (2026-11-28). */}
+          <p className="mt-1 text-xs leading-5 text-gray-500">{t("locationPrompt.privacy")}</p>
           <div className="mt-3 flex gap-2">
             <button
               type="button"
-              onClick={() => setAskForLocation(false)}
+              onClick={() => {
+                rememberMapAskDismissed();
+                setAskForLocation(false);
+              }}
               className="h-11 flex-1 rounded-xl border border-gray-200 text-sm font-bold text-gray-700"
             >
               {t("locationPrompt.notNow")}

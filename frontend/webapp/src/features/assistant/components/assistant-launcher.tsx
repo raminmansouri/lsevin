@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useState } from "react";
 import dynamic from "next/dynamic";
-import { motion, useReducedMotion } from "motion/react";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 
@@ -29,7 +28,6 @@ export function AssistantLauncher() {
   const t = useTranslations("Assistant.launcher");
   const pathname = usePathname();
   const isDesktop = useIsDesktop();
-  const reduceMotion = useReducedMotion();
   const tucked = useScrollTucked();
 
   const [open, setOpen] = useState(false);
@@ -64,16 +62,12 @@ export function AssistantLauncher() {
 
   const sideTucked = !isDesktop && (!isAssistantHome(pathname) || tucked);
 
-  const morph = reduceMotion
-    ? { duration: 0 }
-    : { type: "spring" as const, stiffness: 340, damping: 34 };
-
   return (
     <>
-      {/* The launcher circle. On desktop it shares a layoutId with the panel, so it morphs into it. */}
+      {/* The launcher circle, animated with CSS: it is on every page, and framer-motion
+          for it alone put ~44 KB (compressed) of script ahead of every page's first paint. */}
       {!open ? (
-        <motion.button
-          layoutId={isDesktop ? "lsevin-assistant-shell" : undefined}
+        <button
           type="button"
           // Start fetching the chat as soon as the visitor reaches for the button.
           onPointerEnter={() => void loadPanel()}
@@ -84,16 +78,17 @@ export function AssistantLauncher() {
             window.dispatchEvent(new Event("lsevin:assistant-opened"));
           }}
           aria-label={t("open")}
-          initial={reduceMotion ? false : { scale: 0.7, opacity: 0 }}
-          animate={{ scale: sideTucked ? 0.85 : 1, opacity: sideTucked ? 0.75 : 1, x: sideTucked ? 44 : 0 }}
-          transition={morph}
-          style={{ borderRadius: 28 }}
-          className={`fixed right-4 z-[60] grid h-14 w-14 place-items-center bg-gradient-to-br from-[#083f30] to-[#0a5a44] shadow-xl shadow-[#083f30]/30 ring-2 ring-[#eacb7f]/60 md:bottom-6 md:right-6 ${
+          style={{
+            borderRadius: 28,
+            transform: sideTucked ? "translateX(44px) scale(0.85)" : undefined,
+            opacity: sideTucked ? 0.75 : undefined,
+          }}
+          className={`fixed right-4 z-[60] grid h-14 w-14 place-items-center bg-gradient-to-br from-[#083f30] to-[#0a5a44] shadow-xl shadow-[#083f30]/30 ring-2 ring-[#eacb7f]/60 transition-[transform,opacity] duration-300 ease-out animate-in fade-in zoom-in-75 motion-reduce:animate-none motion-reduce:transition-none md:bottom-6 md:right-6 ${
             isAssistantRaised(pathname) ? "bottom-[11.5rem]" : "bottom-24"
           }`}
         >
           <AssistantAvatar className="h-9 w-9" />
-        </motion.button>
+        </button>
       ) : null}
 
       {everOpened ? (

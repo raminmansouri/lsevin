@@ -8,6 +8,7 @@ import { Link, useRouter } from "@/i18n/navigation";
 
 import { completeStaysIntroAction } from "../../server/actions/customer";
 import { PARENT_APP_PATH } from "../shell/stays-shell";
+import { responsiveImg } from "@/lib/media/responsive-img";
 
 /** Licensed background (public/images/stays/CREDITS.json); the visible credit below is required by CC BY 2.0. */
 const BACKGROUND = {
@@ -56,9 +57,8 @@ export function StaysIntro({ next, cities }: { next: string; cities: IntroCity[]
       <section className="relative flex min-h-dvh flex-col overflow-hidden bg-emerald-950 text-white" aria-labelledby="stays-intro-title" data-testid="stays-intro">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src={BACKGROUND.src}
-          srcSet={`${BACKGROUND.srcSmall} 640w, ${BACKGROUND.src} 1200w`}
-          sizes="100vw"
+          // Through the optimizer: phones used to pick the 1200 px original (175 KB).
+          {...responsiveImg(BACKGROUND.src, "100vw")}
           alt={t("photoAlt")}
           fetchPriority="high"
           decoding="async"

@@ -21,12 +21,17 @@ export function DesktopOnlyImg({
   alt,
   className,
   priority = false,
+  width,
+  height,
 }: {
   src: string | null | undefined;
   sizes: string;
   alt: string;
   className?: string;
   priority?: boolean;
+  /** Intrinsic size for fixed-size images (logos), so the box is reserved. */
+  width?: number;
+  height?: number;
 }) {
   const image = responsiveImg(src, sizes);
   if (!image.src) return null;
@@ -37,6 +42,8 @@ export function DesktopOnlyImg({
         src={BLANK}
         alt={alt}
         className={className}
+        width={width}
+        height={height}
         decoding="async"
         loading={priority ? "eager" : "lazy"}
         fetchPriority={priority ? "high" : undefined}

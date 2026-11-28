@@ -77,12 +77,14 @@ function MediaImage({
   className,
   fallbackClassName,
   sizes = "100vw",
+  priority = false,
 }: {
   src?: string | null;
   alt: string;
   className?: string;
   fallbackClassName?: string;
   sizes?: string;
+  priority?: boolean;
 }) {
   const resolvedSrc = mediaUrl(src);
 
@@ -100,6 +102,7 @@ function MediaImage({
       src={resolvedSrc}
       alt={alt}
       sizes={sizes}
+      priority={priority}
       className={className}
       fallbackClassName={fallbackClassName}
     />
@@ -690,7 +693,7 @@ export default function SpecialistProfileClient({
         <div className="relative z-10 px-5 pb-6 lg:px-8">
           <div className="overflow-hidden rounded-3xl bg-white shadow-xl">
             <div className="relative h-40 bg-gray-100 lg:h-[320px]">
-              <MediaImage src={primaryGalleryImage} alt={specialist.name} className="object-cover" sizes="(min-width: 1024px) 960px, 100vw" />
+              <MediaImage src={primaryGalleryImage} alt={specialist.name} className="object-cover" sizes="(min-width: 1024px) 960px, 100vw" priority />
               <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
               <button
                 type="button"

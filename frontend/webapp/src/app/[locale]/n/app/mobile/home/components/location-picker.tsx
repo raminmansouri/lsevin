@@ -409,6 +409,11 @@ export default function LocationPicker({ locale = 'fa-IR' }: Props) {
   const [locationMessage, setLocationMessage] = useState<string | null>(null);
   // The browser refused location (now or earlier): explain how to turn it on.
   const [permissionDenied, setPermissionDenied] = useState(false);
+  // The first-visit question. A small card over the page, not the modal sheet:
+  // a sheet that covers the page on arrival is an intrusive interstitial for
+  // Google, and its large paragraph became the page's Largest Contentful Paint
+  // (painted only after hydration, 4.7-5.8 s on a phone; 2026-11-28).
+  const [showAskCard, setShowAskCard] = useState(false);
 
   const locationTitleFallback = t('selectLocation');
 
@@ -827,8 +832,7 @@ export default function LocationPicker({ locale = 'fa-IR' }: Props) {
       } else if (state === 'denied') {
         setPermissionDenied(true);
       } else {
-        setPickerStep('permission');
-        setShowLocationPicker(true);
+        setShowAskCard(true);
       }
     })();
     // Runs once per mount (guarded by initializedRef); `t` is included because the
@@ -885,6 +889,7 @@ export default function LocationPicker({ locale = 'fa-IR' }: Props) {
   }, [showLocationPicker, loadLocations]);
 
   const openLocationPicker = () => {
+    setShowAskCard(false);
     // A message about a detection that already finished (often while the modal was
     // closed) otherwise greets the visitor as a stale amber warning on the next open.
     setLocationMessage(null);
@@ -1118,6 +1123,46 @@ export default function LocationPicker({ locale = 'fa-IR' }: Props) {
         )
       : null;
 
+  // Kept short on purpose: one line of title, one line of reassurance. A taller
+  // card painted after hydration would again outrank the page's own content as
+  // the Largest Contentful Paint. The full explanation stays in the sheet.
+  const askCard =
+    mounted && showAskCard && !showLocationPicker
+      ? createPortal(
+          <section
+            aria-labelledby="home-location-ask-title"
+            data-testid="home-location-ask"
+            className="fixed inset-x-4 bottom-24 z-[70] mx-auto max-w-md rounded-2xl border border-gray-100 bg-white p-4 shadow-xl xl:inset-x-auto xl:bottom-6 xl:end-6 xl:w-[22rem]"
+          >
+            <h2 id="home-location-ask-title" className="flex items-center gap-2 text-sm font-bold text-gray-900">
+              <LocateFixed size={18} className="shrink-0 text-[#083f30]" aria-hidden />
+              {t('permission.title')}
+            </h2>
+            <p className="mt-1 text-xs leading-5 text-gray-500">{t('permission.privacy')}</p>
+            <div className="mt-3 flex gap-2">
+              <button
+                type="button"
+                onClick={() => setShowAskCard(false)}
+                className="h-11 flex-1 rounded-xl border border-gray-200 text-sm font-bold text-gray-700 transition hover:bg-gray-50"
+              >
+                {t('permission.dismiss')}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowAskCard(false);
+                  requestBrowserLocation();
+                }}
+                className="h-11 flex-1 rounded-xl bg-[#083f30] text-sm font-bold text-white transition hover:bg-[#0a513f]"
+              >
+                {t('permission.enable')}
+              </button>
+            </div>
+          </section>,
+          document.body
+        )
+      : null;
+
   return (
     <>
       {/* Frosted pill on the pine canopy. One line, tap to change — the destination
@@ -1148,6 +1193,7 @@ export default function LocationPicker({ locale = 'fa-IR' }: Props) {
       </button>
 
       {sheet}
+      {askCard}
     </>
   );
 }

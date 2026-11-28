@@ -8,6 +8,7 @@ import { Link, useRouter } from "@/i18n/navigation";
 
 import { completeIntroAction } from "../../../server/actions/customer";
 import { PARENT_APP_PATH } from "../shell/tours-shell";
+import { responsiveImg } from "@/lib/media/responsive-img";
 
 /** Licensed background photo; CC BY-SA requires the visible credit below (public/images/tours/CREDITS.json). */
 const BACKGROUND = {
@@ -43,9 +44,9 @@ export function IntroScreen({ next }: { next: string }) {
     <section className="relative flex min-h-dvh flex-col overflow-hidden bg-emerald-950 text-white" aria-labelledby="intro-title" data-testid="tours-intro">
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        src={BACKGROUND.src}
-        srcSet={`${BACKGROUND.srcSmall} 720w, ${BACKGROUND.src} 1600w`}
-        sizes="100vw"
+        // Through the optimizer: a phone (412 px at 2.6x) used to pick the
+        // 1600 px original, 218 KB, while the title was being painted.
+        {...responsiveImg(BACKGROUND.src, "100vw")}
         alt={t("intro.photoAlt")}
         fetchPriority="high"
         decoding="async"

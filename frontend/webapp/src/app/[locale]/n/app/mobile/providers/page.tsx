@@ -10,21 +10,34 @@ import { buildPublicMetadata } from '@/lib/seo/metadata';
 import { absoluteUrl } from '@/lib/seo/alternates';
 import { breadcrumbList, collectionPage, graph, providerUrl } from '@/lib/seo/entity-schema';
 import { JsonLd } from '@/lib/seo/json-ld';
+import { ShopPagination } from '@/features/shop/components/ShopPagination';
 
 // Static / ISR — location-agnostic listing.
 export const dynamic = 'force-dynamic';
 
 // Generous cap for the full listing — the horizontal home rail shows only 8.
-// Kept as a single constant so it can move to config/pagination later without
-// hunting for a magic number (see get-home-page.ts for the offset hook).
 const TRUSTED_PROVIDERS_LISTING_LIMIT = 999;
+// Shown per page. All ~130 providers on one page made a 1.5 MB document (each
+// card is also serialised into the page data): ~2.8 s of parsing on a phone
+// before anything was interactive (2026-11-28). Page 1 is the indexed page;
+// ?page=N is "noindex, follow" (src/lib/seo/facet-headers.ts) and every
+// provider is in the sitemap.
+const PROVIDERS_PER_PAGE = 24;
 
-export async function generateMetadata({ params }: Pick<PageProps, 'params'>) {
+function pageFrom(value: string | string[] | undefined, totalPages: number) {
+  const parsed = Number.parseInt(Array.isArray(value) ? value[0] ?? "" : value ?? "", 10);
+  return Number.isFinite(parsed) && parsed >= 1 ? Math.min(parsed, Math.max(totalPages, 1)) : 1;
+}
+
+export async function generateMetadata({ params, searchParams }: PageProps) {
   const locale = await getLocaleFromParams(params);
   const t = await getTranslations({ locale, namespace: 'Home' });
+  const query = ((await searchParams) ?? {}) as Record<string, string | string[] | undefined>;
+  // Later pages name themselves as canonical (and carry "noindex, follow").
+  const page = pageFrom(query.page, Number.MAX_SAFE_INTEGER);
   return buildPublicMetadata({
     locale,
-    path: '/providers',
+    path: page > 1 ? `/providers?page=${page}` : '/providers',
     title: t('trustedPage.title'),
     descriptions: [t('trustedPage.subtitle')],
   });
@@ -35,11 +48,15 @@ async function getLocaleFromParams(params: PageProps['params']) {
   return String((resolved as { locale?: string } | undefined)?.locale || 'fa-IR');
 }
 
-export default async function TrustedProvidersPage({ params }: PageProps) {
+export default async function TrustedProvidersPage({ params, searchParams }: PageProps) {
   const locale = await getLocaleFromParams(params);
   const t = await getTranslations({ locale, namespace: 'Home' });
 
-  const providers = await getTrustedHomeProvidersCached({ locale }, TRUSTED_PROVIDERS_LISTING_LIMIT).catch(() => []);
+  const allProviders = await getTrustedHomeProvidersCached({ locale }, TRUSTED_PROVIDERS_LISTING_LIMIT).catch(() => []);
+  const totalPages = Math.ceil(allProviders.length / PROVIDERS_PER_PAGE);
+  const query = ((await searchParams) ?? {}) as Record<string, string | string[] | undefined>;
+  const page = pageFrom(query.page, totalPages);
+  const providers = allProviders.slice((page - 1) * PROVIDERS_PER_PAGE, page * PROVIDERS_PER_PAGE);
 
   const pageUrl = absoluteUrl(locale, '/providers');
   const brand = (await getTranslations({ locale, namespace: 'LocaleLayout' }))('title');
@@ -88,6 +105,7 @@ export default async function TrustedProvidersPage({ params }: PageProps) {
               providers={providers}
               locale={locale}
               variant="grid"
+              priorityCount={2}
               labels={{
                 emptyTitle: t('trusted.emptyTitle'),
                 emptyDescription: t('trusted.emptyDescription'),
@@ -95,6 +113,14 @@ export default async function TrustedProvidersPage({ params }: PageProps) {
               }}
             />
           </Suspense>
+        </div>
+        <div className="mt-8">
+          <ShopPagination
+            page={page}
+            totalPages={totalPages}
+            locale={locale}
+            hrefFor={(target) => (target === 1 ? '/providers' : `/providers?page=${target}`)}
+          />
         </div>
       </div>
     </div>

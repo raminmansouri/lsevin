@@ -128,7 +128,7 @@ export function StayImage({
   }
   return (
     <span className={cn("relative block overflow-hidden bg-slate-100", className)}>
-      <Image src={url} alt={alt} fill sizes={sizes} priority={priority} quality={70} className={objectFit} />
+      <Image src={url} alt={alt} fill sizes={sizes} priority={priority} fetchPriority={priority ? "high" : undefined} quality={70} className={objectFit} />
     </span>
   );
 }

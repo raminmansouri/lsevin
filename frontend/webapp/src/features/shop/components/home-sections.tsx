@@ -6,22 +6,27 @@ import type { HomeSection } from "../api/home.repository";
 import type { ProductCard as ProductCardModel } from "../types/domain";
 import { ProductCard, shopCardLabels } from "./ProductCard";
 import { shopImageSrc } from "../lib/image";
+import { responsiveImg } from "@/lib/media/responsive-img";
 
 export async function ProductGrid({
   products,
   locale,
   className = "",
+  priorityCount = 0,
 }: {
   products: ProductCardModel[];
   locale: string;
   className?: string;
+  /** Leading cards that are on screen when the page opens (none by default:
+   * on the shop home and a product page the grid is far below the fold). */
+  priorityCount?: number;
 }) {
   const t = await getTranslations("Shop");
   const labels = shopCardLabels(t);
   return (
     <div className={`grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 ${className}`}>
       {products.map((p, i) => (
-        <ProductCard key={p.id} product={p} locale={locale} labels={labels} priority={i < 4} />
+        <ProductCard key={p.id} product={p} locale={locale} labels={labels} priority={i < priorityCount} />
       ))}
     </div>
   );
@@ -39,7 +44,7 @@ function ShortcutRail({ section }: { section: Extract<HomeSection, { type: "shor
           >
             {s.imageUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={shopImageSrc(s.imageUrl)} alt={s.label} className="h-full w-full rounded-2xl object-cover" />
+              <img {...responsiveImg(shopImageSrc(s.imageUrl), "56px")} alt={s.label} className="h-full w-full rounded-2xl object-cover" loading="lazy" decoding="async" />
             ) : (
               (s.icon ?? "🏷️")
             )}
@@ -62,7 +67,7 @@ function PromoCards({ section }: { section: Extract<HomeSection, { type: "promo_
         >
           {p.imageUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={shopImageSrc(p.imageUrl)} alt={p.label} className="absolute inset-0 h-full w-full object-cover" />
+            <img {...responsiveImg(shopImageSrc(p.imageUrl), "50vw")} alt={p.label} className="absolute inset-0 h-full w-full object-cover" loading="lazy" decoding="async" />
           ) : (
             <div className="absolute inset-0 bg-gradient-to-br from-[#083f30] to-[#eacb7f]" />
           )}
@@ -82,9 +87,12 @@ function PromoCards({ section }: { section: Extract<HomeSection, { type: "promo_
 async function SectionRail({
   section,
   locale,
+  priority = false,
 }: {
   section: Extract<HomeSection, { type: "product_rail" }>;
   locale: string;
+  /** The first rail on the shop home: its first cards are the page's LCP. */
+  priority?: boolean;
 }) {
   const t = await getTranslations("Shop");
   const labels = shopCardLabels(t);
@@ -102,17 +110,25 @@ async function SectionRail({
         ) : null}
       </div>
       <div className="no-scrollbar mt-2 flex gap-2.5 overflow-x-auto px-4 pb-1">
-        {section.products.map((p) => (
-          <ProductCard key={p.id} product={p} locale={locale} labels={labels} className="w-[150px] shrink-0" />
+        {section.products.map((p, index) => (
+          <ProductCard
+            key={p.id}
+            product={p}
+            locale={locale}
+            labels={labels}
+            className="w-[150px] shrink-0"
+            imageSizes="150px"
+            priority={priority && index < 2}
+          />
         ))}
       </div>
     </section>
   );
 }
 
-export async function HomeSectionView({ section, locale }: { section: HomeSection; locale: string }) {
+export async function HomeSectionView({ section, locale, priority = false }: { section: HomeSection; locale: string; priority?: boolean }) {
   if (section.type === "shortcut_rail") return <ShortcutRail section={section} />;
   if (section.type === "promo_cards") return <PromoCards section={section} />;
-  if (section.type === "product_rail") return <SectionRail section={section} locale={locale} />;
+  if (section.type === "product_rail") return <SectionRail section={section} locale={locale} priority={priority} />;
   return null;
 }

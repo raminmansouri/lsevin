@@ -569,7 +569,8 @@ declare const messages: {
     },
     "consultationRequests": "Demandes de consultation",
     "nav": {
-      "editorial": "Contenu du site"
+      "editorial": "Contenu du site",
+      "amenities": "Équipements"
     }
   },
   "HomePage": {
@@ -2903,7 +2904,8 @@ declare const messages: {
       "permission": {
         "title": "Activer la localisation",
         "dismiss": "Plus tard",
-        "enable": "Activer"
+        "enable": "Activer",
+        "privacy": "Votre position reste sur cet appareil."
       }
     },
     "appBar": {

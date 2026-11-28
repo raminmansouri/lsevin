@@ -5,6 +5,7 @@ import { entityPath, toPublicPath } from "@/lib/routes/public-paths";
 import { ViewerPrice } from "@/features/finance/components/viewer-price";
 import { directoryHref, mapHref, setListingParams, slugLookup, type ListingSlugs } from "@/lib/routes/filter-paths";
 import { useRouter } from "next/navigation";
+import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { hasLexicalContent, LexicalRenderer } from "@/components/editor/lexical-renderer";
 import { formatMoney } from "@/features/finance/lib/money";
@@ -23,7 +24,6 @@ import {
 
 
 import { FavoriteButton } from "@/features/favorites/components/favorite-button";
-import { getFavoriteStatusAction } from "@/features/favorites/actions/favorite-actions";
 import ExploreFilterPanel, { type ExploreFilterValues } from "./ExploreFilterPanel";
 import type {
   ExploreCategory,
@@ -236,22 +236,9 @@ function ExploreFavoriteButton({
   entityType: "provider" | "service";
   className?: string;
 }) {
-  const [isFavorite, setIsFavorite] = useState(false);
-
-  useEffect(() => {
-    getFavoriteStatusAction({ entityType, entityId })
-      .then((result) => setIsFavorite(result.isFavorite))
-      .catch(() => undefined);
-  }, [entityType, entityId]);
-
-  return (
-    <FavoriteButton
-      entityId={entityId}
-      entityType={entityType}
-      initialIsFavorite={isFavorite}
-      className={className}
-    />
-  );
+  // FavoriteButton asks for its status itself, batched with every other heart
+  // on the page. This wrapper used to send one more request per card.
+  return <FavoriteButton entityId={entityId} entityType={entityType} className={className} />;
 }
 
 
@@ -571,7 +558,7 @@ export default function ExploreClient({
         </div>
 
         <div className="space-y-3 px-5">
-          {featuredProviders.map((provider) => {
+          {featuredProviders.map((provider, providerIndex) => {
             // No gallery stand-in: the avatar is the provider's own picture or a
             // branded block. /placeholder-provider.svg cannot be used here because
             // the image optimizer rejects SVG unless dangerouslyAllowSVG is on.
@@ -580,16 +567,18 @@ export default function ExploreClient({
             return (
             <div
               key={`featured-provider-${provider.id}`}
-              onClick={() => router.push(entityPath("provider", provider))}
-              className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-lg transition-all cursor-pointer"
+              className="relative bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-lg transition-all cursor-pointer"
             >
               
               <div className="flex gap-4 p-4">
                 <div className="relative flex-shrink-0">
                   {providerImage ? (
                   <ImageWithFallback
-                       width={200}
-                height={200}
+                    width={96}
+                    height={96}
+                    sizes="96px"
+                    // The first card's photo is the page's Largest Contentful Paint on a phone.
+                    priority={providerIndex < 2}
                     src={providerImage}
                     alt={provider.name}
                     className="w-24 h-24 rounded-xl object-cover"
@@ -611,7 +600,12 @@ export default function ExploreClient({
                 </div>
 
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-bold text-gray-900 mb-1 line-clamp-1">{provider.name}</h3>
+                  {/* A real link (the whole card is its click area) so crawlers reach the provider. */}
+                  <h3 className="font-bold text-gray-900 mb-1 line-clamp-1">
+                    <Link href={entityPath("provider", provider)} className="after:absolute after:inset-0 after:content-['']">
+                      {provider.name}
+                    </Link>
+                  </h3>
                   <div className="flex items-center gap-1.5 mb-2">
                     <MapPin size={14} className="text-gray-400 flex-shrink-0" />
                     <span className="text-sm text-gray-600 line-clamp-1">{provider.location}</span>
@@ -655,7 +649,7 @@ export default function ExploreClient({
                 <ExploreFavoriteButton
                   entityId={provider.id}
                   entityType="provider"
-                  className="!h-9 !w-9 flex-shrink-0 bg-gray-50 text-gray-700 shadow-sm"
+                  className="relative z-10 !h-9 !w-9 flex-shrink-0 bg-gray-50 text-gray-700 shadow-sm"
                 />
               </div>
             </div>
@@ -668,8 +662,9 @@ export default function ExploreClient({
         <div className="px-5 py-4">
           <div className="relative rounded-2xl overflow-hidden shadow-lg">
             <ImageWithFallback
-                 width={200}
-                height={200}
+              width={430}
+              height={240}
+              sizes="100vw"
               src={mediaUrl(sponsoredProviders[0].image)}
               alt={t("sponsored.alt")}
               className="absolute inset-0 w-full h-full object-cover"
@@ -728,15 +723,15 @@ export default function ExploreClient({
             return (
             <div
               key={`trending-service-${service.id}`}
-              onClick={() => router.push(entityPath("service", service))}
-              className="flex-none w-64 bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all cursor-pointer border border-gray-100"
+              className="relative flex-none w-64 bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all cursor-pointer border border-gray-100"
             >
               
               <div className="relative aspect-[16/10]">
                 {serviceImage ? (
                 <ImageWithFallback
-                     width={200}
-                height={200}
+                  width={256}
+                  height={160}
+                  sizes="256px"
                   src={serviceImage}
                   alt={service.name}
                   className="w-full h-full object-cover"
@@ -755,7 +750,7 @@ export default function ExploreClient({
                   </div>
                 )}
 
-                <div className="absolute top-3 right-3">
+                <div className="absolute top-3 right-3 z-10">
                   <ExploreFavoriteButton
                     entityId={service.id}
                     entityType="service"
@@ -765,7 +760,11 @@ export default function ExploreClient({
               </div>
 
               <div className="p-4">
-                <h3 className="font-bold text-gray-900 mb-1 line-clamp-1">{service.name}</h3>
+                <h3 className="font-bold text-gray-900 mb-1 line-clamp-1">
+                  <Link href={entityPath("service", service)} className="after:absolute after:inset-0 after:content-['']">
+                    {service.name}
+                  </Link>
+                </h3>
                 <p className="text-sm text-gray-600 mb-3 line-clamp-1">{service.provider}</p>
 
                 <div className="flex items-center gap-1 mb-3">

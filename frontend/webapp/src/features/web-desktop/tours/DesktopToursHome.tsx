@@ -83,7 +83,7 @@ export function DesktopToursHome({
       <section className="mx-auto max-w-[1360px] px-6 pt-6">
         <div className="relative h-[560px] overflow-hidden rounded-[40px] bg-[#062a20]">
           <div className="lsd-kenburns absolute inset-0">
-            <TourImage src={heroImage} alt="" className="h-full w-full" eager />
+            <TourImage src={heroImage} alt="" className="h-full w-full" sizes="100vw" />
           </div>
           <div className="absolute inset-0 bg-gradient-to-t from-[#04130e] via-[#062a20]/55 to-[#062a20]/10" />
           <div

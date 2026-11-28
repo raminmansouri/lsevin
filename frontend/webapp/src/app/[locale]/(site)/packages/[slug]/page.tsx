@@ -93,7 +93,7 @@ export default async function SpecialPackageDetailPage({ params }: PageProps) {
       <div className="px-5 py-6">
         <div className="relative h-56 w-full overflow-hidden rounded-3xl bg-gray-100 shadow-sm">
           {mediaUrl ? (
-            <ImageWithFallback fill src={mediaUrl} alt={pkg.title} sizes="100vw" className="object-cover" />
+            <ImageWithFallback fill src={mediaUrl} alt={pkg.title} sizes="100vw" className="object-cover" priority />
           ) : (
             <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#083f30] to-[#0a5a44]">
               <Sparkles size={40} className="text-[#eacb7f]" />

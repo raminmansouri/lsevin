@@ -89,7 +89,7 @@ export function Gallery({ media, title, overlay }: { media: Media[]; title: stri
                 i === index ? "ring-emerald-600" : "ring-transparent opacity-80",
               )}
             >
-              <TourImage src={m.thumbnailUrl ?? m.url} alt="" className="h-full w-full" />
+              <TourImage src={m.thumbnailUrl ?? m.url} alt="" className="h-full w-full" sizes="96px" />
             </button>
           ))}
         </div>

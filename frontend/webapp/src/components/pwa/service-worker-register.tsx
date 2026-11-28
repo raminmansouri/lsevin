@@ -172,16 +172,28 @@ export function ServiceWorkerRegister() {
         );
       }
     };
-    // Slow images and third-party resources must not delay offline readiness.
-    if (document.readyState !== "loading") void register();
-    else
-      document.addEventListener("DOMContentLoaded", register, { once: true });
+    // After the page's own load, so the worker's install (the offline shell)
+    // does not compete with the first paint on a slow phone connection; but no
+    // later than 4 s, so slow images or third parties cannot hold back offline
+    // readiness indefinitely (2026-11-28; previously at DOMContentLoaded).
+    let started = false;
+    const start = () => {
+      if (started) return;
+      started = true;
+      window.clearTimeout(startTimer);
+      window.removeEventListener("load", start);
+      void register();
+    };
+    const startTimer = window.setTimeout(start, 4000);
+    if (document.readyState === "complete") start();
+    else window.addEventListener("load", start, { once: true });
     return () => {
       disposed = true;
       window.removeEventListener("lsevin-online-required", onlineRequired);
       window.clearTimeout(noticeTimer);
       window.removeEventListener("lsevin-offline-navigate", offlineNavigate);
-      document.removeEventListener("DOMContentLoaded", register);
+      window.clearTimeout(startTimer);
+      window.removeEventListener("load", start);
       window.removeEventListener("online", connectionChanged);
       window.removeEventListener("offline", connectionChanged);
       window.removeEventListener("beforeinstallprompt", beforeInstall);

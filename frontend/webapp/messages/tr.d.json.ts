@@ -647,7 +647,8 @@ declare const messages: {
     },
     "consultationRequests": "Danışmanlık talepleri",
     "nav": {
-      "editorial": "Site içeriği"
+      "editorial": "Site içeriği",
+      "amenities": "Olanaklar"
     }
   },
   "HomePage": {
@@ -3102,6 +3103,7 @@ declare const messages: {
         "dismiss": "Şimdi değil",
         "enable": "Aç",
         "why": "Size yakın klinikleri, otelleri ve hizmetleri gösterebilmemiz için konumunuzu kullanmak istiyoruz. Konumunuz yalnızca bu cihazda en yakın seçenekleri bulmak için kullanılır ve istediğiniz zaman değiştirebilirsiniz.",
+        "privacy": "Konumunuz bu cihazda kalır.",
         "deniedTitle": "Bu site için konum izni kapalı",
         "deniedHelp": "Sorun değil; şimdilik bölgenizi internet bağlantınızdan belirledik. Daha sonra tam konumunuzu kullanmak isterseniz adres çubuğunun yanındaki kilit simgesine dokunun, “Konum” iznini verin ve sayfayı yenileyin. Ya da aşağıdan şehrinizi arayın."
       },
@@ -7708,6 +7710,7 @@ declare const messages: {
     "locationPrompt": {
       "title": "Yakınınızdakileri gösterelim mi?",
       "body": "Konumunuzla haritayı tam bulunduğunuz yerde açar ve sağlayıcıları mesafeye göre sıralarız. Konumunuz bu cihazda kalır.",
+      "privacy": "Konumunuz bu cihazda kalır.",
       "allow": "Konumumu kullan",
       "notNow": "Şimdi değil"
     }

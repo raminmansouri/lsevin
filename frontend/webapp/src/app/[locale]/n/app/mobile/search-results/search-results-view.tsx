@@ -17,6 +17,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { env } from "@/config/env/client";
 import { useFetchSearchResults } from "@/features/service-providers/api/client/fetch-search-results";
+import type { SearchResultsResponse } from "@/features/service-providers/types";
 import { useNavigate } from "@/hooks/use-navigate";
 import { FavoriteButton } from "@/features/favorites/components/favorite-button";
 
@@ -37,7 +38,14 @@ function resolveMediaUrl(value?: string | null) {
   return base ? `${base}/${path}` : `/${path}`;
 }
 
-export function SearchResultsView() {
+export function SearchResultsView({
+  initialTerm,
+  initialData,
+}: {
+  /** The term the server already searched for (`?q=` of the request). */
+  initialTerm?: string;
+  initialData?: SearchResultsResponse;
+} = {}) {
   const t = useTranslations("SearchResults");
   // Format with the page's locale: a bare toLocaleString() used the server's
   // default (Latin digits) and the browser's (Persian), so hydration failed.
@@ -49,7 +57,9 @@ export function SearchResultsView() {
   const [sortBy, setSortBy] = useState("relevance");
   const [showFilters, setShowFilters] = useState(false);
 
-  const { data, isFetching, isPending } = useFetchSearchResults(query);
+  const { data, isFetching, isPending } = useFetchSearchResults(query, {
+    initialData: initialData && query.trim() === (initialTerm ?? "").trim() ? initialData : undefined,
+  });
 
   // Read straight off the query instead of mirroring it into state: the old
   // effect copy left the list at `[]` for the whole first request (which is
@@ -168,7 +178,7 @@ export function SearchResultsView() {
         }`}
       >
         {isSearching ? <SearchResultsSkeleton /> : null}
-        {results.map((result) => {
+        {results.map((result, resultIndex) => {
           // Never hand next/image an empty src: fall back to the neutral
           // placeholder when the server could not resolve an image.
           const mediaUrl =
@@ -188,6 +198,8 @@ export function SearchResultsView() {
                   alt={result.name}
                   width={112}
                   height={112}
+                  sizes="112px"
+                  priority={resultIndex === 0}
                   className="h-28 w-28 rounded-xl object-cover"
                 />
                 {result.verified && (

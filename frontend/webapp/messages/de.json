@@ -2901,7 +2901,8 @@
       "permission": {
         "title": "Standort aktivieren",
         "dismiss": "Nicht jetzt",
-        "enable": "Aktivieren"
+        "enable": "Aktivieren",
+        "privacy": "Ihr Standort bleibt auf diesem Gerät."
       }
     },
     "appBar": {

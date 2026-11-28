@@ -173,7 +173,7 @@ export function DesktopTourDetail({
           {mosaic.map((image, index) => (
             <div key={image.id} className={`group relative overflow-hidden rounded-[28px] bg-[#062a20] ${index === 0 && mosaic.length > 1 ? "col-span-2 row-span-2" : ""}`}>
               <div className="absolute inset-0 transition-transform duration-[1.4s] group-hover:scale-105">
-                <TourImage src={image.url} alt={image.alt ?? title} className="h-full w-full" eager={index === 0} />
+                <TourImage src={image.url} alt={image.alt ?? title} className="h-full w-full" sizes="(min-width: 1280px) 60vw, 100vw" />
               </div>
               {index === mosaic.length - 1 && images.length > mosaic.length ? (
                 <span className="absolute inset-0 grid place-items-center bg-[#062a20]/55 text-2xl font-black text-white">+{formatNumber(images.length - mosaic.length, locale)}</span>

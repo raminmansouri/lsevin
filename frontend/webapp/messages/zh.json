@@ -5365,7 +5365,8 @@
       "permission": {
         "dismiss": "暂不",
         "enable": "开启",
-        "title": "开启定位"
+        "title": "开启定位",
+        "privacy": "您的位置只保存在此设备上。"
       },
       "selectLocation": "选择位置",
       "source": {

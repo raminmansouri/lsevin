@@ -8,7 +8,7 @@ import { ImageWithFallback } from '@/components/ui/image-with-fallback';
 import type { HomeFeaturedService } from '@/features/home/api/server/get-home-page';
 import { resolveHomeMediaUrl } from '@/features/home/components/home-media';
 import { ViewerPrice } from '@/features/finance/components/viewer-price';
-import { HomeLexicalDescription } from '@/features/home/components/home-lexical-description';
+import { toSeoPlainText } from '@/lib/seo/plain-text';
 import { Link } from '@/i18n/navigation';
 import { entityPath } from '@/lib/routes/public-paths';
 
@@ -186,11 +186,10 @@ function FeaturedServiceCard({
         <h3 className="mb-1 line-clamp-2 text-xs font-bold text-gray-900 @min-[220px]:line-clamp-1 @min-[220px]:text-base">
           {service.displayName}
         </h3>
-        <HomeLexicalDescription
-          content={service.description}
-          className="mb-2 line-clamp-1 text-[10px] text-gray-600 [&_p]:line-clamp-1 @min-[220px]:mb-3 @min-[220px]:text-sm"
-          fallback={labels.noDescription}
-        />
+        {/* A one-line excerpt flattened on the server (not the whole rich-text document). */}
+        <p className="mb-2 line-clamp-1 text-[10px] text-gray-600 @min-[220px]:mb-3 @min-[220px]:text-sm">
+          {toSeoPlainText(service.description, 120) || labels.noDescription}
+        </p>
 
         <div className="mb-2 flex items-center gap-1.5 border-b border-gray-100 pb-2 @min-[220px]:mb-3 @min-[220px]:gap-2 @min-[220px]:pb-3">
           <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-gray-100 @min-[220px]:h-8 @min-[220px]:w-8">

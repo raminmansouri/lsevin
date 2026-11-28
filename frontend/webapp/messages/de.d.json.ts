@@ -569,7 +569,8 @@ declare const messages: {
     },
     "consultationRequests": "Beratungsanfragen",
     "nav": {
-      "editorial": "Website-Inhalte"
+      "editorial": "Website-Inhalte",
+      "amenities": "Ausstattung"
     }
   },
   "HomePage": {
@@ -2903,7 +2904,8 @@ declare const messages: {
       "permission": {
         "title": "Standort aktivieren",
         "dismiss": "Nicht jetzt",
-        "enable": "Aktivieren"
+        "enable": "Aktivieren",
+        "privacy": "Ihr Standort bleibt auf diesem Gerät."
       }
     },
     "appBar": {
