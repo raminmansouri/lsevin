@@ -11,7 +11,7 @@ import {
 } from "@/features/shop/api/catalog.repository.cached";
 import { getShopHomeCached } from "@/features/shop/api/home.repository.cached";
 import { ShopHeader } from "@/features/shop/components/ShopHeader";
-import { HomeSectionView, ProductGrid } from "@/features/shop/components/home-sections";
+import { HomeSectionView } from "@/features/shop/components/home-sections";
 import { searchProducts } from "@/features/shop/api/catalog.repository";
 import { RecentlyViewedRail } from "@/features/shop/components/RecentlyViewedRail";
 import { SponsoredPlacementSlot } from "@/features/sponsered-slider/components/sponsored-placement-slot";
@@ -126,14 +126,20 @@ export default async function ShopHomePage({ params }: { params: Promise<{ local
 
       <SponsoredPlacementSlot locale={locale} placement="shop_home" />
 
-      <section className="mt-2 px-4 pt-3">
-        <h2 className="mb-2.5 text-[17px] font-extrabold text-neutral-900">{t("featured")}</h2>
-        {feed.items.length ? (
-          <ProductGrid products={feed.items} locale={locale} />
-        ) : (
-          <p className="rounded-xl bg-white p-8 text-center text-sm text-neutral-500">{t("noResults")}</p>
-        )}
-      </section>
+      {feed.items.length ? (
+        <HomeSectionView
+          locale={locale}
+          section={{
+            key: "featured-feed",
+            type: "product_rail",
+            title: t("featured"),
+            subtitle: "",
+            querySource: "featured",
+            products: feed.items.slice(0, 12),
+            viewAllHref: "/shop/search",
+          }}
+        />
+      ) : null}
     </div>
     <ViewportOnly media={DESKTOP_MEDIA}>
       <DesktopShopHome locale={locale} sections={home.sections} feed={feed.items} />
