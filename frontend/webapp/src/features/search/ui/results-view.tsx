@@ -62,7 +62,8 @@ export function SearchResultsView({ locale, query, type, response, failed }: Pro
   return (
     <main dir={dir} className="mx-auto w-full max-w-3xl px-4 py-6" data-testid="search-page">
       <h1 className="mb-4 text-xl font-bold">{strings.title}</h1>
-      <SearchBox locale={locale} initialQuery={query} type={type} />
+      {/* Keyed by the query: browser Back/Forward changes the URL without remounting the page, and the field must follow it. */}
+      <SearchBox key={`${query}|${type}`} locale={locale} initialQuery={query} type={type} />
 
       <nav aria-label={strings.title} className="mt-4 flex flex-wrap gap-2">
         {(["all", ...DOC_TYPES] as const).map((value) => {

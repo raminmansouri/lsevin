@@ -87,7 +87,11 @@ export function SearchBox({ locale, initialQuery = "", type = "all", autoFocus =
     }}>
       <div className="flex items-center gap-2 rounded-2xl border border-neutral-300 bg-white px-4 py-2 shadow-sm focus-within:border-teal-600 focus-within:ring-2 focus-within:ring-teal-600/30">
         <input
-          type="search"
+          // Not type="search": Chrome clears a search input on Escape, which would erase what
+          // the visitor typed when they only meant to close the suggestions.
+          type="text"
+          inputMode="search"
+          enterKeyHint="search"
           name="q"
           value={value}
           onChange={(event) => {
