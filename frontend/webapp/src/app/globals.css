@@ -342,3 +342,10 @@ html {
 html::-webkit-scrollbar {
   display: none;
 }
+
+
+@media (min-width: 1280px) {
+  body:has([data-shop-cream]) {
+    background-color: #f7f2e7;
+  }
+}

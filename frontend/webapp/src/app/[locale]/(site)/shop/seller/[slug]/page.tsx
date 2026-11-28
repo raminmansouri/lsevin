@@ -6,7 +6,9 @@ import { ShieldCheck, Store } from "lucide-react";
 
 import { getCartView } from "@/features/shop/api/cart.repository";
 import { getShopSellerBySlug } from "@/features/shop/api/catalog.repository";
-import { ProductListView } from "@/features/shop/components/ProductListView";
+import { getShopFacetsAction, searchShopProductsAction } from "@/features/shop/actions/catalog.actions";
+import { ShopCatalog } from "@/features/shop/components/catalog/ShopCatalog";
+import { parseShopFilters, shopFiltersInput } from "@/features/shop/lib/catalog-filters";
 import { ShopHeader } from "@/features/shop/components/ShopHeader";
 import { getShopContext } from "@/features/shop/lib/context";
 import { resolveDisplayCurrency } from "@/features/shop/lib/pricing";
@@ -51,7 +53,16 @@ export default async function ShopSellerPage({
     getTranslations("Shop.sellerPage"),
   ]);
   if (!seller) notFound();
-  const { currency, selectable } = await resolveDisplayCurrency(ctx);
+  const filters = parseShopFilters((key) => {
+    const value = sp[key];
+    return Array.isArray(value) ? value[0] : value;
+  });
+  const input = shopFiltersInput(filters, { seller: slug }, locale, 24);
+  const [{ currency, selectable }, results, facets] = await Promise.all([
+    resolveDisplayCurrency(ctx),
+    searchShopProductsAction(input),
+    getShopFacetsAction({ ...input, fixedCategory: false }),
+  ]);
 
   const years = Math.floor((Date.now() - Date.parse(seller.joinedAt)) / (365.25 * 24 * 60 * 60 * 1000));
   const labels = {
@@ -61,7 +72,7 @@ export default async function ShopSellerPage({
   };
 
   return (
-    <div className="min-h-screen bg-neutral-50">
+    <div data-shop-cream="" className="min-h-screen bg-neutral-50 xl:bg-[#f7f2e7] xl:pb-10">
       <ShopHeader
         cartCount={cart.itemCount}
         searchDefault=""
@@ -103,11 +114,14 @@ export default async function ShopSellerPage({
 
       <DesktopSellerHeader seller={seller} labels={labels} />
 
-      <ProductListView
+      <ShopCatalog
         locale={locale}
         basePath={`/shop/seller/${slug}`}
-        searchParams={sp}
         fixed={{ seller: slug }}
+        initialFilters={filters}
+        initialItems={results.items}
+        initialTotal={results.total}
+        initialFacets={facets}
       />
     </div>
   );

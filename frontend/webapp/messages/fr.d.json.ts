@@ -13650,6 +13650,25 @@ declare const messages: {
     }
   },
   "Shop": {
+    "filter": {
+      "title": "Filtres",
+      "category": "Catégorie",
+      "brand": "Marque",
+      "seller": "Vendeur",
+      "price": "Fourchette de prix",
+      "quick": "Filtres rapides",
+      "searchIn": "Rechercher dans {name}",
+      "showAll": "Tout afficher ({count})",
+      "showLess": "Afficher moins",
+      "clearAll": "Tout effacer",
+      "showResults": "Voir {count} produits",
+      "sort": "Trier",
+      "from": "De",
+      "to": "À",
+      "noOptions": "Aucune option",
+      "close": "Fermer",
+      "sortBestSeller": "Meilleures ventes"
+    },
     "checkoutHints": {
       "completeToPay": "Complétez ces éléments pour payer :",
       "required": "Saisissez {field}.",

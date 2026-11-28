@@ -114,7 +114,7 @@ export default async function ShopHomePage({ params }: { params: Promise<{ local
       {/* The header shows the brand bar, not a heading; the mobile view (the one
           Google indexes) still needs the page's h1. */}
       <h1 className="sr-only">{t("title")}</h1>
-      <ShopHeader currency={home.currency} selectableCurrencies={home.selectableCurrencies} />
+      <ShopHeader filterEntry currency={home.currency} selectableCurrencies={home.selectableCurrencies} />
 
       <div className="space-y-1 bg-white pb-2">
         {home.sections.map((section) => (

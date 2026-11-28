@@ -11,6 +11,7 @@ import { CategoryForm } from "@/features/shop/components/admin/CategoryForm";
 import { PendingSubmitButton } from "@/features/shop/components/admin/PendingSubmitButton";
 import { ShopDeleteButton } from "@/features/shop/components/admin/ShopDeleteButton";
 import { ServiceDefinitionPicker } from "@/features/shop/components/admin/ServiceDefinitionPicker";
+import { AttributeValuePicker } from "@/features/shop/components/admin/AttributeValuePicker";
 import {
   deleteCategoryAction,
   linkCategoryServiceForm,

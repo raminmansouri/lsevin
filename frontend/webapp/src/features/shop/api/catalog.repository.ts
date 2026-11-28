@@ -158,6 +158,235 @@ export async function getShopBrands(
   `;
 }
 
+type ProductFilters = ReturnType<typeof productSearchSchema.parse>;
+type FacetKey = "brand" | "seller" | "attrs" | "price" | "category";
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const listOf = (value?: string) =>
+  (value ?? "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+
+async function attrGroupsOf(attrs?: string): Promise<string[][]> {
+  const ids = listOf(attrs).filter((id) => UUID_RE.test(id));
+  if (!ids.length) return [];
+  const rows = await sql<{ id: string; attributeId: string }[]>`
+    select id::text as id, attribute_id::text as "attributeId"
+    from shop.attribute_values where id = any(${ids}::uuid[])
+  `;
+  const groups = new Map<string, string[]>();
+  for (const row of rows) groups.set(row.attributeId, [...(groups.get(row.attributeId) ?? []), row.id]);
+  return [...groups.values()];
+}
+
+function productFilterConditions(
+  filters: ProductFilters,
+  opts: { sellerScope: "lateral" | "exists"; attrGroups: string[][]; exclude?: FacetKey[] },
+) {
+  const skip = new Set(opts.exclude ?? []);
+  const conditions = [sql`p.deleted_at is null`, sql`p.status = 'active'`];
+  if (filters.category && !skip.has("category"))
+    conditions.push(sql`exists (
+      with recursive tree as (
+        select id from shop.categories where slug = ${filters.category} and deleted_at is null
+        union all
+        select c.id from shop.categories c join tree on c.parent_id = tree.id where c.deleted_at is null
+      )
+      select 1 from shop.product_categories pc where pc.product_id = p.id and pc.category_id in (select id from tree)
+    )`);
+  const brands = listOf(filters.brand);
+  if (brands.length && !skip.has("brand"))
+    conditions.push(sql`exists (select 1 from shop.brands fb where fb.id = p.brand_id and fb.slug = any(${brands}))`);
+  if (filters.featuredOnly) conditions.push(sql`p.is_featured = true`);
+  if (filters.bestSellerOnly) conditions.push(sql`p.is_best_seller = true`);
+  if (filters.seller) {
+    conditions.push(
+      opts.sellerScope === "lateral"
+        ? sql`price_summary.min_price is not null`
+        : sql`exists (
+            select 1 from shop.offers fo join shop.sellers fs on fs.id = fo.seller_id
+            where fo.product_id = p.id and fs.slug = ${filters.seller}
+              and fs.is_active and fs.deleted_at is null and fs.shop_status = 'active'
+              and fo.deleted_at is null and fo.is_active and fo.admin_status = 'approved'
+          )`,
+    );
+  }
+  const sellers = listOf(filters.sellers);
+  if (sellers.length && !skip.has("seller"))
+    conditions.push(sql`exists (
+      select 1 from shop.offers fo join shop.sellers fs on fs.id = fo.seller_id
+      where fo.product_id = p.id and fs.slug = any(${sellers})
+        and fs.is_active and fs.deleted_at is null and fs.shop_status = 'active'
+        and fo.deleted_at is null and fo.is_active and fo.admin_status = 'approved'
+    )`);
+  if (!skip.has("attrs")) {
+    for (const group of opts.attrGroups) {
+      conditions.push(sql`(
+        exists (select 1 from shop.product_attributes fpa where fpa.product_id = p.id and fpa.value_ids::text[] && ${group}::text[])
+        or exists (
+          select 1 from shop.product_variants fpv join shop.variant_attribute_values fvav on fvav.variant_id = fpv.id
+          where fpv.product_id = p.id and fpv.deleted_at is null and fpv.is_active and fvav.attribute_value_id = any(${group}::uuid[])
+        )
+      )`);
+    }
+  }
+  if (filters.discountedOnly)
+    conditions.push(sql`p.compare_at_price is not null and p.compare_at_price > coalesce(price_summary.min_price, p.base_price)`);
+  if (filters.slugs && filters.slugs.length) conditions.push(sql`p.slug = any(${filters.slugs})`);
+  if (filters.minRating > 0) conditions.push(sql`coalesce(review_summary.avg_rating, 0) >= ${filters.minRating}`);
+  if (filters.inStockOnly) conditions.push(sql`coalesce(price_summary.has_stock, false) = true`);
+  if (!skip.has("price")) {
+    if (filters.minPrice > 0) conditions.push(sql`coalesce(price_summary.min_price, p.base_price) >= ${filters.minPrice}`);
+    if (filters.maxPrice > 0) conditions.push(sql`coalesce(price_summary.min_price, p.base_price) <= ${filters.maxPrice}`);
+  }
+  if (filters.q) {
+    const like = `%${filters.q}%`;
+    conditions.push(sql`(
+      p.search_vector @@ websearch_to_tsquery('simple', ${filters.q})
+      or exists (
+        select 1 from jsonb_each_text(case when jsonb_typeof(p.name_translations) = 'object' then p.name_translations else '{}'::jsonb end) t
+        where t.value ilike ${like})
+      or exists (
+        select 1 from jsonb_each_text(case when jsonb_typeof(p.short_description_translations) = 'object' then p.short_description_translations else '{}'::jsonb end) t
+        where t.value ilike ${like})
+      or exists (
+        select 1 from shop.brands b,
+          jsonb_each_text(case when jsonb_typeof(b.name_translations) = 'object' then b.name_translations else '{}'::jsonb end) t
+        where b.id = p.brand_id and t.value ilike ${like})
+    )`);
+  }
+  return conditions;
+}
+
+export type ShopFacetOption = { slug: string; name: string; count: number };
+export type ShopFacets = {
+  total: number;
+  price: { min: number; max: number; histogram: number[] };
+  categories: Array<ShopFacetOption & { parentSlug: string | null }>;
+  brands: ShopFacetOption[];
+  sellers: ShopFacetOption[];
+  attributes: Array<{
+    id: string;
+    slug: string;
+    name: string;
+    displayType: string;
+    values: Array<{ id: string; label: string; colorHex: string | null; count: number }>;
+  }>;
+};
+
+export async function getShopFacets(input: unknown, opts: { locale: string; fixedCategory?: boolean }): Promise<ShopFacets> {
+  const filters = productSearchSchema.parse(input ?? {});
+  const lang = normalizeLocale(opts.locale);
+  const attrGroups = await attrGroupsOf(filters.attrs);
+  const from = sql`from shop.products p
+    left join shop.v_product_price_summary price_summary on price_summary.product_id = p.id
+    left join (
+      select product_id, avg(rating)::float as avg_rating from shop.product_reviews where status = 'approved' group by product_id
+    ) review_summary on review_summary.product_id = p.id`;
+  const where = (exclude: FacetKey[]) =>
+    sql`where ${joinSql(productFilterConditions(filters, { sellerScope: "exists", attrGroups, exclude }), sql` and `)}`;
+  const priceOf = sql`coalesce(price_summary.min_price, p.base_price)`;
+
+  const [totalRows, priceRows, brands, sellers, categories, attrRows] = await Promise.all([
+    sql<{ total: number }[]>`select count(*)::int as total ${from} ${where([])}`,
+    sql<{ min: number | null; max: number | null }[]>`select min(${priceOf})::float as min, max(${priceOf})::float as max ${from} ${where(["price"])}`,
+    sql<ShopFacetOption[]>`
+      select fb.slug, common.get_translation_t(fb.name_translations, ${lang}, 'en') as name, count(distinct p.id)::int as count
+      ${from}
+      join shop.brands fb on fb.id = p.brand_id and fb.deleted_at is null and fb.is_active
+      ${where(["brand"])}
+      group by fb.slug, name
+      order by count desc, name asc
+      limit 60
+    `,
+    filters.seller
+      ? Promise.resolve([] as ShopFacetOption[])
+      : sql<ShopFacetOption[]>`
+          select fs.slug, common.get_translation_t(fs.name_translations, ${lang}, 'en') as name, count(distinct p.id)::int as count
+          ${from}
+          join shop.offers fo on fo.product_id = p.id and fo.deleted_at is null and fo.is_active and fo.admin_status = 'approved'
+          join shop.sellers fs on fs.id = fo.seller_id and fs.is_active and fs.deleted_at is null and fs.shop_status = 'active'
+          ${where(["seller"])}
+          group by fs.slug, name
+          order by count desc, name asc
+        `,
+    opts.fixedCategory
+      ? Promise.resolve([] as Array<ShopFacetOption & { parentSlug: string | null }>)
+      : sql<Array<ShopFacetOption & { parentSlug: string | null }>>`
+          select fc.slug, common.get_translation_t(fc.name_translations, ${lang}, 'en') as name,
+            fparent.slug as "parentSlug", count(distinct p.id)::int as count
+          ${from}
+          join shop.product_categories fpc on fpc.product_id = p.id
+          join shop.categories fc on fc.id = fpc.category_id and fc.deleted_at is null and fc.is_active
+          left join shop.categories fparent on fparent.id = fc.parent_id
+          ${where(["category"])}
+          group by fc.slug, name, fparent.slug, fc.display_order
+          order by fc.display_order asc, name asc
+        `,
+    sql<
+      Array<{ attributeId: string; attributeSlug: string; attributeName: string; displayType: string; id: string; label: string; colorHex: string | null; count: number }>
+    >`
+      select fa.id::text as "attributeId", fa.slug as "attributeSlug",
+        common.get_translation_t(fa.name_translations, ${lang}, 'en') as "attributeName",
+        fa.display_type as "displayType",
+        fav.id::text as id,
+        coalesce(nullif(common.get_translation_t(fav.display_name_translations, ${lang}, 'en'), ''), fav.value) as label,
+        fav.color_hex as "colorHex",
+        count(distinct p.id)::int as count
+      ${from}
+      join (
+        select fpa.product_id, v::text as value_id
+        from shop.product_attributes fpa cross join lateral unnest(fpa.value_ids) v
+        union
+        select fpv.product_id, fvav.attribute_value_id::text
+        from shop.variant_attribute_values fvav
+        join shop.product_variants fpv on fpv.id = fvav.variant_id and fpv.deleted_at is null and fpv.is_active
+      ) fx on fx.product_id = p.id
+      join shop.attribute_values fav on fav.id::text = fx.value_id
+      join shop.attributes fa on fa.id = fav.attribute_id and fa.is_filterable
+      ${where(["attrs"])}
+      group by fa.id, fa.slug, fa.name_translations, fa.display_type, fav.id, fav.value, fav.display_name_translations, fav.color_hex
+      order by "attributeName" asc, count desc, label asc
+    `,
+  ]);
+
+  const min = Math.floor(priceRows[0]?.min ?? 0);
+  const max = Math.ceil(priceRows[0]?.max ?? 0);
+  const buckets = 24;
+  const histogram = new Array<number>(buckets).fill(0);
+  if (max > min) {
+    const rows = await sql<{ bucket: number; count: number }[]>`
+      select least(width_bucket(${priceOf}, ${min}, ${max + 1}, ${buckets}), ${buckets})::int as bucket, count(*)::int as count
+      ${from} ${where(["price"])}
+      group by bucket
+    `;
+    for (const row of rows) if (row.bucket >= 1) histogram[row.bucket - 1] = row.count;
+  }
+
+  const attributes = new Map<string, ShopFacets["attributes"][number]>();
+  for (const row of attrRows) {
+    const attribute = attributes.get(row.attributeId) ?? {
+      id: row.attributeId,
+      slug: row.attributeSlug,
+      name: row.attributeName,
+      displayType: row.displayType,
+      values: [],
+    };
+    attribute.values.push({ id: row.id, label: row.label, colorHex: row.colorHex, count: row.count });
+    attributes.set(row.attributeId, attribute);
+  }
+
+  return {
+    total: totalRows[0]?.total ?? 0,
+    price: { min, max, histogram },
+    categories,
+    brands,
+    sellers,
+    attributes: [...attributes.values()],
+  };
+}
+
 export async function searchProducts(
   input: unknown,
   // `cookieFree` (with `locale` + `displayCurrency`) keeps this off the request
@@ -171,45 +400,8 @@ export async function searchProducts(
   const displayCurrency =
     opts?.displayCurrency ?? (await resolveDisplayCurrency(ctx!)).currency;
 
-  const conditions = [sql`p.deleted_at is null`, sql`p.status = 'active'`];
-  if (filters.category)
-    conditions.push(sql`exists (
-      with recursive tree as (
-        select id from shop.categories where slug = ${filters.category} and deleted_at is null
-        union all
-        select c.id from shop.categories c join tree on c.parent_id = tree.id where c.deleted_at is null
-      )
-      select 1 from shop.product_categories pc where pc.product_id = p.id and pc.category_id in (select id from tree)
-    )`);
-  if (filters.brand)
-    conditions.push(sql`exists (select 1 from shop.brands b where b.id = p.brand_id and b.slug = ${filters.brand})`);
-  if (filters.featuredOnly) conditions.push(sql`p.is_featured = true`);
-  if (filters.bestSellerOnly) conditions.push(sql`p.is_best_seller = true`);
-  if (filters.seller) conditions.push(sql`price_summary.min_price is not null`);
-  if (filters.discountedOnly)
-    conditions.push(sql`p.compare_at_price is not null and p.compare_at_price > coalesce(price_summary.min_price, p.base_price)`);
-  if (filters.slugs && filters.slugs.length) conditions.push(sql`p.slug = any(${filters.slugs})`);
-  if (filters.minRating > 0) conditions.push(sql`coalesce(review_summary.avg_rating, 0) >= ${filters.minRating}`);
-  if (filters.inStockOnly) conditions.push(sql`coalesce(price_summary.has_stock, false) = true`);
-  if (filters.q) {
-    const like = `%${filters.q}%`;
-    conditions.push(sql`(
-      p.search_vector @@ websearch_to_tsquery('simple', ${filters.q})
-      -- Match the name, short description and brand in every language, so a product is
-      -- found whichever language the visitor types in (not only the site's current one).
-      or exists (
-        select 1 from jsonb_each_text(case when jsonb_typeof(p.name_translations) = 'object' then p.name_translations else '{}'::jsonb end) t
-        where t.value ilike ${like})
-      or exists (
-        select 1 from jsonb_each_text(case when jsonb_typeof(p.short_description_translations) = 'object' then p.short_description_translations else '{}'::jsonb end) t
-        where t.value ilike ${like})
-      or exists (
-        select 1 from shop.brands b,
-          jsonb_each_text(case when jsonb_typeof(b.name_translations) = 'object' then b.name_translations else '{}'::jsonb end) t
-        where b.id = p.brand_id and t.value ilike ${like})
-    )`);
-  }
-  const whereSql = sql`where ${joinSql(conditions, sql` and `)}`;
+  const attrGroups = await attrGroupsOf(filters.attrs);
+  const whereSql = sql`where ${joinSql(productFilterConditions(filters, { sellerScope: "lateral", attrGroups }), sql` and `)}`;
   const offset = (filters.page - 1) * filters.pageSize;
 
   const rows = await sql<(RawProductRow & { total_count: number })[]>`

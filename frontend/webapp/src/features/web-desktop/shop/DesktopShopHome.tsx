@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { ArrowLeft, Heart, ShoppingBag } from "lucide-react";
+import { ArrowLeft, Heart, ShoppingBag, SlidersHorizontal } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 
 import type { HomeSection } from "@/features/shop/api/home.repository";
@@ -84,6 +84,30 @@ export async function DesktopShopHome({
               <div role="heading" aria-level={1} className="lsd-gold-text text-[42px] font-black leading-tight">{t("title")}</div>
               <div className="max-w-md">
                 <SearchBar defaultValue="" />
+              </div>
+              <div className="flex max-w-xl flex-wrap gap-2">
+                <Link
+                  href="/shop/search"
+                  className="inline-flex items-center gap-1.5 rounded-full bg-[#eacb7f] px-4 py-2 text-xs font-black text-[#062a20] shadow-[0_10px_24px_-12px_rgba(234,203,127,0.9)] transition hover:bg-[#f2d996]"
+                >
+                  <SlidersHorizontal size={14} />
+                  {t("filter.title")}
+                </Link>
+                {[
+                  { href: "/shop/search?onSale=1", label: t("onSale") },
+                  { href: "/shop/search?inStockOnly=1", label: t("inStockOnly") },
+                  { href: "/shop/search?sort=newest", label: t("sortNewest") },
+                  { href: "/shop/search?sort=price_asc", label: t("sortPriceAsc") },
+                  { href: "/shop/search?minRating=4", label: t("rating4plus") },
+                ].map((chip) => (
+                  <Link
+                    key={chip.href}
+                    href={chip.href}
+                    className="rounded-full bg-white/10 px-4 py-2 text-xs font-semibold text-white ring-1 ring-white/20 backdrop-blur-sm transition hover:bg-white/20 hover:ring-[#eacb7f]/60"
+                  >
+                    {chip.label}
+                  </Link>
+                ))}
               </div>
               <div className="flex items-center gap-2">
                 <CurrencySwitcher />

@@ -43,6 +43,32 @@ type SectionRow = {
 
 const RAIL_LIMIT = 12;
 
+async function spreadByCategory(items: ProductCard[], limit: number): Promise<ProductCard[]> {
+  if (items.length <= 1) return items.slice(0, limit);
+  const rows = await sql<{ id: string; root: string | null }[]>`
+    select p.id::text as id, coalesce(c.parent_id, c.id)::text as root
+    from shop.products p
+    left join shop.categories c on c.id = p.primary_category_id
+    where p.id = any(${items.map((p) => p.id)}::uuid[])
+  `;
+  const rootOf = new Map(rows.map((r) => [r.id, r.root ?? "none"]));
+  const queues = new Map<string, ProductCard[]>();
+  for (const item of items) {
+    const key = rootOf.get(item.id) ?? "none";
+    queues.set(key, [...(queues.get(key) ?? []), item]);
+  }
+  const lists = [...queues.values()];
+  const out: ProductCard[] = [];
+  while (out.length < limit && lists.some((list) => list.length)) {
+    for (const list of lists) {
+      const next = list.shift();
+      if (next) out.push(next);
+      if (out.length >= limit) break;
+    }
+  }
+  return out;
+}
+
 export async function getShopHome(opts?: {
   locale?: string;
   // Skip the cookie read. `displayCurrency` pins the rail prices to a known
@@ -161,6 +187,7 @@ export async function getShopHome(opts?: {
           break;
         case "new_arrival":
           filters.sort = "newest";
+          filters.pageSize = 60;
           viewAllHref = "/shop/search?sort=newest";
           break;
         case "discounted":
@@ -177,6 +204,7 @@ export async function getShopHome(opts?: {
       }
       let { items } = await searchProducts(filters, { locale: lang, displayCurrency: currency, cookieFree, noFx: opts?.noFx });
       if (row.query_source === "discounted") items = items.filter((p) => p.hasDiscount);
+      if (row.query_source === "new_arrival") items = await spreadByCategory(items, RAIL_LIMIT);
       if (items.length) {
         sections.push({
           key: row.key,

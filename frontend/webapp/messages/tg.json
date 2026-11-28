@@ -13673,6 +13673,25 @@
     "confirm": "Истифодаи файлҳои интихобшуда"
   },
   "Shop": {
+    "filter": {
+      "title": "Филтрҳо",
+      "category": "Категория",
+      "brand": "Бренд",
+      "seller": "Фурӯшанда",
+      "price": "Доираи нарх",
+      "quick": "Филтрҳои зуд",
+      "searchIn": "Ҷустуҷӯ дар {name}",
+      "showAll": "Ҳамаро нишон диҳед ({count})",
+      "showLess": "Камтар",
+      "clearAll": "Ҳамаро тоза кунед",
+      "showResults": "Нишон додани {count} мол",
+      "sort": "Тартиб",
+      "from": "Аз",
+      "to": "То",
+      "noOptions": "Интихоб нест",
+      "close": "Пӯшидан",
+      "sortBestSeller": "Серхаридор"
+    },
     "checkoutHints": {
       "completeToPay": "Барои пардохт ин маълумотро пур кунед:",
       "required": "{field}-ро ворид кунед.",

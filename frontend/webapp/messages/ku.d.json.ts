@@ -13650,6 +13650,25 @@ declare const messages: {
     }
   },
   "Shop": {
+    "filter": {
+      "title": "فلتەرەکان",
+      "category": "پۆل",
+      "brand": "براند",
+      "seller": "فرۆشیار",
+      "price": "مەودای نرخ",
+      "quick": "فلتەری خێرا",
+      "searchIn": "گەڕان لە {name}",
+      "showAll": "هەمووی پیشان بدە ({count})",
+      "showLess": "کەمتر پیشان بدە",
+      "clearAll": "سڕینەوەی هەموو",
+      "showResults": "پیشاندانی {count} کاڵا",
+      "sort": "ڕیزکردن",
+      "from": "لە",
+      "to": "بۆ",
+      "noOptions": "هیچ بژاردەیەک نییە",
+      "close": "داخستن",
+      "sortBestSeller": "زۆرترین فرۆشراو"
+    },
     "checkoutHints": {
       "completeToPay": "بۆ پارەدان ئەمانە تەواو بکە:",
       "required": "{field} پڕ بکەرەوە.",

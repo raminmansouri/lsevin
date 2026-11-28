@@ -8,13 +8,11 @@ import { absoluteUrl } from "@/lib/seo/alternates";
 import { breadcrumbList, graph } from "@/lib/seo/entity-schema";
 import { JsonLd } from "@/lib/seo/json-ld";
 import { publicMediaUrl } from "@/lib/seo/media-url";
-import {
-  getShopBrandsCached,
-  getShopCategoriesCached,
-} from "@/features/shop/api/catalog.repository.cached";
-import { searchProducts } from "@/features/shop/api/catalog.repository";
+import { getShopCategoriesCached } from "@/features/shop/api/catalog.repository.cached";
+import { getShopFacetsAction, searchShopProductsAction } from "@/features/shop/actions/catalog.actions";
 import { ShopHeader } from "@/features/shop/components/ShopHeader";
-import { ProductListViewClient } from "@/features/shop/components/ProductListViewClient";
+import { ShopCatalog } from "@/features/shop/components/catalog/ShopCatalog";
+import { parseShopFilters, shopFiltersInput } from "@/features/shop/lib/catalog-filters";
 import { ShopViewTracker } from "@/features/shop/components/ShopViewTracker";
 import { shopImageSrc } from "@/features/shop/lib/image";
 import { Link } from "@/i18n/navigation";
@@ -46,10 +44,13 @@ export async function generateMetadata({
 
 export default async function ShopCategoryPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string; slug: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const { locale, slug } = await params;
+  const sp = await searchParams;
   setRequestLocale(locale);
 
   const categories = await getShopCategoriesCached(locale).catch(() => []);
@@ -58,12 +59,21 @@ export default async function ShopCategoryPage({
   const parent = category.parentId ? categories.find((c) => c.id === category.parentId) ?? null : null;
   const children = categories.filter((c) => c.parentId === category.id);
 
-  const [brands, feed] = await Promise.all([
-    getShopBrandsCached(locale, slug).catch(() => []),
-    searchProducts(
-      { category: slug, sort: "popularity", page: 1, pageSize: 24 },
-      { locale, displayCurrency: "USD", cookieFree: true, noFx: true },
-    ).catch(() => ({ items: [], total: 0, page: 1, pageSize: 24 })),
+  const filters = parseShopFilters((key) => {
+    const value = sp[key];
+    return Array.isArray(value) ? value[0] : value;
+  });
+  const input = shopFiltersInput(filters, { category: slug }, locale, 24);
+  const [feed, facets] = await Promise.all([
+    searchShopProductsAction(input).catch(() => ({ items: [], total: 0, page: 1, pageSize: 24 })),
+    getShopFacetsAction({ ...input, fixedCategory: true }).catch(() => ({
+      total: 0,
+      price: { min: 0, max: 0, histogram: [] },
+      categories: [],
+      brands: [],
+      sellers: [],
+      attributes: [],
+    })),
   ]);
 
   const t = await getTranslations("Shop");
@@ -71,7 +81,7 @@ export default async function ShopCategoryPage({
   const categoryUrl = absoluteUrl(locale, `/shop/${encodeURIComponent(slug)}`);
 
   return (
-    <div className="min-h-screen bg-neutral-50">
+    <div data-shop-cream="" className="min-h-screen bg-neutral-50 xl:bg-[#f7f2e7] xl:pb-10">
       <JsonLd
         data={graph(
           {
@@ -125,14 +135,15 @@ export default async function ShopCategoryPage({
         </nav>
       ) : null}
       <Suspense fallback={null}>
-        <ProductListViewClient
+        <ShopCatalog
           locale={locale}
           basePath={`/shop/${slug}`}
           fixed={{ category: slug }}
           heading={category.name}
-          brands={brands}
+          initialFilters={filters}
           initialItems={feed.items}
           initialTotal={feed.total}
+          initialFacets={facets}
         />
       </Suspense>
     </div>

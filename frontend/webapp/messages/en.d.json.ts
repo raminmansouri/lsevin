@@ -16609,6 +16609,25 @@ declare const messages: {
     }
   },
   "Shop": {
+    "filter": {
+      "title": "Filters",
+      "category": "Category",
+      "brand": "Brand",
+      "seller": "Seller",
+      "price": "Price range",
+      "quick": "Quick filters",
+      "searchIn": "Search {name}",
+      "showAll": "Show all ({count})",
+      "showLess": "Show less",
+      "clearAll": "Clear all",
+      "showResults": "Show {count} products",
+      "sort": "Sort",
+      "from": "From",
+      "to": "To",
+      "noOptions": "Nothing here",
+      "close": "Close",
+      "sortBestSeller": "Best selling"
+    },
     "checkoutHints": {
       "completeToPay": "Complete these items to pay:",
       "required": "Enter {field}.",

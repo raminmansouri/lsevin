@@ -1,12 +1,13 @@
 import { setRequestLocale } from "next-intl/server";
 
-import { getShopBrands } from "@/features/shop/api/catalog.repository";
 import { getCartView } from "@/features/shop/api/cart.repository";
-import { resolveDisplayCurrency } from "@/features/shop/lib/pricing";
-import { getShopContext } from "@/features/shop/lib/context";
+import { getShopFacetsAction, searchShopProductsAction } from "@/features/shop/actions/catalog.actions";
+import { ShopCatalog } from "@/features/shop/components/catalog/ShopCatalog";
 import { ShopHeader } from "@/features/shop/components/ShopHeader";
-import { ProductListView } from "@/features/shop/components/ProductListView";
 import { emitCommerceEvent } from "@/features/shop/lib/analytics";
+import { parseShopFilters, shopFiltersInput } from "@/features/shop/lib/catalog-filters";
+import { getShopContext } from "@/features/shop/lib/context";
+import { resolveDisplayCurrency } from "@/features/shop/lib/pricing";
 
 export const dynamic = "force-dynamic";
 
@@ -20,14 +21,25 @@ export default async function ShopSearchPage({
   const { locale } = await params;
   setRequestLocale(locale);
   const sp = await searchParams;
-  const q = Array.isArray(sp.q) ? sp.q[0] : sp.q;
+  const one = (key: string) => {
+    const value = sp[key];
+    return Array.isArray(value) ? value[0] : value;
+  };
+  const q = one("q");
+  const filters = parseShopFilters(one);
+  const input = shopFiltersInput(filters, {}, locale, 24);
 
-  const [cart, ctx, brands] = await Promise.all([getCartView(), getShopContext(), getShopBrands(locale)]);
+  const [cart, ctx, results, facets] = await Promise.all([
+    getCartView(),
+    getShopContext(),
+    searchShopProductsAction(input),
+    getShopFacetsAction({ ...input, fixedCategory: false }),
+  ]);
   const { currency, selectable } = await resolveDisplayCurrency(ctx);
   if (q) await emitCommerceEvent("shop_search", { surface: "search", extra: { q } });
 
   return (
-    <div className="min-h-screen bg-neutral-50">
+    <div data-shop-cream="" className="min-h-screen bg-neutral-50 xl:bg-[#f7f2e7] xl:pb-10">
       <ShopHeader
         cartCount={cart.itemCount}
         searchDefault={q ?? ""}
@@ -35,7 +47,16 @@ export default async function ShopSearchPage({
         selectableCurrencies={selectable.map((s) => ({ code: s.code, symbol: s.symbol, name: s.name }))}
         back="/shop"
       />
-      <ProductListView locale={locale} basePath="/shop/search" searchParams={sp} brands={brands} />
+      <ShopCatalog
+        key={q ?? ""}
+        locale={locale}
+        basePath="/shop/search"
+        fixed={{}}
+        initialFilters={filters}
+        initialItems={results.items}
+        initialTotal={results.total}
+        initialFacets={facets}
+      />
     </div>
   );
 }

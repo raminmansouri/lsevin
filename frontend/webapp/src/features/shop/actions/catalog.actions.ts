@@ -1,6 +1,6 @@
 "use server";
 
-import { searchProducts } from "../api/catalog.repository";
+import { getShopFacets, searchProducts, type ShopFacets } from "../api/catalog.repository";
 import type { ProductCard } from "../types/domain";
 
 export type ShopProductSearchInput = {
@@ -9,21 +9,20 @@ export type ShopProductSearchInput = {
   q?: string;
   brand?: string;
   seller?: string;
-  sort?: "popularity" | "newest" | "price_asc" | "price_desc" | "rating";
+  sellers?: string;
+  attrs?: string;
+  sort?: "popularity" | "newest" | "price_asc" | "price_desc" | "rating" | "low_stock";
   page?: number;
   pageSize?: number;
   inStockOnly?: boolean;
   discountedOnly?: boolean;
+  featuredOnly?: boolean;
+  bestSellerOnly?: boolean;
   minRating?: number;
   minPrice?: number;
   maxPrice?: number;
 };
 
-/**
- * Client-driven product search for statically-rendered list pages (the shop
- * category page). Runs cookie-free and returns prices in each item's own stored
- * currency (`noFx`) so `<ShopPrice>` in the cards converts on the client.
- */
 export async function searchShopProductsAction(
   input: ShopProductSearchInput,
 ): Promise<{ items: ProductCard[]; total: number; page: number; pageSize: number }> {
@@ -34,4 +33,9 @@ export async function searchShopProductsAction(
     cookieFree: true,
     noFx: true,
   });
+}
+
+export async function getShopFacetsAction(input: ShopProductSearchInput & { fixedCategory?: boolean }): Promise<ShopFacets> {
+  const { locale, fixedCategory, page: _page, pageSize: _pageSize, sort: _sort, ...filters } = input;
+  return getShopFacets(filters, { locale, fixedCategory });
 }

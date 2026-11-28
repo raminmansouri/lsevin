@@ -16628,6 +16628,25 @@
     }
   },
   "Shop": {
+    "filter": {
+      "title": "فیلترها",
+      "category": "دسته‌بندی",
+      "brand": "برند",
+      "seller": "فروشنده",
+      "price": "محدودهٔ قیمت",
+      "quick": "فیلترهای سریع",
+      "searchIn": "جستجو در {name}",
+      "showAll": "نمایش همه ({count})",
+      "showLess": "نمایش کمتر",
+      "clearAll": "حذف همه",
+      "showResults": "نمایش {count} کالا",
+      "sort": "مرتب‌سازی",
+      "from": "از",
+      "to": "تا",
+      "noOptions": "گزینه‌ای نیست",
+      "close": "بستن",
+      "sortBestSeller": "پرفروش‌ترین"
+    },
     "checkoutHints": {
       "completeToPay": "برای پرداخت این موارد را تکمیل کنید:",
       "required": "{field} را وارد کنید.",

@@ -6037,6 +6037,25 @@ declare const messages: {
     "featured": "Öne çıkan"
   },
   "Shop": {
+    "filter": {
+      "title": "Filtreler",
+      "category": "Kategori",
+      "brand": "Marka",
+      "seller": "Satıcı",
+      "price": "Fiyat aralığı",
+      "quick": "Hızlı filtreler",
+      "searchIn": "{name} içinde ara",
+      "showAll": "Tümünü göster ({count})",
+      "showLess": "Daha az göster",
+      "clearAll": "Tümünü temizle",
+      "showResults": "{count} ürünü göster",
+      "sort": "Sırala",
+      "from": "En az",
+      "to": "En çok",
+      "noOptions": "Seçenek yok",
+      "close": "Kapat",
+      "sortBestSeller": "En çok satanlar"
+    },
     "checkoutHints": {
       "completeToPay": "Ödeme için bunları tamamlayın:",
       "required": "{field} girin.",

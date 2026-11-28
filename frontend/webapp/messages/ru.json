@@ -13813,6 +13813,25 @@
     "confirm": "Использовать выбранные файлы"
   },
   "Shop": {
+    "filter": {
+      "title": "Фильтры",
+      "category": "Категория",
+      "brand": "Бренд",
+      "seller": "Продавец",
+      "price": "Диапазон цен",
+      "quick": "Быстрые фильтры",
+      "searchIn": "Поиск: {name}",
+      "showAll": "Показать все ({count})",
+      "showLess": "Свернуть",
+      "clearAll": "Сбросить все",
+      "showResults": "Показать товары: {count}",
+      "sort": "Сортировка",
+      "from": "От",
+      "to": "До",
+      "noOptions": "Нет вариантов",
+      "close": "Закрыть",
+      "sortBestSeller": "Хиты продаж"
+    },
     "checkoutHints": {
       "completeToPay": "Заполните эти данные для оплаты:",
       "required": "Введите {field}.",

@@ -54,7 +54,7 @@ export async function listAdminProducts(q?: string) {
       p.is_featured, p.is_best_seller, p.is_new_arrival,
       p.published_at::text as published_at,
       (
-        coalesce((select sum(greatest(i.on_hand - i.reserved, 0))::int from shop.inventory i where i.product_id = p.id), 0)
+        0
         + coalesce((
             select sum(o.stock_quantity)::int
             from shop.offers o join shop.sellers s on s.id = o.seller_id
@@ -85,7 +85,7 @@ export async function listAdminProductsPage(q?: string, page = 1, pageSize = 50)
       p.is_featured, p.is_best_seller, p.is_new_arrival,
       p.published_at::text as published_at,
       (
-        coalesce((select sum(greatest(i.on_hand - i.reserved, 0))::int from shop.inventory i where i.product_id = p.id), 0)
+        0
         + coalesce((
             select sum(o.stock_quantity)::int
             from shop.offers o join shop.sellers s on s.id = o.seller_id

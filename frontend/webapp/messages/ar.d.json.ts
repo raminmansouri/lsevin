@@ -14559,6 +14559,25 @@ declare const messages: {
     }
   },
   "Shop": {
+    "filter": {
+      "title": "الفلاتر",
+      "category": "الفئة",
+      "brand": "العلامة التجارية",
+      "seller": "البائع",
+      "price": "نطاق السعر",
+      "quick": "فلاتر سريعة",
+      "searchIn": "ابحث في {name}",
+      "showAll": "عرض الكل ({count})",
+      "showLess": "عرض أقل",
+      "clearAll": "مسح الكل",
+      "showResults": "عرض {count} منتج",
+      "sort": "الترتيب",
+      "from": "من",
+      "to": "إلى",
+      "noOptions": "لا توجد خيارات",
+      "close": "إغلاق",
+      "sortBestSeller": "الأكثر مبيعًا"
+    },
     "checkoutHints": {
       "completeToPay": "أكمل هذه العناصر للدفع:",
       "required": "أدخل {field}.",

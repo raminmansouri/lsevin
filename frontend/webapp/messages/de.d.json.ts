@@ -13650,6 +13650,25 @@ declare const messages: {
     }
   },
   "Shop": {
+    "filter": {
+      "title": "Filter",
+      "category": "Kategorie",
+      "brand": "Marke",
+      "seller": "Verkäufer",
+      "price": "Preisspanne",
+      "quick": "Schnellfilter",
+      "searchIn": "In {name} suchen",
+      "showAll": "Alle anzeigen ({count})",
+      "showLess": "Weniger anzeigen",
+      "clearAll": "Alle löschen",
+      "showResults": "{count} Produkte anzeigen",
+      "sort": "Sortieren",
+      "from": "Von",
+      "to": "Bis",
+      "noOptions": "Keine Optionen",
+      "close": "Schließen",
+      "sortBestSeller": "Bestseller"
+    },
     "checkoutHints": {
       "completeToPay": "Zum Bezahlen bitte ergänzen:",
       "required": "{field} eingeben.",

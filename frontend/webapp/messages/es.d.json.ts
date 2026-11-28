@@ -13653,6 +13653,25 @@ declare const messages: {
     }
   },
   "Shop": {
+    "filter": {
+      "title": "Filtros",
+      "category": "Categoría",
+      "brand": "Marca",
+      "seller": "Vendedor",
+      "price": "Rango de precio",
+      "quick": "Filtros rápidos",
+      "searchIn": "Buscar en {name}",
+      "showAll": "Ver todo ({count})",
+      "showLess": "Ver menos",
+      "clearAll": "Borrar todo",
+      "showResults": "Ver {count} productos",
+      "sort": "Ordenar",
+      "from": "Desde",
+      "to": "Hasta",
+      "noOptions": "Sin opciones",
+      "close": "Cerrar",
+      "sortBestSeller": "Más vendidos"
+    },
     "checkoutHints": {
       "completeToPay": "Complete estos datos para pagar:",
       "required": "Introduzca {field}.",
