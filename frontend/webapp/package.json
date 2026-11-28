@@ -42,7 +42,8 @@
     "search:worker": "node scripts/search-index.mjs --loop 30",
     "search:rebuild": "node scripts/search-index.mjs --full",
     "search:report": "node scripts/search-report.mjs",
-    "test:search": "vitest run src/features/search"
+    "test:search": "vitest run src/features/search",
+    "assistant:index:local": "node scripts/index-assistant-knowledge.mjs --local"
   },
   "dependencies": {
     "@ai-sdk/langchain": "^3.0.128",

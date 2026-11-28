@@ -5,6 +5,11 @@
  * Only new or changed chunks are embedded; chunks whose content is gone are deleted.
  *
  * Usage (from frontend/webapp):  pnpm assistant:index
+ *
+ * Embedding model: OpenAI by default. With --local (or ASSISTANT_EMBEDDINGS=local) the
+ * self-hosted multilingual-e5-small service (EMBEDDING_URL) is used instead and the
+ * vectors go to embedding_local, so no external API is needed. The OpenAI column is kept
+ * (rollback): run once in each mode and switch with ASSISTANT_EMBEDDINGS on the web app.
  */
 import { createHash } from "node:crypto";
 
@@ -17,9 +22,12 @@ try {
 }
 
 const { DATABASE_URL, OPENAI_API_KEY } = process.env;
+const LOCAL = process.argv.includes("--local") || process.env.ASSISTANT_EMBEDDINGS === "local";
+const EMBEDDING_URL = (process.env.EMBEDDING_URL ?? "http://127.0.0.1:8089").replace(/\/$/, "");
+const LOCAL_MODEL = process.env.EMBEDDING_MODEL ?? "Xenova/multilingual-e5-small";
 const MODEL = process.env.OPENAI_EMBEDDING_MODEL ?? "text-embedding-3-small";
-if (!DATABASE_URL || !OPENAI_API_KEY) {
-  console.error("DATABASE_URL and OPENAI_API_KEY are required (frontend/webapp/.env.local).");
+if (!DATABASE_URL || (!LOCAL && !OPENAI_API_KEY)) {
+  console.error(LOCAL ? "DATABASE_URL is required." : "DATABASE_URL and OPENAI_API_KEY are required (frontend/webapp/.env.local).");
   process.exit(1);
 }
 
@@ -156,7 +164,21 @@ async function collect() {
   }
 }
 
+async function embedLocal(texts) {
+  const response = await fetch(`${EMBEDDING_URL}/embed`, {
+    method: "POST",
+    headers: { "content-type": "application/json", ...(process.env.EMBEDDING_API_KEY ? { authorization: `Bearer ${process.env.EMBEDDING_API_KEY}` } : {}) },
+    body: JSON.stringify({ texts: texts.map((text) => text.slice(0, 2000)), kind: "passage" }),
+    signal: AbortSignal.timeout(120_000),
+  });
+  if (!response.ok) throw new Error(`embedding service ${response.status}`);
+  const json = await response.json();
+  if (json.model !== LOCAL_MODEL) throw new Error(`embedding service runs ${json.model}, expected ${LOCAL_MODEL}`);
+  return json.vectors;
+}
+
 async function embed(texts) {
+  if (LOCAL) return embedLocal(texts);
   const response = await fetch("https://api.openai.com/v1/embeddings", {
     method: "POST",
     headers: { Authorization: `Bearer ${OPENAI_API_KEY}`, "Content-Type": "application/json" },
@@ -173,10 +195,16 @@ async function main() {
 
   const keyOf = (type, id, locale, contentHash) => `${type}|${id}|${locale}|${contentHash}`;
   const existing = await sql`
-    select id::text as id, source_type, source_id::text as source_id, locale, content_hash
+    select id::text as id, source_type, source_id::text as source_id, locale, content_hash,
+           embedding is not null as has_openai, embedding_local is not null as has_local
     from ai.knowledge_chunks
   `;
-  const existingKeys = new Set(existing.map((row) => keyOf(row.source_type, row.source_id, row.locale, row.content_hash)));
+  // A chunk is "done" when it already has the embedding of the mode being run.
+  const existingKeys = new Set(
+    existing
+      .filter((row) => (LOCAL ? row.has_local : row.has_openai))
+      .map((row) => keyOf(row.source_type, row.source_id, row.locale, row.content_hash)),
+  );
 
   const wanted = new Set();
   const toEmbed = [];
@@ -187,18 +215,30 @@ async function main() {
     if (!existingKeys.has(key)) toEmbed.push(chunk);
   }
 
-  console.log(`${chunks.length} chunks from site content, ${toEmbed.length} new or changed to embed.`);
+  console.log(`${chunks.length} chunks from site content, ${toEmbed.length} new or changed to embed (${LOCAL ? `local ${LOCAL_MODEL}` : "OpenAI"}).`);
 
   for (let i = 0; i < toEmbed.length; i += BATCH) {
     const batch = toEmbed.slice(i, i + BATCH);
     const vectors = await embed(batch.map((chunk) => `${chunk.title}\n${chunk.content}`));
     for (const [index, chunk] of batch.entries()) {
-      await sql`
-        insert into ai.knowledge_chunks (source_type, source_id, locale, title, content, url, content_hash, embedding)
-        values (${chunk.sourceType}, ${chunk.sourceId}::uuid, ${chunk.locale}, ${chunk.title}, ${chunk.content},
-          ${chunk.url}, ${chunk.hash}, ${`[${vectors[index].join(",")}]`}::vector)
-        on conflict do nothing
-      `;
+      const literal = `[${vectors[index].join(",")}]`;
+      if (LOCAL) {
+        await sql`
+          insert into ai.knowledge_chunks (source_type, source_id, locale, title, content, url, content_hash, embedding_local, embedding_model)
+          values (${chunk.sourceType}, ${chunk.sourceId}::uuid, ${chunk.locale}, ${chunk.title}, ${chunk.content},
+            ${chunk.url}, ${chunk.hash}, ${literal}::halfvec, ${LOCAL_MODEL})
+          on conflict (source_type, source_id, locale, content_hash)
+          do update set embedding_local = excluded.embedding_local, embedding_model = excluded.embedding_model, updated_at = now()
+        `;
+      } else {
+        await sql`
+          insert into ai.knowledge_chunks (source_type, source_id, locale, title, content, url, content_hash, embedding)
+          values (${chunk.sourceType}, ${chunk.sourceId}::uuid, ${chunk.locale}, ${chunk.title}, ${chunk.content},
+            ${chunk.url}, ${chunk.hash}, ${literal}::vector)
+          on conflict (source_type, source_id, locale, content_hash)
+          do update set embedding = excluded.embedding, updated_at = now()
+        `;
+      }
     }
     console.log(`  embedded ${Math.min(i + BATCH, toEmbed.length)} / ${toEmbed.length}`);
   }
